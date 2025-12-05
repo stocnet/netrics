@@ -1,0 +1,52 @@
+# nocov start
+.onAttach <- function(...) {
+
+  # suppressMessages(suppressPackageStartupMessages(library("manynet", warn.conflicts = FALSE)))
+  if (!interactive()) return()
+  
+  # options(snet_verbosity = getOption("snet_verbosity", "verbose"))
+  options(manynet_theme = getOption("manynet_theme", "default"))
+  
+  # pkgs <- as.data.frame(utils::available.packages(utils::contrib.url(getOption("repos"))))
+  # 
+  # cran_version <- pkgs[pkgs$Package == "manynet","Version"]
+
+  local_version <- utils::packageVersion("netrics")
+  cli::cli_inform("You are using {.pkg netrics} version {.version {local_version}}.", 
+                  class = "packageStartupMessage")
+  old.list <- as.data.frame(utils::old.packages())
+  behind_cran <- "netrics" %in% old.list$Package
+  
+  greet_startup_cli <- function() {
+    tips <- c(
+      "i" = "There are lots of ways to contribute to {.pkg manynet} at {.url https://github.com/stocnet/netrics/}.",
+      "i" = "Please share bugs, issues, or feature requests at {.url https://github.com/stocnet/netrics/issues}. It's really helpful!",
+      # "i" = "To suppress package startup messages, use: `suppressPackageStartupMessages(library({.pkg netrics}))`.",
+      # "i" = "Changing the theme of all your graphs is straightforward with `set_manynet_theme()`",
+      # "i" = "If too many messages appear in the console, run `options(snet_verbosity = 'quiet')`",
+      "i" = "Explore the changes since the last version with {.code news(package = 'netrics')}.",
+      "i" = "Visit the website to learn more: {.url https://stocnet.github.io/netrics/}.",
+      "i" = "The 'Function Overview' may suggest new analytic opportunities: {.url https://stocnet.github.io/netrics/reference/index.html}."
+      # "i" = "Discover {.emph stocnet} R packages at {.url https://github.com/stocnet/}."
+      # "i" = "Star me at {.url https://github.com/users/follow?target=jhollway}.",
+      # "i" = "You can list all the tutorials available in {.pkg netrics} using {.fn run_tute}, and run them too!"
+    )
+    manynet::snet_info(sample(tips, 1), class = "packageStartupMessage")
+  }
+
+  if (interactive()) {
+    if (behind_cran) {
+      msg <- "A new version of netrics is available with bug fixes and new features."
+      packageStartupMessage(msg, "\nWould you like to install it?")
+      if (utils::menu(c("Yes", "No")) == 1) {
+        utils::update.packages("netrics")
+      }
+    } else {
+      greet_startup_cli()
+      # packageStartupMessage(paste(strwrap(tip), collapse = "\n"))
+    }
+  }
+
+}
+
+# nocov end
