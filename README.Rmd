@@ -1,0 +1,38 @@
+---
+output: github_document
+---
+
+<!-- README.md is generated from README.Rmd. Please edit that file -->
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  fig.path = "man/figures/README-",
+  out.width = "100%"
+)
+library(netrics)
+list_functions <- function(string){
+  paste0("`", paste(paste0(ls("package:netrics")[grepl(string, ls("package:netrics"))], "()"), collapse = "`, `"), "`")
+}
+list_data <- function(string){
+  paste0("`", paste(paste0(ls("package:netrics")[grepl(string, ls("package:netrics"))]), collapse = "`, `"), "`")
+}
+```
+
+# netrics 
+<img src="man/figures/logo.png" align="right" alt="netrics logo" width="150"/>
+
+<!-- badges: start -->
+[![Lifecycle: maturing](https://img.shields.io/badge/lifecycle-maturing-blue.svg)](https://lifecycle.r-lib.org/articles/stages.html#maturing)
+![CRAN/METACRAN](https://img.shields.io/cran/v/netrics)
+![GitHub release (latest by date)](https://img.shields.io/github/v/release/stocnet/netrics)
+![GitHub Release Date](https://img.shields.io/github/release-date/stocnet/netrics)
+[![Codecov test coverage](https://codecov.io/gh/stocnet/netrics/branch/main/graph/badge.svg)](https://app.codecov.io/gh/stocnet/netrics?branch=main)
+<!-- [![CodeFactor](https://www.codefactor.io/repository/github/stocnet/manynet/badge)](https://www.codefactor.io/repository/github/stocnet/manynet) -->
+<!-- [![CII Best Practices](https://bestpractices.coreinfrastructure.org/projects/4559/badge)](https://bestpractices.coreinfrastructure.org/projects/4559) -->
+<!-- [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.7076396.svg)](https://doi.org/10.5281/zenodo.7076396) -->
+<!-- see https://zenodo.org/record/7076396 -->
+<!-- ![GitHub All Releases](https://img.shields.io/github/downloads/stocnet/migraph/total) -->
+<!-- badges: end -->
+
