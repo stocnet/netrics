@@ -32,6 +32,7 @@
 NULL
 
 #' @rdname measure_features
+#' @param mark A logical vector indicating which nodes belong to the core.
 #' @param method Which method of the following to use to calculate the fit of
 #'   the core assignment to a core-periphery model.
 #'   "correlation" calculates the correlation between the empirical network and
@@ -65,11 +66,11 @@ net_by_core <- function(.data,
   
   method <- match.arg(method)
   if(method == "correlation"){
-    out <- stats::cor(c(as_matrix(.data)), 
-                      c(as_matrix(create_core(.data, mark = mark))))
+    out <- stats::cor(c(manynet::as_matrix(.data)), 
+                      c(manynet::as_matrix(manynet::create_core(.data, mark = mark))))
   } else if(method == "ident"){
     out <- sqrt(sum((manynet::as_matrix(.data) - 
-                       manynet::as_matrix(create_core(.data, mark = mark)))^2))
+                       manynet::as_matrix(manynet::create_core(.data, mark = mark)))^2))
   } else if(method %in% c("ndiff","diff")){
     # Sort nodes by coreness
     c_scores <- node_by_coreness(.data)
@@ -277,29 +278,29 @@ net_by_smallworld <- function(.data,
   method <- match.arg(method)
   
   if(manynet::is_twomode(.data)){
-    co <- net_equivalency(.data)
+    co <- net_by_equivalency(.data)
     cr <- mean(vapply(1:times, 
-                      function(x) net_equivalency(manynet::generate_random(.data)),
+                      function(x) net_by_equivalency(manynet::generate_random(.data)),
                       FUN.VALUE = numeric(1)))
     if(method %in% c("omega", "SWI")){
-      cl <- net_equivalency(manynet::create_ring(.data))
+      cl <- net_by_equivalency(manynet::create_ring(.data))
     }
   } else {
-    co <- net_transitivity(.data)
+    co <- net_by_transitivity(.data)
     cr <- mean(vapply(1:times, 
-                            function(x) net_transitivity(manynet::generate_random(.data)),
+                            function(x) net_by_transitivity(manynet::generate_random(.data)),
                             FUN.VALUE = numeric(1)))
     if(method %in% c("omega", "SWI")){
-      cl <- net_transitivity(manynet::create_lattice(.data))
+      cl <- net_by_transitivity(manynet::create_lattice(.data))
     }
   }
   
-  lo <- net_length(.data)
+  lo <- manynet::net_length(.data)
   lr <- mean(vapply(1:times, 
-                         function(x) net_length(manynet::generate_random(.data)),
+                         function(x) manynet::net_length(manynet::generate_random(.data)),
                          FUN.VALUE = numeric(1)))
   if(method == "SWI"){
-    ll <- net_length(manynet::create_ring(.data))
+    ll <- manynet::net_length(manynet::create_ring(.data))
   }
   
   out <- switch(method,
@@ -340,7 +341,7 @@ net_by_smallworld <- function(.data,
 #' @export
 net_by_scalefree <- function(.data){
   .data <- manynet::expect_nodes(.data)
-  out <- igraph::fit_power_law(node_deg(.data))
+  out <- igraph::fit_power_law(node_by_deg(.data))
   if ("KS.p" %in% names(out)) {
     if(out$KS.p < 0.05) 
       cat(paste("Note: Kolgomorov-Smirnov test that data",
@@ -365,7 +366,7 @@ net_by_scalefree <- function(.data){
 #' _Psychological Review_, 63(5): 277-293.
 #' \doi{10.1037/h0046049}
 #' @examples
-#' net_by_balance(ison_marvel_relationships)
+#' net_by_balance(fict_marvel)
 #' @export
 net_by_balance <- function(.data) {
   
@@ -380,7 +381,7 @@ net_by_balance <- function(.data) {
     }
     eattrV <- igraph::edge_attr(g, "sign")
     if (!all(eattrV %in% c(-1, 1))) {
-      smanynet::net_abort("sign may only contain -1 and 1")
+      manynet::snet_abort("sign may only contain -1 and 1")
     }
     tmat <- t(matrix(igraph::triangles(g), nrow = 3))
     if (nrow(tmat) == 0) {
@@ -454,8 +455,8 @@ NULL
 net_by_waves <- function(.data){
   .data <- manynet::expect_nodes(.data)
   tie_waves <- length(unique(manynet::tie_attribute(.data, "wave")))
-  if(is_changing(.data)){
-    chltime <- as_changelist(.data)$time
+  if(manynet::is_changing(.data)){
+    chltime <- manynet::as_changelist(.data)$time
     chg_waves <- (max(chltime)+1) - max(min(chltime)-1, 0)
   } else chg_waves <- 0
   max(tie_waves, chg_waves)    
@@ -503,12 +504,12 @@ net_by_stability <- function(.data, object2){
 #' @export
 net_by_correlation <- function(.data, object2){
   .data <- manynet::expect_nodes(.data)
-  comp1 <- as_matrix(.data)
-  comp2 <- as_matrix(object2)
-  if(!is_complex(.data)){
+  comp1 <- manynet::as_matrix(.data)
+  comp2 <- manynet::as_matrix(object2)
+  if(!manynet::is_complex(.data)){
     diag(comp1) <- NA
   }
-  if(!is_directed(.data)){
+  if(!manynet::is_directed(.data)){
     comp1[upper.tri(comp1)] <- NA
   }
   out <- cor(c(comp1), c(comp2), use = "complete.obs")

@@ -156,7 +156,7 @@ where 1 indicates ties only between categories/groups and -1 ties only within ca
 \examples{
 net_by_richness(ison_networkers)
 node_by_richness(ison_networkers, "Discipline")
-marvel_friends <- to_unsigned(ison_marvel_relationships, "positive")
+marvel_friends <- to_unsigned(fict_marvel, "positive")
 net_by_diversity(marvel_friends, "Gender")
 net_by_diversity(marvel_friends, "Appearances")
 node_by_diversity(marvel_friends, "Gender")

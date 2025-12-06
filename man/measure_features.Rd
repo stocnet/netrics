@@ -37,6 +37,8 @@ net_by_balance(.data)
 For more information on the standard coercion possible,
 see \code{\link[manynet:manip_as]{manynet::as_tidygraph()}}.}
 
+\item{mark}{A logical vector indicating which nodes belong to the core.}
+
 \item{method}{There are three small-world measures implemented:
 \itemize{
 \item "sigma" is the original equation from Watts and Strogatz (1998),
@@ -139,7 +141,7 @@ net_by_smallworld(ison_southern_women)
 net_by_scalefree(ison_adolescents)
 net_by_scalefree(generate_scalefree(50, 1.5))
 net_by_scalefree(create_lattice(100))
-net_by_balance(ison_marvel_relationships)
+net_by_balance(fict_marvel)
 }
 \references{
 \subsection{On core-periphery}{

@@ -927,7 +927,7 @@ net_by_closeness <- function(.data, normalized = TRUE,
 #' @export
 net_by_reach <- function(.data, normalized = TRUE, cutoff = 2){
   .data <- manynet::expect_nodes(.data)
-  reaches <- node_reach(.data, normalized = FALSE, cutoff = cutoff)
+  reaches <- node_by_reach(.data, normalized = FALSE, cutoff = cutoff)
   out <- sum(max(reaches) - reaches)
   if(normalized) out <- out / sum(manynet::net_nodes(.data) - reaches)
   make_network_measure(out, .data)

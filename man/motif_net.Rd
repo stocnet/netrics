@@ -70,7 +70,7 @@ Graphs of these motifs can be shown using
 net_x_dyad(manynet::ison_algebra)
 net_x_triad(manynet::ison_adolescents)
 net_x_tetrad(ison_southern_women)
-marvel_friends <- to_unsigned(ison_marvel_relationships, "positive")
+marvel_friends <- to_unsigned(fict_marvel, "positive")
 (mixed_cen <- net_x_mixed(marvel_friends, ison_marvel_teams))
 }
 \references{

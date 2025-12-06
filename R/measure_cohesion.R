@@ -68,8 +68,8 @@ net_by_components <- function(.data){
 #' _Sociological Methodology_ 31(1): 305-59.
 #' \doi{10.1111/0081-1750.00098}
 #' @examples 
-#' net_by_cohesion(ison_marvel_relationships)
-#' net_by_cohesion(to_giant(ison_marvel_relationships))
+#' net_by_cohesion(fict_marvel)
+#' net_by_cohesion(to_giant(fict_marvel))
 #' @export
 net_by_cohesion <- function(.data){
   .data <- manynet::expect_nodes(.data)
@@ -80,8 +80,8 @@ net_by_cohesion <- function(.data){
 #' @rdname measure_cohesion 
 #' @importFrom igraph adhesion
 #' @examples 
-#' net_by_adhesion(ison_marvel_relationships)
-#' net_by_adhesion(to_giant(ison_marvel_relationships))
+#' net_by_adhesion(fict_marvel)
+#' net_by_adhesion(to_giant(fict_marvel))
 #' @export
 net_by_adhesion <- function(.data){
   .data <- manynet::expect_nodes(.data)
@@ -92,8 +92,8 @@ net_by_adhesion <- function(.data){
 #' @rdname measure_cohesion 
 #' @importFrom igraph diameter
 #' @examples 
-#' net_by_diameter(ison_marvel_relationships)
-#' net_by_diameter(to_giant(ison_marvel_relationships))
+#' net_by_diameter(fict_marvel)
+#' net_by_diameter(to_giant(fict_marvel))
 #' @export
 net_by_diameter <- function(.data){
   .data <- manynet::expect_nodes(.data)
@@ -106,8 +106,8 @@ net_by_diameter <- function(.data){
 #' @rdname measure_cohesion 
 #' @importFrom igraph mean_distance
 #' @examples 
-#' net_by_length(ison_marvel_relationships)
-#' net_by_length(to_giant(ison_marvel_relationships))
+#' net_by_length(fict_marvel)
+#' net_by_length(to_giant(fict_marvel))
 #' @export
 net_by_length <- function(.data){
   .data <- manynet::expect_nodes(.data)
@@ -140,7 +140,7 @@ net_by_strength <- function(.data){
   .data <- manynet::expect_nodes(.data)
   n <- manynet::net_ties(.data)
   seties <- unlist(lapply(1:n, utils::combn, x = 1:n, simplify = FALSE), recursive = FALSE)
-  out <- vapply(seties, function(x) length(x)/net_components(delete_ties(.data, x)), 
+  out <- vapply(seties, function(x) length(x)/net_by_components(manynet::delete_ties(.data, x)), 
                 FUN.VALUE = numeric(1))
   make_network_measure(min(out), .data, call = deparse(sys.call()))
 }
@@ -153,7 +153,7 @@ net_by_toughness <- function(.data){
   .data <- manynet::expect_nodes(.data)
   n <- manynet::net_nodes(.data)
   seties <- unlist(lapply(1:n, utils::combn, x = 1:n, simplify = FALSE), recursive = FALSE)
-  out <- vapply(seties, function(x) length(x)/net_components(delete_nodes(.data, x)), 
+  out <- vapply(seties, function(x) length(x)/net_by_components(manynet::delete_nodes(.data, x)), 
                 FUN.VALUE = numeric(1))
   make_network_measure(min(out), .data, call = deparse(sys.call()))
 }

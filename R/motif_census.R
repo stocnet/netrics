@@ -393,8 +393,8 @@ net_x_triad <- function(.data) {
 #' @export
 net_x_tetrad <- function(.data){
   .data <- manynet::expect_nodes(.data)
-  cmbs <- utils::combn(1:net_nodes(.data), 4)
-  mat <- as_matrix(to_onemode(.data))
+  cmbs <- utils::combn(1:manynet::net_nodes(.data), 4)
+  mat <- manynet::as_matrix(manynet::to_onemode(.data))
   dens <- apply(cmbs, 2, function(x) sum(mat[x,x]))
   
   E4 <- sum(dens == 0)
@@ -442,7 +442,7 @@ net_x_tetrad <- function(.data){
 #' _Network Science_ 5(2): 187–212.
 #' \doi{10.1017/nws.2017.8}
 #' @examples 
-#' marvel_friends <- to_unsigned(ison_marvel_relationships, "positive")
+#' marvel_friends <- to_unsigned(fict_marvel, "positive")
 #' (mixed_cen <- net_x_mixed(marvel_friends, ison_marvel_teams))
 #' @export
 net_x_mixed <- function (.data, object2) {
@@ -515,7 +515,7 @@ node_x_exposure <- function(.data){
     times <- diff_model$t
     out <- sapply(times, function(x){
       inf <- node_is_infected(diff_model, time = x)
-      if(sum(inf)==1) manynet::s_matrix(.data)[inf,] else
+      if(sum(inf)==1) manynet::as_matrix(.data)[inf,] else
         colSums(manynet::as_matrix(.data)[inf,])
     })
   } else {

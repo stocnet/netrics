@@ -136,7 +136,7 @@ node_by_richness <- function(.data, attribute){
 #'   Princeton: Princeton University Press. 
 #'   \doi{10.1515/9781400835140}
 #' @examples
-#' marvel_friends <- to_unsigned(ison_marvel_relationships, "positive")
+#' marvel_friends <- to_unsigned(fict_marvel, "positive")
 #' net_by_diversity(marvel_friends, "Gender")
 #' net_by_diversity(marvel_friends, "Appearances")
 #' @export
@@ -159,14 +159,14 @@ net_by_diversity <- function(.data, attribute,
   attr <- manynet::node_attribute(.data, attribute)
   method <- match.arg(method)
   if(is.numeric(attr) && method %in% c("blau","teachman")){
-    snet_info("{.val {method}} index is not appropriate for numeric attributes.")
-    snet_info("Using {.val variation} coefficient instead",
+    manynet::snet_info("{.val {method}} index is not appropriate for numeric attributes.")
+    manynet::snet_info("Using {.val variation} coefficient instead",
               "({.val gini} coefficient also available).")
     method <- "variation"
   }
   if(is.character(attr) && method %in% c("variation","gini")){
-    snet_info("{.val {method}} coefficient is not appropriate for categorical attributes.")
-    snet_info("Using {.val blau} index instead",
+    manynet::snet_info("{.val {method}} coefficient is not appropriate for categorical attributes.")
+    manynet::snet_info("Using {.val blau} index instead",
               "({.val teachman} index also available).")
     method <- "blau"
   }
@@ -302,17 +302,17 @@ net_by_homophily <- function(.data, attribute,
   }
   method <- match.arg(method)
   if(is.numeric(attribute) && method %in% c("ie","ei","yule")){
-    snet_info("{.val {method}} index is not appropriate for numeric attributes.")
-    snet_info("Using {.val geary}'s C instead.")
+    manynet::snet_info("{.val {method}} index is not appropriate for numeric attributes.")
+    manynet::snet_info("Using {.val geary}'s C instead.")
     method <- "geary"
   }
   if(!is.numeric(attribute) && method == "geary"){
-    snet_info("{.val {method}} index is not appropriate for categorical attributes.")
-    snet_info("Using {.val ie} index instead.")
+    manynet::snet_info("{.val {method}} index is not appropriate for categorical attributes.")
+    manynet::snet_info("Using {.val ie} index instead.")
     method <- "ie"
   }
   
-  m <- manynet::as_matrix(to_unweighted(.data))
+  m <- manynet::as_matrix(manynet::to_unweighted(.data))
 
   ei <- function(m, attribute){
     same <- outer(attribute, attribute, "==")
@@ -367,7 +367,7 @@ net_by_homophily <- function(.data, attribute,
 attr_mode <- function(.data, attribute){
   if(manynet::is_twomode(.data)){
     miss <- is.na(manynet::node_attribute(.data, attribute))
-    mode <- node_is_mode(.data)
+    mode <- manynet::node_is_mode(.data)
     if(all(miss[mode])) return(FALSE) # attribute only on first (FALSE) mode
     if(all(miss[!mode])) return(TRUE) # attribute only on second (TRUE) mode
   } else NULL

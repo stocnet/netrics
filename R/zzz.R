@@ -12,8 +12,7 @@
   # cran_version <- pkgs[pkgs$Package == "manynet","Version"]
 
   local_version <- utils::packageVersion("netrics")
-  cli::cli_inform("You are using {.pkg netrics} version {.version {local_version}}.", 
-                  class = "packageStartupMessage")
+  manynet::snet_info("You are using {.pkg netrics} version {.version {local_version}}.")
   old.list <- as.data.frame(utils::old.packages())
   behind_cran <- "netrics" %in% old.list$Package
   

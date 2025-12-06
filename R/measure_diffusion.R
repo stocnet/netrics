@@ -242,7 +242,7 @@ net_by_infection_total <- function(.data, normalized = TRUE){
                          call = deparse(sys.call()))
   } else {
     out <- sum(manynet::as_changelist(.data)$value == "I")
-    if(normalized) out <- out / net_nodes(.data)
+    if(normalized) out <- out / manynet::net_nodes(.data)
     make_network_measure(out, .data,
                          call = deparse(sys.call()))
   }
@@ -309,7 +309,7 @@ node_by_adoption_time <- function(.data){
     out <- summary(.data) %>% dplyr::filter(event == "I") %>% 
       dplyr::distinct(nodes, .keep_all = TRUE) %>% 
       dplyr::select(nodes,t)
-    if(!is_labelled(net))
+    if(!manynet::is_labelled(net))
       out <- dplyr::arrange(out, nodes) else if (is.numeric(out$nodes))
         out$nodes <- manynet::node_names(net)[out$nodes]
     out <- stats::setNames(out$t, out$nodes)
@@ -323,15 +323,15 @@ node_by_adoption_time <- function(.data){
     }
   } else {
     net <- .data
-    out <- as_changelist(.data) %>% dplyr::filter(value == "I") %>% 
+    out <- manynet::as_changelist(.data) %>% dplyr::filter(value == "I") %>% 
       dplyr::distinct(node, .keep_all = TRUE) %>% 
       dplyr::select(node,time)
-    if(!is_labelled(net))
+    if(!manynet::is_labelled(net))
       out <- dplyr::arrange(out, node) else if (is.numeric(out$node))
         out$node <- manynet::node_names(net)[out$node]
     out <- stats::setNames(out$time, out$node)
-    if(length(out) != net_nodes(net)){
-      full <- rep(Inf, net_nodes(net))
+    if(length(out) != manynet::net_nodes(net)){
+      full <- rep(Inf, manynet::net_nodes(net))
       names(full) <- `if`(manynet::is_labelled(net), 
                           manynet::node_names(net), 
                           as.character(seq_len(manynet::net_nodes(net))))
@@ -374,7 +374,7 @@ node_by_thresholds <- function(.data, normalized = TRUE, lag = 1){
     if(!"exposure" %in% names(out)){
       out[,'exposure'] <- NA_integer_
       for(v in unique(out$t)){
-        out$exposure[out$t == v] <- node_exposure(diff_model, 
+        out$exposure[out$t == v] <- node_by_exposure(diff_model, 
                                                   time = v-lag)[out$nodes[out$t == v]]
       }
     }
@@ -383,7 +383,7 @@ node_by_thresholds <- function(.data, normalized = TRUE, lag = 1){
         out <- out %>% dplyr::filter(event == "I")
     out <- out %>% dplyr::distinct(nodes, .keep_all = TRUE) %>% 
       dplyr::select(nodes, exposure)
-    if(is_labelled(net))
+    if(manynet::is_labelled(net))
       out <- stats::setNames(out$exposure, manynet::node_names(net)[out$nodes]) else
         out <- stats::setNames(out$exposure, out$nodes)
   } else {
@@ -393,7 +393,7 @@ node_by_thresholds <- function(.data, normalized = TRUE, lag = 1){
     if(!"exposure" %in% names(out)){
       out[,'exposure'] <- NA_integer_
       for(v in unique(out$time)){
-        out$exposure[out$time == v] <- node_exposure(.data, 
+        out$exposure[out$time == v] <- node_by_exposure(.data, 
                                                   time = v-lag)[out$node[out$time == v]]
       }
     }
@@ -505,7 +505,7 @@ node_by_exposure <- function(.data, mark, time = 0){
         mark <- mark - manynet::net_dims(.data)[1]
         contacts <- unlist(lapply(igraph::neighborhood(dat, nodes = mark, mode = "out"),
                                   function(x) setdiff(x, mark)))
-        contacts <- contacts + net_dims(.data)[1]
+        contacts <- contacts + manynet::net_dims(.data)[1]
       } else {
         dat <- manynet::to_mode1(.data)
         contacts <- unlist(lapply(igraph::neighborhood(dat),

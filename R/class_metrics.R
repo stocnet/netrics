@@ -2,7 +2,7 @@ make_node_mark <- function(out, .data) {
   class(out) <- c("node_mark", class(out))
   if (is.null(names(out)) && manynet::is_labelled(.data))
     names(out) <- manynet::node_names(.data)
-  attr(out, "mode") <- node_is_mode(.data)
+  attr(out, "mode") <- manynet::node_is_mode(.data)
   out
 }
 
@@ -77,3 +77,6 @@ make_network_motif <- function(out, .data) {
   out
 }
 
+#' @importFrom dplyr %>%
+#' @export
+dplyr::`%>%`

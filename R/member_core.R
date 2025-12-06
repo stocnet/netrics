@@ -129,7 +129,7 @@ node_by_kcoreness <- function(.data){
 #' @export
 node_by_coreness <- function(.data) {
   .data <- manynet::expect_nodes(.data)
-  A <- as_matrix(.data)
+  A <- manynet::as_matrix(.data)
   n <- nrow(A)
   obj_fun <- function(c) {
     ideal <- outer(c, c)
