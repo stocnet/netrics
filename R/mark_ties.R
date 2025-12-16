@@ -107,17 +107,20 @@ tie_is_path <- function(.data, from, to, all_paths = FALSE){
 #'   These functions return logical vectors the length of the ties
 #'   in a network identifying which hold certain properties or positions in the network.
 #'   
-#'   - `tie_is_triangular()` marks ties that are in triangles.
-#'   - `tie_is_cyclical()` marks ties that are in cycles.
-#'   - `tie_is_transitive()` marks ties that complete transitive closure.
-#'   - `tie_is_triplet()` marks ties that are in a transitive triplet.
+#'   - `tie_is_triangular()` marks ties that are part of triangles.
+#'   - `tie_is_cyclical()` marks ties that are part of cycles.
+#'   - `tie_is_triplet()` marks ties that are part of transitive triplets.
 #'   - `tie_is_simmelian()` marks ties that are both in a triangle 
 #'   and fully reciprocated.
+#'   - `tie_is_imbalanced()` marks ties that are part of imbalanced triads.
+#'   - `tie_is_transitive()` marks ties that complete transitive closure.
+#'   - `tie_is_forbidden()` marks ties that complete forbidden triads.
 #'   
 #'   They are most useful in highlighting parts of the network that
 #'   are cohesively connected.
 #' @inheritParams mark_nodes
 #' @family marks
+#' @family cohesion
 #' @name mark_triangles
 NULL
 
@@ -249,7 +252,7 @@ tie_is_forbidden <- function(.data){
 
 #' @rdname mark_triangles
 #' @examples
-#' tie_is_imbalanced(fict_marvel)
+#' fict_marvel %>% to_uniplex("relationship") %>% tie_is_imbalanced()
 #' @export
 tie_is_imbalanced <- function(.data){
   .data <- manynet::expect_ties(.data)  

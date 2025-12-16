@@ -34,12 +34,14 @@ see \code{\link[manynet:manip_as]{manynet::as_tidygraph()}}.}
 These functions return logical vectors the length of the ties
 in a network identifying which hold certain properties or positions in the network.
 \itemize{
-\item \code{tie_is_triangular()} marks ties that are in triangles.
-\item \code{tie_is_cyclical()} marks ties that are in cycles.
-\item \code{tie_is_transitive()} marks ties that complete transitive closure.
-\item \code{tie_is_triplet()} marks ties that are in a transitive triplet.
+\item \code{tie_is_triangular()} marks ties that are part of triangles.
+\item \code{tie_is_cyclical()} marks ties that are part of cycles.
+\item \code{tie_is_triplet()} marks ties that are part of transitive triplets.
 \item \code{tie_is_simmelian()} marks ties that are both in a triangle
 and fully reciprocated.
+\item \code{tie_is_imbalanced()} marks ties that are part of imbalanced triads.
+\item \code{tie_is_transitive()} marks ties that complete transitive closure.
+\item \code{tie_is_forbidden()} marks ties that complete forbidden triads.
 }
 
 They are most useful in highlighting parts of the network that
@@ -64,7 +66,7 @@ ison_monks \%>\% to_uniplex("like") \%>\%
 generate_random(8, directed = TRUE) \%>\% 
   mutate_ties(forbid = tie_is_forbidden())
   #graphr(edge_color = "forbid")
-tie_is_imbalanced(fict_marvel)
+fict_marvel \%>\% to_uniplex("relationship") \%>\% tie_is_imbalanced()
 }
 \seealso{
 Other marks: 
@@ -73,5 +75,11 @@ Other marks:
 \code{\link{mark_select}},
 \code{\link{mark_tie_select}},
 \code{\link{mark_ties}}
+
+Other cohesion: 
+\code{\link{measure_breadth}},
+\code{\link{measure_cohesion}},
+\code{\link{measure_fragmentation}}
 }
+\concept{cohesion}
 \concept{marks}

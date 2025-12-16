@@ -48,6 +48,7 @@ Valente, Tom W. 1995.
 }
 \seealso{
 Other measures: 
+\code{\link{measure_breadth}},
 \code{\link{measure_central_between}},
 \code{\link{measure_central_close}},
 \code{\link{measure_central_degree}},
@@ -58,6 +59,7 @@ Other measures:
 \code{\link{measure_diffusion_net}},
 \code{\link{measure_diffusion_node}},
 \code{\link{measure_features}},
+\code{\link{measure_fragmentation}},
 \code{\link{measure_heterogeneity}},
 \code{\link{measure_hierarchy}},
 \code{\link{measure_holes}},
