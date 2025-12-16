@@ -1,8 +1,9 @@
-#' Measures of network cohesion or connectedness
+# Cohesion ####
+
+#' Measures of network cohesion
 #' 
 #' @description
-#'   These functions return values or vectors relating to how connected a network is
-#'   and the number of nodes or edges to remove that would increase fragmentation.
+#'   These functions return values or vectors relating to how cohesive a network is:
 #'   
 #'   - `net_density()` measures the ratio of ties to the number
 #'   of possible ties.
@@ -24,6 +25,7 @@
 #' @inheritParams mark_nodes
 #' @name measure_cohesion
 #' @family measures
+#' @family cohesion
 NULL
 
 #' @rdname measure_cohesion
@@ -44,7 +46,7 @@ net_by_density <- function(.data) {
 }
 
 #' @rdname measure_cohesion
-#' @section Cohesion: 
+#' @section Components: 
 #'   To get the 'weak' components of a directed graph, 
 #'   please use `manynet::to_undirected()` first.
 #' @importFrom igraph components
@@ -56,64 +58,6 @@ net_by_components <- function(.data){
   .data <- manynet::expect_nodes(.data)
   object <- manynet::as_igraph(.data)
   make_network_measure(igraph::components(object, mode = "strong")$no,
-                       object, call = deparse(sys.call()))
-}
-
-#' @rdname measure_cohesion 
-#' @importFrom igraph cohesion
-#' @references
-#' ## On cohesion
-#' White, Douglas R and Frank Harary. 2001. 
-#' "The Cohesiveness of Blocks In Social Networks: Node Connectivity and Conditional Density." 
-#' _Sociological Methodology_ 31(1): 305-59.
-#' \doi{10.1111/0081-1750.00098}
-#' @examples 
-#' net_by_cohesion(fict_marvel)
-#' net_by_cohesion(to_giant(fict_marvel))
-#' @export
-net_by_cohesion <- function(.data){
-  .data <- manynet::expect_nodes(.data)
-  make_network_measure(igraph::cohesion(manynet::as_igraph(.data)), 
-                       .data, call = deparse(sys.call()))
-}
-
-#' @rdname measure_cohesion 
-#' @importFrom igraph adhesion
-#' @examples 
-#' net_by_adhesion(fict_marvel)
-#' net_by_adhesion(to_giant(fict_marvel))
-#' @export
-net_by_adhesion <- function(.data){
-  .data <- manynet::expect_nodes(.data)
-  make_network_measure(igraph::adhesion(manynet::as_igraph(.data)), 
-                       .data, call = deparse(sys.call()))
-}
-
-#' @rdname measure_cohesion 
-#' @importFrom igraph diameter
-#' @examples 
-#' net_by_diameter(fict_marvel)
-#' net_by_diameter(to_giant(fict_marvel))
-#' @export
-net_by_diameter <- function(.data){
-  .data <- manynet::expect_nodes(.data)
-  object <- manynet::as_igraph(.data)
-  make_network_measure(igraph::diameter(object, 
-                                        directed = manynet::is_directed(object)),
-                       object, call = deparse(sys.call()))
-}
-
-#' @rdname measure_cohesion 
-#' @importFrom igraph mean_distance
-#' @examples 
-#' net_by_length(fict_marvel)
-#' net_by_length(to_giant(fict_marvel))
-#' @export
-net_by_length <- function(.data){
-  .data <- manynet::expect_nodes(.data)
-  object <- manynet::as_igraph(.data)
-  make_network_measure(igraph::mean_distance(object,
-                                             directed = manynet::is_directed(object)),
                        object, call = deparse(sys.call()))
 }
 
@@ -132,7 +76,104 @@ net_by_independence <- function(.data){
   make_network_measure(out, .data, call = deparse(sys.call()))
 }
 
-#' @rdname measure_cohesion 
+# Breadth ####
+
+#' Measures of network breadth
+#' 
+#' @description
+#'   These functions return values or vectors relating to how broad a network is.
+#'   
+#'   - `net_diameter()` measures the maximum path length in the network.
+#'   - `net_length()` measures the average path length in the network.
+#'   
+#' @inheritParams mark_nodes
+#' @name measure_breadth
+#' @family measures
+#' @family cohesion
+NULL
+
+#' @rdname measure_breadth 
+#' @importFrom igraph diameter
+#' @examples 
+#' net_by_diameter(fict_marvel)
+#' net_by_diameter(to_giant(fict_marvel))
+#' @export
+net_by_diameter <- function(.data){
+  .data <- manynet::expect_nodes(.data)
+  object <- manynet::as_igraph(.data)
+  make_network_measure(igraph::diameter(object, 
+                                        directed = manynet::is_directed(object)),
+                       object, call = deparse(sys.call()))
+}
+
+#' @rdname measure_breadth 
+#' @importFrom igraph mean_distance
+#' @examples 
+#' net_by_length(fict_marvel)
+#' net_by_length(to_giant(fict_marvel))
+#' @export
+net_by_length <- function(.data){
+  .data <- manynet::expect_nodes(.data)
+  object <- manynet::as_igraph(.data)
+  make_network_measure(igraph::mean_distance(object,
+                                             directed = manynet::is_directed(object)),
+                       object, call = deparse(sys.call()))
+}
+
+# Fragmentation ####
+
+#' Measures of network fragmentation
+#' 
+#' @description
+#'   These functions return values relating to how connected a network is
+#'   and the number of nodes or edges to remove that would increase fragmentation.
+#'   
+#'   - `net_cohesion()` measures the minimum number of nodes to remove
+#'   from the network needed to increase the number of components.
+#'   - `net_toughness()` measures the number of nodes that would need to be
+#'   removed from a network to increase its number of components.
+#'   - `net_adhesion()` measures the minimum number of ties to remove
+#'   from the network needed to increase the number of components.
+#'   - `net_strength()` measures the number of ties that would need to be
+#'   removed from a network to increase its number of components.
+#'   
+#' @inheritParams mark_nodes
+#' @name measure_fragmentation
+#' @family measures
+#' @family cohesion
+NULL
+
+#' @rdname measure_fragmentation 
+#' @importFrom igraph cohesion
+#' @references
+#' ## On cohesion
+#' White, Douglas R and Frank Harary. 2001. 
+#' "The Cohesiveness of Blocks In Social Networks: Node Connectivity and Conditional Density." 
+#' _Sociological Methodology_ 31(1): 305-59.
+#' \doi{10.1111/0081-1750.00098}
+#' @examples 
+#' net_by_cohesion(fict_marvel)
+#' net_by_cohesion(to_giant(fict_marvel))
+#' @export
+net_by_cohesion <- function(.data){
+  .data <- manynet::expect_nodes(.data)
+  make_network_measure(igraph::cohesion(manynet::as_igraph(.data)), 
+                       .data, call = deparse(sys.call()))
+}
+
+#' @rdname measure_fragmentation 
+#' @importFrom igraph adhesion
+#' @examples 
+#' net_by_adhesion(fict_marvel)
+#' net_by_adhesion(to_giant(fict_marvel))
+#' @export
+net_by_adhesion <- function(.data){
+  .data <- manynet::expect_nodes(.data)
+  make_network_measure(igraph::adhesion(manynet::as_igraph(.data)), 
+                       .data, call = deparse(sys.call()))
+}
+
+#' @rdname measure_fragmentation 
 #' @examples 
 #' net_by_strength(ison_adolescents)
 #' @export
@@ -145,7 +186,7 @@ net_by_strength <- function(.data){
   make_network_measure(min(out), .data, call = deparse(sys.call()))
 }
 
-#' @rdname measure_cohesion 
+#' @rdname measure_fragmentation 
 #' @examples 
 #' net_by_toughness(ison_adolescents)
 #' @export
