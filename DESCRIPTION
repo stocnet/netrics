@@ -4,7 +4,7 @@ Version: 0.0.1
 Date: 2025-12-05
 Description: Many tools for marking, measuring, motifs and memberships of 
    many different types of networks.
-   All functions operate with matrices, edge lists, and 'igraph', 'network', and 'tidygraph' objects,
+   All functions operate with matrices, edge lists, and 'igraph', 'network', 'tidygraph', and 'mnet' objects,
    on directed, multiplex, multimodal, signed, and other networks.
 URL: https://stocnet.github.io/netrics/
 BugReports: https://github.com/stocnet/netrics/issues

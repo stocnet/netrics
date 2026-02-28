@@ -403,7 +403,7 @@ node_is_random <- function(.data, size = 1){
 #'   three scores.
 #'   By default, `ranks = 1`.
 #' @examples 
-#' #node_is_max(migraph::node_degree(ison_brandes))
+#' #node_is_max(node_by_degree(manynet::ison_brandes))
 #' @export
 node_is_max <- function(node_measure, ranks = 1){
   if(!inherits(node_measure, "node_measure"))
@@ -429,7 +429,7 @@ node_is_max <- function(node_measure, ranks = 1){
 
 #' @rdname mark_select
 #' @examples 
-#' #node_is_min(migraph::node_degree(ison_brandes))
+#' #node_is_min(node_by_degree(manynet::ison_brandes))
 #' @export
 node_is_min <- function(node_measure, ranks = 1){
   if(!inherits(node_measure, "node_measure"))

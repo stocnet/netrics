@@ -341,7 +341,7 @@ tie_is_random <- function(.data, size = 1){
 #' @rdname mark_tie_select
 #' @param tie_measure An object created by a `tie_` measure.
 #' @examples 
-#' # tie_is_max(migraph::tie_betweenness(ison_brandes))
+#' # tie_is_max(tie_by_betweenness(manynet::ison_brandes))
 #' @export
 tie_is_max <- function(tie_measure){
   out <- as.numeric(tie_measure) == max(as.numeric(tie_measure))
@@ -351,7 +351,7 @@ tie_is_max <- function(tie_measure){
 
 #' @rdname mark_tie_select
 #' @examples 
-#' #tie_is_min(migraph::tie_betweenness(ison_brandes))
+#' #tie_is_min(tie_by_betweenness(manynet::ison_brandes))
 #' @export
 tie_is_min <- function(tie_measure){
   out <- as.numeric(tie_measure) == min(as.numeric(tie_measure))

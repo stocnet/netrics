@@ -248,7 +248,7 @@ net_by_modularity <- function(.data,
 #'     with the same dimensions.
 #'     \eqn{SWI} also ranges between 0 and 1 with the same interpretation, 
 #'     but where there may not be a network for which \eqn{SWI = 1}.
-#' @seealso [net_transitivity()] and [net_equivalency()]
+#' @seealso [net_by_transitivity()] and [net_by_equivalency()]
 #'   for how clustering is calculated
 #' @references 
 #' ## On small-worldliness

@@ -301,7 +301,7 @@ node_x_path <- function(.data){
 #' @name motif_net
 #' @family motifs
 #' @inheritParams motif_node
-#' @param object2 A second, two-mode migraph-consistent object.
+#' @param object2 A second, two-mode network object.
 NULL
 
 #' @rdname motif_net
