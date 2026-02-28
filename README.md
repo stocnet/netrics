@@ -16,11 +16,6 @@ Release
 Date](https://img.shields.io/github/release-date/stocnet/netrics)
 [![Codecov test
 coverage](https://codecov.io/gh/stocnet/netrics/branch/main/graph/badge.svg)](https://app.codecov.io/gh/stocnet/netrics?branch=main)
-<!-- [![CodeFactor](https://www.codefactor.io/repository/github/stocnet/manynet/badge)](https://www.codefactor.io/repository/github/stocnet/manynet) -->
-<!-- [![CII Best Practices](https://bestpractices.coreinfrastructure.org/projects/4559/badge)](https://bestpractices.coreinfrastructure.org/projects/4559) -->
-<!-- [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.7076396.svg)](https://doi.org/10.5281/zenodo.7076396) -->
-<!-- see https://zenodo.org/record/7076396 -->
-<!-- ![GitHub All Releases](https://img.shields.io/github/downloads/stocnet/migraph/total) -->
 <!-- badges: end -->
 
 ## About the package
@@ -38,7 +33,7 @@ make learning and using network analysis tools in R challenging.
 
 By contrast, `{netrics}` offers *many* analytic tools that work on
 *many* (if not most) types and kinds of networks. It helps researchers
-make, modify, mark, measure, and identify nodes’ motifs and memberships
+mark, measure, and identify nodes’ motifs and memberships
 in networks. For graph drawing see
 [`{autograph}`](https://stocnet.github.io/autograph/), and for further
 testing and modelling capabilities see
@@ -49,7 +44,6 @@ testing and modelling capabilities see
 - [Motifs](#motifs)
 - [Memberships](#memberships)
 - [Measuring](#measuring)
-- [Tutorials](#tutorials)
 - [Installation](#installation)
   - [Stable](#stable)
   - [Development](#development)
@@ -63,7 +57,7 @@ own pretty `print()` and `plot()` methods: marks, measures, motifs, and
 memberships. Marks are logical scalars or vectors, measures are numeric,
 memberships categorical, and motifs result in tabular outputs.
 
-`{manynet}`’s `*is_*()` functions offer fast logical tests of various
+`{netrics}`’s `*is_*()` functions offer fast logical tests of various
 properties. Whereas `is_*()` returns a single logical value for the
 network, `node_is_*()` returns a logical vector the length of the number
 of nodes in the network, and `tie_is_*()` returns a logical vector the
@@ -87,7 +81,7 @@ maximum or minimum, respectively, node or tie according to some measure
 
 ## Motifs
 
-`{manynet}`‘s `*by_*()` functions tabulate nodes’ frequency in various
+`{netrics}`‘s `*by_*()` functions tabulate nodes’ frequency in various
 motifs. These include:
 
 - `net_by_adhesion()`, `net_by_assortativity()`, `net_by_balance()`,
@@ -130,7 +124,7 @@ motifs. These include:
 
 ## Memberships
 
-`{manynet}`‘s `*in_*()` functions identify nodes’ membership in some
+`{netrics}`‘s `*in_*()` functions identify nodes’ membership in some
 grouping, such as a community or component. These functions always
 return a character vector, indicating e.g. that the first node is a
 member of group “A”, the second in group “B”, etc.
@@ -149,18 +143,18 @@ participation in Gould-Fernandez brokerage roles for a one-mode network,
 and the Jasny-Lubell brokerage roles for a two-mode network.
 
 These can be analysed alone, or used as a profile for establishing
-equivalence. `{manynet}` offers both HCA and CONCOR algorithms, as well
+equivalence. `{netrics}` offers both HCA and CONCOR algorithms, as well
 as elbow, silhouette, and strict methods for *k*-cluster selection.
 
 <img src="https://www.jameshollway.com/post/migraph/dendroPlot.png" alt="Plot of a dendrogram of structural equivalence"/>
 
-`{manynet}` also includes functions for establishing membership on other
+`{netrics}` also includes functions for establishing membership on other
 bases, such as typical community detection algorithms, as well as
 component and core-periphery partitioning algorithms.
 
 ## Measuring
 
-`{manynet}` also offers a large and growing smorgasbord of measures that
+`{netrics}` also offers a large and growing smorgasbord of measures that
 can be used at the node, tie, and network level to measure some feature,
 property, or quantity of the network. Each recognises whether the
 network is directed or undirected, weighted or unweighted, one-mode or
@@ -187,48 +181,20 @@ can be overrided. Here are some examples:
   `node_thresholds()`
 
 There is a lot here, so we recommend you explore [the list of
-functions](https://stocnet.github.io/migraph/reference/index.html) to
+functions](https://stocnet.github.io/netrics/reference/index.html) to
 find out more.
-
-## Tutorials
-
-This package includes tutorials to help new and experienced users learn
-how they can conduct social network analysis using the package. These
-tutorials leverage the additional package `{learnr}` (see
-[here](https://rstudio.github.io/learnr/)), but we have made it easy to
-use `{manynet}` or `{migraph}` tutorials right out of the box:
-
-``` r
-run_tute()
-#> Checking tutorials in stocnet packages ■■■■■■■■■■■ 33% | …
-#> # A tibble: 10 × 3
-#>    package   name      title                   
-#>    <chr>     <chr>     <chr>                   
-#>  1 manynet   tutorial0 Intro to R              
-#>  2 manynet   tutorial1 Data                    
-#>  3 autograph tutorial2 Visualisation           
-#>  4 manynet   tutorial3 Centrality              
-#>  5 manynet   tutorial4 Cohesion and Community  
-#>  6 manynet   tutorial5 Position and Equivalence
-#>  7 manynet   tutorial6 Topology and Resilience 
-#>  8 migraph   tutorial7 Diffusion and Learning  
-#>  9 migraph   tutorial8 Diversity and Regression
-#> 10 migraph   tutorial9 Modelling with ERGMs
-#> ℹ You can run a tutorial by typing e.g `run_tute('tutorial1')` or `run_tute('Data')` into the console.
-# run_tute("tutorial1")
-```
 
 ## Installation
 
 ### Stable
 
-The easiest way to install the latest stable version of `{manynet}` is
+The easiest way to install the latest stable version of `{netrics}` is
 via CRAN. Simply open the R console and enter:
 
-`install.packages('manynet')`
+`install.packages('netrics')`
 
-`library(manynet)` will then load the package and make the data and
-tutorials (see below) contained within the package available.
+`library(netrics)` will then load the package and make the functions
+contained within the package available.
 
 ### Development
 
@@ -236,51 +202,45 @@ For the latest development version, for slightly earlier access to new
 features or for testing, you may wish to download and install the
 binaries from Github or install from source locally. The latest binary
 releases for all major OSes – Windows, Mac, and Linux – can be found
-[here](https://github.com/stocnet/manynet/releases/latest). Download the
+[here](https://github.com/stocnet/netrics/releases/latest). Download the
 appropriate binary for your operating system, and install using an
 adapted version of the following commands:
 
 - For Windows:
-  `install.packages("~/Downloads/manynet_winOS.zip", repos = NULL)`
+  `install.packages("~/Downloads/netrics_winOS.zip", repos = NULL)`
 - For Mac:
-  `install.packages("~/Downloads/manynet_macOS.tgz", repos = NULL)`
+  `install.packages("~/Downloads/netrics_macOS.tgz", repos = NULL)`
 - For Unix:
-  `install.packages("~/Downloads/manynet_linuxOS.tar.gz", repos = NULL)`
+  `install.packages("~/Downloads/netrics_linuxOS.tar.gz", repos = NULL)`
 
-To install from source the latest main version of `{manynet}` from
+To install from source the latest main version of `{netrics}` from
 Github, please install the `{remotes}` package from CRAN and then:
 
 - For latest stable version:
-  `remotes::install_github("stocnet/manynet")`
+  `remotes::install_github("stocnet/netrics")`
 - For latest development version:
-  `remotes::install_github("stocnet/manynet@develop")`
+  `remotes::install_github("stocnet/netrics@develop")`
 
 ### Other sources
 
 Those using Mac computers may also install using Macports:
 
-`sudo port install R-manynet`
+`sudo port install R-netrics`
 
 ## Relationship to other packages
 
 This package stands on the shoulders of several incredible packages.
 
-In terms of the objects it works with, this package aims to provide an
-updated, more comprehensive replacement for `{intergraph}`. As such it
-works with objects in `{igraph}` and `{network}` formats, but also
-equally well with base matrices and edgelists (data frames), and formats
-from several other packages.
+In terms of the objects it works with,
+`{netrics}` operates on matrices, `{igraph}`, `{network}`, `{tidygraph}`, and `mnet` class objects.
+It uses the quickest `{igraph}` or `{network}` routines where available.
 
-The user interface is inspired in some ways by Thomas Lin Pedersen’s
-excellent `{tidygraph}` package, though makes some different decisions,
-and uses the quickest `{igraph}` or `{network}` routines where
-available.
-
-`{manynet}` has inherited most of its core functionality from its
-maternal package, `{migraph}`. `{migraph}` continues to offer more
-analytic and modelling functions that builds upon the architecture
-provided by `{manynet}`. For more, please check out `{migraph}`
-directly.
+`{netrics}` contains the analytic functions (measures, memberships, and motifs)
+from `{manynet}`, allowing `{manynet}` to concentrate on working with
+different network classes and modifying them.
+`{netrics}` is also designed to work well with
+[`{autograph}`](https://stocnet.github.io/autograph/) for graph drawing,
+and [`{migraph}`](https://stocnet.github.io/migraph/) for further testing and modelling capabilities.
 
 ## Funding details
 
