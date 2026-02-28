@@ -42,3 +42,4 @@ Config/Needs/website:
     pkgdown
 Config/testthat/parallel: true
 Config/testthat/edition: 3
+Config/testthat/start-first: member_community 
