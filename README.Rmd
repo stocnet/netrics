@@ -36,3 +36,186 @@ list_data <- function(string){
 <!-- ![GitHub All Releases](https://img.shields.io/github/downloads/stocnet/migraph/total) -->
 <!-- badges: end -->
 
+## About the package
+
+While many awesome packages for network analysis exist for R, 
+all with their own offerings and advantages, 
+they also all have their own vocabulary, syntax, 
+and expected formats for data inputs and analytic outputs.
+Many of these packages only work on _some_ types of networks
+(usually one-mode, simple, directed or undirected networks) for _some_ types of analysis;
+if you want to analyse a different type of network or try a different analysis,
+a different package is needed.
+And they can rely on a very different visual language (and sometimes plotting engine),
+which can mess up your pretty presentation or paper.
+This can make learning and using network analysis tools in R challenging.
+
+By contrast, `{netrics}` offers _many_ analytic tools that work on _many_ (if not most) types and kinds of networks.
+It helps researchers make, modify, mark, measure, and identify nodes' motifs and memberships in networks.
+For graph drawing see [`{autograph}`](https://stocnet.github.io/autograph/),
+and for further testing and modelling capabilities
+see [`{migraph}`](https://stocnet.github.io/migraph/) and the other [stocnet](https://github.com/stocnet) packages.
+
+- [Marking](#marking)
+- [Motifs](#motifs)
+- [Memberships](#memberships)
+- [Measuring](#measuring)
+- [Tutorials](#tutorials)
+- [Installation](#installation)
+  - [Stable](#stable)
+  - [Development](#development)
+- [Relationship to other packages](#relationship-to-other-packages)
+- [Funding details](#funding-details)
+
+## Marking
+
+`{netrics}` includes four special groups of functions, 
+each with their own pretty `print()` and `plot()` methods:
+marks, measures, motifs, and memberships.
+Marks are logical scalars or vectors, measures are numeric, 
+memberships categorical, and motifs result in tabular outputs.
+
+`{manynet}`'s `*is_*()` functions offer fast logical tests of various properties.
+Whereas `is_*()` returns a single logical value for the network,
+`node_is_*()` returns a logical vector the length of the number of nodes in the network,
+and `tie_is_*()` returns a logical vector the length of the number of ties in the network.
+
+- `r list_functions("^node_is_")`
+- `r list_functions("^tie_is_")`
+
+The `*is_max()` and `*is_min()` functions are used to identify
+the maximum or minimum, respectively, node or tie according to some measure (see below).
+
+## Motifs
+
+`{manynet}`'s `*by_*()` functions tabulate nodes' frequency in various motifs.
+These include:
+
+- `r list_functions("_by_")`
+
+## Memberships
+
+`{manynet}`'s `*in_*()` functions identify nodes' membership in some grouping,
+such as a community or component.
+These functions always return a character vector, 
+indicating e.g. that the first node is a member of group "A", the second in group "B", etc.
+
+- `r list_functions("_in_")`
+
+For example `node_brokerage_census()` returns 
+the frequency of nodes' participation in 
+Gould-Fernandez brokerage roles for a one-mode network,
+and the Jasny-Lubell brokerage roles for a two-mode network.
+
+These can be analysed alone, or used as a profile for establishing equivalence.
+`{manynet}` offers both HCA and CONCOR algorithms,
+as well as elbow, silhouette, and strict methods for _k_-cluster selection.
+
+<img src="https://www.jameshollway.com/post/migraph/dendroPlot.png" alt="Plot of a dendrogram of structural equivalence"/>
+
+`{manynet}` also includes functions for establishing membership on other bases,
+such as typical community detection algorithms, 
+as well as component and core-periphery partitioning algorithms.
+
+## Measuring
+
+`{manynet}` also offers a large and growing smorgasbord of measures that
+can be used at the node, tie, and network level 
+to measure some feature, property, or quantity of the network.
+Each recognises whether the network is directed or undirected,
+weighted or unweighted, one-mode or two-mode.
+All return normalized values wherever possible,
+though this can be overrided.
+Here are some examples:
+
+- _Centrality_: `node_degree()`, `node_closeness()`, `node_betweenness()`, and `node_eigenvector()`,
+  `net_degree()`, `net_closeness()`, `net_betweenness()`, and `net_eigenvector()`
+- _Cohesion_: `net_density()`, `net_reciprocity()`, `net_transitivity()`, `net_equivalency()`, and `net_congruency()`
+- _Hierarchy_: `net_connectedness()`, `net_efficiency()`, `net_upperbound()`
+- _Resilience_: `net_components()`, `net_cohesion()`, `net_adhesion()`, `net_diameter()`, `net_length()`
+- _Innovation_: e.g. `node_redundancy()`, `node_effsize()`, `node_efficiency()`, `node_constraint()`, `node_hierarchy()`
+- _Diversity_: `net_richness()`, `net_diversity()`, `net_heterophily()`, `net_assortativity()`, 
+  `node_richness()`, `node_diversity()`, `node_heterophily()`, `node_assortativity()`
+- _Topology_: e.g. `net_core()`, `net_factions()`, `net_modularity()`, `net_smallworld()`, `net_balance()`
+- _Diffusion_: e.g. `net_reproduction()`, `net_immunity()`, `node_thresholds()`
+
+There is a lot here, 
+so we recommend you explore [the list of functions](https://stocnet.github.io/migraph/reference/index.html) to find out more.
+
+## Tutorials
+
+This package includes tutorials to help new and experienced users
+learn how they can conduct social network analysis using the package.
+These tutorials leverage the additional package `{learnr}` (see [here](https://rstudio.github.io/learnr/)),
+but we have made it easy to use `{manynet}` or `{migraph}` tutorials
+right out of the box:
+
+```{r learnr-tutes}
+run_tute()
+# run_tute("tutorial1")
+```
+
+## Installation
+
+### Stable
+
+The easiest way to install the latest stable version of `{manynet}` is via CRAN.
+Simply open the R console and enter:
+
+`install.packages('manynet')`
+
+`library(manynet)` will then load the package and make the data and tutorials (see below) contained within the package available.
+
+### Development
+
+For the latest development version, 
+for slightly earlier access to new features or for testing,
+you may wish to download and install the binaries from Github
+or install from source locally.
+The latest binary releases for all major OSes -- Windows, Mac, and Linux -- 
+can be found [here](https://github.com/stocnet/manynet/releases/latest).
+Download the appropriate binary for your operating system,
+and install using an adapted version of the following commands:
+
+- For Windows: `install.packages("~/Downloads/manynet_winOS.zip", repos = NULL)`
+- For Mac: `install.packages("~/Downloads/manynet_macOS.tgz", repos = NULL)`
+- For Unix: `install.packages("~/Downloads/manynet_linuxOS.tar.gz", repos = NULL)`
+
+To install from source the latest main version of `{manynet}` from Github, 
+please install the `{remotes}` package from CRAN and then:
+
+- For latest stable version: 
+`remotes::install_github("stocnet/manynet")`
+- For latest development version: 
+`remotes::install_github("stocnet/manynet@develop")`
+
+### Other sources
+
+Those using Mac computers may also install using Macports:
+
+`sudo port install R-manynet`
+
+## Relationship to other packages
+
+This package stands on the shoulders of several incredible packages.
+
+In terms of the objects it works with,
+this package aims to provide an updated, more comprehensive replacement for `{intergraph}`.
+As such it works with objects in `{igraph}` and `{network}` formats,
+but also equally well with base matrices and edgelists (data frames), 
+and formats from several other packages.
+
+The user interface is inspired in some ways by Thomas Lin Pedersen's excellent `{tidygraph}` package,
+though makes some different decisions,
+and uses the quickest `{igraph}` or `{network}` routines where available.
+
+`{manynet}` has inherited most of its core functionality from its maternal package, `{migraph}`.
+`{migraph}` continues to offer more analytic and modelling functions that builds upon
+the architecture provided by `{manynet}`.
+For more, please check out `{migraph}` directly.
+
+## Funding details
+
+Development on this package has been funded by the Swiss National Science Foundation (SNSF)
+[Grant Number 188976](https://data.snf.ch/grants/grant/188976): 
+"Power and Networks and the Rate of Change in Institutional Complexes" (PANARCHIC).
