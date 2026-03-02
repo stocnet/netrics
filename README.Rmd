@@ -33,24 +33,19 @@ list_data <- function(string){
 
 ## About the package
 
-While many awesome packages for network analysis exist for R, 
-all with their own offerings and advantages, 
-they also all have their own vocabulary, syntax, 
-and expected formats for data inputs and analytic outputs.
-Many of these packages only work on _some_ types of networks
-(usually one-mode, simple, directed or undirected networks) for _some_ types of analysis;
-if you want to analyse a different type of network or try a different analysis,
-a different package is needed.
-And they can rely on a very different visual language (and sometimes plotting engine),
-which can mess up your pretty presentation or paper.
-This can make learning and using network analysis tools in R challenging.
+`{netrics}` is the analytic engine of the [stocnet](https://github.com/stocnet) ecosystem.
+It provides _many_ tools for marking, measuring, and identifying nodes' motifs and memberships
+in _many_ (if not most) types and kinds of networks.
+All functions operate on matrices, `{igraph}`, `{network}`, `{tidygraph}`, and `mnet` class objects,
+and recognise directed, weighted, multiplex, multimodal, signed, and other types of networks.
 
-By contrast, `{netrics}` offers _many_ analytic tools that work on _many_ (if not most) types and kinds of networks.
-It helps researchers mark, measure, and identify nodes' motifs and memberships in networks.
-All functions operate on matrices, `{igraph}`, `{network}`, `{tidygraph}`, and `mnet` class objects.
-For graph drawing see [`{autograph}`](https://stocnet.github.io/autograph/),
+`{netrics}` depends on [`{manynet}`](https://stocnet.github.io/manynet/),
+which handles working with different network classes, converting between them, and modifying them.
+Network-level logical tests (e.g. `is_directed()`, `is_twomode()`) remain in `{manynet}`,
+while node- and tie-level analytic marks (e.g. `node_is_*()`, `tie_is_*()`) are in `{netrics}`.
+For graph drawing, see [`{autograph}`](https://stocnet.github.io/autograph/),
 and for further testing and modelling capabilities
-see [`{migraph}`](https://stocnet.github.io/migraph/) and the other [stocnet](https://github.com/stocnet) packages.
+see [`{migraph}`](https://stocnet.github.io/migraph/).
 
 - [Marking](#marking)
 - [Motifs](#motifs)
@@ -70,10 +65,11 @@ marks, measures, motifs, and memberships.
 Marks are logical scalars or vectors, measures are numeric, 
 memberships categorical, and motifs result in tabular outputs.
 
-`{netrics}`'s `*is_*()` functions offer fast logical tests of various properties.
-Whereas `is_*()` returns a single logical value for the network,
+`{netrics}`'s `node_is_*()` and `tie_is_*()` functions offer fast logical tests
+of node- and tie-level properties.
 `node_is_*()` returns a logical vector the length of the number of nodes in the network,
 and `tie_is_*()` returns a logical vector the length of the number of ties in the network.
+Note that network-level tests such as `is_directed()` and `is_twomode()` are in `{manynet}`.
 
 - `r list_functions("^node_is_")`
 - `r list_functions("^tie_is_")`
@@ -83,14 +79,15 @@ the maximum or minimum, respectively, node or tie according to some measure (see
 
 ## Motifs
 
-`{netrics}`'s `*by_*()` functions tabulate nodes' frequency in various motifs.
+`{netrics}`'s `*_by_*()` functions offer numeric measures 
+as well as tabulations of nodes' frequency in various motifs.
 These include:
 
 - `r list_functions("_by_")`
 
 ## Memberships
 
-`{netrics}`'s `*in_*()` functions identify nodes' membership in some grouping,
+`{netrics}`'s `*_in_*()` functions identify nodes' membership in some grouping,
 such as a community or component.
 These functions always return a character vector, 
 indicating e.g. that the first node is a member of group "A", the second in group "B", etc.
@@ -123,16 +120,16 @@ All return normalized values wherever possible,
 though this can be overrided.
 Here are some examples:
 
-- _Centrality_: `node_degree()`, `node_closeness()`, `node_betweenness()`, and `node_eigenvector()`,
-  `net_degree()`, `net_closeness()`, `net_betweenness()`, and `net_eigenvector()`
-- _Cohesion_: `net_density()`, `net_reciprocity()`, `net_transitivity()`, `net_equivalency()`, and `net_congruency()`
-- _Hierarchy_: `net_connectedness()`, `net_efficiency()`, `net_upperbound()`
-- _Resilience_: `net_components()`, `net_cohesion()`, `net_adhesion()`, `net_diameter()`, `net_length()`
-- _Innovation_: e.g. `node_redundancy()`, `node_effsize()`, `node_efficiency()`, `node_constraint()`, `node_hierarchy()`
-- _Diversity_: `net_richness()`, `net_diversity()`, `net_heterophily()`, `net_assortativity()`, 
-  `node_richness()`, `node_diversity()`, `node_heterophily()`, `node_assortativity()`
-- _Topology_: e.g. `net_core()`, `net_factions()`, `net_modularity()`, `net_smallworld()`, `net_balance()`
-- _Diffusion_: e.g. `net_reproduction()`, `net_immunity()`, `node_thresholds()`
+- _Centrality_: `node_by_degree()`, `node_by_closeness()`, `node_by_betweenness()`, and `node_by_eigenvector()`,
+  `net_by_degree()`, `net_by_closeness()`, `net_by_betweenness()`, and `net_by_eigenvector()`
+- _Cohesion_: `net_by_density()`, `net_by_reciprocity()`, `net_by_transitivity()`, `net_by_equivalency()`, and `net_by_congruency()`
+- _Hierarchy_: `net_by_connectedness()`, `net_by_efficiency()`, `net_by_upperbound()`
+- _Resilience_: `net_by_components()`, `net_by_cohesion()`, `net_by_adhesion()`, `net_by_diameter()`, `net_by_length()`
+- _Innovation_: e.g. `node_by_redundancy()`, `node_by_effsize()`, `node_by_efficiency()`, `node_by_constraint()`, `node_by_hierarchy()`
+- _Diversity_: `net_by_richness()`, `net_by_diversity()`, `net_by_heterophily()`, `net_by_assortativity()`, 
+  `node_by_richness()`, `node_by_diversity()`, `node_by_heterophily()`, `node_by_homophily()`
+- _Topology_: e.g. `net_by_core()`, `net_by_factions()`, `net_by_modularity()`, `net_by_smallworld()`, `net_by_balance()`
+- _Diffusion_: e.g. `net_by_reproduction()`, `net_by_immunity()`, `node_by_thresholds()`
 
 There is a lot here, 
 so we recommend you explore [the list of functions](https://stocnet.github.io/netrics/reference/index.html) to find out more.
@@ -179,18 +176,33 @@ Those using Mac computers may also install using Macports:
 
 ## Relationship to other packages
 
-This package stands on the shoulders of several incredible packages.
+`{netrics}` is part of the [stocnet](https://github.com/stocnet) ecosystem of R packages
+for network analysis.
+The packages are designed to be modular, with clear roles and dependencies:
 
-In terms of the objects it works with,
-`{netrics}` operates on matrices, `{igraph}`, `{network}`, `{tidygraph}`, and `mnet` class objects.
-It uses the quickest `{igraph}` or `{network}` routines where available.
+- [`{manynet}`](https://stocnet.github.io/manynet/): 
+  The foundation package for working with network data.
+  It handles network classes (matrices, `{igraph}`, `{network}`, `{tidygraph}`, `mnet`), 
+  coercion between them, modification, and network-level logical tests (`is_*()` functions).
+- **`{netrics}`**: 
+  The analytic package containing all measures (`*_by_*()` functions),
+  memberships (`*_in_*()` functions), motifs (`*_x_*()` functions), 
+  and node- and tie-level marks (`node_is_*()`, `tie_is_*()` functions).
+  `{netrics}` depends on `{manynet}`.
+- [`{autograph}`](https://stocnet.github.io/autograph/): 
+  The graph drawing package.
+  `{autograph}` depends on both `{manynet}` (for network classes)
+  and `{netrics}` (for analytic results to visualise),
+  since it would typically be used with both.
+- [`{migraph}`](https://stocnet.github.io/migraph/): 
+  The modelling and testing package, 
+  building on both `{manynet}` and `{netrics}`.
 
-`{netrics}` contains the analytic functions (measures, memberships, and motifs) 
-from `{manynet}`, allowing `{manynet}` to concentrate on working with 
-different network classes and modifying them.
-`{netrics}` is also designed to work well with 
-[`{autograph}`](https://stocnet.github.io/autograph/) for graph drawing,
-and [`{migraph}`](https://stocnet.github.io/migraph/) for further testing and modelling capabilities.
+Node- and tie-level marks such as `node_is_cutpoint()` and `tie_is_bridge()` are kept
+in `{netrics}` rather than `{manynet}` because they are analytic functions that identify
+structural positions in the network.
+Network-level property tests like `is_directed()` remain in `{manynet}`
+because they describe the type of data rather than an analytic result.
 
 ## Funding details
 
