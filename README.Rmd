@@ -48,9 +48,9 @@ and for further testing and modelling capabilities
 see [`{migraph}`](https://stocnet.github.io/migraph/).
 
 - [Marking](#marking)
+- [Measures](#measures)
 - [Motifs](#motifs)
 - [Memberships](#memberships)
-- [Measuring](#measuring)
 - [Installation](#installation)
   - [Stable](#stable)
   - [Development](#development)
@@ -77,13 +77,19 @@ Note that network-level tests such as `is_directed()` and `is_twomode()` are in 
 The `*is_max()` and `*is_min()` functions are used to identify
 the maximum or minimum, respectively, node or tie according to some measure (see below).
 
-## Motifs
+## Measures
 
-`{netrics}`'s `*_by_*()` functions offer numeric measures 
-as well as tabulations of nodes' frequency in various motifs.
+`{netrics}`'s `*_by_*()` functions offer numeric measures at the network, node, and tie level.
 These include:
 
 - `r list_functions("_by_")`
+
+## Motifs
+
+`{netrics}`'s `*_x_*()` functions tabulate nodes' and networks' frequency in various motifs.
+These include:
+
+- `r list_functions("_x_")`
 
 ## Memberships
 
@@ -109,30 +115,13 @@ as well as elbow, silhouette, and strict methods for _k_-cluster selection.
 such as typical community detection algorithms, 
 as well as component and core-periphery partitioning algorithms.
 
-## Measuring
-
-`{netrics}` also offers a large and growing smorgasbord of measures that
-can be used at the node, tie, and network level 
-to measure some feature, property, or quantity of the network.
-Each recognises whether the network is directed or undirected,
-weighted or unweighted, one-mode or two-mode.
-All return normalized values wherever possible,
-though this can be overrided.
-Here are some examples:
-
-- _Centrality_: `node_by_degree()`, `node_by_closeness()`, `node_by_betweenness()`, and `node_by_eigenvector()`,
-  `net_by_degree()`, `net_by_closeness()`, `net_by_betweenness()`, and `net_by_eigenvector()`
-- _Cohesion_: `net_by_density()`, `net_by_reciprocity()`, `net_by_transitivity()`, `net_by_equivalency()`, and `net_by_congruency()`
-- _Hierarchy_: `net_by_connectedness()`, `net_by_efficiency()`, `net_by_upperbound()`
-- _Resilience_: `net_by_components()`, `net_by_cohesion()`, `net_by_adhesion()`, `net_by_diameter()`, `net_by_length()`
-- _Innovation_: e.g. `node_by_redundancy()`, `node_by_effsize()`, `node_by_efficiency()`, `node_by_constraint()`, `node_by_hierarchy()`
-- _Diversity_: `net_by_richness()`, `net_by_diversity()`, `net_by_heterophily()`, `net_by_assortativity()`, 
-  `node_by_richness()`, `node_by_diversity()`, `node_by_heterophily()`, `node_by_homophily()`
-- _Topology_: e.g. `net_by_core()`, `net_by_factions()`, `net_by_modularity()`, `net_by_smallworld()`, `net_by_balance()`
-- _Diffusion_: e.g. `net_by_reproduction()`, `net_by_immunity()`, `node_by_thresholds()`
-
-There is a lot here, 
-so we recommend you explore [the list of functions](https://stocnet.github.io/netrics/reference/index.html) to find out more.
+The measures are organised into several broad categories, including:
+_Centrality_, _Cohesion_, _Hierarchy_, _Innovation_ (structural holes), 
+_Diversity_ (heterogeneity), _Topology_ (features), and _Diffusion_.
+Each measure recognises whether the network is directed or undirected,
+weighted or unweighted, one-mode or two-mode,
+and returns normalized values wherever possible.
+We recommend you explore [the list of functions](https://stocnet.github.io/netrics/reference/index.html) to find out more.
 
 ## Installation
 

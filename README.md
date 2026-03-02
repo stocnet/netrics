@@ -35,9 +35,9 @@ and for further testing and modelling capabilities
 see [`{migraph}`](https://stocnet.github.io/migraph/).
 
 - [Marking](#marking)
+- [Measures](#measures)
 - [Motifs](#motifs)
 - [Memberships](#memberships)
-- [Measuring](#measuring)
 - [Installation](#installation)
   - [Stable](#stable)
   - [Development](#development)
@@ -73,10 +73,10 @@ The `*is_max()` and `*is_min()` functions are used to identify the
 maximum or minimum, respectively, node or tie according to some measure
 (see below).
 
-## Motifs
+## Measures
 
-`{netrics}`‘s `*by_*()` functions tabulate nodes’ frequency in various
-motifs. These include:
+`{netrics}`‘s `*_by_*()` functions offer numeric measures at the network, node, and tie level.
+These include:
 
 - `net_by_adhesion()`, `net_by_assortativity()`, `net_by_balance()`,
   `net_by_betweenness()`, `net_by_change()`, `net_by_closeness()`,
@@ -116,9 +116,19 @@ motifs. These include:
   `tie_by_betweenness()`, `tie_by_closeness()`, `tie_by_cohesion()`,
   `tie_by_degree()`, `tie_by_eigenvector()`
 
+## Motifs
+
+`{netrics}`’s `*_x_*()` functions tabulate nodes’ and networks’ frequency in various motifs.
+These include:
+
+- `net_x_brokerage()`, `net_x_dyad()`, `net_x_hazard()`,
+  `net_x_mixed()`, `net_x_tetrad()`, `net_x_triad()`,
+  `node_x_brokerage()`, `node_x_dyad()`, `node_x_exposure()`,
+  `node_x_path()`, `node_x_tetrad()`, `node_x_tie()`, `node_x_triad()`
+
 ## Memberships
 
-`{netrics}`‘s `*in_*()` functions identify nodes’ membership in some
+`{netrics}`‘s `*_in_*()` functions identify nodes’ membership in some
 grouping, such as a community or component. These functions always
 return a character vector, indicating e.g. that the first node is a
 member of group “A”, the second in group “B”, etc.
@@ -146,37 +156,13 @@ as elbow, silhouette, and strict methods for *k*-cluster selection.
 bases, such as typical community detection algorithms, as well as
 component and core-periphery partitioning algorithms.
 
-## Measuring
-
-`{netrics}` also offers a large and growing smorgasbord of measures that
-can be used at the node, tie, and network level to measure some feature,
-property, or quantity of the network. Each recognises whether the
-network is directed or undirected, weighted or unweighted, one-mode or
-two-mode. All return normalized values wherever possible, though this
-can be overrided. Here are some examples:
-
-- *Centrality*: `node_by_degree()`, `node_by_closeness()`,
-  `node_by_betweenness()`, and `node_by_eigenvector()`, `net_by_degree()`,
-  `net_by_closeness()`, `net_by_betweenness()`, and `net_by_eigenvector()`
-- *Cohesion*: `net_by_density()`, `net_by_reciprocity()`,
-  `net_by_transitivity()`, `net_by_equivalency()`, and `net_by_congruency()`
-- *Hierarchy*: `net_by_connectedness()`, `net_by_efficiency()`,
-  `net_by_upperbound()`
-- *Resilience*: `net_by_components()`, `net_by_cohesion()`, `net_by_adhesion()`,
-  `net_by_diameter()`, `net_by_length()`
-- *Innovation*: e.g. `node_by_redundancy()`, `node_by_effsize()`,
-  `node_by_efficiency()`, `node_by_constraint()`, `node_by_hierarchy()`
-- *Diversity*: `net_by_richness()`, `net_by_diversity()`, `net_by_heterophily()`,
-  `net_by_assortativity()`, `node_by_richness()`, `node_by_diversity()`,
-  `node_by_heterophily()`, `node_by_homophily()`
-- *Topology*: e.g. `net_by_core()`, `net_by_factions()`, `net_by_modularity()`,
-  `net_by_smallworld()`, `net_by_balance()`
-- *Diffusion*: e.g. `net_by_reproduction()`, `net_by_immunity()`,
-  `node_by_thresholds()`
-
-There is a lot here, so we recommend you explore [the list of
-functions](https://stocnet.github.io/netrics/reference/index.html) to
-find out more.
+The measures are organised into several broad categories, including:
+*Centrality*, *Cohesion*, *Hierarchy*, *Innovation* (structural holes), 
+*Diversity* (heterogeneity), *Topology* (features), and *Diffusion*.
+Each measure recognises whether the network is directed or undirected,
+weighted or unweighted, one-mode or two-mode,
+and returns normalized values wherever possible.
+We recommend you explore [the list of functions](https://stocnet.github.io/netrics/reference/index.html) to find out more.
 
 ## Installation
 

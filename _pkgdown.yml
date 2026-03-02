@@ -6,7 +6,7 @@ template:
 reference:
 - title: Marking
   desc: >
-    Logical tests of properties for networks, nodes, and ties.
+    Logical tests (`node_is_*()`, `tie_is_*()`) of node- and tie-level properties.
   contents:
   - mark_nodes
   - mark_ties
@@ -16,9 +16,9 @@ reference:
   - mark_diff
   - mark_triangles
 
-- title: Measuring
+- title: Measures
   desc: >
-    Numeric measures of properties for networks, nodes, and ties.
+    Numeric measures (`*_by_*()`) of properties for networks, nodes, and ties.
 
 - subtitle: Centrality
   desc: >
@@ -79,7 +79,7 @@ reference:
 
 - title: Memberships
   desc: >
-    Categorical classifications of nodes into groups.
+    Categorical classifications (`*_in_*()`) of nodes into groups.
   contents:
   - member_community_hier
   - member_community_non
@@ -92,7 +92,7 @@ reference:
 
 - title: Motifs
   desc: >
-    Tabulations of nodes' and networks' participation in
+    Tabulations (`*_x_*()`) of nodes' and networks' participation in
     network substructures and motifs.
   contents:
   - motif_net
