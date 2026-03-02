@@ -116,7 +116,7 @@ such as typical community detection algorithms,
 as well as component and core-periphery partitioning algorithms.
 
 The measures are organised into several broad categories, including:
-_Centrality_, _Cohesion_, _Hierarchy_, _Innovation_ (structural holes), 
+_Centrality_, _Cohesion_, _Hierarchy_, _Innovation_ (structural holes),
 _Diversity_ (heterogeneity), _Topology_ (features), and _Diffusion_.
 Each measure recognises whether the network is directed or undirected,
 weighted or unweighted, one-mode or two-mode,
