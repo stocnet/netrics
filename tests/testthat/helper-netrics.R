@@ -66,3 +66,19 @@ bot5 <- function(res, dec = 4){
     unname(round(res, dec))[(lr-4):lr]
   } else unname(res)[(lr-2):lr]
 }
+
+# data_objs <- mget(ls("package:manynet"), inherits = TRUE)
+# # Filter to relevant objects 
+# # data_objs <- data_objs[grepl("ison_|fict_|irps_|mpn_", names(data_objs))]
+# # data_objs <- data_objs[!grepl("starwars|physicians|potter", names(data_objs))]
+# objs <- table_data() %>% dplyr::filter(!grepl("starwars|physicians|potter", dataset)) %>% 
+#   dplyr::distinct(directed, weighted, twomode, labelled, signed, multiplex, longitudinal, dynamic, changing, .keep_all = TRUE) %>% 
+#   dplyr::pull(dataset) %>% as.character()
+# data_objs <- data_objs[objs]
+
+data_objs <- list(directed = generate_random(12, directed = TRUE),
+                  undirected = generate_random(12, directed = FALSE),
+                  twomode = generate_random(c(6,6)),
+                  labelled = add_node_attribute(generate_random(12, directed = TRUE), "name", paste0("Node", 1:12)),
+                  signed = to_signed(generate_random(12, directed = TRUE)))
+
