@@ -335,7 +335,7 @@ tie_is_random <- function(.data, size = 1){
   n <- manynet::net_ties(.data)
   out <- rep(FALSE, n)
   out[sample.int(n, size)] <- TRUE
-  make_node_mark(out, .data)
+  make_tie_mark(out, .data)
 }
 
 #' @rdname mark_tie_select
