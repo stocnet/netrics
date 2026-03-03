@@ -44,8 +44,8 @@ are key because they minimise or, more often, maximise some measure.
 }
 \examples{
 node_is_random(ison_brandes, 2)
-#node_is_max(migraph::node_degree(ison_brandes))
-#node_is_min(migraph::node_degree(ison_brandes))
+#node_is_max(node_by_degree(ison_brandes))
+#node_is_min(node_by_degree(ison_brandes))
 #node_is_mean(node_degree(ison_brandes))
 }
 \seealso{

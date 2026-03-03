@@ -33,8 +33,8 @@ are key because they minimise or, more often, maximise some measure.
 }
 }
 \examples{
-# tie_is_max(migraph::tie_betweenness(ison_brandes))
-#tie_is_min(migraph::tie_betweenness(ison_brandes))
+# tie_is_max(tie_by_betweenness(ison_brandes))
+#tie_is_min(tie_by_betweenness(ison_brandes))
 }
 \seealso{
 Other marks: 

@@ -24,7 +24,7 @@ net_x_mixed(.data, object2)
 For more information on the standard coercion possible,
 see \code{\link[manynet:manip_as]{manynet::as_tidygraph()}}.}
 
-\item{object2}{A second, two-mode migraph-consistent object.}
+\item{object2}{A second, two-mode network object.}
 }
 \description{
 These functions include ways to take a census of the graphlets

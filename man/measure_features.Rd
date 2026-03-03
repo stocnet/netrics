@@ -230,7 +230,7 @@ Cartwright, D., and Frank Harary. 1956.
 }
 }
 \seealso{
-\code{\link[manynet:measure_closure]{manynet::net_transitivity()}} and \code{\link[manynet:measure_closure]{manynet::net_equivalency()}}
+\code{\link[=net_by_transitivity]{net_by_transitivity()}} and \code{\link[=net_by_equivalency]{net_by_equivalency()}}
 for how clustering is calculated
 
 Other measures: 
