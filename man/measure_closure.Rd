@@ -72,7 +72,7 @@ node_by_reciprocity(to_unweighted(ison_networkers))
 net_by_transitivity(ison_adolescents)
 node_by_transitivity(ison_adolescents)
 net_by_equivalency(ison_southern_women)
-node_by_equivalency(ison_southern_women)
+# node_by_equivalency(ison_southern_women)
 }
 \references{
 \subsection{On equivalency or four-cycles}{
