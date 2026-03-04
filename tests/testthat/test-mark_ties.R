@@ -1,3 +1,22 @@
+tie_marks <- funs_objs[grepl("tie_is_", names(funs_objs))]
+for(fn in names(tie_marks)) {
+  for (ob in names(data_objs)) { 
+    test_that(paste(fn, "works on", ob), {
+      skip_if(grepl("tie_is_max|tie_is_min|tie_is_recovered", fn))
+      skip_if(grepl("tie_is_imbalanced", fn) && ob == "twomode")
+      if(fn == "tie_is_path"){
+        expect_s3_class(tie_marks[[fn]](data_objs[[ob]], 1, 2), "tie_mark")
+      } else if(fn == "tie_is_max" || fn == "tie_is_min"){
+        expect_s3_class(tie_marks[[fn]](tie_by_degree(data_objs[[ob]])), "tie_mark")
+      } else if(fn == "tie_is_infected"){
+        expect_s3_class(tie_marks[[fn]](play_diffusion(data_objs[[ob]])), "tie_mark")
+      } else {
+        expect_s3_class(tie_marks[[fn]](data_objs[[ob]]), "tie_mark")
+      }
+    })
+  }
+}
+
 graph1 <- igraph::make_directed_graph(c(1,2,1,5,2,3,2,4,3,5,4,5,5,1))
 graph2 <- igraph::make_undirected_graph(c(1,1,1,2,2,4,3,4,3,4))
 
