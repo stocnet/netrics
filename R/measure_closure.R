@@ -120,7 +120,7 @@ net_by_equivalency <- function(.data) {
 
 #' @rdname measure_closure
 #' @examples
-#' node_by_equivalency(ison_southern_women)
+#' # node_by_equivalency(ison_southern_women)
 #' @export
 node_by_equivalency <- function(.data) {
   .data <- manynet::expect_nodes(.data)

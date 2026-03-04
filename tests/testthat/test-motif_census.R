@@ -1,3 +1,17 @@
+node_motifs <- funs_objs[grepl("node_x_", names(funs_objs))]
+for(fn in names(node_motifs)) {
+  for (ob in names(data_objs)) { 
+    test_that(paste(fn, "works on", ob), {
+      skip_if(grepl("exposure|brokerage", fn))
+      skip_if(grepl("triad|dyad", fn) && is_twomode(data_objs[[ob]]))
+      if(fn == "x"){
+      } else {
+        expect_s3_class(node_motifs[[fn]](data_objs[[ob]]), "node_motif")
+      }
+    })
+  }
+}
+
 # # Census function family tests
 set.seed(123)
 task_eg <- to_named(to_uniplex(ison_algebra, "tasks"))
