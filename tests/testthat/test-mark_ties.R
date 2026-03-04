@@ -6,8 +6,6 @@ for(fn in names(tie_marks)) {
       skip_if(grepl("tie_is_imbalanced", fn) && ob == "twomode")
       if(fn == "tie_is_path"){
         expect_s3_class(tie_marks[[fn]](data_objs[[ob]], 1, 2), "tie_mark")
-      } else if(fn == "tie_is_max" || fn == "tie_is_min"){
-        expect_s3_class(tie_marks[[fn]](tie_by_degree(data_objs[[ob]])), "tie_mark")
       } else if(fn == "tie_is_infected"){
         expect_s3_class(tie_marks[[fn]](play_diffusion(data_objs[[ob]])), "tie_mark")
       } else {

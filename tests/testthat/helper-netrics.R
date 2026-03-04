@@ -78,6 +78,7 @@ funs_objs <- mget(ls("package:netrics"), inherits = TRUE)
 #   dplyr::pull(dataset) %>% as.character()
 # data_objs <- data_objs[objs]
 
+set.seed(1234)
 data_objs <- list(directed = generate_random(12, directed = TRUE),
                   undirected = generate_random(12, directed = FALSE),
                   twomode = generate_random(c(6,6)),
