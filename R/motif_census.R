@@ -442,14 +442,13 @@ net_x_tetrad <- function(.data){
 #' _Network Science_ 5(2): 187–212.
 #' \doi{10.1017/nws.2017.8}
 #' @examples 
-#' marvel_friends <- to_unsigned(fict_marvel, "positive")
-#' (mixed_cen <- net_x_mixed(marvel_friends, ison_marvel_teams))
+#' net_by_mixed(fict_marvel)
 #' @export
 net_x_mixed <- function (.data, object2) {
   .data <- manynet::expect_nodes(.data)
   if(missing(object2) && manynet::is_multiplex(.data)) {
-    # object2 <- to_uniplex(.data, )
-    
+    object2 <- to_uniplex(.data, unique(manynet::tie_attribute(.data, "type"))[2])
+    .data <- to_uniplex(.data, unique(manynet::tie_attribute(.data, "type"))[1])
   }
   if(manynet::is_twomode(.data))
     manynet::snet_abort("First object should be a one-mode network")
