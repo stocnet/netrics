@@ -22,7 +22,7 @@ it work.
 - Real entrepreneurs ship, not slip.
 - Some things need to be believed to be seen.
 
-## Git and Bitbucket
+## Git
 
 `stocnet` projects are maintained using the git version control system.
 A plain-English introduction to git can be found [here](https://blog.red-badger.com/2016/11/29/gitgithub-in-plain-english).
@@ -36,7 +36,7 @@ but I recommend [Fork](https://git-fork.com) software for Mac and Windows.
 This allows mostly visual management of commits, diffs, branches, etc.
 There are various other git software packages available, but this one is fairly fully featured.
 
-The Github page allows to access the issues assigned to you and check the commits.
+The GitHub page allows to access the issues assigned to you and check the commits.
 You can also access the documents in the repository, 
 although this won't be necessary after you have cloned it on your computer via Fork.
 
@@ -76,7 +76,7 @@ it is important to select this branch when pushing to origin/main.
 
 ## Issues and tests
 
-Please use the issues tracker on Github to identify any function-related issues.
+Please use the issues tracker on GitHub to identify any function-related issues.
 You can use these issues to track progress on the issue and 
 to comment or continue a conversation on that issue.
 Currently issue tracking is only open to those involved in the project.
@@ -94,7 +94,7 @@ When writing new code, please follow
 It can help to use packages such as `lintr`, `goodpractice` and `formatR` 
 to ensure these are followed.
 
-Currently, commits can only be pushed to Bitbucket where they reference an existing issue.
+Currently, commits can only be pushed to GitHub where they reference an existing issue.
 If no issue exists for the code you have developed, please add an issue first before pushing.
 Once the issue exists, you will need to mention the issue number (preceded by a hash symbol: #)
 in the commit description:

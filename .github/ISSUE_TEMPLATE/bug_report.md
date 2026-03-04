@@ -13,7 +13,7 @@ A clear and concise description of what the bug is.
 **Provide system information**
  - OS: [e.g. MacOS Mojave 10.14.6]
  - R version: [e.g. 3.5.3]
- - migraph version: [e.g. 1.4.0]
+ - netrics version: [e.g. 1.4.0]
 
 **To Reproduce**
 Please consider providing a [reprex](https://reprex.tidyverse.org) (a reproducible example),
