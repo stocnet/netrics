@@ -141,7 +141,7 @@ net_by_smallworld(ison_southern_women)
 net_by_scalefree(ison_adolescents)
 net_by_scalefree(generate_scalefree(50, 1.5))
 net_by_scalefree(create_lattice(100))
-net_by_balance(fict_marvel)
+net_by_balance(to_uniplex(fict_marvel, "relationship"))
 }
 \references{
 \subsection{On core-periphery}{
