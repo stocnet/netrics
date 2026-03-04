@@ -1144,7 +1144,7 @@ node_by_alpha <- function(.data, alpha = 0.85){
 #' @export 
 node_by_pagerank <- function(.data){
   .data <- manynet::expect_nodes(.data)
-  make_node_measure(igraph::page_rank(manynet::as_igraph(.data)),
+  make_node_measure(igraph::page_rank(manynet::as_igraph(.data))$vector,
                     .data)
 }
   
