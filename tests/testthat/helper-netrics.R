@@ -82,6 +82,6 @@ set.seed(1234)
 data_objs <- list(directed = generate_random(12, directed = TRUE),
                   undirected = generate_random(12, directed = FALSE),
                   twomode = generate_random(c(6,6)),
-                  labelled = add_node_attribute(generate_random(12, directed = TRUE), "name", paste0("Node", 1:12)),
+                  labelled = add_node_attribute(generate_random(12), "name", LETTERS[1:12]),
                   signed = to_signed(generate_random(12, directed = TRUE)))
 
