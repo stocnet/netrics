@@ -930,7 +930,7 @@ net_by_reach <- function(.data, normalized = TRUE, cutoff = 2){
   reaches <- node_by_reach(.data, normalized = FALSE, cutoff = cutoff)
   out <- sum(max(reaches) - reaches)
   if(normalized) out <- out / sum(manynet::net_nodes(.data) - reaches)
-  make_network_measure(out, .data)
+  make_network_measure(out, .data, call = deparse(sys.call()))
 }
 
 #' @rdname measure_central_close
@@ -940,7 +940,7 @@ net_by_harmonic <- function(.data, normalized = TRUE, cutoff = 2){
   harm <- node_by_harmonic(.data, normalized = FALSE, cutoff = cutoff)
   out <- sum(max(harm) - harm)
   if(normalized) out <- out / sum(manynet::net_nodes(.data) - harm)
-  make_network_measure(out, .data)
+  make_network_measure(out, .data, call = deparse(sys.call()))
 }
 
 # Eigenvector-like centralities ####
