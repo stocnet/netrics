@@ -67,6 +67,8 @@ bot5 <- function(res, dec = 4){
   } else unname(res)[(lr-2):lr]
 }
 
+funs_objs <- mget(ls("package:netrics"), inherits = TRUE)
+
 # data_objs <- mget(ls("package:manynet"), inherits = TRUE)
 # # Filter to relevant objects 
 # # data_objs <- data_objs[grepl("ison_|fict_|irps_|mpn_", names(data_objs))]
