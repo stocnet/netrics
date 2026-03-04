@@ -1,12 +1,12 @@
-test_that("node_brokering_activity works", {
-  test <- node_brokering_activity(ison_networkers, "Discipline")
+test_that("node_by_brokering_activity works", {
+  test <- node_by_brokering_activity(ison_networkers, "Discipline")
   expect_s3_class(test, "node_measure")
   expect_equal(c(net_nodes(ison_networkers)), length(test))
   expect_equal(top3(test), c(333,207,3))
 })
 
 test_that("node_brokering_exclusivity works", {
-  test <- node_brokering_exclusivity(ison_networkers, "Discipline")
+  test <- node_by_brokering_exclusivity(ison_networkers, "Discipline")
   expect_s3_class(test, "node_measure")
   expect_equal(c(net_nodes(ison_networkers)), length(test))
   expect_equal(top3(test), c(1,0,0))
@@ -21,14 +21,3 @@ test_that("node_in_brokering works", {
   expect_output(print(summary(node_in_brokering(to_uniplex(fict_marvel, "affiliation")))), "Connectors")
 })
 
-test_that("node_by_brokerage works", {
-  test <- node_by_brokerage(ison_networkers, "Discipline")
-  expect_s3_class(test, "node_motif")
-  expect_equal(dim(test), c(32,6))
-})
-
-test_that("net_by_brokerage works", {
-  test <- net_by_brokerage(ison_networkers, "Discipline")
-  expect_s3_class(test, "network_motif")
-  expect_equal(top3(names(test)), c("Coordinator","Itinerant","Gatekeeper"))
-})

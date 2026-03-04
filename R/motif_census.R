@@ -447,8 +447,8 @@ net_x_tetrad <- function(.data){
 net_x_mixed <- function (.data, object2) {
   .data <- manynet::expect_nodes(.data)
   if(missing(object2) && manynet::is_multiplex(.data)) {
-    object2 <- to_uniplex(.data, unique(manynet::tie_attribute(.data, "type"))[2])
-    .data <- to_uniplex(.data, unique(manynet::tie_attribute(.data, "type"))[1])
+    object2 <- manynet::to_uniplex(.data, unique(manynet::tie_attribute(.data, "type"))[2])
+    .data <- manynet::to_uniplex(.data, unique(manynet::tie_attribute(.data, "type"))[1])
   }
   if(manynet::is_twomode(.data))
     manynet::snet_abort("First object should be a one-mode network")

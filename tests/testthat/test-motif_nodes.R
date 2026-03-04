@@ -94,3 +94,14 @@ test_that("node path census works", {
                 ncol(node_by_path(ison_southern_women)))
 })
 
+test_that("node_x_brokerage works", {
+  test <- node_x_brokerage(ison_networkers, "Discipline")
+  expect_s3_class(test, "node_motif")
+  expect_equal(dim(test), c(32,6))
+})
+
+test_that("net_x_brokerage works", {
+  test <- net_x_brokerage(ison_networkers, "Discipline")
+  expect_s3_class(test, "network_motif")
+  expect_equal(top3(names(test)), c("Coordinator","Itinerant","Gatekeeper"))
+})
