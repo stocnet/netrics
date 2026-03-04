@@ -2,13 +2,13 @@
 % Please edit documentation in R/measure_hierarchy.R
 \name{measure_hierarchy}
 \alias{measure_hierarchy}
-\alias{net_by_hierarchy}
+\alias{net_x_hierarchy}
 \alias{net_by_connectedness}
 \alias{net_by_efficiency}
 \alias{net_by_upperbound}
 \title{Graph theoretic dimensions of hierarchy}
 \usage{
-net_by_hierarchy(.data)
+net_x_hierarchy(.data)
 
 net_by_connectedness(.data)
 

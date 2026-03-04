@@ -33,7 +33,7 @@ NULL
 
 #' @rdname measure_hierarchy 
 #' @export
-net_by_hierarchy <- function(.data){
+net_x_hierarchy <- function(.data){
   .data <- manynet::expect_nodes(.data)
   out <- data.frame(Connectedness = net_by_connectedness(.data),
                     InvReciprocity = 1 - net_by_reciprocity(.data),
