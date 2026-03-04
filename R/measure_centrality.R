@@ -797,7 +797,7 @@ node_by_vitality <- function(.data, normalized = TRUE){
 node_by_randomwalk <- function(.data, normalized = TRUE){
   .data <- manynet::expect_nodes(.data)
   # adjacency and degree matrices
-  A <- manynet::as_matrix(.data)
+  A <- manynet::as_matrix(manynet::to_multilevel(.data))
   degs <- node_by_deg(.data)
   D <- diag(degs)
   
