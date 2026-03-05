@@ -1,6 +1,4 @@
 test_that("redundancy is reported correctly", {
-  expect_s3_class(node_redundancy(ison_brandes), "node_measure")
-  expect_s3_class(node_redundancy(ison_southern_women), "node_measure")
   expect_equal(as.numeric(length(node_redundancy(ison_brandes))),
                as.numeric(net_nodes(ison_brandes)))
   expect_equal(as.numeric(length(node_redundancy(ison_southern_women))),

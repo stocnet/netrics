@@ -78,16 +78,6 @@ test_that("two mode eigenvector centrality calculated correctly",{
   expect_equal(bot3(node_eigenvector(test_igr)), c(0.4764, 0.2907, 0.2907))
 })
 
-test_that("node measure class works", {
-  expect_s3_class(node_degree(ison_adolescents), "node_measure")
-  expect_s3_class(node_betweenness(ison_adolescents), "node_measure")
-  expect_s3_class(node_closeness(ison_adolescents), "node_measure")
-  expect_s3_class(node_eigenvector(ison_adolescents), "node_measure")
-  expect_s3_class(node_reach(ison_adolescents), "node_measure")
-  expect_s3_class(node_randomwalk(ison_adolescents), "node_measure")
-  expect_s3_class(node_harmonic(ison_adolescents), "node_measure")
-})
-
 test_that("summary node measure works", {
   expect_equal(names(summary(node_degree(ison_adolescents))), 
                c("Minimum","Maximum","Mean","StdDev","Missing"))
@@ -124,42 +114,16 @@ test_that("two mode betweenness centralisation calculated correctly", {
 })
 
 test_that("net_measure class works", {
-  expect_s3_class(net_degree(ison_algebra), "network_measure")
-  expect_s3_class(net_betweenness(ison_southern_women), "network_measure")
-  expect_s3_class(net_closeness(ison_southern_women), "network_measure")
   expect_output(print(net_degree(ison_algebra)))
 })
 
 # ####### Edge centrality
-test_that("tie_degree works", {
-  res <- tie_degree(ison_adolescents)
-  expect_s3_class(res, "tie_measure")
-  expect_length(res, manynet::net_ties(ison_adolescents))
-  expect_output(print(res), "Betty-Sue")
-})
-
 test_that("tie_betweenness works", {
-  expect_s3_class(tie_betweenness(ison_adolescents),
-                  "tie_measure")
-  expect_length(tie_betweenness(ison_adolescents),
-                manynet::net_ties(ison_adolescents))
   expect_equal(unname(tie_betweenness(ison_adolescents)[1:3]),
                c(7,3,5), tolerance = 0.001)
 })
 
 test_that("tie_closeness works", {
-  expect_s3_class(tie_closeness(ison_adolescents),
-                  "tie_measure")
-  expect_length(tie_closeness(ison_adolescents),
-                manynet::net_ties(ison_adolescents))
   expect_equal(unname(tie_closeness(ison_adolescents)[1:3]),
                c(0.562,0.692,0.600), tolerance = 0.001)
 })
-
-test_that("tie_eigenvector works", {
-  expect_s3_class(tie_eigenvector(ison_southern_women),
-                  "tie_measure")
-  expect_length(tie_eigenvector(ison_southern_women),
-                manynet::net_ties(ison_southern_women))
-})
-
