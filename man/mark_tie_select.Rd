@@ -38,6 +38,7 @@ are key because they minimise or, more often, maximise some measure.
 }
 \seealso{
 Other marks: 
+\code{\link{mark_degree}},
 \code{\link{mark_diff}},
 \code{\link{mark_nodes}},
 \code{\link{mark_select}},

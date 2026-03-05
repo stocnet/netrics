@@ -70,6 +70,7 @@ fict_marvel \%>\% to_uniplex("relationship") \%>\% tie_is_imbalanced()
 }
 \seealso{
 Other marks: 
+\code{\link{mark_degree}},
 \code{\link{mark_diff}},
 \code{\link{mark_nodes}},
 \code{\link{mark_select}},

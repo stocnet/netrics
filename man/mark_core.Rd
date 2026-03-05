@@ -2,15 +2,12 @@
 % Please edit documentation in R/member_core.R
 \name{mark_core}
 \alias{mark_core}
-\alias{node_is_universal}
 \alias{node_is_core}
 \alias{node_by_kcoreness}
 \alias{node_by_coreness}
 \alias{node_in_core}
 \title{Core-periphery clustering algorithms}
 \usage{
-node_is_universal(.data)
-
 node_is_core(.data, method = c("degree", "eigenvector"))
 
 node_by_kcoreness(.data)
@@ -41,8 +38,6 @@ or "kmeans" (k-means clustering). Default is "bins".}
 \description{
 These functions identify nodes belonging to (some level of) the core of a network:
 \itemize{
-\item \code{node_is_universal()} identifies whether nodes are adjacent to all other
-nodes in the network.
 \item \code{node_is_core()} identifies whether nodes belong to the core of the
 network, as opposed to the periphery.
 \item \code{node_in_core()} categorizes nodes into two or more core/periphery
@@ -52,17 +47,6 @@ resembles a typical core node.
 \item \code{node_kcoreness()} assigns nodes to their level of k-coreness.
 }
 }
-\section{Universal/dominating node}{
-
-A universal node is adjacent to all other nodes in the network.
-It is also sometimes called the dominating vertex because it represents
-a one-element dominating set.
-A network with a universal node is called a cone, and its universal node
-is called the apex of the cone.
-A classic example of a cone is a star graph,
-but friendship, wheel, and threshold graphs are also cones.
-}
-
 \section{Core-periphery}{
 
 This function is used to identify which nodes should belong to the core,
@@ -97,7 +81,6 @@ quantile-based bins, or k-means clustering.
 }
 
 \examples{
-node_is_universal(create_star(11))
 node_is_core(ison_adolescents)
 #ison_adolescents \%>\% 
 #   mutate(corep = node_is_core()) \%>\% 
