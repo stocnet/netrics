@@ -193,6 +193,7 @@ Other centrality:
 
 Other measures: 
 \code{\link{measure_breadth}},
+\code{\link{measure_brokerage}},
 \code{\link{measure_central_between}},
 \code{\link{measure_central_close}},
 \code{\link{measure_central_eigen}},
@@ -208,6 +209,10 @@ Other measures:
 \code{\link{measure_holes}},
 \code{\link{measure_periods}},
 \code{\link{member_diffusion}}
+
+Other degree: 
+\code{\link{mark_degree}}
 }
 \concept{centrality}
+\concept{degree}
 \concept{measures}

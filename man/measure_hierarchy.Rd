@@ -55,6 +55,7 @@ Everett, Martin, and David Krackhardt. 2012.
 \seealso{
 Other measures: 
 \code{\link{measure_breadth}},
+\code{\link{measure_brokerage}},
 \code{\link{measure_central_between}},
 \code{\link{measure_central_close}},
 \code{\link{measure_central_degree}},

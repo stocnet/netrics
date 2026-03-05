@@ -29,6 +29,7 @@
 #' @name measure_central_degree
 #' @family centrality
 #' @family measures
+#' @family degree
 #' @inheritParams mark_nodes
 #' @param normalized Logical scalar, whether the centrality scores are normalized.
 #'   Different denominators are used depending on whether the object is one-mode or two-mode,
@@ -303,6 +304,7 @@ net_by_indegree <- function(.data, normalized = TRUE){
 #' @name measure_central_between
 #' @family centrality
 #' @family measures
+#' @family betweenness
 #' @inheritParams measure_central_degree
 #' @param cutoff The maximum path length to consider when calculating betweenness.
 #'   If negative or NULL (the default), there's no limit to the path lengths considered.

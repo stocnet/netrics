@@ -30,6 +30,7 @@ net_by_length(to_giant(fict_marvel))
 }
 \seealso{
 Other measures: 
+\code{\link{measure_brokerage}},
 \code{\link{measure_central_between}},
 \code{\link{measure_central_close}},
 \code{\link{measure_central_degree}},

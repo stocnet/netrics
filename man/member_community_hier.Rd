@@ -6,7 +6,7 @@
 \alias{node_in_greedy}
 \alias{node_in_eigen}
 \alias{node_in_walktrap}
-\title{Hierarchical community partitioning algorithms}
+\title{Hierarchical community clustering algorithms}
 \usage{
 node_in_betweenness(.data)
 
@@ -130,5 +130,9 @@ Other memberships:
 \code{\link{member_community_non}},
 \code{\link{member_components}},
 \code{\link{member_equivalence}}
+
+Other community: 
+\code{\link{member_community_non}}
 }
+\concept{community}
 \concept{memberships}

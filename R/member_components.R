@@ -1,4 +1,4 @@
-#' Component partitioning algorithms
+#' Component clustering algorithms
 #' 
 #' @description 
 #'   These functions create a vector of nodes' memberships in components:

@@ -2,8 +2,6 @@
 #' @description
 #'   These functions identify nodes belonging to (some level of) the core of a network:
 #'   
-#'   - `node_is_universal()` identifies whether nodes are adjacent to all other
-#'   nodes in the network.
 #'   - `node_is_core()` identifies whether nodes belong to the core of the 
 #'   network, as opposed to the periphery.
 #'   - `node_in_core()` categorizes nodes into two or more core/periphery
@@ -22,24 +20,6 @@
 #' @name mark_core
 #' @family memberships
 NULL
-
-#' @rdname mark_core
-#' @section Universal/dominating node: 
-#'   A universal node is adjacent to all other nodes in the network.
-#'   It is also sometimes called the dominating vertex because it represents
-#'   a one-element dominating set.
-#'   A network with a universal node is called a cone, and its universal node
-#'   is called the apex of the cone.
-#'   A classic example of a cone is a star graph,
-#'   but friendship, wheel, and threshold graphs are also cones.
-#' @examples
-#' node_is_universal(create_star(11))
-#' @export
-node_is_universal <- function(.data){
-  .data <- manynet::expect_nodes(.data)
-  net <- manynet::to_undirected(manynet::to_unweighted(.data))
-  make_node_mark(node_by_deg(net)==(manynet::net_nodes(net)-1), .data)
-}
 
 #' @rdname mark_core
 #' @section Core-periphery: 

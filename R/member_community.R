@@ -1,6 +1,6 @@
-# Non-hierarchical community partitioning ####
+# Non-hierarchical community clustering ####
 
-#' Non-hierarchical community partitioning algorithms
+#' Non-hierarchical community clustering algorithms
 #' 
 #' @description
 #'   These functions offer algorithms for partitioning
@@ -30,6 +30,7 @@
 #' @inheritParams mark_nodes
 #' @name member_community_non
 #' @family memberships
+#' @family community
 NULL
 
 #' @rdname member_community_non 
@@ -355,9 +356,9 @@ node_in_leiden <- function(.data, resolution = 1){
   make_node_member(out, .data)
 }
 
-# Hierarchical community partitioning ####
+# Hierarchical community clustering ####
 
-#' Hierarchical community partitioning algorithms
+#' Hierarchical community clustering algorithms
 #' 
 #' @description
 #'   These functions offer algorithms for hierarchically clustering
@@ -379,6 +380,7 @@ node_in_leiden <- function(.data, resolution = 1){
 #' @inheritParams member_community_non
 #' @name member_community_hier
 #' @family memberships
+#' @family community
 NULL
 
 #' @rdname member_community_hier 
