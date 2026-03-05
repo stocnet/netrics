@@ -101,7 +101,7 @@ tie_is_path <- function(.data, from, to, all_paths = FALSE){
 
 # Triangular properties ####
 
-#' Marking ties based on structural properties
+#' Marking ties based on triangular properties
 #' 
 #' @description 
 #'   These functions return logical vectors the length of the ties

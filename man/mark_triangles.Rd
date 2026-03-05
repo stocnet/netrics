@@ -9,7 +9,7 @@
 \alias{tie_is_simmelian}
 \alias{tie_is_forbidden}
 \alias{tie_is_imbalanced}
-\title{Marking ties based on structural properties}
+\title{Marking ties based on triangular properties}
 \usage{
 tie_is_triangular(.data)
 
