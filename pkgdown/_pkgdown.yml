@@ -72,6 +72,8 @@ reference:
       - measure_closure
       - measure_features
       - measure_heterogeneity
+      - measure_fragmentation
+      - measure_breadth
   - subtitle: "Dynamics"
     contents:
       - measure_periods
