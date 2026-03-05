@@ -4,17 +4,11 @@
 \alias{motif_brokerage}
 \alias{node_x_brokerage}
 \alias{net_x_brokerage}
-\alias{node_by_brokering_activity}
-\alias{node_by_brokering_exclusivity}
 \title{Motifs of brokerage}
 \usage{
 node_x_brokerage(.data, membership, standardized = FALSE)
 
 net_x_brokerage(.data, membership, standardized = FALSE)
-
-node_by_brokering_activity(.data, membership)
-
-node_by_brokering_exclusivity(.data, membership)
 }
 \arguments{
 \item{.data}{A network object of class \code{mnet}, \code{igraph}, \code{tbl_graph}, \code{network}, or similar.
@@ -42,7 +36,6 @@ roles in a network.
 \examples{
 # node_x_brokerage(ison_networkers, "Discipline")
 # net_x_brokerage(ison_networkers, "Discipline")
-node_by_brokering_exclusivity(ison_networkers, "Discipline")
 }
 \references{
 \subsection{On brokerage motifs}{
@@ -57,20 +50,16 @@ Jasny, Lorien, and Mark Lubell. 2015.
 \emph{Social Networks} 41:36–47.
 \doi{10.1016/j.socnet.2014.11.005}
 }
-
-\subsection{On brokerage activity and exclusivity}{
-
-Hamilton, Matthew, Jacob Hileman, and Orjan Bodin. 2020.
-"Evaluating heterogeneous brokerage: New conceptual and methodological approaches
-and their application to multi-level environmental governance networks"
-\emph{Social Networks} 61: 1-10.
-\doi{10.1016/j.socnet.2019.08.002}
-}
 }
 \seealso{
 Other motifs: 
 \code{\link{motif_diffusion}},
 \code{\link{motif_net}},
 \code{\link{motif_node}}
+
+Other brokerage: 
+\code{\link{measure_brokerage}},
+\code{\link{member_brokerage}}
 }
+\concept{brokerage}
 \concept{motifs}

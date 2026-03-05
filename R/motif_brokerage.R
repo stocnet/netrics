@@ -1,4 +1,4 @@
-# Brokerage ####
+# Motifs ####
 
 #' Motifs of brokerage
 #' 
@@ -15,6 +15,7 @@
 #'   
 #' @name motif_brokerage
 #' @family motifs
+#' @family brokerage
 #' @inheritParams motif_node
 #' @param membership A vector of partition membership as integers.
 #' @param standardized Whether the score should be standardized
@@ -80,7 +81,24 @@ net_x_brokerage <- function(.data, membership, standardized = FALSE){
   make_network_motif(out, .data)
 }
 
-#' @rdname motif_brokerage 
+# Measures ####
+
+#' Measures of brokerage
+#' 
+#' @description
+#'   These functions include ways to measure nodes' brokerage activity and
+#'   exclusivity in a network: 
+#'   
+#'   - `node_brokering_activity()` measures nodes' brokerage activity.
+#'   - `node_brokering_exclusivity()` measures nodes' brokerage exclusivity. 
+#'   
+#' @name measure_brokerage
+#' @family measures
+#' @family brokerage
+#' @inheritParams motif_brokerage
+NULL
+
+#' @rdname measure_brokerage 
 #' @references
 #' ## On brokerage activity and exclusivity
 #'   Hamilton, Matthew, Jacob Hileman, and Orjan Bodin. 2020.
@@ -111,7 +129,7 @@ node_by_brokering_activity <- function(.data, membership){
   make_node_measure(out, .data)
 }
 
-#' @rdname motif_brokerage
+#' @rdname measure_brokerage 
 #' @examples
 #' node_by_brokering_exclusivity(ison_networkers, "Discipline")
 #' @export
@@ -139,6 +157,8 @@ node_by_brokering_exclusivity <- function(.data, membership){
   make_node_measure(out, .data)
 }
 
+# Memberships ####
+
 #' Memberships of brokerage
 #' 
 #' @description
@@ -150,6 +170,7 @@ node_by_brokering_exclusivity <- function(.data, membership){
 #'   
 #' @name member_brokerage
 #' @family memberships
+#' @family brokerage
 #' @inheritParams motif_brokerage
 NULL
 

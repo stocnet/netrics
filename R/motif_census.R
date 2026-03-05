@@ -498,6 +498,7 @@ net_x_mixed <- function (.data, object2) {
 #'   infection/adoption by time step.
 #' 
 #' @family motifs
+#' @family diffusion
 #' @inheritParams motif_node
 #' @inheritParams measure_diffusion_net
 #' @name motif_diffusion
