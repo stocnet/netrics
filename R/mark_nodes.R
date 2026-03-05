@@ -29,7 +29,7 @@ NULL
 #' @export
 node_is_isolate <- function(.data){
   .data <- manynet::expect_nodes(.data)
-  mat <- manynet::as_matrix(.data)
+  mat <- abs(manynet::as_matrix(.data))
   if(manynet::is_twomode(.data)){
     out <- c(rowSums(mat)==0, colSums(mat)==0)
   } else {
@@ -43,7 +43,7 @@ node_is_isolate <- function(.data){
 #' @export
 node_is_pendant <- function(.data){
   .data <- manynet::expect_nodes(.data)
-  mat <- manynet::as_matrix(.data)
+  mat <- abs(manynet::as_matrix(.data))
   if(manynet::is_twomode(.data)){
     out <- c(rowSums(mat)==1, colSums(mat)==1)
   } else {
