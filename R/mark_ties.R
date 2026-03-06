@@ -114,7 +114,7 @@ tie_is_path <- function(.data, from, to, all_paths = FALSE){
 #'   and fully reciprocated.
 #'   - `tie_is_imbalanced()` marks ties that are part of imbalanced triads.
 #'   - `tie_is_transitive()` marks ties that complete transitive closure.
-#'   - `tie_is_forbidden()` marks ties that complete forbidden triads.
+# #'   - `tie_is_forbidden()` marks ties that complete forbidden triads.
 #'   
 #'   They are most useful in highlighting parts of the network that
 #'   are cohesively connected.
@@ -218,37 +218,39 @@ tie_is_simmelian <- function(.data){
   make_tie_mark(out, .data)
 }
 
-#' @rdname mark_triangles
-#' @examples 
-#' generate_random(8, directed = TRUE) %>% 
-#'   mutate_ties(forbid = tie_is_forbidden())
-#'   #graphr(edge_color = "forbid")
-#' @export
-tie_is_forbidden <- function(.data){
-  .data <- manynet::expect_ties(.data)  
-  dists <- igraph::distances(.data, mode = "out")==2
-  ends <- which(dists * t(dists)==1, arr.ind = TRUE)
-  ends <- t(apply(ends, 1, function(x) sort(x)))
-  ends <- ends[!duplicated(ends),]
-  tris <- apply(ends, 1, function(x){
-    y <- unlist(igraph::all_shortest_paths(.data, x[1], x[2], mode = "out")$res)
-    y <- matrix(y, ncol = 3, byrow = TRUE)
-    y <- do.call("paste", c(as.data.frame(y)[, , drop = FALSE], sep = "-"))
-    z <- unlist(igraph::all_shortest_paths(.data, x[1], x[2], mode = "in")$res)
-    z <- matrix(z, ncol = 3, byrow = TRUE)
-    z <- do.call("paste", c(as.data.frame(z)[, , drop = FALSE], sep = "-"))
-    as.numeric(unlist(strsplit(y[y %in% z], "-")))
-  })
-  out <- matrix(unlist(tris), ncol = 3, byrow = TRUE)
-  out <- unique(c(apply(out, 1, function(x){
-    c(paste0(x[1],"->",x[2]),
-    paste0(x[2],"->",x[1]),
-    paste0(x[2],"->",x[3]),
-    paste0(x[3],"->",x[2]))
-  } )))
-  out <- names(tie_is_reciprocated(.data)) %in% out
-  make_tie_mark(out, .data)
-}
+# #' @rdname mark_triangles
+# #' @examples 
+# #' generate_random(8, directed = TRUE) %>% 
+# #'   mutate_ties(forbid = tie_is_forbidden())
+# #'   #graphr(edge_color = "forbid")
+# #' @export
+# tie_is_forbidden <- function(.data){
+#   .data <- manynet::expect_ties(.data)
+#   if(!manynet::is_weighted(.data)) 
+#     snet_abort("This function only works with weighted networks.")
+#   dists <- igraph::distances(.data, mode = "out")==2
+#   ends <- which(dists * t(dists)==1, arr.ind = TRUE)
+#   ends <- t(apply(ends, 1, function(x) sort(x)))
+#   ends <- ends[!duplicated(ends),]
+#   tris <- apply(ends, 1, function(x){
+#     y <- unlist(igraph::all_shortest_paths(.data, x[1], x[2], mode = "out")$res)
+#     y <- matrix(y, ncol = 3, byrow = TRUE)
+#     y <- do.call("paste", c(as.data.frame(y)[, , drop = FALSE], sep = "-"))
+#     z <- unlist(igraph::all_shortest_paths(.data, x[1], x[2], mode = "in")$res)
+#     z <- matrix(z, ncol = 3, byrow = TRUE)
+#     z <- do.call("paste", c(as.data.frame(z)[, , drop = FALSE], sep = "-"))
+#     as.numeric(unlist(strsplit(y[y %in% z], "-")))
+#   })
+#   out <- matrix(unlist(tris), ncol = 3, byrow = TRUE)
+#   out <- unique(c(apply(out, 1, function(x){
+#     c(paste0(x[1],"->",x[2]),
+#     paste0(x[2],"->",x[1]),
+#     paste0(x[2],"->",x[3]),
+#     paste0(x[3],"->",x[2]))
+#   } )))
+#   out <- names(tie_is_reciprocated(.data)) %in% out
+#   make_tie_mark(out, .data)
+# }
 
 #' @rdname mark_triangles
 #' @examples

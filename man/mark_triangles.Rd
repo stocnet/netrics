@@ -7,7 +7,6 @@
 \alias{tie_is_triplet}
 \alias{tie_is_cyclical}
 \alias{tie_is_simmelian}
-\alias{tie_is_forbidden}
 \alias{tie_is_imbalanced}
 \title{Marking ties based on triangular properties}
 \usage{
@@ -20,8 +19,6 @@ tie_is_triplet(.data)
 tie_is_cyclical(.data)
 
 tie_is_simmelian(.data)
-
-tie_is_forbidden(.data)
 
 tie_is_imbalanced(.data)
 }
@@ -41,7 +38,6 @@ in a network identifying which hold certain properties or positions in the netwo
 and fully reciprocated.
 \item \code{tie_is_imbalanced()} marks ties that are part of imbalanced triads.
 \item \code{tie_is_transitive()} marks ties that complete transitive closure.
-\item \code{tie_is_forbidden()} marks ties that complete forbidden triads.
 }
 
 They are most useful in highlighting parts of the network that
@@ -63,9 +59,6 @@ ison_adolescents \%>\% to_directed() \%>\%
 ison_monks \%>\% to_uniplex("like") \%>\% 
   mutate_ties(simmel = tie_is_simmelian())
   #graphr(edge_color = "simmel")
-generate_random(8, directed = TRUE) \%>\% 
-  mutate_ties(forbid = tie_is_forbidden())
-  #graphr(edge_color = "forbid")
 fict_marvel \%>\% to_uniplex("relationship") \%>\% tie_is_imbalanced()
 }
 \seealso{
