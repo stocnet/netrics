@@ -313,7 +313,7 @@ tie_is_imbalanced <- function(.data){
 
 # Selection properties ####
 
-#' Marking ties for selection based on measures
+#' Marking ties based on measures
 #' 
 #' @description 
 #'   These functions return logical vectors the length of the ties in a network:

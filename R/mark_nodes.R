@@ -405,7 +405,7 @@ node_is_exposed <- function(.data, mark, time = 0){
 
 # Selection properties ####
 
-#' Marking nodes for selection based on measures
+#' Marking nodes based on measures
 #' 
 #' @description 
 #'   These functions return logical vectors the length of the 

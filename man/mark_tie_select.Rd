@@ -5,7 +5,7 @@
 \alias{tie_is_random}
 \alias{tie_is_max}
 \alias{tie_is_min}
-\title{Marking ties for selection based on measures}
+\title{Marking ties based on measures}
 \usage{
 tie_is_random(.data, size = 1)
 

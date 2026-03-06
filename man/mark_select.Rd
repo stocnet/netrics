@@ -6,7 +6,7 @@
 \alias{node_is_max}
 \alias{node_is_min}
 \alias{node_is_mean}
-\title{Marking nodes for selection based on measures}
+\title{Marking nodes based on measures}
 \usage{
 node_is_random(.data, size = 1)
 
