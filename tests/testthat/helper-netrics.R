@@ -1,10 +1,6 @@
 options(manynet_verbosity = "quiet")
 options(snet_verbosity = "quiet")
 
-collect_functions <- function(pattern, package = "netrics"){
-  getNamespaceExports(package)[grepl(pattern, getNamespaceExports(package))]
-}
-
 expect_values <- function(object, ref, toler = 3) {
   # 1. Capture object and label
   # act <- quasi_label(rlang::enquo(object), arg = "object")
@@ -67,6 +63,9 @@ bot5 <- function(res, dec = 4){
   } else unname(res)[(lr-2):lr]
 }
 
+collect_functions <- function(pattern, package = "netrics"){
+  getNamespaceExports(package)[grepl(pattern, getNamespaceExports(package))]
+}
 funs_objs <- mget(ls("package:netrics"), inherits = TRUE)
 
 # data_objs <- mget(ls("package:manynet"), inherits = TRUE)
@@ -82,7 +81,9 @@ set.seed(1234)
 data_objs <- list(directed = generate_random(12, directed = TRUE),
                   undirected = generate_random(12, directed = FALSE),
                   twomode = generate_random(c(6,6)),
-                  labelled = add_node_attribute(generate_random(12), "name", LETTERS[1:12]),
+                  labelled = add_node_attribute(create_ring(12), "name", LETTERS[1:12]),
+                  attribute = add_node_attribute(create_ring(12), "group", rep(c("A","B"), each = 6)),
+                  weighted = add_tie_attribute(create_ring(12), "weight", rep(c(1,2), each = 6)),
                   signed = to_signed(generate_random(12, directed = TRUE)),
                   diffusion = play_diffusion(create_ring(12), seeds = 1, steps = 5, latency = 0.75, recovery = 0.25))
 
