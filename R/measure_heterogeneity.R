@@ -405,9 +405,9 @@ attr_mode <- function(.data, attribute){
 node_by_homophily <- function(.data, attribute,
                           method = c("ie","ei","yule","geary")){
   .data <- manynet::expect_nodes(.data)
-  if (length(attribute) == 1 && is.character(attribute)) {
-    attribute <- manynet::node_attribute(.data, attribute)
-  }
+  # if (length(attribute) == 1 && is.character(attribute)) {
+  #   attribute <- manynet::node_attribute(.data, attribute)
+  # }
   method <- match.arg(method)
   if(is.numeric(attribute) && method %in% c("ie","ei","yule")){
     manynet::snet_info("{.val {method}} index is not appropriate for numeric attributes.")
