@@ -1073,6 +1073,11 @@ node_by_power <- function(.data, normalized = TRUE, scale = FALSE, exponent = 1)
                   manynet::tie_weights(.data), NA)
   graph <- manynet::as_igraph(.data)
   
+  if(var(node_by_deg(graph))==0){
+    snet_minor_info("All nodes have the same degree, so power centrality is the same as degree centrality.")
+    exponent <- 0
+  }
+  
   # Do the calculations
   if (!manynet::is_twomode(graph)){
     out <- igraph::power_centrality(graph = graph, 
