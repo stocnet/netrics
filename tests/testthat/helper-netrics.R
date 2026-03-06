@@ -83,5 +83,6 @@ data_objs <- list(directed = generate_random(12, directed = TRUE),
                   undirected = generate_random(12, directed = FALSE),
                   twomode = generate_random(c(6,6)),
                   labelled = add_node_attribute(generate_random(12), "name", LETTERS[1:12]),
-                  signed = to_signed(generate_random(12, directed = TRUE)))
+                  signed = to_signed(generate_random(12, directed = TRUE)),
+                  diffusion = play_diffusion(create_ring(12), seeds = 1, steps = 5, latency = 0.75, recovery = 0.25))
 
