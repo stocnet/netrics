@@ -68,6 +68,7 @@ node_in_equivalence <- function(.data, census,
                 strict = k_strict(hc, .data),
                 elbow = k_elbow(hc, .data, census, range),
                 silhouette = k_silhouette(hc, .data, range))
+  if(length(k)==0) k <- 1 # in the case of all nodes being in the same cluster
   
   out <- make_node_member(stats::cutree(hc, k), .data)
   attr(out, "hc") <- hc
@@ -108,12 +109,12 @@ node_in_regular <- function(.data,
   .data <- manynet::expect_nodes(.data)
   if(manynet::is_twomode(.data)){
     manynet::snet_info("Since this is a two-mode network,", 
-              "using {.fn node_by_tetrad} to", 
+              "using {.fn node_x_tetrad} to", 
               "profile nodes' embedding in local structures.")
     mat <- as.matrix(node_x_tetrad(.data))
   } else {
     manynet::snet_info("Since this is a one-mode network,", 
-              "using {.fn node_by_triad} to", 
+              "using {.fn node_x_triad} to", 
               "profile nodes' embedding in local structures.")
     mat <- node_x_triad(.data)
   }
