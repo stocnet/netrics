@@ -6,12 +6,6 @@
 \alias{node_by_richness}
 \alias{net_by_diversity}
 \alias{node_by_diversity}
-\alias{net_by_heterophily}
-\alias{node_by_heterophily}
-\alias{net_by_homophily}
-\alias{node_by_homophily}
-\alias{net_by_assortativity}
-\alias{net_by_spatial}
 \title{Measures of network diversity}
 \usage{
 net_by_richness(.data, attribute)
@@ -29,18 +23,6 @@ node_by_diversity(
   attribute,
   method = c("blau", "teachman", "variation", "gini")
 )
-
-net_by_heterophily(.data, attribute)
-
-node_by_heterophily(.data, attribute)
-
-net_by_homophily(.data, attribute, method = c("ie", "ei", "yule", "geary"))
-
-node_by_homophily(.data, attribute, method = c("ie", "ei", "yule", "geary"))
-
-net_by_assortativity(.data)
-
-net_by_spatial(.data, attribute)
 }
 \arguments{
 \item{.data}{A network object of class \code{mnet}, \code{igraph}, \code{tbl_graph}, \code{network}, or similar.
@@ -142,17 +124,6 @@ and the Lorenz curve,
 divided by the total area under the line of equality.
 }
 
-\section{Homophily}{
-
-Given a partition of a network into a number of mutually exclusive groups then
-The E-I index is the number of ties between (or \emph{external}) nodes
-grouped in some mutually exclusive categories
-minus the number of ties within (or \emph{internal}) these groups
-divided by the total number of ties.
-This value can range from 1 to -1,
-where 1 indicates ties only between categories/groups and -1 ties only within categories/groups.
-}
-
 \examples{
 net_by_richness(ison_networkers)
 node_by_richness(ison_networkers, "Discipline")
@@ -161,13 +132,6 @@ net_by_diversity(marvel_friends, "Gender")
 net_by_diversity(marvel_friends, "Appearances")
 node_by_diversity(marvel_friends, "Gender")
 node_by_diversity(marvel_friends, "Attractive")
-net_by_heterophily(marvel_friends, "Gender")
-net_by_heterophily(marvel_friends, "Attractive")
-node_by_heterophily(marvel_friends, "Gender")
-node_by_heterophily(marvel_friends, "Attractive")
-net_by_homophily(marvel_friends, "Gender")
-net_by_assortativity(ison_networkers)
-net_by_spatial(ison_lawfirm, "age")
 }
 \references{
 \subsection{On richness}{
@@ -194,38 +158,10 @@ Page, Scott E. 2010.
 Princeton: Princeton University Press.
 \doi{10.1515/9781400835140}
 }
-
-\subsection{On heterophily}{
-
-Krackhardt, David, and Robert N. Stern. 1988.
-Informal networks and organizational crises: an experimental simulation.
-\emph{Social Psychology Quarterly} 51(2): 123-140.
-\doi{10.2307/2786835}
-
-McPherson, Miller, Lynn Smith-Lovin, and James M. Cook. 2001.
-"Birds of a Feather: Homophily in Social Networks".
-\emph{Annual Review of Sociology}, 27(1): 415-444.
-\doi{10.1146/annurev.soc.27.1.415}
-}
-
-\subsection{On assortativity}{
-
-Newman, Mark E.J. 2002.
-"Assortative mixing in networks".
-\emph{Physical Review Letters}, 89(20): 208701.
-\doi{10.1103/physrevlett.89.208701}
-}
-
-\subsection{On spatial autocorrelation}{
-
-Moran, Patrick Alfred Pierce. 1950.
-"Notes on continuous stochastic phenomena".
-\emph{Biometrika} 37(1): 17-23.
-\doi{10.2307/2332142}
-}
 }
 \seealso{
 Other measures: 
+\code{\link{measure_assortativity}},
 \code{\link{measure_breadth}},
 \code{\link{measure_brokerage}},
 \code{\link{measure_central_between}},
