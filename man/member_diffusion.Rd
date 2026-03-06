@@ -48,6 +48,7 @@ Valente, Tom W. 1995.
 }
 \seealso{
 Other measures: 
+\code{\link{measure_assortativity}},
 \code{\link{measure_breadth}},
 \code{\link{measure_brokerage}},
 \code{\link{measure_central_between}},

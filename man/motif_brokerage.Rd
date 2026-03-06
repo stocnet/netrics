@@ -54,6 +54,7 @@ Jasny, Lorien, and Mark Lubell. 2015.
 \seealso{
 Other motifs: 
 \code{\link{motif_diffusion}},
+\code{\link{motif_hierarchy}},
 \code{\link{motif_net}},
 \code{\link{motif_node}}
 

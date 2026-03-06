@@ -2,14 +2,11 @@
 % Please edit documentation in R/measure_hierarchy.R
 \name{measure_hierarchy}
 \alias{measure_hierarchy}
-\alias{net_x_hierarchy}
 \alias{net_by_connectedness}
 \alias{net_by_efficiency}
 \alias{net_by_upperbound}
-\title{Graph theoretic dimensions of hierarchy}
+\title{Measures of hierarchy}
 \usage{
-net_x_hierarchy(.data)
-
 net_by_connectedness(.data)
 
 net_by_efficiency(.data)
@@ -54,6 +51,7 @@ Everett, Martin, and David Krackhardt. 2012.
 }
 \seealso{
 Other measures: 
+\code{\link{measure_assortativity}},
 \code{\link{measure_breadth}},
 \code{\link{measure_brokerage}},
 \code{\link{measure_central_between}},
@@ -71,5 +69,9 @@ Other measures:
 \code{\link{measure_holes}},
 \code{\link{measure_periods}},
 \code{\link{member_diffusion}}
+
+Other hierarchy: 
+\code{\link{motif_hierarchy}}
 }
+\concept{hierarchy}
 \concept{measures}

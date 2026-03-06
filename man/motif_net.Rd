@@ -116,6 +116,7 @@ Hollway, James, Alessandro Lomi, Francesca Pallotti, and Christoph Stadtfeld. 20
 Other motifs: 
 \code{\link{motif_brokerage}},
 \code{\link{motif_diffusion}},
+\code{\link{motif_hierarchy}},
 \code{\link{motif_node}}
 }
 \concept{motifs}

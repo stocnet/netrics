@@ -111,6 +111,7 @@ Barrat, Alain, Marc Barthelemy, Romualdo Pastor-Satorras, and Alessandro Vespign
 }
 \seealso{
 Other measures: 
+\code{\link{measure_assortativity}},
 \code{\link{measure_breadth}},
 \code{\link{measure_brokerage}},
 \code{\link{measure_central_between}},

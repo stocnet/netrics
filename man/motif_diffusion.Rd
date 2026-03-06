@@ -90,6 +90,7 @@ Cambridge: MIT Press.
 \seealso{
 Other motifs: 
 \code{\link{motif_brokerage}},
+\code{\link{motif_hierarchy}},
 \code{\link{motif_net}},
 \code{\link{motif_node}}
 

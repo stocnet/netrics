@@ -40,6 +40,7 @@ and their application to multi-level environmental governance networks"
 }
 \seealso{
 Other measures: 
+\code{\link{measure_assortativity}},
 \code{\link{measure_breadth}},
 \code{\link{measure_central_between}},
 \code{\link{measure_central_close}},

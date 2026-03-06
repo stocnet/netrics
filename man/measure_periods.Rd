@@ -37,6 +37,7 @@ of networks minus one. E.g., the periods between waves.
 }
 \seealso{
 Other measures: 
+\code{\link{measure_assortativity}},
 \code{\link{measure_breadth}},
 \code{\link{measure_brokerage}},
 \code{\link{measure_central_between}},

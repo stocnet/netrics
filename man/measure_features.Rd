@@ -234,6 +234,7 @@ Cartwright, D., and Frank Harary. 1956.
 for how clustering is calculated
 
 Other measures: 
+\code{\link{measure_assortativity}},
 \code{\link{measure_breadth}},
 \code{\link{measure_brokerage}},
 \code{\link{measure_central_between}},
