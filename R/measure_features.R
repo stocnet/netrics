@@ -106,8 +106,8 @@ net_by_richclub <- function(.data){
   .data <- manynet::expect_nodes(.data)
   coefs <- vector()
   temp <- .data
-  for(k in seq_len(max(node_by_degree(temp, normalized = FALSE)))){
-    richclub <- manynet::to_subgraph(temp, node_by_degree(temp, normalized = FALSE) >= k)
+  for(k in seq_len(max(node_by_deg(temp)))){
+    richclub <- manynet::to_subgraph(temp, node_by_deg(temp) >= k)
     nk <- manynet::net_nodes(richclub)
     ek <- ifelse(manynet::is_directed(temp),
                  manynet::net_ties(richclub), 
@@ -138,8 +138,9 @@ net_by_richclub <- function(.data){
   }
   
   coefs[is.nan(coefs)] <- 1
-  out <- coefs[.elbow_finder(seq_along(coefs), coefs)]
-    # max(coefs, na.rm = TRUE)
+  if(length(which(coefs == 1)) == 0) out <- 0 else
+    out <- coefs[.elbow_finder(seq_along(coefs), coefs)]
+  # max(coefs, na.rm = TRUE)
   make_network_measure(out, .data, call = deparse(sys.call()))
 }
 
