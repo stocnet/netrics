@@ -4,22 +4,22 @@
 #' @description
 #'   These functions measure certain topological features of networks:
 #'   
-#'   - `net_core()` measures the correlation between a network
+#'   - `net_by_core()` measures the correlation between a network
 #'   and a core-periphery model with the same dimensions.
-#'   - `net_richclub()` measures the rich-club coefficient of a network.
-#'   - `net_factions()` measures the correlation between a network
+#'   - `net_by_richclub()` measures the rich-club coefficient of a network.
+#'   - `net_by_factions()` measures the correlation between a network
 #'   and a component model with the same dimensions.
 #'   If no 'membership' vector is given for the data, 
 #'   `node_partition()` is used to partition nodes into two groups.
-#'   - `net_modularity()` measures the modularity of a network 
+#'   - `net_by_modularity()` measures the modularity of a network 
 #'   based on nodes' membership in defined clusters.
-#'   - `net_smallworld()` measures the small-world coefficient for one- or 
+#'   - `net_by_smallworld()` measures the small-world coefficient for one- or 
 #'   two-mode networks. Small-world networks can be highly clustered and yet
 #'   have short path lengths.
-#'   - `net_scalefree()` measures the exponent of a fitted
+#'   - `net_by_scalefree()` measures the exponent of a fitted
 #'   power-law distribution. An exponent between 2 and 3 usually indicates 
 #'   a power-law distribution.
-#'   - `net_balance()` measures the structural balance index on 
+#'   - `net_by_balance()` measures the structural balance index on 
 #'   the proportion of balanced triangles,
 #'   ranging between `0` if all triangles are imbalanced and 
 #'   `1` if all triangles are balanced.
@@ -439,10 +439,10 @@ net_by_balance <- function(.data) {
 #' @description
 #'   These functions measure certain topological features of networks:
 #'   
-#'   - `net_waves()` measures the number of waves in longitudinal network data.
-#'   - `net_change()` measures the Hamming distance between two or more networks.
-#'   - `net_stability()` measures the Jaccard index of stability between two or more networks.
-#'   - `net_correlation()` measures the product-moment correlation between two networks.
+#'   - `net_by_waves()` measures the number of waves in longitudinal network data.
+#'   - `net_by_change()` measures the Hamming distance between two or more networks.
+#'   - `net_by_stability()` measures the Jaccard index of stability between two or more networks.
+#'   - `net_by_correlation()` measures the product-moment correlation between two networks.
 #' 
 #'   These `net_*()` functions return a numeric vector the length of the number
 #'   of networks minus one. E.g., the periods between waves.

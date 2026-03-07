@@ -75,22 +75,22 @@ The lower this parameter, the fewer larger communities are likely to be found.}
 \description{
 These functions measure certain topological features of networks:
 \itemize{
-\item \code{net_core()} measures the correlation between a network
+\item \code{net_by_core()} measures the correlation between a network
 and a core-periphery model with the same dimensions.
-\item \code{net_richclub()} measures the rich-club coefficient of a network.
-\item \code{net_factions()} measures the correlation between a network
+\item \code{net_by_richclub()} measures the rich-club coefficient of a network.
+\item \code{net_by_factions()} measures the correlation between a network
 and a component model with the same dimensions.
 If no 'membership' vector is given for the data,
 \code{node_partition()} is used to partition nodes into two groups.
-\item \code{net_modularity()} measures the modularity of a network
+\item \code{net_by_modularity()} measures the modularity of a network
 based on nodes' membership in defined clusters.
-\item \code{net_smallworld()} measures the small-world coefficient for one- or
+\item \code{net_by_smallworld()} measures the small-world coefficient for one- or
 two-mode networks. Small-world networks can be highly clustered and yet
 have short path lengths.
-\item \code{net_scalefree()} measures the exponent of a fitted
+\item \code{net_by_scalefree()} measures the exponent of a fitted
 power-law distribution. An exponent between 2 and 3 usually indicates
 a power-law distribution.
-\item \code{net_balance()} measures the structural balance index on
+\item \code{net_by_balance()} measures the structural balance index on
 the proportion of balanced triangles,
 ranging between \code{0} if all triangles are imbalanced and
 \code{1} if all triangles are balanced.

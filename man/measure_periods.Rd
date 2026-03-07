@@ -26,10 +26,10 @@ see \code{\link[manynet:manip_as]{manynet::as_tidygraph()}}.}
 \description{
 These functions measure certain topological features of networks:
 \itemize{
-\item \code{net_waves()} measures the number of waves in longitudinal network data.
-\item \code{net_change()} measures the Hamming distance between two or more networks.
-\item \code{net_stability()} measures the Jaccard index of stability between two or more networks.
-\item \code{net_correlation()} measures the product-moment correlation between two networks.
+\item \code{net_by_waves()} measures the number of waves in longitudinal network data.
+\item \code{net_by_change()} measures the Hamming distance between two or more networks.
+\item \code{net_by_stability()} measures the Jaccard index of stability between two or more networks.
+\item \code{net_by_correlation()} measures the product-moment correlation between two networks.
 }
 
 These \verb{net_*()} functions return a numeric vector the length of the number
