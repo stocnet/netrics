@@ -1169,7 +1169,7 @@ node_by_pagerank <- function(.data){
 #' @export 
 node_by_authority <- function(.data){
   .data <- manynet::expect_nodes(.data)
-  make_node_measure(igraph::authority_score(manynet::as_igraph(.data))$vector,
+  make_node_measure(igraph::hits_scores(manynet::as_igraph(.data))$authority,
                     .data)
 }
 
@@ -1177,7 +1177,7 @@ node_by_authority <- function(.data){
 #' @export 
 node_by_hub <- function(.data){
   .data <- manynet::expect_nodes(.data)
-  make_node_measure(igraph::hub_score(manynet::as_igraph(.data))$vector,
+  make_node_measure(igraph::hits_scores(manynet::as_igraph(.data))$hub,
                     .data)
 }
 
