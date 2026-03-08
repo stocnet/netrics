@@ -18,17 +18,12 @@ for(fn in names(node_marks)) {
 }
 
 test_that("node_is_cutpoint", {
-  expect_true(exists("node_is_cutpoint"))
-  test_that("returns correct type", {
-    expect_s3_class(node_is_cutpoint(ison_algebra), "node_mark")
-  })
   expect_length(node_is_cutpoint(ison_southern_women),
                 c(net_nodes(ison_southern_women)))
 })
 
 test_that("node_is_isolate", {
   f <- node_is_isolate
-  expect_true(is.function(f))
   test <- f(ison_brandes)
   test_that("returns correct values", {
     expect_equal(length(test), c(net_nodes(ison_brandes)))
@@ -41,7 +36,6 @@ test_that("node_is_isolate", {
 test_that("node_is_fold works", {
   test <- node_is_fold(create_explicit(A-B, B-C, A-C, C-D, C-E, D-E))
   expect_equal(as.logical(test), c(F,F,T,F,F))
-  expect_s3_class(test, "node_mark")
 })
 
 test_that("node_is_neighbor works", {

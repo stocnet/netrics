@@ -517,24 +517,27 @@ net_by_betweenness <- function(.data, normalized = TRUE,
 #'   These functions calculate common closeness-related centrality measures 
 #'   that rely on path-length for one- and two-mode networks:
 #'   
-#'   - `node_closeness()` measures the closeness centrality of nodes in a 
+#'   - `node_by_closeness()` measures the closeness centrality of nodes in a 
 #'   network.
-#'   - `node_reach()` measures nodes' reach centrality,
-#'   or how many nodes they can reach within _k_ steps.
-#'   - `node_harmonic()` measures nodes' harmonic centrality or valued 
+#'   - `node_by_harmonic()` measures nodes' harmonic centrality or valued 
 #'   centrality, which is thought to behave better than reach centrality 
 #'   for disconnected networks.
-#'   - `node_information()` measures nodes' information centrality or 
+#'   - `node_by_reach()` measures nodes' reach centrality,
+#'   or how many nodes they can reach within _k_ steps.
+#'   - `node_by_information()` measures nodes' information centrality or 
 #'   current-flow closeness centrality.
-#'   - `node_eccentricity()` measures nodes' eccentricity or maximum distance
+#'   - `node_by_eccentricity()` measures nodes' eccentricity or maximum distance
 #'   from another node in the network.
-#'   - `node_distance()` measures nodes' geodesic distance from or to a 
+#'   - `node_by_distance()` measures nodes' geodesic distance from or to a 
 #'   given node.
-#'   - `tie_closeness()` measures the closeness of each tie to other ties 
+#'   - `node_by_vitality()` measures a network's closeness vitality centrality,
+#'   or the change in closeness centrality between networks with and without a
+#'   given node.
+#'   - `tie_by_closeness()` measures the closeness of each tie to other ties 
 #'   in the network.
-#'   - `net_closeness()` measures a network's closeness centralization.
-#'   - `net_reach()` measures a network's reach centralization.
-#'   - `net_harmonic()` measures a network's harmonic centralization.
+#'   - `net_by_closeness()` measures a network's closeness centralization.
+#'   - `net_by_reach()` measures a network's reach centralization.
+#'   - `net_by_harmonic()` measures a network's harmonic centralization.
 #'   
 #'   All measures attempt to use as much information as they are offered,
 #'   including whether the networks are directed, weighted, or multimodal.
@@ -773,7 +776,8 @@ node_by_vitality <- function(.data, normalized = TRUE){
   .data <- manynet::expect_nodes(.data)
   .data <- manynet::as_igraph(.data)
   out <- vapply(manynet::snet_progress_nodes(.data), function(x){
-    sum(igraph::distances(.data)) - sum(igraph::distances(manynet::delete_nodes(.data, x)))
+    sum(igraph::distances(.data)) - 
+      sum(igraph::distances(manynet::delete_nodes(.data, x)))
   }, FUN.VALUE = numeric(1))
   if(normalized) out <- out/max(out)
   make_node_measure(out, .data)
