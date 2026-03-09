@@ -2,7 +2,8 @@ node_meas <- funs_objs[grepl("node_by_", names(funs_objs))]
 for(fn in names(node_meas)) {
   for (ob in names(data_objs)) { 
     test_that(paste(fn, "works on", ob), {
-      skip_if(grepl("threshold|recovery|multideg|exposure|distance|equivalency", fn))
+      skip_if(grepl("threshold|recovery|multideg|exposure", fn))
+      skip_if(grepl("equivalency", fn) && ob == "labelled")
       if(grepl("diversity|richness|heterophily|homophily", fn)){
         if(ob == "attribute")
           expect_s3_class(node_meas[[fn]](data_objs[[ob]], "group"), "node_measure")
@@ -12,6 +13,8 @@ for(fn in names(node_meas)) {
       } else if(grepl("posneg",fn)){
         if(ob == "signed")
           expect_s3_class(node_meas[[fn]](data_objs[[ob]]), "node_measure")
+      } else if(grepl("distance",fn)){
+          expect_s3_class(node_meas[[fn]](data_objs[[ob]], 1, 2), "node_measure")
       } else if (ob %in% c("directed","undirected","weighted","twomode","signed","labelled")){
         expect_s3_class(node_meas[[fn]](data_objs[[ob]]), "node_measure")
       }
