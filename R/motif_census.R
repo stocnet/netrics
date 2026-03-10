@@ -338,7 +338,39 @@ net_x_dyad <- function(.data) {
   make_network_motif(out, .data)
 }
 
-#' @rdname motif_net 
+#' @rdname motif_net
+#' @section Triad census:
+#'  The triad census counts the number of three-node configurations in the network.
+#'  The function returns a matrix with a special naming convention:
+#'  - 003: This is an empty triad; no ties
+#'  - 012: This triad includes one tie
+#'  - 102: This triad includes two ties, but they are not reciproc
+#'  - 021D: This triad includes two ties, one of which is reciprocated, and the other is directed towards the reciprocated tie
+#'  - 021U: This triad includes two ties, one of which is
+#'  reciprocated, and the other is directed away from the reciprocated tie
+#'  - 021C: This triad includes two ties, one of which is reciprocated, and the other is directed between the two non-reciprocated nodes
+#'  - 111D: This triad includes three ties, two of which are
+#'  reciprocated, and the other is directed towards the reciprocated ties
+#'  - 111U: This triad includes three ties, two of which are
+#'  reciprocated, and the other is directed away from the reciprocated ties
+#'  - 030T: This triad includes three ties, all of which are
+#'  directed in a transitive manner (i.e. A->B, B->C, A->C)
+#'  - 030C: This triad includes three ties, all of which are
+#'  directed in a cyclic manner (i.e. A->B, B->C
+#'  A->C)
+#'  - 201: This triad includes three ties, all of which are reciproc
+#'  ated (i.e. A<->B, B<->C, A<->C)
+#'  - 120D: This triad includes four ties, three of which are
+#'  reciprocated, and the other is directed towards the reciprocated ties
+#'  - 120U: This triad includes four ties, three of which are
+#'  reciprocated, and the other is directed away from the reciprocated ties
+#'  - 120C: This triad includes four ties, three of which are
+#'  reciprocated, and the other is directed between the two non-reciprocated
+#'  - 210: This triad includes five ties, four of which are reciprocated, and the other is directed between the two non-reciprocated
+#'  - 300: This triad includes six ties, all of which are reciprocated
+#'  
+#'  Note that for undirected and two-mode networks, only 003, 102, and 201 are possible,
+#'  as the other configurations rely on the concept of directionality.
 #' @references 
 #' ## On the triad census
 #' Davis, James A., and Samuel Leinhardt. 1967. 
