@@ -305,6 +305,17 @@ node_x_path <- function(.data){
 NULL
 
 #' @rdname motif_net
+#' @section Dyad census: 
+#'   The dyad census counts the number of mutual, asymmetric, and null dyads 
+#'   in a network.
+#'   For directed networks, 
+#'   - Mutual dyads have ties in both directions
+#'   - Asymmetric dyads have a tie in one direction only
+#'   - Null dyads have no ties
+#'   
+#'   Note that for undirected and two-mode networks,
+#'   only mutual and null dyads are possible, 
+#'   as the concept of an asymmetric dyad does not apply.
 #' @references
 #' ## On the dyad census
 #' Holland, Paul W., and Samuel Leinhardt. 1970. 
@@ -320,15 +331,11 @@ NULL
 #' @export
 net_x_dyad <- function(.data) {
   .data <- manynet::expect_nodes(.data)
-  if (manynet::is_twomode(.data)) {
-    manynet::snet_unavailable("A twomode or multilevel option for a dyad census is not yet implemented.")
-  } else {
-    out <- suppressWarnings(igraph::dyad_census(manynet::as_igraph(.data)))
-    out <- unlist(out)
-    names(out) <- c("Mutual", "Asymmetric", "Null")
-    if (!manynet::is_directed(.data)) out <- out[c(1, 3)]
-    make_network_motif(out, .data)
-  }
+  out <- suppressWarnings(igraph::dyad_census(manynet::as_igraph(.data)))
+  out <- unlist(out)
+  names(out) <- c("Mutual", "Asymmetric", "Null")
+  if (!manynet::is_directed(.data)) out <- out[c(1, 3)]
+  make_network_motif(out, .data)
 }
 
 #' @rdname motif_net 
