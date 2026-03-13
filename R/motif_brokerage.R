@@ -109,7 +109,6 @@ NULL
 #' @export
 node_by_brokering_activity <- function(.data, membership){
   .data <- manynet::expect_nodes(.data)
-  from <- to.y <- to_memb <- from_memb <- NULL
   twopaths <- .to_twopaths(.data)
   if(!missing(membership)){
     twopaths$from_memb <- manynet::node_attribute(.data, membership)[`if`(manynet::is_labelled(.data),
@@ -122,8 +121,12 @@ node_by_brokering_activity <- function(.data, membership){
   }
   # tabulate brokerage
   out <- c(table(twopaths$to))
-  # correct ordering for named data
-  if(manynet::is_labelled(.data)) out <- out[match(manynet::node_names(.data), names(out))]
+  # correct ordering
+  if(manynet::is_labelled(.data)) out <- out[match(manynet::node_names(.data), names(out))] else {
+    temp <- rep(0, manynet::net_nodes(.data))
+    temp[as.numeric(names(out))] <- out
+    out <- temp
+  }
   # missings should be none
   out[is.na(out)] <- 0
   make_node_measure(out, .data)
@@ -135,7 +138,6 @@ node_by_brokering_activity <- function(.data, membership){
 #' @export
 node_by_brokering_exclusivity <- function(.data, membership){
   .data <- manynet::expect_nodes(.data)
-  from <- to.y <- to_memb <- from_memb <- NULL
   twopaths <- .to_twopaths(.data)
   if(!missing(membership)){
     twopaths$from_memb <- manynet::node_attribute(.data, membership)[`if`(manynet::is_labelled(.data),
@@ -151,7 +153,11 @@ node_by_brokering_exclusivity <- function(.data, membership){
   # tabulate brokerage
   out <- c(table(out$to))
   # correct ordering for named data
-  if(manynet::is_labelled(.data)) out <- out[match(manynet::node_names(.data), names(out))]
+  if(manynet::is_labelled(.data)) out <- out[match(manynet::node_names(.data), names(out))] else {
+    temp <- rep(0, manynet::net_nodes(.data))
+    temp[as.numeric(names(out))] <- out
+    out <- temp
+  }
   # missings should be none
   out[is.na(out)] <- 0
   make_node_measure(out, .data)
