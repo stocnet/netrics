@@ -1078,7 +1078,7 @@ node_by_power <- function(.data, normalized = TRUE, scale = FALSE, exponent = 1)
   graph <- manynet::as_igraph(.data)
   
   if(var(node_by_deg(graph))==0){
-    snet_minor_info("All nodes have the same degree, so power centrality is the same as degree centrality.")
+    manynet::snet_minor_info("All nodes have the same degree, so power centrality equals degree centrality.")
     exponent <- 0
   }
   

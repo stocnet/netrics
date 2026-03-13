@@ -481,7 +481,7 @@ net_x_tetrad <- function(.data){
 #' _Network Science_ 5(2): 187–212.
 #' \doi{10.1017/nws.2017.8}
 #' @examples 
-#' net_by_mixed(fict_marvel)
+#' net_x_mixed(fict_marvel)
 #' @export
 net_x_mixed <- function (.data, object2) {
   .data <- manynet::expect_nodes(.data)
