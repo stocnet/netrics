@@ -4,7 +4,6 @@ node_marks <- funs_objs[grepl("node_is_", names(funs_objs))]
 for(fn in names(node_marks)) {
   for (ob in names(data_objs)) { 
     test_that(paste(fn, "works on", ob), {
-      skip_if(grepl("node_is_recovered|min|max|mean|latent|infected", fn))
       if(fn == "node_is_exposed"){
         expect_s3_class(node_marks[[fn]](data_objs[[ob]], mark = c(1,3)), 
                         "node_mark")
@@ -14,6 +13,13 @@ for(fn in names(node_marks)) {
       } else if(fn == "node_is_neighbor"){
         expect_s3_class(node_marks[[fn]](data_objs[[ob]], node = 1), 
                         "node_mark")
+      } else if(grepl("recovered|latent|infected", fn)){
+        if(ob == "diffusion")
+        expect_s3_class(node_marks[[fn]](data_objs[[ob]]), 
+                        "node_mark") else succeed("Only used for diffusion objects")
+      } else if(grepl("min|max|mean", fn)){
+          expect_s3_class(node_marks[[fn]](node_by_deg(data_objs[[ob]])), 
+                          "node_mark")
       } else {
         expect_s3_class(node_marks[[fn]](data_objs[[ob]]), "node_mark")
       }
