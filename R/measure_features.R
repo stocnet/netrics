@@ -468,38 +468,44 @@ net_by_waves <- function(.data){
 #' @param object2 A network object.
 #' @export
 net_by_change <- function(.data, object2){
-  .data <- manynet::expect_nodes(.data)
-  if(manynet::is_list(.data)){
-    
-  } else if(!missing(object2)){
-    .data <- list(.data, object2)
-  } else manynet::snet_abort("`.data` must be a list of networks or a second network must be provided.")
-  periods <- length(.data)-1
-  vapply(seq.int(periods), function(x){
-    net1 <- manynet::as_matrix(.data[[x]])
-    net2 <- manynet::as_matrix(.data[[x+1]])
+  net <- manynet::expect_nodes(.data)
+  if(!missing(object2)){
+    net <- list(net, object2)
+  } else if(manynet::is_longitudinal(net)){
+    net <- manynet::to_waves(net)
+  }
+  if(!manynet::is_list(net))
+    manynet::snet_abort("`.data` must be a list of networks or a second network must be provided.")
+  periods <- length(net)-1
+  out <- vapply(seq.int(periods), function(x){
+    net1 <- manynet::as_matrix(net[[x]])
+    net2 <- manynet::as_matrix(net[[x+1]])
     sum(net1 != net2)
   }, FUN.VALUE = numeric(1))
+  make_network_measure(out, .data, call = deparse(sys.call()))
 }
 
 #' @rdname measure_periods 
 #' @export
 net_by_stability <- function(.data, object2){
-  .data <- manynet::expect_nodes(.data)
-  if(manynet::is_list(.data)){
-    
-  } else if(!missing(object2)){
-    .data <- list(.data, object2)
-  } else manynet::snet_abort("`.data` must be a list of networks or a second network must be provided.")
-  periods <- length(.data)-1
-  vapply(seq.int(periods), function(x){
-    net1 <- manynet::as_matrix(.data[[x]])
-    net2 <- manynet::as_matrix(.data[[x+1]])
+  net <- manynet::expect_nodes(.data)
+  if(!missing(object2)){
+    net <- list(net, object2)
+  } else if(manynet::is_longitudinal(net)){
+    net <- manynet::to_waves(net)
+  }
+  if(!manynet::is_list(net))
+    manynet::snet_abort("`.data` must be a list of networks or a second network must be provided.")
+  periods <- length(net)-1
+  out <- vapply(seq.int(periods), function(x){
+    net1 <- manynet::as_matrix(net[[x]])
+    net2 <- manynet::as_matrix(net[[x+1]])
     n11 <- sum(net1 * net2)
     n01 <- sum(net1==0 * net2)
     n10 <- sum(net1 * net2==0)
     n11 / (n01 + n10 + n11)
   }, FUN.VALUE = numeric(1))
+  make_network_measure(out, .data, call = deparse(sys.call()))
 }
 
 #' @rdname measure_periods 
