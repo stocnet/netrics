@@ -246,5 +246,5 @@ tie_by_cohesion <- function(.data){
           neigh_nodes <- length(unique(c(neigh1, neigh2)))-2
           shared_nodes / neigh_nodes
         } )
-  make_node_measure(out, .data)
+  make_tie_measure(out, .data)
 }
