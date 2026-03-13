@@ -79,11 +79,14 @@ funs_objs <- mget(ls("package:netrics"), inherits = TRUE)
 
 set.seed(1234)
 data_objs <- list(directed = generate_random(12, directed = TRUE),
-                  undirected = generate_random(12, directed = FALSE),
                   twomode = generate_random(c(6,6)),
-                  labelled = add_node_attribute(create_ring(12), "name", LETTERS[1:12]),
-                  attribute = add_node_attribute(create_ring(12), "group", rep(c("A","B"), each = 6)),
-                  weighted = add_tie_attribute(create_ring(12), "weight", rep(c(1,2), each = 6)),
-                  signed = to_signed(generate_random(12, directed = TRUE)),
-                  diffusion = play_diffusion(create_ring(12), seeds = 1, steps = 5, latency = 0.75, recovery = 0.25))
+                  labelled = to_signed(add_node_attribute(create_wheel(12), "name", 
+                                                LETTERS[1:12])),
+                  attribute = add_node_attribute(create_ring(12), "group", 
+                                                 rep(c("A","B"), each = 6)),
+                  weighted = add_tie_attribute(create_ring(12), "weight", 
+                                               rep(c(1,2), each = 6)),
+                  diffusion = play_diffusion(create_ring(12), seeds = 1, 
+                                             steps = 5, latency = 0.75, 
+                                             recovery = 0.25))
 

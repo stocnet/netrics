@@ -62,7 +62,7 @@ The function returns a matrix with a special naming convention:
 \itemize{
 \item 003: This is an empty triad; no ties
 \item 012: This triad includes one tie
-\item 102: This triad includes two ties, but they are not reciproc
+\item 102: This triad includes two ties, but they are not reciprocated
 \item 021D: This triad includes two ties, one of which is reciprocated, and the other is directed towards the reciprocated tie
 \item 021U: This triad includes two ties, one of which is
 reciprocated, and the other is directed away from the reciprocated tie
