@@ -459,8 +459,9 @@ net_by_waves <- function(.data){
   if(manynet::is_changing(.data)){
     chltime <- manynet::as_changelist(.data)$time
     chg_waves <- (max(chltime)+1) - max(min(chltime)-1, 0)
-  } else chg_waves <- 0
-  max(tie_waves, chg_waves)    
+  } else chg_waves <- 1
+  make_network_measure(max(tie_waves, chg_waves),
+                       .data, call = deparse(sys.call()))
 }
   
 #' @rdname measure_periods 
