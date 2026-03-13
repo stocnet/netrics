@@ -2,9 +2,15 @@ node_motifs <- funs_objs[grepl("node_x_", names(funs_objs))]
 for(fn in names(node_motifs)) {
   for (ob in names(data_objs)) { 
     test_that(paste(fn, "works on", ob), {
-      skip_if(grepl("exposure|brokerage", fn))
       skip_if(grepl("triad|dyad", fn) && is_twomode(data_objs[[ob]]))
-      if(fn == "x"){
+      if(grepl("brokerage", fn)){
+        if(ob == "attribute")
+          expect_s3_class(node_motifs[[fn]](data_objs[[ob]], "group"), "node_motif") else
+            succeed("Only used for attribute objects")
+      } else if(grepl("exposure", fn)){
+        if(ob == "diffusion")
+          expect_s3_class(node_motifs[[fn]](data_objs[[ob]]), "node_motif") else
+            succeed("Only used for diffusion objects")
       } else {
         expect_s3_class(node_motifs[[fn]](data_objs[[ob]]), "node_motif")
       }
