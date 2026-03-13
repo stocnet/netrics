@@ -10,6 +10,7 @@ for(fn in names(tie_marks)) {
         expect_s3_class(tie_marks[[fn]](play_diffusion(data_objs[[ob]])), "tie_mark") else
           success("Only used for diffusion objects")
       } else if(grepl("max|min", fn)){
+        skip_if_not(packageVersion("manynet") >= "1.7.3")
         expect_s3_class(tie_marks[[fn]](tie_by_degree(data_objs[[ob]])), "tie_mark")
       } else {
         expect_s3_class(tie_marks[[fn]](data_objs[[ob]]), "tie_mark")
