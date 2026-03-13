@@ -344,7 +344,7 @@ net_x_dyad <- function(.data) {
 #'  The function returns a matrix with a special naming convention:
 #'  - 003: This is an empty triad; no ties
 #'  - 012: This triad includes one tie
-#'  - 102: This triad includes two ties, but they are not reciproc
+#'  - 102: This triad includes two ties, but they are not reciprocated
 #'  - 021D: This triad includes two ties, one of which is reciprocated, and the other is directed towards the reciprocated tie
 #'  - 021U: This triad includes two ties, one of which is
 #'  reciprocated, and the other is directed away from the reciprocated tie
