@@ -2,12 +2,15 @@ tie_marks <- funs_objs[grepl("tie_is_", names(funs_objs))]
 for(fn in names(tie_marks)) {
   for (ob in names(data_objs)) { 
     test_that(paste(fn, "works on", ob), {
-      skip_if(grepl("tie_is_max|tie_is_min|tie_is_recovered", fn))
       skip_if(grepl("tie_is_imbalanced", fn) && ob == "twomode")
       if(fn == "tie_is_path"){
         expect_s3_class(tie_marks[[fn]](data_objs[[ob]], 1, 2), "tie_mark")
-      } else if(fn == "tie_is_infected"){
-        expect_s3_class(tie_marks[[fn]](play_diffusion(data_objs[[ob]])), "tie_mark")
+      } else if(grepl("infected|recovered", fn)){
+        if(ob == "diffusion")
+        expect_s3_class(tie_marks[[fn]](play_diffusion(data_objs[[ob]])), "tie_mark") else
+          success("Only used for diffusion objects")
+      } else if(grepl("max|min", fn)){
+        expect_s3_class(tie_marks[[fn]](tie_by_degree(data_objs[[ob]])), "tie_mark")
       } else {
         expect_s3_class(tie_marks[[fn]](data_objs[[ob]]), "tie_mark")
       }
