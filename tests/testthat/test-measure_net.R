@@ -6,19 +6,24 @@ for(fn in names(net_meas)) {
       skip_if(grepl("net_by_factions", fn) && ob == "twomode")
       if(grepl("diversity|heterophily|homophily", fn)){
         if(ob == "attribute")
-          expect_s3_class(net_meas[[fn]](data_objs[[ob]], "group"), "network_measure")
+          expect_s3_class(net_meas[[fn]](data_objs[[ob]], "group"), "network_measure") else
+            succeed("Only used for attribute objects")
       } else if(grepl("balance", fn)){
         if(ob == "labelled")
-          expect_s3_class(net_meas[[fn]](data_objs[[ob]]), "network_measure")
+          expect_s3_class(net_meas[[fn]](data_objs[[ob]]), "network_measure") else
+            succeed("Only used for signed objects")
       } else if(grepl("congruency", fn)){
         if(ob == "twomode")
-          expect_s3_class(net_meas[[fn]](data_objs[[ob]], data_objs[[ob]]), "network_measure")
+          expect_s3_class(net_meas[[fn]](data_objs[[ob]], data_objs[[ob]]), "network_measure") else
+            succeed("Only used for multiple two-mode objects")
       } else if(grepl("strength|toughness", fn)){ # why is this so slow??
         if(ob == "weighted")
-          expect_s3_class(net_meas[[fn]](data_objs[[ob]]), "network_measure")
+          expect_s3_class(net_meas[[fn]](data_objs[[ob]]), "network_measure") else
+            succeed("Testing only once because slow")
       } else if(grepl("correlation|change|stability", fn)){
         if(ob == "labelled")
-          expect_s3_class(net_meas[[fn]](data_objs[[ob]], data_objs[[ob]]), "network_measure")
+          expect_s3_class(net_meas[[fn]](data_objs[[ob]], data_objs[[ob]]), "network_measure") else
+            succeed("Only used for multi objects")
       } else {
         expect_s3_class(net_meas[[fn]](data_objs[[ob]]), "network_measure")
       }
