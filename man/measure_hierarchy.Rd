@@ -30,10 +30,10 @@ or the degree to which network is a single component.
 }
 }
 \examples{
-net_connectedness(ison_networkers)
-1 - net_reciprocity(ison_networkers)
-net_efficiency(ison_networkers)
-net_upperbound(ison_networkers)
+net_by_connectedness(ison_networkers)
+1 - net_by_reciprocity(ison_networkers)
+net_by_efficiency(ison_networkers)
+net_by_upperbound(ison_networkers)
 }
 \references{
 \subsection{On hierarchy}{

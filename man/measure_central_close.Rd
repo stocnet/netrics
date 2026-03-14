@@ -192,7 +192,7 @@ where \eqn{H_{ji}} is the hitting time from node \eqn{j} to node \eqn{i}.
 \examples{
 node_by_closeness(ison_southern_women)
 node_by_reach(ison_adolescents)
-(ec <- tie_closeness(ison_adolescents))
+(ec <- tie_by_closeness(ison_adolescents))
 ison_adolescents \%>\% mutate_ties(weight = ec)
 net_by_closeness(ison_southern_women, direction = "in")
 }

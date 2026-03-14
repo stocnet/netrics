@@ -43,7 +43,7 @@ highest infection rate is observed.
 \examples{
   smeg <- generate_smallworld(15, 0.025)
   smeg_diff <- play_diffusion(smeg)
-  net_infection_complete(smeg_diff)
+  net_by_infection_complete(smeg_diff)
   net_by_infection_total(smeg_diff)
   net_by_infection_peak(smeg_diff)
 }

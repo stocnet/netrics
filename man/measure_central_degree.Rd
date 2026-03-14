@@ -136,7 +136,7 @@ neighbours, \eqn{J}:
 }
 
 \examples{
-node_degree(ison_southern_women)
+node_by_degree(ison_southern_women)
 tie_by_degree(ison_adolescents)
 net_by_degree(ison_southern_women, direction = "in")
 }

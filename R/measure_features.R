@@ -186,9 +186,9 @@ net_by_factions <- function(.data,
 #'   The higher this parameter, the more smaller communities will be privileged.
 #'   The lower this parameter, the fewer larger communities are likely to be found.
 #' @examples 
-#' net_modularity(ison_adolescents, 
+#' net_by_modularity(ison_adolescents, 
 #'   node_in_partition(ison_adolescents))
-#' net_modularity(ison_southern_women, 
+#' net_by_modularity(ison_southern_women, 
 #'   node_in_partition(ison_southern_women))
 #' @references 
 #' ## On modularity

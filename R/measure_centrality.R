@@ -82,7 +82,7 @@
 #' _Social Networks_ 32, 245-251.
 #' \doi{10.1016/j.socnet.2010.03.006}
 #' @examples
-#' node_degree(ison_southern_women)
+#' node_by_degree(ison_southern_women)
 #' @return Depending on how and what kind of an object is passed to the function,
 #' the function will return a `tidygraph` object where the nodes have been updated
 NULL
@@ -441,7 +441,7 @@ node_by_stress <- function(.data, normalized = TRUE){
 #' @rdname measure_central_between
 #' @importFrom igraph edge_betweenness
 #' @examples
-#' (tb <- tie_betweenness(ison_adolescents))
+#' (tb <- tie_by_betweenness(ison_adolescents))
 #' ison_adolescents %>% mutate_ties(weight = tb)
 #' @export
 tie_by_betweenness <- function(.data, normalized = TRUE){
@@ -456,7 +456,7 @@ tie_by_betweenness <- function(.data, normalized = TRUE){
 
 #' @rdname measure_central_between
 #' @examples
-#' net_betweenness(ison_southern_women, direction = "in")
+#' net_by_betweenness(ison_southern_women, direction = "in")
 #' @export
 net_by_betweenness <- function(.data, normalized = TRUE,
                                 direction = c("all", "out", "in")) {
@@ -853,7 +853,7 @@ node_by_randomwalk <- function(.data, normalized = TRUE){
 
 #' @rdname measure_central_close 
 #' @examples
-#' (ec <- tie_closeness(ison_adolescents))
+#' (ec <- tie_by_closeness(ison_adolescents))
 #' ison_adolescents %>% mutate_ties(weight = ec)
 #' @export
 tie_by_closeness <- function(.data, normalized = TRUE){

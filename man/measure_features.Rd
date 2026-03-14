@@ -132,9 +132,9 @@ net_by_core(ison_adolescents)
 net_by_core(ison_southern_women)
 net_by_richclub(ison_adolescents)
   net_by_factions(ison_southern_women)
-net_modularity(ison_adolescents, 
+net_by_modularity(ison_adolescents, 
   node_in_partition(ison_adolescents))
-net_modularity(ison_southern_women, 
+net_by_modularity(ison_southern_women, 
   node_in_partition(ison_southern_women))
 net_by_smallworld(ison_brandes)
 net_by_smallworld(ison_southern_women)

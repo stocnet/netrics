@@ -76,10 +76,10 @@ net_x_hierarchy <- function(.data){
 #' _Social Networks_, 34: 159-163.
 #' \doi{10.1016/j.socnet.2011.10.006}
 #' @examples 
-#' net_connectedness(ison_networkers)
-#' 1 - net_reciprocity(ison_networkers)
-#' net_efficiency(ison_networkers)
-#' net_upperbound(ison_networkers)
+#' net_by_connectedness(ison_networkers)
+#' 1 - net_by_reciprocity(ison_networkers)
+#' net_by_efficiency(ison_networkers)
+#' net_by_upperbound(ison_networkers)
 NULL
 
 #' @rdname measure_hierarchy 
