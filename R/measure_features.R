@@ -296,12 +296,12 @@ net_by_smallworld <- function(.data,
     }
   }
   
-  lo <- manynet::net_length(.data)
+  lo <- net_by_length(.data)
   lr <- mean(vapply(1:times, 
-                         function(x) manynet::net_length(manynet::generate_random(.data)),
+                         function(x) net_by_length(manynet::generate_random(.data)),
                          FUN.VALUE = numeric(1)))
   if(method == "SWI"){
-    ll <- manynet::net_length(manynet::create_ring(.data))
+    ll <- net_by_length(manynet::create_ring(.data))
   }
   
   out <- switch(method,
