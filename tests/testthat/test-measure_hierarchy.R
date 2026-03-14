@@ -1,7 +1,7 @@
 # Test hierarchy measures
 
 test_that("net_connectedness works correctly", {
-  connect_judo <- net_connectedness(ison_judo_moves)
+  connect_judo <- net_by_connectedness(ison_judo_moves)
   # Basic functionality tests
 
   # Return type and range tests
@@ -10,16 +10,16 @@ test_that("net_connectedness works correctly", {
   expect_true(as.numeric(connect_judo) <= 1)
   
   # Test with complete graph (should be 1)
-  expect_equal(round(as.numeric(net_connectedness(create_filled(5))), 4), 1)
-  expect_equal(round(as.numeric(net_connectedness(create_empty(5))), 4), 0)
+  expect_equal(round(as.numeric(net_by_connectedness(create_filled(5))), 4), 1)
+  expect_equal(round(as.numeric(net_by_connectedness(create_empty(5))), 4), 0)
   
   # Test edge case: single node
-  expect_false(is.finite(as.numeric(net_connectedness(create_empty(1)))))
+  expect_false(is.finite(as.numeric(net_by_connectedness(create_empty(1)))))
 })
 
 test_that("net_efficiency works correctly", {
   # Basic functionality tests
-  effic_judo <- net_efficiency(ison_judo_moves)
+  effic_judo <- net_by_efficiency(ison_judo_moves)
 
   # Return type tests
   expect_true(is.numeric(as.numeric(effic_judo)))
@@ -28,7 +28,7 @@ test_that("net_efficiency works correctly", {
 
 test_that("net_upperbound works correctly", {
   # Basic functionality tests
-  upper_judo <- net_efficiency(ison_judo_moves)
+  upper_judo <- net_by_efficiency(ison_judo_moves)
 
   # Return type and range tests
   expect_true(is.numeric(as.numeric(upper_judo)))
@@ -38,11 +38,11 @@ test_that("net_upperbound works correctly", {
   # Test with perfect hierarchy (should approach 1)
   # Create a tournament-like structure
   perfect_hierarchy <- create_tree(5)
-  expect_equal(as.numeric(net_upperbound(perfect_hierarchy)), 1)
+  expect_equal(as.numeric(net_by_upperbound(perfect_hierarchy)), 1)
 })
 
-test_that("net_by_hierarchy works correctly", {
-  result <- net_by_hierarchy(ison_judo_moves)
+test_that("net_x_hierarchy works correctly", {
+  result <- net_x_hierarchy(ison_judo_moves)
   # Basic functionality tests
 
   # Check that it returns a data frame with correct columns

@@ -3,7 +3,7 @@ test_that("node_is_universal works", {
 })
 
 test_that("node_kcoreness works", {
-  expect_equal(top3(node_kcoreness(ison_adolescents)), c(1,2,2))
+  expect_equal(top3(node_by_kcoreness(ison_adolescents)), c(1,2,2))
 })
 
 test_that("node_in_core works", {

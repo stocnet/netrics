@@ -7,7 +7,7 @@ for(fn in names(tie_marks)) {
         expect_s3_class(tie_marks[[fn]](data_objs[[ob]], 1, 2), "tie_mark")
       } else if(grepl("infected|recovered", fn)){
         if(ob == "diffusion")
-        expect_s3_class(tie_marks[[fn]](play_diffusion(data_objs[[ob]])), "tie_mark") else
+        expect_s3_class(tie_marks[[fn]](data_objs[[ob]]), "tie_mark") else
           success("Only used for diffusion objects")
       } else if(grepl("max|min", fn)){
         skip_if_not(packageVersion("manynet") >= "1.7.3")
@@ -60,19 +60,19 @@ test_that("directed triangle tie marks work", {
 test_that("tie_is_max works", {
   skip_on_ci()
   skip_on_cran()
-  expect_equal(length(tie_is_max(tie_betweenness(graph1))),
+  expect_equal(length(tie_is_max(tie_by_betweenness(graph1))),
                c(net_ties(graph1)))
-  expect_equal(sum(tie_is_max(tie_betweenness(graph1)) == TRUE), 1)
-  expect_s3_class(tie_is_max(tie_betweenness(graph1)), "logical")
+  expect_equal(sum(tie_is_max(tie_by_betweenness(graph1)) == TRUE), 1)
+  expect_s3_class(tie_is_max(tie_by_betweenness(graph1)), "logical")
 })
 
 test_that("tie_is_min works", {
   skip_on_ci()
   skip_on_cran()
-  expect_equal(length(tie_is_min(tie_betweenness(ison_brandes))),
+  expect_equal(length(tie_is_min(tie_by_betweenness(ison_brandes))),
                c(net_ties(ison_brandes)))
-  expect_equal(sum(tie_is_min(tie_betweenness(ison_brandes)) == TRUE), 1)
-  expect_s3_class(tie_is_min(tie_betweenness(ison_brandes)), "logical")
+  expect_equal(sum(tie_is_min(tie_by_betweenness(ison_brandes)) == TRUE), 1)
+  expect_s3_class(tie_is_min(tie_by_betweenness(ison_brandes)), "logical")
 })
 
 test_that("tie_is_feedback() mark functions work", {
