@@ -4,12 +4,10 @@ Version: 0.1.0
 Date: 2026-03-15
 Description: Many tools for calculating network, node, or tie
    marks, measures, motifs and memberships of many different types of networks.
-   Marks ('node_is_*()' and 'tie_is_*()') identify structural positions,
-   measures ('*_by_*()') quantify network properties,
-   memberships ('*_in_*()') classify nodes into groups,
-   and motifs ('*_x_*()') tabulate substructure participation.
-   All functions operate with matrices, edge lists, and 'igraph', 'network', 'tidygraph', and 'mnet' objects,
-   on directed, multiplex, multimodal, signed, and other networks.
+   Marks identify structural positions, measures quantify network properties,
+   memberships classify nodes into groups, and motifs tabulate substructure participation.
+   All functions operate with all classes of network data covered in 'manynet',
+   and on directed, undirected, multiplex, multimodal, signed, and other networks.
 URL: https://stocnet.github.io/netrics/
 BugReports: https://github.com/stocnet/netrics/issues
 License: MIT + file LICENSE
