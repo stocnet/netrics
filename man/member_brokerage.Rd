@@ -30,5 +30,10 @@ Other memberships:
 \code{\link{member_community_non}},
 \code{\link{member_components}},
 \code{\link{member_equivalence}}
+
+Other brokerage: 
+\code{\link{measure_brokerage}},
+\code{\link{motif_brokerage}}
 }
+\concept{brokerage}
 \concept{memberships}

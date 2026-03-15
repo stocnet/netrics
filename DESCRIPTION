@@ -1,11 +1,13 @@
 Package: netrics
 Title: Many Ways to Measure and Classify Membership for Networks, Nodes, and Ties
-Version: 0.0.1
-Date: 2025-12-05
-Description: Many tools for marking, measuring, motifs and memberships of 
-   many different types of networks.
-   All functions operate with matrices, edge lists, and 'igraph', 'network', and 'tidygraph' objects,
-   on directed, multiplex, multimodal, signed, and other networks.
+Version: 0.1.0
+Date: 2026-03-15
+Description: Many tools for calculating network, node, or tie
+   marks, measures, motifs and memberships of many different types of networks.
+   Marks identify structural positions, measures quantify network properties,
+   memberships classify nodes into groups, and motifs tabulate substructure participation.
+   All functions operate with all classes of network data covered in 'manynet',
+   and on directed, undirected, multiplex, multimodal, signed, and other networks.
 URL: https://stocnet.github.io/netrics/
 BugReports: https://github.com/stocnet/netrics/issues
 License: MIT + file LICENSE
@@ -42,4 +44,4 @@ Config/Needs/website:
     pkgdown
 Config/testthat/parallel: true
 Config/testthat/edition: 3
-Config/testthat/start-first: member_community 
+Config/testthat/start-first: measure_net 

@@ -4,22 +4,22 @@
 #' @description
 #'   These functions measure certain topological features of networks:
 #'   
-#'   - `net_core()` measures the correlation between a network
+#'   - `net_by_core()` measures the correlation between a network
 #'   and a core-periphery model with the same dimensions.
-#'   - `net_richclub()` measures the rich-club coefficient of a network.
-#'   - `net_factions()` measures the correlation between a network
+#'   - `net_by_richclub()` measures the rich-club coefficient of a network.
+#'   - `net_by_factions()` measures the correlation between a network
 #'   and a component model with the same dimensions.
 #'   If no 'membership' vector is given for the data, 
 #'   `node_partition()` is used to partition nodes into two groups.
-#'   - `net_modularity()` measures the modularity of a network 
+#'   - `net_by_modularity()` measures the modularity of a network 
 #'   based on nodes' membership in defined clusters.
-#'   - `net_smallworld()` measures the small-world coefficient for one- or 
+#'   - `net_by_smallworld()` measures the small-world coefficient for one- or 
 #'   two-mode networks. Small-world networks can be highly clustered and yet
 #'   have short path lengths.
-#'   - `net_scalefree()` measures the exponent of a fitted
+#'   - `net_by_scalefree()` measures the exponent of a fitted
 #'   power-law distribution. An exponent between 2 and 3 usually indicates 
 #'   a power-law distribution.
-#'   - `net_balance()` measures the structural balance index on 
+#'   - `net_by_balance()` measures the structural balance index on 
 #'   the proportion of balanced triangles,
 #'   ranging between `0` if all triangles are imbalanced and 
 #'   `1` if all triangles are balanced.
@@ -106,8 +106,8 @@ net_by_richclub <- function(.data){
   .data <- manynet::expect_nodes(.data)
   coefs <- vector()
   temp <- .data
-  for(k in seq_len(max(node_by_degree(temp, normalized = FALSE)))){
-    richclub <- manynet::to_subgraph(temp, node_by_degree(temp, normalized = FALSE) >= k)
+  for(k in seq_len(max(node_by_deg(temp)))){
+    richclub <- manynet::to_subgraph(temp, node_by_deg(temp) >= k)
     nk <- manynet::net_nodes(richclub)
     ek <- ifelse(manynet::is_directed(temp),
                  manynet::net_ties(richclub), 
@@ -138,8 +138,9 @@ net_by_richclub <- function(.data){
   }
   
   coefs[is.nan(coefs)] <- 1
-  out <- coefs[.elbow_finder(seq_along(coefs), coefs)]
-    # max(coefs, na.rm = TRUE)
+  if(length(which(coefs == 1)) == 0) out <- 0 else
+    out <- coefs[.elbow_finder(seq_along(coefs), coefs)]
+  # max(coefs, na.rm = TRUE)
   make_network_measure(out, .data, call = deparse(sys.call()))
 }
 
@@ -185,9 +186,9 @@ net_by_factions <- function(.data,
 #'   The higher this parameter, the more smaller communities will be privileged.
 #'   The lower this parameter, the fewer larger communities are likely to be found.
 #' @examples 
-#' net_modularity(ison_adolescents, 
+#' net_by_modularity(ison_adolescents, 
 #'   node_in_partition(ison_adolescents))
-#' net_modularity(ison_southern_women, 
+#' net_by_modularity(ison_southern_women, 
 #'   node_in_partition(ison_southern_women))
 #' @references 
 #' ## On modularity
@@ -248,7 +249,7 @@ net_by_modularity <- function(.data,
 #'     with the same dimensions.
 #'     \eqn{SWI} also ranges between 0 and 1 with the same interpretation, 
 #'     but where there may not be a network for which \eqn{SWI = 1}.
-#' @seealso [net_transitivity()] and [net_equivalency()]
+#' @seealso [net_by_transitivity()] and [net_by_equivalency()]
 #'   for how clustering is calculated
 #' @references 
 #' ## On small-worldliness
@@ -295,12 +296,12 @@ net_by_smallworld <- function(.data,
     }
   }
   
-  lo <- manynet::net_length(.data)
+  lo <- net_by_length(.data)
   lr <- mean(vapply(1:times, 
-                         function(x) manynet::net_length(manynet::generate_random(.data)),
+                         function(x) net_by_length(manynet::generate_random(.data)),
                          FUN.VALUE = numeric(1)))
   if(method == "SWI"){
-    ll <- manynet::net_length(manynet::create_ring(.data))
+    ll <- net_by_length(manynet::create_ring(.data))
   }
   
   out <- switch(method,
@@ -366,7 +367,7 @@ net_by_scalefree <- function(.data){
 #' _Psychological Review_, 63(5): 277-293.
 #' \doi{10.1037/h0046049}
 #' @examples
-#' net_by_balance(fict_marvel)
+#' net_by_balance(to_uniplex(fict_marvel, "relationship"))
 #' @export
 net_by_balance <- function(.data) {
   
@@ -431,87 +432,3 @@ net_by_balance <- function(.data) {
                        call = deparse(sys.call()))
 }
 
-
-# Change ####
-
-#' Measures of network change
-#' @description
-#'   These functions measure certain topological features of networks:
-#'   
-#'   - `net_waves()` measures the number of waves in longitudinal network data.
-#'   - `net_change()` measures the Hamming distance between two or more networks.
-#'   - `net_stability()` measures the Jaccard index of stability between two or more networks.
-#'   - `net_correlation()` measures the product-moment correlation between two networks.
-#' 
-#'   These `net_*()` functions return a numeric vector the length of the number
-#'   of networks minus one. E.g., the periods between waves.
-#' @inheritParams mark_nodes
-#' @name measure_periods
-#' @family measures
-NULL
-
-#' @rdname measure_periods 
-#' @export
-net_by_waves <- function(.data){
-  .data <- manynet::expect_nodes(.data)
-  tie_waves <- length(unique(manynet::tie_attribute(.data, "wave")))
-  if(manynet::is_changing(.data)){
-    chltime <- manynet::as_changelist(.data)$time
-    chg_waves <- (max(chltime)+1) - max(min(chltime)-1, 0)
-  } else chg_waves <- 0
-  max(tie_waves, chg_waves)    
-}
-  
-#' @rdname measure_periods 
-#' @param object2 A network object.
-#' @export
-net_by_change <- function(.data, object2){
-  .data <- manynet::expect_nodes(.data)
-  if(manynet::is_list(.data)){
-    
-  } else if(!missing(object2)){
-    .data <- list(.data, object2)
-  } else manynet::snet_abort("`.data` must be a list of networks or a second network must be provided.")
-  periods <- length(.data)-1
-  vapply(seq.int(periods), function(x){
-    net1 <- manynet::as_matrix(.data[[x]])
-    net2 <- manynet::as_matrix(.data[[x+1]])
-    sum(net1 != net2)
-  }, FUN.VALUE = numeric(1))
-}
-
-#' @rdname measure_periods 
-#' @export
-net_by_stability <- function(.data, object2){
-  .data <- manynet::expect_nodes(.data)
-  if(manynet::is_list(.data)){
-    
-  } else if(!missing(object2)){
-    .data <- list(.data, object2)
-  } else manynet::snet_abort("`.data` must be a list of networks or a second network must be provided.")
-  periods <- length(.data)-1
-  vapply(seq.int(periods), function(x){
-    net1 <- manynet::as_matrix(.data[[x]])
-    net2 <- manynet::as_matrix(.data[[x+1]])
-    n11 <- sum(net1 * net2)
-    n01 <- sum(net1==0 * net2)
-    n10 <- sum(net1 * net2==0)
-    n11 / (n01 + n10 + n11)
-  }, FUN.VALUE = numeric(1))
-}
-
-#' @rdname measure_periods 
-#' @export
-net_by_correlation <- function(.data, object2){
-  .data <- manynet::expect_nodes(.data)
-  comp1 <- manynet::as_matrix(.data)
-  comp2 <- manynet::as_matrix(object2)
-  if(!manynet::is_complex(.data)){
-    diag(comp1) <- NA
-  }
-  if(!manynet::is_directed(.data)){
-    comp1[upper.tri(comp1)] <- NA
-  }
-  out <- cor(c(comp1), c(comp2), use = "complete.obs")
-  make_network_measure(out, .data, call = deparse(sys.call()))
-}

@@ -1,3 +1,5 @@
+# Diversity ####
+
 #' Measures of network diversity
 #' 
 #' @description
@@ -136,7 +138,7 @@ node_by_richness <- function(.data, attribute){
 #'   Princeton: Princeton University Press. 
 #'   \doi{10.1515/9781400835140}
 #' @examples
-#' marvel_friends <- to_unsigned(fict_marvel, "positive")
+#' marvel_friends <- to_unsigned(to_uniplex(fict_marvel, "relationship"), "positive")
 #' net_by_diversity(marvel_friends, "Gender")
 #' net_by_diversity(marvel_friends, "Appearances")
 #' @export
@@ -209,7 +211,31 @@ node_by_diversity <- function(.data, attribute,
   make_node_measure(out, .data)
 }
 
-#' @rdname measure_heterogeneity 
+# Assortativity ####
+
+#' Measures of network assortativity
+#' 
+#' @description
+#'   These functions offer ways to measure the distribution or assortativity 
+#'   of ties in a network:
+#'   
+#'   - `net_heterophily()` measures how embedded nodes in the network
+#'   are within groups of nodes with the same attribute.
+#'   - `node_heterophily()` measures each node's embeddedness within groups
+#'   of nodes with the same attribute.
+#'   - `net_assortativity()` measures the degree assortativity in a network.
+#'   - `net_spatial()` measures the spatial association/autocorrelation 
+#'   (global Moran's I) in a network.
+#'   
+#' @inheritParams mark_nodes
+#' @inheritParams measure_heterogeneity
+#' @param attribute Name of a nodal attribute or membership vector
+#'   to use as categories for the diversity measure.
+#' @name measure_assortativity
+#' @family measures
+NULL
+
+#' @rdname measure_assortativity 
 #' @section Homophily:
 #'   Given a partition of a network into a number of mutually exclusive groups then 
 #'   The E-I index is the number of ties between (or _external_) nodes 
@@ -230,6 +256,7 @@ node_by_diversity <- function(.data, attribute,
 #'   _Annual Review of Sociology_, 27(1): 415-444.
 #'   \doi{10.1146/annurev.soc.27.1.415}
 #' @examples 
+#' marvel_friends <- to_unsigned(to_uniplex(fict_marvel, "relationship"), "positive")
 #' net_by_heterophily(marvel_friends, "Gender")
 #' net_by_heterophily(marvel_friends, "Attractive")
 #' @export
@@ -249,7 +276,7 @@ net_by_heterophily <- function(.data, attribute){
   make_network_measure(ei, .data, call = deparse(sys.call()))
 }
 
-#' @rdname measure_heterogeneity 
+#' @rdname measure_assortativity 
 #' @examples 
 #' node_by_heterophily(marvel_friends, "Gender")
 #' node_by_heterophily(marvel_friends, "Attractive")
@@ -275,7 +302,7 @@ node_by_heterophily <- function(.data, attribute){
   make_node_measure(ei, .data)
 }
 
-#' @rdname measure_heterogeneity 
+#' @rdname measure_assortativity 
 #' @examples 
 #' net_by_homophily(marvel_friends, "Gender")
 #' @export
@@ -373,14 +400,14 @@ attr_mode <- function(.data, attribute){
   } else NULL
 }
 
-#' @rdname measure_heterogeneity
+#' @rdname measure_assortativity
 #' @export
 node_by_homophily <- function(.data, attribute,
                           method = c("ie","ei","yule","geary")){
   .data <- manynet::expect_nodes(.data)
-  if (length(attribute) == 1 && is.character(attribute)) {
-    attribute <- manynet::node_attribute(.data, attribute)
-  }
+  # if (length(attribute) == 1 && is.character(attribute)) {
+  #   attribute <- manynet::node_attribute(.data, attribute)
+  # }
   method <- match.arg(method)
   if(is.numeric(attribute) && method %in% c("ie","ei","yule")){
     manynet::snet_info("{.val {method}} index is not appropriate for numeric attributes.")
@@ -400,7 +427,7 @@ node_by_homophily <- function(.data, attribute,
   make_node_measure(out, .data)
 }
 
-#' @rdname measure_heterogeneity 
+#' @rdname measure_assortativity 
 #' @importFrom igraph assortativity_degree
 #' @references
 #' ## On assortativity
@@ -418,7 +445,7 @@ net_by_assortativity <- function(.data){
                      .data, call = deparse(sys.call()))
 }
 
-#' @rdname measure_heterogeneity 
+#' @rdname measure_assortativity 
 #' @references
 #' ## On spatial autocorrelation
 #'   Moran, Patrick Alfred Pierce. 1950.

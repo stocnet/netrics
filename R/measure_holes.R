@@ -51,7 +51,7 @@ node_by_bridges <- function(.data){
   g <- manynet::as_igraph(.data)
   .inc <- NULL
   out <- vapply(igraph::V(g), function(ego){
-    length(igraph::E(g)[.inc(ego) & manynet::tie_is_bridge(g)==1])
+    length(igraph::E(g)[.inc(ego) & tie_is_bridge(g)==1])
   }, FUN.VALUE = numeric(1))
   make_node_measure(out, .data)
 }
@@ -190,8 +190,7 @@ node_by_constraint <- function(.data) {
                               nodes = igraph::V(.data), 
                               weights = NULL)
   }
-  res <- make_node_measure(res, .data)
-  res
+  make_node_measure(res, .data)
 }
 
 #' @rdname measure_holes 
@@ -246,5 +245,5 @@ tie_by_cohesion <- function(.data){
           neigh_nodes <- length(unique(c(neigh1, neigh2)))-2
           shared_nodes / neigh_nodes
         } )
-  make_node_measure(out, .data)
+  make_tie_measure(out, .data)
 }

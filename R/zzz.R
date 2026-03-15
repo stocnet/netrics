@@ -18,7 +18,7 @@
   
   greet_startup_cli <- function() {
     tips <- c(
-      "i" = "There are lots of ways to contribute to {.pkg manynet} at {.url https://github.com/stocnet/netrics/}.",
+      "i" = "There are lots of ways to contribute to {.pkg netrics} at {.url https://github.com/stocnet/netrics/}.",
       "i" = "Please share bugs, issues, or feature requests at {.url https://github.com/stocnet/netrics/issues}. It's really helpful!",
       # "i" = "To suppress package startup messages, use: `suppressPackageStartupMessages(library({.pkg netrics}))`.",
       # "i" = "Changing the theme of all your graphs is straightforward with `set_manynet_theme()`",

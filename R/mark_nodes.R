@@ -1,6 +1,6 @@
-# Structural properties ####
+# Degree properties ####
 
-#' Marking nodes based on structural properties
+#' Marking nodes based on degree properties
 #' 
 #' @description 
 #'   These functions return logical vectors the length of the 
@@ -8,28 +8,25 @@
 #'   
 #'   - `node_is_isolate()` marks nodes that are isolates,
 #'   with neither incoming nor outgoing ties.
-#'   - `node_is_independent()` marks nodes that are members of the largest independent set,
-#'   aka largest internally stable set.
-#'   - `node_is_cutpoint()` marks nodes that cut or act as articulation points in a network,
-#'   increasing the number of connected components when removed.
-#'   - `node_is_core()` marks nodes that are members of the network's core.
-#'   - `node_is_fold()` marks nodes that are in a structural fold between two or more
-#'   triangles that are only connected by that node.
-#'   - `node_is_mentor()` marks a proportion of high indegree nodes as 'mentors' (see details).
+#'   - `node_is_pendant()` marks nodes that are pendants,
+#'   with exactly one incoming or outgoing tie.
+#'   - `node_is_universal()` identifies whether nodes are adjacent to all other
+#'   nodes in the network.
 #' @param .data A network object of class `mnet`, `igraph`, `tbl_graph`, `network`, or similar.
 #'   For more information on the standard coercion possible,
 #'   see [manynet::as_tidygraph()].
 #' @family marks
-#' @name mark_nodes
+#' @family degree
+#' @name mark_degree
 NULL
 
-#' @rdname mark_nodes
+#' @rdname mark_degree
 #' @examples 
 #' node_is_isolate(ison_brandes)
 #' @export
 node_is_isolate <- function(.data){
   .data <- manynet::expect_nodes(.data)
-  mat <- manynet::as_matrix(.data)
+  mat <- abs(manynet::as_matrix(.data))
   if(manynet::is_twomode(.data)){
     out <- c(rowSums(mat)==0, colSums(mat)==0)
   } else {
@@ -39,11 +36,11 @@ node_is_isolate <- function(.data){
   make_node_mark(out, .data)
 }
 
-#' @rdname mark_nodes
+#' @rdname mark_degree
 #' @export
 node_is_pendant <- function(.data){
   .data <- manynet::expect_nodes(.data)
-  mat <- manynet::as_matrix(.data)
+  mat <- abs(manynet::as_matrix(.data))
   if(manynet::is_twomode(.data)){
     out <- c(rowSums(mat)==1, colSums(mat)==1)
   } else {
@@ -51,6 +48,47 @@ node_is_pendant <- function(.data){
   }
   make_node_mark(out, .data)
 }
+
+#' @rdname mark_degree
+#' @section Universal/dominating node: 
+#'   A universal node is adjacent to all other nodes in the network.
+#'   It is also sometimes called the dominating vertex because it represents
+#'   a one-element dominating set.
+#'   A network with a universal node is called a cone, and its universal node
+#'   is called the apex of the cone.
+#'   A classic example of a cone is a star graph,
+#'   but friendship, wheel, and threshold graphs are also cones.
+#' @examples
+#' node_is_universal(create_star(11))
+#' @export
+node_is_universal <- function(.data){
+  .data <- manynet::expect_nodes(.data)
+  net <- manynet::to_undirected(manynet::to_unweighted(.data))
+  make_node_mark(node_by_deg(net)==(manynet::net_nodes(net)-1), .data)
+}
+
+# Structural properties ####
+
+#' Marking nodes based on structural properties
+#' 
+#' @description 
+#'   These functions return logical vectors the length of the 
+#'   nodes in a network identifying which hold certain properties or positions in the network.
+#'   
+#'   - `node_is_independent()` marks nodes that are members of the largest independent set,
+#'   aka largest internally stable set.
+#'   - `node_is_cutpoint()` marks nodes that cut or act as articulation points in a network,
+#'   increasing the number of connected components when removed.
+#'   - `node_is_fold()` marks nodes that are in a structural fold between two or more
+#'   triangles that are only connected by that node.
+#'   - `node_is_mentor()` marks a proportion of high indegree nodes as 'mentors' (see details).
+#'   - `node_is_neighbor()` marks nodes that are neighbours of a given node.
+#' @param .data A network object of class `mnet`, `igraph`, `tbl_graph`, `network`, or similar.
+#'   For more information on the standard coercion possible,
+#'   see [manynet::as_tidygraph()].
+#' @family marks
+#' @name mark_nodes
+NULL
 
 #' @rdname mark_nodes
 #' @importFrom igraph largest_ivs
@@ -195,6 +233,7 @@ node_is_neighbor <- function(.data, node){
 #'   - `node_is_recovered()` marks nodes that are recovered at a particular time point.
 #' @inheritParams mark_nodes
 #' @family marks
+#' @family diffusion
 #' @name mark_diff
 NULL
 
@@ -366,7 +405,7 @@ node_is_exposed <- function(.data, mark, time = 0){
 
 # Selection properties ####
 
-#' Marking nodes for selection based on measures
+#' Marking nodes based on measures
 #' 
 #' @description 
 #'   These functions return logical vectors the length of the 
@@ -403,7 +442,7 @@ node_is_random <- function(.data, size = 1){
 #'   three scores.
 #'   By default, `ranks = 1`.
 #' @examples 
-#' #node_is_max(migraph::node_degree(ison_brandes))
+#' #node_is_max(node_by_degree(ison_brandes))
 #' @export
 node_is_max <- function(node_measure, ranks = 1){
   if(!inherits(node_measure, "node_measure"))
@@ -429,7 +468,7 @@ node_is_max <- function(node_measure, ranks = 1){
 
 #' @rdname mark_select
 #' @examples 
-#' #node_is_min(migraph::node_degree(ison_brandes))
+#' #node_is_min(node_by_degree(ison_brandes))
 #' @export
 node_is_min <- function(node_measure, ranks = 1){
   if(!inherits(node_measure, "node_measure"))

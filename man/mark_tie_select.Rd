@@ -5,7 +5,7 @@
 \alias{tie_is_random}
 \alias{tie_is_max}
 \alias{tie_is_min}
-\title{Marking ties for selection based on measures}
+\title{Marking ties based on measures}
 \usage{
 tie_is_random(.data, size = 1)
 
@@ -33,11 +33,12 @@ are key because they minimise or, more often, maximise some measure.
 }
 }
 \examples{
-# tie_is_max(migraph::tie_betweenness(ison_brandes))
-#tie_is_min(migraph::tie_betweenness(ison_brandes))
+# tie_is_max(tie_by_betweenness(ison_brandes))
+#tie_is_min(tie_by_betweenness(ison_brandes))
 }
 \seealso{
 Other marks: 
+\code{\link{mark_degree}},
 \code{\link{mark_diff}},
 \code{\link{mark_nodes}},
 \code{\link{mark_select}},

@@ -1,4 +1,4 @@
-# Brokerage ####
+# Motifs ####
 
 #' Motifs of brokerage
 #' 
@@ -15,6 +15,7 @@
 #'   
 #' @name motif_brokerage
 #' @family motifs
+#' @family brokerage
 #' @inheritParams motif_node
 #' @param membership A vector of partition membership as integers.
 #' @param standardized Whether the score should be standardized
@@ -80,7 +81,24 @@ net_x_brokerage <- function(.data, membership, standardized = FALSE){
   make_network_motif(out, .data)
 }
 
-#' @rdname motif_brokerage 
+# Measures ####
+
+#' Measures of brokerage
+#' 
+#' @description
+#'   These functions include ways to measure nodes' brokerage activity and
+#'   exclusivity in a network: 
+#'   
+#'   - `node_brokering_activity()` measures nodes' brokerage activity.
+#'   - `node_brokering_exclusivity()` measures nodes' brokerage exclusivity. 
+#'   
+#' @name measure_brokerage
+#' @family measures
+#' @family brokerage
+#' @inheritParams motif_brokerage
+NULL
+
+#' @rdname measure_brokerage 
 #' @references
 #' ## On brokerage activity and exclusivity
 #'   Hamilton, Matthew, Jacob Hileman, and Orjan Bodin. 2020.
@@ -91,7 +109,6 @@ net_x_brokerage <- function(.data, membership, standardized = FALSE){
 #' @export
 node_by_brokering_activity <- function(.data, membership){
   .data <- manynet::expect_nodes(.data)
-  from <- to.y <- to_memb <- from_memb <- NULL
   twopaths <- .to_twopaths(.data)
   if(!missing(membership)){
     twopaths$from_memb <- manynet::node_attribute(.data, membership)[`if`(manynet::is_labelled(.data),
@@ -104,20 +121,23 @@ node_by_brokering_activity <- function(.data, membership){
   }
   # tabulate brokerage
   out <- c(table(twopaths$to))
-  # correct ordering for named data
-  if(manynet::is_labelled(.data)) out <- out[match(manynet::node_names(.data), names(out))]
+  # correct ordering
+  if(manynet::is_labelled(.data)) out <- out[match(manynet::node_names(.data), names(out))] else {
+    temp <- rep(0, manynet::net_nodes(.data))
+    temp[as.numeric(names(out))] <- out
+    out <- temp
+  }
   # missings should be none
   out[is.na(out)] <- 0
   make_node_measure(out, .data)
 }
 
-#' @rdname motif_brokerage
+#' @rdname measure_brokerage 
 #' @examples
 #' node_by_brokering_exclusivity(ison_networkers, "Discipline")
 #' @export
 node_by_brokering_exclusivity <- function(.data, membership){
   .data <- manynet::expect_nodes(.data)
-  from <- to.y <- to_memb <- from_memb <- NULL
   twopaths <- .to_twopaths(.data)
   if(!missing(membership)){
     twopaths$from_memb <- manynet::node_attribute(.data, membership)[`if`(manynet::is_labelled(.data),
@@ -133,11 +153,17 @@ node_by_brokering_exclusivity <- function(.data, membership){
   # tabulate brokerage
   out <- c(table(out$to))
   # correct ordering for named data
-  if(manynet::is_labelled(.data)) out <- out[match(manynet::node_names(.data), names(out))]
+  if(manynet::is_labelled(.data)) out <- out[match(manynet::node_names(.data), names(out))] else {
+    temp <- rep(0, manynet::net_nodes(.data))
+    temp[as.numeric(names(out))] <- out
+    out <- temp
+  }
   # missings should be none
   out[is.na(out)] <- 0
   make_node_measure(out, .data)
 }
+
+# Memberships ####
 
 #' Memberships of brokerage
 #' 
@@ -150,6 +176,7 @@ node_by_brokering_exclusivity <- function(.data, membership){
 #'   
 #' @name member_brokerage
 #' @family memberships
+#' @family brokerage
 #' @inheritParams motif_brokerage
 NULL
 

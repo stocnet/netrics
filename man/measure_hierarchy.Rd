@@ -2,14 +2,11 @@
 % Please edit documentation in R/measure_hierarchy.R
 \name{measure_hierarchy}
 \alias{measure_hierarchy}
-\alias{net_by_hierarchy}
 \alias{net_by_connectedness}
 \alias{net_by_efficiency}
 \alias{net_by_upperbound}
-\title{Graph theoretic dimensions of hierarchy}
+\title{Measures of hierarchy}
 \usage{
-net_by_hierarchy(.data)
-
 net_by_connectedness(.data)
 
 net_by_efficiency(.data)
@@ -33,10 +30,10 @@ or the degree to which network is a single component.
 }
 }
 \examples{
-net_connectedness(ison_networkers)
-1 - net_reciprocity(ison_networkers)
-net_efficiency(ison_networkers)
-net_upperbound(ison_networkers)
+net_by_connectedness(ison_networkers)
+1 - net_by_reciprocity(ison_networkers)
+net_by_efficiency(ison_networkers)
+net_by_upperbound(ison_networkers)
 }
 \references{
 \subsection{On hierarchy}{
@@ -54,7 +51,9 @@ Everett, Martin, and David Krackhardt. 2012.
 }
 \seealso{
 Other measures: 
+\code{\link{measure_assortativity}},
 \code{\link{measure_breadth}},
+\code{\link{measure_brokerage}},
 \code{\link{measure_central_between}},
 \code{\link{measure_central_close}},
 \code{\link{measure_central_degree}},
@@ -70,5 +69,9 @@ Other measures:
 \code{\link{measure_holes}},
 \code{\link{measure_periods}},
 \code{\link{member_diffusion}}
+
+Other hierarchy: 
+\code{\link{motif_hierarchy}}
 }
+\concept{hierarchy}
 \concept{measures}

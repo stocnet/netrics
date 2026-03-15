@@ -115,7 +115,9 @@ Valente, Tom W. 1995. \emph{Network models of the diffusion of innovations}
 }
 \seealso{
 Other measures: 
+\code{\link{measure_assortativity}},
 \code{\link{measure_breadth}},
+\code{\link{measure_brokerage}},
 \code{\link{measure_central_between}},
 \code{\link{measure_central_close}},
 \code{\link{measure_central_degree}},
@@ -133,9 +135,11 @@ Other measures:
 \code{\link{member_diffusion}}
 
 Other diffusion: 
+\code{\link{mark_diff}},
 \code{\link{measure_diffusion_infection}},
 \code{\link{measure_diffusion_net}},
-\code{\link{member_diffusion}}
+\code{\link{member_diffusion}},
+\code{\link{motif_diffusion}}
 }
 \concept{diffusion}
 \concept{measures}

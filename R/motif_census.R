@@ -301,10 +301,21 @@ node_x_path <- function(.data){
 #' @name motif_net
 #' @family motifs
 #' @inheritParams motif_node
-#' @param object2 A second, two-mode migraph-consistent object.
+#' @param object2 A second, two-mode network object.
 NULL
 
 #' @rdname motif_net
+#' @section Dyad census: 
+#'   The dyad census counts the number of mutual, asymmetric, and null dyads 
+#'   in a network.
+#'   For directed networks, 
+#'   - Mutual dyads have ties in both directions
+#'   - Asymmetric dyads have a tie in one direction only
+#'   - Null dyads have no ties
+#'   
+#'   Note that for undirected and two-mode networks,
+#'   only mutual and null dyads are possible, 
+#'   as the concept of an asymmetric dyad does not apply.
 #' @references
 #' ## On the dyad census
 #' Holland, Paul W., and Samuel Leinhardt. 1970. 
@@ -320,18 +331,46 @@ NULL
 #' @export
 net_x_dyad <- function(.data) {
   .data <- manynet::expect_nodes(.data)
-  if (manynet::is_twomode(.data)) {
-    manynet::snet_unavailable("A twomode or multilevel option for a dyad census is not yet implemented.")
-  } else {
-    out <- suppressWarnings(igraph::dyad_census(manynet::as_igraph(.data)))
-    out <- unlist(out)
-    names(out) <- c("Mutual", "Asymmetric", "Null")
-    if (!manynet::is_directed(.data)) out <- out[c(1, 3)]
-    make_network_motif(out, .data)
-  }
+  out <- suppressWarnings(igraph::dyad_census(manynet::as_igraph(.data)))
+  out <- unlist(out)
+  names(out) <- c("Mutual", "Asymmetric", "Null")
+  if (!manynet::is_directed(.data)) out <- out[c(1, 3)]
+  make_network_motif(out, .data)
 }
 
-#' @rdname motif_net 
+#' @rdname motif_net
+#' @section Triad census:
+#'  The triad census counts the number of three-node configurations in the network.
+#'  The function returns a matrix with a special naming convention:
+#'  - 003: This is an empty triad; no ties
+#'  - 012: This triad includes one tie
+#'  - 102: This triad includes two ties, but they are not reciprocated
+#'  - 021D: This triad includes two ties, one of which is reciprocated, and the other is directed towards the reciprocated tie
+#'  - 021U: This triad includes two ties, one of which is
+#'  reciprocated, and the other is directed away from the reciprocated tie
+#'  - 021C: This triad includes two ties, one of which is reciprocated, and the other is directed between the two non-reciprocated nodes
+#'  - 111D: This triad includes three ties, two of which are
+#'  reciprocated, and the other is directed towards the reciprocated ties
+#'  - 111U: This triad includes three ties, two of which are
+#'  reciprocated, and the other is directed away from the reciprocated ties
+#'  - 030T: This triad includes three ties, all of which are
+#'  directed in a transitive manner (i.e. A->B, B->C, A->C)
+#'  - 030C: This triad includes three ties, all of which are
+#'  directed in a cyclic manner (i.e. A->B, B->C
+#'  A->C)
+#'  - 201: This triad includes three ties, all of which are reciproc
+#'  ated (i.e. A<->B, B<->C, A<->C)
+#'  - 120D: This triad includes four ties, three of which are
+#'  reciprocated, and the other is directed towards the reciprocated ties
+#'  - 120U: This triad includes four ties, three of which are
+#'  reciprocated, and the other is directed away from the reciprocated ties
+#'  - 120C: This triad includes four ties, three of which are
+#'  reciprocated, and the other is directed between the two non-reciprocated
+#'  - 210: This triad includes five ties, four of which are reciprocated, and the other is directed between the two non-reciprocated
+#'  - 300: This triad includes six ties, all of which are reciprocated
+#'  
+#'  Note that for undirected and two-mode networks, only 003, 102, and 201 are possible,
+#'  as the other configurations rely on the concept of directionality.
 #' @references 
 #' ## On the triad census
 #' Davis, James A., and Samuel Leinhardt. 1967. 
@@ -442,14 +481,13 @@ net_x_tetrad <- function(.data){
 #' _Network Science_ 5(2): 187–212.
 #' \doi{10.1017/nws.2017.8}
 #' @examples 
-#' marvel_friends <- to_unsigned(fict_marvel, "positive")
-#' (mixed_cen <- net_x_mixed(marvel_friends, ison_marvel_teams))
+#' net_x_mixed(fict_marvel)
 #' @export
 net_x_mixed <- function (.data, object2) {
   .data <- manynet::expect_nodes(.data)
   if(missing(object2) && manynet::is_multiplex(.data)) {
-    # object2 <- to_uniplex(.data, )
-    
+    object2 <- manynet::to_uniplex(.data, unique(manynet::tie_attribute(.data, "type"))[2])
+    .data <- manynet::to_uniplex(.data, unique(manynet::tie_attribute(.data, "type"))[1])
   }
   if(manynet::is_twomode(.data))
     manynet::snet_abort("First object should be a one-mode network")
@@ -499,6 +537,7 @@ net_x_mixed <- function (.data, object2) {
 #'   infection/adoption by time step.
 #' 
 #' @family motifs
+#' @family diffusion
 #' @inheritParams motif_node
 #' @inheritParams measure_diffusion_net
 #' @name motif_diffusion

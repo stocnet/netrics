@@ -66,24 +66,27 @@ against only the centrality scores of the other nodes in that mode.}
 These functions calculate common closeness-related centrality measures
 that rely on path-length for one- and two-mode networks:
 \itemize{
-\item \code{node_closeness()} measures the closeness centrality of nodes in a
+\item \code{node_by_closeness()} measures the closeness centrality of nodes in a
 network.
-\item \code{node_reach()} measures nodes' reach centrality,
-or how many nodes they can reach within \emph{k} steps.
-\item \code{node_harmonic()} measures nodes' harmonic centrality or valued
+\item \code{node_by_harmonic()} measures nodes' harmonic centrality or valued
 centrality, which is thought to behave better than reach centrality
 for disconnected networks.
-\item \code{node_information()} measures nodes' information centrality or
+\item \code{node_by_reach()} measures nodes' reach centrality,
+or how many nodes they can reach within \emph{k} steps.
+\item \code{node_by_information()} measures nodes' information centrality or
 current-flow closeness centrality.
-\item \code{node_eccentricity()} measures nodes' eccentricity or maximum distance
+\item \code{node_by_eccentricity()} measures nodes' eccentricity or maximum distance
 from another node in the network.
-\item \code{node_distance()} measures nodes' geodesic distance from or to a
+\item \code{node_by_distance()} measures nodes' geodesic distance from or to a
 given node.
-\item \code{tie_closeness()} measures the closeness of each tie to other ties
+\item \code{node_by_vitality()} measures a network's closeness vitality centrality,
+or the change in closeness centrality between networks with and without a
+given node.
+\item \code{tie_by_closeness()} measures the closeness of each tie to other ties
 in the network.
-\item \code{net_closeness()} measures a network's closeness centralization.
-\item \code{net_reach()} measures a network's reach centralization.
-\item \code{net_harmonic()} measures a network's harmonic centralization.
+\item \code{net_by_closeness()} measures a network's closeness centralization.
+\item \code{net_by_reach()} measures a network's reach centralization.
+\item \code{net_by_harmonic()} measures a network's harmonic centralization.
 }
 
 All measures attempt to use as much information as they are offered,
@@ -189,7 +192,7 @@ where \eqn{H_{ji}} is the hitting time from node \eqn{j} to node \eqn{i}.
 \examples{
 node_by_closeness(ison_southern_women)
 node_by_reach(ison_adolescents)
-(ec <- tie_closeness(ison_adolescents))
+(ec <- tie_by_closeness(ison_adolescents))
 ison_adolescents \%>\% mutate_ties(weight = ec)
 net_by_closeness(ison_southern_women, direction = "in")
 }
@@ -272,7 +275,9 @@ Other centrality:
 \code{\link{measure_central_eigen}}
 
 Other measures: 
+\code{\link{measure_assortativity}},
 \code{\link{measure_breadth}},
+\code{\link{measure_brokerage}},
 \code{\link{measure_central_between}},
 \code{\link{measure_central_degree}},
 \code{\link{measure_central_eigen}},

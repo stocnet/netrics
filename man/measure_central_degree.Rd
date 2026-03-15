@@ -136,7 +136,7 @@ neighbours, \eqn{J}:
 }
 
 \examples{
-node_degree(ison_southern_women)
+node_by_degree(ison_southern_women)
 tie_by_degree(ison_adolescents)
 net_by_degree(ison_southern_women, direction = "in")
 }
@@ -192,7 +192,9 @@ Other centrality:
 \code{\link{measure_central_eigen}}
 
 Other measures: 
+\code{\link{measure_assortativity}},
 \code{\link{measure_breadth}},
+\code{\link{measure_brokerage}},
 \code{\link{measure_central_between}},
 \code{\link{measure_central_close}},
 \code{\link{measure_central_eigen}},
@@ -208,6 +210,10 @@ Other measures:
 \code{\link{measure_holes}},
 \code{\link{measure_periods}},
 \code{\link{member_diffusion}}
+
+Other degree: 
+\code{\link{mark_degree}}
 }
 \concept{centrality}
+\concept{degree}
 \concept{measures}

@@ -1,3 +1,24 @@
+tie_marks <- funs_objs[grepl("tie_is_", names(funs_objs))]
+for(fn in names(tie_marks)) {
+  for (ob in names(data_objs)) { 
+    test_that(paste(fn, "works on", ob), {
+      skip_if(grepl("tie_is_imbalanced", fn) && ob == "twomode")
+      if(fn == "tie_is_path"){
+        expect_s3_class(tie_marks[[fn]](data_objs[[ob]], 1, 2), "tie_mark")
+      } else if(grepl("infected|recovered", fn)){
+        if(ob == "diffusion")
+        expect_s3_class(tie_marks[[fn]](data_objs[[ob]]), "tie_mark") else
+          success("Only used for diffusion objects")
+      } else if(grepl("max|min", fn)){
+        skip_if_not(packageVersion("manynet") >= "1.7.3")
+        expect_s3_class(tie_marks[[fn]](tie_by_degree(data_objs[[ob]])), "tie_mark")
+      } else {
+        expect_s3_class(tie_marks[[fn]](data_objs[[ob]]), "tie_mark")
+      }
+    })
+  }
+}
+
 graph1 <- igraph::make_directed_graph(c(1,2,1,5,2,3,2,4,3,5,4,5,5,1))
 graph2 <- igraph::make_undirected_graph(c(1,1,1,2,2,4,3,4,3,4))
 
@@ -39,19 +60,19 @@ test_that("directed triangle tie marks work", {
 test_that("tie_is_max works", {
   skip_on_ci()
   skip_on_cran()
-  expect_equal(length(tie_is_max(tie_betweenness(graph1))),
+  expect_equal(length(tie_is_max(tie_by_betweenness(graph1))),
                c(net_ties(graph1)))
-  expect_equal(sum(tie_is_max(tie_betweenness(graph1)) == TRUE), 1)
-  expect_s3_class(tie_is_max(tie_betweenness(graph1)), "logical")
+  expect_equal(sum(tie_is_max(tie_by_betweenness(graph1)) == TRUE), 1)
+  expect_s3_class(tie_is_max(tie_by_betweenness(graph1)), "logical")
 })
 
 test_that("tie_is_min works", {
   skip_on_ci()
   skip_on_cran()
-  expect_equal(length(tie_is_min(tie_betweenness(ison_brandes))),
+  expect_equal(length(tie_is_min(tie_by_betweenness(ison_brandes))),
                c(net_ties(ison_brandes)))
-  expect_equal(sum(tie_is_min(tie_betweenness(ison_brandes)) == TRUE), 1)
-  expect_s3_class(tie_is_min(tie_betweenness(ison_brandes)), "logical")
+  expect_equal(sum(tie_is_min(tie_by_betweenness(ison_brandes)) == TRUE), 1)
+  expect_s3_class(tie_is_min(tie_by_betweenness(ison_brandes)), "logical")
 })
 
 test_that("tie_is_feedback() mark functions work", {

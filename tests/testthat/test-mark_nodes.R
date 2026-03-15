@@ -1,17 +1,39 @@
 set.seed(1234)
 
+node_marks <- funs_objs[grepl("node_is_", names(funs_objs))]
+for(fn in names(node_marks)) {
+  for (ob in names(data_objs)) { 
+    test_that(paste(fn, "works on", ob), {
+      if(fn == "node_is_exposed"){
+        expect_s3_class(node_marks[[fn]](data_objs[[ob]], mark = c(1,3)), 
+                        "node_mark")
+      } else if(fn == "node_is_core"){
+        skip_if(fn == "node_is_core" && manynet::is_directed(data_objs[[ob]]))
+        expect_s3_class(node_marks[[fn]](data_objs[[ob]]), "node_mark")
+      } else if(fn == "node_is_neighbor"){
+        expect_s3_class(node_marks[[fn]](data_objs[[ob]], node = 1), 
+                        "node_mark")
+      } else if(grepl("recovered|latent|infected", fn)){
+        if(ob == "diffusion")
+        expect_s3_class(node_marks[[fn]](data_objs[[ob]]), 
+                        "node_mark") else succeed("Only used for diffusion objects")
+      } else if(grepl("min|max|mean", fn)){
+          expect_s3_class(node_marks[[fn]](node_by_deg(data_objs[[ob]])), 
+                          "node_mark")
+      } else {
+        expect_s3_class(node_marks[[fn]](data_objs[[ob]]), "node_mark")
+      }
+    })
+  }
+}
+
 test_that("node_is_cutpoint", {
-  expect_true(exists("node_is_cutpoint"))
-  test_that("returns correct type", {
-    expect_s3_class(node_is_cutpoint(ison_algebra), "node_mark")
-  })
   expect_length(node_is_cutpoint(ison_southern_women),
                 c(net_nodes(ison_southern_women)))
 })
 
 test_that("node_is_isolate", {
   f <- node_is_isolate
-  expect_true(is.function(f))
   test <- f(ison_brandes)
   test_that("returns correct values", {
     expect_equal(length(test), c(net_nodes(ison_brandes)))
@@ -24,7 +46,6 @@ test_that("node_is_isolate", {
 test_that("node_is_fold works", {
   test <- node_is_fold(create_explicit(A-B, B-C, A-C, C-D, C-E, D-E))
   expect_equal(as.logical(test), c(F,F,T,F,F))
-  expect_s3_class(test, "node_mark")
 })
 
 test_that("node_is_neighbor works", {
@@ -34,23 +55,23 @@ test_that("node_is_neighbor works", {
 test_that("node_is_max works", {
   # skip_on_cran()
   # skip_on_ci()
-  expect_equal(length(node_is_max(node_betweenness(ison_brandes))),
+  expect_equal(length(node_is_max(node_by_betweenness(ison_brandes))),
                c(net_nodes(ison_brandes)))
-  expect_equal(sum(node_is_max(node_betweenness(ison_brandes)) == TRUE), 1)
-  expect_s3_class(node_is_max(node_betweenness(ison_brandes)), "logical")
+  expect_equal(sum(node_is_max(node_by_betweenness(ison_brandes)) == TRUE), 1)
+  expect_s3_class(node_is_max(node_by_betweenness(ison_brandes)), "logical")
 })
 
 test_that("node_is_min works", {
   # skip_on_cran()
   # skip_on_ci()
-  expect_equal(length(node_is_min(node_betweenness(ison_brandes))),
+  expect_equal(length(node_is_min(node_by_betweenness(ison_brandes))),
                c(net_nodes(ison_brandes)))
-  expect_equal(sum(node_is_min(node_betweenness(ison_brandes)) == TRUE), 4)
-  expect_s3_class(node_is_min(node_betweenness(ison_brandes)), "logical")
+  expect_equal(sum(node_is_min(node_by_betweenness(ison_brandes)) == TRUE), 4)
+  expect_s3_class(node_is_min(node_by_betweenness(ison_brandes)), "logical")
 })
 
 test_that("node_is_mean works", {
-  expect_s3_class(node_is_mean(node_betweenness(ison_brandes)), "logical")
+  expect_s3_class(node_is_mean(node_by_betweenness(ison_brandes)), "logical")
 })
 
 test_that("additional node mark functions work", {

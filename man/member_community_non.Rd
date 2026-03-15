@@ -10,7 +10,7 @@
 \alias{node_in_fluid}
 \alias{node_in_louvain}
 \alias{node_in_leiden}
-\title{Non-hierarchical community partitioning algorithms}
+\title{Non-hierarchical community clustering algorithms}
 \usage{
 node_in_community(.data)
 
@@ -229,5 +229,9 @@ Other memberships:
 \code{\link{member_community_hier}},
 \code{\link{member_components}},
 \code{\link{member_equivalence}}
+
+Other community: 
+\code{\link{member_community_hier}}
 }
+\concept{community}
 \concept{memberships}

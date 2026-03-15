@@ -24,7 +24,7 @@ net_x_mixed(.data, object2)
 For more information on the standard coercion possible,
 see \code{\link[manynet:manip_as]{manynet::as_tidygraph()}}.}
 
-\item{object2}{A second, two-mode migraph-consistent object.}
+\item{object2}{A second, two-mode network object.}
 }
 \description{
 These functions include ways to take a census of the graphlets
@@ -39,6 +39,59 @@ a one-mode and a two-mode network.
 
 See also \href{https://www.graphclasses.org/smallgraphs.html}{graph classes}.
 }
+\section{Dyad census}{
+
+The dyad census counts the number of mutual, asymmetric, and null dyads
+in a network.
+For directed networks,
+\itemize{
+\item Mutual dyads have ties in both directions
+\item Asymmetric dyads have a tie in one direction only
+\item Null dyads have no ties
+}
+
+Note that for undirected and two-mode networks,
+only mutual and null dyads are possible,
+as the concept of an asymmetric dyad does not apply.
+}
+
+\section{Triad census}{
+
+The triad census counts the number of three-node configurations in the network.
+The function returns a matrix with a special naming convention:
+\itemize{
+\item 003: This is an empty triad; no ties
+\item 012: This triad includes one tie
+\item 102: This triad includes two ties, but they are not reciprocated
+\item 021D: This triad includes two ties, one of which is reciprocated, and the other is directed towards the reciprocated tie
+\item 021U: This triad includes two ties, one of which is
+reciprocated, and the other is directed away from the reciprocated tie
+\item 021C: This triad includes two ties, one of which is reciprocated, and the other is directed between the two non-reciprocated nodes
+\item 111D: This triad includes three ties, two of which are
+reciprocated, and the other is directed towards the reciprocated ties
+\item 111U: This triad includes three ties, two of which are
+reciprocated, and the other is directed away from the reciprocated ties
+\item 030T: This triad includes three ties, all of which are
+directed in a transitive manner (i.e. A->B, B->C, A->C)
+\item 030C: This triad includes three ties, all of which are
+directed in a cyclic manner (i.e. A->B, B->C
+A->C)
+\item 201: This triad includes three ties, all of which are reciproc
+ated (i.e. A<->B, B<->C, A<->C)
+\item 120D: This triad includes four ties, three of which are
+reciprocated, and the other is directed towards the reciprocated ties
+\item 120U: This triad includes four ties, three of which are
+reciprocated, and the other is directed away from the reciprocated ties
+\item 120C: This triad includes four ties, three of which are
+reciprocated, and the other is directed between the two non-reciprocated
+\item 210: This triad includes five ties, four of which are reciprocated, and the other is directed between the two non-reciprocated
+\item 300: This triad includes six ties, all of which are reciprocated
+}
+
+Note that for undirected and two-mode networks, only 003, 102, and 201 are possible,
+as the other configurations rely on the concept of directionality.
+}
+
 \section{Tetrad census}{
 
 The tetrad census counts the number of four-node configurations in the network.
@@ -70,8 +123,7 @@ Graphs of these motifs can be shown using
 net_x_dyad(manynet::ison_algebra)
 net_x_triad(manynet::ison_adolescents)
 net_x_tetrad(ison_southern_women)
-marvel_friends <- to_unsigned(fict_marvel, "positive")
-(mixed_cen <- net_x_mixed(marvel_friends, ison_marvel_teams))
+net_x_mixed(fict_marvel)
 }
 \references{
 \subsection{On the dyad census}{
@@ -117,6 +169,7 @@ Hollway, James, Alessandro Lomi, Francesca Pallotti, and Christoph Stadtfeld. 20
 Other motifs: 
 \code{\link{motif_brokerage}},
 \code{\link{motif_diffusion}},
+\code{\link{motif_hierarchy}},
 \code{\link{motif_node}}
 }
 \concept{motifs}

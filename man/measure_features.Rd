@@ -75,22 +75,22 @@ The lower this parameter, the fewer larger communities are likely to be found.}
 \description{
 These functions measure certain topological features of networks:
 \itemize{
-\item \code{net_core()} measures the correlation between a network
+\item \code{net_by_core()} measures the correlation between a network
 and a core-periphery model with the same dimensions.
-\item \code{net_richclub()} measures the rich-club coefficient of a network.
-\item \code{net_factions()} measures the correlation between a network
+\item \code{net_by_richclub()} measures the rich-club coefficient of a network.
+\item \code{net_by_factions()} measures the correlation between a network
 and a component model with the same dimensions.
 If no 'membership' vector is given for the data,
 \code{node_partition()} is used to partition nodes into two groups.
-\item \code{net_modularity()} measures the modularity of a network
+\item \code{net_by_modularity()} measures the modularity of a network
 based on nodes' membership in defined clusters.
-\item \code{net_smallworld()} measures the small-world coefficient for one- or
+\item \code{net_by_smallworld()} measures the small-world coefficient for one- or
 two-mode networks. Small-world networks can be highly clustered and yet
 have short path lengths.
-\item \code{net_scalefree()} measures the exponent of a fitted
+\item \code{net_by_scalefree()} measures the exponent of a fitted
 power-law distribution. An exponent between 2 and 3 usually indicates
 a power-law distribution.
-\item \code{net_balance()} measures the structural balance index on
+\item \code{net_by_balance()} measures the structural balance index on
 the proportion of balanced triangles,
 ranging between \code{0} if all triangles are imbalanced and
 \code{1} if all triangles are balanced.
@@ -132,16 +132,16 @@ net_by_core(ison_adolescents)
 net_by_core(ison_southern_women)
 net_by_richclub(ison_adolescents)
   net_by_factions(ison_southern_women)
-net_modularity(ison_adolescents, 
+net_by_modularity(ison_adolescents, 
   node_in_partition(ison_adolescents))
-net_modularity(ison_southern_women, 
+net_by_modularity(ison_southern_women, 
   node_in_partition(ison_southern_women))
 net_by_smallworld(ison_brandes)
 net_by_smallworld(ison_southern_women)
 net_by_scalefree(ison_adolescents)
 net_by_scalefree(generate_scalefree(50, 1.5))
 net_by_scalefree(create_lattice(100))
-net_by_balance(fict_marvel)
+net_by_balance(to_uniplex(fict_marvel, "relationship"))
 }
 \references{
 \subsection{On core-periphery}{
@@ -230,11 +230,13 @@ Cartwright, D., and Frank Harary. 1956.
 }
 }
 \seealso{
-\code{\link[manynet:measure_closure]{manynet::net_transitivity()}} and \code{\link[manynet:measure_closure]{manynet::net_equivalency()}}
+\code{\link[=net_by_transitivity]{net_by_transitivity()}} and \code{\link[=net_by_equivalency]{net_by_equivalency()}}
 for how clustering is calculated
 
 Other measures: 
+\code{\link{measure_assortativity}},
 \code{\link{measure_breadth}},
+\code{\link{measure_brokerage}},
 \code{\link{measure_central_between}},
 \code{\link{measure_central_close}},
 \code{\link{measure_central_degree}},

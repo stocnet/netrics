@@ -5,7 +5,7 @@
 \alias{node_in_component}
 \alias{node_in_weak}
 \alias{node_in_strong}
-\title{Component partitioning algorithms}
+\title{Membership in components}
 \usage{
 node_in_component(.data)
 

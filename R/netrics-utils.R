@@ -3,6 +3,7 @@
 # defining global variables more centrally
 utils::globalVariables(c(".data", "obs",
                          "from", "to", "name", "weight","sign","wave",
+                         "from_memb","to_memb","to.y",
                          "nodes","event","exposure",
                          "student","students","colleges",
                          "node","value","var","active","time",

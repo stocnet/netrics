@@ -60,10 +60,19 @@ in that diffusion.
 }
 \seealso{
 Other marks: 
+\code{\link{mark_degree}},
 \code{\link{mark_nodes}},
 \code{\link{mark_select}},
 \code{\link{mark_tie_select}},
 \code{\link{mark_ties}},
 \code{\link{mark_triangles}}
+
+Other diffusion: 
+\code{\link{measure_diffusion_infection}},
+\code{\link{measure_diffusion_net}},
+\code{\link{measure_diffusion_node}},
+\code{\link{member_diffusion}},
+\code{\link{motif_diffusion}}
 }
+\concept{diffusion}
 \concept{marks}

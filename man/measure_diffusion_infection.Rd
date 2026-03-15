@@ -43,13 +43,15 @@ highest infection rate is observed.
 \examples{
   smeg <- generate_smallworld(15, 0.025)
   smeg_diff <- play_diffusion(smeg)
-  net_infection_complete(smeg_diff)
+  net_by_infection_complete(smeg_diff)
   net_by_infection_total(smeg_diff)
   net_by_infection_peak(smeg_diff)
 }
 \seealso{
 Other measures: 
+\code{\link{measure_assortativity}},
 \code{\link{measure_breadth}},
+\code{\link{measure_brokerage}},
 \code{\link{measure_central_between}},
 \code{\link{measure_central_close}},
 \code{\link{measure_central_degree}},
@@ -67,9 +69,11 @@ Other measures:
 \code{\link{member_diffusion}}
 
 Other diffusion: 
+\code{\link{mark_diff}},
 \code{\link{measure_diffusion_net}},
 \code{\link{measure_diffusion_node}},
-\code{\link{member_diffusion}}
+\code{\link{member_diffusion}},
+\code{\link{motif_diffusion}}
 }
 \concept{diffusion}
 \concept{measures}

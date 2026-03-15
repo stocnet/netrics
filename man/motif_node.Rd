@@ -121,6 +121,7 @@ Opsahl, Tore, Filip Agneessens, and John Skvoretz. 2010.
 Other motifs: 
 \code{\link{motif_brokerage}},
 \code{\link{motif_diffusion}},
+\code{\link{motif_hierarchy}},
 \code{\link{motif_net}}
 }
 \concept{motifs}

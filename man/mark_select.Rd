@@ -6,7 +6,7 @@
 \alias{node_is_max}
 \alias{node_is_min}
 \alias{node_is_mean}
-\title{Marking nodes for selection based on measures}
+\title{Marking nodes based on measures}
 \usage{
 node_is_random(.data, size = 1)
 
@@ -44,12 +44,13 @@ are key because they minimise or, more often, maximise some measure.
 }
 \examples{
 node_is_random(ison_brandes, 2)
-#node_is_max(migraph::node_degree(ison_brandes))
-#node_is_min(migraph::node_degree(ison_brandes))
+#node_is_max(node_by_degree(ison_brandes))
+#node_is_min(node_by_degree(ison_brandes))
 #node_is_mean(node_degree(ison_brandes))
 }
 \seealso{
 Other marks: 
+\code{\link{mark_degree}},
 \code{\link{mark_diff}},
 \code{\link{mark_nodes}},
 \code{\link{mark_tie_select}},

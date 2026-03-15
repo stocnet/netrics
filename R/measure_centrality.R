@@ -29,6 +29,7 @@
 #' @name measure_central_degree
 #' @family centrality
 #' @family measures
+#' @family degree
 #' @inheritParams mark_nodes
 #' @param normalized Logical scalar, whether the centrality scores are normalized.
 #'   Different denominators are used depending on whether the object is one-mode or two-mode,
@@ -81,7 +82,7 @@
 #' _Social Networks_ 32, 245-251.
 #' \doi{10.1016/j.socnet.2010.03.006}
 #' @examples
-#' node_degree(ison_southern_women)
+#' node_by_degree(ison_southern_women)
 #' @return Depending on how and what kind of an object is passed to the function,
 #' the function will return a `tidygraph` object where the nodes have been updated
 NULL
@@ -248,11 +249,11 @@ net_by_degree <- function(.data, normalized = TRUE,
         out$nodes1 <- sum(max(allcent[!mode]) - allcent)/((nrow(mat) + ncol(mat))*ncol(mat) - 2*(ncol(mat) + nrow(mat) - 1))
         out$nodes2 <- sum(max(allcent[mode]) - allcent)/((nrow(mat) + ncol(mat))*nrow(mat) - 2*(ncol(mat) + nrow(mat) - 1))
       } else if (normalized) {
-        allcent <- node_by_degree(mat, normalized = TRUE)
+        allcent <- node_by_degree(.data, normalized = TRUE)
         out$nodes1 <- sum(max(allcent[!mode]) - allcent)/((nrow(mat) + ncol(mat) - 1) - (ncol(mat) - 1) / nrow(mat) - (ncol(mat) + nrow(mat) - 1)/nrow(mat))
         out$nodes2 <- sum(max(allcent[mode]) - allcent)/((ncol(mat) + nrow(mat) - 1) - (nrow(mat) - 1) / ncol(mat) - (nrow(mat)  + ncol(mat) - 1)/ncol(mat))
       }
-    } else if (direction == "in") {
+    } else if (direction == "in" | direction == "out") {
       out$nodes1 <- sum(max(rowSums(mat)) - rowSums(mat))/((ncol(mat) - 1)*(nrow(mat) - 1))
       out$nodes2 <- sum(max(colSums(mat)) - colSums(mat))/((ncol(mat) - 1)*(nrow(mat) - 1))
     }
@@ -303,6 +304,7 @@ net_by_indegree <- function(.data, normalized = TRUE){
 #' @name measure_central_between
 #' @family centrality
 #' @family measures
+#' @family betweenness
 #' @inheritParams measure_central_degree
 #' @param cutoff The maximum path length to consider when calculating betweenness.
 #'   If negative or NULL (the default), there's no limit to the path lengths considered.
@@ -439,7 +441,7 @@ node_by_stress <- function(.data, normalized = TRUE){
 #' @rdname measure_central_between
 #' @importFrom igraph edge_betweenness
 #' @examples
-#' (tb <- tie_betweenness(ison_adolescents))
+#' (tb <- tie_by_betweenness(ison_adolescents))
 #' ison_adolescents %>% mutate_ties(weight = tb)
 #' @export
 tie_by_betweenness <- function(.data, normalized = TRUE){
@@ -454,7 +456,7 @@ tie_by_betweenness <- function(.data, normalized = TRUE){
 
 #' @rdname measure_central_between
 #' @examples
-#' net_betweenness(ison_southern_women, direction = "in")
+#' net_by_betweenness(ison_southern_women, direction = "in")
 #' @export
 net_by_betweenness <- function(.data, normalized = TRUE,
                                 direction = c("all", "out", "in")) {
@@ -515,24 +517,27 @@ net_by_betweenness <- function(.data, normalized = TRUE,
 #'   These functions calculate common closeness-related centrality measures 
 #'   that rely on path-length for one- and two-mode networks:
 #'   
-#'   - `node_closeness()` measures the closeness centrality of nodes in a 
+#'   - `node_by_closeness()` measures the closeness centrality of nodes in a 
 #'   network.
-#'   - `node_reach()` measures nodes' reach centrality,
-#'   or how many nodes they can reach within _k_ steps.
-#'   - `node_harmonic()` measures nodes' harmonic centrality or valued 
+#'   - `node_by_harmonic()` measures nodes' harmonic centrality or valued 
 #'   centrality, which is thought to behave better than reach centrality 
 #'   for disconnected networks.
-#'   - `node_information()` measures nodes' information centrality or 
+#'   - `node_by_reach()` measures nodes' reach centrality,
+#'   or how many nodes they can reach within _k_ steps.
+#'   - `node_by_information()` measures nodes' information centrality or 
 #'   current-flow closeness centrality.
-#'   - `node_eccentricity()` measures nodes' eccentricity or maximum distance
+#'   - `node_by_eccentricity()` measures nodes' eccentricity or maximum distance
 #'   from another node in the network.
-#'   - `node_distance()` measures nodes' geodesic distance from or to a 
+#'   - `node_by_distance()` measures nodes' geodesic distance from or to a 
 #'   given node.
-#'   - `tie_closeness()` measures the closeness of each tie to other ties 
+#'   - `node_by_vitality()` measures a network's closeness vitality centrality,
+#'   or the change in closeness centrality between networks with and without a
+#'   given node.
+#'   - `tie_by_closeness()` measures the closeness of each tie to other ties 
 #'   in the network.
-#'   - `net_closeness()` measures a network's closeness centralization.
-#'   - `net_reach()` measures a network's reach centralization.
-#'   - `net_harmonic()` measures a network's harmonic centralization.
+#'   - `net_by_closeness()` measures a network's closeness centralization.
+#'   - `net_by_reach()` measures a network's reach centralization.
+#'   - `net_by_harmonic()` measures a network's harmonic centralization.
 #'   
 #'   All measures attempt to use as much information as they are offered,
 #'   including whether the networks are directed, weighted, or multimodal.
@@ -771,7 +776,8 @@ node_by_vitality <- function(.data, normalized = TRUE){
   .data <- manynet::expect_nodes(.data)
   .data <- manynet::as_igraph(.data)
   out <- vapply(manynet::snet_progress_nodes(.data), function(x){
-    sum(igraph::distances(.data)) - sum(igraph::distances(manynet::delete_nodes(.data, x)))
+    sum(igraph::distances(.data)) - 
+      sum(igraph::distances(manynet::delete_nodes(.data, x)))
   }, FUN.VALUE = numeric(1))
   if(normalized) out <- out/max(out)
   make_node_measure(out, .data)
@@ -797,7 +803,7 @@ node_by_vitality <- function(.data, normalized = TRUE){
 node_by_randomwalk <- function(.data, normalized = TRUE){
   .data <- manynet::expect_nodes(.data)
   # adjacency and degree matrices
-  A <- manynet::as_matrix(.data)
+  A <- manynet::as_matrix(manynet::to_multilevel(.data))
   degs <- node_by_deg(.data)
   D <- diag(degs)
   
@@ -847,7 +853,7 @@ node_by_randomwalk <- function(.data, normalized = TRUE){
 
 #' @rdname measure_central_close 
 #' @examples
-#' (ec <- tie_closeness(ison_adolescents))
+#' (ec <- tie_by_closeness(ison_adolescents))
 #' ison_adolescents %>% mutate_ties(weight = ec)
 #' @export
 tie_by_closeness <- function(.data, normalized = TRUE){
@@ -930,7 +936,7 @@ net_by_reach <- function(.data, normalized = TRUE, cutoff = 2){
   reaches <- node_by_reach(.data, normalized = FALSE, cutoff = cutoff)
   out <- sum(max(reaches) - reaches)
   if(normalized) out <- out / sum(manynet::net_nodes(.data) - reaches)
-  make_network_measure(out, .data)
+  make_network_measure(out, .data, call = deparse(sys.call()))
 }
 
 #' @rdname measure_central_close
@@ -940,7 +946,7 @@ net_by_harmonic <- function(.data, normalized = TRUE, cutoff = 2){
   harm <- node_by_harmonic(.data, normalized = FALSE, cutoff = cutoff)
   out <- sum(max(harm) - harm)
   if(normalized) out <- out / sum(manynet::net_nodes(.data) - harm)
-  make_network_measure(out, .data)
+  make_network_measure(out, .data, call = deparse(sys.call()))
 }
 
 # Eigenvector-like centralities ####
@@ -1071,6 +1077,11 @@ node_by_power <- function(.data, normalized = TRUE, scale = FALSE, exponent = 1)
                   manynet::tie_weights(.data), NA)
   graph <- manynet::as_igraph(.data)
   
+  if(var(node_by_deg(graph))==0){
+    manynet::snet_minor_info("All nodes have the same degree, so power centrality equals degree centrality.")
+    exponent <- 0
+  }
+  
   # Do the calculations
   if (!manynet::is_twomode(graph)){
     out <- igraph::power_centrality(graph = graph, 
@@ -1144,7 +1155,7 @@ node_by_alpha <- function(.data, alpha = 0.85){
 #' @export 
 node_by_pagerank <- function(.data){
   .data <- manynet::expect_nodes(.data)
-  make_node_measure(igraph::page_rank(manynet::as_igraph(.data)),
+  make_node_measure(igraph::page_rank(manynet::as_igraph(.data))$vector,
                     .data)
 }
   
@@ -1158,7 +1169,7 @@ node_by_pagerank <- function(.data){
 #' @export 
 node_by_authority <- function(.data){
   .data <- manynet::expect_nodes(.data)
-  make_node_measure(igraph::authority_score(manynet::as_igraph(.data))$vector,
+  make_node_measure(igraph::hits_scores(manynet::as_igraph(.data))$authority,
                     .data)
 }
 
@@ -1166,7 +1177,7 @@ node_by_authority <- function(.data){
 #' @export 
 node_by_hub <- function(.data){
   .data <- manynet::expect_nodes(.data)
-  make_node_measure(igraph::hub_score(manynet::as_igraph(.data))$vector,
+  make_node_measure(igraph::hits_scores(manynet::as_igraph(.data))$hub,
                     .data)
 }
 

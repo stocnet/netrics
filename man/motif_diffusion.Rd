@@ -90,7 +90,16 @@ Cambridge: MIT Press.
 \seealso{
 Other motifs: 
 \code{\link{motif_brokerage}},
+\code{\link{motif_hierarchy}},
 \code{\link{motif_net}},
 \code{\link{motif_node}}
+
+Other diffusion: 
+\code{\link{mark_diff}},
+\code{\link{measure_diffusion_infection}},
+\code{\link{measure_diffusion_net}},
+\code{\link{measure_diffusion_node}},
+\code{\link{member_diffusion}}
 }
+\concept{diffusion}
 \concept{motifs}

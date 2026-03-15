@@ -120,13 +120,13 @@ net_by_equivalency <- function(.data) {
 
 #' @rdname measure_closure
 #' @examples
-#' node_by_equivalency(ison_southern_women)
+#' # node_by_equivalency(ison_southern_women)
 #' @export
 node_by_equivalency <- function(.data) {
   .data <- manynet::expect_nodes(.data)
   # if(is_weighted(.data))
   #   snet_info("Using unweighted form of the network.")
-  out <- vapply(manynet::snet_progress_along(seq_nodes(.data)), function(i){
+  out <- vapply(manynet::snet_progress_seq(.data), function(i){
     threepaths <- igraph::all_simple_paths(.data, i, cutoff = 3,
                                           mode = "all")
     onepaths <- threepaths[vapply(threepaths, length, 

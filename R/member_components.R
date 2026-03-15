@@ -1,4 +1,4 @@
-#' Component partitioning algorithms
+#' Membership in components
 #' 
 #' @description 
 #'   These functions create a vector of nodes' memberships in components:
