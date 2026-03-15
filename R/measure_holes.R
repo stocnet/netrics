@@ -190,8 +190,7 @@ node_by_constraint <- function(.data) {
                               nodes = igraph::V(.data), 
                               weights = NULL)
   }
-  res <- make_node_measure(res, .data)
-  res
+  make_node_measure(res, .data)
 }
 
 #' @rdname measure_holes 

@@ -49,8 +49,9 @@ see [`{migraph}`](https://stocnet.github.io/migraph/).
 
 - [Marking](#marking)
 - [Measures](#measures)
-- [Motifs](#motifs)
 - [Memberships](#memberships)
+- [Motifs](#motifs)
+- [Analysis](#analysis)
 - [Installation](#installation)
   - [Stable](#stable)
   - [Development](#development)
@@ -84,12 +85,13 @@ These include:
 
 - `r list_functions("_by_")`
 
-## Motifs
-
-`{netrics}`'s `*_x_*()` functions tabulate nodes' and networks' frequency in various motifs.
-These include:
-
-- `r list_functions("_x_")`
+The measures are organised into several broad categories, including:
+_Centrality_, _Cohesion_, _Hierarchy_, _Innovation_ (structural holes),
+_Diversity_ (heterogeneity), _Topology_ (features), and _Diffusion_.
+Each measure recognises whether the network is directed or undirected,
+weighted or unweighted, one-mode or two-mode,
+and returns normalized values wherever possible.
+We recommend you explore [the list of functions](https://stocnet.github.io/netrics/reference/index.html) to find out more.
 
 ## Memberships
 
@@ -100,7 +102,7 @@ indicating e.g. that the first node is a member of group "A", the second in grou
 
 - `r list_functions("_in_")`
 
-For example `node_brokerage_census()` returns 
+For example `node_in_brokering()` returns 
 the frequency of nodes' participation in 
 Gould-Fernandez brokerage roles for a one-mode network,
 and the Jasny-Lubell brokerage roles for a two-mode network.
@@ -115,13 +117,27 @@ as well as elbow, silhouette, and strict methods for _k_-cluster selection.
 such as typical community detection algorithms, 
 as well as component and core-periphery partitioning algorithms.
 
-The measures are organised into several broad categories, including:
-_Centrality_, _Cohesion_, _Hierarchy_, _Innovation_ (structural holes),
-_Diversity_ (heterogeneity), _Topology_ (features), and _Diffusion_.
-Each measure recognises whether the network is directed or undirected,
-weighted or unweighted, one-mode or two-mode,
-and returns normalized values wherever possible.
-We recommend you explore [the list of functions](https://stocnet.github.io/netrics/reference/index.html) to find out more.
+## Motifs
+
+`{netrics}`'s `*_x_*()` functions tabulate nodes' and networks' frequency in various motifs.
+These include:
+
+- `r list_functions("_x_")`
+
+## Analysis
+
+The functions in `{netrics}` are designed to answer a wide variety of analytic questions about networks.
+For example, you might want to know about:
+
+- _Centrality_: `r list_functions("degree|betweenness|closeness|eigenvector")`
+- _Cohesion_: `r list_functions("density|reciprocity|transitivity|equivalency|congruency")`
+- _Hierarchy_: `r list_functions("hierarchy|connectedness|upper|efficiency|reciprocity")`
+- _Innovation_: `r list_functions("hole|redundancy|constraint|effsize")`
+- _Diversity_: `r list_functions("diversity|phily|richness|assort")`
+- _Topology_: `r list_functions("core|factions|modularity|smallworld|balance|richclub")`
+- _Resilience_: `r list_functions("cutpoint|bridge|hesion|articul")`
+- _Brokerage_: `r list_functions("broke")`
+- _Diffusion_: `r list_functions("adopt|infect|expos")`
 
 ## Installation
 
