@@ -343,12 +343,12 @@ net_by_smallworld <- function(.data,
 net_by_scalefree <- function(.data){
   .data <- manynet::expect_nodes(.data)
   out <- igraph::fit_power_law(node_by_deg(.data))
-  if ("KS.p" %in% names(out)) {
-    if(out$KS.p < 0.05) 
-      cat(paste("Note: Kolgomorov-Smirnov test that data",
-                "could have been drawn from a power-law", 
-                "distribution rejected.\n"))
-  }
+  if (!"KS.p" %in% names(out)) out$KS.p <- ks.test(seq(0, 1 - out$KS.stat, 
+                                                       length.out = manynet::net_nodes(.data)), 
+                                                   "punif")$p.value
+  if(out$KS.p < 0.05) 
+      snet_info("Note: Kolgomorov-Smirnov test that data could have been drawn",
+                "from a power-law distribution rejected.")
   make_network_measure(out$alpha, .data, 
                        call = deparse(sys.call()))
 }
