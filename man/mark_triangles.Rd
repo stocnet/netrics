@@ -27,6 +27,11 @@ tie_is_imbalanced(.data)
 For more information on the standard coercion possible,
 see \code{\link[manynet:manip_as]{manynet::as_tidygraph()}}.}
 }
+\value{
+A \code{tie_mark} logical vector the length of the ties in the network,
+giving either TRUE or FALSE for each tie depending on
+whether the condition is matched.
+}
 \description{
 These functions return logical vectors the length of the ties
 in a network identifying which hold certain properties or positions in the network.
@@ -46,25 +51,21 @@ are cohesively connected.
 \examples{
 ison_monks \%>\% to_uniplex("like") \%>\% 
   mutate_ties(tri = tie_is_triangular())
-  #graphr(edge_color = "tri")
 ison_adolescents \%>\% to_directed() \%>\% 
   mutate_ties(trans = tie_is_transitive())
-  #graphr(edge_color = "trans")
 ison_adolescents \%>\% to_directed() \%>\% 
   mutate_ties(trip = tie_is_triplet())
-  #graphr(edge_color = "trip")
 ison_adolescents \%>\% to_directed() \%>\% 
   mutate_ties(cyc = tie_is_cyclical())
-  #graphr(edge_color = "cyc")
 ison_monks \%>\% to_uniplex("like") \%>\% 
   mutate_ties(simmel = tie_is_simmelian())
-  #graphr(edge_color = "simmel")
 fict_marvel \%>\% to_uniplex("relationship") \%>\% tie_is_imbalanced()
 }
 \seealso{
 Other marks: 
 \code{\link{mark_degree}},
 \code{\link{mark_diff}},
+\code{\link{mark_dyads}},
 \code{\link{mark_nodes}},
 \code{\link{mark_select}},
 \code{\link{mark_tie_select}},

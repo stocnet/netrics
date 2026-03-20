@@ -15,8 +15,12 @@ node_is_universal(.data)
 }
 \arguments{
 \item{.data}{A network object of class \code{mnet}, \code{igraph}, \code{tbl_graph}, \code{network}, or similar.
-For more information on the standard coercion possible,
-see \code{\link[manynet:manip_as]{manynet::as_tidygraph()}}.}
+For more information on what coercions are possible, see \code{\link[manynet:manip_as]{manynet::as_tidygraph()}}.}
+}
+\value{
+A \code{node_mark} logical vector the length of the nodes in the network,
+giving either TRUE or FALSE for each node depending on
+whether the condition is matched.
 }
 \description{
 These functions return logical vectors the length of the
@@ -48,6 +52,7 @@ node_is_universal(create_star(11))
 \seealso{
 Other marks: 
 \code{\link{mark_diff}},
+\code{\link{mark_dyads}},
 \code{\link{mark_nodes}},
 \code{\link{mark_select}},
 \code{\link{mark_tie_select}},

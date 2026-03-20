@@ -18,9 +18,12 @@ tie_is_min(tie_measure)
 For more information on the standard coercion possible,
 see \code{\link[manynet:manip_as]{manynet::as_tidygraph()}}.}
 
-\item{size}{The number of nodes to select (as TRUE).}
-
 \item{tie_measure}{An object created by a \code{tie_} measure.}
+}
+\value{
+A \code{tie_mark} logical vector the length of the ties in the network,
+giving either TRUE or FALSE for each tie depending on
+whether the condition is matched.
 }
 \description{
 These functions return logical vectors the length of the ties in a network:
@@ -33,16 +36,21 @@ are key because they minimise or, more often, maximise some measure.
 }
 }
 \examples{
-# tie_is_max(tie_by_betweenness(ison_brandes))
-#tie_is_min(tie_by_betweenness(ison_brandes))
+tie_is_max(tie_by_betweenness(ison_brandes))
+tie_is_min(tie_by_betweenness(ison_brandes))
 }
 \seealso{
 Other marks: 
 \code{\link{mark_degree}},
 \code{\link{mark_diff}},
+\code{\link{mark_dyads}},
 \code{\link{mark_nodes}},
 \code{\link{mark_select}},
 \code{\link{mark_ties}},
 \code{\link{mark_triangles}}
+
+Other selection: 
+\code{\link{mark_select}}
 }
 \concept{marks}
+\concept{selection}

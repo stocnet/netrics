@@ -1,34 +1,21 @@
 # Structural properties ####
 
 #' Marking ties based on structural properties
-#' 
 #' @description 
 #'   These functions return logical vectors the length of the ties
 #'   in a network identifying which hold certain properties or positions in the network.
 #'   
-#'   - `tie_is_multiple()` marks ties that are multiples.
 #'   - `tie_is_loop()` marks ties that are loops.
-#'   - `tie_is_reciprocated()` marks ties that are mutual/reciprocated.
 #'   - `tie_is_feedback()` marks ties that are feedback arcs causing the network to not be acyclic.
 #'   - `tie_is_bridge()` marks ties that cut or act as articulation points in a network.
 #'   - `tie_is_path()` marks ties on a path from one node to another.
 #'   
 #'   They are most useful in highlighting parts of the network that
 #'   are particularly well- or poorly-connected.
-#' @inheritParams mark_nodes
-#' @family marks
+#' @template param_data
+#' @template tie_mark
 #' @name mark_ties
 NULL
-
-#' @rdname mark_ties
-#' @importFrom igraph which_multiple
-#' @examples 
-#' tie_is_multiple(fict_marvel)
-#' @export
-tie_is_multiple <- function(.data){
-  .data <- manynet::expect_ties(.data)  
-  make_tie_mark(igraph::which_multiple(manynet::as_igraph(.data)), .data)
-}
 
 #' @rdname mark_ties
 #' @importFrom igraph which_loop
@@ -38,16 +25,6 @@ tie_is_multiple <- function(.data){
 tie_is_loop <- function(.data){
   .data <- manynet::expect_ties(.data)  
   make_tie_mark(igraph::which_loop(manynet::as_igraph(.data)), .data)
-}
-
-#' @rdname mark_ties
-#' @importFrom igraph which_mutual
-#' @examples 
-#' tie_is_reciprocated(ison_algebra)
-#' @export
-tie_is_reciprocated <- function(.data){
-  .data <- manynet::expect_ties(.data)  
-  make_tie_mark(igraph::which_mutual(manynet::as_igraph(.data)), .data)
 }
 
 #' @rdname mark_ties
@@ -87,7 +64,6 @@ tie_is_bridge <- function(.data){
 #' @examples 
 #' ison_adolescents %>%
 #'   mutate_ties(route = tie_is_path(from = "Jane", to = 7)) 
-#'   #graphr(edge_colour = "route")
 #' @export
 tie_is_path <- function(.data, from, to, all_paths = FALSE){
   .data <- manynet::expect_ties(.data)  
@@ -97,6 +73,44 @@ tie_is_path <- function(.data, from, to, all_paths = FALSE){
     out <- igraph::E(.data) %in% unique(unlist(out))
   } else out <- igraph::E(.data) %in% out[[sample(length(out),1)]]
   make_tie_mark(out, .data)
+}
+
+# Dyadic properties ####
+
+#' Marking ties based on dyadic properties
+#' 
+#' @description 
+#'   These functions return logical vectors the length of the ties
+#'   in a network identifying which are embedded within particular dyads.
+#'   
+#'   - `tie_is_multiple()` marks ties that are multiples.
+#'   - `tie_is_reciprocated()` marks ties that are mutual/reciprocated.
+#'   
+#'   They are most useful in highlighting parts of the network where
+#'   relationships are denser.
+#' @template param_data
+#' @template tie_mark
+#' @name mark_dyads
+NULL
+
+#' @rdname mark_dyads
+#' @importFrom igraph which_multiple
+#' @examples 
+#' tie_is_multiple(fict_marvel)
+#' @export
+tie_is_multiple <- function(.data){
+  .data <- manynet::expect_ties(.data)  
+  make_tie_mark(igraph::which_multiple(manynet::as_igraph(.data)), .data)
+}
+
+#' @rdname mark_dyads
+#' @importFrom igraph which_mutual
+#' @examples 
+#' tie_is_reciprocated(ison_algebra)
+#' @export
+tie_is_reciprocated <- function(.data){
+  .data <- manynet::expect_ties(.data)  
+  make_tie_mark(igraph::which_mutual(manynet::as_igraph(.data)), .data)
 }
 
 # Triangular properties ####
@@ -118,8 +132,8 @@ tie_is_path <- function(.data, from, to, all_paths = FALSE){
 #'   
 #'   They are most useful in highlighting parts of the network that
 #'   are cohesively connected.
-#' @inheritParams mark_nodes
-#' @family marks
+#' @template param_data
+#' @template tie_mark
 #' @family cohesion
 #' @name mark_triangles
 NULL
@@ -129,7 +143,6 @@ NULL
 #' @examples 
 #' ison_monks %>% to_uniplex("like") %>% 
 #'   mutate_ties(tri = tie_is_triangular())
-#'   #graphr(edge_color = "tri")
 #' @export
 tie_is_triangular <- function(.data){
   .data <- manynet::expect_ties(.data)  
@@ -150,7 +163,6 @@ tie_is_triangular <- function(.data){
 #' @examples 
 #' ison_adolescents %>% to_directed() %>% 
 #'   mutate_ties(trans = tie_is_transitive())
-#'   #graphr(edge_color = "trans")
 #' @export
 tie_is_transitive <- function(.data){
   .data <- manynet::expect_ties(.data)  
@@ -167,7 +179,6 @@ tie_is_transitive <- function(.data){
 #' @examples 
 #' ison_adolescents %>% to_directed() %>% 
 #'   mutate_ties(trip = tie_is_triplet())
-#'   #graphr(edge_color = "trip")
 #' @export
 tie_is_triplet <- function(.data){
   .data <- manynet::expect_ties(.data)  
@@ -189,7 +200,6 @@ tie_is_triplet <- function(.data){
 #' @examples 
 #' ison_adolescents %>% to_directed() %>% 
 #'   mutate_ties(cyc = tie_is_cyclical())
-#'   #graphr(edge_color = "cyc")
 #' @export
 tie_is_cyclical <- function(.data){
   .data <- manynet::expect_ties(.data)  
@@ -206,7 +216,6 @@ tie_is_cyclical <- function(.data){
 #' @examples 
 #' ison_monks %>% to_uniplex("like") %>% 
 #'   mutate_ties(simmel = tie_is_simmelian())
-#'   #graphr(edge_color = "simmel")
 #' @export
 tie_is_simmelian <- function(.data){
   .data <- manynet::expect_ties(.data)  
@@ -222,7 +231,6 @@ tie_is_simmelian <- function(.data){
 # #' @examples 
 # #' generate_random(8, directed = TRUE) %>% 
 # #'   mutate_ties(forbid = tie_is_forbidden())
-# #'   #graphr(edge_color = "forbid")
 # #' @export
 # tie_is_forbidden <- function(.data){
 #   .data <- manynet::expect_ties(.data)
@@ -316,7 +324,6 @@ tie_is_imbalanced <- function(.data){
 # Selection properties ####
 
 #' Marking ties based on measures
-#' 
 #' @description 
 #'   These functions return logical vectors the length of the ties in a network:
 #'   
@@ -325,8 +332,9 @@ tie_is_imbalanced <- function(.data){
 #'   for converting the results from some tie measure into a mark-class object.
 #'   They can be particularly useful for highlighting which tie or ties
 #'   are key because they minimise or, more often, maximise some measure.
-#' @inheritParams mark_select
-#' @family marks
+#' @template param_data
+#' @template tie_mark
+#' @family selection
 #' @name mark_tie_select
 NULL
 
@@ -343,7 +351,7 @@ tie_is_random <- function(.data, size = 1){
 #' @rdname mark_tie_select
 #' @param tie_measure An object created by a `tie_` measure.
 #' @examples 
-#' # tie_is_max(tie_by_betweenness(ison_brandes))
+#' tie_is_max(tie_by_betweenness(ison_brandes))
 #' @export
 tie_is_max <- function(tie_measure){
   out <- as.numeric(tie_measure) == max(as.numeric(tie_measure))
@@ -353,7 +361,7 @@ tie_is_max <- function(tie_measure){
 
 #' @rdname mark_tie_select
 #' @examples 
-#' #tie_is_min(tie_by_betweenness(ison_brandes))
+#' tie_is_min(tie_by_betweenness(ison_brandes))
 #' @export
 tie_is_min <- function(tie_measure){
   out <- as.numeric(tie_measure) == min(as.numeric(tie_measure))
