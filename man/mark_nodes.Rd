@@ -20,10 +20,6 @@ node_is_mentor(.data, elites = 0.1)
 node_is_neighbor(.data, node)
 }
 \arguments{
-\item{.data}{A network object of class \code{mnet}, \code{igraph}, \code{tbl_graph}, \code{network}, or similar.
-For more information on the standard coercion possible,
-see \code{\link[manynet:manip_as]{manynet::as_tidygraph()}}.}
-
 \item{elites}{The proportion of nodes to be selected as mentors.
 By default this is set at 0.1.
 This means that the top 10\% of nodes in terms of degree,
@@ -39,6 +35,11 @@ Note that this is a different default behaviour than that
 described in Valente and Davis (1999).}
 
 \item{node}{A node ID or name for which neighbors are to be marked.}
+}
+\value{
+A \code{node_mark} logical vector the length of the nodes in the network,
+giving either TRUE or FALSE for each node depending on
+whether the condition is matched.
 }
 \description{
 These functions return logical vectors the length of the
@@ -95,6 +96,7 @@ Valente, Thomas, and Rebecca Davis. 1999.
 Other marks: 
 \code{\link{mark_degree}},
 \code{\link{mark_diff}},
+\code{\link{mark_dyads}},
 \code{\link{mark_select}},
 \code{\link{mark_tie_select}},
 \code{\link{mark_ties}},

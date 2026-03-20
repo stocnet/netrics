@@ -17,10 +17,6 @@ node_is_min(node_measure, ranks = 1)
 node_is_mean(node_measure, ranks = 1)
 }
 \arguments{
-\item{.data}{A network object of class \code{mnet}, \code{igraph}, \code{tbl_graph}, \code{network}, or similar.
-For more information on the standard coercion possible,
-see \code{\link[manynet:manip_as]{manynet::as_tidygraph()}}.}
-
 \item{size}{The number of nodes to select (as TRUE).}
 
 \item{node_measure}{An object created by a \code{node_} measure.}
@@ -30,6 +26,11 @@ For example, \code{ranks = 3} will return TRUE for nodes with
 scores equal to any of the top (or, for \code{node_is_min()}, bottom)
 three scores.
 By default, \code{ranks = 1}.}
+}
+\value{
+A \code{node_mark} logical vector the length of the nodes in the network,
+giving either TRUE or FALSE for each node depending on
+whether the condition is matched.
 }
 \description{
 These functions return logical vectors the length of the
@@ -44,17 +45,22 @@ are key because they minimise or, more often, maximise some measure.
 }
 \examples{
 node_is_random(ison_brandes, 2)
-#node_is_max(node_by_degree(ison_brandes))
-#node_is_min(node_by_degree(ison_brandes))
-#node_is_mean(node_degree(ison_brandes))
+node_is_max(node_by_degree(ison_brandes))
+node_is_min(node_by_degree(ison_brandes))
+node_is_mean(node_degree(ison_brandes))
 }
 \seealso{
 Other marks: 
 \code{\link{mark_degree}},
 \code{\link{mark_diff}},
+\code{\link{mark_dyads}},
 \code{\link{mark_nodes}},
 \code{\link{mark_tie_select}},
 \code{\link{mark_ties}},
 \code{\link{mark_triangles}}
+
+Other selection: 
+\code{\link{mark_tie_select}}
 }
 \concept{marks}
+\concept{selection}
