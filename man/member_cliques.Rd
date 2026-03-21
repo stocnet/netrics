@@ -3,7 +3,7 @@
 \name{member_cliques}
 \alias{member_cliques}
 \alias{node_in_roulette}
-\title{Clique partitioning algorithms}
+\title{Memberships in maximally diverse cliques}
 \usage{
 node_in_roulette(.data, num_groups, group_size, times = NULL)
 }
@@ -25,6 +25,12 @@ and burdensome for large networks and numbers of groups, but can be overwritten.
 At every 10th iteration, a stronger perturbation of a number of successive changes,
 approximately the number of nodes divided by the number of groups,
 will take place irrespective of whether it improves the objective function.}
+}
+\value{
+A \code{node_member} character vector the length of the nodes in the network,
+of group memberships "A", "B", etc for each node.
+If the network is labelled,
+then the assignments will be labelled with the nodes' names.
 }
 \description{
 These functions create a vector of nodes' memberships in
@@ -74,11 +80,44 @@ Lai, Xiangjing, Jin-Kao Hao, Zhang-Hua Fu, and Dong Yue. 2021.
 }
 \seealso{
 Other memberships: 
-\code{\link{mark_core}},
 \code{\link{member_brokerage}},
+\code{\link{member_community}},
 \code{\link{member_community_hier}},
 \code{\link{member_community_non}},
 \code{\link{member_components}},
+\code{\link{member_core}},
+\code{\link{member_diffusion}},
 \code{\link{member_equivalence}}
+
+Other nodal: 
+\code{\link{mark_core}},
+\code{\link{mark_degree}},
+\code{\link{mark_diff}},
+\code{\link{mark_nodes}},
+\code{\link{mark_select_node}},
+\code{\link{measure_assort_node}},
+\code{\link{measure_broker_node}},
+\code{\link{measure_brokerage}},
+\code{\link{measure_central_between}},
+\code{\link{measure_central_close}},
+\code{\link{measure_central_degree}},
+\code{\link{measure_central_eigen}},
+\code{\link{measure_closure_node}},
+\code{\link{measure_core}},
+\code{\link{measure_diffusion_node}},
+\code{\link{measure_diverse_node}},
+\code{\link{member_brokerage}},
+\code{\link{member_community}},
+\code{\link{member_community_hier}},
+\code{\link{member_community_non}},
+\code{\link{member_components}},
+\code{\link{member_core}},
+\code{\link{member_diffusion}},
+\code{\link{member_equivalence}},
+\code{\link{motif_brokerage_node}},
+\code{\link{motif_exposure}},
+\code{\link{motif_node}},
+\code{\link{motif_path}}
 }
 \concept{memberships}
+\concept{nodal}

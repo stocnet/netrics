@@ -18,25 +18,18 @@ net_by_independence(.data)
 For more information on the standard coercion possible,
 see \code{\link[manynet:manip_as]{manynet::as_tidygraph()}}.}
 }
+\value{
+A \code{network_measure} numeric score.
+}
 \description{
 These functions return values or vectors relating to how cohesive a network is:
 \itemize{
-\item \code{net_density()} measures the ratio of ties to the number
+\item \code{net_by_density()} measures the ratio of ties to the number
 of possible ties.
-\item \code{net_components()} measures the number of (strong) components
+\item \code{net_by_components()} measures the number of (strong) components
 in the network.
-\item \code{net_cohesion()} measures the minimum number of nodes to remove
-from the network needed to increase the number of components.
-\item \code{net_adhesion()} measures the minimum number of ties to remove
-from the network needed to increase the number of components.
-\item \code{net_diameter()} measures the maximum path length in the network.
-\item \code{net_length()} measures the average path length in the network.
-\item \code{net_independence()} measures the independence number,
+\item \code{net_by_independence()} measures the independence number,
 or size of the largest independent set in the network.
-\item \code{net_strength()} measures the number of ties that would need to be
-removed from a network to increase its number of components.
-\item \code{net_toughness()} measures the number of nodes that would need to be
-removed from a network to increase its number of components.
 }
 }
 \section{Components}{
@@ -53,30 +46,44 @@ net_by_density(ison_southern_women)
 net_by_independence(ison_adolescents)
 }
 \seealso{
-Other measures: 
-\code{\link{measure_assortativity}},
+Other cohesion: 
+\code{\link{mark_triangles}},
 \code{\link{measure_breadth}},
+\code{\link{measure_fragmentation}},
+\code{\link{motif_net}},
+\code{\link{motif_node}}
+
+Other measures: 
+\code{\link{measure_assort_net}},
+\code{\link{measure_assort_node}},
+\code{\link{measure_breadth}},
+\code{\link{measure_broker_node}},
+\code{\link{measure_broker_tie}},
 \code{\link{measure_brokerage}},
 \code{\link{measure_central_between}},
 \code{\link{measure_central_close}},
 \code{\link{measure_central_degree}},
 \code{\link{measure_central_eigen}},
+\code{\link{measure_centralisation_between}},
+\code{\link{measure_centralisation_close}},
+\code{\link{measure_centralisation_degree}},
+\code{\link{measure_centralisation_eigen}},
+\code{\link{measure_centralities_between}},
+\code{\link{measure_centralities_close}},
+\code{\link{measure_centralities_degree}},
+\code{\link{measure_centralities_eigen}},
 \code{\link{measure_closure}},
+\code{\link{measure_closure_node}},
+\code{\link{measure_core}},
 \code{\link{measure_diffusion_infection}},
 \code{\link{measure_diffusion_net}},
 \code{\link{measure_diffusion_node}},
+\code{\link{measure_diverse_net}},
+\code{\link{measure_diverse_node}},
 \code{\link{measure_features}},
 \code{\link{measure_fragmentation}},
-\code{\link{measure_heterogeneity}},
 \code{\link{measure_hierarchy}},
-\code{\link{measure_holes}},
-\code{\link{measure_periods}},
-\code{\link{member_diffusion}}
-
-Other cohesion: 
-\code{\link{mark_triangles}},
-\code{\link{measure_breadth}},
-\code{\link{measure_fragmentation}}
+\code{\link{measure_periods}}
 }
 \concept{cohesion}
 \concept{measures}

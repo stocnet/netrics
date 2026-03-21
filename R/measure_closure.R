@@ -1,16 +1,16 @@
-#' Measures of network closure
-#'
+# Network closure ####
+
+#' Measuring network closure
+#' @name measure_closure
 #' @description
 #'   These functions offer methods for summarising the closure in configurations 
 #'   in one-, two-, and three-mode networks:
 #'   
-#'   - `net_reciprocity()` measures reciprocity in a (usually directed) network.
-#'   - `node_reciprocity()` measures nodes' reciprocity.
-#'   - `net_transitivity()` measures transitivity in a network.
-#'   - `node_transitivity()` measures nodes' transitivity.
-#'   - `net_equivalency()` measures equivalence or reinforcement 
+#'   - `net_by_reciprocity()` measures reciprocity in a (usually directed) network.
+#'   - `net_by_transitivity()` measures transitivity in a network.
+#'   - `net_by_equivalency()` measures equivalence or reinforcement 
 #'   in a (usually two-mode) network.
-#'   - `net_congruency()` measures congruency across two two-mode networks.
+#'   - `net_by_congruency()` measures congruency across two two-mode networks.
 #'   
 #' @details 
 #' For one-mode networks, shallow wrappers of igraph versions exist via 
@@ -22,12 +22,11 @@
 #' For three-mode networks, `net_congruency` calculates the proportion of three-paths 
 #' spanning two two-mode networks that are closed by a fourth tie to establish a 
 #' "congruent four-cycle" structure.
-#' @inheritParams mark_nodes
+#' @template param_data
+#' @template net_measure
 #' @param object2 Optionally, a second (two-mode) matrix, igraph, or tidygraph
 #' @param method For reciprocity, either `default` or `ratio`.
 #'   See `?igraph::reciprocity`
-#' @name measure_closure
-#' @family measures
 NULL
 
 #' @rdname measure_closure 
@@ -42,17 +41,6 @@ net_by_reciprocity <- function(.data, method = "default") {
 }
 
 #' @rdname measure_closure 
-#' @examples
-#' node_by_reciprocity(to_unweighted(ison_networkers))
-#' @export
-node_by_reciprocity <- function(.data) {
-  .data <- manynet::expect_nodes(.data)
-  out <- manynet::as_matrix(.data)
-  make_node_measure(rowSums(out * t(out))/rowSums(out), 
-                    .data)
-}
-
-#' @rdname measure_closure 
 #' @importFrom igraph transitivity
 #' @examples
 #' net_by_transitivity(ison_adolescents)
@@ -61,17 +49,6 @@ net_by_transitivity <- function(.data) {
   .data <- manynet::expect_nodes(.data)
   make_network_measure(igraph::transitivity(manynet::as_igraph(.data)), 
                        .data, call = deparse(sys.call()))
-}
-
-#' @rdname measure_closure 
-#' @examples
-#' node_by_transitivity(ison_adolescents)
-#' @export
-node_by_transitivity <- function(.data) {
-  .data <- manynet::expect_nodes(.data)
-  make_node_measure(igraph::transitivity(manynet::as_igraph(.data), 
-                                         type = "local"), 
-                    .data)
 }
 
 #' @rdname measure_closure
@@ -118,27 +95,6 @@ net_by_equivalency <- function(.data) {
   make_network_measure(out, .data, call = deparse(sys.call()))
 }
 
-#' @rdname measure_closure
-#' @examples
-#' # node_by_equivalency(ison_southern_women)
-#' @export
-node_by_equivalency <- function(.data) {
-  .data <- manynet::expect_nodes(.data)
-  # if(is_weighted(.data))
-  #   snet_info("Using unweighted form of the network.")
-  out <- vapply(manynet::snet_progress_seq(.data), function(i){
-    threepaths <- igraph::all_simple_paths(.data, i, cutoff = 3,
-                                          mode = "all")
-    onepaths <- threepaths[vapply(threepaths, length, 
-                                  FUN.VALUE = numeric(1))==2]
-    threepaths <- threepaths[vapply(threepaths, length, 
-                                    FUN.VALUE = numeric(1))==4]
-    mean(sapply(threepaths,"[[",4) %in% sapply(onepaths,"[[",2))
-  }, FUN.VALUE = numeric(1))
-  if (any(is.nan(out))) out[is.nan(out)] <- 0
-  make_node_measure(out, .data)
-}
-
 #' @rdname measure_closure 
 #' @references 
 #' ## On congruency
@@ -155,8 +111,8 @@ net_by_congruency <- function(.data, object2){
     manynet::snet_abort("This function expects two two-mode networks")
   if(manynet::net_dims(.data)[2] != manynet::net_dims(object2)[1]) 
     manynet::snet_abort(paste("This function expects the number of nodes",
-    "in the second mode of the first network", "to be the same as the number of nodes",
-    "in the first mode of the second network."))
+                              "in the second mode of the first network", "to be the same as the number of nodes",
+                              "in the first mode of the second network."))
   mat1 <- manynet::as_matrix(.data)
   mat2 <- manynet::as_matrix(object2)
   connects <- ncol(mat1)
@@ -175,3 +131,68 @@ net_by_congruency <- function(.data, object2){
   if (is.nan(output)) output <- 1
   make_network_measure(output, .data, call = deparse(sys.call()))
 }
+
+# Nodal closure ####
+
+#' Measuring node closure
+#' @name measure_closure_node
+#' @description
+#'   These functions offer methods for summarising the closure in configurations 
+#'   in one- and two-mode networks:
+#'   
+#'   - `node_by_reciprocity()` measures nodes' reciprocity.
+#'   - `node_by_transitivity()` measures nodes' transitivity.
+#'   - `node_by_equivalency()` measures nodes' equivalence or reinforcement 
+#'   in a (usually two-mode) network.
+#'   
+#' @details 
+#' For one-mode networks, shallow wrappers of igraph versions exist via 
+#' `node_by_reciprocity` and `node_by_transitivity`.
+#' 
+#' For two-mode networks, `node_by_equivalency` calculates the proportion of three-paths in the network
+#' that are closed by fourth tie to establish a "shared four-cycle" structure.
+#' @template param_data
+#' @template node_measure
+NULL
+
+#' @rdname measure_closure_node 
+#' @examples
+#' node_by_reciprocity(to_unweighted(ison_networkers))
+#' @export
+node_by_reciprocity <- function(.data) {
+  .data <- manynet::expect_nodes(.data)
+  out <- manynet::as_matrix(.data)
+  make_node_measure(rowSums(out * t(out))/rowSums(out), 
+                    .data)
+}
+
+#' @rdname measure_closure_node 
+#' @examples
+#' node_by_transitivity(ison_adolescents)
+#' @export
+node_by_transitivity <- function(.data) {
+  .data <- manynet::expect_nodes(.data)
+  make_node_measure(igraph::transitivity(manynet::as_igraph(.data), 
+                                         type = "local"), 
+                    .data)
+}
+
+#' @rdname measure_closure_node
+#' @export
+node_by_equivalency <- function(.data) {
+  .data <- manynet::expect_nodes(.data)
+  # if(is_weighted(.data))
+  #   snet_info("Using unweighted form of the network.")
+  out <- vapply(manynet::snet_progress_seq(.data), function(i){
+    threepaths <- igraph::all_simple_paths(.data, i, cutoff = 3,
+                                          mode = "all")
+    onepaths <- threepaths[vapply(threepaths, length, 
+                                  FUN.VALUE = numeric(1))==2]
+    threepaths <- threepaths[vapply(threepaths, length, 
+                                    FUN.VALUE = numeric(1))==4]
+    mean(sapply(threepaths,"[[",4) %in% sapply(onepaths,"[[",2))
+  }, FUN.VALUE = numeric(1))
+  if (any(is.nan(out))) out[is.nan(out)] <- 0
+  make_node_measure(out, .data)
+}
+
