@@ -1,5 +1,6 @@
 ^CODE_OF_CONDUCT\.md$
 ^LICENSE\.md$
+man-roxygen
 ^.*\.Rproj$
 ^\.Rproj\.user$
 ^working$
