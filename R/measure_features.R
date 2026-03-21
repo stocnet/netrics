@@ -1,6 +1,7 @@
 # Topological features ####
 
-#' Measures of network topological features
+#' Measuring network topological features
+#' @name measure_features
 #' @description
 #'   These functions measure certain topological features of networks:
 #'   
@@ -24,11 +25,9 @@
 #'   ranging between `0` if all triangles are imbalanced and 
 #'   `1` if all triangles are balanced.
 #' 
-#'   These `net_*()` functions return a single numeric scalar or value.
-#' @inheritParams mark_nodes
-#' @param membership A vector of partition membership.
-#' @name measure_features
-#' @family measures
+#' @template param_data
+#' @template param_memb
+#' @template net_measure
 NULL
 
 #' @rdname measure_features
@@ -343,11 +342,11 @@ net_by_smallworld <- function(.data,
 net_by_scalefree <- function(.data){
   .data <- manynet::expect_nodes(.data)
   out <- igraph::fit_power_law(node_by_deg(.data))
-  if (!"KS.p" %in% names(out)) out$KS.p <- ks.test(seq(0, 1 - out$KS.stat, 
+  if (!"KS.p" %in% names(out)) out$KS.p <- stats::ks.test(seq(0, 1 - out$KS.stat, 
                                                        length.out = manynet::net_nodes(.data)), 
                                                    "punif")$p.value
   if(out$KS.p < 0.05) 
-      snet_info("Note: Kolgomorov-Smirnov test that data could have been drawn",
+      manynet::snet_info("Note: Kolgomorov-Smirnov test that data could have been drawn",
                 "from a power-law distribution rejected.")
   make_network_measure(out$alpha, .data, 
                        call = deparse(sys.call()))

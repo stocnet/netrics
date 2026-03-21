@@ -15,7 +15,8 @@ node_is_universal(.data)
 }
 \arguments{
 \item{.data}{A network object of class \code{mnet}, \code{igraph}, \code{tbl_graph}, \code{network}, or similar.
-For more information on what coercions are possible, see \code{\link[manynet:manip_as]{manynet::as_tidygraph()}}.}
+For more information on the standard coercion possible,
+see \code{\link[manynet:manip_as]{manynet::as_tidygraph()}}.}
 }
 \value{
 A \code{node_mark} logical vector the length of the nodes in the network,
@@ -50,17 +51,51 @@ node_is_isolate(ison_brandes)
 node_is_universal(create_star(11))
 }
 \seealso{
+Other degree: 
+\code{\link{measure_central_degree}},
+\code{\link{measure_centralisation_degree}},
+\code{\link{measure_centralities_degree}}
+
 Other marks: 
+\code{\link{mark_core}},
 \code{\link{mark_diff}},
 \code{\link{mark_dyads}},
 \code{\link{mark_nodes}},
-\code{\link{mark_select}},
-\code{\link{mark_tie_select}},
+\code{\link{mark_select_node}},
+\code{\link{mark_select_tie}},
 \code{\link{mark_ties}},
 \code{\link{mark_triangles}}
 
-Other degree: 
-\code{\link{measure_central_degree}}
+Other nodal: 
+\code{\link{mark_core}},
+\code{\link{mark_diff}},
+\code{\link{mark_nodes}},
+\code{\link{mark_select_node}},
+\code{\link{measure_assort_node}},
+\code{\link{measure_broker_node}},
+\code{\link{measure_brokerage}},
+\code{\link{measure_central_between}},
+\code{\link{measure_central_close}},
+\code{\link{measure_central_degree}},
+\code{\link{measure_central_eigen}},
+\code{\link{measure_closure_node}},
+\code{\link{measure_core}},
+\code{\link{measure_diffusion_node}},
+\code{\link{measure_diverse_node}},
+\code{\link{member_brokerage}},
+\code{\link{member_cliques}},
+\code{\link{member_community}},
+\code{\link{member_community_hier}},
+\code{\link{member_community_non}},
+\code{\link{member_components}},
+\code{\link{member_core}},
+\code{\link{member_diffusion}},
+\code{\link{member_equivalence}},
+\code{\link{motif_brokerage_node}},
+\code{\link{motif_exposure}},
+\code{\link{motif_node}},
+\code{\link{motif_path}}
 }
 \concept{degree}
 \concept{marks}
+\concept{nodal}

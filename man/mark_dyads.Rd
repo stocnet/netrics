@@ -37,12 +37,24 @@ tie_is_reciprocated(ison_algebra)
 }
 \seealso{
 Other marks: 
+\code{\link{mark_core}},
 \code{\link{mark_degree}},
 \code{\link{mark_diff}},
 \code{\link{mark_nodes}},
-\code{\link{mark_select}},
-\code{\link{mark_tie_select}},
+\code{\link{mark_select_node}},
+\code{\link{mark_select_tie}},
 \code{\link{mark_ties}},
 \code{\link{mark_triangles}}
+
+Other tie: 
+\code{\link{mark_select_tie}},
+\code{\link{mark_ties}},
+\code{\link{mark_triangles}},
+\code{\link{measure_broker_tie}},
+\code{\link{measure_centralities_between}},
+\code{\link{measure_centralities_close}},
+\code{\link{measure_centralities_degree}},
+\code{\link{measure_centralities_eigen}}
 }
 \concept{marks}
+\concept{tie}

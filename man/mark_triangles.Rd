@@ -63,18 +63,32 @@ fict_marvel \%>\% to_uniplex("relationship") \%>\% tie_is_imbalanced()
 }
 \seealso{
 Other marks: 
+\code{\link{mark_core}},
 \code{\link{mark_degree}},
 \code{\link{mark_diff}},
 \code{\link{mark_dyads}},
 \code{\link{mark_nodes}},
-\code{\link{mark_select}},
-\code{\link{mark_tie_select}},
+\code{\link{mark_select_node}},
+\code{\link{mark_select_tie}},
 \code{\link{mark_ties}}
+
+Other tie: 
+\code{\link{mark_dyads}},
+\code{\link{mark_select_tie}},
+\code{\link{mark_ties}},
+\code{\link{measure_broker_tie}},
+\code{\link{measure_centralities_between}},
+\code{\link{measure_centralities_close}},
+\code{\link{measure_centralities_degree}},
+\code{\link{measure_centralities_eigen}}
 
 Other cohesion: 
 \code{\link{measure_breadth}},
 \code{\link{measure_cohesion}},
-\code{\link{measure_fragmentation}}
+\code{\link{measure_fragmentation}},
+\code{\link{motif_net}},
+\code{\link{motif_node}}
 }
 \concept{cohesion}
 \concept{marks}
+\concept{tie}

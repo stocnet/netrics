@@ -1,25 +1,24 @@
 # Motifs ####
 
-#' Motifs of hierarchy
-#' 
+#' Motifs of network hierarchy
+#' @name motif_hierarchy
 #' @description
-#'   This function collects the measures of hierarchy into a single motif,
+#'   `net_x_hierarchy()` collects the measures of hierarchy into a single motif,
 #'   which can be used to compare the relative hierarchy of different networks.
 #'   The measures of hierarchy are:
-#'   - `net_connectedness()` measures the proportion of dyads in the network
+#'   - `net_by_connectedness()` measures the proportion of dyads in the network
 #'   that are reachable to one another,
 #'   or the degree to which network is a single component.
-#'   - `net_efficiency()` measures the Krackhardt efficiency score.
-#'   - `net_upperbound()` measures the Krackhardt (least) upper bound
+#'   - `net_by_efficiency()` measures the Krackhardt efficiency score.
+#'   - `net_by_upperbound()` measures the Krackhardt (least) upper bound
 #'   score.
-#'   - `net_reciprocity()` measures the proportion of ties in the network that 
+#'   - `net_by_reciprocity()` measures the proportion of ties in the network that 
 #'   are reciprocated,
 #'   which is a measure of the degree to which the network is non-hierarchical.
 #' 
-#' @inheritParams mark_nodes
-#' @name motif_hierarchy
-#' @family motifs
+#' @template param_data
 #' @family hierarchy
+#' @template net_motif
 #' @references
 #' ## On hierarchy
 #' Krackhardt, David. 1994. 
@@ -49,20 +48,19 @@ net_x_hierarchy <- function(.data){
 # Measures ####
 
 #' Measures of hierarchy
-#' 
+#' @name measure_hierarchy
 #' @description
 #'   These functions, together with `net_reciprocity()`, are used jointly to
 #'   measure how hierarchical a network is:
 #'   
-#'   - `net_connectedness()` measures the proportion of dyads in the network
+#'   - `net_by_connectedness()` measures the proportion of dyads in the network
 #'   that are reachable to one another, 
 #'   or the degree to which network is a single component.
-#'   - `net_efficiency()` measures the Krackhardt efficiency score.
-#'   - `net_upperbound()` measures the Krackhardt (least) upper bound score.
+#'   - `net_by_efficiency()` measures the Krackhardt efficiency score.
+#'   - `net_by_upperbound()` measures the Krackhardt (least) upper bound score.
 #' 
-#' @inheritParams mark_nodes
-#' @name measure_hierarchy
-#' @family measures
+#' @template param_data
+#' @template net_measure
 #' @family hierarchy
 #' @references
 #' ## On hierarchy

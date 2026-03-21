@@ -17,6 +17,10 @@ node_is_recovered(.data, time = 0)
 node_is_exposed(.data, mark, time = 0)
 }
 \arguments{
+\item{.data}{A network object of class \code{mnet}, \code{igraph}, \code{tbl_graph}, \code{network}, or similar.
+For more information on the standard coercion possible,
+see \code{\link[manynet:manip_as]{manynet::as_tidygraph()}}.}
+
 \item{time}{A time step at which nodes are identified.}
 
 \item{mark}{vector denoting which nodes are infected}
@@ -61,20 +65,53 @@ in that diffusion.
 }
 \seealso{
 Other marks: 
+\code{\link{mark_core}},
 \code{\link{mark_degree}},
 \code{\link{mark_dyads}},
 \code{\link{mark_nodes}},
-\code{\link{mark_select}},
-\code{\link{mark_tie_select}},
+\code{\link{mark_select_node}},
+\code{\link{mark_select_tie}},
 \code{\link{mark_ties}},
 \code{\link{mark_triangles}}
+
+Other nodal: 
+\code{\link{mark_core}},
+\code{\link{mark_degree}},
+\code{\link{mark_nodes}},
+\code{\link{mark_select_node}},
+\code{\link{measure_assort_node}},
+\code{\link{measure_broker_node}},
+\code{\link{measure_brokerage}},
+\code{\link{measure_central_between}},
+\code{\link{measure_central_close}},
+\code{\link{measure_central_degree}},
+\code{\link{measure_central_eigen}},
+\code{\link{measure_closure_node}},
+\code{\link{measure_core}},
+\code{\link{measure_diffusion_node}},
+\code{\link{measure_diverse_node}},
+\code{\link{member_brokerage}},
+\code{\link{member_cliques}},
+\code{\link{member_community}},
+\code{\link{member_community_hier}},
+\code{\link{member_community_non}},
+\code{\link{member_components}},
+\code{\link{member_core}},
+\code{\link{member_diffusion}},
+\code{\link{member_equivalence}},
+\code{\link{motif_brokerage_node}},
+\code{\link{motif_exposure}},
+\code{\link{motif_node}},
+\code{\link{motif_path}}
 
 Other diffusion: 
 \code{\link{measure_diffusion_infection}},
 \code{\link{measure_diffusion_net}},
 \code{\link{measure_diffusion_node}},
 \code{\link{member_diffusion}},
-\code{\link{motif_diffusion}}
+\code{\link{motif_exposure}},
+\code{\link{motif_hazard}}
 }
 \concept{diffusion}
 \concept{marks}
+\concept{nodal}
