@@ -40,4 +40,16 @@ seq_nodes <- function(.data){
   seq.int(manynet::net_nodes(.data))
 }
 
+# Resolve membership to a vector:
+# if a single character string naming a network attribute is provided,
+# retrieve that attribute as a vector; otherwise return the value as-is.
+.resolve_membership <- function(.data, membership) {
+  if (is.character(membership) && length(membership) == 1 &&
+      membership %in% manynet::node_attribute_names(.data)) {
+    manynet::node_attribute(.data, membership)
+  } else {
+    membership
+  }
+}
+
 # nocov end

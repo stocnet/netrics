@@ -33,15 +33,16 @@ NULL
 node_x_brokerage <- function(.data, membership, standardized = FALSE){
   thisRequires("sna")
   .data <- manynet::expect_nodes(.data)
+  membership <- .resolve_membership(.data, membership)
   if(!manynet::is_twomode(.data)){
     out <- sna::brokerage(manynet::as_network(.data),
-                          manynet::node_attribute(.data, membership))
+                          membership)
     out <- if(standardized) out$z.nli else out$raw.nli
     colnames(out) <- c("Coordinator", "Itinerant", "Gatekeeper", 
                        "Representative", "Liaison", "Total")
   } else {
     out <- suppressWarnings(sna::brokerage(manynet::as_network(manynet::to_mode1(.data)),
-                                           manynet::node_attribute(.data, membership)))
+                                           membership))
     out <- if(standardized) out$z.nli else out$raw.nli
     out <- out[,-4]
     colnames(out) <- c("Coordinator", "Itinerant", "Gatekeeper", 
@@ -72,15 +73,16 @@ NULL
 net_x_brokerage <- function(.data, membership, standardized = FALSE){
   thisRequires("sna")
   .data <- manynet::expect_nodes(.data)
+  membership <- .resolve_membership(.data, membership)
   if(!manynet::is_twomode(.data)){
     out <- sna::brokerage(manynet::as_network(.data),
-                          manynet::node_attribute(.data, membership))
+                          membership)
     out <- if(standardized) out$z.gli else out$raw.gli
     names(out) <- c("Coordinator", "Itinerant", "Gatekeeper", 
                     "Representative", "Liaison", "Total")
   } else {
     out <- suppressWarnings(sna::brokerage(manynet::as_network(manynet::to_mode1(.data)),
-                                           manynet::node_attribute(.data, membership)))
+                                           membership))
     out <- if(standardized) out$z.gli else out$raw.gli
     names(out) <- c("Coordinator", "Itinerant", "Gatekeeper", 
                     "Representative", "Liaison", "Total")
@@ -118,10 +120,11 @@ node_by_brokering_activity <- function(.data, membership){
   .data <- manynet::expect_nodes(.data)
   twopaths <- .to_twopaths(.data)
   if(!missing(membership)){
-    twopaths$from_memb <- manynet::node_attribute(.data, membership)[`if`(manynet::is_labelled(.data),
+    membership <- .resolve_membership(.data, membership)
+    twopaths$from_memb <- membership[`if`(manynet::is_labelled(.data),
                                                                           match(twopaths$from, manynet::node_names(.data)),
                                                                           twopaths$from)]
-    twopaths$to_memb <- manynet::node_attribute(.data, membership)[`if`(manynet::is_labelled(.data),
+    twopaths$to_memb <- membership[`if`(manynet::is_labelled(.data),
                                                                         match(twopaths$to.y, manynet::node_names(.data)),
                                                                         twopaths$to.y)]
     twopaths <- dplyr::filter(twopaths, from_memb != to_memb)
@@ -147,10 +150,11 @@ node_by_brokering_exclusivity <- function(.data, membership){
   .data <- manynet::expect_nodes(.data)
   twopaths <- .to_twopaths(.data)
   if(!missing(membership)){
-    twopaths$from_memb <- manynet::node_attribute(.data, membership)[`if`(manynet::is_labelled(.data),
+    membership <- .resolve_membership(.data, membership)
+    twopaths$from_memb <- membership[`if`(manynet::is_labelled(.data),
                                                                           match(twopaths$from, manynet::node_names(.data)),
                                                                           twopaths$from)]
-    twopaths$to_memb <- manynet::node_attribute(.data, membership)[`if`(manynet::is_labelled(.data),
+    twopaths$to_memb <- membership[`if`(manynet::is_labelled(.data),
                                                                         match(twopaths$to.y, manynet::node_names(.data)),
                                                                         twopaths$to.y)]
     twopaths <- dplyr::filter(twopaths, from_memb != to_memb)
