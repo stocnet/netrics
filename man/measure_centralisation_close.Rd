@@ -18,6 +18,15 @@ net_by_harmonic(.data, normalized = TRUE, cutoff = 2)
 For more information on the standard coercion possible,
 see \code{\link[manynet:manip_as]{manynet::as_tidygraph()}}.}
 
+\item{normalized}{Logical scalar, whether scores are normalized.
+Different denominators may be used depending on the measure,
+whether the object is one-mode or two-mode, and other arguments.
+By default TRUE.}
+
+\item{direction}{Character string, “out” bases the measure on outgoing ties,
+“in” on incoming ties, and "all" on either/the sum of the two.
+By default "all".}
+
 \item{cutoff}{The maximum path length to consider when calculating betweenness.
 If negative or NULL (the default), there's no limit to the path lengths considered.}
 }

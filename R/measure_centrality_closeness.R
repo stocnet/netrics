@@ -1,6 +1,7 @@
 # Closeness-like centralities ####
 
 #' Measuring nodes closeness-like centrality
+#' @name measure_central_close
 #' @description
 #'   These functions calculate common closeness-related centrality measures 
 #'   that rely on path-length for one- and two-mode networks:
@@ -28,8 +29,9 @@
 #'   first transform the salient properties using e.g. [to_undirected()] functions.
 #'   All centrality and centralization measures return normalized measures by default,
 #'   including for two-mode networks.
-#' @name measure_central_close
 #' @template param_data
+#' @template param_norm
+#' @template param_dir
 #' @family closeness
 #' @family centrality
 #' @template node_measure
@@ -350,11 +352,10 @@ node_by_randomwalk <- function(.data, normalized = TRUE){
 #'   All centrality and centralization measures return normalized measures by default,
 #'   including for two-mode networks.
 #' @template param_data
+#' @template param_norm
 #' @family closeness
 #' @family centrality
 #' @template tie_measure
-#' @param cutoff The maximum path length to consider when calculating betweenness.
-#'   If negative or NULL (the default), there's no limit to the path lengths considered.
 NULL
 
 #' @rdname measure_centralities_close 
@@ -386,6 +387,8 @@ tie_by_closeness <- function(.data, normalized = TRUE){
 #'   All centrality and centralization measures return normalized measures by default,
 #'   including for two-mode networks.
 #' @template param_data
+#' @template param_norm
+#' @template param_dir
 #' @family closeness
 #' @family centrality
 #' @template net_measure

@@ -25,6 +25,7 @@
 #'   All centrality and centralization measures return normalized measures 
 #'   by default, including for two-mode networks.
 #' @template param_data
+#' @template param_norm
 #' @family eigenvector
 #' @family centrality
 #' @template node_measure
@@ -271,6 +272,7 @@ node_by_subgraph <- function(.data){
 #'   All centrality and centralization measures return normalized measures 
 #'   by default, including for two-mode networks.
 #' @template param_data
+#' @template param_norm
 #' @family eigenvector
 #' @family centrality
 #' @template tie_measure
@@ -303,6 +305,7 @@ tie_by_eigenvector <- function(.data, normalized = TRUE){
 #'   All centrality and centralization measures return normalized measures 
 #'   by default, including for two-mode networks.
 #' @template param_data
+#' @template param_norm
 #' @family eigenvector
 #' @family centrality
 #' @template net_measure

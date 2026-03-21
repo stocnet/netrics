@@ -33,6 +33,15 @@ node_by_randomwalk(.data, normalized = TRUE)
 For more information on the standard coercion possible,
 see \code{\link[manynet:manip_as]{manynet::as_tidygraph()}}.}
 
+\item{normalized}{Logical scalar, whether scores are normalized.
+Different denominators may be used depending on the measure,
+whether the object is one-mode or two-mode, and other arguments.
+By default TRUE.}
+
+\item{direction}{Character string, “out” bases the measure on outgoing ties,
+“in” on incoming ties, and "all" on either/the sum of the two.
+By default "all".}
+
 \item{cutoff}{Maximum path length to use during calculations.}
 
 \item{from, to}{Index or name of a node to calculate distances from or to.}
@@ -296,7 +305,7 @@ Other nodal:
 \code{\link{mark_degree}},
 \code{\link{mark_diff}},
 \code{\link{mark_nodes}},
-\code{\link{mark_select}},
+\code{\link{mark_select_node}},
 \code{\link{measure_assort_node}},
 \code{\link{measure_broker_node}},
 \code{\link{measure_brokerage}},

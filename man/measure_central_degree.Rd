@@ -35,9 +35,10 @@ node_by_leverage(.data)
 For more information on the standard coercion possible,
 see \code{\link[manynet:manip_as]{manynet::as_tidygraph()}}.}
 
-\item{normalized}{Logical scalar, whether the centrality scores are normalized.
-Different denominators are used depending on whether the object is one-mode or two-mode,
-the type of centrality, and other arguments.}
+\item{normalized}{Logical scalar, whether scores are normalized.
+Different denominators may be used depending on the measure,
+whether the object is one-mode or two-mode, and other arguments.
+By default TRUE.}
 
 \item{alpha}{Numeric scalar, the positive tuning parameter introduced in
 Opsahl et al (2010) for trading off between degree and strength centrality measures.
@@ -54,12 +55,7 @@ This argument is ignored except in the case of a weighted network.}
 
 \item{direction}{Character string, “out” bases the measure on outgoing ties,
 “in” on incoming ties, and "all" on either/the sum of the two.
-For two-mode networks, "all" uses as numerator the sum of differences
-between the maximum centrality score for the mode
-against all other centrality scores in the network,
-whereas "in" uses as numerator the sum of differences
-between the maximum centrality score for the mode
-against only the centrality scores of the other nodes in that mode.}
+By default "all".}
 
 \item{tie1}{Character string indicating the first uniplex network.}
 
@@ -70,12 +66,6 @@ A \code{node_measure} numeric vector the length of the nodes in the network,
 providing the scores for each node.
 If the network is labelled,
 then the scores will be labelled with the nodes' names.
-
-A single centralization score if the object was one-mode,
-and two centralization scores if the object was two-mode.
-
-Depending on how and what kind of an object is passed to the function,
-the function will return a \code{tidygraph} object where the nodes have been updated
 }
 \description{
 These functions calculate common degree-related centrality measures for one- and two-mode networks:
@@ -225,7 +215,7 @@ Other nodal:
 \code{\link{mark_degree}},
 \code{\link{mark_diff}},
 \code{\link{mark_nodes}},
-\code{\link{mark_select}},
+\code{\link{mark_select_node}},
 \code{\link{measure_assort_node}},
 \code{\link{measure_broker_node}},
 \code{\link{measure_brokerage}},

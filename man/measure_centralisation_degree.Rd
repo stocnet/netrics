@@ -17,6 +17,15 @@ net_by_indegree(.data, normalized = TRUE)
 \item{.data}{A network object of class \code{mnet}, \code{igraph}, \code{tbl_graph}, \code{network}, or similar.
 For more information on the standard coercion possible,
 see \code{\link[manynet:manip_as]{manynet::as_tidygraph()}}.}
+
+\item{normalized}{Logical scalar, whether scores are normalized.
+Different denominators may be used depending on the measure,
+whether the object is one-mode or two-mode, and other arguments.
+By default TRUE.}
+
+\item{direction}{Character string, “out” bases the measure on outgoing ties,
+“in” on incoming ties, and "all" on either/the sum of the two.
+By default "all".}
 }
 \value{
 A \code{network_measure} numeric score.
@@ -37,6 +46,13 @@ If this would produce unintended results,
 first transform the salient properties using e.g. \code{\link[manynet:manip_direction]{manynet::to_undirected()}} functions.
 All centrality and centralization measures return normalized measures
 by default, including for two-mode networks.
+
+For two-mode networks, "all" uses as numerator the sum of differences
+between the maximum centrality score for the mode
+against all other centrality scores in the network,
+whereas "in" uses as numerator the sum of differences
+between the maximum centrality score for the mode
+against only the centrality scores of the other nodes in that mode.
 }
 \examples{
 net_by_degree(ison_southern_women, direction = "in")

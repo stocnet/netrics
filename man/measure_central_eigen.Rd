@@ -30,6 +30,11 @@ node_by_subgraph(.data)
 For more information on the standard coercion possible,
 see \code{\link[manynet:manip_as]{manynet::as_tidygraph()}}.}
 
+\item{normalized}{Logical scalar, whether scores are normalized.
+Different denominators may be used depending on the measure,
+whether the object is one-mode or two-mode, and other arguments.
+By default TRUE.}
+
 \item{scale}{Logical scalar, whether to rescale the vector so the maximum score is 1.}
 
 \item{exponent}{Decay rate or attentuation factor for
@@ -256,7 +261,7 @@ Other nodal:
 \code{\link{mark_degree}},
 \code{\link{mark_diff}},
 \code{\link{mark_nodes}},
-\code{\link{mark_select}},
+\code{\link{mark_select_node}},
 \code{\link{measure_assort_node}},
 \code{\link{measure_broker_node}},
 \code{\link{measure_brokerage}},

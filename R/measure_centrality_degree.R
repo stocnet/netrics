@@ -22,12 +22,11 @@
 #'   All centrality and centralization measures return normalized measures by default,
 #'   including for two-mode networks.
 #' @template param_data
+#' @template param_norm
+#' @template param_dir
 #' @family degree
 #' @family centrality
 #' @template node_measure
-#' @param normalized Logical scalar, whether the centrality scores are normalized.
-#'   Different denominators are used depending on whether the object is one-mode or two-mode,
-#'   the type of centrality, and other arguments.
 #' @param alpha Numeric scalar, the positive tuning parameter introduced in
 #'   Opsahl et al (2010) for trading off between degree and strength centrality measures.
 #'   By default, `alpha = 0`, which ignores tie weights and the measure is solely based
@@ -40,16 +39,6 @@
 #'   Of two nodes with the same sum of tie weights, the node with fewer ties will obtain
 #'   the higher score.
 #'   This argument is ignored except in the case of a weighted network.
-#' @param direction Character string, “out” bases the measure on outgoing ties, 
-#'   “in” on incoming ties, and "all" on either/the sum of the two. 
-#'   For two-mode networks, "all" uses as numerator the sum of differences
-#'   between the maximum centrality score for the mode 
-#'   against all other centrality scores in the network,
-#'   whereas "in" uses as numerator the sum of differences
-#'   between the maximum centrality score for the mode 
-#'   against only the centrality scores of the other nodes in that mode.
-#' @return A single centralization score if the object was one-mode,
-#'   and two centralization scores if the object was two-mode.
 #' @importFrom igraph graph_from_incidence_matrix is_bipartite degree V
 #' @references 
 #' ## On multimodal centrality
@@ -77,8 +66,6 @@
 #' \doi{10.1016/j.socnet.2010.03.006}
 #' @examples
 #' node_by_degree(ison_southern_women)
-#' @return Depending on how and what kind of an object is passed to the function,
-#' the function will return a `tidygraph` object where the nodes have been updated
 NULL
 
 #' @rdname measure_central_degree 
@@ -224,6 +211,7 @@ node_by_leverage <- function(.data){
 #'   All centrality and centralization measures return normalized measures 
 #'   by default, including for two-mode networks.
 #' @template param_data
+#' @template param_norm
 #' @family degree
 #' @family centrality
 #' @template tie_measure
@@ -257,7 +245,16 @@ tie_by_degree <- function(.data, normalized = TRUE){
 #'   first transform the salient properties using e.g. [to_undirected()] functions.
 #'   All centrality and centralization measures return normalized measures 
 #'   by default, including for two-mode networks.
+#'   
+#'   For two-mode networks, "all" uses as numerator the sum of differences
+#'   between the maximum centrality score for the mode 
+#'   against all other centrality scores in the network,
+#'   whereas "in" uses as numerator the sum of differences
+#'   between the maximum centrality score for the mode 
+#'   against only the centrality scores of the other nodes in that mode.
 #' @template param_data
+#' @template param_norm
+#' @template param_dir
 #' @family degree
 #' @family centrality
 #' @template net_measure

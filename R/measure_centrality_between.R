@@ -20,6 +20,7 @@
 #'   All centrality and centralization measures return normalized measures by default,
 #'   including for two-mode networks.
 #' @template param_data
+#' @template param_norm
 #' @family betweenness
 #' @family centrality
 #' @template node_measure
@@ -168,11 +169,10 @@ node_by_stress <- function(.data, normalized = TRUE){
 #'   All centrality and centralization measures return normalized measures by default,
 #'   including for two-mode networks.
 #' @template param_data
+#' @template param_norm
 #' @family betweenness
 #' @family centrality
 #' @template tie_measure
-#' @param cutoff The maximum path length to consider when calculating betweenness.
-#'   If negative or NULL (the default), there's no limit to the path lengths considered.
 NULL
 
 #' @rdname measure_centralities_between
@@ -205,11 +205,11 @@ tie_by_betweenness <- function(.data, normalized = TRUE){
 #'   All centrality and centralization measures return normalized measures by default,
 #'   including for two-mode networks.
 #' @template param_data
+#' @template param_norm
+#' @template param_dir
 #' @family betweenness
 #' @family centrality
 #' @template net_measure
-#' @param cutoff The maximum path length to consider when calculating betweenness.
-#'   If negative or NULL (the default), there's no limit to the path lengths considered.
 NULL
 
 #' @rdname measure_centralisation_between
