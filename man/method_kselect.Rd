@@ -14,15 +14,22 @@ k_elbow(hc, .data, motif, Kmax)
 
 k_silhouette(hc, .data, Kmax)
 
-k_gap(hc, motif, Kmax, B = 100)
+k_gap(hc, motif, Kmax, sims = 100)
 }
 \arguments{
 \item{hc}{A hierarchical clustering object.}
+
+\item{.data}{A network object of class \code{mnet}, \code{igraph}, \code{tbl_graph}, \code{network}, or similar.
+For more information on the standard coercion possible,
+see \code{\link[manynet:manip_as]{manynet::as_tidygraph()}}.}
 
 \item{motif}{A motif census object.}
 
 \item{Kmax}{An integer indicating the maximum number of options to consider.
 The minimum of this and the number of nodes in the network is used.}
+
+\item{sims}{Integer of how many simulations should be generated as a
+reference distribution.}
 }
 \value{
 A single integer indicating the number of clusters to return.

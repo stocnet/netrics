@@ -6,7 +6,7 @@
 \alias{net_x_triad}
 \alias{net_x_tetrad}
 \alias{net_x_mixed}
-\title{Motifs at the network level}
+\title{Motifs of network cohesion}
 \source{
 Alejandro Espinosa 'netmem'
 }
@@ -26,14 +26,18 @@ see \code{\link[manynet:manip_as]{manynet::as_tidygraph()}}.}
 
 \item{object2}{A second, two-mode network object.}
 }
+\value{
+A \code{network_motif} tibble with one row and a column for each motif type,
+giving the count of each motif in the network.
+}
 \description{
 These functions include ways to take a census of the graphlets
 in a network:
 \itemize{
-\item \code{net_by_dyad()} returns a census of dyad motifs in a network.
-\item \code{net_by_triad()} returns a census of triad motifs in a network.
-\item \code{net_by_tetrad()} returns a census of tetrad motifs in a network.
-\item \code{net_by_mixed()} returns a census of triad motifs that span
+\item \code{net_x_dyad()} returns a census of dyad motifs in a network.
+\item \code{net_x_triad()} returns a census of triad motifs in a network.
+\item \code{net_x_tetrad()} returns a census of tetrad motifs in a network.
+\item \code{net_x_mixed()} returns a census of triad motifs that span
 a one-mode and a two-mode network.
 }
 
@@ -166,10 +170,22 @@ Hollway, James, Alessandro Lomi, Francesca Pallotti, and Christoph Stadtfeld. 20
 }
 }
 \seealso{
-Other motifs: 
-\code{\link{motif_brokerage}},
-\code{\link{motif_diffusion}},
-\code{\link{motif_hierarchy}},
+Other cohesion: 
+\code{\link{mark_triangles}},
+\code{\link{measure_breadth}},
+\code{\link{measure_cohesion}},
+\code{\link{measure_fragmentation}},
 \code{\link{motif_node}}
+
+Other motifs: 
+\code{\link{motif_brokerage_net}},
+\code{\link{motif_brokerage_node}},
+\code{\link{motif_exposure}},
+\code{\link{motif_hazard}},
+\code{\link{motif_hierarchy}},
+\code{\link{motif_node}},
+\code{\link{motif_path}},
+\code{\link{motif_periods}}
 }
+\concept{cohesion}
 \concept{motifs}

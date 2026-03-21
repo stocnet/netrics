@@ -1,7 +1,7 @@
 #' Methods for equivalence clustering
 #' 
 #' @description
-#'   These functions are used to cluster some census object:
+#'   These functions are used to cluster some motif census object:
 #'   
 #'   - `cluster_hierarchical()` returns a hierarchical clustering object
 #'   created by `stats::hclust()`.
@@ -14,14 +14,26 @@
 #'   These functions are not intended to be called directly,
 #'   but are called within `node_in_equivalence()` and related functions.
 #'   They are exported and listed here to provide more detailed documentation.
-#' @name model_cluster
+#' @name method_cluster
 #' @inheritParams member_equivalence
+#' @returns 
+#'   A hierarchical clustering object created by `stats::hclust()`,
+#'   with an additional `distances` attribute containing the distance matrix 
+#'   used for clustering.
 NULL
 
-#' @rdname model_cluster 
+#' @rdname method_cluster
+#' @section Hierarchical clustering:
+#'  This method uses `stats::hclust()` to create a hierarchical clustering object
+#'  from a distance matrix created from the correlations between nodes' profiles 
+#'  in the given motif census.
+#'  First a matrix of Pearson correlation coefficients between each pair of 
+#'  nodes' profiles in the given motif census is created.
+#'  Then a distance matrix is created by subtracting these correlations from `1`,
+#'  and this is given to `stats::hclust()` to enable dendrogram construction etc.
 #' @export
-cluster_hierarchical <- function(census, distance){
-  correlations <- manynet::to_correlation(t(census))
+cluster_hierarchical <- function(motif, distance){
+  correlations <- manynet::to_correlation(t(motif))
   dissimilarity <- 1 - correlations
   distances <- stats::dist(dissimilarity, method = distance)
   hc <- stats::hclust(distances)
@@ -29,10 +41,17 @@ cluster_hierarchical <- function(census, distance){
   hc
 }
 
-#' @rdname model_cluster 
+#' @rdname method_cluster
+#' @section Cosine similarity: 
+#'   This method is similar to the hierarchical clustering method, 
+#'   but uses cosine similarity rather than correlation as the clustering basis.
+#'   First a matrix of cosine similarities between each pair of nodes' profiles 
+#'   in the given census is created. 
+#'   Then a distance matrix is created by subtracting these similarities from `1`, 
+#'   and this is given to `stats::hclust` to enable dendrogram construction etc.
 #' @export
-cluster_cosine <- function(census, distance){
-  cosines <- manynet::to_cosine(census)
+cluster_cosine <- function(motif, distance){
+  cosines <- manynet::to_cosine(motif)
   dissimilarity <- 1 - cosines
   distances <- stats::dist(dissimilarity, method = distance)
   hc <- stats::hclust(distances)
@@ -44,10 +63,10 @@ cluster_cosine <- function(census, distance){
 # cluster_concor(ison_southern_women)
 # https://github.com/bwlewis/hclust_in_R/blob/master/hc.R
 
-#' @rdname model_cluster 
+#' @rdname method_cluster 
 #' @section CONCOR:
-#'   First a matrix of Pearson correlation coefficients between each pair of nodes
-#'   profiles in the given census is created. 
+#'   First a matrix of Pearson correlation coefficients between each pair of 
+#'   nodes' profiles in the given motif census is created. 
 #'   Then, again, we find the correlations of this square, symmetric matrix,
 #'   and continue to do this iteratively until each entry is either `1` or `-1`.
 #'   These values are used to split the data into two partitions,
@@ -68,7 +87,7 @@ cluster_cosine <- function(census, distance){
 #'   _Journal of Mathematical Psychology_, 12: 328-83.
 #'   \doi{10.1016/0022-2496(75)90028-0}.
 #' @export
-cluster_concor <- function(.data, census){
+cluster_concor <- function(.data, motif){
   .data <- manynet::expect_nodes(.data)
   split_cor <- function(m0, cutoff = 1) {
     if (ncol(m0) < 2 | all(manynet::to_correlation(m0)==1)) list(m0)
@@ -87,7 +106,7 @@ cluster_concor <- function(.data, census){
       }
     }
   }
-  p_list <- list(t(census))
+  p_list <- list(t(motif))
   if(is.null(colnames(p_list[[1]]))) 
     colnames(p_list[[1]]) <- paste0("V",1:ncol(p_list[[1]]))
   p_group <- list()

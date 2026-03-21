@@ -185,9 +185,11 @@ k_silhouette <- function(hc, .data, Kmax){
   k
 }
 
-#' @rdname method_kselect 
+#' @rdname method_kselect
+#' @param sims Integer of how many simulations should be generated as a
+#'   reference distribution.
 #' @export
-k_gap <- function(hc, motif, Kmax, B = 100) {
+k_gap <- function(hc, motif, Kmax, sims = 100) {
   
   if(missing(Kmax)) Kmax <- length(hc$order) else
     Kmax <- min(Kmax, length(hc$order))
@@ -211,7 +213,7 @@ k_gap <- function(hc, motif, Kmax, B = 100) {
   
   # storage
   logW <- numeric(Kmax)
-  logW_ref <- matrix(0, nrow = B, ncol = Kmax)
+  logW_ref <- matrix(0, nrow = sims, ncol = Kmax)
   
   # --- real data W_k ---
   for (k in 1:Kmax) {
@@ -220,9 +222,9 @@ k_gap <- function(hc, motif, Kmax, B = 100) {
   }
   
   # --- reference datasets ---
-  for (b in 1:B) {
-    ref <- matrix(runif(n * p, mins, maxs), nrow = n)
-    d_ref <- dist(ref)
+  for (b in 1:sims) {
+    ref <- matrix(stats::runif(n * p, mins, maxs), nrow = n)
+    d_ref <- stats::dist(ref)
     hc_ref <- hclust(d_ref, method = hc$method)
     
     for (k in 1:Kmax) {
@@ -233,7 +235,7 @@ k_gap <- function(hc, motif, Kmax, B = 100) {
   
   # --- gap statistic ---
   gap <- colMeans(logW_ref) - logW
-  se  <- sqrt(1 + 1/B) * apply(logW_ref, 2, sd)
+  se  <- sqrt(1 + 1/B) * apply(logW_ref, 2, stats::sd)
   
   # --- Tibshirani 1-SE rule ---
   k <- which(gap[-Kmax] >= gap[-1] - se[-1])[1]

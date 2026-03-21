@@ -1,28 +1,23 @@
-# Node censuses ####
+# Node path ####
 
-#' Motifs at the nodal level
-#' 
+#' Motifs of nodes pathing
+#' @name motif_path
 #' @description
 #'   These functions include ways to take a census of the positions of nodes
 #'   in a network: 
 #'   
-#'   - `node_by_tie()` returns a census of the ties in a network.
+#'   - `node_x_tie()` returns a census of the ties in a network.
 #'   For directed networks, out-ties and in-ties are bound together.
 #'   For multiplex networks, the various types of ties are bound together.
-#'   - `node_by_triad()` returns a census of the triad configurations
-#'   nodes are embedded in.
-#'   - `node_by_tetrad()` returns a census of nodes' positions
-#'   in motifs of four nodes.
-#'   - `node_by_path()` returns the shortest path lengths
+#'   - `node_x_path()` returns the shortest path lengths
 #'   of each node to every other node in the network.
 #'   
-#' @name motif_node
-#' @family motifs
-#' @inheritParams mark_nodes
+#' @template param_data
+#' @template node_motif
 #' @importFrom igraph vcount make_ego_graph delete_vertices triad_census
 NULL
 
-#' @rdname motif_node 
+#' @rdname motif_path 
 #' @examples
 #' task_eg <- to_named(to_uniplex(ison_algebra, "tasks"))
 #' (tie_cen <- node_x_tie(task_eg))
@@ -45,10 +40,10 @@ node_x_tie <- function(.data){
                                      rbind(rc, t(rc))
                                    }))
       
-      } else {
-        rc <- manynet::as_matrix(object)
-        mat <- rbind(rc, t(rc))
-      }
+    } else {
+      rc <- manynet::as_matrix(object)
+      mat <- rbind(rc, t(rc))
+    }
   } else {
     if (manynet::is_multiplex(.data)) {
       mat <- do.call(rbind, lapply(unique(manynet::tie_attribute(object, "type")), 
@@ -70,7 +65,7 @@ node_x_tie <- function(.data){
     if(manynet::is_multiplex(.data)){
       rownames(mat) <- apply(expand.grid(c(paste0("from", manynet::node_names(object)),
                                            paste0("to", manynet::node_names(object))),
-                                           unique(manynet::tie_attribute(object, "type"))), 
+                                         unique(manynet::tie_attribute(object, "type"))), 
                              1, paste, collapse = "_")
     } else if (manynet::is_longitudinal(object)){
       rownames(mat) <- apply(expand.grid(c(paste0("from", manynet::node_names(object)),
@@ -83,6 +78,57 @@ node_x_tie <- function(.data){
     }
   make_node_motif(t(mat), object)
 }
+
+#' @rdname motif_path 
+#' @importFrom igraph distances
+#' @references 
+#' ## On paths
+#' Dijkstra, Edsger W. 1959. 
+#' "A note on two problems in connexion with graphs". 
+#' _Numerische Mathematik_ 1, 269-71.
+#' \doi{10.1007/BF01386390}.
+#' 
+#' Opsahl, Tore, Filip Agneessens, and John Skvoretz. 2010.
+#' "Node centrality in weighted networks: Generalizing degree and shortest paths". 
+#' _Social Networks_ 32(3): 245-51.
+#' \doi{10.1016/j.socnet.2010.03.006}.
+#' @examples 
+#' node_x_path(ison_adolescents)
+#' node_x_path(ison_southern_women)
+#' @export
+node_x_path <- function(.data){
+  .data <- manynet::expect_nodes(.data)
+  if(manynet::is_weighted(.data)){
+    tore <- manynet::as_matrix(.data)/mean(manynet::as_matrix(.data))
+    out <- 1/tore
+  } else out <- igraph::distances(manynet::as_igraph(.data))
+  diag(out) <- 0
+  make_node_motif(out, .data)
+}
+
+# Node cohesion ####
+
+#' Motifs of nodes cohesion
+#' @name motif_node
+#' @description
+#'   These functions include ways to take a census of the positions of nodes
+#'   in a network: 
+#'   
+#'   - `node_x_tie()` returns a census of the ties in a network.
+#'   For directed networks, out-ties and in-ties are bound together.
+#'   For multiplex networks, the various types of ties are bound together.
+#'   - `node_x_triad()` returns a census of the triad configurations
+#'   nodes are embedded in.
+#'   - `node_x_tetrad()` returns a census of nodes' positions
+#'   in motifs of four nodes.
+#'   - `node_x_path()` returns the shortest path lengths
+#'   of each node to every other node in the network.
+#'   
+#' @template param_data
+#' @family cohesion
+#' @template node_motif
+#' @importFrom igraph vcount make_ego_graph delete_vertices triad_census
+NULL
 
 #' @rdname motif_node 
 #' @references
@@ -116,6 +162,7 @@ node_x_dyad <- function(.data) {
 #' Davis, James A., and Samuel Leinhardt. 1967. 
 #' “\href{https://files.eric.ed.gov/fulltext/ED024086.pdf}{The Structure of Positive Interpersonal Relations in Small Groups}.” 55.
 #' @examples 
+#' task_eg <- to_named(to_uniplex(ison_algebra, "tasks"))
 #' (triad_cen <- node_x_triad(task_eg))
 #' @export
 node_x_triad <- function(.data){
@@ -255,52 +302,25 @@ node_x_tetrad <- function(.data){
 #     make_node_motif(out, .data)
 # }
 
-#' @rdname motif_node 
-#' @importFrom igraph distances
-#' @references 
-#' ## On paths
-#' Dijkstra, Edsger W. 1959. 
-#' "A note on two problems in connexion with graphs". 
-#' _Numerische Mathematik_ 1, 269-71.
-#' \doi{10.1007/BF01386390}.
-#' 
-#' Opsahl, Tore, Filip Agneessens, and John Skvoretz. 2010.
-#' "Node centrality in weighted networks: Generalizing degree and shortest paths". 
-#' _Social Networks_ 32(3): 245-51.
-#' \doi{10.1016/j.socnet.2010.03.006}.
-#' @examples 
-#' node_x_path(ison_adolescents)
-#' node_x_path(ison_southern_women)
-#' @export
-node_x_path <- function(.data){
-  .data <- manynet::expect_nodes(.data)
-  if(manynet::is_weighted(.data)){
-    tore <- manynet::as_matrix(.data)/mean(manynet::as_matrix(.data))
-    out <- 1/tore
-  } else out <- igraph::distances(manynet::as_igraph(.data))
-  diag(out) <- 0
-  make_node_motif(out, .data)
-}
+# Network cohesion ####
 
-# Network censuses ####
-
-#' Motifs at the network level
-#' 
+#' Motifs of network cohesion
+#' @name motif_net
 #' @description
 #'   These functions include ways to take a census of the graphlets
 #'   in a network: 
 #'   
-#'   - `net_by_dyad()` returns a census of dyad motifs in a network.
-#'   - `net_by_triad()` returns a census of triad motifs in a network.
-#'   - `net_by_tetrad()` returns a census of tetrad motifs in a network.
-#'   - `net_by_mixed()` returns a census of triad motifs that span
+#'   - `net_x_dyad()` returns a census of dyad motifs in a network.
+#'   - `net_x_triad()` returns a census of triad motifs in a network.
+#'   - `net_x_tetrad()` returns a census of tetrad motifs in a network.
+#'   - `net_x_mixed()` returns a census of triad motifs that span
 #'   a one-mode and a two-mode network.
 #'   
 #'   See also \href{https://www.graphclasses.org/smallgraphs.html}{graph classes}.
 #'   
-#' @name motif_net
-#' @family motifs
-#' @inheritParams motif_node
+#' @template param_data
+#' @family cohesion
+#' @template net_motif
 #' @param object2 A second, two-mode network object.
 NULL
 
@@ -526,25 +546,20 @@ net_x_mixed <- function (.data, object2) {
   make_network_motif(res, .data)
 }
 
-# Diffusion ####
+# Exposure ####
 
-#' Motifs of diffusion
-#' 
+#' Motifs of nodes exposure
+#' @name motif_exposure
 #' @description
-#'   - `net_by_hazard()` measures the hazard rate or instantaneous probability that
-#'   nodes will adopt/become infected at that time.
-#'   - `node_by_exposure()` produces a motif matrix of nodes' exposure to 
+#'   `node_x_exposure()` produces a motif matrix of nodes' exposure to 
 #'   infection/adoption by time step.
 #' 
-#' @family motifs
+#' @template param_data
 #' @family diffusion
-#' @inheritParams motif_node
-#' @inheritParams measure_diffusion_net
-#' @name motif_diffusion
-#' 
+#' @template node_motif
 NULL
 
-#' @rdname motif_diffusion
+#' @rdname motif_exposure
 #' @examples
 #' node_x_exposure(play_diffusion(create_tree(12)))
 #' @export
@@ -569,9 +584,23 @@ node_x_exposure <- function(.data){
   make_node_motif(out, .data)
 }
 
-#' @rdname motif_diffusion
+# Hazard ####
+
+#' Motifs of network hazard
+#' @name motif_hazard
+#' @description
+#'   `net_x_hazard()` measures the hazard rate or instantaneous probability that
+#'   nodes will adopt/become infected at that time.
+#' 
+#' @template param_data
+#' @family diffusion
+#' @template net_motif
+NULL
+
+#' @rdname motif_hazard
 #' @section Hazard rate: 
-#' The hazard rate is the instantaneous probability of adoption/infection at each time point (Allison 1984).
+#' The hazard rate is the instantaneous probability of adoption/infection 
+#' at each time point (Allison 1984).
 #' In survival analysis, hazard rate is formally defined as:
 #'
 #' \deqn{%
