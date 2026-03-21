@@ -1,23 +1,22 @@
-#' Measures of structural holes
-#' 
+# Nodal holes ####
+
+#' Measuring nodes brokerage
+#' @name measure_broker_node
 #' @description
 #'   These function provide different measures of the degree to which nodes
 #'   fill structural holes, as outlined in Burt (1992):
 #'   
-#'   - `node_bridges()` measures the sum of bridges to which each node
+#'   - `node_by_bridges()` measures the sum of bridges to which each node
 #'   is adjacent.
-#'   - `node_redundancy()` measures the redundancy of each nodes' contacts.
-#'   - `node_effsize()` measures nodes' effective size.
-#'   - `node_efficiency()` measures nodes' efficiency.
-#'   - `node_constraint()` measures nodes' constraint scores for one-mode networks
+#'   - `node_by_redundancy()` measures the redundancy of each nodes' contacts.
+#'   - `node_by_effsize()` measures nodes' effective size.
+#'   - `node_by_efficiency()` measures nodes' efficiency.
+#'   - `node_by_constraint()` measures nodes' constraint scores for one-mode networks
 #'   according to Burt (1992) and for two-mode networks according to Hollway et al (2020). 
-#'   - `node_hierarchy()` measures nodes' exposure to hierarchy,
+#'   - `node_by_hierarchy()` measures nodes' exposure to hierarchy,
 #'   where only one or two contacts are the source of closure.
-#'   - `node_neighbours_degree()` measures nodes' average nearest neighbors degree,
+#'   - `node_by_neighbours_degree()` measures nodes' average nearest neighbors degree,
 #'   or \eqn{knn}, a measure of the type of local environment a node finds itself in
-#'   - `tie_cohesion()` measures the ratio between common neighbors to ties'
-#'   adjacent nodes and the total number of adjacent nodes,
-#'   where high values indicate ties' embeddedness in dense local environments
 #'   
 #'   Burt's theory holds that while those nodes embedded in dense clusters
 #'   of close connections are likely exposed to the same or similar ideas and information,
@@ -31,17 +30,17 @@
 #'   where \eqn{t} is the sum of ties and \eqn{n} the sum of nodes in each node's neighbourhood,
 #'   and effective size is calculated as \eqn{n - \frac{2t}{n}}.
 #'   Node efficiency is the node's effective size divided by its degree.
-#' @name measure_holes
-#' @family measures
 #' @references 
 #' ## On structural holes
 #' Burt, Ronald S. 1992. 
 #' _Structural Holes: The Social Structure of Competition_. 
 #' Cambridge, MA: Harvard University Press.
-#' @inheritParams mark_nodes
+#' @template param_data
+#' @family brokerage
+#' @template node_measure
 NULL
 
-#' @rdname measure_holes 
+#' @rdname measure_broker_node 
 #' @examples 
 #' node_by_bridges(ison_adolescents)
 #' node_by_bridges(ison_southern_women)
@@ -56,7 +55,7 @@ node_by_bridges <- function(.data){
   make_node_measure(out, .data)
 }
 
-#' @rdname measure_holes 
+#' @rdname measure_broker_node 
 #' @references 
 #' Borgatti, Steven. 1997. 
 #' “\href{http://www.analytictech.com/connections/v20(1)/holes.htm}{Structural Holes: Unpacking Burt’s Redundancy Measures}” 
@@ -104,7 +103,7 @@ node_by_redundancy <- function(.data){
          }, FUN.VALUE = numeric(1))
 }
 
-#' @rdname measure_holes 
+#' @rdname measure_broker_node 
 #' @examples 
 #' node_by_effsize(ison_adolescents)
 #' node_by_effsize(ison_southern_women)
@@ -130,7 +129,7 @@ node_by_effsize <- function(.data){
 }
 
 
-#' @rdname measure_holes 
+#' @rdname measure_broker_node 
 #' @examples 
 #' node_by_efficiency(ison_adolescents)
 #' node_by_efficiency(ison_southern_women)
@@ -141,7 +140,7 @@ node_by_efficiency <- function(.data){
   make_node_measure(as.numeric(out), .data)
 }
 
-#' @rdname measure_holes 
+#' @rdname measure_broker_node 
 #' @references
 #' Hollway, James, Jean-Frédéric Morin, and Joost Pauwelyn. 2020.
 #' "Structural conditions for novelty: The introduction of new environmental clauses to the trade regime complex."
@@ -193,7 +192,7 @@ node_by_constraint <- function(.data) {
   make_node_measure(res, .data)
 }
 
-#' @rdname measure_holes 
+#' @rdname measure_broker_node 
 #' @examples 
 #' node_by_hierarchy(ison_adolescents)
 #' node_by_hierarchy(ison_southern_women)
@@ -214,7 +213,7 @@ node_by_hierarchy <- function(.data){
   make_node_measure(out, .data)
 }
 
-#' @rdname measure_holes 
+#' @rdname measure_broker_node 
 #' @importFrom igraph knn
 #' @references
 #' ## On neighbours average degree
@@ -229,7 +228,21 @@ node_by_neighbours_degree <- function(.data){
   make_node_measure(out, .data)
 }
 
-#' @rdname measure_holes 
+# Tie holes ####
+
+#' Measuring ties brokerage
+#' @name measure_broker_tie
+#' @description
+#'   `tie_by_cohesion()` measures the ratio between common neighbors to ties'
+#'   adjacent nodes and the total number of adjacent nodes,
+#'   where high values indicate ties' embeddedness in dense local environments.
+#'   
+#' @template param_data
+#' @family brokerage
+#' @template tie_measure
+NULL
+
+#' @rdname measure_broker_tie 
 #' @export
 tie_by_cohesion <- function(.data){
   .data <- manynet::expect_ties(.data)
