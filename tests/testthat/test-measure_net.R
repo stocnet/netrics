@@ -24,10 +24,6 @@ for(fn in names(net_meas)) {
         if(ob == "diffusion")
           expect_s3_class(net_meas[[fn]](data_objs[[ob]]), "network_measure") else
             succeed("Only used for diffusion objects")
-      } else if(grepl("correlation|change|stability", fn)){
-        if(ob == "labelled")
-          expect_s3_class(net_meas[[fn]](data_objs[[ob]], data_objs[[ob]]), "network_measure") else
-            succeed("Only used for multi objects")
       } else {
         expect_s3_class(net_meas[[fn]](data_objs[[ob]]), "network_measure")
       }

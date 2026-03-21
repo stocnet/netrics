@@ -8,6 +8,10 @@ for(fn in names(net_motifs)) {
         if(ob == "attribute")
           expect_s3_class(net_motifs[[fn]](data_objs[[ob]], "group"), "network_motif") else
             succeed("Only used for attribute objects")
+      } else if(grepl("correlation|change|stability", fn)){
+        if(ob == "labelled")
+          expect_s3_class(net_motifs[[fn]](data_objs[[ob]], data_objs[[ob]]), "network_motif") else
+            succeed("Only used for multi objects")
       } else {
         expect_s3_class(net_motifs[[fn]](data_objs[[ob]]), "network_motif")
       }

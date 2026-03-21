@@ -8,7 +8,7 @@ for(fn in names(node_meas)) {
         if(ob == "attribute")
           expect_s3_class(node_meas[[fn]](data_objs[[ob]], "group"), "node_measure") else
             succeed("Only used for attribute objects")
-      } else if(grepl("adoption|threshold|recovery|exposure",fn)){
+      } else if(grepl("adopt|recovery|exposure",fn)){
         if(ob == "diffusion")
           expect_s3_class(node_meas[[fn]](data_objs[[ob]]), "node_measure") else
             succeed("Only used for diffusion objects")
