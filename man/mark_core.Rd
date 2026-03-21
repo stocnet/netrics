@@ -3,49 +3,30 @@
 \name{mark_core}
 \alias{mark_core}
 \alias{node_is_core}
-\alias{node_by_kcoreness}
-\alias{node_by_coreness}
-\alias{node_in_core}
-\title{Core-periphery clustering algorithms}
+\title{Marking nodes as core or periphery}
 \usage{
-node_is_core(.data, method = c("degree", "eigenvector"))
-
-node_by_kcoreness(.data)
-
-node_by_coreness(.data)
-
-node_in_core(.data, groups = 3, cluster_by = c("bins", "quantiles", "kmeans"))
+node_is_core(.data, centrality = c("degree", "eigenvector"))
 }
 \arguments{
 \item{.data}{A network object of class \code{mnet}, \code{igraph}, \code{tbl_graph}, \code{network}, or similar.
 For more information on the standard coercion possible,
 see \code{\link[manynet:manip_as]{manynet::as_tidygraph()}}.}
 
-\item{method}{Which method to use to identify cores and periphery.
+\item{centrality}{Which centrality measure to use to identify cores and periphery.
 By default this is "degree",
 which relies on the heuristic that high degree nodes are more likely to be in the core.
 An alternative is "eigenvector", which instead begins with high eigenvector nodes.
 Other methods, such as a genetic algorithm, CONCOR, and Rombach-Porter,
 can be added if there is interest.}
-
-\item{groups}{Number of categories to create. Must be at least 2 and at most
-the number of nodes in the network. Default is 3.}
-
-\item{cluster_by}{Method to use to create the categories.
-One of "bins" (equal-width bins), "quantiles" (quantile-based bins),
-or "kmeans" (k-means clustering). Default is "bins".}
+}
+\value{
+A \code{node_mark} logical vector the length of the nodes in the network,
+giving either TRUE or FALSE for each node depending on
+whether the condition is matched.
 }
 \description{
-These functions identify nodes belonging to (some level of) the core of a network:
-\itemize{
-\item \code{node_is_core()} identifies whether nodes belong to the core of the
+\code{node_is_core()} identifies whether nodes belong to the core of the
 network, as opposed to the periphery.
-\item \code{node_in_core()} categorizes nodes into two or more core/periphery
-categories based on their coreness.
-\item \code{node_coreness()} returns a continuous measure of how closely each node
-resembles a typical core node.
-\item \code{node_kcoreness()} assigns nodes to their level of k-coreness.
-}
 }
 \section{Core-periphery}{
 
@@ -61,33 +42,10 @@ and minimises density in the periphery block;
 it ignores ties between these blocks.
 }
 
-\section{k-coreness}{
-
-k-coreness captures the maximal subgraphs in which each vertex has at least
-degree \emph{k}, where \emph{k} is also the order of the subgraph.
-As described in \code{igraph::coreness},
-a node's coreness is \emph{k} if it belongs to the \emph{k}-core
-but not to the (\emph{k}+1)-core.
-}
-
-\section{Core-periphery categories}{
-
-This function categorizes nodes based on their coreness into a specified
-number of groups. The groups are labeled as "Core", "Semi-core",
-"Semi-periphery", and "Periphery" depending on the number of groups
-specified.
-The categorization can be done using different methods: equal-width bins,
-quantile-based bins, or k-means clustering.
-}
-
 \examples{
 node_is_core(ison_adolescents)
-#ison_adolescents \%>\% 
-#   mutate(corep = node_is_core()) \%>\% 
-#   graphr(node_color = "corep")
-node_by_kcoreness(ison_adolescents)
-node_by_coreness(ison_adolescents)
-node_in_core(ison_adolescents)
+ison_adolescents \%>\% 
+   mutate(corep = node_is_core())
 }
 \references{
 \subsection{On core-periphery partitioning}{
@@ -101,35 +59,52 @@ Lip, Sean Z. W. 2011.
 “A Fast Algorithm for the Discrete Core/Periphery Bipartitioning Problem.”
 \doi{10.48550/arXiv.1102.5511}
 }
-
-\subsection{On k-coreness}{
-
-Seidman, Stephen B. 1983.
-"Network structure and minimum degree".
-\emph{Social Networks}, 5(3), 269-287.
-\doi{10.1016/0378-8733(83)90028-X}
-
-Batagelj, Vladimir, and Matjaz Zaversnik. 2003.
-"An O(m) algorithm for cores decomposition of networks".
-\emph{arXiv preprint} cs/0310049.
-\doi{10.48550/arXiv.cs/0310049}
-}
-
-\subsection{On core-periphery categorization}{
-
-Wallerstein, Immanuel. 1974.
-"Dependence in an Interdependent World: The Limited Possibilities of Transformation Within the Capitalist World Economy."
-\emph{African Studies Review}, 17(1), 1-26.
-\doi{https://doi.org/10.2307/523574}
-}
 }
 \seealso{
-Other memberships: 
+Other core-periphery: 
+\code{\link{measure_core}},
+\code{\link{member_core}}
+
+Other marks: 
+\code{\link{mark_degree}},
+\code{\link{mark_diff}},
+\code{\link{mark_dyads}},
+\code{\link{mark_nodes}},
+\code{\link{mark_select_node}},
+\code{\link{mark_select_tie}},
+\code{\link{mark_ties}},
+\code{\link{mark_triangles}}
+
+Other nodal: 
+\code{\link{mark_degree}},
+\code{\link{mark_diff}},
+\code{\link{mark_nodes}},
+\code{\link{mark_select_node}},
+\code{\link{measure_assort_node}},
+\code{\link{measure_broker_node}},
+\code{\link{measure_brokerage}},
+\code{\link{measure_central_between}},
+\code{\link{measure_central_close}},
+\code{\link{measure_central_degree}},
+\code{\link{measure_central_eigen}},
+\code{\link{measure_closure_node}},
+\code{\link{measure_core}},
+\code{\link{measure_diffusion_node}},
+\code{\link{measure_diverse_node}},
 \code{\link{member_brokerage}},
 \code{\link{member_cliques}},
+\code{\link{member_community}},
 \code{\link{member_community_hier}},
 \code{\link{member_community_non}},
 \code{\link{member_components}},
-\code{\link{member_equivalence}}
+\code{\link{member_core}},
+\code{\link{member_diffusion}},
+\code{\link{member_equivalence}},
+\code{\link{motif_brokerage_node}},
+\code{\link{motif_exposure}},
+\code{\link{motif_node}},
+\code{\link{motif_path}}
 }
-\concept{memberships}
+\concept{core-periphery}
+\concept{marks}
+\concept{nodal}
