@@ -4,17 +4,17 @@
 \alias{measure_diffusion_node}
 \alias{node_by_adopt_time}
 \alias{node_by_adopt_threshold}
-\alias{node_by_recovery}
-\alias{node_by_exposure}
+\alias{node_by_adopt_recovery}
+\alias{node_by_adopt_exposure}
 \title{Measures of nodes in a diffusion}
 \usage{
 node_by_adopt_time(.data)
 
 node_by_adopt_threshold(.data, normalized = TRUE, lag = 1)
 
-node_by_recovery(.data)
+node_by_adopt_recovery(.data)
 
-node_by_exposure(.data, mark, time = 0)
+node_by_adopt_exposure(.data, mark, time = 0)
 }
 \arguments{
 \item{.data}{A network object of class \code{mnet}, \code{igraph}, \code{tbl_graph}, \code{network}, or similar.
@@ -50,9 +50,9 @@ a diffusion process:
 nodes adopt/become infected
 \item \code{node_by_adopt_threshold()}: Measures nodes' thresholds from the amount
 of exposure they had when they became infected
-\item \code{node_by_infection_length()}: Measures the average length nodes that become
+\item \code{node_by_adopt_recovery()}: Measures the average length nodes that become
 infected remain infected in a compartmental model with recovery
-\item \code{node_by_exposure()}: Measures how many exposures nodes have to
+\item \code{node_by_adopt_exposure()}: Measures how many exposures nodes have to
 a given mark
 }
 }
@@ -83,7 +83,7 @@ and works regardless of whether \eqn{w} is weighted or not.
 
 \section{Recovery}{
 
-\code{node_recovery()} measures the average length of time that nodes
+\code{node_by_adopt_recovery()} measures the average length of time that nodes
 that become infected remain infected in a compartmental model with recovery.
 Infections that are not concluded by the end of the study period are
 calculated as infinite.
@@ -108,10 +108,10 @@ nodes exposure at \eqn{t = 0}.
   # To infer nodes' thresholds
   node_by_adopt_threshold(smeg_diff)
   # To measure how long each node remains infected for
-  node_by_recovery(smeg_diff)
+  node_by_adopt_recovery(smeg_diff)
   # To measure how much exposure nodes have to a given mark
-  node_by_exposure(smeg, mark = c(1,3))
-  node_by_exposure(smeg_diff)
+  node_by_adopt_exposure(smeg, mark = c(1,3))
+  node_by_adopt_exposure(smeg_diff)
 }
 \references{
 \subsection{On diffusion measures}{

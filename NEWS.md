@@ -12,7 +12,9 @@
 ## Measuring
 
 - Renamed `node_adoption_time()` to `node_by_adopt_time()`
-- Renamed`node_thresholds()` to `node_by_adopt_threshold()`
+- Renamed `node_thresholds()` to `node_by_adopt_threshold()`
+- Renamed `node_exposure()` to `node_by_adopt_exposure()`  
+- Renamed `node_recovery()` to `node_by_adopt_recovery()`  
 - Separated centralisation scripts into different files per measure type
   (betweenness, closeness, degree, eigenvector) for easier maintenance,
   and into different documentation per level (node, tie) for better organization.
@@ -24,11 +26,13 @@
 - Separated `node_in_community()` documentation from the hierarchical
   and non-hierarchical community-detection algorithms.
 - Core documentation split into separate mark, measure, and member pages.
+- Improved various functions that rely on a membership argument to accept
+  both a membership vector and a string identifier of a network attribute.
 
 ## Motifs
 
-- Renamed `net_by_change()` to `net_x_change()` and related functions to reflect their motif (subgraph-counting) nature.
-- Renamed 
+- Renamed `net_by_change()` to `net_x_change()` and related functions to 
+  reflect their motif (subgraph-counting) nature.
 
 ## Methods
 

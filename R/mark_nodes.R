@@ -382,7 +382,7 @@ node_is_exposed <- function(.data, mark, time = 0){
   if (missing(mark)){
     if(manynet::is_changing(.data)){
       t <- time
-      return(make_node_mark(node_by_exposure(.data, time = t)>0, .data))
+      return(make_node_mark(node_by_adopt_exposure(.data, time = t)>0, .data))
     } else if(inherits(.data, "diff_model")){
       mark <- summary(.data) %>% 
         dplyr::filter(t == 0 & event == "I") %>% 

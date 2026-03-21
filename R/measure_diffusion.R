@@ -84,7 +84,7 @@ net_by_transmissibility <- function(.data){
 #' @export
 net_by_recovery <- function(.data, censor = TRUE){
   diff_model <- manynet::as_diffusion(.data)
-  recovs <- node_by_recovery(.data)
+  recovs <- node_by_adopt_recovery(.data)
   if(censor && any(!is.infinite(recovs) & !is.na(recovs)))
     recovs[is.infinite(recovs)] <- nrow(diff_model)
   if(inherits(.data, "diff_model")) 
@@ -274,9 +274,9 @@ net_by_infection_peak <- function(.data){
 #'   nodes adopt/become infected
 #'   - `node_by_adopt_threshold()`: Measures nodes' thresholds from the amount
 #'   of exposure they had when they became infected
-#'   - `node_by_infection_length()`: Measures the average length nodes that become
+#'   - `node_by_adopt_recovery()`: Measures the average length nodes that become
 #'   infected remain infected in a compartmental model with recovery
-#'   - `node_by_exposure()`: Measures how many exposures nodes have to 
+#'   - `node_by_adopt_exposure()`: Measures how many exposures nodes have to 
 #'   a given mark
 #'   
 #' @template param_data
@@ -374,7 +374,7 @@ node_by_adopt_threshold <- function(.data, normalized = TRUE, lag = 1){
     if(!"exposure" %in% names(out)){
       out[,'exposure'] <- NA_integer_
       for(v in unique(out$t)){
-        out$exposure[out$t == v] <- node_by_exposure(diff_model, 
+        out$exposure[out$t == v] <- node_by_adopt_exposure(diff_model, 
                                                   time = v-lag)[out$nodes[out$t == v]]
       }
     }
@@ -393,7 +393,7 @@ node_by_adopt_threshold <- function(.data, normalized = TRUE, lag = 1){
     if(!"exposure" %in% names(out)){
       out[,'exposure'] <- NA_integer_
       for(v in unique(out$time)){
-        out$exposure[out$time == v] <- node_by_exposure(.data, 
+        out$exposure[out$time == v] <- node_by_adopt_exposure(.data, 
                                                   time = v-lag)[out$node[out$time == v]]
       }
     }
@@ -427,15 +427,15 @@ node_by_adopt_threshold <- function(.data, normalized = TRUE, lag = 1){
 
 #' @rdname measure_diffusion_node 
 #' @section Recovery:
-#'   `node_recovery()` measures the average length of time that nodes 
+#'   `node_by_adopt_recovery()` measures the average length of time that nodes 
 #'   that become infected remain infected in a compartmental model with recovery.
 #'   Infections that are not concluded by the end of the study period are
 #'   calculated as infinite.
 #' @examples
 #'   # To measure how long each node remains infected for
-#'   node_by_recovery(smeg_diff)
+#'   node_by_adopt_recovery(smeg_diff)
 #' @export
-node_by_recovery <- function(.data){
+node_by_adopt_recovery <- function(.data){
   if(inherits(.data, "diff_model")){
     net <- attr(.data, "network")
     events <- attr(.data, "events")
@@ -475,10 +475,10 @@ node_by_recovery <- function(.data){
 #'   nodes exposure at \eqn{t = 0}.
 #' @examples
 #'   # To measure how much exposure nodes have to a given mark
-#'   node_by_exposure(smeg, mark = c(1,3))
-#'   node_by_exposure(smeg_diff)
+#'   node_by_adopt_exposure(smeg, mark = c(1,3))
+#'   node_by_adopt_exposure(smeg_diff)
 #' @export
-node_by_exposure <- function(.data, mark, time = 0){
+node_by_adopt_exposure <- function(.data, mark, time = 0){
   .data <- manynet::expect_nodes(.data)
   if(missing(mark)){ 
     if(inherits(.data, "diff_model")){
