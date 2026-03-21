@@ -1,4 +1,3 @@
-#' @template data
 #' @family marks
 #' @family nodal
 #' @returns

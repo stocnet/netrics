@@ -23,8 +23,10 @@ into a \emph{z}-score indicating how many standard deviations above
 or below the average the score lies.}
 }
 \value{
-A \code{network_motif} tibble with one row and a column for each motif type,
+A \code{network_motif} named numeric vector or sometimes a data frame with
+one row and a column for each motif type,
 giving the count of each motif in the network.
+This is printed as a tibble to avoid greedy printing of long vectors.
 }
 \description{
 \code{net_x_brokerage()} returns the Gould-Fernandez brokerage

@@ -13,8 +13,10 @@ For more information on the standard coercion possible,
 see \code{\link[manynet:manip_as]{manynet::as_tidygraph()}}.}
 }
 \value{
-A \code{network_motif} tibble with one row and a column for each motif type,
+A \code{network_motif} named numeric vector or sometimes a data frame with
+one row and a column for each motif type,
 giving the count of each motif in the network.
+This is printed as a tibble to avoid greedy printing of long vectors.
 }
 \description{
 \code{net_x_hierarchy()} collects the measures of hierarchy into a single motif,

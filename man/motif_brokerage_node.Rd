@@ -23,9 +23,10 @@ into a \emph{z}-score indicating how many standard deviations above
 or below the average the score lies.}
 }
 \value{
-A \code{node_motif} tibble with one row for each node in the network and
+A \code{node_motif} matrix with one row for each node in the network and
 a column for each motif type,
 giving the count of each motif in which each node participates.
+It is printed as a tibble, however, to avoid greedy printing.
 If the network is labelled,
 then the node names will be in a column named \code{names}.
 }

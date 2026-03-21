@@ -4,7 +4,7 @@
 \alias{defunct}
 \title{Functions that have been renamed, superseded, or are no longer working}
 \value{
-Results as expected,
+Results as expected
 along with a warning to use new function naming in the future.
 }
 \description{
