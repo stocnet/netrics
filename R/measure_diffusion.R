@@ -1,29 +1,29 @@
 # net_diffusion ####
 
 #' Measures of network diffusion
+#' @name measure_diffusion_net
 #' @description
 #'   These functions allow measurement of various features of
 #'   a diffusion process at the network level:
 #'   
-#'   - `net_transmissibility()` measures the average transmissibility observed
+#'   - `net_by_transmissibility()` measures the average transmissibility observed
 #'   in a diffusion simulation, or the number of new infections over
 #'   the number of susceptible nodes.
-#'   - `net_recovery()` measures the average number of time steps 
+#'   - `net_by_recovery()` measures the average number of time steps 
 #'   nodes remain infected once they become infected.
-#'   - `net_reproduction()` measures the observed reproductive number
+#'   - `net_by_reproduction()` measures the observed reproductive number
 #'   in a diffusion simulation as the network's transmissibility over
 #'   the network's average infection length.
-#'   - `net_immunity()` measures the proportion of nodes that would need
+#'   - `net_by_immunity()` measures the proportion of nodes that would need
 #'   to be protected through vaccination, isolation, or recovery for herd immunity to be reached.
 #'   
 #' @param .data Network data with nodal changes,
 #'   as created by `play_diffusion()`,
 #'   or a valid network diffusion model,
 #'   as created by `as_diffusion()`.
-#' @inheritParams measure_central_degree
-#' @family measures
+#' @template param_norm
+#' @template net_measure
 #' @family diffusion
-#' @name measure_diffusion_net
 #' @examples
 #'   smeg <- generate_smallworld(15, 0.025)
 #'   smeg_diff <- play_diffusion(smeg, recovery = 0.2)
@@ -191,26 +191,26 @@ net_by_immunity <- function(.data, normalized = TRUE){
 # net_infection ####
 
 #' Measures of network infection
+#' @name measure_diffusion_infection
 #' @description
 #'   These functions allow measurement of various features of
 #'   a diffusion process at the network level:
 #'   
-#'   - `net_infection_complete()` measures the number of time steps until
+#'   - `net_by_infection_complete()` measures the number of time steps until
 #'   (the first instance of) complete infection.
 #'   For diffusions that are not observed to complete,
 #'   this function returns the value of `Inf` (infinity).
 #'   This makes sure that at least ordinality is respected.
-#'   - `net_infection_total()` measures the proportion or total number of nodes
+#'   - `net_by_infection_total()` measures the proportion or total number of nodes
 #'   that are infected/activated at some time by the end of the diffusion process.
 #'   This includes nodes that subsequently recover.
 #'   Where reinfection is possible, the proportion may be higher than 1.
-#'   - `net_infection_peak()` measures the number of time steps until the
+#'   - `net_by_infection_peak()` measures the number of time steps until the
 #'   highest infection rate is observed.
 #'   
 #' @inheritParams measure_diffusion_net
-#' @family measures
 #' @family diffusion
-#' @name measure_diffusion_infection
+#' @template net_measure
 
 #' @rdname measure_diffusion_infection 
 #' @examples
@@ -265,24 +265,24 @@ net_by_infection_peak <- function(.data){
 # node_diffusion ####
 
 #' Measures of nodes in a diffusion
+#' @name measure_diffusion_node
 #' @description
 #'   These functions allow measurement of various features of
 #'   a diffusion process:
 #'   
-#'   - `node_adoption_time()`: Measures the number of time steps until
+#'   - `node_by_adopt_time()`: Measures the number of time steps until
 #'   nodes adopt/become infected
-#'   - `node_thresholds()`: Measures nodes' thresholds from the amount
+#'   - `node_by_adopt_threshold()`: Measures nodes' thresholds from the amount
 #'   of exposure they had when they became infected
-#'   - `node_infection_length()`: Measures the average length nodes that become
+#'   - `node_by_infection_length()`: Measures the average length nodes that become
 #'   infected remain infected in a compartmental model with recovery
-#'   - `node_exposure()`: Measures how many exposures nodes have to 
+#'   - `node_by_exposure()`: Measures how many exposures nodes have to 
 #'   a given mark
 #'   
-#' @inheritParams mark_nodes
-#' @inheritParams measure_diffusion_net
-#' @family measures
+#' @template param_data
+#' @template param_norm
 #' @family diffusion
-#' @name measure_diffusion_node
+#' @template node_measure
 #' @examples
 #'   smeg <- generate_smallworld(15, 0.025)
 #'   smeg_diff <- play_diffusion(smeg, recovery = 0.2)
@@ -295,14 +295,14 @@ NULL
 
 #' @rdname measure_diffusion_node 
 #' @section Adoption time: 
-#'   `node_adoption_time()` measures the time units it took 
+#'   `node_by_adopt_time()` measures the time units it took 
 #'   until each node became infected.
 #'   Note that an adoption time of 0 indicates that this was a seed node.
 #' @examples
 #'   # To measure when nodes adopted a diffusion/were infected
-#'   (times <- node_by_adoption_time(smeg_diff))
+#'   (times <- node_by_adopt_time(smeg_diff))
 #' @export
-node_by_adoption_time <- function(.data){
+node_by_adopt_time <- function(.data){
 
   if(inherits(.data, "diff_model")){
     net <- attr(.data, "network") 
@@ -348,7 +348,7 @@ node_by_adoption_time <- function(.data){
 #' @param lag The number of time steps back upon which the thresholds are
 #'   inferred.
 #' @section Thresholds:
-#'   `node_thresholds()` infers nodes' thresholds based on how much
+#'   `node_by_adopt_threshold()` infers nodes' thresholds based on how much
 #'   exposure they had when they were infected.
 #'   This inference is of course imperfect,
 #'   especially where there is a sudden increase in exposure,
@@ -364,9 +364,9 @@ node_by_adoption_time <- function(.data){
 #'   and works regardless of whether \eqn{w} is weighted or not.
 #' @examples
 #'   # To infer nodes' thresholds
-#'   node_by_thresholds(smeg_diff)
+#'   node_by_adopt_threshold(smeg_diff)
 #' @export
-node_by_thresholds <- function(.data, normalized = TRUE, lag = 1){
+node_by_adopt_threshold <- function(.data, normalized = TRUE, lag = 1){
   if(inherits(.data, "diff_model")){
     net <- attr(.data, "network") 
     diff_model <- manynet::as_diffusion(.data)
@@ -525,9 +525,9 @@ node_by_exposure <- function(.data, mark, time = 0){
   make_node_measure(out, .data)
 }
 
-# node_diffusion ####
+# Diffusion membership ####
 
-#' Membership of nodes in a diffusion
+#' Memberships in a diffusion process
 #' @description
 #'   `node_in_adopter()` classifies membership of nodes into diffusion categories
 #'   by where on the distribution of adopters they fell.
@@ -546,9 +546,8 @@ node_by_exposure <- function(.data, mark, time = 0){
 #'   - _Non-adopter_: those without an adoption time,
 #'   i.e. never adopted
 #'   
-#' @inheritParams mark_nodes
-#' @inheritParams measure_diffusion_net
-#' @family measures
+#' @template param_data
+#' @template node_member
 #' @family diffusion
 #' @name member_diffusion
 #' @references
@@ -567,7 +566,7 @@ NULL
 #'   summary(adopts)
 #' @export
 node_in_adopter <- function(.data){
-  toa <- node_by_adoption_time(.data)
+  toa <- node_by_adopt_time(.data)
   toa[is.infinite(toa)] <- NA
   avg <- mean(toa, na.rm = TRUE)
   sdv <- stats::sd(toa, na.rm = TRUE)

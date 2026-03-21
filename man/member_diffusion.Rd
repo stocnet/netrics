@@ -3,7 +3,7 @@
 \name{member_diffusion}
 \alias{member_diffusion}
 \alias{node_in_adopter}
-\title{Membership of nodes in a diffusion}
+\title{Memberships in a diffusion process}
 \usage{
 node_in_adopter(.data)
 }
@@ -11,6 +11,12 @@ node_in_adopter(.data)
 \item{.data}{A network object of class \code{mnet}, \code{igraph}, \code{tbl_graph}, \code{network}, or similar.
 For more information on the standard coercion possible,
 see \code{\link[manynet:manip_as]{manynet::as_tidygraph()}}.}
+}
+\value{
+A \code{node_member} character vector the length of the nodes in the network,
+of group memberships "A", "B", etc for each node.
+If the network is labelled,
+then the assignments will be labelled with the nodes' names.
 }
 \description{
 \code{node_in_adopter()} classifies membership of nodes into diffusion categories
@@ -47,32 +53,54 @@ Valente, Tom W. 1995.
 }
 }
 \seealso{
-Other measures: 
-\code{\link{measure_assortativity}},
-\code{\link{measure_breadth}},
+Other memberships: 
+\code{\link{member_brokerage}},
+\code{\link{member_cliques}},
+\code{\link{member_community}},
+\code{\link{member_community_hier}},
+\code{\link{member_community_non}},
+\code{\link{member_components}},
+\code{\link{member_core}},
+\code{\link{member_equivalence}}
+
+Other nodal: 
+\code{\link{mark_core}},
+\code{\link{mark_degree}},
+\code{\link{mark_diff}},
+\code{\link{mark_nodes}},
+\code{\link{mark_select_node}},
+\code{\link{measure_assort_node}},
+\code{\link{measure_broker_node}},
 \code{\link{measure_brokerage}},
 \code{\link{measure_central_between}},
 \code{\link{measure_central_close}},
 \code{\link{measure_central_degree}},
 \code{\link{measure_central_eigen}},
-\code{\link{measure_closure}},
-\code{\link{measure_cohesion}},
-\code{\link{measure_diffusion_infection}},
-\code{\link{measure_diffusion_net}},
+\code{\link{measure_closure_node}},
+\code{\link{measure_core}},
 \code{\link{measure_diffusion_node}},
-\code{\link{measure_features}},
-\code{\link{measure_fragmentation}},
-\code{\link{measure_heterogeneity}},
-\code{\link{measure_hierarchy}},
-\code{\link{measure_holes}},
-\code{\link{measure_periods}}
+\code{\link{measure_diverse_node}},
+\code{\link{member_brokerage}},
+\code{\link{member_cliques}},
+\code{\link{member_community}},
+\code{\link{member_community_hier}},
+\code{\link{member_community_non}},
+\code{\link{member_components}},
+\code{\link{member_core}},
+\code{\link{member_equivalence}},
+\code{\link{motif_brokerage_node}},
+\code{\link{motif_exposure}},
+\code{\link{motif_node}},
+\code{\link{motif_path}}
 
 Other diffusion: 
 \code{\link{mark_diff}},
 \code{\link{measure_diffusion_infection}},
 \code{\link{measure_diffusion_net}},
 \code{\link{measure_diffusion_node}},
-\code{\link{motif_diffusion}}
+\code{\link{motif_exposure}},
+\code{\link{motif_hazard}}
 }
 \concept{diffusion}
-\concept{measures}
+\concept{memberships}
+\concept{nodal}

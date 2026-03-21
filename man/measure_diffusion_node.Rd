@@ -2,15 +2,15 @@
 % Please edit documentation in R/measure_diffusion.R
 \name{measure_diffusion_node}
 \alias{measure_diffusion_node}
-\alias{node_by_adoption_time}
-\alias{node_by_thresholds}
+\alias{node_by_adopt_time}
+\alias{node_by_adopt_threshold}
 \alias{node_by_recovery}
 \alias{node_by_exposure}
 \title{Measures of nodes in a diffusion}
 \usage{
-node_by_adoption_time(.data)
+node_by_adopt_time(.data)
 
-node_by_thresholds(.data, normalized = TRUE, lag = 1)
+node_by_adopt_threshold(.data, normalized = TRUE, lag = 1)
 
 node_by_recovery(.data)
 
@@ -21,9 +21,10 @@ node_by_exposure(.data, mark, time = 0)
 For more information on the standard coercion possible,
 see \code{\link[manynet:manip_as]{manynet::as_tidygraph()}}.}
 
-\item{normalized}{Logical scalar, whether the centrality scores are normalized.
-Different denominators are used depending on whether the object is one-mode or two-mode,
-the type of centrality, and other arguments.}
+\item{normalized}{Logical scalar, whether scores are normalized.
+Different denominators may be used depending on the measure,
+whether the object is one-mode or two-mode, and other arguments.
+By default TRUE.}
 
 \item{lag}{The number of time steps back upon which the thresholds are
 inferred.}
@@ -35,30 +36,36 @@ the number of nodes in the network.}
 \item{time}{A time point until which infections/adoptions should be
 identified. By default \code{time = 0}.}
 }
+\value{
+A \code{node_measure} numeric vector the length of the nodes in the network,
+providing the scores for each node.
+If the network is labelled,
+then the scores will be labelled with the nodes' names.
+}
 \description{
 These functions allow measurement of various features of
 a diffusion process:
 \itemize{
-\item \code{node_adoption_time()}: Measures the number of time steps until
+\item \code{node_by_adopt_time()}: Measures the number of time steps until
 nodes adopt/become infected
-\item \code{node_thresholds()}: Measures nodes' thresholds from the amount
+\item \code{node_by_adopt_threshold()}: Measures nodes' thresholds from the amount
 of exposure they had when they became infected
-\item \code{node_infection_length()}: Measures the average length nodes that become
+\item \code{node_by_infection_length()}: Measures the average length nodes that become
 infected remain infected in a compartmental model with recovery
-\item \code{node_exposure()}: Measures how many exposures nodes have to
+\item \code{node_by_exposure()}: Measures how many exposures nodes have to
 a given mark
 }
 }
 \section{Adoption time}{
 
-\code{node_adoption_time()} measures the time units it took
+\code{node_by_adopt_time()} measures the time units it took
 until each node became infected.
 Note that an adoption time of 0 indicates that this was a seed node.
 }
 
 \section{Thresholds}{
 
-\code{node_thresholds()} infers nodes' thresholds based on how much
+\code{node_by_adopt_threshold()} infers nodes' thresholds based on how much
 exposure they had when they were infected.
 This inference is of course imperfect,
 especially where there is a sudden increase in exposure,
@@ -97,9 +104,9 @@ nodes exposure at \eqn{t = 0}.
   smeg_diff <- play_diffusion(smeg, recovery = 0.2)
   plot(smeg_diff)
   # To measure when nodes adopted a diffusion/were infected
-  (times <- node_by_adoption_time(smeg_diff))
+  (times <- node_by_adopt_time(smeg_diff))
   # To infer nodes' thresholds
-  node_by_thresholds(smeg_diff)
+  node_by_adopt_threshold(smeg_diff)
   # To measure how long each node remains infected for
   node_by_recovery(smeg_diff)
   # To measure how much exposure nodes have to a given mark
@@ -114,32 +121,76 @@ Valente, Tom W. 1995. \emph{Network models of the diffusion of innovations}
 }
 }
 \seealso{
-Other measures: 
-\code{\link{measure_assortativity}},
-\code{\link{measure_breadth}},
-\code{\link{measure_brokerage}},
-\code{\link{measure_central_between}},
-\code{\link{measure_central_close}},
-\code{\link{measure_central_degree}},
-\code{\link{measure_central_eigen}},
-\code{\link{measure_closure}},
-\code{\link{measure_cohesion}},
-\code{\link{measure_diffusion_infection}},
-\code{\link{measure_diffusion_net}},
-\code{\link{measure_features}},
-\code{\link{measure_fragmentation}},
-\code{\link{measure_heterogeneity}},
-\code{\link{measure_hierarchy}},
-\code{\link{measure_holes}},
-\code{\link{measure_periods}},
-\code{\link{member_diffusion}}
-
 Other diffusion: 
 \code{\link{mark_diff}},
 \code{\link{measure_diffusion_infection}},
 \code{\link{measure_diffusion_net}},
 \code{\link{member_diffusion}},
-\code{\link{motif_diffusion}}
+\code{\link{motif_exposure}},
+\code{\link{motif_hazard}}
+
+Other measures: 
+\code{\link{measure_assort_net}},
+\code{\link{measure_assort_node}},
+\code{\link{measure_breadth}},
+\code{\link{measure_broker_node}},
+\code{\link{measure_broker_tie}},
+\code{\link{measure_brokerage}},
+\code{\link{measure_central_between}},
+\code{\link{measure_central_close}},
+\code{\link{measure_central_degree}},
+\code{\link{measure_central_eigen}},
+\code{\link{measure_centralisation_between}},
+\code{\link{measure_centralisation_close}},
+\code{\link{measure_centralisation_degree}},
+\code{\link{measure_centralisation_eigen}},
+\code{\link{measure_centralities_between}},
+\code{\link{measure_centralities_close}},
+\code{\link{measure_centralities_degree}},
+\code{\link{measure_centralities_eigen}},
+\code{\link{measure_closure}},
+\code{\link{measure_closure_node}},
+\code{\link{measure_cohesion}},
+\code{\link{measure_core}},
+\code{\link{measure_diffusion_infection}},
+\code{\link{measure_diffusion_net}},
+\code{\link{measure_diverse_net}},
+\code{\link{measure_diverse_node}},
+\code{\link{measure_features}},
+\code{\link{measure_fragmentation}},
+\code{\link{measure_hierarchy}},
+\code{\link{measure_periods}}
+
+Other nodal: 
+\code{\link{mark_core}},
+\code{\link{mark_degree}},
+\code{\link{mark_diff}},
+\code{\link{mark_nodes}},
+\code{\link{mark_select_node}},
+\code{\link{measure_assort_node}},
+\code{\link{measure_broker_node}},
+\code{\link{measure_brokerage}},
+\code{\link{measure_central_between}},
+\code{\link{measure_central_close}},
+\code{\link{measure_central_degree}},
+\code{\link{measure_central_eigen}},
+\code{\link{measure_closure_node}},
+\code{\link{measure_core}},
+\code{\link{measure_diverse_node}},
+\code{\link{member_brokerage}},
+\code{\link{member_cliques}},
+\code{\link{member_community}},
+\code{\link{member_community_hier}},
+\code{\link{member_community_non}},
+\code{\link{member_components}},
+\code{\link{member_core}},
+\code{\link{member_diffusion}},
+\code{\link{member_equivalence}},
+\code{\link{motif_brokerage_node}},
+\code{\link{motif_exposure}},
+\code{\link{motif_node}},
+\code{\link{motif_path}}
 }
 \concept{diffusion}
 \concept{measures}
+\concept{nodal}
