@@ -324,6 +324,7 @@ tie_is_imbalanced <- function(.data){
 # Selection properties ####
 
 #' Marking ties based on measures
+#' @name mark_select_tie
 #' @description 
 #'   These functions return logical vectors the length of the ties in a network:
 #'   
@@ -335,20 +336,20 @@ tie_is_imbalanced <- function(.data){
 #' @template param_data
 #' @template tie_mark
 #' @family selection
-#' @name mark_tie_select
 NULL
 
-#' @rdname mark_tie_select
+#' @rdname mark_select_tie
+#' @template param_select
 #' @export
-tie_is_random <- function(.data, size = 1){
+tie_is_random <- function(.data, select = 1){
   .data <- manynet::expect_ties(.data)  
   n <- manynet::net_ties(.data)
   out <- rep(FALSE, n)
-  out[sample.int(n, size)] <- TRUE
+  out[sample.int(n, select)] <- TRUE
   make_tie_mark(out, .data)
 }
 
-#' @rdname mark_tie_select
+#' @rdname mark_select_tie
 #' @param tie_measure An object created by a `tie_` measure.
 #' @examples 
 #' tie_is_max(tie_by_betweenness(ison_brandes))
@@ -359,7 +360,7 @@ tie_is_max <- function(tie_measure){
   out
 }
 
-#' @rdname mark_tie_select
+#' @rdname mark_select_tie
 #' @examples 
 #' tie_is_min(tie_by_betweenness(ison_brandes))
 #' @export

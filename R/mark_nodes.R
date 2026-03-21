@@ -1,6 +1,7 @@
 # Structural properties ####
 
 #' Marking nodes based on structural properties
+#' @name mark_nodes
 #' @description 
 #'   These functions return logical vectors the length of the 
 #'   nodes in a network identifying which hold certain properties or positions in the network.
@@ -13,8 +14,8 @@
 #'   triangles that are only connected by that node.
 #'   - `node_is_mentor()` marks a proportion of high indegree nodes as 'mentors' (see details).
 #'   - `node_is_neighbor()` marks nodes that are neighbours of a given node.
+#' @template param_data
 #' @template node_mark
-#' @name mark_nodes
 NULL
 
 #' @rdname mark_nodes
@@ -149,8 +150,8 @@ node_is_neighbor <- function(.data, node){
 # Degree properties ####
 
 #' Marking nodes based on degree properties
-#' 
-#' @description 
+#' @name mark_degree
+#' @description
 #'   These functions return logical vectors the length of the 
 #'   nodes in a network identifying which hold certain properties or positions in the network.
 #'   
@@ -160,11 +161,9 @@ node_is_neighbor <- function(.data, node){
 #'   with exactly one incoming or outgoing tie.
 #'   - `node_is_universal()` identifies whether nodes are adjacent to all other
 #'   nodes in the network.
-#' @param .data A network object of class `mnet`, `igraph`, `tbl_graph`, `network`, or similar.
-#'   For more information on what coercions are possible, see [manynet::as_tidygraph()].
-#' @template node_mark
+#' @template param_data
 #' @family degree
-#' @name mark_degree
+#' @template node_mark
 NULL
 
 #' @rdname mark_degree
@@ -401,6 +400,7 @@ node_is_exposed <- function(.data, mark, time = 0){
 # Selection properties ####
 
 #' Marking nodes based on measures
+#' @name mark_select_node
 #' @description 
 #'   These functions return logical vectors the length of the 
 #'   nodes in a network identifying which hold certain properties or positions in the network.
@@ -410,26 +410,25 @@ node_is_exposed <- function(.data, mark, time = 0){
 #'   for converting the results from some node measure into a mark-class object.
 #'   They can be particularly useful for highlighting which node or nodes
 #'   are key because they minimise or, more often, maximise some measure.
-#' @inheritParams mark_nodes
-#' @template node_mark
+#' @template param_data
 #' @family selection
-#' @name mark_select
+#' @template node_mark
 NULL
 
-#' @rdname mark_select
-#' @param size The number of nodes to select (as TRUE).
+#' @rdname mark_select_node
+#' @template param_select
 #' @examples 
 #' node_is_random(ison_brandes, 2)
 #' @export
-node_is_random <- function(.data, size = 1){
+node_is_random <- function(.data, select = 1){
   .data <- manynet::expect_nodes(.data)
   n <- manynet::net_nodes(.data)
   out <- rep(FALSE, n)
-  out[sample.int(n, size)] <- TRUE
+  out[sample.int(n, select)] <- TRUE
   make_node_mark(out, .data)
 }
 
-#' @rdname mark_select
+#' @rdname mark_select_node
 #' @param node_measure An object created by a `node_` measure.
 #' @param ranks The number of ranks of max or min to return.
 #'   For example, `ranks = 3` will return TRUE for nodes with
@@ -461,7 +460,7 @@ node_is_max <- function(node_measure, ranks = 1){
   out
 }
 
-#' @rdname mark_select
+#' @rdname mark_select_node
 #' @examples 
 #' node_is_min(node_by_degree(ison_brandes))
 #' @export
@@ -487,9 +486,9 @@ node_is_min <- function(node_measure, ranks = 1){
   out
 }
 
-#' @rdname mark_select
+#' @rdname mark_select_node
 #' @examples 
-#' node_is_mean(node_degree(ison_brandes))
+#' node_is_mean(node_by_degree(ison_brandes))
 #' @export
 node_is_mean <- function(node_measure, ranks = 1){
   if(!inherits(node_measure, "node_measure"))
