@@ -1,38 +1,40 @@
 # netrics 0.2.0
 
-## Renaming
+## Package
 
-- `node_adoption_time()` renamed to `node_by_adopt_time()` and
-  `node_thresholds()` renamed to `node_by_adopt_threshold()` for naming
-  consistency.
-- Periodwise change functions (`node_x_period()`, etc.) reclassified as motifs
-  rather than measures.
-- `model_k()` renamed to `method_k()` and related cluster-selection utilities
-  renamed for clarity.
-
-## New features
-
-- Added gap method for cluster *k*-selection in `method_k()`.
-- `node_in_community()` is now its own function, separated from the hierarchical
-  and non-hierarchical community-detection algorithms.
-- Centralisation scripts split into separate files per measure type
-  (betweenness, closeness, degree, eigenvector) for easier maintenance.
-- New roxygen2 parameter templates added (`param_attr`, `param_data`,
+- Added roxygen2 parameter templates (`param_attr`, `param_data`,
   `param_dir`, `param_memb`, `param_motf`, `param_norm`, `param_select`) and
   net/node/tie-level templates (`net_measure`, `net_motif`, `node_mark`,
   `node_measure`, `node_member`, `node_motif`, `tie_mark`, `tie_measure`) for
   consistent function documentation.
-
-## Documentation
-
-- Core documentation split into separate mark, measure, and member pages.
-- Brokerage, diversity/assortativity, cohesion, closure, cliques, components,
-  features, and hierarchy documentation updated and separated by level.
-- Defunct function documentation updated.
-
-## Bug fixes
-
 - Fixed startup messages.
+
+## Measuring
+
+- Renamed `node_adoption_time()` to `node_by_adopt_time()`
+- Renamed`node_thresholds()` to `node_by_adopt_threshold()`
+- Separated centralisation scripts into different files per measure type
+  (betweenness, closeness, degree, eigenvector) for easier maintenance,
+  and into different documentation per level (node, tie) for better organization.
+- Updated and separated brokerage, diversity/assortativity, cohesion, closure, 
+  cliques, components, features, and hierarchy documentation by level.
+
+## Members
+
+- Separated `node_in_community()` documentation from the hierarchical
+  and non-hierarchical community-detection algorithms.
+- Core documentation split into separate mark, measure, and member pages.
+
+## Motifs
+
+- Renamed `net_by_change()` to `net_x_change()` and related functions to reflect their motif (subgraph-counting) nature.
+- Renamed 
+
+## Methods
+
+- Added gap method for cluster *k*-selection in `method_k()`.
+- Renamed `model_k()` to `method_k()` and related cluster-selection utilities
+  renamed for clarity.
 
 # netrics 0.1.0
 
