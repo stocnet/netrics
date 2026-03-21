@@ -1,53 +1,31 @@
-# Non-hierarchical community clustering ####
+# Community clustering ####
 
-#' Non-hierarchical community clustering algorithms
-#' 
+#' Memberships in communities
+#' @name member_community
 #' @description
-#'   These functions offer algorithms for partitioning
-#'   networks into sets of communities:
-#' 
-#'   - `node_in_community()` runs either optimal or, for larger networks, 
-#'   finds the algorithm that maximises modularity and returns that membership
-#'   vector.
-#'   - `node_in_optimal()` is a problem-solving algorithm that seeks to maximise 
-#'   modularity over all possible partitions.
-#'   - `node_in_partition()` is a greedy, iterative, deterministic
-#'   partitioning algorithm that results in two equally-sized communities.
-#'   - `node_in_infomap()` is an algorithm based on the information in random walks.
-#'   - `node_in_spinglass()` is a greedy, iterative, probabilistic algorithm, 
-#'   based on analogy to model from statistical physics.
-#'   - `node_in_fluid()` is a propogation-based partitioning algorithm,
-#'   based on analogy to model from fluid dynamics.
-#'   - `node_in_louvain()` is an agglomerative multilevel algorithm that seeks to maximise 
-#'   modularity over all possible partitions.
-#'   - `node_in_leiden()` is an agglomerative multilevel algorithm that seeks to maximise 
-#'   the Constant Potts Model over all possible partitions.
-#'  
-#'   The different algorithms offer various advantages in terms of computation time,
-#'   availability on different types of networks, ability to maximise modularity,
-#'   and their logic or domain of inspiration.
-#'   
-#' @inheritParams mark_nodes
-#' @name member_community_non
-#' @family memberships
-#' @family community
-NULL
-
-#' @rdname member_community_non 
-#' @section Community:
-#'   This function runs through all available community detection algorithms 
+#'   `node_in_community()` runs through all available community detection algorithms 
 #'   for a given network type, finds the algorithm that returns the
 #'   largest modularity score, and returns the corresponding membership
 #'   partition.
 #'   Where feasible (a small enough network), the optimal problem solving
 #'   technique is used to ensure the maximal modularity partition.
+#'   For larger networks, it identifies the applicable algorithms and 
+#'   finds the algorithm that maximises modularity and 
+#'   returns that membership vector.
+#'   
+#' @template param_data
+#' @family community
+#' @template node_member
+NULL
+
+#' @rdname member_community
 #' @export
 node_in_community <- function(.data){
   .data <- manynet::expect_nodes(.data)
   if(manynet::net_nodes(.data)<100){
     # don't use node_in_betweenness because slow and poorer quality to optimal
     manynet::snet_success("{.fn node_in_optimal} available and", 
-                 "will return the highest modularity partition.")
+                          "will return the highest modularity partition.")
     netrics::node_in_optimal(.data)
   } else {
     manynet::snet_info("Excluding {.fn node_in_optimal} because network rather large.")
@@ -84,6 +62,40 @@ node_in_community <- function(.data){
     candidates[[maxmod]][[1]]
   }
 }
+
+# Non-hierarchical community clustering ####
+
+#' Memberships in non-hierarchical communities
+#' @name member_community_non
+#' @description
+#'   These functions offer algorithms for partitioning
+#'   networks into sets of communities:
+#' 
+#'   - `node_in_community()` runs either optimal or, for larger networks, 
+#'   finds the algorithm that maximises modularity and returns that membership
+#'   vector.
+#'   - `node_in_optimal()` is a problem-solving algorithm that seeks to maximise 
+#'   modularity over all possible partitions.
+#'   - `node_in_partition()` is a greedy, iterative, deterministic
+#'   partitioning algorithm that results in two equally-sized communities.
+#'   - `node_in_infomap()` is an algorithm based on the information in random walks.
+#'   - `node_in_spinglass()` is a greedy, iterative, probabilistic algorithm, 
+#'   based on analogy to model from statistical physics.
+#'   - `node_in_fluid()` is a propogation-based partitioning algorithm,
+#'   based on analogy to model from fluid dynamics.
+#'   - `node_in_louvain()` is an agglomerative multilevel algorithm that seeks to maximise 
+#'   modularity over all possible partitions.
+#'   - `node_in_leiden()` is an agglomerative multilevel algorithm that seeks to maximise 
+#'   the Constant Potts Model over all possible partitions.
+#'  
+#'   The different algorithms offer various advantages in terms of computation time,
+#'   availability on different types of networks, ability to maximise modularity,
+#'   and their logic or domain of inspiration.
+#'   
+#' @template param_data
+#' @family community
+#' @template node_member
+NULL
 
 #' @rdname member_community_non 
 #' @section Optimal:
@@ -358,8 +370,8 @@ node_in_leiden <- function(.data, resolution = 1){
 
 # Hierarchical community clustering ####
 
-#' Hierarchical community clustering algorithms
-#' 
+#' Memberships in hierarchical communities
+#' @name member_community_hier
 #' @description
 #'   These functions offer algorithms for hierarchically clustering
 #'   networks into communities. Since all of the following are hierarchical,
@@ -377,9 +389,8 @@ node_in_leiden <- function(.data, resolution = 1){
 #'   availability on different types of networks, ability to maximise modularity,
 #'   and their logic or domain of inspiration.
 #'   
-#' @inheritParams member_community_non
-#' @name member_community_hier
-#' @family memberships
+#' @template param_data
+#' @template node_member
 #' @family community
 NULL
 

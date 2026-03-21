@@ -2,7 +2,6 @@
 % Please edit documentation in R/member_community.R
 \name{member_community_non}
 \alias{member_community_non}
-\alias{node_in_community}
 \alias{node_in_optimal}
 \alias{node_in_partition}
 \alias{node_in_infomap}
@@ -10,10 +9,8 @@
 \alias{node_in_fluid}
 \alias{node_in_louvain}
 \alias{node_in_leiden}
-\title{Non-hierarchical community clustering algorithms}
+\title{Memberships in non-hierarchical communities}
 \usage{
-node_in_community(.data)
-
 node_in_optimal(.data)
 
 node_in_partition(.data)
@@ -44,6 +41,12 @@ By default 1, making existing and non-existing ties equally important.
 Smaller values make existing ties more important,
 and larger values make missing ties more important.}
 }
+\value{
+A \code{node_member} character vector the length of the nodes in the network,
+of group memberships "A", "B", etc for each node.
+If the network is labelled,
+then the assignments will be labelled with the nodes' names.
+}
 \description{
 These functions offer algorithms for partitioning
 networks into sets of communities:
@@ -70,16 +73,6 @@ The different algorithms offer various advantages in terms of computation time,
 availability on different types of networks, ability to maximise modularity,
 and their logic or domain of inspiration.
 }
-\section{Community}{
-
-This function runs through all available community detection algorithms
-for a given network type, finds the algorithm that returns the
-largest modularity score, and returns the corresponding membership
-partition.
-Where feasible (a small enough network), the optimal problem solving
-technique is used to ensure the maximal modularity partition.
-}
-
 \section{Optimal}{
 
 The general idea is to calculate the modularity of all possible partitions,
@@ -222,16 +215,50 @@ Traag, Vincent A., Ludo Waltman, and Nees Jan van Eck. 2019.
 }
 }
 \seealso{
+Other community: 
+\code{\link{member_community}},
+\code{\link{member_community_hier}}
+
 Other memberships: 
-\code{\link{mark_core}},
 \code{\link{member_brokerage}},
 \code{\link{member_cliques}},
+\code{\link{member_community}},
 \code{\link{member_community_hier}},
 \code{\link{member_components}},
+\code{\link{member_core}},
+\code{\link{member_diffusion}},
 \code{\link{member_equivalence}}
 
-Other community: 
-\code{\link{member_community_hier}}
+Other nodal: 
+\code{\link{mark_core}},
+\code{\link{mark_degree}},
+\code{\link{mark_diff}},
+\code{\link{mark_nodes}},
+\code{\link{mark_select_node}},
+\code{\link{measure_assort_node}},
+\code{\link{measure_broker_node}},
+\code{\link{measure_brokerage}},
+\code{\link{measure_central_between}},
+\code{\link{measure_central_close}},
+\code{\link{measure_central_degree}},
+\code{\link{measure_central_eigen}},
+\code{\link{measure_closure_node}},
+\code{\link{measure_core}},
+\code{\link{measure_diffusion_node}},
+\code{\link{measure_diverse_node}},
+\code{\link{member_brokerage}},
+\code{\link{member_cliques}},
+\code{\link{member_community}},
+\code{\link{member_community_hier}},
+\code{\link{member_components}},
+\code{\link{member_core}},
+\code{\link{member_diffusion}},
+\code{\link{member_equivalence}},
+\code{\link{motif_brokerage_node}},
+\code{\link{motif_exposure}},
+\code{\link{motif_node}},
+\code{\link{motif_path}}
 }
 \concept{community}
 \concept{memberships}
+\concept{nodal}
