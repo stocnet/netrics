@@ -150,6 +150,7 @@ net_by_richclub <- function(.data){
 net_by_factions <- function(.data,
                        membership = NULL){
   .data <- manynet::expect_nodes(.data)
+  membership <- .resolve_membership(.data, membership)
   if(is.null(membership)){
     manynet::snet_info("No membership vector assigned.",
               "Partitioning the network using {.fn node_in_partition}.")
@@ -207,6 +208,7 @@ net_by_modularity <- function(.data,
                              membership = NULL, 
                              resolution = 1){
   .data <- manynet::expect_nodes(.data)
+  membership <- .resolve_membership(.data, membership)
   if(is.null(membership)){
     manynet::snet_info("Since no membership argument has been provided,",
               "a partition of the network into two will be calculated and used.")
