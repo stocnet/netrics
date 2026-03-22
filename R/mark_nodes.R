@@ -1,76 +1,7 @@
-# Degree properties ####
-
-#' Marking nodes based on degree properties
-#' 
-#' @description 
-#'   These functions return logical vectors the length of the 
-#'   nodes in a network identifying which hold certain properties or positions in the network.
-#'   
-#'   - `node_is_isolate()` marks nodes that are isolates,
-#'   with neither incoming nor outgoing ties.
-#'   - `node_is_pendant()` marks nodes that are pendants,
-#'   with exactly one incoming or outgoing tie.
-#'   - `node_is_universal()` identifies whether nodes are adjacent to all other
-#'   nodes in the network.
-#' @param .data A network object of class `mnet`, `igraph`, `tbl_graph`, `network`, or similar.
-#'   For more information on the standard coercion possible,
-#'   see [manynet::as_tidygraph()].
-#' @family marks
-#' @family degree
-#' @name mark_degree
-NULL
-
-#' @rdname mark_degree
-#' @examples 
-#' node_is_isolate(ison_brandes)
-#' @export
-node_is_isolate <- function(.data){
-  .data <- manynet::expect_nodes(.data)
-  mat <- abs(manynet::as_matrix(.data))
-  if(manynet::is_twomode(.data)){
-    out <- c(rowSums(mat)==0, colSums(mat)==0)
-  } else {
-    out <- rowSums(mat)==0 & colSums(mat)==0
-  }
-  names(out) <- manynet::node_names(.data)
-  make_node_mark(out, .data)
-}
-
-#' @rdname mark_degree
-#' @export
-node_is_pendant <- function(.data){
-  .data <- manynet::expect_nodes(.data)
-  mat <- abs(manynet::as_matrix(.data))
-  if(manynet::is_twomode(.data)){
-    out <- c(rowSums(mat)==1, colSums(mat)==1)
-  } else {
-    out <- rowSums(mat)==1 & colSums(mat)==1
-  }
-  make_node_mark(out, .data)
-}
-
-#' @rdname mark_degree
-#' @section Universal/dominating node: 
-#'   A universal node is adjacent to all other nodes in the network.
-#'   It is also sometimes called the dominating vertex because it represents
-#'   a one-element dominating set.
-#'   A network with a universal node is called a cone, and its universal node
-#'   is called the apex of the cone.
-#'   A classic example of a cone is a star graph,
-#'   but friendship, wheel, and threshold graphs are also cones.
-#' @examples
-#' node_is_universal(create_star(11))
-#' @export
-node_is_universal <- function(.data){
-  .data <- manynet::expect_nodes(.data)
-  net <- manynet::to_undirected(manynet::to_unweighted(.data))
-  make_node_mark(node_by_deg(net)==(manynet::net_nodes(net)-1), .data)
-}
-
 # Structural properties ####
 
 #' Marking nodes based on structural properties
-#' 
+#' @name mark_nodes
 #' @description 
 #'   These functions return logical vectors the length of the 
 #'   nodes in a network identifying which hold certain properties or positions in the network.
@@ -83,11 +14,8 @@ node_is_universal <- function(.data){
 #'   triangles that are only connected by that node.
 #'   - `node_is_mentor()` marks a proportion of high indegree nodes as 'mentors' (see details).
 #'   - `node_is_neighbor()` marks nodes that are neighbours of a given node.
-#' @param .data A network object of class `mnet`, `igraph`, `tbl_graph`, `network`, or similar.
-#'   For more information on the standard coercion possible,
-#'   see [manynet::as_tidygraph()].
-#' @family marks
-#' @name mark_nodes
+#' @template param_data
+#' @template node_mark
 NULL
 
 #' @rdname mark_nodes
@@ -219,6 +147,72 @@ node_is_neighbor <- function(.data, node){
   make_node_mark(out, .data)
 }
 
+# Degree properties ####
+
+#' Marking nodes based on degree properties
+#' @name mark_degree
+#' @description
+#'   These functions return logical vectors the length of the 
+#'   nodes in a network identifying which hold certain properties or positions in the network.
+#'   
+#'   - `node_is_isolate()` marks nodes that are isolates,
+#'   with neither incoming nor outgoing ties.
+#'   - `node_is_pendant()` marks nodes that are pendants,
+#'   with exactly one incoming or outgoing tie.
+#'   - `node_is_universal()` identifies whether nodes are adjacent to all other
+#'   nodes in the network.
+#' @template param_data
+#' @family degree
+#' @template node_mark
+NULL
+
+#' @rdname mark_degree
+#' @examples 
+#' node_is_isolate(ison_brandes)
+#' @export
+node_is_isolate <- function(.data){
+  .data <- manynet::expect_nodes(.data)
+  mat <- abs(manynet::as_matrix(.data))
+  if(manynet::is_twomode(.data)){
+    out <- c(rowSums(mat)==0, colSums(mat)==0)
+  } else {
+    out <- rowSums(mat)==0 & colSums(mat)==0
+  }
+  names(out) <- manynet::node_names(.data)
+  make_node_mark(out, .data)
+}
+
+#' @rdname mark_degree
+#' @export
+node_is_pendant <- function(.data){
+  .data <- manynet::expect_nodes(.data)
+  mat <- abs(manynet::as_matrix(.data))
+  if(manynet::is_twomode(.data)){
+    out <- c(rowSums(mat)==1, colSums(mat)==1)
+  } else {
+    out <- rowSums(mat)==1 & colSums(mat)==1
+  }
+  make_node_mark(out, .data)
+}
+
+#' @rdname mark_degree
+#' @section Universal/dominating node: 
+#'   A universal node is adjacent to all other nodes in the network.
+#'   It is also sometimes called the dominating vertex because it represents
+#'   a one-element dominating set.
+#'   A network with a universal node is called a cone, and its universal node
+#'   is called the apex of the cone.
+#'   A classic example of a cone is a star graph,
+#'   but friendship, wheel, and threshold graphs are also cones.
+#' @examples
+#' node_is_universal(create_star(11))
+#' @export
+node_is_universal <- function(.data){
+  .data <- manynet::expect_nodes(.data)
+  net <- manynet::to_undirected(manynet::to_unweighted(.data))
+  make_node_mark(node_by_deg(net)==(manynet::net_nodes(net)-1), .data)
+}
+
 # Diffusion properties ####
 
 #' Marking nodes based on diffusion properties
@@ -232,7 +226,7 @@ node_is_neighbor <- function(.data, node){
 #'   - `node_is_latent()` marks nodes that are latent at a particular time point.
 #'   - `node_is_recovered()` marks nodes that are recovered at a particular time point.
 #' @inheritParams mark_nodes
-#' @family marks
+#' @template node_mark
 #' @family diffusion
 #' @name mark_diff
 NULL
@@ -388,7 +382,7 @@ node_is_exposed <- function(.data, mark, time = 0){
   if (missing(mark)){
     if(manynet::is_changing(.data)){
       t <- time
-      return(make_node_mark(node_by_exposure(.data, time = t)>0, .data))
+      return(make_node_mark(node_by_adopt_exposure(.data, time = t)>0, .data))
     } else if(inherits(.data, "diff_model")){
       mark <- summary(.data) %>% 
         dplyr::filter(t == 0 & event == "I") %>% 
@@ -406,7 +400,7 @@ node_is_exposed <- function(.data, mark, time = 0){
 # Selection properties ####
 
 #' Marking nodes based on measures
-#' 
+#' @name mark_select_node
 #' @description 
 #'   These functions return logical vectors the length of the 
 #'   nodes in a network identifying which hold certain properties or positions in the network.
@@ -416,25 +410,25 @@ node_is_exposed <- function(.data, mark, time = 0){
 #'   for converting the results from some node measure into a mark-class object.
 #'   They can be particularly useful for highlighting which node or nodes
 #'   are key because they minimise or, more often, maximise some measure.
-#' @inheritParams mark_nodes
-#' @family marks
-#' @name mark_select
+#' @template param_data
+#' @family selection
+#' @template node_mark
 NULL
 
-#' @rdname mark_select
-#' @param size The number of nodes to select (as TRUE).
+#' @rdname mark_select_node
+#' @template param_select
 #' @examples 
 #' node_is_random(ison_brandes, 2)
 #' @export
-node_is_random <- function(.data, size = 1){
+node_is_random <- function(.data, select = 1){
   .data <- manynet::expect_nodes(.data)
   n <- manynet::net_nodes(.data)
   out <- rep(FALSE, n)
-  out[sample.int(n, size)] <- TRUE
+  out[sample.int(n, select)] <- TRUE
   make_node_mark(out, .data)
 }
 
-#' @rdname mark_select
+#' @rdname mark_select_node
 #' @param node_measure An object created by a `node_` measure.
 #' @param ranks The number of ranks of max or min to return.
 #'   For example, `ranks = 3` will return TRUE for nodes with
@@ -442,7 +436,7 @@ node_is_random <- function(.data, size = 1){
 #'   three scores.
 #'   By default, `ranks = 1`.
 #' @examples 
-#' #node_is_max(node_by_degree(ison_brandes))
+#' node_is_max(node_by_degree(ison_brandes))
 #' @export
 node_is_max <- function(node_measure, ranks = 1){
   if(!inherits(node_measure, "node_measure"))
@@ -466,9 +460,9 @@ node_is_max <- function(node_measure, ranks = 1){
   out
 }
 
-#' @rdname mark_select
+#' @rdname mark_select_node
 #' @examples 
-#' #node_is_min(node_by_degree(ison_brandes))
+#' node_is_min(node_by_degree(ison_brandes))
 #' @export
 node_is_min <- function(node_measure, ranks = 1){
   if(!inherits(node_measure, "node_measure"))
@@ -492,9 +486,9 @@ node_is_min <- function(node_measure, ranks = 1){
   out
 }
 
-#' @rdname mark_select
+#' @rdname mark_select_node
 #' @examples 
-#' #node_is_mean(node_degree(ison_brandes))
+#' node_is_mean(node_by_degree(ison_brandes))
 #' @export
 node_is_mean <- function(node_measure, ranks = 1){
   if(!inherits(node_measure, "node_measure"))

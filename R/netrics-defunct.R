@@ -10,6 +10,8 @@
 #' wherever possible and update your scripts accordingly.
 #' @name defunct
 #' @keywords internal
+#' @returns Results as expected 
+#'   along with a warning to use new function naming in the future.
 NULL
 
 # nocov end

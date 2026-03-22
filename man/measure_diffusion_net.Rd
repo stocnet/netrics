@@ -27,23 +27,27 @@ of the simulation, right censored values can be replaced by the number of steps.
 By default TRUE.
 Note that this will likely still underestimate recovery.}
 
-\item{normalized}{Logical scalar, whether the centrality scores are normalized.
-Different denominators are used depending on whether the object is one-mode or two-mode,
-the type of centrality, and other arguments.}
+\item{normalized}{Logical scalar, whether scores are normalized.
+Different denominators may be used depending on the measure,
+whether the object is one-mode or two-mode, and other arguments.
+By default TRUE.}
+}
+\value{
+A \code{network_measure} numeric score.
 }
 \description{
 These functions allow measurement of various features of
 a diffusion process at the network level:
 \itemize{
-\item \code{net_transmissibility()} measures the average transmissibility observed
+\item \code{net_by_transmissibility()} measures the average transmissibility observed
 in a diffusion simulation, or the number of new infections over
 the number of susceptible nodes.
-\item \code{net_recovery()} measures the average number of time steps
+\item \code{net_by_recovery()} measures the average number of time steps
 nodes remain infected once they become infected.
-\item \code{net_reproduction()} measures the observed reproductive number
+\item \code{net_by_reproduction()} measures the observed reproductive number
 in a diffusion simulation as the network's transmissibility over
 the network's average infection length.
-\item \code{net_immunity()} measures the proportion of nodes that would need
+\item \code{net_by_immunity()} measures the proportion of nodes that would need
 to be protected through vaccination, isolation, or recovery for herd immunity to be reached.
 }
 }
@@ -165,31 +169,44 @@ Garnett, G.P. 2005.
 }
 \seealso{
 Other measures: 
-\code{\link{measure_assortativity}},
+\code{\link{measure_assort_net}},
+\code{\link{measure_assort_node}},
 \code{\link{measure_breadth}},
+\code{\link{measure_broker_node}},
+\code{\link{measure_broker_tie}},
 \code{\link{measure_brokerage}},
 \code{\link{measure_central_between}},
 \code{\link{measure_central_close}},
 \code{\link{measure_central_degree}},
 \code{\link{measure_central_eigen}},
+\code{\link{measure_centralisation_between}},
+\code{\link{measure_centralisation_close}},
+\code{\link{measure_centralisation_degree}},
+\code{\link{measure_centralisation_eigen}},
+\code{\link{measure_centralities_between}},
+\code{\link{measure_centralities_close}},
+\code{\link{measure_centralities_degree}},
+\code{\link{measure_centralities_eigen}},
 \code{\link{measure_closure}},
+\code{\link{measure_closure_node}},
 \code{\link{measure_cohesion}},
+\code{\link{measure_core}},
 \code{\link{measure_diffusion_infection}},
 \code{\link{measure_diffusion_node}},
+\code{\link{measure_diverse_net}},
+\code{\link{measure_diverse_node}},
 \code{\link{measure_features}},
 \code{\link{measure_fragmentation}},
-\code{\link{measure_heterogeneity}},
 \code{\link{measure_hierarchy}},
-\code{\link{measure_holes}},
-\code{\link{measure_periods}},
-\code{\link{member_diffusion}}
+\code{\link{measure_periods}}
 
 Other diffusion: 
 \code{\link{mark_diff}},
 \code{\link{measure_diffusion_infection}},
 \code{\link{measure_diffusion_node}},
 \code{\link{member_diffusion}},
-\code{\link{motif_diffusion}}
+\code{\link{motif_exposure}},
+\code{\link{motif_hazard}}
 }
 \concept{diffusion}
 \concept{measures}

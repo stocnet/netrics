@@ -3,7 +3,7 @@
 \name{member_brokerage}
 \alias{member_brokerage}
 \alias{node_in_brokering}
-\title{Memberships of brokerage}
+\title{Memberships in brokerage positions}
 \usage{
 node_in_brokering(.data, membership)
 }
@@ -12,28 +12,81 @@ node_in_brokering(.data, membership)
 For more information on the standard coercion possible,
 see \code{\link[manynet:manip_as]{manynet::as_tidygraph()}}.}
 
-\item{membership}{A vector of partition membership as integers.}
+\item{membership}{A character string naming an existing node attribute in
+the network, or a categorical vector of the same length as the number of
+nodes in the network where each element indicates the group membership of
+the corresponding node.
+While this may often be a vector created using \verb{node_in_*()} functions,
+it can be any character vector that assigns nodes to groups or categories.}
+}
+\value{
+A \code{node_member} character vector the length of the nodes in the network,
+of group memberships "A", "B", etc for each node.
+If the network is labelled,
+then the assignments will be labelled with the nodes' names.
 }
 \description{
-These functions include ways to take a census of the brokerage positions of nodes
-in a network:
-\itemize{
-\item \code{node_in_brokerage()} returns nodes membership as a powerhouse,
+\code{node_in_brokerage()} returns nodes membership as a powerhouse,
 connector, linchpin, or sideliner according to Hamilton et al. (2020).
+}
+\references{
+\subsection{On brokerage activity and exclusivity}{
+
+Hamilton, Matthew, Jacob Hileman, and Orjan Bodin. 2020.
+"Evaluating heterogeneous brokerage: New conceptual and methodological approaches
+and their application to multi-level environmental governance networks"
+\emph{Social Networks} 61: 1-10.
+\doi{10.1016/j.socnet.2019.08.002}
 }
 }
 \seealso{
+Other brokerage: 
+\code{\link{measure_broker_node}},
+\code{\link{measure_broker_tie}},
+\code{\link{measure_brokerage}},
+\code{\link{motif_brokerage_net}},
+\code{\link{motif_brokerage_node}}
+
 Other memberships: 
-\code{\link{mark_core}},
 \code{\link{member_cliques}},
+\code{\link{member_community}},
 \code{\link{member_community_hier}},
 \code{\link{member_community_non}},
 \code{\link{member_components}},
+\code{\link{member_core}},
+\code{\link{member_diffusion}},
 \code{\link{member_equivalence}}
 
-Other brokerage: 
+Other nodal: 
+\code{\link{mark_core}},
+\code{\link{mark_degree}},
+\code{\link{mark_diff}},
+\code{\link{mark_nodes}},
+\code{\link{mark_select_node}},
+\code{\link{measure_assort_node}},
+\code{\link{measure_broker_node}},
 \code{\link{measure_brokerage}},
-\code{\link{motif_brokerage}}
+\code{\link{measure_central_between}},
+\code{\link{measure_central_close}},
+\code{\link{measure_central_degree}},
+\code{\link{measure_central_eigen}},
+\code{\link{measure_closure_node}},
+\code{\link{measure_core}},
+\code{\link{measure_diffusion_node}},
+\code{\link{measure_diverse_node}},
+\code{\link{member_cliques}},
+\code{\link{member_community}},
+\code{\link{member_community_hier}},
+\code{\link{member_community_non}},
+\code{\link{member_components}},
+\code{\link{member_core}},
+\code{\link{member_diffusion}},
+\code{\link{member_equivalence}},
+\code{\link{motif_brokerage_node}},
+\code{\link{motif_exposure}},
+\code{\link{motif_node}},
+\code{\link{motif_path}}
 }
 \concept{brokerage}
 \concept{memberships}
+\concept{nodal}

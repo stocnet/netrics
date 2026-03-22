@@ -1,29 +1,21 @@
 # Motifs ####
 
-#' Motifs of brokerage
-#' 
+#' Motifs of nodes brokerage
 #' @description
-#'   These functions include ways to take a census of the brokerage positions of nodes
-#'   in a network: 
-#'   
-#'   - `node_x_brokerage()` returns the Gould-Fernandez brokerage
+#'   `node_x_brokerage()` returns the Gould-Fernandez brokerage
 #'   roles played by nodes in a network.
-#'   - `net_x_brokerage()` returns the Gould-Fernandez brokerage
-#'   roles in a network.
-#'   - `node_brokering_activity()` measures nodes' brokerage activity.
-#'   - `node_brokering_exclusivity()` measures nodes' brokerage exclusivity. 
 #'   
-#' @name motif_brokerage
-#' @family motifs
+#' @name motif_brokerage_node
+#' @template param_data
+#' @template param_memb
 #' @family brokerage
-#' @inheritParams motif_node
-#' @param membership A vector of partition membership as integers.
+#' @template node_motif
 #' @param standardized Whether the score should be standardized
 #'   into a _z_-score indicating how many standard deviations above
 #'   or below the average the score lies.
 NULL
 
-#' @rdname motif_brokerage 
+#' @rdname motif_brokerage_node 
 #' @references 
 #' ## On brokerage motifs
 #' Gould, Roger V., and Roberto M. Fernandez. 1989. 
@@ -36,20 +28,21 @@ NULL
 #' _Social Networks_ 41:36–47. 
 #' \doi{10.1016/j.socnet.2014.11.005}
 #' @examples 
-#' # node_x_brokerage(ison_networkers, "Discipline")
+#' node_x_brokerage(ison_networkers, "Discipline")
 #' @export
 node_x_brokerage <- function(.data, membership, standardized = FALSE){
   thisRequires("sna")
   .data <- manynet::expect_nodes(.data)
+  membership <- .resolve_membership(.data, membership)
   if(!manynet::is_twomode(.data)){
     out <- sna::brokerage(manynet::as_network(.data),
-                          manynet::node_attribute(.data, membership))
+                          membership)
     out <- if(standardized) out$z.nli else out$raw.nli
     colnames(out) <- c("Coordinator", "Itinerant", "Gatekeeper", 
                        "Representative", "Liaison", "Total")
   } else {
     out <- suppressWarnings(sna::brokerage(manynet::as_network(manynet::to_mode1(.data)),
-                                           manynet::node_attribute(.data, membership)))
+                                           membership))
     out <- if(standardized) out$z.nli else out$raw.nli
     out <- out[,-4]
     colnames(out) <- c("Coordinator", "Itinerant", "Gatekeeper", 
@@ -58,22 +51,38 @@ node_x_brokerage <- function(.data, membership, standardized = FALSE){
   make_node_motif(out, .data)
 }
 
-#' @rdname motif_brokerage 
+#' Motifs of network brokerage
+#' @description
+#'   `net_x_brokerage()` returns the Gould-Fernandez brokerage
+#'   roles in a network.
+#'   
+#' @name motif_brokerage_net
+#' @template param_data
+#' @template param_memb
+#' @family brokerage
+#' @template net_motif
+#' @param standardized Whether the score should be standardized
+#'   into a _z_-score indicating how many standard deviations above
+#'   or below the average the score lies.
+NULL
+
+#' @rdname motif_brokerage_net 
 #' @examples 
-#' # net_x_brokerage(ison_networkers, "Discipline")
+#' net_x_brokerage(ison_networkers, "Discipline")
 #' @export
 net_x_brokerage <- function(.data, membership, standardized = FALSE){
   thisRequires("sna")
   .data <- manynet::expect_nodes(.data)
+  membership <- .resolve_membership(.data, membership)
   if(!manynet::is_twomode(.data)){
     out <- sna::brokerage(manynet::as_network(.data),
-                          manynet::node_attribute(.data, membership))
+                          membership)
     out <- if(standardized) out$z.gli else out$raw.gli
     names(out) <- c("Coordinator", "Itinerant", "Gatekeeper", 
                     "Representative", "Liaison", "Total")
   } else {
     out <- suppressWarnings(sna::brokerage(manynet::as_network(manynet::to_mode1(.data)),
-                                           manynet::node_attribute(.data, membership)))
+                                           membership))
     out <- if(standardized) out$z.gli else out$raw.gli
     names(out) <- c("Coordinator", "Itinerant", "Gatekeeper", 
                     "Representative", "Liaison", "Total")
@@ -84,18 +93,18 @@ net_x_brokerage <- function(.data, membership, standardized = FALSE){
 # Measures ####
 
 #' Measures of brokerage
-#' 
 #' @description
 #'   These functions include ways to measure nodes' brokerage activity and
 #'   exclusivity in a network: 
 #'   
-#'   - `node_brokering_activity()` measures nodes' brokerage activity.
-#'   - `node_brokering_exclusivity()` measures nodes' brokerage exclusivity. 
+#'   - `node_by_brokering_activity()` measures nodes' brokerage activity.
+#'   - `node_by_brokering_exclusivity()` measures nodes' brokerage exclusivity. 
 #'   
 #' @name measure_brokerage
-#' @family measures
+#' @template param_data
+#' @template param_memb
+#' @template node_measure
 #' @family brokerage
-#' @inheritParams motif_brokerage
 NULL
 
 #' @rdname measure_brokerage 
@@ -111,10 +120,11 @@ node_by_brokering_activity <- function(.data, membership){
   .data <- manynet::expect_nodes(.data)
   twopaths <- .to_twopaths(.data)
   if(!missing(membership)){
-    twopaths$from_memb <- manynet::node_attribute(.data, membership)[`if`(manynet::is_labelled(.data),
+    membership <- .resolve_membership(.data, membership)
+    twopaths$from_memb <- membership[`if`(manynet::is_labelled(.data),
                                                                           match(twopaths$from, manynet::node_names(.data)),
                                                                           twopaths$from)]
-    twopaths$to_memb <- manynet::node_attribute(.data, membership)[`if`(manynet::is_labelled(.data),
+    twopaths$to_memb <- membership[`if`(manynet::is_labelled(.data),
                                                                         match(twopaths$to.y, manynet::node_names(.data)),
                                                                         twopaths$to.y)]
     twopaths <- dplyr::filter(twopaths, from_memb != to_memb)
@@ -140,10 +150,11 @@ node_by_brokering_exclusivity <- function(.data, membership){
   .data <- manynet::expect_nodes(.data)
   twopaths <- .to_twopaths(.data)
   if(!missing(membership)){
-    twopaths$from_memb <- manynet::node_attribute(.data, membership)[`if`(manynet::is_labelled(.data),
+    membership <- .resolve_membership(.data, membership)
+    twopaths$from_memb <- membership[`if`(manynet::is_labelled(.data),
                                                                           match(twopaths$from, manynet::node_names(.data)),
                                                                           twopaths$from)]
-    twopaths$to_memb <- manynet::node_attribute(.data, membership)[`if`(manynet::is_labelled(.data),
+    twopaths$to_memb <- membership[`if`(manynet::is_labelled(.data),
                                                                         match(twopaths$to.y, manynet::node_names(.data)),
                                                                         twopaths$to.y)]
     twopaths <- dplyr::filter(twopaths, from_memb != to_memb)
@@ -165,19 +176,24 @@ node_by_brokering_exclusivity <- function(.data, membership){
 
 # Memberships ####
 
-#' Memberships of brokerage
+#' Memberships in brokerage positions
 #' 
 #' @description
-#'   These functions include ways to take a census of the brokerage positions of nodes
-#'   in a network: 
-#'   
-#'   - `node_in_brokerage()` returns nodes membership as a powerhouse,
+#'   `node_in_brokerage()` returns nodes membership as a powerhouse,
 #'   connector, linchpin, or sideliner according to Hamilton et al. (2020).
 #'   
 #' @name member_brokerage
-#' @family memberships
+#' @template param_data
+#' @template param_memb
 #' @family brokerage
-#' @inheritParams motif_brokerage
+#' @references
+#' ## On brokerage activity and exclusivity
+#'   Hamilton, Matthew, Jacob Hileman, and Orjan Bodin. 2020.
+#'   "Evaluating heterogeneous brokerage: New conceptual and methodological approaches
+#'   and their application to multi-level environmental governance networks"
+#'   _Social Networks_ 61: 1-10.
+#'   \doi{10.1016/j.socnet.2019.08.002}
+#' @template node_member
 NULL
 
 #' @rdname member_brokerage 

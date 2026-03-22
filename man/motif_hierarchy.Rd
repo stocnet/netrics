@@ -3,7 +3,7 @@
 \name{motif_hierarchy}
 \alias{motif_hierarchy}
 \alias{net_x_hierarchy}
-\title{Motifs of hierarchy}
+\title{Motifs of network hierarchy}
 \usage{
 net_x_hierarchy(.data)
 }
@@ -12,18 +12,24 @@ net_x_hierarchy(.data)
 For more information on the standard coercion possible,
 see \code{\link[manynet:manip_as]{manynet::as_tidygraph()}}.}
 }
+\value{
+A \code{network_motif} named numeric vector or sometimes a data frame with
+one row and a column for each motif type,
+giving the count of each motif in the network.
+This is printed as a tibble to avoid greedy printing of long vectors.
+}
 \description{
-This function collects the measures of hierarchy into a single motif,
+\code{net_x_hierarchy()} collects the measures of hierarchy into a single motif,
 which can be used to compare the relative hierarchy of different networks.
 The measures of hierarchy are:
 \itemize{
-\item \code{net_connectedness()} measures the proportion of dyads in the network
+\item \code{net_by_connectedness()} measures the proportion of dyads in the network
 that are reachable to one another,
 or the degree to which network is a single component.
-\item \code{net_efficiency()} measures the Krackhardt efficiency score.
-\item \code{net_upperbound()} measures the Krackhardt (least) upper bound
+\item \code{net_by_efficiency()} measures the Krackhardt efficiency score.
+\item \code{net_by_upperbound()} measures the Krackhardt (least) upper bound
 score.
-\item \code{net_reciprocity()} measures the proportion of ties in the network that
+\item \code{net_by_reciprocity()} measures the proportion of ties in the network that
 are reciprocated,
 which is a measure of the degree to which the network is non-hierarchical.
 }
@@ -46,14 +52,18 @@ Everett, Martin, and David Krackhardt. 2012.
 }
 }
 \seealso{
-Other motifs: 
-\code{\link{motif_brokerage}},
-\code{\link{motif_diffusion}},
-\code{\link{motif_net}},
-\code{\link{motif_node}}
-
 Other hierarchy: 
 \code{\link{measure_hierarchy}}
+
+Other motifs: 
+\code{\link{motif_brokerage_net}},
+\code{\link{motif_brokerage_node}},
+\code{\link{motif_exposure}},
+\code{\link{motif_hazard}},
+\code{\link{motif_net}},
+\code{\link{motif_node}},
+\code{\link{motif_path}},
+\code{\link{motif_periods}}
 }
 \concept{hierarchy}
 \concept{motifs}

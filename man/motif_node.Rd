@@ -2,40 +2,42 @@
 % Please edit documentation in R/motif_census.R
 \name{motif_node}
 \alias{motif_node}
-\alias{node_x_tie}
 \alias{node_x_dyad}
 \alias{node_x_triad}
 \alias{node_x_tetrad}
-\alias{node_x_path}
-\title{Motifs at the nodal level}
+\title{Motifs of nodes cohesion}
 \usage{
-node_x_tie(.data)
-
 node_x_dyad(.data)
 
 node_x_triad(.data)
 
 node_x_tetrad(.data)
-
-node_x_path(.data)
 }
 \arguments{
 \item{.data}{A network object of class \code{mnet}, \code{igraph}, \code{tbl_graph}, \code{network}, or similar.
 For more information on the standard coercion possible,
 see \code{\link[manynet:manip_as]{manynet::as_tidygraph()}}.}
 }
+\value{
+A \code{node_motif} matrix with one row for each node in the network and
+a column for each motif type,
+giving the count of each motif in which each node participates.
+It is printed as a tibble, however, to avoid greedy printing.
+If the network is labelled,
+then the node names will be in a column named \code{names}.
+}
 \description{
 These functions include ways to take a census of the positions of nodes
 in a network:
 \itemize{
-\item \code{node_by_tie()} returns a census of the ties in a network.
+\item \code{node_x_tie()} returns a census of the ties in a network.
 For directed networks, out-ties and in-ties are bound together.
 For multiplex networks, the various types of ties are bound together.
-\item \code{node_by_triad()} returns a census of the triad configurations
+\item \code{node_x_triad()} returns a census of the triad configurations
 nodes are embedded in.
-\item \code{node_by_tetrad()} returns a census of nodes' positions
+\item \code{node_x_tetrad()} returns a census of nodes' positions
 in motifs of four nodes.
-\item \code{node_by_path()} returns the shortest path lengths
+\item \code{node_x_path()} returns the shortest path lengths
 of each node to every other node in the network.
 }
 }
@@ -68,13 +70,10 @@ Graphs of these motifs can be shown using
 }
 
 \examples{
-task_eg <- to_named(to_uniplex(ison_algebra, "tasks"))
-(tie_cen <- node_x_tie(task_eg))
 node_x_dyad(ison_networkers)
+task_eg <- to_named(to_uniplex(ison_algebra, "tasks"))
 (triad_cen <- node_x_triad(task_eg))
 node_x_tetrad(ison_southern_women)
-node_x_path(ison_adolescents)
-node_x_path(ison_southern_women)
 }
 \references{
 \subsection{On the dyad census}{
@@ -103,25 +102,55 @@ McMillan, Cassie, and Diane Felmlee. 2020.
 \emph{Social Psychology Quarterly} 83(4): 383-404.
 \doi{10.1177/0190272520944151}
 }
-
-\subsection{On paths}{
-
-Dijkstra, Edsger W. 1959.
-"A note on two problems in connexion with graphs".
-\emph{Numerische Mathematik} 1, 269-71.
-\doi{10.1007/BF01386390}.
-
-Opsahl, Tore, Filip Agneessens, and John Skvoretz. 2010.
-"Node centrality in weighted networks: Generalizing degree and shortest paths".
-\emph{Social Networks} 32(3): 245-51.
-\doi{10.1016/j.socnet.2010.03.006}.
-}
 }
 \seealso{
-Other motifs: 
-\code{\link{motif_brokerage}},
-\code{\link{motif_diffusion}},
-\code{\link{motif_hierarchy}},
+Other cohesion: 
+\code{\link{mark_triangles}},
+\code{\link{measure_breadth}},
+\code{\link{measure_cohesion}},
+\code{\link{measure_fragmentation}},
 \code{\link{motif_net}}
+
+Other motifs: 
+\code{\link{motif_brokerage_net}},
+\code{\link{motif_brokerage_node}},
+\code{\link{motif_exposure}},
+\code{\link{motif_hazard}},
+\code{\link{motif_hierarchy}},
+\code{\link{motif_net}},
+\code{\link{motif_path}},
+\code{\link{motif_periods}}
+
+Other nodal: 
+\code{\link{mark_core}},
+\code{\link{mark_degree}},
+\code{\link{mark_diff}},
+\code{\link{mark_nodes}},
+\code{\link{mark_select_node}},
+\code{\link{measure_assort_node}},
+\code{\link{measure_broker_node}},
+\code{\link{measure_brokerage}},
+\code{\link{measure_central_between}},
+\code{\link{measure_central_close}},
+\code{\link{measure_central_degree}},
+\code{\link{measure_central_eigen}},
+\code{\link{measure_closure_node}},
+\code{\link{measure_core}},
+\code{\link{measure_diffusion_node}},
+\code{\link{measure_diverse_node}},
+\code{\link{member_brokerage}},
+\code{\link{member_cliques}},
+\code{\link{member_community}},
+\code{\link{member_community_hier}},
+\code{\link{member_community_non}},
+\code{\link{member_components}},
+\code{\link{member_core}},
+\code{\link{member_diffusion}},
+\code{\link{member_equivalence}},
+\code{\link{motif_brokerage_node}},
+\code{\link{motif_exposure}},
+\code{\link{motif_path}}
 }
+\concept{cohesion}
 \concept{motifs}
+\concept{nodal}

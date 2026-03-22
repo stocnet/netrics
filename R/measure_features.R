@@ -1,6 +1,7 @@
 # Topological features ####
 
-#' Measures of network topological features
+#' Measuring network topological features
+#' @name measure_features
 #' @description
 #'   These functions measure certain topological features of networks:
 #'   
@@ -24,11 +25,9 @@
 #'   ranging between `0` if all triangles are imbalanced and 
 #'   `1` if all triangles are balanced.
 #' 
-#'   These `net_*()` functions return a single numeric scalar or value.
-#' @inheritParams mark_nodes
-#' @param membership A vector of partition membership.
-#' @name measure_features
-#' @family measures
+#' @template param_data
+#' @template param_memb
+#' @template net_measure
 NULL
 
 #' @rdname measure_features
@@ -151,6 +150,7 @@ net_by_richclub <- function(.data){
 net_by_factions <- function(.data,
                        membership = NULL){
   .data <- manynet::expect_nodes(.data)
+  membership <- .resolve_membership(.data, membership)
   if(is.null(membership)){
     manynet::snet_info("No membership vector assigned.",
               "Partitioning the network using {.fn node_in_partition}.")
@@ -208,6 +208,7 @@ net_by_modularity <- function(.data,
                              membership = NULL, 
                              resolution = 1){
   .data <- manynet::expect_nodes(.data)
+  membership <- .resolve_membership(.data, membership)
   if(is.null(membership)){
     manynet::snet_info("Since no membership argument has been provided,",
               "a partition of the network into two will be calculated and used.")
@@ -343,12 +344,9 @@ net_by_smallworld <- function(.data,
 net_by_scalefree <- function(.data){
   .data <- manynet::expect_nodes(.data)
   out <- igraph::fit_power_law(node_by_deg(.data))
-  if ("KS.p" %in% names(out)) {
-    if(out$KS.p < 0.05) 
-      cat(paste("Note: Kolgomorov-Smirnov test that data",
-                "could have been drawn from a power-law", 
-                "distribution rejected.\n"))
-  }
+  if ("KS.p" %in% names(out) && !is.null(out$KS.p) && !is.na(out$KS.p) && out$KS.p < 0.05) 
+    manynet::snet_info("Note: Kolmogorov-Smirnov test that data could have been drawn",
+                       "from a power-law distribution rejected.")
   make_network_measure(out$alpha, .data, 
                        call = deparse(sys.call()))
 }

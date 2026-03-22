@@ -132,11 +132,10 @@ For example, you might want to know about:
 - _Centrality_: `r list_functions("degree|betweenness|closeness|eigenvector")`
 - _Cohesion_: `r list_functions("density|reciprocity|transitivity|equivalency|congruency")`
 - _Hierarchy_: `r list_functions("hierarchy|connectedness|upper|efficiency|reciprocity")`
-- _Innovation_: `r list_functions("hole|redundancy|constraint|effsize")`
-- _Diversity_: `r list_functions("diversity|phily|richness|assort")`
 - _Topology_: `r list_functions("core|factions|modularity|smallworld|balance|richclub")`
 - _Resilience_: `r list_functions("cutpoint|bridge|hesion|articul")`
-- _Brokerage_: `r list_functions("broke")`
+- _Brokerage_: `r list_functions("broke|hole|redundancy|constraint|effsize")`
+- _Diversity_: `r list_functions("diversity|phily|richness|assort")`
 - _Diffusion_: `r list_functions("adopt|infect|expos")`
 
 ## Installation

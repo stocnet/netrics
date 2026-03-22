@@ -1,3 +1,45 @@
+# netrics 0.2.0
+
+## Package
+
+- Added roxygen2 parameter templates (`param_attr`, `param_data`,
+  `param_dir`, `param_memb`, `param_motf`, `param_norm`, `param_select`) and
+  net/node/tie-level templates (`net_measure`, `net_motif`, `node_mark`,
+  `node_measure`, `node_member`, `node_motif`, `tie_mark`, `tie_measure`) for
+  consistent function documentation.
+- Fixed startup messages.
+
+## Measuring
+
+- Renamed `node_adoption_time()` to `node_by_adopt_time()`
+- Renamed `node_thresholds()` to `node_by_adopt_threshold()`
+- Renamed `node_exposure()` to `node_by_adopt_exposure()`  
+- Renamed `node_recovery()` to `node_by_adopt_recovery()`  
+- Separated centralisation scripts into different files per measure type
+  (betweenness, closeness, degree, eigenvector) for easier maintenance,
+  and into different documentation per level (node, tie) for better organization.
+- Updated and separated brokerage, diversity/assortativity, cohesion, closure, 
+  cliques, components, features, and hierarchy documentation by level.
+
+## Members
+
+- Separated `node_in_community()` documentation from the hierarchical
+  and non-hierarchical community-detection algorithms.
+- Core documentation split into separate mark, measure, and member pages.
+- Improved various functions that rely on a membership argument to accept
+  both a membership vector and a string identifier of a network attribute.
+
+## Motifs
+
+- Renamed `net_by_change()` to `net_x_change()` and related functions to 
+  reflect their motif (subgraph-counting) nature.
+
+## Methods
+
+- Added gap method for cluster *k*-selection in `method_k()`.
+- Renamed `model_k()` to `method_k()` and related cluster-selection utilities
+  renamed for clarity.
+
 # netrics 0.1.0
 
 ## Release notes

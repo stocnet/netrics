@@ -1,42 +1,29 @@
-# Diversity ####
+# Network diversity ####
 
 #' Measures of network diversity
-#' 
+#' @name measure_diverse_net
 #' @description
 #'   These functions offer ways to measure the heterogeneity of an attribute
 #'   across a network, within groups of a network, or the distribution of ties
 #'   across this attribute:
 #'   
-#'   - `net_richness()` measures the number of unique categories 
+#'   - `net_by_richness()` measures the number of unique categories 
 #'   in a network attribute.
-#'   - `node_richness()` measures the number of unique categories 
-#'   of an attribute to which each node is connected.
-#'   - `net_diversity()` measures the heterogeneity of ties across a network.
-#'   - `node_diversity()` measures the heterogeneity of each node's
-#'   local neighbourhood.
-#'   - `net_heterophily()` measures how embedded nodes in the network
-#'   are within groups of nodes with the same attribute.
-#'   - `node_heterophily()` measures each node's embeddedness within groups
-#'   of nodes with the same attribute.
-#'   - `net_assortativity()` measures the degree assortativity in a network.
-#'   - `net_spatial()` measures the spatial association/autocorrelation 
-#'   (global Moran's I) in a network.
+#'   - `net_by_diversity()` measures the heterogeneity of ties across a network.
 #'   
-#' @inheritParams mark_nodes
-#' @param attribute Name of a nodal attribute or membership vector
-#'   to use as categories for the diversity measure.
-#' @param method Which method to use for `net_diversity()`.
-#'  Either "blau" (Blau's index) or "teachman" (Teachman's index) for
-#'  categorical attributes, or "variation" (coefficient of variation)
-#'  or "gini" (Gini coefficient) for numeric attributes.
-#'  Default is "blau". 
-#'  If an incompatible method is chosen for the attribute type,
-#'  a suitable alternative will be used instead with a message.
-#' @name measure_heterogeneity
-#' @family measures
+#' @template param_data
+#' @template param_attr
+#' @family diversity
+#' @template net_measure
+#' @param diversity Which method to use for `*_diversity()`.
+#'   Either "blau" (Blau's index) or "teachman" (Teachman's index) for categorical attributes, 
+#'   or "variation" (coefficient of variation) or "gini" (Gini coefficient) for numeric attributes.
+#'   Default is "blau". 
+#'   If an incompatible method is chosen for the attribute type,
+#'   a suitable alternative will be used instead with a message.
 NULL
 
-#' @rdname measure_heterogeneity
+#' @rdname measure_diverse_net
 #' @section Richness:
 #'   Richness is a simple count of the number of different categories
 #'   present for a given attribute.
@@ -55,19 +42,7 @@ net_by_richness <- function(.data, attribute){
                        .data, call = deparse(sys.call()))
 }
 
-#' @rdname measure_heterogeneity 
-#' @examples
-#' node_by_richness(ison_networkers, "Discipline")
-#' @export
-node_by_richness <- function(.data, attribute){
-  .data <- manynet::expect_nodes(.data)
-  out <- vapply(manynet::to_egos(.data, min_dist = 1), 
-         function(x) length(unique(manynet::node_attribute(x, attribute))),
-         FUN.VALUE = numeric(1))
-  make_node_measure(out, .data)
-}
-
-#' @rdname measure_heterogeneity 
+#' @rdname measure_diverse_net 
 #' @section Diversity:
 #'    Blau's index (1977) uses a formula known also in other disciplines
 #'    by other names 
@@ -143,7 +118,7 @@ node_by_richness <- function(.data, attribute){
 #' net_by_diversity(marvel_friends, "Appearances")
 #' @export
 net_by_diversity <- function(.data, attribute, 
-                        method = c("blau","teachman","variation","gini")){
+                        diversity = c("blau","teachman","variation","gini")){
   .data <- manynet::expect_nodes(.data)
   blau <- function(features) { 1 - sum((table(features)/length(features))^2) }
   teachman <- function(features) {
@@ -159,21 +134,21 @@ net_by_diversity <- function(.data, attribute,
     return((2 * G) / (n * sum(x)) - (n + 1) / n)
   }
   attr <- manynet::node_attribute(.data, attribute)
-  method <- match.arg(method)
-  if(is.numeric(attr) && method %in% c("blau","teachman")){
-    manynet::snet_info("{.val {method}} index is not appropriate for numeric attributes.")
+  diversity <- match.arg(diversity)
+  if(is.numeric(attr) && diversity %in% c("blau","teachman")){
+    manynet::snet_info("{.val {diversity}} index is not appropriate for numeric attributes.")
     manynet::snet_info("Using {.val variation} coefficient instead",
               "({.val gini} coefficient also available).")
-    method <- "variation"
+    diversity <- "variation"
   }
-  if(is.character(attr) && method %in% c("variation","gini")){
-    manynet::snet_info("{.val {method}} coefficient is not appropriate for categorical attributes.")
+  if(is.character(attr) && diversity %in% c("variation","gini")){
+    manynet::snet_info("{.val {diversity}} coefficient is not appropriate for categorical attributes.")
     manynet::snet_info("Using {.val blau} index instead",
               "({.val teachman} index also available).")
-    method <- "blau"
+    diversity <- "blau"
   }
   
-  out <- switch(method,
+  out <- switch(diversity,
                 blau = blau(attr),
                 teachman = teachman(attr),
                 variation = cv(attr),
@@ -181,62 +156,136 @@ net_by_diversity <- function(.data, attribute,
   make_network_measure(out, .data, call = deparse(sys.call()))
 }
 
-#' @rdname measure_heterogeneity 
-#' @examples 
-#' node_by_diversity(marvel_friends, "Gender")
-#' node_by_diversity(marvel_friends, "Attractive")
+# Nodal diversity ####
+
+#' Measures of nodes diversity
+#' @name measure_diverse_node
+#' @description
+#'   These functions offer ways to measure the heterogeneity of an attribute
+#'   across a network, within groups of a network, or the distribution of ties
+#'   across this attribute:
+#'   
+#'   - `node_by_richness()` measures the number of unique categories 
+#'   of an attribute to which each node is connected.
+#'   - `node_by_diversity()` measures the heterogeneity of each node's
+#'   local neighbourhood.
+#'   
+#' @template param_data
+#' @template param_attr
+#' @family diversity
+#' @template node_measure
+#' @inheritParams measure_diverse_net
+NULL
+
+#' @rdname measure_diverse_node 
+#' @examples
+#' node_by_richness(ison_networkers, "Discipline")
 #' @export
-node_by_diversity <- function(.data, attribute, 
-                           method = c("blau","teachman","variation","gini")){
+node_by_richness <- function(.data, attribute){
   .data <- manynet::expect_nodes(.data)
-  attr <- manynet::node_attribute(.data, attribute)
-  method <- match.arg(method)
-  if(is.numeric(attr) && method %in% c("blau","teachman")){
-    manynet::snet_info("{.val {method}} index is not appropriate for numeric attributes.")
-    manynet::snet_info("Using {.val variation} coefficient instead",
-              "({.val gini} coefficient also available).")
-    method <- "variation"
-  }
-  if(is.character(attr) && method %in% c("variation","gini")){
-    manynet::snet_info("{.val {method}} coefficient is not appropriate for categorical attributes.")
-    manynet::snet_info("Using {.val blau} index instead",
-              "({.val teachman} index also available).")
-    method <- "blau"
-  }
-  out <- vapply(igraph::ego(manynet::as_igraph(.data)),
-                function(x) net_by_diversity(
-                  igraph::induced_subgraph(manynet::as_igraph(.data), x),
-                  attribute, method = method),
+  out <- vapply(manynet::to_egos(.data, min_dist = 1), 
+                function(x) length(unique(manynet::node_attribute(x, attribute))),
                 FUN.VALUE = numeric(1))
   make_node_measure(out, .data)
 }
 
-# Assortativity ####
+#' @rdname measure_diverse_node 
+#' @examples 
+#' marvel_friends <- to_unsigned(to_uniplex(fict_marvel, "relationship"), "positive")
+#' node_by_diversity(marvel_friends, "Gender")
+#' node_by_diversity(marvel_friends, "Attractive")
+#' @export
+node_by_diversity <- function(.data, attribute, 
+                              diversity = c("blau","teachman","variation","gini")){
+  .data <- manynet::expect_nodes(.data)
+  attr <- manynet::node_attribute(.data, attribute)
+  diversity <- match.arg(diversity)
+  if(is.numeric(attr) && diversity %in% c("blau","teachman")){
+    manynet::snet_info("{.val {method}} index is not appropriate for numeric attributes.")
+    manynet::snet_info("Using {.val variation} coefficient instead",
+                       "({.val gini} coefficient also available).")
+    diversity <- "variation"
+  }
+  if(is.character(attr) && diversity %in% c("variation","gini")){
+    manynet::snet_info("{.val {diversity}} coefficient is not appropriate for categorical attributes.")
+    manynet::snet_info("Using {.val blau} index instead",
+                       "({.val teachman} index also available).")
+    diversity <- "blau"
+  }
+  out <- vapply(igraph::ego(manynet::as_igraph(.data)),
+                function(x) net_by_diversity(
+                  igraph::induced_subgraph(manynet::as_igraph(.data), x),
+                  attribute, diversity = diversity),
+                FUN.VALUE = numeric(1))
+  make_node_measure(out, .data)
+}
+
+# Network assortativity ####
 
 #' Measures of network assortativity
-#' 
+#' @name measure_assort_net
 #' @description
 #'   These functions offer ways to measure the distribution or assortativity 
 #'   of ties in a network:
 #'   
-#'   - `net_heterophily()` measures how embedded nodes in the network
+#'   - `net_by_heterophily()` measures how embedded nodes in the network
 #'   are within groups of nodes with the same attribute.
-#'   - `node_heterophily()` measures each node's embeddedness within groups
-#'   of nodes with the same attribute.
-#'   - `net_assortativity()` measures the degree assortativity in a network.
-#'   - `net_spatial()` measures the spatial association/autocorrelation 
+#'   - `net_by_homophily()` measures how embedded nodes in the network
+#'   are within groups of nodes with the same attribute, but with more options for method.
+#'   - `net_by_assortativity()` measures the degree assortativity in a network.
+#'   - `net_by_spatial()` measures the spatial association/autocorrelation 
 #'   (global Moran's I) in a network.
 #'   
-#' @inheritParams mark_nodes
-#' @inheritParams measure_heterogeneity
-#' @param attribute Name of a nodal attribute or membership vector
-#'   to use as categories for the diversity measure.
-#' @name measure_assortativity
-#' @family measures
+#'   Note that for two-mode networks, 
+#'   homophily is calculated on the mode with the attribute of interest,
+#'   and the other mode is ignored.
+#'   If the attribute is present on both modes, 
+#'   homophily is calculated on the first mode by default,
+#'   but a message is given and the user can choose to calculate homophily on the
+#'   other mode instead by subsetting the attribute vector and 
+#'   converting the network to a one-mode network.
+#' @template param_data
+#' @template param_attr
+#' @param assortativity Which method to use for `*_homophily()`.
+#'   Either "ie" (negative E-I index), "ei" (E-I index), 
+#'   "yule" (Yule's Q), or "geary" (Geary's C).
+#'   Default is "ie".
+#'   The E-I index is the number of ties between (or _external_) nodes
+#'   grouped in some mutually exclusive categories
+#'   minus the number of ties within (or _internal_) these groups
+#'   divided by the total number of ties.
+#'   This value can range from 1 to -1,
+#'   where 1 indicates ties only between categories/groups and -1 ties only within categories/groups.
+#'   
+#'   Yule's Q is a measure of association for two binary variables, calculated as:
+#'   \deqn{Q = \frac{ad - bc}{ad + bc}}
+#'   where \eqn{a} is the number of ties between nodes in the same category,
+#'   \eqn{b} is the number of ties between nodes in different categories,
+#'   \eqn{c} is the number of non-ties between nodes in the same category,
+#'   and \eqn{d} is the number of non-ties between nodes in different categories.
+#'   This value can range from -1 to 1, where 1 indicates perfect association
+#'   (all ties are between nodes in the same category), -1 indicates perfect disassociation
+#'   (all ties are between nodes in different categories), and 0 indicates no association.
+#'   
+#'   Geary's C is a measure of spatial autocorrelation, calculated as:
+#'   \deqn{C = \frac{(n - 1) \sum
+#'   \limits_{i=1}^n \sum\limits_{j=1}^n w_{ij} (x_i - x_j)^2}{2W \sum\limits_{i=1}^n (x_i - \bar{x})^2}}
+#'   where \eqn{n} is the number of nodes, \eqn{
+#'   w_{ij}} is the weight of the tie between nodes \eqn{i} and \eqn{j},
+#'   \eqn{x_i} is the attribute value of node \eqn{i},
+#'   \eqn{\bar{x}} is the mean attribute value across all nodes, and \eqn{W} is the sum of all tie weights.
+#'   This value can range from 0 to 2, where values less than 1
+#'   indicate positive autocorrelation (similar values are more likely to be connected),
+#'   values greater than 1 indicate negative autocorrelation (dissimilar values are more likely
+#'   to be connected), and a value of 1 indicates no autocorrelation.
+#'   If an incompatible method is chosen for the attribute type,
+#'   a suitable alternative will be used instead with a message.
+#' @family diversity
+#' @template net_measure
 NULL
 
-#' @rdname measure_assortativity 
-#' @section Homophily:
+#' @rdname measure_assort_net 
+#' @section Heterophily:
 #'   Given a partition of a network into a number of mutually exclusive groups then 
 #'   The E-I index is the number of ties between (or _external_) nodes 
 #'   grouped in some mutually exclusive categories
@@ -276,38 +325,12 @@ net_by_heterophily <- function(.data, attribute){
   make_network_measure(ei, .data, call = deparse(sys.call()))
 }
 
-#' @rdname measure_assortativity 
-#' @examples 
-#' node_by_heterophily(marvel_friends, "Gender")
-#' node_by_heterophily(marvel_friends, "Attractive")
-#' @export
-node_by_heterophily <- function(.data, attribute){
-  .data <- manynet::expect_nodes(.data)
-  m <- manynet::as_matrix(.data)
-  if (length(attribute) == 1 && is.character(attribute)) {
-    attribute <- manynet::node_attribute(.data, attribute)
-  }
-  if (is.character(attribute) | is.numeric(attribute)) {
-    attribute <- as.factor(attribute)
-  }
-  if(anyNA(attribute)){
-    m[is.na(attribute),] <- NA
-    m[,is.na(attribute)] <- NA
-  }
-  same <- outer(attribute, attribute, "==")
-  nInternal <- rowSums(m * same, na.rm = TRUE)
-  nInternal[is.na(attribute)] <- NA
-  nExternal <- rowSums(m, na.rm = TRUE) - nInternal
-  ei <- (nExternal - nInternal) / rowSums(m, na.rm = TRUE)
-  make_node_measure(ei, .data)
-}
-
-#' @rdname measure_assortativity 
+#' @rdname measure_assort_net
 #' @examples 
 #' net_by_homophily(marvel_friends, "Gender")
 #' @export
 net_by_homophily <- function(.data, attribute,
-                          method = c("ie","ei","yule","geary")){
+                             assortativity = c("ie","ei","yule","geary")){
   .data <- manynet::expect_nodes(.data)
   # mode <- attr_mode(.data, attribute)
   # if(is_twomode(.data) && !is.null(mode)){
@@ -327,20 +350,20 @@ net_by_homophily <- function(.data, attribute,
   if (length(attribute) == 1 && is.character(attribute)) {
     attribute <- manynet::node_attribute(.data, attribute)
   }
-  method <- match.arg(method)
-  if(is.numeric(attribute) && method %in% c("ie","ei","yule")){
-    manynet::snet_info("{.val {method}} index is not appropriate for numeric attributes.")
+  assortativity <- match.arg(assortativity)
+  if(is.numeric(attribute) && assortativity %in% c("ie","ei","yule")){
+    manynet::snet_info("{.val {assortativity}} index is not appropriate for numeric attributes.")
     manynet::snet_info("Using {.val geary}'s C instead.")
-    method <- "geary"
+    assortativity <- "geary"
   }
-  if(!is.numeric(attribute) && method == "geary"){
-    manynet::snet_info("{.val {method}} index is not appropriate for categorical attributes.")
+  if(!is.numeric(attribute) && assortativity == "geary"){
+    manynet::snet_info("{.val {assortativity}} index is not appropriate for categorical attributes.")
     manynet::snet_info("Using {.val ie} index instead.")
-    method <- "ie"
+    assortativity <- "ie"
   }
   
   m <- manynet::as_matrix(manynet::to_unweighted(.data))
-
+  
   ei <- function(m, attribute){
     same <- outer(attribute, attribute, "==")
     nInternal <- sum(m * same, na.rm = TRUE)
@@ -379,9 +402,9 @@ net_by_homophily <- function(.data, attribute,
     
     if (den == 0) return(NA_real_)
     num / den
-    }
+  }
   
-  res <- switch(match.arg(method),
+  res <- switch(match.arg(assortativity),
                 ie = -ei(m, attribute),
                 ei = ei(m, attribute),
                 yule = yule(m, attribute),
@@ -389,7 +412,7 @@ net_by_homophily <- function(.data, attribute,
   
   make_network_measure(res, .data, call = deparse(sys.call()))
 }
-  
+
 
 attr_mode <- function(.data, attribute){
   if(manynet::is_twomode(.data)){
@@ -400,34 +423,7 @@ attr_mode <- function(.data, attribute){
   } else NULL
 }
 
-#' @rdname measure_assortativity
-#' @export
-node_by_homophily <- function(.data, attribute,
-                          method = c("ie","ei","yule","geary")){
-  .data <- manynet::expect_nodes(.data)
-  # if (length(attribute) == 1 && is.character(attribute)) {
-  #   attribute <- manynet::node_attribute(.data, attribute)
-  # }
-  method <- match.arg(method)
-  if(is.numeric(attribute) && method %in% c("ie","ei","yule")){
-    manynet::snet_info("{.val {method}} index is not appropriate for numeric attributes.")
-    manynet::snet_info("Using {.val geary}'s C instead.")
-    method <- "geary"
-  }
-  if(!is.numeric(attribute) && method == "geary"){
-    manynet::snet_info("{.val {method}} index is not appropriate for categorical attributes.")
-    manynet::snet_info("Using {.val ie} index instead.")
-    method <- "ie"
-  }
-  out <- vapply(igraph::ego(manynet::as_igraph(.data)),
-                function(x) net_by_homophily(
-                  igraph::induced_subgraph(manynet::as_igraph(.data), x),
-                  attribute, method = method),
-                FUN.VALUE = numeric(1))
-  make_node_measure(out, .data)
-}
-
-#' @rdname measure_assortativity 
+#' @rdname measure_assort_net 
 #' @importFrom igraph assortativity_degree
 #' @references
 #' ## On assortativity
@@ -441,11 +437,11 @@ node_by_homophily <- function(.data, attribute,
 net_by_assortativity <- function(.data){
   .data <- manynet::expect_nodes(.data)
   make_network_measure(igraph::assortativity_degree(manynet::as_igraph(.data), 
-                               directed = manynet::is_directed(.data)),
-                     .data, call = deparse(sys.call()))
+                                                    directed = manynet::is_directed(.data)),
+                       .data, call = deparse(sys.call()))
 }
 
-#' @rdname measure_assortativity 
+#' @rdname measure_assort_net
 #' @references
 #' ## On spatial autocorrelation
 #'   Moran, Patrick Alfred Pierce. 1950.
@@ -465,7 +461,81 @@ net_by_spatial <- function(.data, attribute){
   W <- sum(w, na.rm = TRUE)
   I <- (N/W) * 
     (sum(w * matrix(x - x_bar, N, N) * matrix(x - x_bar, N, N, byrow = TRUE)) / 
-    sum((x - x_bar)^2))
+       sum((x - x_bar)^2))
   make_network_measure(I, .data, 
                        call = deparse(sys.call()))
 }
+
+# Network assortativity ####
+
+#' Measures of nodes assortativity
+#' @name measure_assort_node
+#' @description
+#'   These functions offer ways to measure nodes' assortativity in a network:
+#'   
+#'   - `node_by_heterophily()` measures each node's embeddedness within groups
+#'   of nodes with the same attribute.
+#'   - `node_by_homophily()` measures each node's embeddedness within groups
+#'   of nodes with the same attribute, using a variety of methods.
+#'   
+#' @template param_data
+#' @template param_attr
+#' @family diversity
+#' @template node_measure
+#' @inheritParams measure_assort_net
+NULL
+
+#' @rdname measure_assort_node 
+#' @examples 
+#' marvel_friends <- to_unsigned(to_uniplex(fict_marvel, "relationship"), "positive")
+#' node_by_heterophily(marvel_friends, "Gender")
+#' node_by_heterophily(marvel_friends, "Attractive")
+#' @export
+node_by_heterophily <- function(.data, attribute){
+  .data <- manynet::expect_nodes(.data)
+  m <- manynet::as_matrix(.data)
+  if (length(attribute) == 1 && is.character(attribute)) {
+    attribute <- manynet::node_attribute(.data, attribute)
+  }
+  if (is.character(attribute) | is.numeric(attribute)) {
+    attribute <- as.factor(attribute)
+  }
+  if(anyNA(attribute)){
+    m[is.na(attribute),] <- NA
+    m[,is.na(attribute)] <- NA
+  }
+  same <- outer(attribute, attribute, "==")
+  nInternal <- rowSums(m * same, na.rm = TRUE)
+  nInternal[is.na(attribute)] <- NA
+  nExternal <- rowSums(m, na.rm = TRUE) - nInternal
+  ei <- (nExternal - nInternal) / rowSums(m, na.rm = TRUE)
+  make_node_measure(ei, .data)
+}
+
+#' @rdname measure_assort_node
+#' @export
+node_by_homophily <- function(.data, attribute,
+                              assortativity = c("ie","ei","yule","geary")){
+  .data <- manynet::expect_nodes(.data)
+  # if (length(attribute) == 1 && is.character(attribute)) {
+  #   attribute <- manynet::node_attribute(.data, attribute)
+  # }
+  assortativity <- match.arg(assortativity)
+  if(is.numeric(attribute) && assortativity %in% c("ie","ei","yule")){
+    manynet::snet_info("{.val {assortativity}} index is not appropriate for numeric attributes.")
+    manynet::snet_info("Using {.val geary}'s C instead.")
+    assortativity <- "geary"
+  }
+  if(!is.numeric(attribute) && assortativity == "geary"){
+    manynet::snet_info("{.val {assortativity}} index is not appropriate for categorical attributes.")
+    manynet::snet_info("Using {.val ie} index instead.")
+    assortativity <- "ie"
+  }
+  out <- vapply(igraph::ego(manynet::as_igraph(.data)),
+                function(x) net_by_homophily(
+                  igraph::induced_subgraph(manynet::as_igraph(.data), x),
+                  attribute, assortativity = assortativity),
+                FUN.VALUE = numeric(1))
+  make_node_measure(out, .data)
+}
+

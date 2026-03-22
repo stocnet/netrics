@@ -3,57 +3,56 @@
 \name{measure_periods}
 \alias{measure_periods}
 \alias{net_by_waves}
-\alias{net_by_change}
-\alias{net_by_stability}
-\alias{net_by_correlation}
 \title{Measures of network change}
 \usage{
 net_by_waves(.data)
-
-net_by_change(.data, object2)
-
-net_by_stability(.data, object2)
-
-net_by_correlation(.data, object2)
 }
 \arguments{
 \item{.data}{A network object of class \code{mnet}, \code{igraph}, \code{tbl_graph}, \code{network}, or similar.
 For more information on the standard coercion possible,
 see \code{\link[manynet:manip_as]{manynet::as_tidygraph()}}.}
-
-\item{object2}{A network object.}
+}
+\value{
+A \code{network_measure} numeric score.
 }
 \description{
-These functions measure certain topological features of networks:
-\itemize{
-\item \code{net_by_waves()} measures the number of waves in longitudinal network data.
-\item \code{net_by_change()} measures the Hamming distance between two or more networks.
-\item \code{net_by_stability()} measures the Jaccard index of stability between two or more networks.
-\item \code{net_by_correlation()} measures the product-moment correlation between two networks.
-}
-
-These \verb{net_*()} functions return a numeric vector the length of the number
-of networks minus one. E.g., the periods between waves.
+\code{net_by_waves()} measures the number of waves in longitudinal network data.
 }
 \seealso{
+Other change: 
+\code{\link{motif_periods}}
+
 Other measures: 
-\code{\link{measure_assortativity}},
+\code{\link{measure_assort_net}},
+\code{\link{measure_assort_node}},
 \code{\link{measure_breadth}},
+\code{\link{measure_broker_node}},
+\code{\link{measure_broker_tie}},
 \code{\link{measure_brokerage}},
 \code{\link{measure_central_between}},
 \code{\link{measure_central_close}},
 \code{\link{measure_central_degree}},
 \code{\link{measure_central_eigen}},
+\code{\link{measure_centralisation_between}},
+\code{\link{measure_centralisation_close}},
+\code{\link{measure_centralisation_degree}},
+\code{\link{measure_centralisation_eigen}},
+\code{\link{measure_centralities_between}},
+\code{\link{measure_centralities_close}},
+\code{\link{measure_centralities_degree}},
+\code{\link{measure_centralities_eigen}},
 \code{\link{measure_closure}},
+\code{\link{measure_closure_node}},
 \code{\link{measure_cohesion}},
+\code{\link{measure_core}},
 \code{\link{measure_diffusion_infection}},
 \code{\link{measure_diffusion_net}},
 \code{\link{measure_diffusion_node}},
+\code{\link{measure_diverse_net}},
+\code{\link{measure_diverse_node}},
 \code{\link{measure_features}},
 \code{\link{measure_fragmentation}},
-\code{\link{measure_heterogeneity}},
-\code{\link{measure_hierarchy}},
-\code{\link{measure_holes}},
-\code{\link{member_diffusion}}
+\code{\link{measure_hierarchy}}
 }
+\concept{change}
 \concept{measures}

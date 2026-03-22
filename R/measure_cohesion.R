@@ -1,31 +1,20 @@
 # Cohesion ####
 
 #' Measures of network cohesion
-#' 
+#' @name measure_cohesion
 #' @description
 #'   These functions return values or vectors relating to how cohesive a network is:
 #'   
-#'   - `net_density()` measures the ratio of ties to the number
+#'   - `net_by_density()` measures the ratio of ties to the number
 #'   of possible ties.
-#'   - `net_components()` measures the number of (strong) components 
+#'   - `net_by_components()` measures the number of (strong) components 
 #'   in the network.
-#'   - `net_cohesion()` measures the minimum number of nodes to remove
-#'   from the network needed to increase the number of components.
-#'   - `net_adhesion()` measures the minimum number of ties to remove
-#'   from the network needed to increase the number of components.
-#'   - `net_diameter()` measures the maximum path length in the network.
-#'   - `net_length()` measures the average path length in the network.
-#'   - `net_independence()` measures the independence number, 
+#'   - `net_by_independence()` measures the independence number, 
 #'   or size of the largest independent set in the network.
-#'   - `net_strength()` measures the number of ties that would need to be
-#'   removed from a network to increase its number of components.
-#'   - `net_toughness()` measures the number of nodes that would need to be
-#'   removed from a network to increase its number of components.
 #'   
-#' @inheritParams mark_nodes
-#' @name measure_cohesion
-#' @family measures
+#' @template param_data
 #' @family cohesion
+#' @template net_measure
 NULL
 
 #' @rdname measure_cohesion
@@ -79,17 +68,16 @@ net_by_independence <- function(.data){
 # Breadth ####
 
 #' Measures of network breadth
-#' 
+#' @name measure_breadth
 #' @description
 #'   These functions return values or vectors relating to how broad a network is.
 #'   
-#'   - `net_diameter()` measures the maximum path length in the network.
-#'   - `net_length()` measures the average path length in the network.
+#'   - `net_by_diameter()` measures the maximum path length in the network.
+#'   - `net_by_length()` measures the average path length in the network.
 #'   
-#' @inheritParams mark_nodes
-#' @name measure_breadth
-#' @family measures
+#' @template param_data
 #' @family cohesion
+#' @template net_measure
 NULL
 
 #' @rdname measure_breadth 
@@ -123,24 +111,23 @@ net_by_length <- function(.data){
 # Fragmentation ####
 
 #' Measures of network fragmentation
-#' 
+#' @name measure_fragmentation
 #' @description
 #'   These functions return values relating to how connected a network is
 #'   and the number of nodes or edges to remove that would increase fragmentation.
 #'   
-#'   - `net_cohesion()` measures the minimum number of nodes to remove
+#'   - `net_by_cohesion()` measures the minimum number of nodes to remove
 #'   from the network needed to increase the number of components.
-#'   - `net_toughness()` measures the number of nodes that would need to be
+#'   - `net_by_toughness()` measures the number of nodes that would need to be
 #'   removed from a network to increase its number of components.
-#'   - `net_adhesion()` measures the minimum number of ties to remove
+#'   - `net_by_adhesion()` measures the minimum number of ties to remove
 #'   from the network needed to increase the number of components.
-#'   - `net_strength()` measures the number of ties that would need to be
+#'   - `net_by_strength()` measures the number of ties that would need to be
 #'   removed from a network to increase its number of components.
 #'   
-#' @inheritParams mark_nodes
-#' @name measure_fragmentation
-#' @family measures
+#' @template param_data
 #' @family cohesion
+#' @template net_measure
 NULL
 
 #' @rdname measure_fragmentation 

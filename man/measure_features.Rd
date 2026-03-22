@@ -9,7 +9,7 @@
 \alias{net_by_smallworld}
 \alias{net_by_scalefree}
 \alias{net_by_balance}
-\title{Measures of network topological features}
+\title{Measuring network topological features}
 \source{
 \code{{signnet}} by David Schoch
 }
@@ -63,7 +63,12 @@ with the same dimensions.
 but where there may not be a network for which \eqn{SWI = 1}.
 }}
 
-\item{membership}{A vector of partition membership.}
+\item{membership}{A character string naming an existing node attribute in
+the network, or a categorical vector of the same length as the number of
+nodes in the network where each element indicates the group membership of
+the corresponding node.
+While this may often be a vector created using \verb{node_in_*()} functions,
+it can be any character vector that assigns nodes to groups or categories.}
 
 \item{resolution}{A proportion indicating the resolution scale.
 By default 1, which returns the original definition of modularity.
@@ -71,6 +76,9 @@ The higher this parameter, the more smaller communities will be privileged.
 The lower this parameter, the fewer larger communities are likely to be found.}
 
 \item{times}{Integer of number of simulations.}
+}
+\value{
+A \code{network_measure} numeric score.
 }
 \description{
 These functions measure certain topological features of networks:
@@ -95,8 +103,6 @@ the proportion of balanced triangles,
 ranging between \code{0} if all triangles are imbalanced and
 \code{1} if all triangles are balanced.
 }
-
-These \verb{net_*()} functions return a single numeric scalar or value.
 }
 \section{Core-Periphery}{
 
@@ -234,23 +240,35 @@ Cartwright, D., and Frank Harary. 1956.
 for how clustering is calculated
 
 Other measures: 
-\code{\link{measure_assortativity}},
+\code{\link{measure_assort_net}},
+\code{\link{measure_assort_node}},
 \code{\link{measure_breadth}},
+\code{\link{measure_broker_node}},
+\code{\link{measure_broker_tie}},
 \code{\link{measure_brokerage}},
 \code{\link{measure_central_between}},
 \code{\link{measure_central_close}},
 \code{\link{measure_central_degree}},
 \code{\link{measure_central_eigen}},
+\code{\link{measure_centralisation_between}},
+\code{\link{measure_centralisation_close}},
+\code{\link{measure_centralisation_degree}},
+\code{\link{measure_centralisation_eigen}},
+\code{\link{measure_centralities_between}},
+\code{\link{measure_centralities_close}},
+\code{\link{measure_centralities_degree}},
+\code{\link{measure_centralities_eigen}},
 \code{\link{measure_closure}},
+\code{\link{measure_closure_node}},
 \code{\link{measure_cohesion}},
+\code{\link{measure_core}},
 \code{\link{measure_diffusion_infection}},
 \code{\link{measure_diffusion_net}},
 \code{\link{measure_diffusion_node}},
+\code{\link{measure_diverse_net}},
+\code{\link{measure_diverse_node}},
 \code{\link{measure_fragmentation}},
-\code{\link{measure_heterogeneity}},
 \code{\link{measure_hierarchy}},
-\code{\link{measure_holes}},
-\code{\link{measure_periods}},
-\code{\link{member_diffusion}}
+\code{\link{measure_periods}}
 }
 \concept{measures}

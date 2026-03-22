@@ -1,27 +1,26 @@
-#' Equivalence clustering algorithms
-#' 
+#' Memberships in equivalent classes
 #' @description 
-#'   These functions combine an appropriate `node_by_*()` function
+#'   These functions combine an appropriate `node_x_*()` function
 #'   together with methods for calculating the hierarchical clusters
 #'   provided by a certain distance calculation.
 #'   
 #'   - `node_in_equivalence()` assigns nodes membership based on their equivalence 
-#'   with respective to some census/class.
-#'   The following functions call this function, together with an appropriate census.
-#'     - `node_in_structural()` assigns nodes membership based on their
-#'     having equivalent ties to the same other nodes.
-#'     - `node_in_regular()` assigns nodes membership based on their
-#'     having equivalent patterns of ties.
-#'     - `node_in_automorphic()` assigns nodes membership based on their
-#'     having equivalent distances to other nodes.
+#'   with respective to some motif/class.
+#'   The following functions call this function, together with an appropriate motif.
+#'   - `node_in_structural()` assigns nodes membership based on their
+#'   having equivalent ties to the same other nodes.
+#'   - `node_in_regular()` assigns nodes membership based on their
+#'   having equivalent patterns of ties.
+#'   - `node_in_automorphic()` assigns nodes membership based on their
+#'   having equivalent distances to other nodes.
 #'   
 #'   A `plot()` method exists for investigating the dendrogram
 #'   of the hierarchical cluster and showing the returned cluster
 #'   assignment.
 #' @name member_equivalence
-#' @family memberships
-#' @inheritParams mark_nodes
-#' @param census A matrix returned by a `node_by_*()` function.
+#' @template param_data
+#' @template param_motf
+#' @template node_member
 #' @param k Typically a character string indicating which method
 #'   should be used to select the number of clusters to return.
 #'   By default `"silhouette"`, other options include `"elbow"` and `"strict"`.
@@ -40,7 +39,7 @@
 #'   By default `"euclidean"`, but other options include
 #'   `"maximum"`, `"manhattan"`, `"canberra"`, `"binary"`, and `"minkowski"`.
 #'   Fewer, identifiable letters, e.g. `"e"` for Euclidean, is sufficient.
-#' @param range Integer indicating the maximum number of (k) clusters
+#' @param Kmax Integer indicating the maximum number of (k) clusters
 #'   to evaluate.
 #'   Ignored when `k = "strict"` or a discrete number is given for `k`.
 #' @importFrom stats as.dist hclust cutree coef cor median
@@ -49,25 +48,25 @@ NULL
 
 #' @rdname member_equivalence 
 #' @export
-node_in_equivalence <- function(.data, census,
+node_in_equivalence <- function(.data, motif,
                              k = c("silhouette", "elbow", "strict"),
                              cluster = c("hierarchical", "concor", "cosine"),
                              distance = c("euclidean", "maximum", "manhattan", 
                                           "canberra", "binary", "minkowski"),
-                             range = 8L){
+                             Kmax = 8L){
   .data <- manynet::expect_nodes(.data)
   hc <- switch(match.arg(cluster),
-               hierarchical = cluster_hierarchical(census, 
+               hierarchical = cluster_hierarchical(motif, 
                                                       match.arg(distance)),
-               concor = cluster_concor(.data, census),
-               cosine = cluster_cosine(census, 
+               concor = cluster_concor(.data, motif),
+               cosine = cluster_cosine(motif, 
                                        match.arg(distance)))
   
   if(!is.numeric(k))
     k <- switch(match.arg(k),
                 strict = k_strict(hc, .data),
-                elbow = k_elbow(hc, .data, census, range),
-                silhouette = k_silhouette(hc, .data, range))
+                elbow = k_elbow(hc, .data, motif, Kmax),
+                silhouette = k_silhouette(hc, .data, Kmax))
   if(length(k)==0) k <- 1 # in the case of all nodes being in the same cluster
   
   out <- make_node_member(stats::cutree(hc, k), .data)
@@ -85,14 +84,14 @@ node_in_structural <- function(.data,
                                         cluster = c("hierarchical", "concor","cosine"),
                                         distance = c("euclidean", "maximum", "manhattan", 
                                                      "canberra", "binary", "minkowski"),
-                                        range = 8L){
+                                        Kmax = 8L){
   .data <- manynet::expect_nodes(.data)
   mat <- node_x_tie(.data)
   if(any(colSums(t(mat))==0)){
     mat <- cbind(mat, (colSums(t(mat))==0))
   } 
   node_in_equivalence(.data, mat, 
-                   k = k, cluster = cluster, distance = distance, range = range)
+                   k = k, cluster = cluster, distance = distance, Kmax = Kmax)
 }
 
 #' @rdname member_equivalence
@@ -105,7 +104,7 @@ node_in_regular <- function(.data,
                             cluster = c("hierarchical", "concor","cosine"),
                             distance = c("euclidean", "maximum", "manhattan", 
                                          "canberra", "binary", "minkowski"),
-                            range = 8L){
+                            Kmax = 8L){
   .data <- manynet::expect_nodes(.data)
   if(manynet::is_twomode(.data)){
     manynet::snet_info("Since this is a two-mode network,", 
@@ -120,7 +119,7 @@ node_in_regular <- function(.data,
   }
   if(any(colSums(mat) == 0)) mat <- mat[,-which(colSums(mat) == 0)]
   node_in_equivalence(.data, mat, 
-                   k = k, cluster = cluster, distance = distance, range = range)
+                   k = k, cluster = cluster, distance = distance, Kmax = Kmax)
 }
 
 #' @rdname member_equivalence
@@ -135,9 +134,9 @@ node_in_automorphic <- function(.data,
                                          cluster = c("hierarchical", "concor","cosine"),
                                          distance = c("euclidean", "maximum", "manhattan", 
                                                       "canberra", "binary", "minkowski"),
-                                         range = 8L){
+                                         Kmax = 8L){
   .data <- manynet::expect_nodes(.data)
   mat <- node_x_path(.data)
   node_in_equivalence(.data, mat, 
-                   k = k, cluster = cluster, distance = distance, range = range)
+                   k = k, cluster = cluster, distance = distance, Kmax = Kmax)
 }

@@ -9,8 +9,7 @@
 
 0 errors | 0 warnings | 0 notes
 
-- This package is ready for submission to CRAN. 
-The check results are clean, with no errors, warnings, or notes across all tested environments.
-Note that there are some conflicts with manynet functions,
-but these are not causing any issues with the package itself and 
-will be resolved by removing them from manynet once netrics is available on CRAN.
+- There are no references describing all methods in this package,
+but the documentation files for each set of functions are complete and include examples.
+- The use of cat() in one function has been avoided.
+- All user-facing functions now have return values specified in their documentation.

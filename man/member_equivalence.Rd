@@ -6,18 +6,18 @@
 \alias{node_in_structural}
 \alias{node_in_regular}
 \alias{node_in_automorphic}
-\title{Equivalence clustering algorithms}
+\title{Memberships in equivalent classes}
 \source{
 \url{https://github.com/aslez/concoR}
 }
 \usage{
 node_in_equivalence(
   .data,
-  census,
+  motif,
   k = c("silhouette", "elbow", "strict"),
   cluster = c("hierarchical", "concor", "cosine"),
   distance = c("euclidean", "maximum", "manhattan", "canberra", "binary", "minkowski"),
-  range = 8L
+  Kmax = 8L
 )
 
 node_in_structural(
@@ -25,7 +25,7 @@ node_in_structural(
   k = c("silhouette", "elbow", "strict"),
   cluster = c("hierarchical", "concor", "cosine"),
   distance = c("euclidean", "maximum", "manhattan", "canberra", "binary", "minkowski"),
-  range = 8L
+  Kmax = 8L
 )
 
 node_in_regular(
@@ -33,7 +33,7 @@ node_in_regular(
   k = c("silhouette", "elbow", "strict"),
   cluster = c("hierarchical", "concor", "cosine"),
   distance = c("euclidean", "maximum", "manhattan", "canberra", "binary", "minkowski"),
-  range = 8L
+  Kmax = 8L
 )
 
 node_in_automorphic(
@@ -41,7 +41,7 @@ node_in_automorphic(
   k = c("silhouette", "elbow", "strict"),
   cluster = c("hierarchical", "concor", "cosine"),
   distance = c("euclidean", "maximum", "manhattan", "canberra", "binary", "minkowski"),
-  range = 8L
+  Kmax = 8L
 )
 }
 \arguments{
@@ -49,7 +49,7 @@ node_in_automorphic(
 For more information on the standard coercion possible,
 see \code{\link[manynet:manip_as]{manynet::as_tidygraph()}}.}
 
-\item{census}{A matrix returned by a \verb{node_by_*()} function.}
+\item{motif}{A matrix returned by a \verb{node_x_*()} function.}
 
 \item{k}{Typically a character string indicating which method
 should be used to select the number of clusters to return.
@@ -72,26 +72,30 @@ By default \code{"euclidean"}, but other options include
 \code{"maximum"}, \code{"manhattan"}, \code{"canberra"}, \code{"binary"}, and \code{"minkowski"}.
 Fewer, identifiable letters, e.g. \code{"e"} for Euclidean, is sufficient.}
 
-\item{range}{Integer indicating the maximum number of (k) clusters
+\item{Kmax}{Integer indicating the maximum number of (k) clusters
 to evaluate.
 Ignored when \code{k = "strict"} or a discrete number is given for \code{k}.}
 }
+\value{
+A \code{node_member} character vector the length of the nodes in the network,
+of group memberships "A", "B", etc for each node.
+If the network is labelled,
+then the assignments will be labelled with the nodes' names.
+}
 \description{
-These functions combine an appropriate \verb{node_by_*()} function
+These functions combine an appropriate \verb{node_x_*()} function
 together with methods for calculating the hierarchical clusters
 provided by a certain distance calculation.
 \itemize{
 \item \code{node_in_equivalence()} assigns nodes membership based on their equivalence
-with respective to some census/class.
-The following functions call this function, together with an appropriate census.
-\itemize{
+with respective to some motif/class.
+The following functions call this function, together with an appropriate motif.
 \item \code{node_in_structural()} assigns nodes membership based on their
 having equivalent ties to the same other nodes.
 \item \code{node_in_regular()} assigns nodes membership based on their
 having equivalent patterns of ties.
 \item \code{node_in_automorphic()} assigns nodes membership based on their
 having equivalent distances to other nodes.
-}
 }
 
 A \code{plot()} method exists for investigating the dendrogram
@@ -109,11 +113,44 @@ if(require("sna", quietly = TRUE)){
 }
 \seealso{
 Other memberships: 
-\code{\link{mark_core}},
 \code{\link{member_brokerage}},
 \code{\link{member_cliques}},
+\code{\link{member_community}},
 \code{\link{member_community_hier}},
 \code{\link{member_community_non}},
-\code{\link{member_components}}
+\code{\link{member_components}},
+\code{\link{member_core}},
+\code{\link{member_diffusion}}
+
+Other nodal: 
+\code{\link{mark_core}},
+\code{\link{mark_degree}},
+\code{\link{mark_diff}},
+\code{\link{mark_nodes}},
+\code{\link{mark_select_node}},
+\code{\link{measure_assort_node}},
+\code{\link{measure_broker_node}},
+\code{\link{measure_brokerage}},
+\code{\link{measure_central_between}},
+\code{\link{measure_central_close}},
+\code{\link{measure_central_degree}},
+\code{\link{measure_central_eigen}},
+\code{\link{measure_closure_node}},
+\code{\link{measure_core}},
+\code{\link{measure_diffusion_node}},
+\code{\link{measure_diverse_node}},
+\code{\link{member_brokerage}},
+\code{\link{member_cliques}},
+\code{\link{member_community}},
+\code{\link{member_community_hier}},
+\code{\link{member_community_non}},
+\code{\link{member_components}},
+\code{\link{member_core}},
+\code{\link{member_diffusion}},
+\code{\link{motif_brokerage_node}},
+\code{\link{motif_exposure}},
+\code{\link{motif_node}},
+\code{\link{motif_path}}
 }
 \concept{memberships}
+\concept{nodal}

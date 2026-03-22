@@ -2,19 +2,13 @@
 % Please edit documentation in R/mark_ties.R
 \name{mark_ties}
 \alias{mark_ties}
-\alias{tie_is_multiple}
 \alias{tie_is_loop}
-\alias{tie_is_reciprocated}
 \alias{tie_is_feedback}
 \alias{tie_is_bridge}
 \alias{tie_is_path}
 \title{Marking ties based on structural properties}
 \usage{
-tie_is_multiple(.data)
-
 tie_is_loop(.data)
-
-tie_is_reciprocated(.data)
 
 tie_is_feedback(.data)
 
@@ -34,13 +28,16 @@ see \code{\link[manynet:manip_as]{manynet::as_tidygraph()}}.}
 \item{all_paths}{Whether to return a list of paths or sample just one.
 By default FALSE, sampling just a single path.}
 }
+\value{
+A \code{tie_mark} logical vector the length of the ties in the network,
+giving either TRUE or FALSE for each tie depending on
+whether the condition is matched.
+}
 \description{
 These functions return logical vectors the length of the ties
 in a network identifying which hold certain properties or positions in the network.
 \itemize{
-\item \code{tie_is_multiple()} marks ties that are multiples.
 \item \code{tie_is_loop()} marks ties that are loops.
-\item \code{tie_is_reciprocated()} marks ties that are mutual/reciprocated.
 \item \code{tie_is_feedback()} marks ties that are feedback arcs causing the network to not be acyclic.
 \item \code{tie_is_bridge()} marks ties that cut or act as articulation points in a network.
 \item \code{tie_is_path()} marks ties on a path from one node to another.
@@ -50,22 +47,32 @@ They are most useful in highlighting parts of the network that
 are particularly well- or poorly-connected.
 }
 \examples{
-tie_is_multiple(fict_marvel)
 tie_is_loop(fict_marvel)
-tie_is_reciprocated(ison_algebra)
 tie_is_feedback(ison_algebra)
 tie_is_bridge(ison_brandes)
 ison_adolescents \%>\%
   mutate_ties(route = tie_is_path(from = "Jane", to = 7)) 
-  #graphr(edge_colour = "route")
 }
 \seealso{
 Other marks: 
+\code{\link{mark_core}},
 \code{\link{mark_degree}},
 \code{\link{mark_diff}},
+\code{\link{mark_dyads}},
 \code{\link{mark_nodes}},
-\code{\link{mark_select}},
-\code{\link{mark_tie_select}},
+\code{\link{mark_select_node}},
+\code{\link{mark_select_tie}},
 \code{\link{mark_triangles}}
+
+Other tie: 
+\code{\link{mark_dyads}},
+\code{\link{mark_select_tie}},
+\code{\link{mark_triangles}},
+\code{\link{measure_broker_tie}},
+\code{\link{measure_centralities_between}},
+\code{\link{measure_centralities_close}},
+\code{\link{measure_centralities_degree}},
+\code{\link{measure_centralities_eigen}}
 }
 \concept{marks}
+\concept{tie}

@@ -18,15 +18,18 @@ net_by_upperbound(.data)
 For more information on the standard coercion possible,
 see \code{\link[manynet:manip_as]{manynet::as_tidygraph()}}.}
 }
+\value{
+A \code{network_measure} numeric score.
+}
 \description{
 These functions, together with \code{net_reciprocity()}, are used jointly to
 measure how hierarchical a network is:
 \itemize{
-\item \code{net_connectedness()} measures the proportion of dyads in the network
+\item \code{net_by_connectedness()} measures the proportion of dyads in the network
 that are reachable to one another,
 or the degree to which network is a single component.
-\item \code{net_efficiency()} measures the Krackhardt efficiency score.
-\item \code{net_upperbound()} measures the Krackhardt (least) upper bound score.
+\item \code{net_by_efficiency()} measures the Krackhardt efficiency score.
+\item \code{net_by_upperbound()} measures the Krackhardt (least) upper bound score.
 }
 }
 \examples{
@@ -51,24 +54,36 @@ Everett, Martin, and David Krackhardt. 2012.
 }
 \seealso{
 Other measures: 
-\code{\link{measure_assortativity}},
+\code{\link{measure_assort_net}},
+\code{\link{measure_assort_node}},
 \code{\link{measure_breadth}},
+\code{\link{measure_broker_node}},
+\code{\link{measure_broker_tie}},
 \code{\link{measure_brokerage}},
 \code{\link{measure_central_between}},
 \code{\link{measure_central_close}},
 \code{\link{measure_central_degree}},
 \code{\link{measure_central_eigen}},
+\code{\link{measure_centralisation_between}},
+\code{\link{measure_centralisation_close}},
+\code{\link{measure_centralisation_degree}},
+\code{\link{measure_centralisation_eigen}},
+\code{\link{measure_centralities_between}},
+\code{\link{measure_centralities_close}},
+\code{\link{measure_centralities_degree}},
+\code{\link{measure_centralities_eigen}},
 \code{\link{measure_closure}},
+\code{\link{measure_closure_node}},
 \code{\link{measure_cohesion}},
+\code{\link{measure_core}},
 \code{\link{measure_diffusion_infection}},
 \code{\link{measure_diffusion_net}},
 \code{\link{measure_diffusion_node}},
+\code{\link{measure_diverse_net}},
+\code{\link{measure_diverse_node}},
 \code{\link{measure_features}},
 \code{\link{measure_fragmentation}},
-\code{\link{measure_heterogeneity}},
-\code{\link{measure_holes}},
-\code{\link{measure_periods}},
-\code{\link{member_diffusion}}
+\code{\link{measure_periods}}
 
 Other hierarchy: 
 \code{\link{motif_hierarchy}}

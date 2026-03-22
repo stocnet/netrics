@@ -1,5 +1,4 @@
-#' Membership in components
-#' 
+#' Memberships in components
 #' @description 
 #'   These functions create a vector of nodes' memberships in components:
 #'   
@@ -21,9 +20,9 @@
 #'   Weakly connected components consist of subgraphs where there is a path
 #'   in either direction between member nodes.
 #'   
-#' @inheritParams mark_nodes
+#' @template param_data
+#' @template node_member
 #' @name member_components
-#' @family memberships
 NULL
 
 #' @rdname member_components 

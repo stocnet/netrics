@@ -3,6 +3,10 @@
 \name{defunct}
 \alias{defunct}
 \title{Functions that have been renamed, superseded, or are no longer working}
+\value{
+Results as expected
+along with a warning to use new function naming in the future.
+}
 \description{
 \ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#deprecated}{\figure{lifecycle-deprecated.svg}{options: alt='[Deprecated]'}}}{\strong{[Deprecated]}}
 Generally these functions have been superseded or renamed.

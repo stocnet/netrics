@@ -1,5 +1,4 @@
-#' Clique partitioning algorithms
-#' 
+#' Memberships in maximally diverse cliques
 #' @description 
 #'   These functions create a vector of nodes' memberships in
 #'   cliques:
@@ -28,9 +27,9 @@
 #'   It includes both weak and strong perturbations to an initial solution
 #'   to ensure that a robust solution from the broader state space is identified.
 #'   The user is referred to Lai and Hao (2016) and Lai et al (2021) for more details.
-#' @inheritParams mark_nodes
+#' @template param_data
+#' @template node_member
 #' @name member_cliques
-#' @family memberships
 NULL
 
 #' @rdname member_cliques

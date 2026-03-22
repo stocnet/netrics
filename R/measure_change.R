@@ -1,19 +1,13 @@
-# Change ####
+# Change measures ####
 
 #' Measures of network change
-#' @description
-#'   These functions measure certain topological features of networks:
-#'   
-#'   - `net_by_waves()` measures the number of waves in longitudinal network data.
-#'   - `net_by_change()` measures the Hamming distance between two or more networks.
-#'   - `net_by_stability()` measures the Jaccard index of stability between two or more networks.
-#'   - `net_by_correlation()` measures the product-moment correlation between two networks.
-#' 
-#'   These `net_*()` functions return a numeric vector the length of the number
-#'   of networks minus one. E.g., the periods between waves.
-#' @inheritParams mark_nodes
 #' @name measure_periods
-#' @family measures
+#' @description
+#'   `net_by_waves()` measures the number of waves in longitudinal network data.
+#' 
+#' @template param_data
+#' @family change
+#' @template net_measure
 NULL
 
 #' @rdname measure_periods 
@@ -29,10 +23,28 @@ net_by_waves <- function(.data){
                        .data, call = deparse(sys.call()))
 }
 
-#' @rdname measure_periods 
+# Change motifs ####
+
+#' Motifs of network change
+#' @name motif_periods
+#' @description
+#'   These functions measure certain topological features of networks:
+#'   
+#'   - `net_x_change()` measures the Hamming distance between two or more networks.
+#'   - `net_x_stability()` measures the Jaccard index of stability between two or more networks.
+#'   - `net_x_correlation()` measures the product-moment correlation between two networks.
+#' 
+#'   These `net_*()` functions return a numeric vector the length of the number
+#'   of networks minus one. E.g., the periods between waves.
+#' @template param_data
+#' @family change
+#' @template net_motif
+NULL
+
+#' @rdname motif_periods 
 #' @param object2 A network object.
 #' @export
-net_by_change <- function(.data, object2){
+net_x_change <- function(.data, object2){
   net <- manynet::expect_nodes(.data)
   if(!missing(object2)){
     net <- list(net, object2)
@@ -47,12 +59,12 @@ net_by_change <- function(.data, object2){
     net2 <- manynet::as_matrix(net[[x+1]])
     sum(net1 != net2)
   }, FUN.VALUE = numeric(1))
-  make_network_measure(out, .data, call = deparse(sys.call()))
+  make_network_motif(out, .data)
 }
 
-#' @rdname measure_periods 
+#' @rdname motif_periods 
 #' @export
-net_by_stability <- function(.data, object2){
+net_x_stability <- function(.data, object2){
   net <- manynet::expect_nodes(.data)
   if(!missing(object2)){
     net <- list(net, object2)
@@ -70,12 +82,12 @@ net_by_stability <- function(.data, object2){
     n10 <- sum(net1 * net2==0)
     n11 / (n01 + n10 + n11)
   }, FUN.VALUE = numeric(1))
-  make_network_measure(out, .data, call = deparse(sys.call()))
+  make_network_motif(out, .data)
 }
 
-#' @rdname measure_periods 
+#' @rdname motif_periods 
 #' @export
-net_by_correlation <- function(.data, object2){
+net_x_correlation <- function(.data, object2){
   .data <- manynet::expect_nodes(.data)
   comp1 <- manynet::as_matrix(.data)
   comp2 <- manynet::as_matrix(object2)
@@ -86,5 +98,5 @@ net_by_correlation <- function(.data, object2){
     comp1[upper.tri(comp1)] <- NA
   }
   out <- cor(c(comp1), c(comp2), use = "complete.obs")
-  make_network_measure(out, .data, call = deparse(sys.call()))
+  make_network_motif(out, .data)
 }

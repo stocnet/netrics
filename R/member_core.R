@@ -1,24 +1,20 @@
-#' Core-periphery clustering algorithms
+# Marking core ####
+
+#' Marking nodes as core or periphery
+#' @name mark_core
 #' @description
-#'   These functions identify nodes belonging to (some level of) the core of a network:
-#'   
-#'   - `node_is_core()` identifies whether nodes belong to the core of the 
+#'   `node_is_core()` identifies whether nodes belong to the core of the 
 #'   network, as opposed to the periphery.
-#'   - `node_in_core()` categorizes nodes into two or more core/periphery
-#'   categories based on their coreness.
-#'   - `node_coreness()` returns a continuous measure of how closely each node
-#'   resembles a typical core node.
-#'   - `node_kcoreness()` assigns nodes to their level of k-coreness.
 #' 
-#' @inheritParams mark_nodes
-#' @param method Which method to use to identify cores and periphery.
+#' @template param_data
+#' @family core-periphery
+#' @template node_mark
+#' @param centrality Which centrality measure to use to identify cores and periphery.
 #'   By default this is "degree", 
 #'   which relies on the heuristic that high degree nodes are more likely to be in the core.
 #'   An alternative is "eigenvector", which instead begins with high eigenvector nodes.
 #'   Other methods, such as a genetic algorithm, CONCOR, and Rombach-Porter,
 #'   can be added if there is interest.
-#' @name mark_core
-#' @family memberships
 NULL
 
 #' @rdname mark_core
@@ -45,18 +41,17 @@ NULL
 #' \doi{10.48550/arXiv.1102.5511}
 #' @examples 
 #' node_is_core(ison_adolescents)
-#' #ison_adolescents %>% 
-#' #   mutate(corep = node_is_core()) %>% 
-#' #   graphr(node_color = "corep")
+#' ison_adolescents %>% 
+#'    mutate(corep = node_is_core())
 #' @export
-node_is_core <- function(.data, method = c("degree", "eigenvector")){
+node_is_core <- function(.data, centrality = c("degree", "eigenvector")){
   .data <- manynet::expect_nodes(.data)
-  method <- match.arg(method)
+  centrality <- match.arg(centrality)
   if(manynet::is_directed(.data)) warning("Asymmetric core-periphery not yet implemented.")
-  if(method == "degree"){
+  if(centrality == "degree"){
     degi <- node_by_degree(.data, normalized = FALSE, 
-                        alpha = ifelse(manynet::is_weighted(.data), 1, 0))
-  } else if (method == "eigenvector") {
+                           alpha = ifelse(manynet::is_weighted(.data), 1, 0))
+  } else if (centrality == "eigenvector") {
     degi <- node_by_eigenvector(.data, normalized = FALSE)
   } else manynet::snet_abort("This function expects either 'degree' or 'eigenvector' method to be specified.")
   nord <- order(degi, decreasing = TRUE)
@@ -71,11 +66,27 @@ node_is_core <- function(.data, method = c("degree", "eigenvector")){
     }
   }
   out <- ifelse(seq_len(manynet::net_nodes(.data)) %in% nord[seq_len(kbest)],
-         1,2)
+                1,2)
   make_node_mark(out==1, .data)
 }
 
-#' @rdname mark_core
+# Measuring core ####
+
+#' Measuring nodes' coreness
+#' @name measure_core
+#' @description
+#'   These functions identify nodes belonging to (some level of) the core of a network:
+#'   
+#'   - `node_by_coreness()` returns a continuous measure of how closely each node
+#'   resembles a typical core node.
+#'   - `node_by_kcoreness()` assigns nodes to their level of k-coreness.
+#' 
+#' @template param_data
+#' @family core-periphery
+#' @template node_measure
+NULL
+
+#' @rdname measure_core
 #' @section k-coreness:
 #'   k-coreness captures the maximal subgraphs in which each vertex has at least
 #'   degree _k_, where _k_ is also the order of the subgraph.
@@ -103,7 +114,7 @@ node_by_kcoreness <- function(.data){
   make_node_measure(out, .data)
 }
 
-#' @rdname mark_core
+#' @rdname measure_core
 #' @examples
 #' node_by_coreness(ison_adolescents)
 #' @export
@@ -124,7 +135,20 @@ node_by_coreness <- function(.data) {
   make_node_measure(result$par, .data)
 }
 
-#' @rdname mark_core
+# Membering core ####
+
+#' Memberships in core-periphery categories
+#' @name member_core
+#' @description
+#'   `node_in_core()` categorizes nodes into two or more core/periphery
+#'   categories based on their coreness.
+#' 
+#' @template param_data
+#' @family core-periphery
+#' @template node_member
+NULL
+
+#' @rdname member_core
 #' @param groups Number of categories to create. Must be at least 2 and at most
 #'   the number of nodes in the network. Default is 3.
 #' @param cluster_by Method to use to create the categories.

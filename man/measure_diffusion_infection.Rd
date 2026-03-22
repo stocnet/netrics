@@ -19,24 +19,28 @@ as created by \code{play_diffusion()},
 or a valid network diffusion model,
 as created by \code{as_diffusion()}.}
 
-\item{normalized}{Logical scalar, whether the centrality scores are normalized.
-Different denominators are used depending on whether the object is one-mode or two-mode,
-the type of centrality, and other arguments.}
+\item{normalized}{Logical scalar, whether scores are normalized.
+Different denominators may be used depending on the measure,
+whether the object is one-mode or two-mode, and other arguments.
+By default TRUE.}
+}
+\value{
+A \code{network_measure} numeric score.
 }
 \description{
 These functions allow measurement of various features of
 a diffusion process at the network level:
 \itemize{
-\item \code{net_infection_complete()} measures the number of time steps until
+\item \code{net_by_infection_complete()} measures the number of time steps until
 (the first instance of) complete infection.
 For diffusions that are not observed to complete,
 this function returns the value of \code{Inf} (infinity).
 This makes sure that at least ordinality is respected.
-\item \code{net_infection_total()} measures the proportion or total number of nodes
+\item \code{net_by_infection_total()} measures the proportion or total number of nodes
 that are infected/activated at some time by the end of the diffusion process.
 This includes nodes that subsequently recover.
 Where reinfection is possible, the proportion may be higher than 1.
-\item \code{net_infection_peak()} measures the number of time steps until the
+\item \code{net_by_infection_peak()} measures the number of time steps until the
 highest infection rate is observed.
 }
 }
@@ -48,32 +52,45 @@ highest infection rate is observed.
   net_by_infection_peak(smeg_diff)
 }
 \seealso{
-Other measures: 
-\code{\link{measure_assortativity}},
-\code{\link{measure_breadth}},
-\code{\link{measure_brokerage}},
-\code{\link{measure_central_between}},
-\code{\link{measure_central_close}},
-\code{\link{measure_central_degree}},
-\code{\link{measure_central_eigen}},
-\code{\link{measure_closure}},
-\code{\link{measure_cohesion}},
-\code{\link{measure_diffusion_net}},
-\code{\link{measure_diffusion_node}},
-\code{\link{measure_features}},
-\code{\link{measure_fragmentation}},
-\code{\link{measure_heterogeneity}},
-\code{\link{measure_hierarchy}},
-\code{\link{measure_holes}},
-\code{\link{measure_periods}},
-\code{\link{member_diffusion}}
-
 Other diffusion: 
 \code{\link{mark_diff}},
 \code{\link{measure_diffusion_net}},
 \code{\link{measure_diffusion_node}},
 \code{\link{member_diffusion}},
-\code{\link{motif_diffusion}}
+\code{\link{motif_exposure}},
+\code{\link{motif_hazard}}
+
+Other measures: 
+\code{\link{measure_assort_net}},
+\code{\link{measure_assort_node}},
+\code{\link{measure_breadth}},
+\code{\link{measure_broker_node}},
+\code{\link{measure_broker_tie}},
+\code{\link{measure_brokerage}},
+\code{\link{measure_central_between}},
+\code{\link{measure_central_close}},
+\code{\link{measure_central_degree}},
+\code{\link{measure_central_eigen}},
+\code{\link{measure_centralisation_between}},
+\code{\link{measure_centralisation_close}},
+\code{\link{measure_centralisation_degree}},
+\code{\link{measure_centralisation_eigen}},
+\code{\link{measure_centralities_between}},
+\code{\link{measure_centralities_close}},
+\code{\link{measure_centralities_degree}},
+\code{\link{measure_centralities_eigen}},
+\code{\link{measure_closure}},
+\code{\link{measure_closure_node}},
+\code{\link{measure_cohesion}},
+\code{\link{measure_core}},
+\code{\link{measure_diffusion_net}},
+\code{\link{measure_diffusion_node}},
+\code{\link{measure_diverse_net}},
+\code{\link{measure_diverse_node}},
+\code{\link{measure_features}},
+\code{\link{measure_fragmentation}},
+\code{\link{measure_hierarchy}},
+\code{\link{measure_periods}}
 }
 \concept{diffusion}
 \concept{measures}
