@@ -28,7 +28,7 @@ node_is_neighbor() marks nodes that are neighbours of a given node.
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">netrics</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.1.0</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.2.0</span>
       </span>
     </div>
 
@@ -118,6 +118,12 @@ described in Valente and Davis (1999).</p></dd>
 <dd><p>A node ID or name for which neighbors are to be marked.</p></dd>
 
 </dl></div>
+    <div id="value">
+    <h2>Value</h2>
+    <p>A <code>node_mark</code> logical vector the length of the nodes in the network,
+giving either TRUE or FALSE for each node depending on
+whether the condition is matched.</p>
+    </div>
     <div id="references">
     <h2>References</h2>
 
@@ -164,12 +170,43 @@ described in Valente and Davis (1999).</p></dd>
     <div id="see-also">
     <h2>See also</h2>
     <div class="dont-index"><p>Other marks:
+<code><a href="mark_core.html">mark_core</a></code>,
 <code><a href="mark_degree.html">mark_degree</a></code>,
 <code><a href="mark_diff.html">mark_diff</a></code>,
-<code><a href="mark_select.html">mark_select</a></code>,
-<code><a href="mark_tie_select.html">mark_tie_select</a></code>,
+<code><a href="mark_dyads.html">mark_dyads</a></code>,
+<code><a href="mark_select_node.html">mark_select_node</a></code>,
+<code><a href="mark_select_tie.html">mark_select_tie</a></code>,
 <code><a href="mark_ties.html">mark_ties</a></code>,
-<code><a href="mark_triangles.html">mark_triangles</a></code></p></div>
+<code><a href="mark_triangles.html">mark_triangles</a></code></p>
+<p>Other nodal:
+<code><a href="mark_core.html">mark_core</a></code>,
+<code><a href="mark_degree.html">mark_degree</a></code>,
+<code><a href="mark_diff.html">mark_diff</a></code>,
+<code><a href="mark_select_node.html">mark_select_node</a></code>,
+<code><a href="measure_assort_node.html">measure_assort_node</a></code>,
+<code><a href="measure_broker_node.html">measure_broker_node</a></code>,
+<code><a href="measure_brokerage.html">measure_brokerage</a></code>,
+<code><a href="measure_central_between.html">measure_central_between</a></code>,
+<code><a href="measure_central_close.html">measure_central_close</a></code>,
+<code><a href="measure_central_degree.html">measure_central_degree</a></code>,
+<code><a href="measure_central_eigen.html">measure_central_eigen</a></code>,
+<code><a href="measure_closure_node.html">measure_closure_node</a></code>,
+<code><a href="measure_core.html">measure_core</a></code>,
+<code><a href="measure_diffusion_node.html">measure_diffusion_node</a></code>,
+<code><a href="measure_diverse_node.html">measure_diverse_node</a></code>,
+<code><a href="member_brokerage.html">member_brokerage</a></code>,
+<code><a href="member_cliques.html">member_cliques</a></code>,
+<code><a href="member_community.html">member_community</a></code>,
+<code><a href="member_community_hier.html">member_community_hier</a></code>,
+<code><a href="member_community_non.html">member_community_non</a></code>,
+<code><a href="member_components.html">member_components</a></code>,
+<code><a href="member_core.html">member_core</a></code>,
+<code><a href="member_diffusion.html">member_diffusion</a></code>,
+<code><a href="member_equivalence.html">member_equivalence</a></code>,
+<code><a href="motif_brokerage_node.html">motif_brokerage_node</a></code>,
+<code><a href="motif_exposure.html">motif_exposure</a></code>,
+<code><a href="motif_node.html">motif_node</a></code>,
+<code><a href="motif_path.html">motif_path</a></code></p></div>
     </div>
 
     <div id="ref-examples">

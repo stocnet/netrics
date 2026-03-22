@@ -29,7 +29,7 @@ are cohesively connected."><meta property="og:image" content="https://stocnet.gi
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">netrics</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.1.0</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.2.0</span>
       </span>
     </div>
 
@@ -103,19 +103,38 @@ For more information on the standard coercion possible,
 see <code><a href="https://stocnet.github.io/manynet/reference/manip_as.html" class="external-link">manynet::as_tidygraph()</a></code>.</p></dd>
 
 </dl></div>
+    <div id="value">
+    <h2>Value</h2>
+    <p>A <code>tie_mark</code> logical vector the length of the ties in the network,
+giving either TRUE or FALSE for each tie depending on
+whether the condition is matched.</p>
+    </div>
     <div id="see-also">
     <h2>See also</h2>
     <div class="dont-index"><p>Other marks:
+<code><a href="mark_core.html">mark_core</a></code>,
 <code><a href="mark_degree.html">mark_degree</a></code>,
 <code><a href="mark_diff.html">mark_diff</a></code>,
+<code><a href="mark_dyads.html">mark_dyads</a></code>,
 <code><a href="mark_nodes.html">mark_nodes</a></code>,
-<code><a href="mark_select.html">mark_select</a></code>,
-<code><a href="mark_tie_select.html">mark_tie_select</a></code>,
+<code><a href="mark_select_node.html">mark_select_node</a></code>,
+<code><a href="mark_select_tie.html">mark_select_tie</a></code>,
 <code><a href="mark_ties.html">mark_ties</a></code></p>
+<p>Other tie:
+<code><a href="mark_dyads.html">mark_dyads</a></code>,
+<code><a href="mark_select_tie.html">mark_select_tie</a></code>,
+<code><a href="mark_ties.html">mark_ties</a></code>,
+<code><a href="measure_broker_tie.html">measure_broker_tie</a></code>,
+<code><a href="measure_centralities_between.html">measure_centralities_between</a></code>,
+<code><a href="measure_centralities_close.html">measure_centralities_close</a></code>,
+<code><a href="measure_centralities_degree.html">measure_centralities_degree</a></code>,
+<code><a href="measure_centralities_eigen.html">measure_centralities_eigen</a></code></p>
 <p>Other cohesion:
 <code><a href="measure_breadth.html">measure_breadth</a></code>,
 <code><a href="measure_cohesion.html">measure_cohesion</a></code>,
-<code><a href="measure_fragmentation.html">measure_fragmentation</a></code></p></div>
+<code><a href="measure_fragmentation.html">measure_fragmentation</a></code>,
+<code><a href="motif_net.html">motif_net</a></code>,
+<code><a href="motif_node.html">motif_node</a></code></p></div>
     </div>
 
     <div id="ref-examples">
@@ -151,7 +170,6 @@ see <code><a href="https://stocnet.github.io/manynet/reference/manip_as.html" cl
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">6</span>     1     5      3     3 TRUE      </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># ℹ 162 more rows</span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-in"><span>  <span class="co">#graphr(edge_color = "tri")</span></span></span>
 <span class="r-in"><span><span class="va">ison_adolescents</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span> <span class="fu">to_directed</span><span class="op">(</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span> </span></span>
 <span class="r-in"><span>  <span class="fu">mutate_ties</span><span class="op">(</span>trans <span class="op">=</span> <span class="fu">tie_is_transitive</span><span class="op">(</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">──</span> <span style="font-weight: bold;"># The Adolescent Society</span> <span style="color: #00BBBB;">────────────────────────────────────────────────────</span></span>
@@ -182,7 +200,6 @@ see <code><a href="https://stocnet.github.io/manynet/reference/manip_as.html" cl
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">6</span>     5     4 TRUE      </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># ℹ 4 more rows</span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-in"><span>  <span class="co">#graphr(edge_color = "trans")</span></span></span>
 <span class="r-in"><span><span class="va">ison_adolescents</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span> <span class="fu">to_directed</span><span class="op">(</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span> </span></span>
 <span class="r-in"><span>  <span class="fu">mutate_ties</span><span class="op">(</span>trip <span class="op">=</span> <span class="fu">tie_is_triplet</span><span class="op">(</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">──</span> <span style="font-weight: bold;"># The Adolescent Society</span> <span style="color: #00BBBB;">────────────────────────────────────────────────────</span></span>
@@ -213,7 +230,6 @@ see <code><a href="https://stocnet.github.io/manynet/reference/manip_as.html" cl
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">6</span>     4     5 FALSE     </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># ℹ 4 more rows</span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-in"><span>  <span class="co">#graphr(edge_color = "trip")</span></span></span>
 <span class="r-in"><span><span class="va">ison_adolescents</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span> <span class="fu">to_directed</span><span class="op">(</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span> </span></span>
 <span class="r-in"><span>  <span class="fu">mutate_ties</span><span class="op">(</span>cyc <span class="op">=</span> <span class="fu">tie_is_cyclical</span><span class="op">(</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">──</span> <span style="font-weight: bold;"># The Adolescent Society</span> <span style="color: #00BBBB;">────────────────────────────────────────────────────</span></span>
@@ -244,7 +260,6 @@ see <code><a href="https://stocnet.github.io/manynet/reference/manip_as.html" cl
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">6</span>     5     4 FALSE     </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># ℹ 4 more rows</span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-in"><span>  <span class="co">#graphr(edge_color = "cyc")</span></span></span>
 <span class="r-in"><span><span class="va">ison_monks</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span> <span class="fu">to_uniplex</span><span class="op">(</span><span class="st">"like"</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span> </span></span>
 <span class="r-in"><span>  <span class="fu">mutate_ties</span><span class="op">(</span>simmel <span class="op">=</span> <span class="fu">tie_is_simmelian</span><span class="op">(</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">──</span> <span style="font-weight: bold;"># Sampson's Monks</span> <span style="color: #00BBBB;">───────────────────────────────────────────────────────────</span></span>
@@ -275,7 +290,6 @@ see <code><a href="https://stocnet.github.io/manynet/reference/manip_as.html" cl
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">6</span>     1     5      3     3 FALSE     </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># ℹ 162 more rows</span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-in"><span>  <span class="co">#graphr(edge_color = "simmel")</span></span></span>
 <span class="r-in"><span><span class="va">fict_marvel</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span> <span class="fu">to_uniplex</span><span class="op">(</span><span class="st">"relationship"</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span> <span class="fu">tie_is_imbalanced</span><span class="op">(</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   `Abomination-Abomination` `Abomination-Beast` `Abomination-Colossus`</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">1</span> TRUE                      FALSE               FALSE                 </span>
