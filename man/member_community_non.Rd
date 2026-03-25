@@ -51,9 +51,6 @@ then the assignments will be labelled with the nodes' names.
 These functions offer algorithms for partitioning
 networks into sets of communities:
 \itemize{
-\item \code{node_in_community()} runs either optimal or, for larger networks,
-finds the algorithm that maximises modularity and returns that membership
-vector.
 \item \code{node_in_optimal()} is a problem-solving algorithm that seeks to maximise
 modularity over all possible partitions.
 \item \code{node_in_partition()} is a greedy, iterative, deterministic
@@ -79,6 +76,19 @@ The general idea is to calculate the modularity of all possible partitions,
 and choose the community structure that maximises this modularity measure.
 Note that this is an NP-complete problem with exponential time complexity.
 The guidance in the igraph package is networks of <50-200 nodes is probably fine.
+}
+
+\section{Partition}{
+
+The general idea is to assign nodes to two groups, and then iteratively
+swap pairs of nodes (one from each group) that give a positive sum of net tie costs,
+where the net tie cost of a node is the difference between the sum
+of the weights of ties to nodes in the other group (external costs) and
+the sum of the weights of ties to nodes in the same group (internal costs).
+This is a deterministic algorithm that will always return the same partition
+for a given network, but it is not guaranteed to maximise modularity.
+Note that this algorithm is only applicable to undirected, unipartite networks,
+and will always return two communities of equal size (or as close to equal as possible).
 }
 
 \section{Infomap}{

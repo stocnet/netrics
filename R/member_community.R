@@ -63,6 +63,31 @@ node_in_community <- function(.data){
   }
 }
 
+# #' @rdname member_community_hier 
+# #' @section Ensemble:
+# #'   Ensemble-based community detection runs community detection
+# #'   algorithms over multilayer or multiplex networks.
+# #' @references
+# #' ## On ensemble-based community detection
+# #' Tagarelli, Andrea, Alessia Amelio, and Francesco Gullo. 2017.
+# #' "Ensemble-based Community Detection in Multilayer Networks".
+# #' _Data Mining and Knowledge Discovery_, 31: 1506-1543.
+# #' \doi{10.1007/s10618-017-0528-8}
+# #' @examples
+# #' node_in_ensemble(ison_adolescents)
+# #' @export
+# node_in_ensemble <- function(.data, linkage_constraint = TRUE){
+#   if(missing(.data)) {expect_nodes(); .data <- .G()}
+#   clust <- igraph::cluster_walktrap(manynet::as_igraph(.data))
+#   out <- clust$membership
+#   make_node_member(out, .data)
+#   out <- make_node_member(out, .data)
+#   attr(out, "hc") <- stats::as.hclust(clust, 
+#                                       use.modularity = igraph::is_connected(.data))
+#   attr(out, "k") <- max(clust$membership)
+#   out
+# }
+
 # Non-hierarchical community clustering ####
 
 #' Memberships in non-hierarchical communities
@@ -71,9 +96,6 @@ node_in_community <- function(.data){
 #'   These functions offer algorithms for partitioning
 #'   networks into sets of communities:
 #' 
-#'   - `node_in_community()` runs either optimal or, for larger networks, 
-#'   finds the algorithm that maximises modularity and returns that membership
-#'   vector.
 #'   - `node_in_optimal()` is a problem-solving algorithm that seeks to maximise 
 #'   modularity over all possible partitions.
 #'   - `node_in_partition()` is a greedy, iterative, deterministic
@@ -122,6 +144,16 @@ node_in_optimal <- function(.data){
 }
 
 #' @rdname member_community_non 
+#' @section Partition:
+#'   The general idea is to assign nodes to two groups, and then iteratively 
+#'   swap pairs of nodes (one from each group) that give a positive sum of net tie costs,
+#'   where the net tie cost of a node is the difference between the sum 
+#'   of the weights of ties to nodes in the other group (external costs) and 
+#'   the sum of the weights of ties to nodes in the same group (internal costs).
+#'   This is a deterministic algorithm that will always return the same partition 
+#'   for a given network, but it is not guaranteed to maximise modularity.
+#'   Note that this algorithm is only applicable to undirected, unipartite networks, 
+#'   and will always return two communities of equal size (or as close to equal as possible).
 #' @references
 #' ## On partitioning community detection
 #' Kernighan, Brian W., and Shen Lin. 1970.
@@ -182,7 +214,8 @@ node_in_partition <- function(.data){
 #' @section Infomap:
 #'   Motivated by information theoretic principles, this algorithm tries to build 
 #'   a grouping that provides the shortest description length for a random walk,
-#'   where the description length is measured by the expected number of bits per node required to encode the path.
+#'   where the description length is measured by the expected number of bits 
+#'   per node required to encode the path.
 #' @param times Integer indicating number of simulations/walks used.
 #'   By default, `times=50`.
 #' @references
@@ -520,27 +553,3 @@ node_in_walktrap <- function(.data, times = 50){
   out
 }
 
-# #' @rdname member_community_hier 
-# #' @section Ensemble:
-# #'   Ensemble-based community detection runs community detection
-# #'   algorithms over multilayer or multiplex networks.
-# #' @references
-# #' ## On ensemble-based community detection
-# #' Tagarelli, Andrea, Alessia Amelio, and Francesco Gullo. 2017.
-# #' "Ensemble-based Community Detection in Multilayer Networks".
-# #' _Data Mining and Knowledge Discovery_, 31: 1506-1543.
-# #' \doi{10.1007/s10618-017-0528-8}
-# #' @examples
-# #' node_in_ensemble(ison_adolescents)
-# #' @export
-# node_in_ensemble <- function(.data, linkage_constraint = TRUE){
-#   if(missing(.data)) {expect_nodes(); .data <- .G()}
-#   clust <- igraph::cluster_walktrap(manynet::as_igraph(.data))
-#   out <- clust$membership
-#   make_node_member(out, .data)
-#   out <- make_node_member(out, .data)
-#   attr(out, "hc") <- stats::as.hclust(clust, 
-#                                       use.modularity = igraph::is_connected(.data))
-#   attr(out, "k") <- max(clust$membership)
-#   out
-# }
