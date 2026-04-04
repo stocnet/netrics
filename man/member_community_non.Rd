@@ -28,7 +28,7 @@ node_in_leiden(.data, resolution = 1)
 \arguments{
 \item{.data}{A network object of class \code{mnet}, \code{igraph}, \code{tbl_graph}, \code{network}, or similar.
 For more information on the standard coercion possible,
-see \code{\link[manynet:manip_as]{manynet::as_tidygraph()}}.}
+see \code{\link[manynet:coerce_graph]{manynet::as_tidygraph()}}.}
 
 \item{times}{Integer indicating number of simulations/walks used.
 By default, \code{times=50}.}
@@ -95,7 +95,8 @@ and will always return two communities of equal size (or as close to equal as po
 
 Motivated by information theoretic principles, this algorithm tries to build
 a grouping that provides the shortest description length for a random walk,
-where the description length is measured by the expected number of bits per node required to encode the path.
+where the description length is measured by the expected number of bits
+per node required to encode the path.
 }
 
 \section{Spin-glass}{

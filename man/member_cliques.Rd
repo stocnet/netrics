@@ -10,7 +10,7 @@ node_in_roulette(.data, num_groups, group_size, times = NULL)
 \arguments{
 \item{.data}{A network object of class \code{mnet}, \code{igraph}, \code{tbl_graph}, \code{network}, or similar.
 For more information on the standard coercion possible,
-see \code{\link[manynet:manip_as]{manynet::as_tidygraph()}}.}
+see \code{\link[manynet:coerce_graph]{manynet::as_tidygraph()}}.}
 
 \item{num_groups}{An integer indicating the number of groups desired.}
 

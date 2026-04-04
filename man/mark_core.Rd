@@ -10,7 +10,7 @@ node_is_core(.data, centrality = c("degree", "eigenvector"))
 \arguments{
 \item{.data}{A network object of class \code{mnet}, \code{igraph}, \code{tbl_graph}, \code{network}, or similar.
 For more information on the standard coercion possible,
-see \code{\link[manynet:manip_as]{manynet::as_tidygraph()}}.}
+see \code{\link[manynet:coerce_graph]{manynet::as_tidygraph()}}.}
 
 \item{centrality}{Which centrality measure to use to identify cores and periphery.
 By default this is "degree",
