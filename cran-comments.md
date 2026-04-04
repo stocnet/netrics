@@ -9,4 +9,6 @@
 
 0 errors | 0 warnings | 0 notes
 
-- Updates to bring netrics into line with latest version of manynet (> v2.0.0)
+- While last package submission was only 9 days ago:
+  - Updates to bring netrics into line with latest version of manynet (> v2.0.0)
+  - Fixes a reverse dependency issue in cross-package documentation referencing
