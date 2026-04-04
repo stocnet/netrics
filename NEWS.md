@@ -1,3 +1,13 @@
+# netrics 0.2.1
+
+## Package
+
+- Added network analysis tutorials from `{manynet}`
+
+## Members
+
+- Added more explanation for `node_in_partition()`
+
 # netrics 0.2.0
 
 ## Package
