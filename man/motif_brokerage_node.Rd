@@ -10,7 +10,7 @@ node_x_brokerage(.data, membership, standardized = FALSE)
 \arguments{
 \item{.data}{A network object of class \code{mnet}, \code{igraph}, \code{tbl_graph}, \code{network}, or similar.
 For more information on the standard coercion possible,
-see \code{\link[manynet:manip_as]{manynet::as_tidygraph()}}.}
+see \code{\link[manynet:coerce_graph]{manynet::as_tidygraph()}}.}
 
 \item{membership}{A character string naming an existing node attribute in
 the network, or a categorical vector of the same length as the number of

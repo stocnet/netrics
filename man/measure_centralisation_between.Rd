@@ -10,7 +10,7 @@ net_by_betweenness(.data, normalized = TRUE, direction = c("all", "out", "in"))
 \arguments{
 \item{.data}{A network object of class \code{mnet}, \code{igraph}, \code{tbl_graph}, \code{network}, or similar.
 For more information on the standard coercion possible,
-see \code{\link[manynet:manip_as]{manynet::as_tidygraph()}}.}
+see \code{\link[manynet:coerce_graph]{manynet::as_tidygraph()}}.}
 
 \item{normalized}{Logical scalar, whether scores are normalized.
 Different denominators may be used depending on the measure,
@@ -30,7 +30,7 @@ A \code{network_measure} numeric score.
 All measures attempt to use as much information as they are offered,
 including whether the networks are directed, weighted, or multimodal.
 If this would produce unintended results,
-first transform the salient properties using e.g. \code{\link[manynet:manip_direction]{manynet::to_undirected()}} functions.
+first transform the salient properties using e.g. \code{\link[manynet:modif_direction]{manynet::to_undirected()}} functions.
 All centrality and centralization measures return normalized measures by default,
 including for two-mode networks.
 }

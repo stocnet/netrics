@@ -9,7 +9,6 @@
 
 0 errors | 0 warnings | 0 notes
 
-- There are no references describing all methods in this package,
-but the documentation files for each set of functions are complete and include examples.
-- The use of cat() in one function has been avoided.
-- All user-facing functions now have return values specified in their documentation.
+- While last package submission was only 9 days ago:
+  - Updates to bring netrics into line with latest version of manynet (> v2.0.0)
+  - Fixes a reverse dependency issue in cross-package documentation referencing

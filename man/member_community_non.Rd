@@ -28,7 +28,7 @@ node_in_leiden(.data, resolution = 1)
 \arguments{
 \item{.data}{A network object of class \code{mnet}, \code{igraph}, \code{tbl_graph}, \code{network}, or similar.
 For more information on the standard coercion possible,
-see \code{\link[manynet:manip_as]{manynet::as_tidygraph()}}.}
+see \code{\link[manynet:coerce_graph]{manynet::as_tidygraph()}}.}
 
 \item{times}{Integer indicating number of simulations/walks used.
 By default, \code{times=50}.}
@@ -51,9 +51,6 @@ then the assignments will be labelled with the nodes' names.
 These functions offer algorithms for partitioning
 networks into sets of communities:
 \itemize{
-\item \code{node_in_community()} runs either optimal or, for larger networks,
-finds the algorithm that maximises modularity and returns that membership
-vector.
 \item \code{node_in_optimal()} is a problem-solving algorithm that seeks to maximise
 modularity over all possible partitions.
 \item \code{node_in_partition()} is a greedy, iterative, deterministic
@@ -81,11 +78,25 @@ Note that this is an NP-complete problem with exponential time complexity.
 The guidance in the igraph package is networks of <50-200 nodes is probably fine.
 }
 
+\section{Partition}{
+
+The general idea is to assign nodes to two groups, and then iteratively
+swap pairs of nodes (one from each group) that give a positive sum of net tie costs,
+where the net tie cost of a node is the difference between the sum
+of the weights of ties to nodes in the other group (external costs) and
+the sum of the weights of ties to nodes in the same group (internal costs).
+This is a deterministic algorithm that will always return the same partition
+for a given network, but it is not guaranteed to maximise modularity.
+Note that this algorithm is only applicable to undirected, unipartite networks,
+and will always return two communities of equal size (or as close to equal as possible).
+}
+
 \section{Infomap}{
 
 Motivated by information theoretic principles, this algorithm tries to build
 a grouping that provides the shortest description length for a random walk,
-where the description length is measured by the expected number of bits per node required to encode the path.
+where the description length is measured by the expected number of bits
+per node required to encode the path.
 }
 
 \section{Spin-glass}{
