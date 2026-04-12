@@ -37,7 +37,7 @@ against only the centrality scores of the other nodes in that mode."><meta prope
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">netrics</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.2.0</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.2.1</span>
       </span>
     </div>
 
@@ -83,7 +83,7 @@ there are several related shortcut functions:</p><ul><li><p><code>net_by_indegre
 </ul><p>All measures attempt to use as much information as they are offered,
 including whether the networks are directed, weighted, or multimodal.
 If this would produce unintended results,
-first transform the salient properties using e.g. <code><a href="https://stocnet.github.io/manynet/reference/manip_direction.html" class="external-link">manynet::to_undirected()</a></code> functions.
+first transform the salient properties using e.g. <code><a href="https://stocnet.github.io/manynet/reference/modif_direction.html" class="external-link">manynet::to_undirected()</a></code> functions.
 All centrality and centralization measures return normalized measures
 by default, including for two-mode networks.</p>
 <p>For two-mode networks, "all" uses as numerator the sum of differences
@@ -109,7 +109,7 @@ against only the centrality scores of the other nodes in that mode.</p>
 <dl><dt id="arg--data">.data<a class="anchor" aria-label="anchor" href="#arg--data"></a></dt>
 <dd><p>A network object of class <code>mnet</code>, <code>igraph</code>, <code>tbl_graph</code>, <code>network</code>, or similar.
 For more information on the standard coercion possible,
-see <code><a href="https://stocnet.github.io/manynet/reference/manip_as.html" class="external-link">manynet::as_tidygraph()</a></code>.</p></dd>
+see <code><a href="https://stocnet.github.io/manynet/reference/coerce_graph.html" class="external-link">manynet::as_tidygraph()</a></code>.</p></dd>
 
 
 <dt id="arg-normalized">normalized<a class="anchor" aria-label="anchor" href="#arg-normalized"></a></dt>
