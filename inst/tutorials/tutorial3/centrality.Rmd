@@ -134,7 +134,7 @@ rowSums(mat) == colSums(mat)
 
 ```{r degreesum-hint-2, purl = FALSE}
 # Or by using a built in command in manynet like this:
-node_degree(ison_brandes, normalized = FALSE)
+node_by_degree(ison_brandes, normalized = FALSE)
 ```
 
 ```{r degreesum-solution}
@@ -143,7 +143,7 @@ mat <- as_matrix(ison_brandes)
 degrees <- rowSums(mat)
 rowSums(mat) == colSums(mat)
 # You can also just use a built in command in manynet though:
-node_degree(ison_brandes, normalized = FALSE)
+node_by_degree(ison_brandes, normalized = FALSE)
 ```
 
 ```{r degreesum-Q, echo=FALSE, purl = FALSE}
@@ -184,7 +184,7 @@ though there are more elaborate ways to do this in base and grid graphics.
 
 ```{r distrib-solution}
 # distribution of degree centrality scores of nodes
-plot(node_degree(ison_brandes))
+plot(node_by_degree(ison_brandes))
 ```
 
 What's plotted here by default is both the degree distribution as a histogram,
@@ -218,7 +218,7 @@ question("What can the degree distribution tell us?",
 ## Other centralities
 
 Other measures of centrality can be a little trickier to calculate by hand.
-Fortunately, we can use functions from `{manynet}` to help calculate the
+Fortunately, we can use functions from `{netrics}` to help calculate the
 `r gloss("betweenness")`, `r gloss("closeness")`, and `r gloss("eigenvector")` centralities for each node in the network.
 Let's collect the vectors of these centralities for the `ison_brandes` dataset:
 
@@ -227,27 +227,27 @@ Let's collect the vectors of these centralities for the `ison_brandes` dataset:
 ```
 
 ```{r micent-hint-1, purl = FALSE}
-# Use the node_betweenness() function to calculate the
+# Use the node_by_betweenness() function to calculate the
 # betweenness centralities of nodes in a network
-node_betweenness(ison_brandes)
+node_by_betweenness(ison_brandes)
 ```
 
 ```{r micent-hint-2, purl = FALSE}
-# Use the node_closeness() function to calculate the 
+# Use the node_by_closeness() function to calculate the 
 # closeness centrality of nodes in a network
-node_closeness(ison_brandes)
+node_by_closeness(ison_brandes)
 ```
 
 ```{r micent-hint-3, purl = FALSE}
-# Use the node_eigenvector() function to calculate 
+# Use the node_by_eigenvector() function to calculate 
 # the eigenvector centrality of nodes in a network
-node_eigenvector(ison_brandes)
+node_by_eigenvector(ison_brandes)
 ```
 
 ```{r micent-solution}
-node_betweenness(ison_brandes)
-node_closeness(ison_brandes)
-node_eigenvector(ison_brandes)
+node_by_betweenness(ison_brandes)
+node_by_closeness(ison_brandes)
+node_by_eigenvector(ison_brandes)
 ```
 
 What is returned here are vectors of betweenness, closeness, and eigenvector 
@@ -301,7 +301,7 @@ Try to answer the following questions for yourself:
 - what does Bonacich mean when he says that `r gloss("power")` and influence are not the same thing?
 - can you think of a real-world example when an actor might be central but not powerful, or powerful but not central?
 
-Note that all centrality measures in `{manynet}` return normalized
+Note that all centrality measures in `{netrics}` return normalized
 scores by default -- 
 for the raw scores, include `normalized = FALSE` in the function as an extra argument.
 
@@ -312,9 +312,9 @@ Now, can you create degree distributions for each of these?
 ```
 
 ```{r otherdist-solution}
-plot(node_betweenness(ison_brandes))
-plot(node_closeness(ison_brandes))
-plot(node_eigenvector(ison_brandes))
+plot(node_by_betweenness(ison_brandes))
+plot(node_by_closeness(ison_brandes))
+plot(node_by_eigenvector(ison_brandes))
 ```
 
 ## Plotting centrality
@@ -335,19 +335,19 @@ we can highlight which node or nodes hold the maximum score in red.
 ```{r ggid-solution}
 # plot the network, highlighting the node with the highest centrality score with a different colour
 ison_brandes %>%
-  mutate_nodes(color = node_is_max(node_degree())) %>%
+  mutate_nodes(color = node_is_max(node_by_degree())) %>%
   graphr(node_color = "color")
 
 ison_brandes %>%
-  mutate_nodes(color = node_is_max(node_betweenness())) %>%
+  mutate_nodes(color = node_is_max(node_by_betweenness())) %>%
   graphr(node_color = "color")
 
 ison_brandes %>%
-  mutate_nodes(color = node_is_max(node_closeness())) %>%
+  mutate_nodes(color = node_is_max(node_by_closeness())) %>%
   graphr(node_color = "color")
 
 ison_brandes %>%
-  mutate_nodes(color = node_is_max(node_eigenvector())) %>%
+  mutate_nodes(color = node_is_max(node_by_eigenvector())) %>%
   graphr(node_color = "color")
 ```
 
@@ -361,19 +361,19 @@ What can you see?
 
 ```{r ggid_twomode-solution}
 ison_brandes2 %>%
-  add_node_attribute("color", node_is_max(node_degree(ison_brandes2))) %>%
+  add_node_attribute("color", node_is_max(node_by_degree(ison_brandes2))) %>%
   graphr(node_color = "color", layout = "bipartite")
 
 ison_brandes2 %>%
-  add_node_attribute("color", node_is_max(node_betweenness(ison_brandes2))) %>%
+  add_node_attribute("color", node_is_max(node_by_betweenness(ison_brandes2))) %>%
   graphr(node_color = "color", layout = "bipartite")
 
 ison_brandes2 %>%
-  add_node_attribute("color", node_is_max(node_closeness(ison_brandes2))) %>%
+  add_node_attribute("color", node_is_max(node_by_closeness(ison_brandes2))) %>%
   graphr(node_color = "color", layout = "bipartite")
 
 ison_brandes2 %>%
-  add_node_attribute("color", node_is_max(node_eigenvector(ison_brandes2))) %>%
+  add_node_attribute("color", node_is_max(node_by_eigenvector(ison_brandes2))) %>%
   graphr(node_color = "color", layout = "bipartite")
 ```
 
@@ -391,7 +391,7 @@ question("Select all that are true for the two-mode Brandes network.",
 
 <img src="https://media.makeameme.org/created/centralization-here-i.jpg"/>
 
-`{manynet}` also implements network `r gloss("centralization")` functions.
+`{netrics}` also implements network `r gloss("centralization")` functions.
 Here we are no longer interested in the level of the node,
 but in the level of the whole network, 
 so the syntax replaces `node_` with `net_`:
@@ -401,10 +401,10 @@ so the syntax replaces `node_` with `net_`:
 ```
 
 ```{r centzn-solution}
-net_degree(ison_brandes)
-net_betweenness(ison_brandes)
-net_closeness(ison_brandes)
-print(net_eigenvector(ison_brandes), digits = 5)
+net_by_degree(ison_brandes)
+net_by_betweenness(ison_brandes)
+net_by_closeness(ison_brandes)
+print(net_by_eigenvector(ison_brandes), digits = 5)
 ```
 
 By default, scores are printed up to 3 decimal places,
@@ -428,18 +428,18 @@ but fortunately the `{patchwork}` package is here to help.
 
 ```{r multiplot-solution}
 ison_brandes <- ison_brandes %>%
-  add_node_attribute("degree", node_is_max(node_degree(ison_brandes))) %>%
-  add_node_attribute("betweenness", node_is_max(node_betweenness(ison_brandes))) %>%
-  add_node_attribute("closeness", node_is_max(node_closeness(ison_brandes))) %>%
-  add_node_attribute("eigenvector", node_is_max(node_eigenvector(ison_brandes)))
+  add_node_attribute("degree", node_is_max(node_by_degree(ison_brandes))) %>%
+  add_node_attribute("betweenness", node_is_max(node_by_betweenness(ison_brandes))) %>%
+  add_node_attribute("closeness", node_is_max(node_by_closeness(ison_brandes))) %>%
+  add_node_attribute("eigenvector", node_is_max(node_by_eigenvector(ison_brandes)))
 gd <- graphr(ison_brandes, node_color = "degree") + 
-  ggtitle("Degree", subtitle = round(net_degree(ison_brandes), 2))
+  ggtitle("Degree", subtitle = round(net_by_degree(ison_brandes), 2))
 gc <- graphr(ison_brandes, node_color = "closeness") + 
-  ggtitle("Closeness", subtitle = round(net_closeness(ison_brandes), 2))
+  ggtitle("Closeness", subtitle = round(net_by_closeness(ison_brandes), 2))
 gb <- graphr(ison_brandes, node_color = "betweenness") + 
-  ggtitle("Betweenness", subtitle = round(net_betweenness(ison_brandes), 2))
+  ggtitle("Betweenness", subtitle = round(net_by_betweenness(ison_brandes), 2))
 ge <- graphr(ison_brandes, node_color = "eigenvector") + 
-  ggtitle("Eigenvector", subtitle = round(net_eigenvector(ison_brandes), 2))
+  ggtitle("Eigenvector", subtitle = round(net_by_eigenvector(ison_brandes), 2))
 (gd | gb) / (gc | ge)
 # ggsave("brandes-centralities.pdf")
 ```
