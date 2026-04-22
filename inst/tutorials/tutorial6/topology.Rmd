@@ -298,7 +298,7 @@ but with a rewiring probability of 0.25:
 ```
 
 ```{r smallwtest-solution}
-net_smallworld(generate_smallworld(50, 0.25))
+net_by_smallworld(generate_smallworld(50, 0.25))
 ```
 
 #### Scale-free graphs
@@ -346,7 +346,7 @@ comes from a power-law distribution.
 ```
 
 ```{r scaleftest-solution}
-net_scalefree(generate_scalefree(50, 2))
+net_by_scalefree(generate_scalefree(50, 2))
 ```
 
 ## Core-Periphery
@@ -431,14 +431,14 @@ one on the left and one on the right.
 
 But is it really all that much of a core-periphery structure?
 We can establish how correlated our network is compared to
-a core-periphery model of the same dimension using `net_core()`.
+a core-periphery model of the same dimension using `net_by_core()`.
 
 ```{r netcore, exercise=TRUE, purl = FALSE, exercise.setup="gnet"}
 
 ```
 
 ```{r netcore-solution}
-net_core(lawfirm, node_is_core(lawfirm))
+net_by_core(lawfirm, node_is_core(lawfirm))
 ```
 
 ```{r corecorr-qa, echo=FALSE, purl = FALSE}
@@ -504,12 +504,12 @@ question("There a statistically significant association between the core assignm
 An alternative route is to identify 'core' nodes
 depending on their `r gloss("k-coreness","kcoreness")`.
 In `{manynet}`, we can return nodes _k_-coreness
-with `node_coreness()` instead of 
+with `node_by_kcoreness()` instead of 
 the `node_is_core()` used for core-periphery.
 
 ```{r nodecoren, exercise=TRUE, purl = FALSE, exercise.setup="gnet"}
 lawfirm %>% 
-  mutate(ncn = node_kcoreness()) %>% 
+  mutate(ncn = node_by_kcoreness()) %>% 
   graphr(node_color = "ncn")
 ```
 
@@ -572,12 +572,12 @@ Ok, so let's now take a closer look at how to investigate the degree of
 hierarchy in a given network.
 The classic example would be to look at a tree network,
 like the one constructed earlier.
-Let's try the function `net_by_hierarchy()` on a tree network of 12 nodes.
+Let's try the function `net_x_hierarchy()` on a tree network of 12 nodes.
 
 ```{r treeh, exercise = TRUE, purl = FALSE}
 treeleven <- create_tree(11, directed = TRUE)
-net_by_hierarchy(treeleven)
-rowMeans(net_by_hierarchy(treeleven))
+net_x_hierarchy(treeleven)
+rowMeans(net_x_hierarchy(treeleven))
 ```
 
 We see here four different measures of hierarchy:
@@ -606,9 +606,9 @@ graphr(fict_thrones)
 
 ```{r hierarchy-solution}
 graphr(ison_emotions)
-net_by_hierarchy(ison_emotions)
+net_x_hierarchy(ison_emotions)
 graphr(fict_thrones)
-net_by_hierarchy(fict_thrones)
+net_x_hierarchy(fict_thrones)
 ```
 
 Actually, these two networks have the same average hierarchy score of around 0.525.
@@ -642,7 +642,7 @@ First, we might be interested in whether the network is `r gloss("connected","co
 ```
 
 ```{r connected-solution}
-net_connectedness(ison_adolescents)
+net_by_connectedness(ison_adolescents)
 ```
 
 This measure gets at the proportion of dyads that can reach each other in the network.
@@ -675,7 +675,7 @@ or how many dropped nodes it would take to (further) fragment the network.
 ```
 
 ```{r cohesion-solution}
-net_cohesion(ison_adolescents)
+net_by_cohesion(ison_adolescents)
 ```
 
 ```{r cohesion-qa, echo=FALSE, purl = FALSE}
@@ -740,7 +740,7 @@ Here we are interested in identifying which ties are `r gloss("bridges","bridge"
 ```
 
 ```{r tieside-solution}
-net_adhesion(ison_adolescents)
+net_by_adhesion(ison_adolescents)
 ison_adolescents |> mutate_ties(cut = tie_is_bridge(ison_adolescents)) |> 
   graphr(edge_color = "cut")
 ```
@@ -754,7 +754,7 @@ This is called (rather confusingly) tie cohesion.
 ```
 
 ```{r tiecoh-solution}
-ison_adolescents |> mutate_ties(coh = tie_cohesion(ison_adolescents)) |> 
+ison_adolescents |> mutate_ties(coh = tie_by_cohesion(ison_adolescents)) |> 
   graphr(edge_size = "coh")
 ```
 
