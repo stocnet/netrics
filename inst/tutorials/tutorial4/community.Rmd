@@ -237,7 +237,7 @@ respectively:
 net_ties(tasks)/(net_nodes(tasks)*(net_nodes(tasks)-1))
 ```
 
-but we can also just use the `{manynet}` function for calculating the density,
+but we can also just use the `{netrics}` function for calculating the density,
 which always uses the equation appropriate for the type of network...
 
 ```{r dens, exercise=TRUE, exercise.setup = "separatingnets", purl = FALSE}
@@ -245,10 +245,10 @@ which always uses the equation appropriate for the type of network...
 ```
 
 ```{r dens-solution}
-net_density(tasks)
+net_by_density(tasks)
 ```
 
-Note that the various measures in `{manynet}` print results to three decimal points
+Note that the various measures in `{netrics}` print results to three decimal points
 by default, but the underlying result retains the same recurrence.
 So same result...
 
@@ -286,7 +286,7 @@ First, let's calculate
 `r gloss("reciprocity")`
 in the task network.
 While one could do this by hand,
-it's more efficient to do this using the `{manynet}` package.
+it's more efficient to do this using the `{netrics}` package.
 Can you guess the correct name of the function?
 
 ```{r recip, exercise=TRUE, exercise.setup = "separatingnets", purl = FALSE}
@@ -294,7 +294,7 @@ Can you guess the correct name of the function?
 ```
 
 ```{r recip-solution}
-net_reciprocity(tasks)
+net_by_reciprocity(tasks)
 # this function calculates the amount of reciprocity in the whole network
 ```
 
@@ -305,7 +305,7 @@ reciprocated and not.
 
 ```{r recip-explanation, exercise = TRUE}
 tasks %>% mutate_ties(rec = tie_is_reciprocated(tasks)) %>% graphr(edge_color = "rec")
-net_indegree(tasks)
+net_by_indegree(tasks)
 ```
 
 So we can see that indeed there are very few asymmetric ties,
@@ -325,7 +325,7 @@ Again, can you guess the correct name of this function?
 ```
 
 ```{r trans-solution}
-net_transitivity(tasks)
+net_by_transitivity(tasks)
 # this function calculates the amount of transitivity in the whole network
 ```
 
@@ -460,7 +460,7 @@ interested in the correlation of ties between nodes.
 Let's return to the question of closure.
 First try one of the closure measures we have already treated that gives us
 a sense of shared partners for one-mode networks.
-Then compare this with `net_equivalency()`, which can be used on the original
+Then compare this with `net_by_equivalency()`, which can be used on the original
 two-mode network.
 
 ```{r twomode-cohesion, exercise=TRUE, exercise.setup = "easyway", purl = FALSE}
@@ -468,22 +468,22 @@ two-mode network.
 ```
 
 ```{r twomode-cohesion-hint-1, purl = FALSE}
-# net_transitivity(): Calculate transitivity in a network
+# net_by_transitivity(): Calculate transitivity in a network
 
-net_transitivity(women_graph)
-net_transitivity(event_graph)
+net_by_transitivity(women_graph)
+net_by_transitivity(event_graph)
 ```
 
 ```{r twomode-cohesion-hint-2, purl = FALSE}
-# net_equivalency(): Calculate equivalence or reinforcement in a (usually two-mode) network
+# net_by_equivalency(): Calculate equivalence or reinforcement in a (usually two-mode) network
 
-net_equivalency(ison_southern_women)
+net_by_equivalency(ison_southern_women)
 ```
 
 ```{r twomode-cohesion-solution}
-net_transitivity(women_graph)
-net_transitivity(event_graph)
-net_equivalency(ison_southern_women)
+net_by_transitivity(women_graph)
+net_by_transitivity(event_graph)
+net_by_equivalency(ison_southern_women)
 ```
 
 ```{r equil-interp, echo=FALSE, purl = FALSE}
@@ -514,7 +514,7 @@ Now let's look at the friendship network, 'friends'.
 We're interested here in how many 
 `r gloss("components", "component")`
 there are.
-By default, the `net_components()` function will
+By default, the `net_by_components()` function will
 return the number of _strong_ components for directed networks.
 For _weak_ components, you will need to first make the network 
 `r gloss("undirected")`.
@@ -534,7 +534,7 @@ question("Weak components...",
 ```
 
 ```{r comp-no-hint-1, purl = FALSE}
-net_components(friends)
+net_by_components(friends)
 # note that friends is a directed network
 # you can see this by calling the object 'friends'
 # or by running `is_directed(friends)`
@@ -545,13 +545,13 @@ net_components(friends)
 # Note: to_undirected() returns an object with all tie direction removed, 
 # so any pair of nodes with at least one directed edge 
 # will be connected by an undirected edge in the new network.
-net_components(to_undirected(friends))
+net_by_components(to_undirected(friends))
 ```
 
 ```{r comp-no-solution}
 # note that friends is a directed network
-net_components(friends)
-net_components(to_undirected(friends))
+net_by_components(friends)
+net_by_components(to_undirected(friends))
 ```
 
 ```{r comp-interp, echo = FALSE, purl = FALSE}
@@ -572,7 +572,7 @@ question("How many components are there?",
 
 So we know how many components there are,
 but maybe we're also interested in which nodes are members of which components?
-`node_components()` returns a membership vector
+`node_in_component()` returns a membership vector
 that can be used to color nodes in `graphr()`:
 
 ```{r comp-memb, exercise=TRUE, exercise.setup = "separatingnets", purl = FALSE}
@@ -581,12 +581,12 @@ that can be used to color nodes in `graphr()`:
 
 ```{r comp-memb-hint-1, purl = FALSE}
 friends <- friends %>% 
-  mutate(weak_comp = node_components(to_undirected(friends)),
-         strong_comp = node_components(friends))
-# node_components returns a vector of nodes' memberships to components in the network
+  mutate(weak_comp = node_in_component(to_undirected(friends)),
+         strong_comp = node_in_component(friends))
+# node_in_component returns a vector of nodes' memberships to components in the network
 # here, we are adding the nodes' membership to components as an attribute in the network
 # alternatively, we can also use the function `add_node_attribute()`
-# eg. `add_node_attribute(friends, "weak_comp", node_components(to_undirected(friends)))`
+# eg. `add_node_attribute(friends, "weak_comp", node_in_component(to_undirected(friends)))`
 ```
 
 ```{r comp-memb-hint-2, purl = FALSE}
@@ -598,8 +598,8 @@ graphr(friends, node_color = "strong_comp") + ggtitle("Strong components")
 
 ```{r comp-memb-solution}
 friends <- friends %>% 
-  mutate(weak_comp = node_components(to_undirected(friends)),
-         strong_comp = node_components(friends))
+  mutate(weak_comp = node_in_component(to_undirected(friends)),
+         strong_comp = node_in_component(friends))
 graphr(friends, node_color = "weak_comp") + ggtitle("Weak components") +
 graphr(friends, node_color = "strong_comp") + ggtitle("Strong components")
 ```
@@ -648,8 +648,8 @@ Since there are many isolates, there will be many components,
 even if we look at weak components and not just strong components.
 
 ```{r blogcomp, exercise = TRUE, exercise.setup = "blogsize"}
-net_components(blogs)
-net_components(to_undirected(blogs))
+node_in_component(blogs)
+node_in_component(to_undirected(blogs))
 ```
 
 ### Giant component
@@ -698,7 +698,7 @@ The most common measure of the fit of a community assignment in a network is
 `r gloss("modularity")`.
 
 ```{r blogmod, exercise=TRUE, exercise.setup = "blogtogiant"}
-net_modularity(blogs, membership = node_in_partition(blogs))
+net_by_modularity(blogs, membership = node_in_partition(blogs))
 ```
 
 Remember that modularity ranges between 1 and -1.
@@ -727,7 +727,7 @@ but is otherwise quite flexible.
 
 ```{r blogmodassign, exercise=TRUE, exercise.setup = "blogtogiant", warning=FALSE, fig.width=9}
 graphr(blogs, node_color = "Leaning")
-net_modularity(blogs, membership = node_attribute(blogs, "Leaning"))
+net_by_modularity(blogs, membership = node_attribute(blogs, "Leaning"))
 ```
 
 <img src="https://i.giphy.com/media/v1.Y2lkPTc5MGI3NjExcXFwZWF2azV0YTlwdnM0bTZncXpuOTdxdHFyMjJqcXJod2V3b29vYiZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/PsBRTPKG71YVq/giphy.gif" alt="gif of Chevy Chase saying plot twist"/>
@@ -764,7 +764,7 @@ There is no one single best community detection algorithm.
 Instead there are several, each with their strengths and weaknesses. 
 Since this is a rather small network, we'll focus on the following methods: 
 walktrap, edge betweenness, and fast greedy.
-(Others are included in `{manynet}`/`{igraph}`)
+(Others are included in `{netrics}`/`{igraph}`)
 As you use them, consider how they portray communities and consider which one(s) 
 afford a sensible view of the social world as cohesively organized.
 
@@ -819,13 +819,13 @@ which(friend_wt == 2)
 
 ```{r walk-hint-3, purl = FALSE}
 # resulting in a modularity of 
-net_modularity(friends, friend_wt)
+net_by_modularity(friends, friend_wt)
 ```
 
 ```{r walk-solution}
 friend_wt <- node_in_walktrap(friends, times=50)
 # results in a modularity of 
-net_modularity(friends, friend_wt)
+net_by_modularity(friends, friend_wt)
 ```
 
 We can also visualise the clusters on the original network
@@ -857,9 +857,9 @@ graphr(friends,
        node_color = "walk_comm",
        node_group = "walk_comm") +
   ggtitle("Walktrap",
-    subtitle = round(net_modularity(friends, friend_wt), 3))
+    subtitle = round(net_by_modularity(friends, friend_wt), 3))
 # the function `round()` rounds the values to a specified number of decimal places
-# here, we are telling it to round the net_modularity score to 3 decimal places,
+# here, we are telling it to round the net_by_modularity score to 3 decimal places,
 # but the score is exactly 0.27 so only two decimal places are printed.
 ```
 
@@ -874,7 +874,7 @@ graphr(friends,
        node_color = "walk_comm",
        node_group = "walk_comm") +
   ggtitle("Walktrap",
-    subtitle = round(net_modularity(friends, friend_wt), 3))
+    subtitle = round(net_by_modularity(friends, friend_wt), 3))
 ```
 
 This can be helpful when polygons overlap to better identify membership
@@ -924,7 +924,7 @@ graphr(friends,
        node_color = "eb_comm",
        node_group = "eb_comm") +
   ggtitle("Edge-betweenness",
-    subtitle = round(net_modularity(friends, friend_eb), 3))
+    subtitle = round(net_by_modularity(friends, friend_eb), 3))
 ```
 
 ```{r ebplot-solution}
@@ -934,7 +934,7 @@ graphr(friends,
        node_color = "eb_comm",
        node_group = "eb_comm") +
   ggtitle("Edge-betweenness",
-    subtitle = round(net_modularity(friends, friend_eb), 3))
+    subtitle = round(net_by_modularity(friends, friend_eb), 3))
 ```
 
 For more on this algorithm, see M Newman and M Girvan: Finding and 
@@ -959,7 +959,7 @@ although I personally find it both useful and in many cases quite "accurate".
 ```{r fg-hint-1, purl = FALSE}
 friend_fg <- node_in_greedy(friends)
 friend_fg # Does this result in a different community partition?
-net_modularity(friends, friend_fg) # Compare this to the edge betweenness procedure
+net_by_modularity(friends, friend_fg) # Compare this to the edge betweenness procedure
 ```
 
 ```{r fg-hint-2, purl = FALSE}
@@ -970,14 +970,14 @@ graphr(friends,
        node_color = "fg_comm",
        node_group = "fg_comm") +
   ggtitle("Fast-greedy",
-    subtitle = round(net_modularity(friends, friend_fg), 3))
+    subtitle = round(net_by_modularity(friends, friend_fg), 3))
 # 
 ```
 
 ```{r fg-solution}
 friend_fg <- node_in_greedy(friends)
 friend_fg # Does this result in a different community partition?
-net_modularity(friends, friend_fg) # Compare this to the edge betweenness procedure
+net_by_modularity(friends, friend_fg) # Compare this to the edge betweenness procedure
 
 # Again, we can visualise these communities in different ways:
 friends <- friends %>% 
@@ -986,7 +986,7 @@ graphr(friends,
        node_color = "fg_comm",
        node_group = "fg_comm") +
   ggtitle("Fast-greedy",
-    subtitle = round(net_modularity(friends, friend_fg), 3))
+    subtitle = round(net_by_modularity(friends, friend_fg), 3))
 ```
 
 See A Clauset, MEJ Newman, C Moore: 
@@ -1005,7 +1005,7 @@ question("What is the difference between communities and components?",
 
 ### Communities
 
-Lastly, `{manynet}` includes a function to run through and find the membership
+Lastly, `{netrics}` includes a function to run through and find the membership
 assignment that maximises `r gloss("modularity")` across any of the applicable community
 detection procedures.
 This is helpfully called `node_in_community()`.
