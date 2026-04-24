@@ -1,3 +1,16 @@
+# netrics 0.2.2
+
+## Package
+
+- Updated logos
+
+## Tutorials
+
+- Updated centrality tutorial
+- Updated community tutorial
+- Updated position tutorial
+- Updated topology tutorial
+
 # netrics 0.2.1
 
 ## Package
