@@ -1,3 +1,10 @@
+test_that("node_by_homophily works with vector attribute (e.g. community assignment)", {
+  attr_vec <- node_in_community(data_objs[["attribute"]])
+  result <- node_by_homophily(data_objs[["attribute"]], attr_vec)
+  expect_s3_class(result, "node_measure")
+  expect_length(result, manynet::net_nodes(data_objs[["attribute"]]))
+})
+
 node_meas <- funs_objs[grepl("node_by_", names(funs_objs))]
 for(fn in names(node_meas)) {
   for (ob in names(data_objs)) { 
