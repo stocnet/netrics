@@ -48,6 +48,7 @@ learnr::random_phrases_add(language = "en",
 friends <- to_uniplex(ison_algebra, "friends")
 social <- to_uniplex(ison_algebra, "social")
 tasks <- to_uniplex(ison_algebra, "tasks")
+alge <- to_named(ison_algebra)
 ```
 
 
@@ -479,7 +480,7 @@ What we are saying here is that we want to partition the nodes
 into two clusters, no matter how dissimilar they are.
 
 ```{r k-discrete, exercise = TRUE, exercise.setup = "varyclust"}
-plot(node_in_structural(alge, k = 2))
+plot(node_in_structural(to_named(ison_algebra), k = 2))
 ```
 
 But we're really just guessing. Maybe 2 is not the best `k`?
@@ -523,8 +524,8 @@ can return a somewhat different result to the elbow method.
 See what we have here, with all other arguments held the same:
 
 ```{r elbowsil, exercise = TRUE, exercise.setup = "varyclust"}
-plot(node_in_structural(alge, k = "elbow"))
-plot(node_in_structural(alge, k = "silhouette"))
+plot(node_in_structural(to_named(ison_algebra), k = "elbow"))
+plot(node_in_structural(to_named(ison_algebra), k = "silhouette"))
 ```
 
 Ok, so it looks like the elbow method returns `k == 3` as a good trade-off
@@ -551,7 +552,7 @@ however oftentimes this misses the point in finding clusters of nodes that,
 despite some variation, can be considered as similar on some dimension.
 
 ```{r strict, exercise = TRUE, exercise.setup = "varyclust"}
-plot(node_in_structural(alge, k = "strict"))
+plot(node_in_structural(to_named(ison_algebra), k = "strict"))
 ```
 
 Here for example, no two nodes have precisely the same tie-profile,
@@ -573,6 +574,7 @@ structurally equivalent classes.
 We can graph this of course, as above:
 
 ```{r strplot, exercise = TRUE, exercise.setup = "varyclust"}
+alge <- to_named(ison_algebra)
 alge %>% 
   mutate(se = node_in_structural(alge)) %>% 
   graphr(node_color = "se")

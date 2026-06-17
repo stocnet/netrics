@@ -1,3 +1,9 @@
+# netrics 0.2.3
+
+## Tutorials
+
+- Fixed object reference in position tutorial
+
 # netrics 0.2.2
 
 ## Package
