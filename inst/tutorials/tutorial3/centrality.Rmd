@@ -77,14 +77,14 @@ graphr(____)
 
 ```{r coercion-hint-2, purl = FALSE}
 # Now, let's create a two-mode version 'ison_brandes2' and graph it.
-ison_brandes2 <- ison_brandes %>% rename(type = twomode_type)
+ison_brandes2 <- ison_brandes |> rename_nodes(type = twomode_type)
 graphr(____)
 ```
 
 ```{r coercion-solution}
 # plot the one-mode version
 graphr(ison_brandes)
-ison_brandes2 <- ison_brandes %>% rename(type = twomode_type)
+ison_brandes2 <- ison_brandes |> rename_nodes(type = twomode_type)
 # plot the two-mode version
 graphr(ison_brandes2, layout = "bipartite")
 ```
@@ -427,10 +427,10 @@ but fortunately the `{patchwork}` package is here to help.
 ```
 
 ```{r multiplot-solution}
-ison_brandes <- ison_brandes %>%
-  add_node_attribute("degree", node_is_max(node_by_degree(ison_brandes))) %>%
-  add_node_attribute("betweenness", node_is_max(node_by_betweenness(ison_brandes))) %>%
-  add_node_attribute("closeness", node_is_max(node_by_closeness(ison_brandes))) %>%
+ison_brandes <- ison_brandes |>
+  add_node_attribute("degree", node_is_max(node_by_degree(ison_brandes)))  |> 
+  add_node_attribute("betweenness", node_is_max(node_by_betweenness(ison_brandes))) |> 
+  add_node_attribute("closeness", node_is_max(node_by_closeness(ison_brandes)))  |> 
   add_node_attribute("eigenvector", node_is_max(node_by_eigenvector(ison_brandes)))
 gd <- graphr(ison_brandes, node_color = "degree") + 
   ggtitle("Degree", subtitle = round(net_by_degree(ison_brandes), 2))

@@ -420,8 +420,8 @@ in the core will maximise the core-periphery structure of the network.
 ```
 
 ```{r nodecore-solution}
-lawfirm %>% 
-  mutate(nc = node_is_core()) %>% 
+lawfirm |>  
+  mutate_nodes(nc = node_is_core()) |>  
   graphr(node_color = "nc", edge_color = "gray")
 ```
 
@@ -508,8 +508,8 @@ with `node_by_kcoreness()` instead of
 the `node_is_core()` used for core-periphery.
 
 ```{r nodecoren, exercise=TRUE, purl = FALSE, exercise.setup="gnet"}
-lawfirm %>% 
-  mutate(ncn = node_by_kcoreness()) %>% 
+lawfirm |> 
+  mutate_nodes(ncn = node_by_kcoreness()) |> 
   graphr(node_color = "ncn")
 ```
 
@@ -726,7 +726,8 @@ Can you add a node attribute that highlights which nodes are cutpoints?
 ```
 
 ```{r closerlook-solution}
-ison_adolescents |> mutate(cut = node_is_cutpoint(ison_adolescents)) |> 
+ison_adolescents |> 
+  mutate_nodes(cut = node_is_cutpoint()) |> 
   graphr(node_color = "cut")
 ```
 
@@ -741,7 +742,8 @@ Here we are interested in identifying which ties are `r gloss("bridges","bridge"
 
 ```{r tieside-solution}
 net_by_adhesion(ison_adolescents)
-ison_adolescents |> mutate_ties(cut = tie_is_bridge(ison_adolescents)) |> 
+ison_adolescents |> 
+  mutate_ties(cut = tie_is_bridge()) |> 
   graphr(edge_color = "cut")
 ```
 
@@ -754,7 +756,8 @@ This is called (rather confusingly) tie cohesion.
 ```
 
 ```{r tiecoh-solution}
-ison_adolescents |> mutate_ties(coh = tie_by_cohesion(ison_adolescents)) |> 
+ison_adolescents |> 
+  mutate_ties(coh = tie_by_cohesion()) |> 
   graphr(edge_size = "coh")
 ```
 
