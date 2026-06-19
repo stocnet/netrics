@@ -13,7 +13,7 @@ tie_is_reciprocated(.data)
 \arguments{
 \item{.data}{A network object of class \code{mnet}, \code{igraph}, \code{tbl_graph}, \code{network}, or similar.
 For more information on the standard coercion possible,
-see \code{\link[manynet:coerce_graph]{manynet::as_tidygraph()}}.}
+see \code{\link[manynet:as_tidygraph]{manynet::as_tidygraph()}}.}
 }
 \value{
 A \code{tie_mark} logical vector the length of the ties in the network,
@@ -36,7 +36,7 @@ tie_is_multiple(fict_marvel)
 tie_is_reciprocated(ison_algebra)
 }
 \seealso{
-Other marks: 
+Other marks:
 \code{\link{mark_core}},
 \code{\link{mark_degree}},
 \code{\link{mark_diff}},
@@ -46,7 +46,7 @@ Other marks:
 \code{\link{mark_ties}},
 \code{\link{mark_triangles}}
 
-Other tie: 
+Other tie:
 \code{\link{mark_select_tie}},
 \code{\link{mark_ties}},
 \code{\link{mark_triangles}},

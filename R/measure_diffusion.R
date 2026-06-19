@@ -306,8 +306,8 @@ node_by_adopt_time <- function(.data){
 
   if(inherits(.data, "diff_model")){
     net <- attr(.data, "network") 
-    out <- summary(.data) %>% dplyr::filter(event == "I") %>% 
-      dplyr::distinct(nodes, .keep_all = TRUE) %>% 
+    out <- summary(.data) |> dplyr::filter(event == "I") |> 
+      dplyr::distinct(nodes, .keep_all = TRUE) |> 
       dplyr::select(nodes,t)
     if(!manynet::is_labelled(net))
       out <- dplyr::arrange(out, nodes) else if (is.numeric(out$nodes))
@@ -323,8 +323,8 @@ node_by_adopt_time <- function(.data){
     }
   } else {
     net <- .data
-    out <- manynet::as_changelist(.data) %>% dplyr::filter(value == "I") %>% 
-      dplyr::distinct(node, .keep_all = TRUE) %>% 
+    out <- manynet::as_changelist(.data) |> dplyr::filter(value == "I") |> 
+      dplyr::distinct(node, .keep_all = TRUE) |> 
       dplyr::select(node,time)
     if(!manynet::is_labelled(net))
       out <- dplyr::arrange(out, node) else if (is.numeric(out$node))
@@ -379,9 +379,9 @@ node_by_adopt_threshold <- function(.data, normalized = TRUE, lag = 1){
       }
     }
     if(any(out$event == "E")) 
-      out <- out %>% dplyr::filter(event == "E") else 
-        out <- out %>% dplyr::filter(event == "I")
-    out <- out %>% dplyr::distinct(nodes, .keep_all = TRUE) %>% 
+      out <- out |> dplyr::filter(event == "E") else 
+        out <- out |> dplyr::filter(event == "I")
+    out <- out |> dplyr::distinct(nodes, .keep_all = TRUE) |> 
       dplyr::select(nodes, exposure)
     if(manynet::is_labelled(net))
       out <- stats::setNames(out$exposure, manynet::node_names(net)[out$nodes]) else
@@ -398,9 +398,9 @@ node_by_adopt_threshold <- function(.data, normalized = TRUE, lag = 1){
       }
     }
     if(any(out$value == "E")) 
-      out <- out %>% dplyr::filter(value == "E") else 
-        out <- out %>% dplyr::filter(value == "I")
-    out <- out %>% dplyr::distinct(node, .keep_all = TRUE) %>% 
+      out <- out |> dplyr::filter(value == "E") else 
+        out <- out |> dplyr::filter(value == "I")
+    out <- out |> dplyr::distinct(node, .keep_all = TRUE) |> 
       dplyr::select(node, exposure)
     if(manynet::is_labelled(net))
       out <- stats::setNames(out$exposure, manynet::node_names(net)[out$node]) else

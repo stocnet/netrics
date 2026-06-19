@@ -16,7 +16,7 @@ node_by_equivalency(.data)
 \arguments{
 \item{.data}{A network object of class \code{mnet}, \code{igraph}, \code{tbl_graph}, \code{network}, or similar.
 For more information on the standard coercion possible,
-see \code{\link[manynet:coerce_graph]{manynet::as_tidygraph()}}.}
+see \code{\link[manynet:as_tidygraph]{manynet::as_tidygraph()}}.}
 }
 \value{
 A \code{node_measure} numeric vector the length of the nodes in the network,
@@ -46,7 +46,7 @@ node_by_reciprocity(to_unweighted(ison_networkers))
 node_by_transitivity(ison_adolescents)
 }
 \seealso{
-Other measures: 
+Other measures:
 \code{\link{measure_assort_net}},
 \code{\link{measure_assort_node}},
 \code{\link{measure_breadth}},
@@ -78,7 +78,7 @@ Other measures:
 \code{\link{measure_hierarchy}},
 \code{\link{measure_periods}}
 
-Other nodal: 
+Other nodal:
 \code{\link{mark_core}},
 \code{\link{mark_degree}},
 \code{\link{mark_diff}},

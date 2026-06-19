@@ -22,7 +22,7 @@ node_is_neighbor(.data, node)
 \arguments{
 \item{.data}{A network object of class \code{mnet}, \code{igraph}, \code{tbl_graph}, \code{network}, or similar.
 For more information on the standard coercion possible,
-see \code{\link[manynet:coerce_graph]{manynet::as_tidygraph()}}.}
+see \code{\link[manynet:as_tidygraph]{manynet::as_tidygraph()}}.}
 
 \item{elites}{The proportion of nodes to be selected as mentors.
 By default this is set at 0.1.
@@ -97,7 +97,7 @@ Valente, Thomas, and Rebecca Davis. 1999.
 }
 }
 \seealso{
-Other marks: 
+Other marks:
 \code{\link{mark_core}},
 \code{\link{mark_degree}},
 \code{\link{mark_diff}},
@@ -107,7 +107,7 @@ Other marks:
 \code{\link{mark_ties}},
 \code{\link{mark_triangles}}
 
-Other nodal: 
+Other nodal:
 \code{\link{mark_core}},
 \code{\link{mark_degree}},
 \code{\link{mark_diff}},

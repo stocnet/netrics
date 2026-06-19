@@ -10,7 +10,7 @@ node_in_core(.data, groups = 3, cluster_by = c("bins", "quantiles", "kmeans"))
 \arguments{
 \item{.data}{A network object of class \code{mnet}, \code{igraph}, \code{tbl_graph}, \code{network}, or similar.
 For more information on the standard coercion possible,
-see \code{\link[manynet:coerce_graph]{manynet::as_tidygraph()}}.}
+see \code{\link[manynet:as_tidygraph]{manynet::as_tidygraph()}}.}
 
 \item{groups}{Number of categories to create. Must be at least 2 and at most
 the number of nodes in the network. Default is 3.}
@@ -52,11 +52,11 @@ Wallerstein, Immanuel. 1974.
 }
 }
 \seealso{
-Other core-periphery: 
+Other core-periphery:
 \code{\link{mark_core}},
 \code{\link{measure_core}}
 
-Other memberships: 
+Other memberships:
 \code{\link{member_brokerage}},
 \code{\link{member_cliques}},
 \code{\link{member_community}},
@@ -66,7 +66,7 @@ Other memberships:
 \code{\link{member_diffusion}},
 \code{\link{member_equivalence}}
 
-Other nodal: 
+Other nodal:
 \code{\link{mark_core}},
 \code{\link{mark_degree}},
 \code{\link{mark_diff}},

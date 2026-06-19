@@ -16,7 +16,7 @@ tie_is_min(tie_measure)
 \arguments{
 \item{.data}{A network object of class \code{mnet}, \code{igraph}, \code{tbl_graph}, \code{network}, or similar.
 For more information on the standard coercion possible,
-see \code{\link[manynet:coerce_graph]{manynet::as_tidygraph()}}.}
+see \code{\link[manynet:as_tidygraph]{manynet::as_tidygraph()}}.}
 
 \item{select}{Number of elements to select (as TRUE).}
 
@@ -42,7 +42,7 @@ tie_is_max(tie_by_betweenness(ison_brandes))
 tie_is_min(tie_by_betweenness(ison_brandes))
 }
 \seealso{
-Other marks: 
+Other marks:
 \code{\link{mark_core}},
 \code{\link{mark_degree}},
 \code{\link{mark_diff}},
@@ -52,7 +52,7 @@ Other marks:
 \code{\link{mark_ties}},
 \code{\link{mark_triangles}}
 
-Other tie: 
+Other tie:
 \code{\link{mark_dyads}},
 \code{\link{mark_ties}},
 \code{\link{mark_triangles}},
@@ -62,7 +62,7 @@ Other tie:
 \code{\link{measure_centralities_degree}},
 \code{\link{measure_centralities_eigen}}
 
-Other selection: 
+Other selection:
 \code{\link{mark_select_node}}
 }
 \concept{marks}

@@ -168,7 +168,7 @@ Garnett, G.P. 2005.
 }
 }
 \seealso{
-Other measures: 
+Other measures:
 \code{\link{measure_assort_net}},
 \code{\link{measure_assort_node}},
 \code{\link{measure_breadth}},
@@ -200,7 +200,7 @@ Other measures:
 \code{\link{measure_hierarchy}},
 \code{\link{measure_periods}}
 
-Other diffusion: 
+Other diffusion:
 \code{\link{mark_diff}},
 \code{\link{measure_diffusion_infection}},
 \code{\link{measure_diffusion_node}},

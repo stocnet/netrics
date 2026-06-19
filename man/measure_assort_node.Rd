@@ -17,7 +17,7 @@ node_by_homophily(
 \arguments{
 \item{.data}{A network object of class \code{mnet}, \code{igraph}, \code{tbl_graph}, \code{network}, or similar.
 For more information on the standard coercion possible,
-see \code{\link[manynet:coerce_graph]{manynet::as_tidygraph()}}.}
+see \code{\link[manynet:as_tidygraph]{manynet::as_tidygraph()}}.}
 
 \item{attribute}{Name of a nodal attribute, mark, measure, or membership vector.}
 
@@ -44,9 +44,9 @@ This value can range from -1 to 1, where 1 indicates perfect association
 
 Geary's C is a measure of spatial autocorrelation, calculated as:
 \deqn{C = \frac{(n - 1) \sum
-  \limits_{i=1}^n \sum\limits_{j=1}^n w_{ij} (x_i - x_j)^2}{2W \sum\limits_{i=1}^n (x_i - \bar{x})^2}}
+\limits_{i=1}^n \sum\limits_{j=1}^n w_{ij} (x_i - x_j)^2}{2W \sum\limits_{i=1}^n (x_i - \bar{x})^2}}
 where \eqn{n} is the number of nodes, \eqn{
-  w_{ij}} is the weight of the tie between nodes \eqn{i} and \eqn{j},
+w_{ij}} is the weight of the tie between nodes \eqn{i} and \eqn{j},
 \eqn{x_i} is the attribute value of node \eqn{i},
 \eqn{\bar{x}} is the mean attribute value across all nodes, and \eqn{W} is the sum of all tie weights.
 This value can range from 0 to 2, where values less than 1
@@ -77,12 +77,12 @@ node_by_heterophily(marvel_friends, "Gender")
 node_by_heterophily(marvel_friends, "Attractive")
 }
 \seealso{
-Other diversity: 
+Other diversity:
 \code{\link{measure_assort_net}},
 \code{\link{measure_diverse_net}},
 \code{\link{measure_diverse_node}}
 
-Other measures: 
+Other measures:
 \code{\link{measure_assort_net}},
 \code{\link{measure_breadth}},
 \code{\link{measure_broker_node}},
@@ -114,7 +114,7 @@ Other measures:
 \code{\link{measure_hierarchy}},
 \code{\link{measure_periods}}
 
-Other nodal: 
+Other nodal:
 \code{\link{mark_core}},
 \code{\link{mark_degree}},
 \code{\link{mark_diff}},

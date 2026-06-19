@@ -17,7 +17,7 @@ net_by_diversity(
 \arguments{
 \item{.data}{A network object of class \code{mnet}, \code{igraph}, \code{tbl_graph}, \code{network}, or similar.
 For more information on the standard coercion possible,
-see \code{\link[manynet:coerce_graph]{manynet::as_tidygraph()}}.}
+see \code{\link[manynet:as_tidygraph]{manynet::as_tidygraph()}}.}
 
 \item{attribute}{Name of a nodal attribute, mark, measure, or membership vector.}
 
@@ -137,12 +137,12 @@ Princeton: Princeton University Press.
 }
 }
 \seealso{
-Other diversity: 
+Other diversity:
 \code{\link{measure_assort_net}},
 \code{\link{measure_assort_node}},
 \code{\link{measure_diverse_node}}
 
-Other measures: 
+Other measures:
 \code{\link{measure_assort_net}},
 \code{\link{measure_assort_node}},
 \code{\link{measure_breadth}},

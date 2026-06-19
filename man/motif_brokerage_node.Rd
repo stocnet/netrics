@@ -10,7 +10,7 @@ node_x_brokerage(.data, membership, standardized = FALSE)
 \arguments{
 \item{.data}{A network object of class \code{mnet}, \code{igraph}, \code{tbl_graph}, \code{network}, or similar.
 For more information on the standard coercion possible,
-see \code{\link[manynet:coerce_graph]{manynet::as_tidygraph()}}.}
+see \code{\link[manynet:as_tidygraph]{manynet::as_tidygraph()}}.}
 
 \item{membership}{A character string naming an existing node attribute in
 the network, or a categorical vector of the same length as the number of
@@ -53,14 +53,14 @@ Jasny, Lorien, and Mark Lubell. 2015.
 }
 }
 \seealso{
-Other brokerage: 
+Other brokerage:
 \code{\link{measure_broker_node}},
 \code{\link{measure_broker_tie}},
 \code{\link{measure_brokerage}},
 \code{\link{member_brokerage}},
 \code{\link{motif_brokerage_net}}
 
-Other motifs: 
+Other motifs:
 \code{\link{motif_brokerage_net}},
 \code{\link{motif_exposure}},
 \code{\link{motif_hazard}},
@@ -70,7 +70,7 @@ Other motifs:
 \code{\link{motif_path}},
 \code{\link{motif_periods}}
 
-Other nodal: 
+Other nodal:
 \code{\link{mark_core}},
 \code{\link{mark_degree}},
 \code{\link{mark_diff}},

@@ -52,7 +52,7 @@ highest infection rate is observed.
   net_by_infection_peak(smeg_diff)
 }
 \seealso{
-Other diffusion: 
+Other diffusion:
 \code{\link{mark_diff}},
 \code{\link{measure_diffusion_net}},
 \code{\link{measure_diffusion_node}},
@@ -60,7 +60,7 @@ Other diffusion:
 \code{\link{motif_exposure}},
 \code{\link{motif_hazard}}
 
-Other measures: 
+Other measures:
 \code{\link{measure_assort_net}},
 \code{\link{measure_assort_node}},
 \code{\link{measure_breadth}},

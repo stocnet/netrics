@@ -25,7 +25,7 @@ tie_is_imbalanced(.data)
 \arguments{
 \item{.data}{A network object of class \code{mnet}, \code{igraph}, \code{tbl_graph}, \code{network}, or similar.
 For more information on the standard coercion possible,
-see \code{\link[manynet:coerce_graph]{manynet::as_tidygraph()}}.}
+see \code{\link[manynet:as_tidygraph]{manynet::as_tidygraph()}}.}
 }
 \value{
 A \code{tie_mark} logical vector the length of the ties in the network,
@@ -49,20 +49,20 @@ They are most useful in highlighting parts of the network that
 are cohesively connected.
 }
 \examples{
-ison_monks \%>\% to_uniplex("like") \%>\% 
+ison_monks |> to_uniplex("like") |> 
   mutate_ties(tri = tie_is_triangular())
-ison_adolescents \%>\% to_directed() \%>\% 
+ison_adolescents |> to_directed() |> 
   mutate_ties(trans = tie_is_transitive())
-ison_adolescents \%>\% to_directed() \%>\% 
+ison_adolescents |> to_directed() |> 
   mutate_ties(trip = tie_is_triplet())
-ison_adolescents \%>\% to_directed() \%>\% 
+ison_adolescents |> to_directed() |> 
   mutate_ties(cyc = tie_is_cyclical())
-ison_monks \%>\% to_uniplex("like") \%>\% 
+ison_monks |> to_uniplex("like") |> 
   mutate_ties(simmel = tie_is_simmelian())
-fict_marvel \%>\% to_uniplex("relationship") \%>\% tie_is_imbalanced()
+fict_marvel |> to_uniplex("relationship") |> tie_is_imbalanced()
 }
 \seealso{
-Other marks: 
+Other marks:
 \code{\link{mark_core}},
 \code{\link{mark_degree}},
 \code{\link{mark_diff}},
@@ -72,7 +72,7 @@ Other marks:
 \code{\link{mark_select_tie}},
 \code{\link{mark_ties}}
 
-Other tie: 
+Other tie:
 \code{\link{mark_dyads}},
 \code{\link{mark_select_tie}},
 \code{\link{mark_ties}},
@@ -82,7 +82,7 @@ Other tie:
 \code{\link{measure_centralities_degree}},
 \code{\link{measure_centralities_eigen}}
 
-Other cohesion: 
+Other cohesion:
 \code{\link{measure_breadth}},
 \code{\link{measure_cohesion}},
 \code{\link{measure_fragmentation}},

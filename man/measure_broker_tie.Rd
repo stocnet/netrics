@@ -10,7 +10,7 @@ tie_by_cohesion(.data)
 \arguments{
 \item{.data}{A network object of class \code{mnet}, \code{igraph}, \code{tbl_graph}, \code{network}, or similar.
 For more information on the standard coercion possible,
-see \code{\link[manynet:coerce_graph]{manynet::as_tidygraph()}}.}
+see \code{\link[manynet:as_tidygraph]{manynet::as_tidygraph()}}.}
 }
 \value{
 A \code{tie_measure} numeric vector the length of the ties in the network,
@@ -24,14 +24,14 @@ adjacent nodes and the total number of adjacent nodes,
 where high values indicate ties' embeddedness in dense local environments.
 }
 \seealso{
-Other brokerage: 
+Other brokerage:
 \code{\link{measure_broker_node}},
 \code{\link{measure_brokerage}},
 \code{\link{member_brokerage}},
 \code{\link{motif_brokerage_net}},
 \code{\link{motif_brokerage_node}}
 
-Other measures: 
+Other measures:
 \code{\link{measure_assort_net}},
 \code{\link{measure_assort_node}},
 \code{\link{measure_breadth}},
@@ -63,7 +63,7 @@ Other measures:
 \code{\link{measure_hierarchy}},
 \code{\link{measure_periods}}
 
-Other tie: 
+Other tie:
 \code{\link{mark_dyads}},
 \code{\link{mark_select_tie}},
 \code{\link{mark_ties}},

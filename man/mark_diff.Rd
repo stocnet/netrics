@@ -19,7 +19,7 @@ node_is_exposed(.data, mark, time = 0)
 \arguments{
 \item{.data}{A network object of class \code{mnet}, \code{igraph}, \code{tbl_graph}, \code{network}, or similar.
 For more information on the standard coercion possible,
-see \code{\link[manynet:coerce_graph]{manynet::as_tidygraph()}}.}
+see \code{\link[manynet:as_tidygraph]{manynet::as_tidygraph()}}.}
 
 \item{time}{A time step at which nodes are identified.}
 
@@ -64,7 +64,7 @@ in that diffusion.
   which(expos)
 }
 \seealso{
-Other marks: 
+Other marks:
 \code{\link{mark_core}},
 \code{\link{mark_degree}},
 \code{\link{mark_dyads}},
@@ -74,7 +74,7 @@ Other marks:
 \code{\link{mark_ties}},
 \code{\link{mark_triangles}}
 
-Other nodal: 
+Other nodal:
 \code{\link{mark_core}},
 \code{\link{mark_degree}},
 \code{\link{mark_nodes}},
@@ -104,7 +104,7 @@ Other nodal:
 \code{\link{motif_node}},
 \code{\link{motif_path}}
 
-Other diffusion: 
+Other diffusion:
 \code{\link{measure_diffusion_infection}},
 \code{\link{measure_diffusion_net}},
 \code{\link{measure_diffusion_node}},

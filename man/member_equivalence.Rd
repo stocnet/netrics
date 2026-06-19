@@ -47,7 +47,7 @@ node_in_automorphic(
 \arguments{
 \item{.data}{A network object of class \code{mnet}, \code{igraph}, \code{tbl_graph}, \code{network}, or similar.
 For more information on the standard coercion possible,
-see \code{\link[manynet:coerce_graph]{manynet::as_tidygraph()}}.}
+see \code{\link[manynet:as_tidygraph]{manynet::as_tidygraph()}}.}
 
 \item{motif}{A matrix returned by a \verb{node_x_*()} function.}
 
@@ -112,7 +112,7 @@ if(require("sna", quietly = TRUE)){
 }
 }
 \seealso{
-Other memberships: 
+Other memberships:
 \code{\link{member_brokerage}},
 \code{\link{member_cliques}},
 \code{\link{member_community}},
@@ -122,7 +122,7 @@ Other memberships:
 \code{\link{member_core}},
 \code{\link{member_diffusion}}
 
-Other nodal: 
+Other nodal:
 \code{\link{mark_core}},
 \code{\link{mark_degree}},
 \code{\link{mark_diff}},

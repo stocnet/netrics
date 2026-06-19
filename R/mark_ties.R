@@ -62,7 +62,7 @@ tie_is_bridge <- function(.data){
 #'   By default FALSE, sampling just a single path.
 #' @importFrom igraph all_shortest_paths
 #' @examples 
-#' ison_adolescents %>%
+#' ison_adolescents |>
 #'   mutate_ties(route = tie_is_path(from = "Jane", to = 7)) 
 #' @export
 tie_is_path <- function(.data, from, to, all_paths = FALSE){
@@ -141,7 +141,7 @@ NULL
 #' @rdname mark_triangles
 #' @importFrom igraph triangles
 #' @examples 
-#' ison_monks %>% to_uniplex("like") %>% 
+#' ison_monks |> to_uniplex("like") |> 
 #'   mutate_ties(tri = tie_is_triangular())
 #' @export
 tie_is_triangular <- function(.data){
@@ -161,7 +161,7 @@ tie_is_triangular <- function(.data){
 
 #' @rdname mark_triangles
 #' @examples 
-#' ison_adolescents %>% to_directed() %>% 
+#' ison_adolescents |> to_directed() |> 
 #'   mutate_ties(trans = tie_is_transitive())
 #' @export
 tie_is_transitive <- function(.data){
@@ -177,7 +177,7 @@ tie_is_transitive <- function(.data){
 
 #' @rdname mark_triangles
 #' @examples 
-#' ison_adolescents %>% to_directed() %>% 
+#' ison_adolescents |> to_directed() |> 
 #'   mutate_ties(trip = tie_is_triplet())
 #' @export
 tie_is_triplet <- function(.data){
@@ -198,7 +198,7 @@ tie_is_triplet <- function(.data){
 
 #' @rdname mark_triangles
 #' @examples 
-#' ison_adolescents %>% to_directed() %>% 
+#' ison_adolescents |> to_directed() |> 
 #'   mutate_ties(cyc = tie_is_cyclical())
 #' @export
 tie_is_cyclical <- function(.data){
@@ -214,7 +214,7 @@ tie_is_cyclical <- function(.data){
 
 #' @rdname mark_triangles
 #' @examples 
-#' ison_monks %>% to_uniplex("like") %>% 
+#' ison_monks |> to_uniplex("like") |> 
 #'   mutate_ties(simmel = tie_is_simmelian())
 #' @export
 tie_is_simmelian <- function(.data){
@@ -229,7 +229,7 @@ tie_is_simmelian <- function(.data){
 
 # #' @rdname mark_triangles
 # #' @examples 
-# #' generate_random(8, directed = TRUE) %>% 
+# #' generate_random(8, directed = TRUE) |> 
 # #'   mutate_ties(forbid = tie_is_forbidden())
 # #' @export
 # tie_is_forbidden <- function(.data){
@@ -262,7 +262,7 @@ tie_is_simmelian <- function(.data){
 
 #' @rdname mark_triangles
 #' @examples
-#' fict_marvel %>% to_uniplex("relationship") %>% tie_is_imbalanced()
+#' fict_marvel |> to_uniplex("relationship") |> tie_is_imbalanced()
 #' @export
 tie_is_imbalanced <- function(.data){
   .data <- manynet::expect_ties(.data)  

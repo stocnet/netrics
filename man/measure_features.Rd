@@ -35,7 +35,7 @@ net_by_balance(.data)
 \arguments{
 \item{.data}{A network object of class \code{mnet}, \code{igraph}, \code{tbl_graph}, \code{network}, or similar.
 For more information on the standard coercion possible,
-see \code{\link[manynet:coerce_graph]{manynet::as_tidygraph()}}.}
+see \code{\link[manynet:as_tidygraph]{manynet::as_tidygraph()}}.}
 
 \item{mark}{A logical vector indicating which nodes belong to the core.}
 
@@ -239,7 +239,7 @@ Cartwright, D., and Frank Harary. 1956.
 \code{\link[=net_by_transitivity]{net_by_transitivity()}} and \code{\link[=net_by_equivalency]{net_by_equivalency()}}
 for how clustering is calculated
 
-Other measures: 
+Other measures:
 \code{\link{measure_assort_net}},
 \code{\link{measure_assort_node}},
 \code{\link{measure_breadth}},
