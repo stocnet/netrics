@@ -1,3 +1,24 @@
+# netrics 0.2.4
+
+## Package
+
+- Improved docs/examples to use base R pipe (|>) instead of magrittr's %>%
+- Improved dependency requirements (R >= 4.1.0)
+- Improved startup messages to be more succinct
+
+## Measures
+
+- Fixed `node_by_homophily()` to work when attribute is provided as a vector (e.g., a membership vector)
+
+## Motifs
+
+- Fixed `net_x_hazard()` to use `diff_model$t` for naming the returned data frame columns, rather than the deprecated `diff_model$time`
+
+## Tutorials
+
+- Updated topology tutorial to use base R pipe (|>) instead of magrittr's %>%
+- Updated centrality tutorial to use base R pipe (|>) instead of magrittr's %>%
+
 # netrics 0.2.3
 
 ## Tutorials
