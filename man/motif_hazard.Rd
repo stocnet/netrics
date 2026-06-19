@@ -13,7 +13,7 @@ net_x_hazard(.data)
 \arguments{
 \item{.data}{A network object of class \code{mnet}, \code{igraph}, \code{tbl_graph}, \code{network}, or similar.
 For more information on the standard coercion possible,
-see \code{\link[manynet:coerce_graph]{manynet::as_tidygraph()}}.}
+see \code{\link[manynet:as_tidygraph]{manynet::as_tidygraph()}}.}
 }
 \value{
 A \code{network_motif} named numeric vector or sometimes a data frame with
@@ -87,7 +87,7 @@ Cambridge: MIT Press.
 }
 }
 \seealso{
-Other diffusion: 
+Other diffusion:
 \code{\link{mark_diff}},
 \code{\link{measure_diffusion_infection}},
 \code{\link{measure_diffusion_net}},
@@ -95,7 +95,7 @@ Other diffusion:
 \code{\link{member_diffusion}},
 \code{\link{motif_exposure}}
 
-Other motifs: 
+Other motifs:
 \code{\link{motif_brokerage_net}},
 \code{\link{motif_brokerage_node}},
 \code{\link{motif_exposure}},

@@ -10,7 +10,7 @@ node_in_roulette(.data, num_groups, group_size, times = NULL)
 \arguments{
 \item{.data}{A network object of class \code{mnet}, \code{igraph}, \code{tbl_graph}, \code{network}, or similar.
 For more information on the standard coercion possible,
-see \code{\link[manynet:coerce_graph]{manynet::as_tidygraph()}}.}
+see \code{\link[manynet:as_tidygraph]{manynet::as_tidygraph()}}.}
 
 \item{num_groups}{An integer indicating the number of groups desired.}
 
@@ -79,7 +79,7 @@ Lai, Xiangjing, Jin-Kao Hao, Zhang-Hua Fu, and Dong Yue. 2021.
 }
 }
 \seealso{
-Other memberships: 
+Other memberships:
 \code{\link{member_brokerage}},
 \code{\link{member_community}},
 \code{\link{member_community_hier}},
@@ -89,7 +89,7 @@ Other memberships:
 \code{\link{member_diffusion}},
 \code{\link{member_equivalence}}
 
-Other nodal: 
+Other nodal:
 \code{\link{mark_core}},
 \code{\link{mark_degree}},
 \code{\link{mark_diff}},

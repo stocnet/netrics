@@ -16,7 +16,7 @@ net_by_indegree(.data, normalized = TRUE)
 \arguments{
 \item{.data}{A network object of class \code{mnet}, \code{igraph}, \code{tbl_graph}, \code{network}, or similar.
 For more information on the standard coercion possible,
-see \code{\link[manynet:coerce_graph]{manynet::as_tidygraph()}}.}
+see \code{\link[manynet:as_tidygraph]{manynet::as_tidygraph()}}.}
 
 \item{normalized}{Logical scalar, whether scores are normalized.
 Different denominators may be used depending on the measure,
@@ -43,7 +43,7 @@ there are several related shortcut functions:
 All measures attempt to use as much information as they are offered,
 including whether the networks are directed, weighted, or multimodal.
 If this would produce unintended results,
-first transform the salient properties using e.g. \code{\link[manynet:modif_direction]{manynet::to_undirected()}} functions.
+first transform the salient properties using e.g. \code{\link[manynet:to_undirected]{to_undirected()}} functions.
 All centrality and centralization measures return normalized measures
 by default, including for two-mode networks.
 
@@ -58,12 +58,12 @@ against only the centrality scores of the other nodes in that mode.
 net_by_degree(ison_southern_women, direction = "in")
 }
 \seealso{
-Other degree: 
+Other degree:
 \code{\link{mark_degree}},
 \code{\link{measure_central_degree}},
 \code{\link{measure_centralities_degree}}
 
-Other centrality: 
+Other centrality:
 \code{\link{measure_central_between}},
 \code{\link{measure_central_close}},
 \code{\link{measure_central_degree}},
@@ -76,7 +76,7 @@ Other centrality:
 \code{\link{measure_centralities_degree}},
 \code{\link{measure_centralities_eigen}}
 
-Other measures: 
+Other measures:
 \code{\link{measure_assort_net}},
 \code{\link{measure_assort_node}},
 \code{\link{measure_breadth}},

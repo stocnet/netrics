@@ -661,7 +661,7 @@ net_x_hazard <- function(.data){
   if(inherits(.data, "diff_model")) 
     net <- attr(.data, "network") else 
       net <- .data
-  names(out) <- paste0("t", diff_model$time)
+  names(out) <- paste0("t", diff_model$t)
   make_network_motif(out, net)
 }
 

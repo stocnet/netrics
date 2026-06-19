@@ -22,7 +22,7 @@ net_x_mixed(.data, object2)
 \arguments{
 \item{.data}{A network object of class \code{mnet}, \code{igraph}, \code{tbl_graph}, \code{network}, or similar.
 For more information on the standard coercion possible,
-see \code{\link[manynet:coerce_graph]{manynet::as_tidygraph()}}.}
+see \code{\link[manynet:as_tidygraph]{manynet::as_tidygraph()}}.}
 
 \item{object2}{A second, two-mode network object.}
 }
@@ -172,14 +172,14 @@ Hollway, James, Alessandro Lomi, Francesca Pallotti, and Christoph Stadtfeld. 20
 }
 }
 \seealso{
-Other cohesion: 
+Other cohesion:
 \code{\link{mark_triangles}},
 \code{\link{measure_breadth}},
 \code{\link{measure_cohesion}},
 \code{\link{measure_fragmentation}},
 \code{\link{motif_node}}
 
-Other motifs: 
+Other motifs:
 \code{\link{motif_brokerage_net}},
 \code{\link{motif_brokerage_node}},
 \code{\link{motif_exposure}},

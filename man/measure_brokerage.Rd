@@ -13,7 +13,7 @@ node_by_brokering_exclusivity(.data, membership)
 \arguments{
 \item{.data}{A network object of class \code{mnet}, \code{igraph}, \code{tbl_graph}, \code{network}, or similar.
 For more information on the standard coercion possible,
-see \code{\link[manynet:coerce_graph]{manynet::as_tidygraph()}}.}
+see \code{\link[manynet:as_tidygraph]{manynet::as_tidygraph()}}.}
 
 \item{membership}{A character string naming an existing node attribute in
 the network, or a categorical vector of the same length as the number of
@@ -50,7 +50,7 @@ and their application to multi-level environmental governance networks"
 }
 }
 \seealso{
-Other measures: 
+Other measures:
 \code{\link{measure_assort_net}},
 \code{\link{measure_assort_node}},
 \code{\link{measure_breadth}},
@@ -82,7 +82,7 @@ Other measures:
 \code{\link{measure_hierarchy}},
 \code{\link{measure_periods}}
 
-Other nodal: 
+Other nodal:
 \code{\link{mark_core}},
 \code{\link{mark_degree}},
 \code{\link{mark_diff}},
@@ -112,7 +112,7 @@ Other nodal:
 \code{\link{motif_node}},
 \code{\link{motif_path}}
 
-Other brokerage: 
+Other brokerage:
 \code{\link{measure_broker_node}},
 \code{\link{measure_broker_tie}},
 \code{\link{member_brokerage}},

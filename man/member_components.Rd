@@ -16,7 +16,7 @@ node_in_strong(.data)
 \arguments{
 \item{.data}{A network object of class \code{mnet}, \code{igraph}, \code{tbl_graph}, \code{network}, or similar.
 For more information on the standard coercion possible,
-see \code{\link[manynet:coerce_graph]{manynet::as_tidygraph()}}.}
+see \code{\link[manynet:as_tidygraph]{manynet::as_tidygraph()}}.}
 }
 \value{
 A \code{node_member} character vector the length of the nodes in the network,
@@ -47,11 +47,11 @@ Weakly connected components consist of subgraphs where there is a path
 in either direction between member nodes.
 }
 \examples{
-ison_monks \%>\% to_uniplex("esteem") \%>\%
+ison_monks |> to_uniplex("esteem") |>
   mutate_nodes(comp = node_in_component())
 }
 \seealso{
-Other memberships: 
+Other memberships:
 \code{\link{member_brokerage}},
 \code{\link{member_cliques}},
 \code{\link{member_community}},
@@ -61,7 +61,7 @@ Other memberships:
 \code{\link{member_diffusion}},
 \code{\link{member_equivalence}}
 
-Other nodal: 
+Other nodal:
 \code{\link{mark_core}},
 \code{\link{mark_degree}},
 \code{\link{mark_diff}},

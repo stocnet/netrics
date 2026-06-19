@@ -179,7 +179,7 @@ NULL
 #' @importFrom igraph edge_betweenness
 #' @examples
 #' (tb <- tie_by_betweenness(ison_adolescents))
-#' ison_adolescents %>% mutate_ties(weight = tb)
+#' ison_adolescents |> mutate_ties(weight = tb)
 #' @export
 tie_by_betweenness <- function(.data, normalized = TRUE){
   .data <- manynet::expect_ties(.data)

@@ -19,7 +19,7 @@ tie_is_path(.data, from, to, all_paths = FALSE)
 \arguments{
 \item{.data}{A network object of class \code{mnet}, \code{igraph}, \code{tbl_graph}, \code{network}, or similar.
 For more information on the standard coercion possible,
-see \code{\link[manynet:coerce_graph]{manynet::as_tidygraph()}}.}
+see \code{\link[manynet:as_tidygraph]{manynet::as_tidygraph()}}.}
 
 \item{from}{The index or name of the node from which the path should start.}
 
@@ -50,11 +50,11 @@ are particularly well- or poorly-connected.
 tie_is_loop(fict_marvel)
 tie_is_feedback(ison_algebra)
 tie_is_bridge(ison_brandes)
-ison_adolescents \%>\%
+ison_adolescents |>
   mutate_ties(route = tie_is_path(from = "Jane", to = 7)) 
 }
 \seealso{
-Other marks: 
+Other marks:
 \code{\link{mark_core}},
 \code{\link{mark_degree}},
 \code{\link{mark_diff}},
@@ -64,7 +64,7 @@ Other marks:
 \code{\link{mark_select_tie}},
 \code{\link{mark_triangles}}
 
-Other tie: 
+Other tie:
 \code{\link{mark_dyads}},
 \code{\link{mark_select_tie}},
 \code{\link{mark_triangles}},

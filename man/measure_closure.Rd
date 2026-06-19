@@ -19,7 +19,7 @@ net_by_congruency(.data, object2)
 \arguments{
 \item{.data}{A network object of class \code{mnet}, \code{igraph}, \code{tbl_graph}, \code{network}, or similar.
 For more information on the standard coercion possible,
-see \code{\link[manynet:coerce_graph]{manynet::as_tidygraph()}}.}
+see \code{\link[manynet:as_tidygraph]{manynet::as_tidygraph()}}.}
 
 \item{method}{For reciprocity, either \code{default} or \code{ratio}.
 See \code{?igraph::reciprocity}}
@@ -81,7 +81,7 @@ Cambridge University Press. Cambridge University Press.
 }
 }
 \seealso{
-Other measures: 
+Other measures:
 \code{\link{measure_assort_net}},
 \code{\link{measure_assort_node}},
 \code{\link{measure_breadth}},

@@ -361,7 +361,7 @@ NULL
 #' @rdname measure_centralities_close 
 #' @examples
 #' (ec <- tie_by_closeness(ison_adolescents))
-#' ison_adolescents %>% mutate_ties(weight = ec)
+#' ison_adolescents |> mutate_ties(weight = ec)
 #' @export
 tie_by_closeness <- function(.data, normalized = TRUE){
   .data <- manynet::expect_ties(.data)

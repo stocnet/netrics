@@ -10,7 +10,7 @@ node_is_core(.data, centrality = c("degree", "eigenvector"))
 \arguments{
 \item{.data}{A network object of class \code{mnet}, \code{igraph}, \code{tbl_graph}, \code{network}, or similar.
 For more information on the standard coercion possible,
-see \code{\link[manynet:coerce_graph]{manynet::as_tidygraph()}}.}
+see \code{\link[manynet:as_tidygraph]{manynet::as_tidygraph()}}.}
 
 \item{centrality}{Which centrality measure to use to identify cores and periphery.
 By default this is "degree",
@@ -44,7 +44,7 @@ it ignores ties between these blocks.
 
 \examples{
 node_is_core(ison_adolescents)
-ison_adolescents \%>\% 
+ison_adolescents |> 
    mutate(corep = node_is_core())
 }
 \references{
@@ -61,11 +61,11 @@ Lip, Sean Z. W. 2011.
 }
 }
 \seealso{
-Other core-periphery: 
+Other core-periphery:
 \code{\link{measure_core}},
 \code{\link{member_core}}
 
-Other marks: 
+Other marks:
 \code{\link{mark_degree}},
 \code{\link{mark_diff}},
 \code{\link{mark_dyads}},
@@ -75,7 +75,7 @@ Other marks:
 \code{\link{mark_ties}},
 \code{\link{mark_triangles}}
 
-Other nodal: 
+Other nodal:
 \code{\link{mark_degree}},
 \code{\link{mark_diff}},
 \code{\link{mark_nodes}},

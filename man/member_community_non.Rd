@@ -28,7 +28,7 @@ node_in_leiden(.data, resolution = 1)
 \arguments{
 \item{.data}{A network object of class \code{mnet}, \code{igraph}, \code{tbl_graph}, \code{network}, or similar.
 For more information on the standard coercion possible,
-see \code{\link[manynet:coerce_graph]{manynet::as_tidygraph()}}.}
+see \code{\link[manynet:as_tidygraph]{manynet::as_tidygraph()}}.}
 
 \item{times}{Integer indicating number of simulations/walks used.
 By default, \code{times=50}.}
@@ -226,11 +226,11 @@ Traag, Vincent A., Ludo Waltman, and Nees Jan van Eck. 2019.
 }
 }
 \seealso{
-Other community: 
+Other community:
 \code{\link{member_community}},
 \code{\link{member_community_hier}}
 
-Other memberships: 
+Other memberships:
 \code{\link{member_brokerage}},
 \code{\link{member_cliques}},
 \code{\link{member_community}},
@@ -240,7 +240,7 @@ Other memberships:
 \code{\link{member_diffusion}},
 \code{\link{member_equivalence}}
 
-Other nodal: 
+Other nodal:
 \code{\link{mark_core}},
 \code{\link{mark_degree}},
 \code{\link{mark_diff}},

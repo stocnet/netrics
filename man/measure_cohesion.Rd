@@ -16,7 +16,7 @@ net_by_independence(.data)
 \arguments{
 \item{.data}{A network object of class \code{mnet}, \code{igraph}, \code{tbl_graph}, \code{network}, or similar.
 For more information on the standard coercion possible,
-see \code{\link[manynet:coerce_graph]{manynet::as_tidygraph()}}.}
+see \code{\link[manynet:as_tidygraph]{manynet::as_tidygraph()}}.}
 }
 \value{
 A \code{network_measure} numeric score.
@@ -46,14 +46,14 @@ net_by_density(ison_southern_women)
 net_by_independence(ison_adolescents)
 }
 \seealso{
-Other cohesion: 
+Other cohesion:
 \code{\link{mark_triangles}},
 \code{\link{measure_breadth}},
 \code{\link{measure_fragmentation}},
 \code{\link{motif_net}},
 \code{\link{motif_node}}
 
-Other measures: 
+Other measures:
 \code{\link{measure_assort_net}},
 \code{\link{measure_assort_node}},
 \code{\link{measure_breadth}},

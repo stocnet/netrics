@@ -531,10 +531,15 @@ node_by_homophily <- function(.data, attribute,
     manynet::snet_info("Using {.val ie} index instead.")
     assortativity <- "ie"
   }
-  out <- vapply(igraph::ego(manynet::as_igraph(.data)),
-                function(x) net_by_homophily(
-                  igraph::induced_subgraph(manynet::as_igraph(.data), x),
-                  attribute, assortativity = assortativity),
+  idat <- manynet::as_igraph(.data)
+  out <- vapply(igraph::ego(idat),
+                function(x) {
+                  subattr <- if (length(attribute) == 1 && is.character(attribute))
+                    attribute else attribute[as.integer(x)]
+                  net_by_homophily(
+                    igraph::induced_subgraph(idat, x),
+                    subattr, assortativity = assortativity)
+                },
                 FUN.VALUE = numeric(1))
   make_node_measure(out, .data)
 }

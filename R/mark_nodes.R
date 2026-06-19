@@ -240,10 +240,10 @@ node_is_latent <- function(.data, time = 0){
   .data <- manynet::expect_nodes(.data)
   if(manynet::is_changing(.data)){
     t <- time
-    latent <- manynet::as_changelist(.data) %>% 
-      dplyr::filter(time <= t & value %in% c("E", "I")) %>%
-      dplyr::group_by(node) %>%
-      dplyr::mutate(n = dplyr::n()) %>%
+    latent <- manynet::as_changelist(.data) |> 
+      dplyr::filter(time <= t & value %in% c("E", "I")) |>
+      dplyr::group_by(node) |>
+      dplyr::mutate(n = dplyr::n()) |>
       dplyr::filter(n == 1 & value == "E")
     if (manynet::is_labelled(.data)) {
       out <- seq_len(manynet::net_nodes(.data)) %in% latent$node
@@ -253,10 +253,10 @@ node_is_latent <- function(.data, time = 0){
     }
     make_node_mark(out, .data)
   } else if(inherits(.data, "diff_model")){
-    latent <- summary(.data) %>%
-      dplyr::filter(t <= time & event %in% c("E", "I")) %>%
-      dplyr::group_by(nodes) %>%
-      dplyr::mutate(n = dplyr::n()) %>%
+    latent <- summary(.data) |>
+      dplyr::filter(t <= time & event %in% c("E", "I")) |>
+      dplyr::group_by(nodes) |>
+      dplyr::mutate(n = dplyr::n()) |>
       dplyr::filter(n == 1 & event == "E")
     net <- attr(.data, "network")
     if (manynet::is_labelled(net)) {
@@ -283,10 +283,10 @@ node_is_infected <- function(.data, time = 0) {
   .data <- manynet::expect_nodes(.data)
   if(manynet::is_changing(.data)){
     t <- time
-    infected <- manynet::as_changelist(.data) %>% 
-      dplyr::filter(time <= t & value %in% c("I", "R")) %>%
-      dplyr::group_by(node) %>%
-      dplyr::mutate(n = dplyr::n()) %>%
+    infected <- manynet::as_changelist(.data) |> 
+      dplyr::filter(time <= t & value %in% c("I", "R")) |>
+      dplyr::group_by(node) |>
+      dplyr::mutate(n = dplyr::n()) |>
       dplyr::filter(n == 1 & value == "I")
     if (manynet::is_labelled(.data)) {
       out <- seq_len(manynet::net_nodes(.data)) %in% infected$node
@@ -296,10 +296,10 @@ node_is_infected <- function(.data, time = 0) {
     }
     make_node_mark(out, .data)
   } else if(inherits(.data, "diff_model")){
-    infected <- summary(.data) %>% 
-      dplyr::filter(t <= time & event %in% c("I", "R")) %>%
-      dplyr::group_by(nodes) %>%
-      dplyr::mutate(n = dplyr::n()) %>%
+    infected <- summary(.data) |> 
+      dplyr::filter(t <= time & event %in% c("I", "R")) |>
+      dplyr::group_by(nodes) |>
+      dplyr::mutate(n = dplyr::n()) |>
       dplyr::filter(n == 1 & event == "I")
     net <- attr(.data, "network")
     if (manynet::is_labelled(net)) {
@@ -325,10 +325,10 @@ node_is_recovered <- function(.data, time = 0){
   .data <- manynet::expect_nodes(.data)
   if(manynet::is_changing(.data)){
     t <- time
-    recovered <- manynet::as_changelist(.data) %>% 
-      dplyr::filter(time <= t & value %in% c("R")) %>%
-      dplyr::group_by(node) %>%
-      dplyr::mutate(n = dplyr::n()) %>%
+    recovered <- manynet::as_changelist(.data) |> 
+      dplyr::filter(time <= t & value %in% c("R")) |>
+      dplyr::group_by(node) |>
+      dplyr::mutate(n = dplyr::n()) |>
       dplyr::filter(n == 1 & value == "R")
     if (manynet::is_labelled(.data)) {
       out <- seq_len(manynet::net_nodes(.data)) %in% recovered$node
@@ -338,10 +338,10 @@ node_is_recovered <- function(.data, time = 0){
     }
     make_node_mark(out, .data)
   } else if(inherits(.data, "diff_model")){
-    recovered <- summary(.data) %>% 
-      dplyr::filter(t <= time & event == "R") %>%
-      dplyr::group_by(nodes) %>%
-      dplyr::mutate(n = dplyr::n()) %>%
+    recovered <- summary(.data) |> 
+      dplyr::filter(t <= time & event == "R") |>
+      dplyr::group_by(nodes) |>
+      dplyr::mutate(n = dplyr::n()) |>
       dplyr::filter(n == 1)
     net <- attr(.data, "network")
     if (manynet::is_labelled(net)) {
@@ -372,6 +372,7 @@ node_is_recovered <- function(.data, time = 0){
 #'   then the function will return nodes exposure to the seed nodes
 #'   in that diffusion.
 #' @param mark vector denoting which nodes are infected
+#' @importFrom dplyr filter select group_by mutate
 #' @examples
 #'   # To mark which nodes are currently exposed
 #'   (expos <- node_is_exposed(manynet::create_tree(14), mark = c(1,3)))
@@ -384,9 +385,9 @@ node_is_exposed <- function(.data, mark, time = 0){
       t <- time
       return(make_node_mark(node_by_adopt_exposure(.data, time = t)>0, .data))
     } else if(inherits(.data, "diff_model")){
-      mark <- summary(.data) %>% 
-        dplyr::filter(t == 0 & event == "I") %>% 
-        dplyr::select(nodes) %>% unlist()
+      mark <- summary(.data) |> 
+        dplyr::filter(t == 0 & event == "I") |> 
+        dplyr::select(nodes) |> unlist()
       .data <- attr(.data, "network")
     }    
   }

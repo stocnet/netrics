@@ -10,7 +10,7 @@ tie_by_betweenness(.data, normalized = TRUE)
 \arguments{
 \item{.data}{A network object of class \code{mnet}, \code{igraph}, \code{tbl_graph}, \code{network}, or similar.
 For more information on the standard coercion possible,
-see \code{\link[manynet:coerce_graph]{manynet::as_tidygraph()}}.}
+see \code{\link[manynet:as_tidygraph]{manynet::as_tidygraph()}}.}
 
 \item{normalized}{Logical scalar, whether scores are normalized.
 Different denominators may be used depending on the measure,
@@ -29,20 +29,20 @@ then the scores will be labelled with the ties' adjacent nodes' names.
 All measures attempt to use as much information as they are offered,
 including whether the networks are directed, weighted, or multimodal.
 If this would produce unintended results,
-first transform the salient properties using e.g. \code{\link[manynet:modif_direction]{manynet::to_undirected()}} functions.
+first transform the salient properties using e.g. \code{\link[manynet:to_undirected]{to_undirected()}} functions.
 All centrality and centralization measures return normalized measures by default,
 including for two-mode networks.
 }
 \examples{
 (tb <- tie_by_betweenness(ison_adolescents))
-ison_adolescents \%>\% mutate_ties(weight = tb)
+ison_adolescents |> mutate_ties(weight = tb)
 }
 \seealso{
-Other betweenness: 
+Other betweenness:
 \code{\link{measure_central_between}},
 \code{\link{measure_centralisation_between}}
 
-Other centrality: 
+Other centrality:
 \code{\link{measure_central_between}},
 \code{\link{measure_central_close}},
 \code{\link{measure_central_degree}},
@@ -55,7 +55,7 @@ Other centrality:
 \code{\link{measure_centralities_degree}},
 \code{\link{measure_centralities_eigen}}
 
-Other measures: 
+Other measures:
 \code{\link{measure_assort_net}},
 \code{\link{measure_assort_node}},
 \code{\link{measure_breadth}},
@@ -87,7 +87,7 @@ Other measures:
 \code{\link{measure_hierarchy}},
 \code{\link{measure_periods}}
 
-Other tie: 
+Other tie:
 \code{\link{mark_dyads}},
 \code{\link{mark_select_tie}},
 \code{\link{mark_ties}},

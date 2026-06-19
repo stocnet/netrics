@@ -49,15 +49,15 @@ NULL
 #' @rdname member_equivalence 
 #' @export
 node_in_equivalence <- function(.data, motif,
-                             k = c("silhouette", "elbow", "strict"),
-                             cluster = c("hierarchical", "concor", "cosine"),
-                             distance = c("euclidean", "maximum", "manhattan", 
-                                          "canberra", "binary", "minkowski"),
-                             Kmax = 8L){
+                                k = c("silhouette", "elbow", "strict"),
+                                cluster = c("hierarchical", "concor", "cosine"),
+                                distance = c("euclidean", "maximum", "manhattan", 
+                                             "canberra", "binary", "minkowski"),
+                                Kmax = 8L){
   .data <- manynet::expect_nodes(.data)
   hc <- switch(match.arg(cluster),
-               hierarchical = cluster_hierarchical(motif, 
-                                                      match.arg(distance)),
+               hierarchical = cluster_hierarchical(motif,
+                                                   match.arg(distance)),
                concor = cluster_concor(.data, motif),
                cosine = cluster_cosine(motif, 
                                        match.arg(distance)))
@@ -80,18 +80,19 @@ node_in_equivalence <- function(.data, motif,
 #' (nse <- node_in_structural(ison_algebra))
 #' @export
 node_in_structural <- function(.data,
-                                        k = c("silhouette", "elbow", "strict"),
-                                        cluster = c("hierarchical", "concor","cosine"),
-                                        distance = c("euclidean", "maximum", "manhattan", 
-                                                     "canberra", "binary", "minkowski"),
-                                        Kmax = 8L){
+                               k = c("silhouette", "elbow", "strict"),
+                               cluster = c("hierarchical", "concor","cosine"),
+                               distance = c("euclidean", "maximum", "manhattan", 
+                                            "canberra", "binary", "minkowski"),
+                               Kmax = 8L){
   .data <- manynet::expect_nodes(.data)
   mat <- node_x_tie(.data)
   if(any(colSums(t(mat))==0)){
     mat <- cbind(mat, (colSums(t(mat))==0))
   } 
   node_in_equivalence(.data, mat, 
-                   k = k, cluster = cluster, distance = distance, Kmax = Kmax)
+                      k = k, cluster = cluster, distance = distance, 
+                      Kmax = Kmax)
 }
 
 #' @rdname member_equivalence
@@ -130,11 +131,11 @@ node_in_regular <- function(.data,
 #' }
 #' @export
 node_in_automorphic <- function(.data,
-                                         k = c("silhouette", "elbow", "strict"),
-                                         cluster = c("hierarchical", "concor","cosine"),
-                                         distance = c("euclidean", "maximum", "manhattan", 
-                                                      "canberra", "binary", "minkowski"),
-                                         Kmax = 8L){
+                                k = c("silhouette", "elbow", "strict"),
+                                cluster = c("hierarchical", "concor","cosine"),
+                                distance = c("euclidean", "maximum", "manhattan", 
+                                             "canberra", "binary", "minkowski"),
+                                Kmax = 8L){
   .data <- manynet::expect_nodes(.data)
   mat <- node_x_path(.data)
   node_in_equivalence(.data, mat, 

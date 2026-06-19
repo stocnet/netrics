@@ -41,7 +41,7 @@ NULL
 #' \doi{10.48550/arXiv.1102.5511}
 #' @examples 
 #' node_is_core(ison_adolescents)
-#' ison_adolescents %>% 
+#' ison_adolescents |> 
 #'    mutate(corep = node_is_core())
 #' @export
 node_is_core <- function(.data, centrality = c("degree", "eigenvector")){

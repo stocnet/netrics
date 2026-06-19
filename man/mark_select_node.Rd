@@ -19,7 +19,7 @@ node_is_mean(node_measure, ranks = 1)
 \arguments{
 \item{.data}{A network object of class \code{mnet}, \code{igraph}, \code{tbl_graph}, \code{network}, or similar.
 For more information on the standard coercion possible,
-see \code{\link[manynet:coerce_graph]{manynet::as_tidygraph()}}.}
+see \code{\link[manynet:as_tidygraph]{manynet::as_tidygraph()}}.}
 
 \item{select}{Number of elements to select (as TRUE).}
 
@@ -54,10 +54,10 @@ node_is_min(node_by_degree(ison_brandes))
 node_is_mean(node_by_degree(ison_brandes))
 }
 \seealso{
-Other selection: 
+Other selection:
 \code{\link{mark_select_tie}}
 
-Other marks: 
+Other marks:
 \code{\link{mark_core}},
 \code{\link{mark_degree}},
 \code{\link{mark_diff}},
@@ -67,7 +67,7 @@ Other marks:
 \code{\link{mark_ties}},
 \code{\link{mark_triangles}}
 
-Other nodal: 
+Other nodal:
 \code{\link{mark_core}},
 \code{\link{mark_degree}},
 \code{\link{mark_diff}},

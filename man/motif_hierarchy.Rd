@@ -10,7 +10,7 @@ net_x_hierarchy(.data)
 \arguments{
 \item{.data}{A network object of class \code{mnet}, \code{igraph}, \code{tbl_graph}, \code{network}, or similar.
 For more information on the standard coercion possible,
-see \code{\link[manynet:coerce_graph]{manynet::as_tidygraph()}}.}
+see \code{\link[manynet:as_tidygraph]{manynet::as_tidygraph()}}.}
 }
 \value{
 A \code{network_motif} named numeric vector or sometimes a data frame with
@@ -52,10 +52,10 @@ Everett, Martin, and David Krackhardt. 2012.
 }
 }
 \seealso{
-Other hierarchy: 
+Other hierarchy:
 \code{\link{measure_hierarchy}}
 
-Other motifs: 
+Other motifs:
 \code{\link{motif_brokerage_net}},
 \code{\link{motif_brokerage_node}},
 \code{\link{motif_exposure}},

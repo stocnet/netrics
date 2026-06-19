@@ -18,14 +18,14 @@
   
   greet_startup_cli <- function() {
     tips <- c(
-      "i" = "There are lots of ways to contribute to {.pkg netrics} at {.url https://github.com/stocnet/netrics/}.",
-      "i" = "Please share bugs, issues, or feature requests at {.url https://github.com/stocnet/netrics/issues}. It's really helpful!",
+      "i" = "Contribute to {.pkg netrics} at {.url https://github.com/stocnet/netrics/}.",
+      "i" = "Share bugs, issues, or feature requests at {.url https://github.com/stocnet/netrics/issues}.",
       # "i" = "To suppress package startup messages, use: `suppressPackageStartupMessages(library({.pkg netrics}))`.",
       # "i" = "Changing the theme of all your graphs is straightforward with `set_manynet_theme()`",
       # "i" = "If too many messages appear in the console, run `options(snet_verbosity = 'quiet')`",
       "i" = "Explore changes since the last version with {.code news(package = 'netrics')}.",
       "i" = "Visit the website to learn more: {.url https://stocnet.github.io/netrics/}.",
-      "i" = "The 'Function Overview' may suggest new analytic opportunities: {.url https://stocnet.github.io/netrics/reference/index.html}."
+      "i" = "Discover new analytic opportunities: {.url https://stocnet.github.io/netrics/reference/index.html}."
       # "i" = "Discover {.emph stocnet} R packages at {.url https://github.com/stocnet/}."
       # "i" = "Star me at {.url https://github.com/users/follow?target=jhollway}.",
       # "i" = "You can list all the tutorials available in {.pkg netrics} using {.fn run_tute}, and run them too!"

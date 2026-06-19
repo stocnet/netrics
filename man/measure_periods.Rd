@@ -10,7 +10,7 @@ net_by_waves(.data)
 \arguments{
 \item{.data}{A network object of class \code{mnet}, \code{igraph}, \code{tbl_graph}, \code{network}, or similar.
 For more information on the standard coercion possible,
-see \code{\link[manynet:coerce_graph]{manynet::as_tidygraph()}}.}
+see \code{\link[manynet:as_tidygraph]{manynet::as_tidygraph()}}.}
 }
 \value{
 A \code{network_measure} numeric score.
@@ -19,10 +19,10 @@ A \code{network_measure} numeric score.
 \code{net_by_waves()} measures the number of waves in longitudinal network data.
 }
 \seealso{
-Other change: 
+Other change:
 \code{\link{motif_periods}}
 
-Other measures: 
+Other measures:
 \code{\link{measure_assort_net}},
 \code{\link{measure_assort_node}},
 \code{\link{measure_breadth}},

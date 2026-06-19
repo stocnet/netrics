@@ -10,7 +10,7 @@ node_in_adopter(.data)
 \arguments{
 \item{.data}{A network object of class \code{mnet}, \code{igraph}, \code{tbl_graph}, \code{network}, or similar.
 For more information on the standard coercion possible,
-see \code{\link[manynet:coerce_graph]{manynet::as_tidygraph()}}.}
+see \code{\link[manynet:as_tidygraph]{manynet::as_tidygraph()}}.}
 }
 \value{
 A \code{node_member} character vector the length of the nodes in the network,
@@ -53,7 +53,7 @@ Valente, Tom W. 1995.
 }
 }
 \seealso{
-Other memberships: 
+Other memberships:
 \code{\link{member_brokerage}},
 \code{\link{member_cliques}},
 \code{\link{member_community}},
@@ -63,7 +63,7 @@ Other memberships:
 \code{\link{member_core}},
 \code{\link{member_equivalence}}
 
-Other nodal: 
+Other nodal:
 \code{\link{mark_core}},
 \code{\link{mark_degree}},
 \code{\link{mark_diff}},
@@ -93,7 +93,7 @@ Other nodal:
 \code{\link{motif_node}},
 \code{\link{motif_path}}
 
-Other diffusion: 
+Other diffusion:
 \code{\link{mark_diff}},
 \code{\link{measure_diffusion_infection}},
 \code{\link{measure_diffusion_net}},

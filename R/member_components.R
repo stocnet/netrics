@@ -28,7 +28,7 @@ NULL
 #' @rdname member_components 
 #' @importFrom igraph components
 #' @examples
-#' ison_monks %>% to_uniplex("esteem") %>%
+#' ison_monks |> to_uniplex("esteem") |>
 #'   mutate_nodes(comp = node_in_component())
 #' @export
 node_in_component <- function(.data){

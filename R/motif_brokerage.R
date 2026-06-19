@@ -160,7 +160,7 @@ node_by_brokering_exclusivity <- function(.data, membership){
     twopaths <- dplyr::filter(twopaths, from_memb != to_memb)
   }
   # get only exclusive paths
-  out <- twopaths %>% dplyr::group_by(from, to.y) %>% dplyr::filter(dplyr::n()==1)
+  out <- twopaths |> dplyr::group_by(from, to.y) |> dplyr::filter(dplyr::n()==1)
   # tabulate brokerage
   out <- c(table(out$to))
   # correct ordering for named data
