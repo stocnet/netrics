@@ -17,7 +17,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">netrics</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.2.3</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.3.0</span>
       </span>
     </div>
 
@@ -53,6 +53,30 @@
       <small>Source: <a href="https://github.com/stocnet/netrics/blob/main/NEWS.md" class="external-link"><code>NEWS.md</code></a></small>
     </div>
 
+    <div class="section level2">
+<h2 class="page-header" data-toc-text="0.3.0" id="netrics-030">netrics 0.3.0<a class="anchor" aria-label="anchor" href="#netrics-030"></a></h2>
+<div class="section level3">
+<h3 id="package-0-3-0">Package<a class="anchor" aria-label="anchor" href="#package-0-3-0"></a></h3>
+<ul><li>Improved docs/examples to use base R pipe (|&gt;) instead of magrittr’s %&gt;%</li>
+<li>Improved dependency requirements (R &gt;= 4.1.0)</li>
+<li>Improved startup messages to be more succinct</li>
+</ul></div>
+<div class="section level3">
+<h3 id="measures-0-3-0">Measures<a class="anchor" aria-label="anchor" href="#measures-0-3-0"></a></h3>
+<ul><li>Fixed <code><a href="../reference/measure_assort_node.html">node_by_homophily()</a></code> to work when attribute is provided as a vector (e.g., a membership vector)</li>
+<li>Improved <code><a href="../reference/measure_assort_node.html">node_by_homophily()</a></code> to avoid calling <code>as_igraph()</code> multiple times</li>
+</ul></div>
+<div class="section level3">
+<h3 id="motifs-0-3-0">Motifs<a class="anchor" aria-label="anchor" href="#motifs-0-3-0"></a></h3>
+<ul><li>Fixed <code><a href="../reference/motif_hazard.html">net_x_hazard()</a></code> to use <code>diff_model$t</code> for naming the returned data frame columns, rather than the deprecated <code>diff_model$time</code>
+</li>
+</ul></div>
+<div class="section level3">
+<h3 id="tutorials-0-3-0">Tutorials<a class="anchor" aria-label="anchor" href="#tutorials-0-3-0"></a></h3>
+<ul><li>Updated topology tutorial to use base R pipe (|&gt;) instead of magrittr’s %&gt;%</li>
+<li>Updated centrality tutorial to use base R pipe (|&gt;) instead of magrittr’s %&gt;%</li>
+</ul></div>
+</div>
     <div class="section level2">
 <h2 class="page-header" data-toc-text="0.2.3" id="netrics-023">netrics 0.2.3<a class="anchor" aria-label="anchor" href="#netrics-023"></a></h2>
 <div class="section level3">

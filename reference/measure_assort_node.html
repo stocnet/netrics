@@ -23,7 +23,7 @@ of nodes with the same attribute, using a variety of methods.
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">netrics</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.2.3</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.3.0</span>
       </span>
     </div>
 
@@ -113,9 +113,9 @@ This value can range from -1 to 1, where 1 indicates perfect association
 (all ties are between nodes in different categories), and 0 indicates no association.</p>
 <p>Geary's C is a measure of spatial autocorrelation, calculated as:
 $$C = \frac{(n - 1) \sum
-  \limits_{i=1}^n \sum\limits_{j=1}^n w_{ij} (x_i - x_j)^2}{2W \sum\limits_{i=1}^n (x_i - \bar{x})^2}$$
+\limits_{i=1}^n \sum\limits_{j=1}^n w_{ij} (x_i - x_j)^2}{2W \sum\limits_{i=1}^n (x_i - \bar{x})^2}$$
 where \(n\) is the number of nodes, \(
-  w_{ij}\) is the weight of the tie between nodes \(i\) and \(j\),
+w_{ij}\) is the weight of the tie between nodes \(i\) and \(j\),
 \(x_i\) is the attribute value of node \(i\),
 \(\bar{x}\) is the mean attribute value across all nodes, and \(W\) is the sum of all tie weights.
 This value can range from 0 to 2, where values less than 1
