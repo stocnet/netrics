@@ -1,6 +1,6 @@
 Package: netrics
 Title: Many Ways to Measure and Classify Membership for Networks, Nodes, and Ties
-Version: 0.2.4
+Version: 0.3.0
 Description: Many tools for calculating network, node, or tie
    marks, measures, motifs and memberships of many different types of networks.
    Marks identify structural positions, measures quantify network properties,

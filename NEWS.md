@@ -1,4 +1,4 @@
-# netrics 0.2.4
+# netrics 0.3.0
 
 ## Package
 
@@ -9,6 +9,7 @@
 ## Measures
 
 - Fixed `node_by_homophily()` to work when attribute is provided as a vector (e.g., a membership vector)
+- Improved `node_by_homophily()` to avoid calling `as_igraph()` multiple times
 
 ## Motifs
 
