@@ -76,7 +76,3 @@ make_network_motif <- function(out, .data) {
   attr(out, "call") <- deparse(sys.calls())
   out
 }
-
-#' @importFrom dplyr %>%
-#' @export
-dplyr::`%>%`
