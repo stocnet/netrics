@@ -372,6 +372,7 @@ node_is_recovered <- function(.data, time = 0){
 #'   then the function will return nodes exposure to the seed nodes
 #'   in that diffusion.
 #' @param mark vector denoting which nodes are infected
+#' @importFrom dplyr filter select group_by mutate
 #' @examples
 #'   # To mark which nodes are currently exposed
 #'   (expos <- node_is_exposed(manynet::create_tree(14), mark = c(1,3)))
