@@ -56,7 +56,7 @@ alge <- to_named(ison_algebra)
 
 <img src="https://i.giphy.com/media/v1.Y2lkPTc5MGI3NjExMTVtNTJqZmFsdmFpOGRjd24zeHZ1NTM0bDhxbWxrMWdja202NXo1eSZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/fL1EXX8pQs0dd9zqLR/giphy.gif" alt="gif of rick and morty characters hanging out with themselves"/>
 
-For this session, we're going to use the "ison_algebra" dataset included in the `{netrics}` package.
+For this session, we're going to use the "ison_algebra" dataset included in the `{manynet}` package.
 Do you remember how to call the data?
 Can you find out some more information about it via its help file?
 

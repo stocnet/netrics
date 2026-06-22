@@ -1,3 +1,9 @@
+# netrics 0.3.1
+
+## Package
+
+- Updated manynet dependency to 0.3.1 to fix reverse dependency issue
+
 # netrics 0.3.0
 
 ## Package
