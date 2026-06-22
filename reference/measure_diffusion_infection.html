@@ -31,7 +31,7 @@ highest infection rate is observed.
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">netrics</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.3.0</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.3.1</span>
       </span>
     </div>
 
@@ -160,7 +160,7 @@ By default TRUE.</p></dd>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span>  <span class="va">smeg</span> <span class="op">&lt;-</span> <span class="fu">generate_smallworld</span><span class="op">(</span><span class="fl">15</span>, <span class="fl">0.025</span><span class="op">)</span></span></span>
 <span class="r-in"><span>  <span class="va">smeg_diff</span> <span class="op">&lt;-</span> <span class="fu">play_diffusion</span><span class="op">(</span><span class="va">smeg</span><span class="op">)</span></span></span>
 <span class="r-in"><span>  <span class="fu">net_by_infection_complete</span><span class="op">(</span><span class="va">smeg_diff</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 4</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] Inf</span>
 <span class="r-in"><span>  <span class="fu">net_by_infection_total</span><span class="op">(</span><span class="va">smeg_diff</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] 1</span>
 <span class="r-in"><span>  <span class="fu">net_by_infection_peak</span><span class="op">(</span><span class="va">smeg_diff</span><span class="op">)</span></span></span>

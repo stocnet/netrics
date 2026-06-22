@@ -29,7 +29,7 @@ are cohesively connected."><meta property="og:image" content="https://stocnet.gi
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">netrics</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.3.0</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.3.1</span>
       </span>
     </div>
 
@@ -172,94 +172,28 @@ whether the condition is matched.</p>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-in"><span><span class="va">ison_adolescents</span> <span class="op">|&gt;</span> <span class="fu">to_directed</span><span class="op">(</span><span class="op">)</span> <span class="op">|&gt;</span> </span></span>
 <span class="r-in"><span>  <span class="fu">mutate_ties</span><span class="op">(</span>trans <span class="op">=</span> <span class="fu">tie_is_transitive</span><span class="op">(</span><span class="op">)</span><span class="op">)</span></span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">──</span> <span style="font-weight: bold;"># The Adolescent Society</span> <span style="color: #00BBBB;">────────────────────────────────────────────────────</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #5F87D7; font-style: italic;"># A labelled, multiplex, directed network of 8 adolescents and 10 friendships</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #5F87D7; font-style: italic;">arcs</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> ── Nodes </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># A tibble: 8 × 1</span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   name </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">1</span> Betty</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">2</span> Sue  </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">3</span> Alice</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">4</span> Jane </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">5</span> Dale </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">6</span> Pam  </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># ℹ 2 more rows</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> ── Ties </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># A tibble: 10 × 3</span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>    from    to trans     </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;int&gt;</span> <span style="color: #949494; font-style: italic;">&lt;int&gt;</span> <span style="color: #949494; font-style: italic;">&lt;tie_mark&gt;</span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">1</span>     1     2 FALSE     </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">2</span>     2     3 TRUE      </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">3</span>     3     4 FALSE     </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">4</span>     2     5 FALSE     </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">5</span>     5     3 FALSE     </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">6</span>     5     4 TRUE      </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># ℹ 4 more rows</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> IGRAPH 9a7c8c4 DN-- 8 10 -- The Adolescent Society</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> + attr: name (g/c), doi (g/c), year (g/n), vertex1 (g/c), vertex1.total</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> | (g/n), edge.pos (g/c), directed (g/l), name (v/c), trans (e/l)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> + edges from 9a7c8c4 (vertex names):</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [1] Betty-&gt;Sue   Sue  -&gt;Alice Alice-&gt;Jane  Sue  -&gt;Dale  Dale -&gt;Alice</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [6] Dale -&gt;Jane  Sue  -&gt;Pam   Pam  -&gt;Alice Pam  -&gt;Carol Carol-&gt;Tina </span>
 <span class="r-in"><span><span class="va">ison_adolescents</span> <span class="op">|&gt;</span> <span class="fu">to_directed</span><span class="op">(</span><span class="op">)</span> <span class="op">|&gt;</span> </span></span>
 <span class="r-in"><span>  <span class="fu">mutate_ties</span><span class="op">(</span>trip <span class="op">=</span> <span class="fu">tie_is_triplet</span><span class="op">(</span><span class="op">)</span><span class="op">)</span></span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">──</span> <span style="font-weight: bold;"># The Adolescent Society</span> <span style="color: #00BBBB;">────────────────────────────────────────────────────</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #5F87D7; font-style: italic;"># A labelled, multiplex, directed network of 8 adolescents and 10 friendships</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #5F87D7; font-style: italic;">arcs</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> ── Nodes </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># A tibble: 8 × 1</span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   name </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">1</span> Betty</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">2</span> Sue  </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">3</span> Alice</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">4</span> Jane </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">5</span> Dale </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">6</span> Pam  </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># ℹ 2 more rows</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> ── Ties </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># A tibble: 10 × 3</span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>    from    to trip      </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;int&gt;</span> <span style="color: #949494; font-style: italic;">&lt;int&gt;</span> <span style="color: #949494; font-style: italic;">&lt;tie_mark&gt;</span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">1</span>     1     2 FALSE     </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">2</span>     3     2 TRUE      </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">3</span>     3     4 FALSE     </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">4</span>     5     2 TRUE      </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">5</span>     5     3 TRUE      </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">6</span>     4     5 FALSE     </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># ℹ 4 more rows</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> IGRAPH 9ea5185 DN-- 8 10 -- The Adolescent Society</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> + attr: name (g/c), doi (g/c), year (g/n), vertex1 (g/c), vertex1.total</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> | (g/n), edge.pos (g/c), directed (g/l), name (v/c), trip (e/l)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> + edges from 9ea5185 (vertex names):</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [1] Betty-&gt;Sue   Alice-&gt;Sue   Alice-&gt;Jane  Dale -&gt;Sue   Dale -&gt;Alice</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [6] Jane -&gt;Dale  Pam  -&gt;Sue   Pam  -&gt;Alice Pam  -&gt;Carol Carol-&gt;Tina </span>
 <span class="r-in"><span><span class="va">ison_adolescents</span> <span class="op">|&gt;</span> <span class="fu">to_directed</span><span class="op">(</span><span class="op">)</span> <span class="op">|&gt;</span> </span></span>
 <span class="r-in"><span>  <span class="fu">mutate_ties</span><span class="op">(</span>cyc <span class="op">=</span> <span class="fu">tie_is_cyclical</span><span class="op">(</span><span class="op">)</span><span class="op">)</span></span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">──</span> <span style="font-weight: bold;"># The Adolescent Society</span> <span style="color: #00BBBB;">────────────────────────────────────────────────────</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #5F87D7; font-style: italic;"># A labelled, multiplex, directed network of 8 adolescents and 10 friendships</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #5F87D7; font-style: italic;">arcs</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> ── Nodes </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># A tibble: 8 × 1</span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   name </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">1</span> Betty</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">2</span> Sue  </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">3</span> Alice</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">4</span> Jane </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">5</span> Dale </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">6</span> Pam  </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># ℹ 2 more rows</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> ── Ties </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># A tibble: 10 × 3</span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>    from    to cyc       </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;int&gt;</span> <span style="color: #949494; font-style: italic;">&lt;int&gt;</span> <span style="color: #949494; font-style: italic;">&lt;tie_mark&gt;</span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">1</span>     1     2 FALSE     </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">2</span>     2     3 FALSE     </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">3</span>     3     4 FALSE     </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">4</span>     5     2 FALSE     </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">5</span>     5     3 FALSE     </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">6</span>     5     4 FALSE     </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># ℹ 4 more rows</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> IGRAPH ecf8ce3 DN-- 8 10 -- The Adolescent Society</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> + attr: name (g/c), doi (g/c), year (g/n), vertex1 (g/c), vertex1.total</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> | (g/n), edge.pos (g/c), directed (g/l), name (v/c), cyc (e/l)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> + edges from ecf8ce3 (vertex names):</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [1] Betty-&gt;Sue   Sue  -&gt;Alice Alice-&gt;Jane  Dale -&gt;Sue   Dale -&gt;Alice</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [6] Dale -&gt;Jane  Pam  -&gt;Sue   Pam  -&gt;Alice Pam  -&gt;Carol Carol-&gt;Tina </span>
 <span class="r-in"><span><span class="va">ison_monks</span> <span class="op">|&gt;</span> <span class="fu">to_uniplex</span><span class="op">(</span><span class="st">"like"</span><span class="op">)</span> <span class="op">|&gt;</span> </span></span>
 <span class="r-in"><span>  <span class="fu">mutate_ties</span><span class="op">(</span>simmel <span class="op">=</span> <span class="fu">tie_is_simmelian</span><span class="op">(</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">──</span> <span style="font-weight: bold;"># Sampson's Monks</span> <span style="color: #00BBBB;">───────────────────────────────────────────────────────────</span></span>
