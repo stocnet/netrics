@@ -2,7 +2,7 @@
 
 ## Package
 
-- Updated manynet dependency to 0.3.1 to fix reverse dependency issue
+- Updated manynet dependency to 2.1.2 to fix reverse dependency issue
 
 # netrics 0.3.0
 
