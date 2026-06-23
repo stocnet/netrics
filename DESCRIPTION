@@ -42,5 +42,5 @@ Config/Needs/website:
     pkgdown
 Config/testthat/parallel: true
 Config/testthat/edition: 3
-Config/testthat/start-first: measure_net 
+Config/testthat/start-first: tutorials_netrics, measure_net, member_nodes, measure_nodes
 Config/roxygen2/version: 8.0.0
