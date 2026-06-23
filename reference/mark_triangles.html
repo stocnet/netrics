@@ -172,26 +172,26 @@ whether the condition is matched.</p>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-in"><span><span class="va">ison_adolescents</span> <span class="op">|&gt;</span> <span class="fu">to_directed</span><span class="op">(</span><span class="op">)</span> <span class="op">|&gt;</span> </span></span>
 <span class="r-in"><span>  <span class="fu">mutate_ties</span><span class="op">(</span>trans <span class="op">=</span> <span class="fu">tie_is_transitive</span><span class="op">(</span><span class="op">)</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> IGRAPH 9a7c8c4 DN-- 8 10 -- The Adolescent Society</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> IGRAPH fc31131 DN-- 8 10 -- The Adolescent Society</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> + attr: name (g/c), doi (g/c), year (g/n), vertex1 (g/c), vertex1.total</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> | (g/n), edge.pos (g/c), directed (g/l), name (v/c), trans (e/l)</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> + edges from 9a7c8c4 (vertex names):</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> + edges from fc31131 (vertex names):</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  [1] Betty-&gt;Sue   Sue  -&gt;Alice Alice-&gt;Jane  Sue  -&gt;Dale  Dale -&gt;Alice</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  [6] Dale -&gt;Jane  Sue  -&gt;Pam   Pam  -&gt;Alice Pam  -&gt;Carol Carol-&gt;Tina </span>
 <span class="r-in"><span><span class="va">ison_adolescents</span> <span class="op">|&gt;</span> <span class="fu">to_directed</span><span class="op">(</span><span class="op">)</span> <span class="op">|&gt;</span> </span></span>
 <span class="r-in"><span>  <span class="fu">mutate_ties</span><span class="op">(</span>trip <span class="op">=</span> <span class="fu">tie_is_triplet</span><span class="op">(</span><span class="op">)</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> IGRAPH 9ea5185 DN-- 8 10 -- The Adolescent Society</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> IGRAPH 73dfe90 DN-- 8 10 -- The Adolescent Society</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> + attr: name (g/c), doi (g/c), year (g/n), vertex1 (g/c), vertex1.total</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> | (g/n), edge.pos (g/c), directed (g/l), name (v/c), trip (e/l)</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> + edges from 9ea5185 (vertex names):</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> + edges from 73dfe90 (vertex names):</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  [1] Betty-&gt;Sue   Alice-&gt;Sue   Alice-&gt;Jane  Dale -&gt;Sue   Dale -&gt;Alice</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  [6] Jane -&gt;Dale  Pam  -&gt;Sue   Pam  -&gt;Alice Pam  -&gt;Carol Carol-&gt;Tina </span>
 <span class="r-in"><span><span class="va">ison_adolescents</span> <span class="op">|&gt;</span> <span class="fu">to_directed</span><span class="op">(</span><span class="op">)</span> <span class="op">|&gt;</span> </span></span>
 <span class="r-in"><span>  <span class="fu">mutate_ties</span><span class="op">(</span>cyc <span class="op">=</span> <span class="fu">tie_is_cyclical</span><span class="op">(</span><span class="op">)</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> IGRAPH ecf8ce3 DN-- 8 10 -- The Adolescent Society</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> IGRAPH 622be86 DN-- 8 10 -- The Adolescent Society</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> + attr: name (g/c), doi (g/c), year (g/n), vertex1 (g/c), vertex1.total</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> | (g/n), edge.pos (g/c), directed (g/l), name (v/c), cyc (e/l)</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> + edges from ecf8ce3 (vertex names):</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> + edges from 622be86 (vertex names):</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  [1] Betty-&gt;Sue   Sue  -&gt;Alice Alice-&gt;Jane  Dale -&gt;Sue   Dale -&gt;Alice</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  [6] Dale -&gt;Jane  Pam  -&gt;Sue   Pam  -&gt;Alice Pam  -&gt;Carol Carol-&gt;Tina </span>
 <span class="r-in"><span><span class="va">ison_monks</span> <span class="op">|&gt;</span> <span class="fu">to_uniplex</span><span class="op">(</span><span class="st">"like"</span><span class="op">)</span> <span class="op">|&gt;</span> </span></span>
