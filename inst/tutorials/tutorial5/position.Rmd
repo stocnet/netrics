@@ -39,16 +39,25 @@ learnr::random_phrases_add(language = "fr",
                                             "Continuez à travailler dur!",
                                             "Vous apprenez vite!",
                                             "Vous faites un excellent travail aujourd'hui."))
-learnr::random_phrases_add(language = "en", 
-                           praise = c("C'est génial!",
-                                      "Beau travail!",
-                                      "Bravo!",
-                                      "Super!"),
-                           encouragement = c("Bon effort"))
+learnr::random_phrases_add(language = "en",
+                           praise = c("That's brilliant!",
+                                      "Great work!",
+                                      "Well done!",
+                                      "Awesome!"),
+                           encouragement = c("Good effort"))
 friends <- to_uniplex(ison_algebra, "friends")
 social <- to_uniplex(ison_algebra, "social")
 tasks <- to_uniplex(ison_algebra, "tasks")
 alge <- to_named(ison_algebra)
+```
+
+```{r detect-language, context="server-start", purl=FALSE}
+sys_locale <- Sys.getlocale("LC_CTYPE")
+if (grepl("fr", sys_locale, ignore.case = TRUE)) {
+  options(tutorial.language = "fr")
+} else {
+  options(tutorial.language = "en")
+}
 ```
 
 

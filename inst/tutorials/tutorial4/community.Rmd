@@ -39,15 +39,24 @@ learnr::random_phrases_add(language = "fr",
                                             "Continuez à travailler dur!",
                                             "Vous apprenez vite!",
                                             "Vous faites un excellent travail aujourd'hui."))
-learnr::random_phrases_add(language = "en", 
-                           praise = c("C'est génial!",
-                                      "Beau travail!",
-                                      "Bravo!",
-                                      "Super!"),
-                           encouragement = c("Bon effort"))
+learnr::random_phrases_add(language = "en",
+                           praise = c("That's brilliant!",
+                                      "Great work!",
+                                      "Well done!",
+                                      "Awesome!"),
+                           encouragement = c("Good effort"))
 friends <- to_uniplex(ison_algebra, "friends")
 social <- to_uniplex(ison_algebra, "social")
 tasks <- to_uniplex(ison_algebra, "tasks")
+```
+
+```{r detect-language, context="server-start", purl=FALSE}
+sys_locale <- Sys.getlocale("LC_CTYPE")
+if (grepl("fr", sys_locale, ignore.case = TRUE)) {
+  options(tutorial.language = "fr")
+} else {
+  options(tutorial.language = "en")
+}
 ```
 
 
@@ -592,8 +601,8 @@ friends <- friends %>%
 ```{r comp-memb-hint-2, purl = FALSE}
 graphr(friends, node_color = "weak_comp") + ggtitle("Weak components") +
 graphr(friends, node_color = "strong_comp") + ggtitle("Strong components")
-# by using the 'node_color' argument, we are telling graphr to colour 
-# the nodes in the graph according to the values of the 'weak_comp' attribute in the network 
+# by using the 'node_color' argument, we are telling graphr to color
+# the nodes in the graph according to the values of the 'weak_comp' attribute in the network
 ```
 
 ```{r comp-memb-solution}

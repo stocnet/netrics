@@ -39,13 +39,22 @@ learnr::random_phrases_add(language = "fr",
                                             "Continuez à travailler dur!",
                                             "Vous apprenez vite!",
                                             "Vous faites un excellent travail aujourd'hui."))
-learnr::random_phrases_add(language = "en", 
-                           praise = c("C'est génial!",
-                                      "Beau travail!",
-                                      "Bravo!",
-                                      "Super!"),
-                           encouragement = c("Bon effort"))
+learnr::random_phrases_add(language = "en",
+                           praise = c("That's brilliant!",
+                                      "Great work!",
+                                      "Well done!",
+                                      "Awesome!"),
+                           encouragement = c("Good effort"))
 ison_brandes2 <- ison_brandes %>% rename(type = twomode_type)
+```
+
+```{r detect-language, context="server-start", purl=FALSE}
+sys_locale <- Sys.getlocale("LC_CTYPE")
+if (grepl("fr", sys_locale, ignore.case = TRUE)) {
+  options(tutorial.language = "fr")
+} else {
+  options(tutorial.language = "en")
+}
 ```
 
 ## Today's target
@@ -333,7 +342,7 @@ we can highlight which node or nodes hold the maximum score in red.
 ```
 
 ```{r ggid-solution}
-# plot the network, highlighting the node with the highest centrality score with a different colour
+# plot the network, highlighting the node with the highest centrality score with a different color
 ison_brandes %>%
   mutate_nodes(color = node_is_max(node_by_degree())) %>%
   graphr(node_color = "color")
