@@ -574,6 +574,42 @@ For formal definitions and references, see `?measure_central_close`.
 and `node_by_eccentricity()` via each node's furthest distance.
 :::
 
+## Eigenvector centralities
+
+<span class="page-toc">On this page:
+<span class="page-toc-link" onclick="document.getElementById('section-eigenvector-centrality').scrollIntoView({behavior:'auto',block:'start'});">Eigenvector</span> ·
+<span class="page-toc-link" onclick="document.getElementById('section-power-and-influence').scrollIntoView({behavior:'auto',block:'start'});">Power</span> ·
+<span class="page-toc-link" onclick="document.getElementById('section-pagerank-hubs-and-authorities').scrollIntoView({behavior:'auto',block:'start'});">Pagerank & hubs</span></span>
+
+What the members of the **eigenvector family** have in common is recursion:
+a node's score depends on the scores of the nodes it is connected to,
+which depend in turn on _their_ neighbours, and so on —
+importance as _standing among the important_.
+Where they differ is in how that recursion is tempered:
+whether alters' scores always help, how far along walks influence travels,
+and whether sending and receiving are scored separately.
+
+### Eigenvector centrality {#eigenvector-centrality}
+
+`r gloss("Eigenvector","eigenvector")` centrality weights a node's ties by how
+central its neighbours are: you are important if you are connected to important
+others. It captures influence rather than mere activity — a node with only a
+few ties, but to very well-connected nodes, can outscore a node with many ties
+to peripheral ones.
+**Calculate the eigenvector centralities for `ison_brandes`.**
+
+```{r eigencalc, exercise = TRUE, exercise.setup = "addingnames", purl = FALSE}
+
+```
+
+```{r eigencalc-hint-1, purl = FALSE}
+# Use the node_by_eigenvector() function to calculate
+# the eigenvector centrality of nodes in a network
+node_by_eigenvector(____)
+```
+
+```{r eigencalc-solution}
+node_by_eigenvector(ison_brandes)
 ```
 
 ```{r eiginterpQ, purl = FALSE}
@@ -590,18 +626,84 @@ question("Which of the following is true of eigenvector centrality?",
          random_answer_order = TRUE)
 ```
 
+::: {.callout}
+<span class="callout-label">**Going further**:</span>
+A note of caution: eigenvector centrality is only well-behaved on a single
+`r gloss("connected","connected")` `r gloss("component")` —
+on a disconnected network the scores for the smaller components can be
+misleading. The pagerank variant below is one common response.
+:::
+
+### Power and influence {#power-and-influence}
+
+Bonacich famously argued that `r gloss("power")` and influence are _not_ the
+same thing. Under eigenvector logic, well-connected neighbours always raise
+your score. But in bargaining or exchange, the reverse can hold:
+being connected to poorly-connected others makes _them_ dependent on _you_ —
+that is power.
+`node_by_power()` implements Bonacich's measure, and its `exponent` argument
+sets the sign of the recursion:
+a positive exponent rewards well-connected neighbours (influence-like),
+while a negative one rewards _dependent_, poorly-connected neighbours (power).
+**Compare the two.**
+
+```{r power, exercise = TRUE, exercise.setup = "addingnames"}
+node_by_power(ison_brandes, exponent = 1)
+node_by_power(ison_brandes, exponent = -1)
+```
+
 Try to answer the following questions for yourself:
 
-- what does Bonacich mean when he says that `r gloss("power")` and influence are not the same thing?
-- can you think of a real-world example when an actor might be central but not powerful, or powerful but not central?
+- which nodes swap fortunes when the exponent flips, and what do their
+neighbourhoods look like?
+- can you think of a real-world example when an actor might be central but not
+powerful, or powerful but not central?
 
-Note that all centrality measures in `{netrics}` return normalized
-scores by default -- 
-for the raw scores, include `normalized = FALSE` in the function as an extra argument.
+### Pagerank, hubs, and authorities {#pagerank-hubs-and-authorities}
 
-Now, can you create degree distributions for each of these?
+Two further members of this family were developed for the web,
+and shine on `r gloss("directed")` networks:
 
-```{r otherdist, exercise=TRUE, purl=FALSE}
+- `node_by_pagerank()` measures pagerank, the algorithm behind early Google:
+a random surfer follows ties and occasionally teleports to a random node,
+and a node's score is how often the surfer visits.
+The teleporting makes it robust on disconnected and directed networks
+where plain eigenvector centrality struggles.
+- `node_by_hub()` and `node_by_authority()` split reputation in two:
+`r gloss("authorities","authority")` are nodes that many point _to_,
+while `r gloss("hubs","hub")` are nodes that point to many good authorities —
+think review sites (hubs) versus the restaurants they recommend (authorities).
+- `node_by_alpha()` measures alpha or Katz centrality,
+which extends eigenvector logic to count longer walks at a discount —
+see `?measure_central_eigen` for details on the whole family.
+
+**Try these on a directed version of our network.**
+
+```{r pagerank, exercise = TRUE, exercise.setup = "addingnames"}
+ison_brandes_dir <- to_directed(ison_brandes)
+node_by_pagerank(ison_brandes_dir)
+node_by_hub(ison_brandes_dir)
+node_by_authority(ison_brandes_dir)
+```
+
+Since the directions are again assigned at random,
+run the code a few times: watch how a node's authority score rises and falls
+with the arrows pointing at it.
+
+You have now met all four families of centrality —
+degree, betweenness, closeness, and eigenvector —
+each ranking the nodes by a different notion of importance.
+With four families (and many variants within each) to choose from,
+how do you decide? That is the subject of the next page.
+
+::: {.callout}
+<span class="callout-label">**In brief**:</span> The eigenvector family measures standing among the
+important: `node_by_eigenvector()` for influence,
+`node_by_power()` for Bonacich power (with its sign-flipping `exponent`),
+`node_by_pagerank()` for a robust directed-network variant,
+and `node_by_hub()`/`node_by_authority()` for split sending/receiving
+reputations.
+:::
 
 ```
 
