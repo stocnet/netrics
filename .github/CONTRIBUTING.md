@@ -45,6 +45,81 @@ although this won't be necessary after you have cloned it on your computer via F
 In terms of style, we are aiming for pleasant predictability in terms of user experience.
 To that end, we have a regular syntax that users can rely on producing expected effects.
 
+## Package architecture
+
+### Project overview
+
+`netrics` is an R package (part of the [stocnet](https://github.com/stocnet) ecosystem) providing the *analytic engine* for network analysis: marks, measures, memberships, and motifs for nodes, ties, and networks. 
+It depends on `{manynet}` (see below). Division of labour to keep in mind when adding functions:
+- `{manynet}`: network classes/coercion (`as_*()`) and network-level logical tests (e.g. `is_directed()`, `is_twomode()`).
+- `{autograph}`: functions for drawing graphs and plotting network analytic or modelling results and diagnostics, along with deep (often institutional) theming. All plot methods should live here.
+- `{netrics}` (this package): everything analytic — marks, measures, memberships, motifs — at the node, tie, and network level.
+- `{migraph}`: functions for testing and modelling, e.g. QAP/MRQAP and diffusion models
+
+### Common commands
+
+This is a standard R package developed with `devtools`/`roxygen2`. 
+Run these from an R console with the working directory set to the package root (or via `Rscript -e`).
+
+- Install dependencies / load for development: `devtools::load_all()`
+- Regenerate docs & NAMESPACE after editing roxygen comments: `devtools::document()`
+- Run full test suite: `devtools::test()`
+- Run a single test file: `devtools::test(filter = "measure_centrality")` (matches `test-measure_centrality.R`), or `testthat::test_file("tests/testthat/test-measure_centrality.R")`
+- Full package check (mirrors CI): `devtools::check()` or `rcmdcheck::rcmdcheck()`
+- Lint: `lintr::lint_package()`
+- Spell check: `spelling::spell_check_package()`
+- Build pkgdown site locally: `pkgdown::build_site()`
+
+There is no non-R build system — no package.json/Makefile.
+
+### Function family naming (the core convention)
+
+Functions are grouped into four families by naming pattern, each with dedicated `print()` S3 methods and a `make_*()` constructor in [R/class_metrics.R](../R/class_metrics.R):
+
+| Family | Pattern | Level | Returns | Constructor |
+|---|---|---|---|---|
+| Marks | `node_is_*()`, `tie_is_*()` | node/tie (network `is_*()` are in `{manynet}`) | logical vector | `make_node_mark()`, `make_tie_mark()` |
+| Measures | `net_by_*()`, `mode_by_*()`, `node_by_*()`, `tie_by_*()` | network/mode/node/tie | numeric (vector) | `make_network_measure()`, `make_mode_measure()`, `make_node_measure()`, `make_tie_measure()` |
+| Memberships | `node_in_*()` | node | character vector (group labels, via `MORELETTERS`) | `make_node_member()` |
+| Motifs | `net_x_*()`, `node_x_*()` | network/node | tabular | `make_network_motif()`, `make_node_motif()` |
+
+When adding a new analytic function, pick the family that matches its semantics and follow the existing naming scheme exactly.
+This predictability is a stated project goal.
+
+### Function body convention
+
+Functions consistently:
+1. Coerce/validate input via `manynet::expect_nodes()` / `manynet::as_igraph()` etc.
+2. Branch on `manynet::is_twomode()`, `manynet::is_weighted()`, `manynet::is_directed()`, `manynet::is_complex()` to handle one-mode/two-mode, weighted/unweighted, directed/undirected cases distinctly.
+3. Compute the result (often via `{igraph}`, but use whichever is the fastest implementation).
+4. Wrap the output with the matching `make_*()` constructor to attach the S3 class and labels (node/tie names via `manynet::node_names()`, mode attribute via `manynet::node_is_mode()`/`manynet::net_dims()`).
+
+All `manynet`/`igraph` calls use explicit `::` namespacing rather than importing whole namespaces (`{manynet}` and `{igraph}` are still listed in `@importFrom` roxygen tags per-file for NAMESPACE generation).
+
+### File organization
+
+`R/` files are organized by function family and topic, not one-file-per-function: e.g. `measure_centrality_degree.R`, `measure_cohesion.R`, `member_community.R`, `motif_brokerage.R`, `mark_nodes.R`/`mark_ties.R`. Related functions (e.g. `node_by_degree()` and its shortcuts `node_by_deg()`, `node_by_indegree()`, `node_by_outdegree()`) share one `@name`/roxygen block and file.
+
+Shared roxygen documentation blocks live in `man-roxygen/` as `@template` fragments (e.g. `param_data.R`, `node_measure.R`, `param_norm.R`) — reuse these templates via `@template` tags instead of re-writing standard `@param`/`@returns` docs.
+
+### Tests
+
+Tests in `tests/testthat/` mirror the `R/` files (e.g. `test-measure_centrality.R`, `test-member_community.R`). 
+`tests/testthat/helper-netrics.R` defines shared custom expectations/helpers used across tests:
+- `expect_values(object, ref)` — compares rounded numeric output against reference values.
+- `expect_mark(object, ref, top)` — compares character/label output.
+- `top3()`/`bot3()`/`top5()`/`bot5()` — pull top/bottom N values (rounded) from a result for use as terse reference vectors in assertions.
+
+`testthat` edition 3 with parallel execution is configured in `DESCRIPTION` (`Config/testthat/parallel: true`). 
+`Config/testthat/start-first` prioritizes `tutorials_netrics, measure_net, member_nodes, measure_nodes`.
+
+### Branching and CI
+
+- `main` is the release branch; `develop` is the working branch (clone/work on `develop`).
+- PRs into `main` trigger [prchecks.yml](workflows/prchecks.yml): R CMD check (macOS/Windows/Linux), binary build, codecov, lintr, spell check, and PR metadata checks (DESCRIPTION version bump, PR title/description conventions).
+- Merges/pushes to `main` trigger [pushrelease.yml](workflows/pushrelease.yml): check, auto-bump version tag, GitHub release with binaries, then pkgdown site deploy.
+- Commits should reference an existing GitHub issue number (`#123`), see below.
+
 ## Fork
 
 ### Cloning
