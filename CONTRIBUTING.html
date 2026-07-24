@@ -17,7 +17,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="index.html">netrics</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.3.1</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.4.1</span>
       </span>
     </div>
 
@@ -31,6 +31,41 @@
 <li>
   <a href="reference/index.html">Function Overview</a>
 </li>
+<li class="dropdown">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+    Tutorials
+
+    <span class="caret"></span>
+  </a>
+  <ul class="dropdown-menu" role="menu"><li>
+      <a href="articles/centrality.html">Centrality</a>
+    </li>
+    <li>
+      <a href="articles/community.html">Community</a>
+    </li>
+    <li>
+      <a href="articles/position.html">Position</a>
+    </li>
+    <li>
+      <a href="articles/topology.html">Topology</a>
+    </li>
+  </ul></li>
+<li class="dropdown">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+    Related Packages
+
+    <span class="caret"></span>
+  </a>
+  <ul class="dropdown-menu" role="menu"><li>
+      <a href="https://stocnet.github.io/manynet/" class="external-link">manynet</a>
+    </li>
+    <li>
+      <a href="https://stocnet.github.io/autograph/" class="external-link">autograph</a>
+    </li>
+    <li>
+      <a href="https://stocnet.github.io/migraph/" class="external-link">migraph</a>
+    </li>
+  </ul></li>
 <li>
   <a href="news/index.html">News</a>
 </li>
@@ -79,6 +114,99 @@
 <div class="section level2">
 <h2 id="style">Style<a class="anchor" aria-label="anchor" href="#style"></a></h2>
 <p>In terms of style, we are aiming for pleasant predictability in terms of user experience. To that end, we have a regular syntax that users can rely on producing expected effects.</p>
+</div>
+<div class="section level2">
+<h2 id="package-architecture">Package architecture<a class="anchor" aria-label="anchor" href="#package-architecture"></a></h2>
+<div class="section level3">
+<h3 id="project-overview">Project overview<a class="anchor" aria-label="anchor" href="#project-overview"></a></h3>
+<p><code>netrics</code> is an R package (part of the <a href="https://github.com/stocnet" class="external-link">stocnet</a> ecosystem) providing the <em>analytic engine</em> for network analysis: marks, measures, memberships, and motifs for nodes, ties, and networks. It depends on <a href="https://stocnet.github.io/manynet/" class="external-link">manynet</a> (see below). Division of labour to keep in mind when adding functions: - <a href="https://stocnet.github.io/manynet/" class="external-link">manynet</a>: network classes/coercion (<code>as_*()</code>) and network-level logical tests (e.g. <code>is_directed()</code>, <code>is_twomode()</code>). - <a href="https://stocnet.github.io/autograph/" class="external-link">autograph</a>: functions for drawing graphs and plotting network analytic or modelling results and diagnostics, along with deep (often institutional) theming. All plot methods should live here. - <a href="https://stocnet.github.io/netrics/">netrics</a> (this package): everything analytic — marks, measures, memberships, motifs — at the node, tie, and network level. - <a href="https://stocnet.github.io/migraph/" class="external-link">migraph</a>: functions for testing and modelling, e.g. QAP/MRQAP and diffusion models</p>
+</div>
+<div class="section level3">
+<h3 id="common-commands">Common commands<a class="anchor" aria-label="anchor" href="#common-commands"></a></h3>
+<p>This is a standard R package developed with <code>devtools</code>/<code>roxygen2</code>. Run these from an R console with the working directory set to the package root (or via <code>Rscript -e</code>).</p>
+<ul><li>Install dependencies / load for development: <code><a href="https://devtools.r-lib.org/reference/load_all.html" class="external-link">devtools::load_all()</a></code>
+</li>
+<li>Regenerate docs &amp; NAMESPACE after editing roxygen comments: <code><a href="https://devtools.r-lib.org/reference/document.html" class="external-link">devtools::document()</a></code>
+</li>
+<li>Run full test suite: <code><a href="https://devtools.r-lib.org/reference/test.html" class="external-link">devtools::test()</a></code>
+</li>
+<li>Run a single test file: <code>devtools::test(filter = "measure_centrality")</code> (matches <code>test-measure_centrality.R</code>), or <code>testthat::test_file("tests/testthat/test-measure_centrality.R")</code>
+</li>
+<li>Full package check (mirrors CI): <code><a href="https://devtools.r-lib.org/reference/check.html" class="external-link">devtools::check()</a></code> or <code><a href="http://r-lib.github.io/rcmdcheck/reference/rcmdcheck.html" class="external-link">rcmdcheck::rcmdcheck()</a></code>
+</li>
+<li>Lint: <code><a href="https://lintr.r-lib.org/reference/lint.html" class="external-link">lintr::lint_package()</a></code>
+</li>
+<li>Spell check: <code><a href="https://docs.ropensci.org/spelling//reference/spell_check_package.html" class="external-link">spelling::spell_check_package()</a></code>
+</li>
+<li>Build pkgdown site locally: <code><a href="https://pkgdown.r-lib.org/reference/build_site.html" class="external-link">pkgdown::build_site()</a></code>
+</li>
+</ul><p>There is no non-R build system — no package.json/Makefile.</p>
+</div>
+<div class="section level3">
+<h3 id="function-family-naming-the-core-convention">Function family naming (the core convention)<a class="anchor" aria-label="anchor" href="#function-family-naming-the-core-convention"></a></h3>
+<p>Functions are grouped into four families by naming pattern, each with dedicated <code><a href="https://rdrr.io/r/base/print.html" class="external-link">print()</a></code> S3 methods and a <code>make_*()</code> constructor in <a href="../R/class_metrics.R">R/class_metrics.R</a>:</p>
+<table class="table"><colgroup><col width="20%"><col width="20%"><col width="20%"><col width="20%"><col width="20%"></colgroup><thead><tr><th>Family</th>
+<th>Pattern</th>
+<th>Level</th>
+<th>Returns</th>
+<th>Constructor</th>
+</tr></thead><tbody><tr><td>Marks</td>
+<td>
+<code>node_is_*()</code>, <code>tie_is_*()</code>
+</td>
+<td>node/tie (network <code>is_*()</code> are in <a href="https://stocnet.github.io/manynet/" class="external-link">manynet</a>)</td>
+<td>logical vector</td>
+<td>
+<code>make_node_mark()</code>, <code>make_tie_mark()</code>
+</td>
+</tr><tr><td>Measures</td>
+<td>
+<code>net_by_*()</code>, <code>mode_by_*()</code>, <code>node_by_*()</code>, <code>tie_by_*()</code>
+</td>
+<td>network/mode/node/tie</td>
+<td>numeric (vector)</td>
+<td>
+<code>make_network_measure()</code>, <code>make_mode_measure()</code>, <code>make_node_measure()</code>, <code>make_tie_measure()</code>
+</td>
+</tr><tr><td>Memberships</td>
+<td><code>node_in_*()</code></td>
+<td>node</td>
+<td>character vector (group labels, via <code>MORELETTERS</code>)</td>
+<td><code>make_node_member()</code></td>
+</tr><tr><td>Motifs</td>
+<td>
+<code>net_x_*()</code>, <code>node_x_*()</code>
+</td>
+<td>network/node</td>
+<td>tabular</td>
+<td>
+<code>make_network_motif()</code>, <code>make_node_motif()</code>
+</td>
+</tr></tbody></table><p>When adding a new analytic function, pick the family that matches its semantics and follow the existing naming scheme exactly. This predictability is a stated project goal.</p>
+</div>
+<div class="section level3">
+<h3 id="function-body-convention">Function body convention<a class="anchor" aria-label="anchor" href="#function-body-convention"></a></h3>
+<p>Functions consistently: 1. Coerce/validate input via <code><a href="https://stocnet.github.io/manynet/reference/expect.html" class="external-link">manynet::expect_nodes()</a></code> / <code><a href="https://stocnet.github.io/manynet/reference/coerce_graph.html" class="external-link">manynet::as_igraph()</a></code> etc. 2. Branch on <code><a href="https://stocnet.github.io/manynet/reference/mark_format_node.html" class="external-link">manynet::is_twomode()</a></code>, <code>manynet::is_weighted()</code>, <code>manynet::is_directed()</code>, <code><a href="https://stocnet.github.io/manynet/reference/mark_format_tie.html" class="external-link">manynet::is_complex()</a></code> to handle one-mode/two-mode, weighted/unweighted, directed/undirected cases distinctly. 3. Compute the result (often via <a href="https://r.igraph.org/" class="external-link">igraph</a>, but use whichever is the fastest implementation). 4. Wrap the output with the matching <code>make_*()</code> constructor to attach the S3 class and labels (node/tie names via <code><a href="https://stocnet.github.io/manynet/reference/measure_attributes_nodes.html" class="external-link">manynet::node_names()</a></code>, mode attribute via <code><a href="https://stocnet.github.io/manynet/reference/measure_attributes_nodes.html" class="external-link">manynet::node_is_mode()</a></code>/<code><a href="https://stocnet.github.io/manynet/reference/measure_dims.html" class="external-link">manynet::net_dims()</a></code>).</p>
+<p>All <code>manynet</code>/<code>igraph</code> calls use explicit <code>::</code> namespacing rather than importing whole namespaces (<a href="https://stocnet.github.io/manynet/" class="external-link">manynet</a> and <a href="https://r.igraph.org/" class="external-link">igraph</a> are still listed in <code>@importFrom</code> roxygen tags per-file for NAMESPACE generation).</p>
+</div>
+<div class="section level3">
+<h3 id="file-organization">File organization<a class="anchor" aria-label="anchor" href="#file-organization"></a></h3>
+<p><code>R/</code> files are organized by function family and topic, not one-file-per-function: e.g. <code>measure_centrality_degree.R</code>, <code>measure_cohesion.R</code>, <code>member_community.R</code>, <code>motif_brokerage.R</code>, <code>mark_nodes.R</code>/<code>mark_ties.R</code>. Related functions (e.g. <code><a href="reference/measure_central_degree.html">node_by_degree()</a></code> and its shortcuts <code><a href="reference/measure_central_degree.html">node_by_deg()</a></code>, <code><a href="reference/measure_central_degree.html">node_by_indegree()</a></code>, <code><a href="reference/measure_central_degree.html">node_by_outdegree()</a></code>) share one <code>@name</code>/roxygen block and file.</p>
+<p>Shared roxygen documentation blocks live in <code>man-roxygen/</code> as <code>@template</code> fragments (e.g. <code>param_data.R</code>, <code>node_measure.R</code>, <code>param_norm.R</code>) — reuse these templates via <code>@template</code> tags instead of re-writing standard <code>@param</code>/<code>@returns</code> docs.</p>
+</div>
+<div class="section level3">
+<h3 id="tests">Tests<a class="anchor" aria-label="anchor" href="#tests"></a></h3>
+<p>Tests in <code>tests/testthat/</code> mirror the <code>R/</code> files (e.g. <code>test-measure_centrality.R</code>, <code>test-member_community.R</code>). <code>tests/testthat/helper-netrics.R</code> defines shared custom expectations/helpers used across tests: - <code>expect_values(object, ref)</code> — compares rounded numeric output against reference values. - <code>expect_mark(object, ref, top)</code> — compares character/label output. - <code>top3()</code>/<code>bot3()</code>/<code>top5()</code>/<code>bot5()</code> — pull top/bottom N values (rounded) from a result for use as terse reference vectors in assertions.</p>
+<p><code>testthat</code> edition 3 with parallel execution is configured in <code>DESCRIPTION</code> (<code>Config/testthat/parallel: true</code>). <code>Config/testthat/start-first</code> prioritizes <code>tutorials_netrics, measure_net, member_nodes, measure_nodes</code>.</p>
+</div>
+<div class="section level3">
+<h3 id="branching-and-ci">Branching and CI<a class="anchor" aria-label="anchor" href="#branching-and-ci"></a></h3>
+<ul><li>
+<code>main</code> is the release branch; <code>develop</code> is the working branch (clone/work on <code>develop</code>).</li>
+<li>PRs into <code>main</code> trigger <a href="workflows/prchecks.yml">prchecks.yml</a>: R CMD check (macOS/Windows/Linux), binary build, codecov, lintr, spell check, and PR metadata checks (DESCRIPTION version bump, PR title/description conventions).</li>
+<li>Merges/pushes to <code>main</code> trigger <a href="workflows/pushrelease.yml">pushrelease.yml</a>: check, auto-bump version tag, GitHub release with binaries, then pkgdown site deploy.</li>
+<li>Commits should reference an existing GitHub issue number (<code>#123</code>), see below.</li>
+</ul></div>
 </div>
 <div class="section level2">
 <h2 id="fork">Fork<a class="anchor" aria-label="anchor" href="#fork"></a></h2>
@@ -130,7 +258,7 @@
 </div>
 
 <div class="pkgdown">
-  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.0.</p>
+  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.1.</p>
 </div>
 
       </footer></div>

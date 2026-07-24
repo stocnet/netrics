@@ -38,7 +38,7 @@ ranging between 0 if all triangles are imbalanced and
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">netrics</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.3.1</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.4.1</span>
       </span>
     </div>
 
@@ -52,6 +52,41 @@ ranging between 0 if all triangles are imbalanced and
 <li>
   <a href="../reference/index.html">Function Overview</a>
 </li>
+<li class="dropdown">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+    Tutorials
+
+    <span class="caret"></span>
+  </a>
+  <ul class="dropdown-menu" role="menu"><li>
+      <a href="../articles/centrality.html">Centrality</a>
+    </li>
+    <li>
+      <a href="../articles/community.html">Community</a>
+    </li>
+    <li>
+      <a href="../articles/position.html">Position</a>
+    </li>
+    <li>
+      <a href="../articles/topology.html">Topology</a>
+    </li>
+  </ul></li>
+<li class="dropdown">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+    Related Packages
+
+    <span class="caret"></span>
+  </a>
+  <ul class="dropdown-menu" role="menu"><li>
+      <a href="https://stocnet.github.io/manynet/" class="external-link">manynet</a>
+    </li>
+    <li>
+      <a href="https://stocnet.github.io/autograph/" class="external-link">autograph</a>
+    </li>
+    <li>
+      <a href="https://stocnet.github.io/migraph/" class="external-link">migraph</a>
+    </li>
+  </ul></li>
 <li>
   <a href="../news/index.html">News</a>
 </li>
@@ -322,10 +357,6 @@ for how clustering is calculated</p>
 <code><a href="measure_central_close.html">measure_central_close</a></code>,
 <code><a href="measure_central_degree.html">measure_central_degree</a></code>,
 <code><a href="measure_central_eigen.html">measure_central_eigen</a></code>,
-<code><a href="measure_centralisation_between.html">measure_centralisation_between</a></code>,
-<code><a href="measure_centralisation_close.html">measure_centralisation_close</a></code>,
-<code><a href="measure_centralisation_degree.html">measure_centralisation_degree</a></code>,
-<code><a href="measure_centralisation_eigen.html">measure_centralisation_eigen</a></code>,
 <code><a href="measure_centralities_between.html">measure_centralities_between</a></code>,
 <code><a href="measure_centralities_close.html">measure_centralities_close</a></code>,
 <code><a href="measure_centralities_degree.html">measure_centralities_degree</a></code>,
@@ -363,11 +394,11 @@ for how clustering is calculated</p>
 <span class="r-in"><span><span class="fu">net_by_smallworld</span><span class="op">(</span><span class="va">ison_brandes</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] NaN</span>
 <span class="r-in"><span><span class="fu">net_by_smallworld</span><span class="op">(</span><span class="va">ison_southern_women</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] -0.943</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] -0.945</span>
 <span class="r-in"><span><span class="fu">net_by_scalefree</span><span class="op">(</span><span class="va">ison_adolescents</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] 3.69</span>
 <span class="r-in"><span><span class="fu">net_by_scalefree</span><span class="op">(</span><span class="fu">generate_scalefree</span><span class="op">(</span><span class="fl">50</span>, <span class="fl">1.5</span><span class="op">)</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 2.34</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 2.43</span>
 <span class="r-in"><span><span class="fu">net_by_scalefree</span><span class="op">(</span><span class="fu">create_lattice</span><span class="op">(</span><span class="fl">100</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] 3.46</span>
 <span class="r-in"><span><span class="fu">net_by_balance</span><span class="op">(</span><span class="fu">to_uniplex</span><span class="op">(</span><span class="va">fict_marvel</span>, <span class="st">"relationship"</span><span class="op">)</span><span class="op">)</span></span></span>
@@ -386,7 +417,7 @@ for how clustering is calculated</p>
 </div>
 
 <div class="pkgdown">
-  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.0.</p>
+  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.1.</p>
 </div>
 
       </footer></div>

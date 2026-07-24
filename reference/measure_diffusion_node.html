@@ -28,7 +28,7 @@ a given mark
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">netrics</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.3.1</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.4.1</span>
       </span>
     </div>
 
@@ -42,6 +42,41 @@ a given mark
 <li>
   <a href="../reference/index.html">Function Overview</a>
 </li>
+<li class="dropdown">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+    Tutorials
+
+    <span class="caret"></span>
+  </a>
+  <ul class="dropdown-menu" role="menu"><li>
+      <a href="../articles/centrality.html">Centrality</a>
+    </li>
+    <li>
+      <a href="../articles/community.html">Community</a>
+    </li>
+    <li>
+      <a href="../articles/position.html">Position</a>
+    </li>
+    <li>
+      <a href="../articles/topology.html">Topology</a>
+    </li>
+  </ul></li>
+<li class="dropdown">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+    Related Packages
+
+    <span class="caret"></span>
+  </a>
+  <ul class="dropdown-menu" role="menu"><li>
+      <a href="https://stocnet.github.io/manynet/" class="external-link">manynet</a>
+    </li>
+    <li>
+      <a href="https://stocnet.github.io/autograph/" class="external-link">autograph</a>
+    </li>
+    <li>
+      <a href="https://stocnet.github.io/migraph/" class="external-link">migraph</a>
+    </li>
+  </ul></li>
 <li>
   <a href="../news/index.html">News</a>
 </li>
@@ -206,10 +241,6 @@ nodes exposure at \(t = 0\).</p>
 <code><a href="measure_central_close.html">measure_central_close</a></code>,
 <code><a href="measure_central_degree.html">measure_central_degree</a></code>,
 <code><a href="measure_central_eigen.html">measure_central_eigen</a></code>,
-<code><a href="measure_centralisation_between.html">measure_centralisation_between</a></code>,
-<code><a href="measure_centralisation_close.html">measure_centralisation_close</a></code>,
-<code><a href="measure_centralisation_degree.html">measure_centralisation_degree</a></code>,
-<code><a href="measure_centralisation_eigen.html">measure_centralisation_eigen</a></code>,
 <code><a href="measure_centralities_between.html">measure_centralities_between</a></code>,
 <code><a href="measure_centralities_close.html">measure_centralities_close</a></code>,
 <code><a href="measure_centralities_degree.html">measure_centralities_degree</a></code>,
@@ -265,21 +296,21 @@ nodes exposure at \(t = 0\).</p>
 <span class="r-plt img"><img src="measure_diffusion_node-1.png" alt="" width="700" height="433"></span>
 <span class="r-in"><span>  <span class="co"># To measure when nodes adopted a diffusion/were infected</span></span></span>
 <span class="r-in"><span>  <span class="op">(</span><span class="va">times</span> <span class="op">&lt;-</span> <span class="fu">node_by_adopt_time</span><span class="op">(</span><span class="va">smeg_diff</span><span class="op">)</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> ▃▃▃▂ </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> ▃▂▃▂ </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>      V1    V2    V3    V4    V5    V6    V7    V8    V9   V10   V11   V12   V13</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">1</span>     0     1     1     2     2     3     3     4     4     3     3     2     2</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">1</span>     0     1     1     2     2     3     3     4     4     4     3     3     2</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># ... and 2 more values from this nodeset. Use `print_all(...)` to print all values.</span></span>
 <span class="r-in"><span>  <span class="co"># To infer nodes' thresholds</span></span></span>
 <span class="r-in"><span>  <span class="fu">node_by_adopt_threshold</span><span class="op">(</span><span class="va">smeg_diff</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> ▁▅▃▂ </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> ▁▁▄▁▃ </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>      V1    V2    V3    V4    V5    V6    V7    V8    V9   V10   V11   V12   V13</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">1</span>     0  0.25  0.25   0.5  0.25   0.5  0.25  0.75  0.75  0.25   0.5  0.25   0.5</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">1</span>     0  0.25  0.25   0.5  0.25   0.5 0.333   0.5  0.25   0.5  0.25  0.25   0.5</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># ... and 2 more values from this nodeset. Use `print_all(...)` to print all values.</span></span>
 <span class="r-in"><span>  <span class="co"># To measure how long each node remains infected for</span></span></span>
 <span class="r-in"><span>  <span class="fu">node_by_adopt_recovery</span><span class="op">(</span><span class="va">smeg_diff</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> ▅▂▂▁▁▁ </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> ▃▁▃▁▂ </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>      V1    V2    V3    V4    V5    V6    V7    V8    V9   V10   V11   V12   V13</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">1</span>     3     2   <span style="color: #BB0000;">Inf</span>     2     7     3     9     3     2     6     7    13     5</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">1</span>     2     6     5    10     2     2     1     5     5     3   <span style="color: #BB0000;">Inf</span>     5    10</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># ... and 2 more values from this nodeset. Use `print_all(...)` to print all values.</span></span>
 <span class="r-in"><span>  <span class="co"># To measure how much exposure nodes have to a given mark</span></span></span>
 <span class="r-in"><span>  <span class="fu">node_by_adopt_exposure</span><span class="op">(</span><span class="va">smeg</span>, mark <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>,<span class="fl">3</span><span class="op">)</span><span class="op">)</span></span></span>
@@ -306,7 +337,7 @@ nodes exposure at \(t = 0\).</p>
 </div>
 
 <div class="pkgdown">
-  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.0.</p>
+  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.1.</p>
 </div>
 
       </footer></div>

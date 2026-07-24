@@ -30,7 +30,7 @@ to be protected through vaccination, isolation, or recovery for herd immunity to
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">netrics</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.3.1</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.4.1</span>
       </span>
     </div>
 
@@ -44,6 +44,41 @@ to be protected through vaccination, isolation, or recovery for herd immunity to
 <li>
   <a href="../reference/index.html">Function Overview</a>
 </li>
+<li class="dropdown">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+    Tutorials
+
+    <span class="caret"></span>
+  </a>
+  <ul class="dropdown-menu" role="menu"><li>
+      <a href="../articles/centrality.html">Centrality</a>
+    </li>
+    <li>
+      <a href="../articles/community.html">Community</a>
+    </li>
+    <li>
+      <a href="../articles/position.html">Position</a>
+    </li>
+    <li>
+      <a href="../articles/topology.html">Topology</a>
+    </li>
+  </ul></li>
+<li class="dropdown">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+    Related Packages
+
+    <span class="caret"></span>
+  </a>
+  <ul class="dropdown-menu" role="menu"><li>
+      <a href="https://stocnet.github.io/manynet/" class="external-link">manynet</a>
+    </li>
+    <li>
+      <a href="https://stocnet.github.io/autograph/" class="external-link">autograph</a>
+    </li>
+    <li>
+      <a href="https://stocnet.github.io/migraph/" class="external-link">migraph</a>
+    </li>
+  </ul></li>
 <li>
   <a href="../news/index.html">News</a>
 </li>
@@ -244,10 +279,6 @@ of nodes in the network.</p>
 <code><a href="measure_central_close.html">measure_central_close</a></code>,
 <code><a href="measure_central_degree.html">measure_central_degree</a></code>,
 <code><a href="measure_central_eigen.html">measure_central_eigen</a></code>,
-<code><a href="measure_centralisation_between.html">measure_centralisation_between</a></code>,
-<code><a href="measure_centralisation_close.html">measure_centralisation_close</a></code>,
-<code><a href="measure_centralisation_degree.html">measure_centralisation_degree</a></code>,
-<code><a href="measure_centralisation_eigen.html">measure_centralisation_eigen</a></code>,
 <code><a href="measure_centralities_between.html">measure_centralities_between</a></code>,
 <code><a href="measure_centralities_close.html">measure_centralities_close</a></code>,
 <code><a href="measure_centralities_degree.html">measure_centralities_degree</a></code>,
@@ -281,19 +312,19 @@ of nodes in the network.</p>
 <span class="r-plt img"><img src="measure_diffusion_net-1.png" alt="" width="700" height="433"></span>
 <span class="r-in"><span>  <span class="co"># To calculate the average transmissibility for a given diffusion model</span></span></span>
 <span class="r-in"><span>  <span class="fu">net_by_transmissibility</span><span class="op">(</span><span class="va">smeg_diff</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] NaN</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0.967</span>
 <span class="r-in"><span>  <span class="co"># To calculate the average infection length for a given diffusion model</span></span></span>
 <span class="r-in"><span>  <span class="fu">net_by_recovery</span><span class="op">(</span><span class="va">smeg_diff</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 4.6</span>
 <span class="r-in"><span>  <span class="co"># To calculate the reproduction number for a given diffusion model</span></span></span>
 <span class="r-in"><span>  <span class="fu">net_by_reproduction</span><span class="op">(</span><span class="va">smeg_diff</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] NaN</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 4</span>
 <span class="r-in"><span>  <span class="co"># Calculating the proportion required to achieve herd immunity</span></span></span>
 <span class="r-in"><span>  <span class="fu">net_by_immunity</span><span class="op">(</span><span class="va">smeg_diff</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] NaN</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0.75</span>
 <span class="r-in"><span>  <span class="co"># To find the number of nodes to be vaccinated</span></span></span>
 <span class="r-in"><span>  <span class="fu">net_by_immunity</span><span class="op">(</span><span class="va">smeg_diff</span>, normalized <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] NaN</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 12</span>
 </code></pre></div>
     </div>
   </div>
@@ -308,7 +339,7 @@ of nodes in the network.</p>
 </div>
 
 <div class="pkgdown">
-  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.0.</p>
+  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.1.</p>
 </div>
 
       </footer></div>

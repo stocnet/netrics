@@ -17,7 +17,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">netrics</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.3.1</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.4.1</span>
       </span>
     </div>
 
@@ -31,6 +31,41 @@
 <li>
   <a href="../reference/index.html">Function Overview</a>
 </li>
+<li class="dropdown">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+    Tutorials
+
+    <span class="caret"></span>
+  </a>
+  <ul class="dropdown-menu" role="menu"><li>
+      <a href="../articles/centrality.html">Centrality</a>
+    </li>
+    <li>
+      <a href="../articles/community.html">Community</a>
+    </li>
+    <li>
+      <a href="../articles/position.html">Position</a>
+    </li>
+    <li>
+      <a href="../articles/topology.html">Topology</a>
+    </li>
+  </ul></li>
+<li class="dropdown">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+    Related Packages
+
+    <span class="caret"></span>
+  </a>
+  <ul class="dropdown-menu" role="menu"><li>
+      <a href="https://stocnet.github.io/manynet/" class="external-link">manynet</a>
+    </li>
+    <li>
+      <a href="https://stocnet.github.io/autograph/" class="external-link">autograph</a>
+    </li>
+    <li>
+      <a href="https://stocnet.github.io/migraph/" class="external-link">migraph</a>
+    </li>
+  </ul></li>
 <li>
   <a href="../news/index.html">News</a>
 </li>
@@ -53,6 +88,52 @@
       <small>Source: <a href="https://github.com/stocnet/netrics/blob/main/NEWS.md" class="external-link"><code>NEWS.md</code></a></small>
     </div>
 
+    <div class="section level2">
+<h2 class="page-header" data-toc-text="0.4.1" id="netrics-041">netrics 0.4.1<a class="anchor" aria-label="anchor" href="#netrics-041"></a></h2>
+<div class="section level3">
+<h3 id="package-0-4-1">Package<a class="anchor" aria-label="anchor" href="#package-0-4-1"></a></h3>
+<ul><li>Updated <a href="mailto:actions/checkout@v2" class="email">actions/checkout@v2</a> to <a href="mailto:actions/checkout@v4" class="email">actions/checkout@v4</a>
+</li>
+<li>Fixed the website deploy job installing <code>Config/Needs/check</code> packages instead of <code>Config/Needs/website</code>, which meant <a href="https://rstudio.github.io/learnr/" class="external-link">learnr</a> was never actually installed before the pkgdown deploy step</li>
+</ul></div>
+<div class="section level3">
+<h3 id="tutorials-0-4-1">Tutorials<a class="anchor" aria-label="anchor" href="#tutorials-0-4-1"></a></h3>
+<ul><li>Added missing alt-text to the decorative gifs in the centrality tutorial’s article, which was failing pkgdown’s accessibility check</li>
+<li>Fixed broken glossary references (<code>equivalency</code>, <code>partition</code>, <code>faction</code>) in the community tutorial that had no matching <a href="https://stocnet.github.io/manynet/" class="external-link">manynet</a> glossary entry, which was breaking the tutorial’s article rendering</li>
+<li>Added a section on Gould and Fernandez’s brokerage roles (<code><a href="../reference/motif_brokerage_node.html">node_x_brokerage()</a></code> and <code><a href="../reference/motif_brokerage_net.html">net_x_brokerage()</a></code>) to the position tutorial</li>
+</ul></div>
+</div>
+    <div class="section level2">
+<h2 class="page-header" data-toc-text="0.4.0" id="netrics-040">netrics 0.4.0<small>2026-07-24</small><a class="anchor" aria-label="anchor" href="#netrics-040"></a></h2>
+<div class="section level3">
+<h3 id="measures-0-4-0">Measures<a class="anchor" aria-label="anchor" href="#measures-0-4-0"></a></h3>
+<ul><li>
+<code><a href="../reference/measure_centralisation_degree.html">net_by_degree()</a></code>, <code><a href="../reference/measure_centralisation_degree.html">net_by_indegree()</a></code>, <code><a href="../reference/measure_centralisation_degree.html">net_by_outdegree()</a></code>, <code><a href="../reference/measure_centralisation_between.html">net_by_betweenness()</a></code>, <code><a href="../reference/measure_centralisation_close.html">net_by_closeness()</a></code>, and <code><a href="../reference/measure_centralisation_eigen.html">net_by_eigenvector()</a></code> now return a single network-level score for two-mode networks (via Freeman’s general centralization index over the mode-normalized node scores), consistent with returning a scalar <code>network_measure</code> for all networks
+<ul><li>This is a behavioural change: these functions previously returned a length-two vector (one score per mode) for two-mode networks</li>
+</ul></li>
+<li>Added a <code>mode_by_*()</code> family (<code><a href="../reference/measure_centralisation_degree.html">mode_by_degree()</a></code>, <code><a href="../reference/measure_centralisation_degree.html">mode_by_indegree()</a></code>, <code><a href="../reference/measure_centralisation_degree.html">mode_by_outdegree()</a></code>, <code><a href="../reference/measure_centralisation_between.html">mode_by_betweenness()</a></code>, <code><a href="../reference/measure_centralisation_close.html">mode_by_closeness()</a></code>, <code><a href="../reference/measure_centralisation_eigen.html">mode_by_eigenvector()</a></code>) that returns the per-mode centralization scores for two-mode networks, following Borgatti and Everett (1997); these error on one-mode networks</li>
+<li>Fixed <code><a href="../reference/measure_centralisation_between.html">net_by_betweenness()</a></code> to respect its <code>normalized</code> argument for one-mode networks, which was previously ignored because <code><a href="https://r.igraph.org/reference/centr_betw.html" class="external-link">igraph::centr_betw()</a></code> always applied its default normalization</li>
+<li>Fixed <code><a href="../reference/measure_centralisation_close.html">net_by_closeness()</a></code> and <code><a href="../reference/measure_centralisation_close.html">mode_by_closeness()</a></code> to pass their <code>direction</code> argument through to the underlying node scores, so <code>direction = "in"</code>/<code>"all"</code> is now effective for two-mode networks</li>
+</ul></div>
+<div class="section level3">
+<h3 id="tutorials-0-4-0">Tutorials<a class="anchor" aria-label="anchor" href="#tutorials-0-4-0"></a></h3>
+<ul><li>Improved the centrality tutorial (<code>netrics1</code>) with a new interactive style, and added an article version to the website
+<ul><li>Added more examples to the centrality tutorial for degree-style analysis of directed and weighted networks</li>
+<li>Added extensions to the centrality tutorial’s betweenness, closeness, and eigenvector sections (the latter including power and influence)</li>
+<li>Added a “which centrality?” section to the centrality tutorial</li>
+<li>Improved the centrality tutorial by moving degree distribution and centralisation together and expanding the discussion</li>
+</ul></li>
+<li>Improved the community tutorial (<code>netrics2</code>) with a new version</li>
+<li>Improved the position tutorial (<code>netrics3</code>) with a new interactive style
+<ul><li>Added sections introducing regular and automorphic equivalence in more detail to the position tutorial</li>
+<li>Added a section on structural folds and ties that torture to the position tutorial</li>
+</ul></li>
+<li>Improved the topology tutorial (<code>netrics4</code>) with a new interactive style
+<ul><li>Added a section on degree mixing measures for characterising centralisation to the topology tutorial</li>
+<li>Added a section on further generators, such as fire, islands, and citations, to the topology tutorial</li>
+</ul></li>
+</ul></div>
+</div>
     <div class="section level2">
 <h2 class="page-header" data-toc-text="0.3.1" id="netrics-031">netrics 0.3.1<small>2026-06-23</small><a class="anchor" aria-label="anchor" href="#netrics-031"></a></h2>
 <div class="section level3">
@@ -259,7 +340,7 @@
 </div>
 
 <div class="pkgdown">
-  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.0.</p>
+  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.1.</p>
 </div>
 
       </footer></div>

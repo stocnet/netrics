@@ -33,7 +33,7 @@ i.e. never adopted
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">netrics</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.3.1</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.4.1</span>
       </span>
     </div>
 
@@ -47,6 +47,41 @@ i.e. never adopted
 <li>
   <a href="../reference/index.html">Function Overview</a>
 </li>
+<li class="dropdown">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+    Tutorials
+
+    <span class="caret"></span>
+  </a>
+  <ul class="dropdown-menu" role="menu"><li>
+      <a href="../articles/centrality.html">Centrality</a>
+    </li>
+    <li>
+      <a href="../articles/community.html">Community</a>
+    </li>
+    <li>
+      <a href="../articles/position.html">Position</a>
+    </li>
+    <li>
+      <a href="../articles/topology.html">Topology</a>
+    </li>
+  </ul></li>
+<li class="dropdown">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+    Related Packages
+
+    <span class="caret"></span>
+  </a>
+  <ul class="dropdown-menu" role="menu"><li>
+      <a href="https://stocnet.github.io/manynet/" class="external-link">manynet</a>
+    </li>
+    <li>
+      <a href="https://stocnet.github.io/autograph/" class="external-link">autograph</a>
+    </li>
+    <li>
+      <a href="https://stocnet.github.io/migraph/" class="external-link">migraph</a>
+    </li>
+  </ul></li>
 <li>
   <a href="../news/index.html">News</a>
 </li>
@@ -178,13 +213,13 @@ then the assignments will be labelled with the nodes' names.</p>
 <span class="r-in"><span>  <span class="op">(</span><span class="va">adopts</span> <span class="op">&lt;-</span> <span class="fu">node_in_adopter</span><span class="op">(</span><span class="va">smeg_diff</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;">4 groups</span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   V1     V2    V3    V4    V5    V6    V7    V8    V9    V10   V11   V12   V13  </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">1</span> Early… Earl… Earl… Earl… Earl… Late… Late… Late… Lagg… Late… Late… Earl… Earl…</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">1</span> Early… Earl… Earl… Earl… Earl… Late… Late… Lagg… Late… Late… Earl… Late… Earl…</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># ... and 2 more values from this nodeset. Use `print_all(...)` to print all values.</span></span>
 <span class="r-in"><span>  <span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">adopts</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;">Class Early Adopter:</span>  1</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;">Class Early Majority:</span>  2, 3, 4, 5, 12, 13, 14, 15</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;">Class Laggard:</span>  9</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;">Class Late Majority:</span>  6, 7, 8, 10, 11</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;">Class Early Adopter:</span>  1, 2, 3, 15</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;">Class Early Majority:</span>  4, 5, 11, 13, 14</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;">Class Laggard:</span>  8</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;">Class Late Majority:</span>  6, 7, 9, 10, 12</span>
 </code></pre></div>
     </div>
   </div>
@@ -199,7 +234,7 @@ then the assignments will be labelled with the nodes' names.</p>
 </div>
 
 <div class="pkgdown">
-  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.0.</p>
+  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.1.</p>
 </div>
 
       </footer></div>
