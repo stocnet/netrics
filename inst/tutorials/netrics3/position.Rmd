@@ -536,7 +536,191 @@ question("Do bridges innovate?",
 )
 ```
 
-## Structural Equivalence
+### The rest of the family {#the-rest-of-the-family}
+
+We flagged four other structural-hole measures in the quiz above,
+and they are all one function call away:
+`node_by_effsize()` for effective size (a node's non-redundant contacts),
+`node_by_redundancy()` for how much a node's contacts overlap,
+`node_by_efficiency()` for effective size relative to degree,
+and `node_by_hierarchy()` for whether a node's constraint is concentrated
+in a single dominant contact.
+
+You do not need to memorise the formulas;
+the point is to see that they broadly agree with constraint but each tells a
+slightly different part of the story.
+
+**Run a few of these on the task network. Do the least-constrained nodes
+also tend to have the largest effective size?** (They should, roughly —
+more non-redundant contacts means less constraint.)
+
+```{r shfamily, exercise = TRUE, exercise.setup = "objects-setup"}
+node_by_effsize(tasks)
+node_by_redundancy(tasks)
+node_by_hierarchy(tasks)
+```
+
+Broadly, effective size and constraint mirror one another —
+nodes with more non-redundant contacts are less constrained —
+but they are not interchangeable,
+and reporting more than one facet of a node's structural-hole position
+is good practice.
+For formal definitions and references, see `?measure_broker_node`.
+
+::: {.callout}
+<span class="callout-label">**Going further**:</span>
+Structural holes are closely related to _brokerage_ as a behaviour:
+`node_by_brokering_activity()` and `node_by_brokering_exclusivity()`
+measure how often a node sits between its contacts and how exclusively,
+and `node_x_brokerage()` counts Gould and Fernandez's five brokerage roles
+(coordinator, gatekeeper, representative, itinerant, liaison)
+once nodes belong to known groups.
+:::
+
+::: {.callout}
+<span class="callout-label">**In brief**:</span> Only ties can be `r gloss("bridges","bridge")`:
+`tie_is_bridge()` flags them and `node_by_bridges()` counts them per node.
+`node_by_constraint()` measures how closed each node's neighbourhood is —
+_low_ constraint marks potential brokers spanning structural holes —
+and `node_by_effsize()` and friends measure further facets of the same idea.
+:::
+
+## Structural folds
+
+<span class="page-toc">On this page:
+<span class="page-toc-link" onclick="document.getElementById('section-finding-folds').scrollIntoView({behavior:'auto',block:'start'});">Finding folds</span> ·
+<span class="page-toc-link" onclick="document.getElementById('section-ties-that-torture').scrollIntoView({behavior:'auto',block:'start'});">Ties that torture</span></span>
+
+The structural-hole story is a story about _information_:
+the broker profits by being the only channel between two worlds.
+But there is a well-known objection to it,
+which leads to a second, richer story about innovation.
+
+Being the _only_ bridge between two groups gives you access to novel
+information — but does it give you the standing to _do_ anything with it?
+If you belong to neither group fully, you are an outsider to both,
+and an idea carried in by an outsider is easily dismissed.
+Burt's broker hears the new idea first; but it may be someone _trusted on both
+sides_ who can actually get it adopted.
+
+This is the idea of a `r gloss("structural fold","structfold")`:
+not a gap _between_ groups, but an _overlap_ of them.
+A node in a structural fold is a genuine, recognised member of two (or more)
+cohesive groups at once.
+Because it is an insider to both, it enjoys the broker's informational
+advantage — it hears two conversations — _and_ the standing to translate a
+solution from one group into a problem in the other,
+and be taken seriously when it does.
+Folds are where information advantage meets the legitimacy to act on it.
+
+```{r foldvshole-qa, echo=FALSE, purl = FALSE}
+question("What does a structural fold add to the structural-hole story?",
+         answer("Membership: the node is a recognised insider to both groups, giving it the standing to get novel ideas adopted, not just heard.",
+                correct = TRUE,
+                message = learnr::random_praise()),
+         answer("Nothing new -- a fold is just another name for a structural hole.",
+                message = "Not quite -- a hole is a *gap between* groups spanned from outside, whereas a fold is an *overlap*: the node belongs to both groups at once."),
+         answer("It measures how many ties a node has.",
+                message = "Not quite -- that would be degree. A fold is about overlapping *group membership*, not tie count."),
+         answer("It guarantees the node has the highest betweenness.",
+                message = "Not quite -- betweenness is about lying on shortest paths; a fold is about cohesive membership in more than one group."),
+         allow_retry = TRUE,
+         random_answer_order = TRUE
+)
+```
+
+### Finding folds {#finding-folds}
+
+`{netrics}` can look for nodes in structural folds directly,
+with `node_is_fold()`, which returns a `TRUE`/`FALSE` flag for each node.
+Under the hood it looks for nodes that are cohesively embedded in more than one
+group. Let's try it on the (named) algebra network.
+
+**Run `node_is_fold()` on `alge`, and check whether _any_ node is in a fold.**
+
+```{r folds, exercise = TRUE, exercise.setup = "objects-setup"}
+node_is_fold(alge)
+any(node_is_fold(alge))
+```
+
+Just as the friends network had no bridges,
+the algebra network turns out to have no structural folds:
+every flag comes back `FALSE`.
+Again, this is a substantive result, not a failure.
+A fold requires two _distinct_ cohesive groups that a node belongs to at once;
+in this small, tightly-overlapping class, the groups are not separate enough
+for anyone to genuinely straddle two of them.
+Folds tend to show up in larger settings —
+overlapping project teams, interlocking company boards,
+communities of practice — where cohesive groups are real and distinguishable
+but some people hold dual membership.
+
+### Ties that torture {#ties-that-torture}
+
+So far both stories have treated an unusual position as an _advantage_:
+the broker profits from the hole, the fold-member from the overlap.
+But there is a darker side, and it is worth ending this half of the tutorial on.
+
+Krackhardt's "ties that torture" argument turns the fold on its head.
+Belonging fully to two cohesive groups does not only grant you two sets of
+resources — it also subjects you to two sets of _obligations_.
+Each group has its own norms, loyalties, and expectations,
+and an insider to both is answerable to both at once.
+When those expectations conflict — group A wants what group B forbids —
+the person in the fold is caught in the middle,
+and may be more constrained, not less.
+
+Notice how neatly this inverts Burt's picture.
+For Burt, the person whose contacts are all tied to one another is _constrained_
+(recall `node_by_constraint()`): everyone watches everyone, so there is no room
+to manoeuvre. Krackhardt points out that the fold-member sits inside not one but
+_two_ such dense, watchful groups.
+The very embeddedness that gives a fold its legitimacy
+can also become a vice that grips.
+
+```{r torture-qa, echo=FALSE, purl = FALSE}
+question("According to Krackhardt's 'ties that torture' argument, why might a node in a structural fold be *more* constrained rather than less?",
+         answer("It is subject to the norms and obligations of two cohesive groups at once, which may conflict.",
+                correct = TRUE,
+                message = paste(learnr::random_praise(), "Dual membership means dual accountability -- the same embeddedness that grants legitimacy can also trap the node between competing expectations.")),
+         answer("It has too few ties to be influential.",
+                message = "Not quite -- the problem isn't too few ties; it is being bound by the (possibly conflicting) obligations of two groups simultaneously."),
+         answer("Its constraint score is always exactly zero.",
+                message = "Not quite -- the argument is substantive, not about a particular numeric value; the point is that dual embeddedness can be constraining rather than liberating."),
+         answer("Structural folds and structural holes are the same thing.",
+                message = "Not quite -- they are opposites: a hole is a gap spanned from outside, a fold is an overlap of memberships."),
+         allow_retry = TRUE,
+         random_answer_order = TRUE
+)
+```
+
+::: {.callout}
+<span class="callout-label">**Going further**:</span>
+The tension here — position as opportunity versus position as obligation —
+runs right through network theory.
+The same overlap that Vedres and Stark celebrate as a fold (a source of
+generative friction and innovation) is what Krackhardt warns can torture.
+Which reading applies is often an empirical question about whether the two
+groups' norms _reinforce_ or _contradict_ one another.
+:::
+
+::: {.callout}
+<span class="callout-label">**In brief**:</span> A `r gloss("structural hole","structhole")` is a
+_gap between_ groups, spanned from outside for information advantage;
+a `r gloss("structural fold","structfold")` is an _overlap of_ groups,
+occupied from inside for information advantage _plus_ the standing to act.
+`node_is_fold()` flags fold members.
+Krackhardt's "ties that torture" is the reminder that dual membership brings
+dual obligations, and can constrain rather than liberate.
+:::
+
+## Structural equivalence
+
+<span class="page-toc">On this page:
+<span class="page-toc-link" onclick="document.getElementById('section-finding-classes').scrollIntoView({behavior:'auto',block:'start'});">Finding classes</span> ·
+<span class="page-toc-link" onclick="document.getElementById('section-starting-with-a-census').scrollIntoView({behavior:'auto',block:'start'});">Census</span> ·
+<span class="page-toc-link" onclick="document.getElementById('section-growing-a-tree-of-similarity').scrollIntoView({behavior:'auto',block:'start'});">Dendrograms</span> ·
+<span class="page-toc-link" onclick="document.getElementById('section-identifying-the-number-of-clusters').scrollIntoView({behavior:'auto',block:'start'});">Choosing k</span></span>
 
 <img src="https://i.giphy.com/media/v1.Y2lkPTc5MGI3NjExNGhvaTZ2Z3NxOW0yeTJ6ZjVoZ2ZqM2NqMjlxbXp1YnBmb2VtdTBldiZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/XcFqv8EzBiAlzeEID9/giphy.gif" alt="gif of rick multiplying"/>
 
