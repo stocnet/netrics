@@ -277,15 +277,95 @@ question("In what ways are higher degree nodes more 'central'?",
          random_answer_order = TRUE)
 ```
 
-## Degree distributions
+::: {.callout}
+<span class="callout-label">**Going further**:</span>
+All centrality measures in `{netrics}` return _normalised_ scores by default,
+so that values are comparable across networks of different sizes.
+For the raw scores, add `normalized = FALSE` to any of these functions —
+or, for degree, just use the truncated `node_by_deg()`,
+which is an alias for the unnormalised version.
+:::
 
-<img src="https://i.giphy.com/media/v1.Y2lkPTc5MGI3NjExanZ4OWhwM2k0eWU1ancza3NtYXlpZDFkdTJub2RvMnFkYnlwbWZ4dCZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/3o7aTHbH39h8xYePza/giphy.gif" height="400px"/>
+### Degrees of direction {#degrees-of-direction}
 
-Often we are interested in the distribution of (degree) centrality in a network.
-`{autograph}` offers a way to get a pretty good first look at this `r gloss("distribution")`,
-though there are more elaborate ways to do this in base and grid graphics.
+So far each node has had a single degree, because `ison_brandes` is
+`r gloss("undirected")`. In a `r gloss("directed")` network, ties are sent
+_from_ one node _to_ another, so every node has two degrees:
+an _in-degree_ (ties received) and an _out-degree_ (ties sent).
+These can tell quite different stories:
+in an advice network, for example, a high in-degree suggests a sought-after
+source of advice, while a high out-degree marks an eager asker.
 
-```{r distrib, exercise = TRUE, exercise.setup = "addingnames", purl = FALSE}
+`ison_brandes` has no natural direction, but `{manynet}`'s `to_directed()`
+will assign a random direction to each tie —
+just as `to_named()` assigned random names —
+which is all we need for a worked comparison.
+**Run the code, and check whether the row and column sums still agree.**
+
+```{r directing, exercise = TRUE, exercise.setup = "addingnames"}
+ison_brandes_dir <- to_directed(ison_brandes)
+node_by_indegree(ison_brandes_dir, normalized = FALSE)
+node_by_outdegree(ison_brandes_dir, normalized = FALSE)
+mat <- as_matrix(ison_brandes_dir)
+rowSums(mat) == colSums(mat)
+```
+
+Now the row sums (out-degree) and column sums (in-degree) part ways —
+the answer to the earlier quiz question flips as soon as direction enters.
+Because the directions here are assigned at random,
+your in- and out-degrees will differ from run to run;
+with real directed data they would of course be meaningful and stable.
+`node_by_indegree()` and `node_by_outdegree()` are shortcuts for
+`node_by_degree()`'s `direction = "in"` and `direction = "out"` arguments.
+
+### Strength of ties {#strength-of-ties}
+
+What about `r gloss("weighted")` networks, where ties record not just presence
+but amounts — messages exchanged, hours worked together, tonnes traded?
+There, counting ties is only half the story:
+two nodes with three ties each are hardly equivalent if one's ties are ten
+times heavier. Summing the _weights_ of a node's ties instead of counting them
+yields what is often called _strength_ centrality.
+
+Again `{manynet}` can conjure the missing property for practice purposes:
+`to_weighted()` assigns random weights to the ties.
+The `alpha` argument to `node_by_deg()` then trades off between
+counting ties and summing weights:
+`alpha = 0` ignores the weights entirely (pure degree),
+`alpha = 1` ignores the counts entirely (pure strength),
+and values in between mix the two.
+**Compare the two extremes.**
+
+```{r weighting, exercise = TRUE, exercise.setup = "addingnames"}
+ison_brandes_wtd <- to_weighted(ison_brandes)
+node_by_deg(ison_brandes_wtd)             # alpha = 0: count ties
+node_by_deg(ison_brandes_wtd, alpha = 1)  # alpha = 1: sum tie weights
+```
+
+Note that on a weighted network, `node_by_degree()` itself defaults to
+strength (`alpha = 1`) — the assumption being that if you have measured
+weights, you probably care about them.
+
+::: {.callout}
+<span class="callout-label">**Going further**:</span>
+The degree family has several further members for special kinds of networks:
+`node_by_multidegree()` compares tie types in a
+`r gloss("multiplex")` network,
+`node_by_posneg()` handles `r gloss("signed")` networks with positive and
+negative ties,
+`node_by_neighbours_degree()` averages the degrees of each node's neighbours,
+and `tie_by_degree()` scores each _tie_ by the degrees of its endpoints.
+See `?measure_central_degree` for definitions and references.
+:::
+
+::: {.callout}
+<span class="callout-label">**In brief**:</span> Degree centrality counts each node's ties:
+`node_by_degree()` for normalised scores, `node_by_deg()` for raw counts,
+`node_by_indegree()`/`node_by_outdegree()` for directed networks,
+and `alpha = 1` to sum tie weights (strength) in weighted networks.
+It is a local measure of _activity_.
+:::
+
 
 ```
 
