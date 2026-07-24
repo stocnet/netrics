@@ -705,6 +705,51 @@ and `node_by_hub()`/`node_by_authority()` for split sending/receiving
 reputations.
 :::
 
+## Which centrality?
+
+There are, by one count, [over 200 centrality indices in the
+literature](https://www.r-bloggers.com/network-centrality-in-r-an-introduction/) —
+so which should you reach for?
+Linton Freeman's classic answer was that most of them boil down to just three
+ideas — degree, closeness, and betweenness — with everything else a variant;
+we add eigenvector as a fourth, giving the **four families** this tutorial is
+built around.
+
+Two questions organise the whole zoo, and locate each family within it.
+First: does the measure count what radiates _from_ a node — its own ties, its
+distances, its walks — or what passes _through_ it on the way between others?
+Borgatti and Everett ([2006](https://doi.org/10.1016/j.socnet.2005.11.005)) call the first **radial** and the second **medial**:
+degree, closeness, and eigenvector are radial; betweenness is medial.
+Second: does it read only a node's immediate neighbourhood (**local**),
+or its place in the whole network (**global**)?
+Degree is local; the other three are global.
+The four families are simply the most useful corners of that space,
+and each variant you met earlier is a refinement or extension within its family.
+
+| Family | Reads a node's… | Built on | Answers the question | Well-suited when |
+|---|---|---|---|---|
+| **Degree** | activity (radial, local) | direct ties | "Who is busiest, or most directly connected?" | only immediate ties matter, or influence spreads one step at a time; also the cheapest to compute on very large networks; outdegree associated with activity and indegree with popularity; tie weight and sign versions exist too |
+| **Closeness** | reach (radial, global) | shortest-path distances to all others | "Who can reach — or be reached by — everyone else in the fewest steps?" | the network is connected and things travel by efficient routes; use `node_by_harmonic()` if it is disconnected |
+| **Betweenness** | brokerage (medial, global) | shortest paths that pass through it | "Who sits between others, brokering, bridging, or bottlenecking flow?" | you care about gatekeeping, bridges between groups, or where flow is vulnerable; costly on huge networks (use a `cutoff`) |
+| **Eigenvector** | standing (radial, global) | walks of all lengths, weighted by neighbours' scores | "Who is connected to other important, well-connected nodes?" | importance is recursive — prestige, status, influence; use `node_by_pagerank()` for directed or disconnected networks; use `node_by_power()` if influence depends on being connected to poorly-connected nodes |
+
+Reading across a row tells you what a family is _for_;
+reading down the last column tells you which _kind of network_ each suits best.
+
+```{r whichcentQ, purl = FALSE}
+question("A rumour spreads step-by-step along ties, and you want to find the person who could seed it to reach everyone else in the fewest steps. Which family is the most natural first choice?",
+  answer("Closeness",
+         correct = TRUE,
+         message = "Yes -- closeness is precisely about short distances to all other nodes, i.e. reaching everyone quickly."),
+  answer("Degree",
+         message = "Degree finds who has the most direct contacts, but a well-connected node in a peripheral cluster can still be far from most of the network."),
+  answer("Betweenness",
+         message = "Betweenness finds brokers who sit between others -- great for controlling flow, but not the same as being able to reach everyone quickly yourself."),
+  answer("Eigenvector",
+         message = "Eigenvector finds nodes connected to important others (influence/prestige), which need not be the nodes that can reach everyone in few steps."),
+  allow_retry = TRUE,
+  random_answer_order = TRUE
+)
 ```
 
 ::: {.callout}
@@ -802,7 +847,12 @@ question("Select all that are true for the two-mode Brandes network.",
          random_answer_order = TRUE)
 ```
 
-## Centralization
+::: {.callout}
+<span class="callout-label">**In brief**:</span> Turn any numeric measure into a logical flag with
+`node_is_max()`/`node_is_min()`, then map it to `node_color` in `graphr()`
+to spotlight the most (or least) central node(s) directly on the graph.
+:::
+
 
 ### Measuring centralisation {#measuring-centralisation}
 
