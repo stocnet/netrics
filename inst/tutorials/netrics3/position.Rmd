@@ -426,7 +426,7 @@ by their position in the *task* network —
 where advice about the algebra problems flows.
 `{netrics}` makes this easy with the `node_by_constraint()` function.
 
-```{r objects-setup, purl=FALSE}
+```{r objects-setup}
 alge <- to_named(ison_algebra)
 friends <- to_uniplex(alge, "friends")
 social <- to_uniplex(alge, "social")

@@ -745,11 +745,14 @@ as much precision as is available is used in further calculations.
 
 ::: {.callout}
 <span class="callout-label">**Going further**:</span>
-For centralisation in `r gloss("two-mode","twomode")` networks,
-two values are given (as a named vector), one per mode.
-This is because normalisation typically depends on the number of nodes in each
-mode, and those two counts are usually different (asymmetric), so a single
-figure would not be comparable across the modes.
+For `r gloss("two-mode","twomode")` networks, `net_by_*()` still returns a
+single network-level score, obtained by applying Freeman's general
+centralisation index over the normalised node scores across the whole node set.
+If you instead want a score _per mode_ — since normalisation typically depends
+on the number of nodes in each mode, and those two counts are usually different
+(asymmetric) — use the `mode_by_*()` family (e.g. `mode_by_closeness()`), which
+returns the two per-mode centralisation scores following Borgatti and Everett
+(1997).
 :::
 
 ### Comparing the measures {#comparing-the-measures}
@@ -767,9 +770,9 @@ and `ggtitle()` to record each measure's centralisation score as a subtitle.
 
 ::: {.callout}
 <span class="callout-label">**In brief**:</span> Swap `node_` for `net_` to move from a node's
-centrality to the whole network's _centralisation_ — a single number (or one
-per mode, for two-mode networks) summarising how unequally that centrality is
-distributed.
+centrality to the whole network's _centralisation_ — a single number
+summarising how unequally that centrality is distributed (use `mode_` for the
+per-mode scores of a two-mode network).
 :::
 
 ## Free play

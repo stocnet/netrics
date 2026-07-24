@@ -8,6 +8,20 @@
 - Fixed `net_by_betweenness()` to respect its `normalized` argument for one-mode networks, which was previously ignored because `igraph::centr_betw()` always applied its default normalization
 - Fixed `net_by_closeness()` and `mode_by_closeness()` to pass their `direction` argument through to the underlying node scores, so `direction = "in"`/`"all"` is now effective for two-mode networks
 
+## Tutorials
+
+- Improved the centrality tutorial (`netrics1`) with a new interactive style, and added an article version to the website
+  - Added more examples to the centrality tutorial for degree-style analysis of directed and weighted networks
+  - Added extensions to the centrality tutorial's betweenness, closeness, and eigenvector sections (the latter including power and influence)
+  - Added a "which centrality?" section to the centrality tutorial
+  - Improved the centrality tutorial by moving degree distribution and centralisation together and expanding the discussion
+- Improved the community tutorial (`netrics2`) with a new version
+- Improved the position tutorial (`netrics3`) with a new interactive style
+  - Added sections introducing regular and automorphic equivalence in more detail to the position tutorial
+  - Added a section on structural folds and ties that torture to the position tutorial
+- Improved the topology tutorial (`netrics4`) with a new interactive style
+  - Added a section on degree mixing measures for characterising centralisation to the topology tutorial
+  - Added a section on further generators, such as fire, islands, and citations, to the topology tutorial
 
 # netrics 0.3.1
 
