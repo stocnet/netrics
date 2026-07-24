@@ -3,15 +3,24 @@
 \name{measure_centralisation_degree}
 \alias{measure_centralisation_degree}
 \alias{net_by_degree}
+\alias{mode_by_degree}
 \alias{net_by_outdegree}
 \alias{net_by_indegree}
+\alias{mode_by_outdegree}
+\alias{mode_by_indegree}
 \title{Measuring networks degree-like centralisation}
 \usage{
 net_by_degree(.data, normalized = TRUE, direction = c("all", "out", "in"))
 
+mode_by_degree(.data, normalized = TRUE, direction = c("all", "out", "in"))
+
 net_by_outdegree(.data, normalized = TRUE)
 
 net_by_indegree(.data, normalized = TRUE)
+
+mode_by_outdegree(.data, normalized = TRUE)
+
+mode_by_indegree(.data, normalized = TRUE)
 }
 \arguments{
 \item{.data}{A network object of class \code{mnet}, \code{igraph}, \code{tbl_graph}, \code{network}, or similar.
@@ -28,15 +37,24 @@ By default TRUE.}
 By default "all".}
 }
 \value{
-A \code{network_measure} numeric score.
+\verb{net_by_*()} functions return a \code{network_measure} scalar;
+\verb{mode_by_*()} functions return a \code{mode_measure} numeric vector of length two,
+giving one centralization score per mode.
 }
 \description{
 \itemize{
-\item \code{net_by_degree()} measures a network's degree centralization;
-there are several related shortcut functions:
+\item \code{net_by_degree()} measures a network's degree centralization as a single
+score; there are several related shortcut functions:
 \itemize{
 \item \code{net_by_indegree()} returns the \code{direction = 'in'} results.
 \item \code{net_by_outdegree()} returns the \code{direction = 'out'} results.
+}
+\item \code{mode_by_degree()} measures degree centralization separately for each mode
+of a two-mode network, returning one score per mode
+(following Borgatti and Everett, 1997); it has the same shortcuts:
+\itemize{
+\item \code{mode_by_indegree()} returns the \code{direction = 'in'} results.
+\item \code{mode_by_outdegree()} returns the \code{direction = 'out'} results.
 }
 }
 
@@ -47,8 +65,12 @@ first transform the salient properties using e.g. \code{\link[manynet:to_undirec
 All centrality and centralization measures return normalized measures
 by default, including for two-mode networks.
 
-For two-mode networks, "all" uses as numerator the sum of differences
-between the maximum centrality score for the mode
+For two-mode networks, the two modes have different theoretical maxima,
+so \code{net_by_degree()} reports a single network-level score by applying
+Freeman's general centralization index over the mode-normalized node
+degrees, whereas \code{mode_by_degree()} reports the per-mode centralization
+scores directly. For the per-mode scores, "all" uses as numerator the sum
+of differences between the maximum centrality score for the mode
 against all other centrality scores in the network,
 whereas "in" uses as numerator the sum of differences
 between the maximum centrality score for the mode
@@ -56,6 +78,13 @@ against only the centrality scores of the other nodes in that mode.
 }
 \examples{
 net_by_degree(ison_southern_women, direction = "in")
+mode_by_degree(ison_southern_women, direction = "in")
+}
+\references{
+Borgatti, Stephen P., and Martin G. Everett. 1997.
+"Network analysis of 2-mode data."
+\emph{Social Networks} 19(3): 243-269.
+\doi{10.1016/S0378-8733(96)00301-2}
 }
 \seealso{
 Other degree:
@@ -75,39 +104,6 @@ Other centrality:
 \code{\link{measure_centralities_close}},
 \code{\link{measure_centralities_degree}},
 \code{\link{measure_centralities_eigen}}
-
-Other measures:
-\code{\link{measure_assort_net}},
-\code{\link{measure_assort_node}},
-\code{\link{measure_breadth}},
-\code{\link{measure_broker_node}},
-\code{\link{measure_broker_tie}},
-\code{\link{measure_brokerage}},
-\code{\link{measure_central_between}},
-\code{\link{measure_central_close}},
-\code{\link{measure_central_degree}},
-\code{\link{measure_central_eigen}},
-\code{\link{measure_centralisation_between}},
-\code{\link{measure_centralisation_close}},
-\code{\link{measure_centralisation_eigen}},
-\code{\link{measure_centralities_between}},
-\code{\link{measure_centralities_close}},
-\code{\link{measure_centralities_degree}},
-\code{\link{measure_centralities_eigen}},
-\code{\link{measure_closure}},
-\code{\link{measure_closure_node}},
-\code{\link{measure_cohesion}},
-\code{\link{measure_core}},
-\code{\link{measure_diffusion_infection}},
-\code{\link{measure_diffusion_net}},
-\code{\link{measure_diffusion_node}},
-\code{\link{measure_diverse_net}},
-\code{\link{measure_diverse_node}},
-\code{\link{measure_features}},
-\code{\link{measure_fragmentation}},
-\code{\link{measure_hierarchy}},
-\code{\link{measure_periods}}
 }
 \concept{centrality}
 \concept{degree}
-\concept{measures}

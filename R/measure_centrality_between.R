@@ -196,20 +196,37 @@ tie_by_betweenness <- function(.data, normalized = TRUE){
 #' Measuring networks betweenness-like centralisation
 #' @name measure_centralisation_between
 #' @description
-#'   `net_by_betweenness()` measures the betweenness centralization for a network.
-#'   
+#'   - `net_by_betweenness()` measures the betweenness centralization for a
+#'   network as a single score.
+#'   - `mode_by_betweenness()` measures betweenness centralization separately for
+#'   each mode of a two-mode network, returning one score per mode
+#'   (following Borgatti and Everett, 1997).
+#'
 #'   All measures attempt to use as much information as they are offered,
 #'   including whether the networks are directed, weighted, or multimodal.
-#'   If this would produce unintended results, 
+#'   If this would produce unintended results,
 #'   first transform the salient properties using e.g. [to_undirected()] functions.
 #'   All centrality and centralization measures return normalized measures by default,
 #'   including for two-mode networks.
+#'
+#'   For two-mode networks the two modes have different theoretical maxima, so
+#'   `net_by_betweenness()` reports a single network-level score by applying
+#'   Freeman's general centralization index over the normalized node betweenness
+#'   scores, whereas `mode_by_betweenness()` reports the per-mode scores directly.
 #' @template param_data
 #' @template param_norm
 #' @template param_dir
 #' @family betweenness
 #' @family centrality
-#' @template net_measure
+#' @references
+#'   Borgatti, Stephen P., and Martin G. Everett. 1997.
+#'   "Network analysis of 2-mode data."
+#'   _Social Networks_ 19(3): 243-269.
+#'   \doi{10.1016/S0378-8733(96)00301-2}
+#' @returns
+#'   `net_by_betweenness()` returns a `network_measure` scalar;
+#'   `mode_by_betweenness()` returns a `mode_measure` numeric vector of length two,
+#'   giving one centralization score per mode.
 NULL
 
 #' @rdname measure_centralisation_between
@@ -221,8 +238,37 @@ net_by_betweenness <- function(.data, normalized = TRUE,
   .data <- manynet::expect_nodes(.data)
   direction <- match.arg(direction)
   graph <- manynet::as_igraph(.data)
-  
+
   if (manynet::is_twomode(.data)) {
+    # Two-mode betweenness centralization is intrinsically per mode
+    # (see `mode_by_betweenness()`, following Borgatti and Everett, 1997).
+    # For a single network-level score we apply Freeman's general
+    # centralization index over the whole node set, using the normalized node
+    # betweenness scores (each in [0, 1]); the numerator's maximum is (n - 1).
+    nc <- node_by_betweenness(graph, normalized = TRUE)
+    out <- sum(max(nc) - nc) / (length(nc) - 1)
+  } else {
+    out <- igraph::centr_betw(graph = graph,
+                              normalized = normalized)$centralization
+  }
+  out <- make_network_measure(out, .data, call = deparse(sys.call()))
+  out
+}
+
+#' @rdname measure_centralisation_between
+#' @examples
+#' mode_by_betweenness(ison_southern_women, direction = "in")
+#' @export
+mode_by_betweenness <- function(.data, normalized = TRUE,
+                                direction = c("all", "out", "in")) {
+  .data <- manynet::expect_nodes(.data)
+  direction <- match.arg(direction)
+  graph <- manynet::as_igraph(.data)
+
+  if (!manynet::is_twomode(.data))
+    manynet::snet_abort("`mode_by_betweenness()` is only defined for two-mode networks; use `net_by_betweenness()` for one-mode networks.")
+
+  {
     becent <- node_by_betweenness(graph, normalized = FALSE)
     mode <- igraph::V(graph)$type
     mode1 <- length(mode) - sum(mode)
@@ -261,10 +307,8 @@ net_by_betweenness <- function(.data, normalized = TRUE,
       }
     }
     out <- c("Mode 1" = out$nodes1, "Mode 2" = out$nodes2)
-  } else {
-    out <- igraph::centr_betw(graph = graph)$centralization
   }
-  out <- make_network_measure(out, .data, call = deparse(sys.call()))
+  out <- make_mode_measure(out, .data, call = deparse(sys.call()))
   out
 }
 

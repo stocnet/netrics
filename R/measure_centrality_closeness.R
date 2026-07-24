@@ -376,39 +376,87 @@ tie_by_closeness <- function(.data, normalized = TRUE){
 #' Measuring networks closeness-like centralisation
 #' @name measure_centralisation_close
 #' @description
-#'   - `net_by_closeness()` measures a network's closeness centralization.
+#'   - `net_by_closeness()` measures a network's closeness centralization as a
+#'   single score.
+#'   - `mode_by_closeness()` measures closeness centralization separately for each
+#'   mode of a two-mode network, returning one score per mode
+#'   (following Borgatti and Everett, 1997).
 #'   - `net_by_reach()` measures a network's reach centralization.
 #'   - `net_by_harmonic()` measures a network's harmonic centralization.
-#'   
+#'
 #'   All measures attempt to use as much information as they are offered,
 #'   including whether the networks are directed, weighted, or multimodal.
-#'   If this would produce unintended results, 
+#'   If this would produce unintended results,
 #'   first transform the salient properties using e.g. [to_undirected()] functions.
 #'   All centrality and centralization measures return normalized measures by default,
 #'   including for two-mode networks.
+#'
+#'   For two-mode networks the two modes have different theoretical maxima, so
+#'   `net_by_closeness()` reports a single network-level score by applying
+#'   Freeman's general centralization index over the normalized node closeness
+#'   scores, whereas `mode_by_closeness()` reports the per-mode scores directly.
 #' @template param_data
 #' @template param_norm
 #' @template param_dir
 #' @family closeness
 #' @family centrality
-#' @template net_measure
+#' @references
+#'   Borgatti, Stephen P., and Martin G. Everett. 1997.
+#'   "Network analysis of 2-mode data."
+#'   _Social Networks_ 19(3): 243-269.
+#'   \doi{10.1016/S0378-8733(96)00301-2}
 #' @param cutoff The maximum path length to consider when calculating betweenness.
 #'   If negative or NULL (the default), there's no limit to the path lengths considered.
+#' @returns
+#'   `net_by_*()` functions return a `network_measure` scalar;
+#'   `mode_by_closeness()` returns a `mode_measure` numeric vector of length two,
+#'   giving one centralization score per mode.
 NULL
 
-#' @rdname measure_centralisation_close 
+#' @rdname measure_centralisation_close
 #' @examples
 #' net_by_closeness(ison_southern_women, direction = "in")
 #' @export
 net_by_closeness <- function(.data, normalized = TRUE,
                              direction = c("all", "out", "in")){
-  
+
   .data <- manynet::expect_nodes(.data)
   direction <- match.arg(direction)
   graph <- manynet::as_igraph(.data)
-  
+
   if (manynet::is_twomode(.data)) {
-    clcent <- node_by_closeness(graph, normalized = TRUE)
+    # Two-mode closeness centralization is intrinsically per mode
+    # (see `mode_by_closeness()`, following Borgatti and Everett, 1997).
+    # For a single network-level score we apply Freeman's general
+    # centralization index over the whole node set, using the normalized node
+    # closeness scores (each in [0, 1]); the numerator's maximum is (n - 1).
+    nc <- node_by_closeness(graph, normalized = TRUE, direction = direction)
+    out <- sum(max(nc) - nc) / (length(nc) - 1)
+  } else {
+    out <- igraph::centr_clo(graph = graph,
+                             mode = direction,
+                             normalized = normalized)$centralization
+  }
+  out <- make_network_measure(out, .data, call = deparse(sys.call()))
+  out
+}
+
+#' @rdname measure_centralisation_close
+#' @examples
+#' mode_by_closeness(ison_southern_women, direction = "in")
+#' @export
+mode_by_closeness <- function(.data, normalized = TRUE,
+                              direction = c("all", "out", "in")){
+
+  .data <- manynet::expect_nodes(.data)
+  direction <- match.arg(direction)
+  graph <- manynet::as_igraph(.data)
+
+  if (!manynet::is_twomode(.data))
+    manynet::snet_abort("`mode_by_closeness()` is only defined for two-mode networks; use `net_by_closeness()` for one-mode networks.")
+
+  {
+    clcent <- node_by_closeness(graph, normalized = TRUE, direction = direction)
     mode <- igraph::V(graph)$type
     mode1 <- length(mode) - sum(mode)
     mode2 <- sum(mode)
@@ -452,16 +500,12 @@ net_by_closeness <- function(.data, normalized = TRUE,
       }
     }
     out <- c("Mode 1" = out$nodes1, "Mode 2" = out$nodes2)
-  } else {
-    out <- igraph::centr_clo(graph = graph,
-                             mode = direction,
-                             normalized = normalized)$centralization
   }
-  out <- make_network_measure(out, .data, call = deparse(sys.call()))
+  out <- make_mode_measure(out, .data, call = deparse(sys.call()))
   out
 }
 
-#' @rdname measure_centralisation_close 
+#' @rdname measure_centralisation_close
 #' @export
 net_by_reach <- function(.data, normalized = TRUE, cutoff = 2){
   .data <- manynet::expect_nodes(.data)

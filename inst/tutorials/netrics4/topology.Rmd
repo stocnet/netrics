@@ -1,0 +1,1288 @@
+---
+title: "Topology and Resilience"
+author: "by James Hollway"
+output:
+  learnr::tutorial:
+    theme: flatly
+runtime: shiny_prerendered
+description: >
+  This tutorial covers how to create deterministic networks,
+  generate probabilistic networks, identify core-periphery structures,
+  measure hierarchy, and assess network resilience.
+---
+
+```{r pkgs, include = FALSE, eval=TRUE}
+library(netrics)
+library(autograph)
+library(patchwork)
+```
+
+```{r setup, include = FALSE, purl=FALSE, eval=TRUE}
+library(learnr)
+knitr::opts_chunk$set(echo = FALSE)
+library(netrics)
+library(autograph)
+stocnet_theme("default")
+clear_glossary()
+learnr::random_phrases_add(language = "fr",
+                           praise = c("C'est génial!",
+                                      "Beau travail",
+                                      "Excellent travail!",
+                                      "Bravo!",
+                                      "Super!",
+                                      "Bien fait",
+                                      "Bien joué",
+                                      "Tu l'as fait!",
+                                      "Je savais que tu pouvais le faire.",
+                                      "Ça a l'air facile!",
+                                      "C'était un travail de première classe.",
+                                      "C'est ce que j'appelle un bon travail!"),
+                          encouragement = c("Bon effort",
+                                            "Vous l'avez presque maîtrisé!",
+                                            "Ça avance bien.",
+                                            "Continuez comme ça.",
+                                            "Continuez à travailler dur!",
+                                            "Vous apprenez vite!",
+                                            "Vous faites un excellent travail aujourd'hui."))
+learnr::random_phrases_add(language = "en",
+                           praise = c("That's brilliant!",
+                                      "Great work!",
+                                      "Well done!",
+                                      "Awesome!"),
+                           encouragement = c("Good effort"))
+```
+
+```{r detect-language, context="server-start", purl=FALSE}
+sys_locale <- Sys.getlocale("LC_CTYPE")
+if (grepl("fr", sys_locale, ignore.case = TRUE)) {
+  options(tutorial.language = "fr")
+} else {
+  options(tutorial.language = "en")
+}
+```
+
+<style>
+html { font-size: 115%; }
+.callout {
+  border-left: 3px solid #5B9C78;
+  padding: 0.1em 1em;
+  margin: 1.2em 0;
+}
+.callout-label { color: #5B9C78; }
+.page-toc { font-style: italic; }
+.page-toc-link { color: #5B9C78; cursor: pointer; text-decoration: underline; }
+.tutorialTitle { color: #5B9C78 !important; }
+#tutorial-topic .nav-link { color: #5B9C78 !important; }
+.section a:not(.btn) { color: #5B9C78; }
+.section a:not(.btn):hover { color: #487E61; }
+.btn-tutorial-run,
+.btn-tutorial-run:hover,
+.btn-tutorial-run:focus,
+.btn-tutorial-run:active {
+  background-color: #5B9C78;
+  border-color: #5B9C78;
+  color: #fff;
+}
+</style>
+
+## Today's target
+
+So far the `{netrics}` tutorials have measured networks from the inside out:
+which `r gloss("nodes","node")` are central, which cluster into communities,
+and which share positions.
+This tutorial turns the telescope around and asks about the _shape_ of the
+whole `r gloss("network")` — its topology.
+We will _create_ ideal-typical networks by deterministic rule
+(stars, trees, lattices, and rings),
+_generate_ others by probabilistic recipe
+(random, small-world, and scale-free networks),
+and then use these ideals as yardsticks for empirical questions:
+Does this network have a core and a periphery?
+How hierarchical is it?
+And how many nodes or `r gloss("ties","tie")` could it lose before falling apart?
+
+<img src="https://64.media.tumblr.com/tumblr_lvpgquhGbq1r54h4xo1_400.gif"/>
+
+These ideal networks exaggerate centrality, clustering, and randomness features,
+and are thus great for theory-building and investigating
+the relationship between rules and structure.
+
+::: {.callout}
+<span class="callout-label">**Catching up**:</span>
+This tutorial assumes you can already load, manipulate, and draw a network in R,
+and that you have met the earlier `{netrics}` tutorials.
+If any of that is hazy, work through the earlier `{stocnet}` tutorials first:
+run `run_tute("Making")` and `run_tute("Manipulating")` for network data,
+`run_tute("Visualising")` for graphing,
+and `run_tute("Centrality")`, `run_tute("Community")`, and
+`run_tute("Position")` for measuring networks,
+or read their static versions on the
+[manynet](https://stocnet.github.io/manynet/),
+[autograph](https://stocnet.github.io/autograph/), and
+[netrics](https://stocnet.github.io/netrics/) websites.
+:::
+
+::: {.callout}
+<span class="callout-label">**New to network vocabulary?**:</span>
+Throughout this tutorial, key terms are italicised:
+hover over them for a definition,
+and a full glossary of the terms used appears at the end of the tutorial.
+:::
+
+### Aims
+
+By the end of this tutorial, you should be able to:
+
+- [ ] &nbsp; Create deterministic network topologies with `create_*()`: empty, complete, star, tree, lattice, and ring networks
+- [ ] &nbsp; Generate probabilistic networks with `generate_*()`: random, small-world, and scale-free networks
+- [ ] &nbsp; Measure and interpret a network's small-world coefficient and power-law exponent
+- [ ] &nbsp; Partition a network into core and periphery with `node_is_core()`, and judge the fit with `net_by_core()`
+- [ ] &nbsp; Peel a network into _k_-cores with `node_by_kcoreness()`
+- [ ] &nbsp; Measure how hierarchical a directed network is with `net_x_hierarchy()`
+- [ ] &nbsp; Assess a network's resilience via its connectedness, cohesion, and adhesion, and locate its cutpoints and bridges
+
+**Choose your own data**: The first half of this tutorial creates and generates
+its own toy networks, and the worked examples later use `ison_lawfirm`,
+`ison_adolescents`, and other datasets bundled with `{manynet}`.
+But wherever there is an exercise box, you are encouraged to swap in
+a network that interests _you_.
+Remember the three flavours of bundled data as a rough difficulty ladder —
+**Classic** (`ison_*`, small & tidy),
+**Fiction** (`fict_*`, mid-sized & fun),
+**Real-world** (`irps_*`, larger & realistic) —
+and that you can browse the full list with `table_data()`.
+
+## Creating networks
+
+<span class="page-toc">On this page:
+<span class="page-toc-link" onclick="document.getElementById('section-empty-and-complete').scrollIntoView({behavior:'auto',block:'start'});">Empty & complete</span> ·
+<span class="page-toc-link" onclick="document.getElementById('section-stars').scrollIntoView({behavior:'auto',block:'start'});">Stars</span> ·
+<span class="page-toc-link" onclick="document.getElementById('section-trees').scrollIntoView({behavior:'auto',block:'start'});">Trees</span> ·
+<span class="page-toc-link" onclick="document.getElementById('section-lattices').scrollIntoView({behavior:'auto',block:'start'});">Lattices</span> ·
+<span class="page-toc-link" onclick="document.getElementById('section-rings').scrollIntoView({behavior:'auto',block:'start'});">Rings</span></span>
+
+<img src="https://media.tenor.com/images/e26e64a8cce94a6ee491f0ddeecc8b88/tenor.gif"/>
+
+In this practical, we're going to create/generate
+a number of ideal-typical network topologies and plot them.
+We'll first look at some deterministic algorithms for _creating_ networks
+of different structures,
+and then look at how the introduction of some randomness can
+_generate_ a variety of network structures.
+
+::: {.callout}
+<span class="callout-label">**Beginner note**:</span>
+All the `create_*()` functions take the number of nodes to create
+as their first argument.
+You can even pass them an existing network instead,
+in which case they will create a network of the same dimensions —
+handy for comparing an empirical network with its ideal-typical counterpart.
+Many also accept a `directed = TRUE` argument.
+:::
+
+### Empty and complete {#empty-and-complete}
+
+To begin with, let's create a few '`r gloss("empty")`' and
+full/'`r gloss("complete")`' graphs.
+You will want to use some of the `create_*()` group of functions from `{manynet}`,
+because they create graphs following some strict rule(s).
+The two functions you will want to use here are `create_empty()` and `create_filled()`.
+`create_empty()` creates an empty graph with the given number of nodes,
+in this case 50 nodes.
+For `create_filled()` we're creating a full graph,
+where all of the nodes are connected to all of the other nodes.
+
+Let's say that we want to explore networks of fifty nodes in this script.
+**Graph one empty and one complete network with 50 nodes each,
+give them an informative title, and plot the graphs together.
+What would a complete network with half the nodes look like?
+Add that too.**
+
+```{r empty, exercise=TRUE, purl = FALSE}
+
+```
+
+```{r empty-solution}
+(graphr(create_empty(50), "circle") + ggtitle("Empty graph"))
+(graphr(create_filled(50)) + ggtitle("Complete graph"))
+(graphr(create_filled(50/2)) + ggtitle("Complete graph (smaller)"))
+```
+
+These two extremes bookend every topology to come:
+an empty network has a `r gloss("density")` of 0
+and a complete network a density of 1,
+and every real network lies somewhere in between —
+usually much closer to the empty end.
+
+### Stars {#stars}
+
+In a `r gloss("star", "star")` network, there is one node to which all other nodes are connected,
+otherwise known as the `r gloss("universal", "universal")` node.
+There is no transitivity.
+The maximum path length is two.
+And `r gloss("degree", "degree")` centrality is maximised!^[In fact, all centrality measures are maximised, as one node acts as the sole bridge connecting one part of the network to the other.]
+
+**Use the `create_star()` function to graph three star networks:**
+
+- an undirected star network
+- a out-directed star network
+- and an in-directed star network
+
+```{r star, exercise = TRUE, purl = FALSE}
+
+```
+
+```{r star-solution}
+(graphr(create_star(50)) + ggtitle("Star graph"))
+(graphr(create_star(50, directed = TRUE)) + ggtitle("Star out"))
+(graphr(to_redirected(create_star(50, directed = TRUE))) + ggtitle("Star in"))
+```
+
+Substantively, a star is what maximal centralisation looks like:
+everything depends on the hub.
+That makes stars very efficient at spreading anything from the centre,
+but also maximally fragile — remove the universal node and
+the network shatters into isolates.
+
+### Trees {#trees}
+
+Trees, or regular trees, are networks with branching nodes.
+They can be directed or undirected, and tend to indicate strong hierarchy:
+each node reports up to a single parent,
+branching down from a root to the `r gloss("pendant","pendant")` 'leaf' nodes
+at the bottom.
+**Again graph three networks:**
+
+- one undirected with 2 branches per node
+- a directed network with 2 branches per node
+- the same as above, but graphed using the "tree" layout
+
+```{r tree, exercise = TRUE, purl = FALSE}
+
+```
+
+```{r tree-solution}
+# width argument specifies the breadth of the branches
+(graphr(create_tree(50, width = 2)) + ggtitle("Tree graph"))
+(graphr(create_tree(50, width = 2, directed = TRUE)) + ggtitle("Tree out"))
+(graphr(create_tree(50, width = 2, directed = TRUE), "tree") + ggtitle("Tree layout"))
+```
+
+Try varying the `width` argument to see the result.
+We will return to trees when we measure hierarchy later in this tutorial.
+
+### Lattices {#lattices}
+
+`r gloss("Lattices","lattice")` reflect highly clustered networks
+where there is a high likelihood that interaction partners also interact.
+They are used to show how clustering facilitates or limits diffusion
+or makes pockets of behaviour stable.
+
+```{r lat-qa, echo=FALSE, purl = FALSE}
+question("Why are lattices considered highly clustered?",
+         answer("Because neighbours are likely also neighbours of each other",
+                message = learnr::random_praise(),
+                correct = TRUE),
+         answer("Because all nodes are directly connected to each other",
+                message = learnr::random_encouragement()),
+         answer("Because there is a single component",
+                message = learnr::random_encouragement()),
+         answer("Because there is a single community",
+                message = learnr::random_encouragement()),
+         random_answer_order = TRUE,
+         allow_retry = TRUE)
+```
+
+Note that `create_lattice()` in `{manynet}` works a little differently
+to how it works in `{igraph}`.
+In `{igraph}` the number or vector passed to the function indicates
+the length of each dimension.
+So `c(50)` would be a one-dimensional lattice,
+essentially a chain of 50 nodes connected to their neighbours.
+`c(50,50)` would be a two-dimensional lattice,
+of 50 nodes long and 50 nodes wide.
+`c(50,50,50)` would be a three-dimensional lattice,
+of 50 nodes long, 50 nodes wide, and 50 nodes deep, etc.
+
+_But_ this doesn't help us when we want to see what a lattice representation
+with the same order (number of nodes) as a given network would be.
+For example, perhaps we just want to know what a lattice with 50 nodes
+would look like.
+So `{manynet}` instead tries to find the most even or balanced
+two-dimensional representation with a given number of nodes.
+
+**Graph two lattices, one with 50 nodes,
+and another with half the number of nodes.**
+
+```{r lattices, exercise = TRUE, purl = FALSE}
+
+```
+
+```{r lattices-solution}
+(graphr(create_lattice(50)) + ggtitle("One-mode lattice graph"))
+(graphr(create_lattice(50/2)) + ggtitle("Smaller lattice graph"))
+```
+
+We can put numbers on what makes a lattice special.
+Its density is low, but its `r gloss("transitivity","transitivity")` —
+the tendency for two nodes with a shared neighbour to be tied themselves —
+is high.
+**Measure both for a 50-node lattice.**
+
+```{r latmeasures, exercise = TRUE}
+net_by_density(create_lattice(50))
+net_by_transitivity(create_lattice(50))
+```
+
+So with only around an eighth of all possible ties present,
+nearly half of all open two-paths are closed into triangles:
+lots of local clustering despite few ties overall.
+
+### Rings {#rings}
+
+This creates a graph where each node has two separate neighbours
+which creates a ring graph.
+**Graph three ring networks:**
+
+- one with 50 nodes
+- one with 50 nodes where they are connected to neighbours two steps away,
+  on a "circle" layout
+- the same as above, but on a "stress" layout
+
+```{r rings, exercise = TRUE, purl = FALSE}
+
+```
+
+```{r rings-solution}
+(graphr(create_ring(50)) + ggtitle("Ring graph", subtitle = "Starring Naomi Watts"))
+# width argument specifies the width of the ring
+(graphr(create_ring(50, width = 2), "circle") + ggtitle("The Ring Two", subtitle = "No different?"))
+(graphr(create_ring(50, width = 2), "stress") + ggtitle("The Ring Two v2.0"))
+```
+
+The price a ring pays for its regularity is distance.
+The `r gloss("diameter")` of a network is the length of its longest
+shortest path (`r gloss("geodesic")`),
+and `net_by_length()` returns the _average_ shortest path length.
+**Check how far apart nodes in a ring really are,
+and what widening the ring does about it.**
+
+```{r ringmeasures, exercise = TRUE}
+net_by_diameter(create_ring(50))
+net_by_length(create_ring(50))
+net_by_diameter(create_ring(50, width = 2))
+```
+
+In a 50-node ring, a message travelling neighbour-to-neighbour
+needs 25 steps to reach the far side of the circle —
+and about 13 on average to reach anyone.
+Doubling the width halves these distances, but they remain long:
+in rings and lattices, distances grow with the number of nodes.
+Hold that thought for the small-world networks on the next page.
+
+::: {.callout}
+<span class="callout-label">**In brief**:</span> The `create_*()` functions build deterministic
+topologies from rules: `create_empty()` and `create_filled()` set the two
+density extremes, `create_star()` maximises centralisation around one
+universal node, `create_tree()` branches like a hierarchy,
+`create_lattice()` clusters neighbours into grids, and `create_ring()`
+chains them into circles. `net_by_density()`, `net_by_transitivity()`,
+`net_by_diameter()`, and `net_by_length()` put numbers on the resulting
+shapes.
+:::
+
+## Generating networks
+
+<span class="page-toc">On this page:
+<span class="page-toc-link" onclick="document.getElementById('section-random-graphs').scrollIntoView({behavior:'auto',block:'start'});">Random</span> ·
+<span class="page-toc-link" onclick="document.getElementById('section-small-world-graphs').scrollIntoView({behavior:'auto',block:'start'});">Small-world</span> ·
+<span class="page-toc-link" onclick="document.getElementById('section-scale-free-graphs').scrollIntoView({behavior:'auto',block:'start'});">Scale-free</span> ·
+<span class="page-toc-link" onclick="document.getElementById('section-degree-mixing').scrollIntoView({behavior:'auto',block:'start'});">Degree mixing</span> ·
+<span class="page-toc-link" onclick="document.getElementById('section-more-generators').scrollIntoView({behavior:'auto',block:'start'});">More generators</span></span>
+
+Next we are going to take a look at some probabilistic graphs.
+These involve some `r gloss("random")` element, perhaps in addition to specific rules,
+to stochastically 'generate' networks of certain types of topologies.
+As such, we'll be using the `generate_*()` group of functions from `{manynet}`.
+
+::: {.callout}
+<span class="callout-label">**Beginner note**:</span>
+Because these functions are stochastic,
+you will get a slightly different network every time you run them.
+That is the point!
+If you need the same network twice — say, to reproduce a figure —
+call `set.seed()` with some number of your choice first.
+:::
+
+### Random graphs {#random-graphs}
+
+An Erdös-Renyi graph is simply a random graph.
+You will need to specify the probability of a tie
+in addition to the number of nodes.
+An Erdos-Renyi graph on the vertex set $V$ is a random graph
+which connects each pair of nodes ${i,j}$ with probability $p$, independent.
+Note that for a `r gloss("sparse","sparse")` ER graph, $p$ must decrease as $N$ goes up.
+**Generate three random networks of 50 nodes and a density of 0.08.**
+
+```{r random, exercise = TRUE, purl = FALSE}
+
+```
+
+```{r random-solution}
+(graphr(generate_random(50, 0.08)) + ggtitle("Random 1 graph"))
+(graphr(generate_random(50, 0.08)) + ggtitle("Random 2 graph"))
+(graphr(generate_random(50, 0.08)) + ggtitle("Random 3 graph"))
+```
+
+Keep going if you like... it will be a little different every time.
+Note that you can also pass the second argument an integer,
+in which case the function will interpret that as the number of ties/edges rather than the probability that a tie is present.
+**Try generating a random graph with 200 edges/ties now.**
+
+```{r randomno, exercise = TRUE, purl = FALSE}
+
+```
+
+```{r randomno-solution}
+(erdren4 <- graphr(generate_random(50, 200)) + ggtitle("Random 1 graph"))
+```
+
+Random graphs are the mirror image of the lattice:
+their paths are short, but they have next to no clustering —
+ties are sprinkled independently,
+so triangles arise only by coincidence.
+They serve as the customary _null model_ in network analysis:
+the baseline of what a network with no structuring principle at all
+would look like.
+
+### Small-world graphs {#small-world-graphs}
+
+Remember the ring graph from above?
+What if we rewire (change) some of the edges at a certain probability?
+This is how `r gloss("small-world","smallworld")` networks are generated.
+**Graph three small-world networks, all with 50 nodes and a rewiring probability of 0.025.**
+
+```{r smallw, exercise = TRUE, purl = FALSE}
+
+```
+
+```{r smallw-solution}
+(graphr(generate_smallworld(50, 0.025)) + ggtitle("Smallworld 1 graph"))
+(graphr(generate_smallworld(50, 0.025)) + ggtitle("Smallworld 2 graph"))
+(graphr(generate_smallworld(50, 0.025)) + ggtitle("Smallworld 3 graph"))
+```
+
+With on average 2.5 ties randomly rewired, does the structure look different?
+This is a small-world network, where clustering/transitivity remains high
+but path lengths are much lower than they would otherwise be.
+Remember that in a small-world network, the shortest-path distance between nodes
+increases sufficiently slowly as a function of the number of nodes in the network.
+You can also call these networks a Watts–Strogatz toy network.
+If you want to review this, go back to the reading by Watts (2004).
+**Check both properties for a generated small-world network.**
+
+```{r swcompare, exercise = TRUE}
+sw <- generate_smallworld(50, 0.025)
+net_by_transitivity(sw)
+net_by_length(sw)
+```
+
+Compare these against the pages before:
+transitivity close to the lattice's (and far above a random graph's),
+yet an average path length a fraction of the ring's.
+A handful of rewired ties act as shortcuts spanning the circle,
+which is why "six degrees of separation" can hold
+even in enormous, highly clustered social networks.
+
+There is also such a thing as a network's small-world coefficient.
+See the help page for more details,
+but with the default equation ('omega'),
+the coefficient typically ranges between 0 and 1,
+where 1 is as close to a small-world as possible.
+**Try it now on a small-world generated network,
+but with a rewiring probability of 0.25.**
+
+```{r smallwtest, exercise = TRUE, purl = FALSE}
+
+```
+
+```{r smallwtest-solution}
+net_by_smallworld(generate_smallworld(50, 0.25))
+```
+
+Substantively, a coefficient near 1 says the network offers
+the best of both worlds:
+neighbourhoods cohesive enough to sustain trust and local norms,
+yet paths short enough for information or contagion
+to traverse the whole network in a few steps.
+A coefficient near 0 means the network behaves more like
+a pure lattice (clustered but slow) or
+a pure random graph (fast but unclustered).
+
+### Scale-free graphs {#scale-free-graphs}
+
+There is another famous model in network science: the `r gloss("scale-free","scalefree")` model.
+Remember:
+"In many real-world networks, the distribution of the number of network neighbours
+the degree `r gloss("distribution","distribution")` is typically right-skewed with a "heavy tail".
+A majority of the nodes have less-than-average degree and
+a small fraction of `r gloss("hubs","hub")` are many times better connected than average (2004, p. 250).
+
+The following generates a scale-free graph according to the Barabasi-Albert (BA) model
+that rests upon the mechanism of preferential attachment.
+More on this in the Watts paper (2005, p.51) and Merton (1968).
+The BA model rests on two mechanisms:
+population growth and preferential attachment.
+Population growth: real networks grow in time as new members join the population.
+Preferential/cumulative attachment means that newly arriving nodes will tend to
+connect to already well-connected nodes rather than poorly connected ones.
+
+**Generate and graph three scale-free networks,
+with alpha parameters of 0.5, 1, and 1.5.**
+
+```{r scalef, exercise = TRUE, purl = FALSE}
+
+```
+
+```{r scalef-solution}
+(graphr(generate_scalefree(50, 0.5)) +
+    ggtitle("Scalefree 1 graph", subtitle = "Power = .5"))
+(graphr(generate_scalefree(50, 1)) +
+    ggtitle("Scalefree 2 graph", subtitle = "Power = 1"))
+(graphr(generate_scalefree(50, 1.5)) +
+    ggtitle("Scalefree 3 graph", subtitle = "Power = 1.5"))
+```
+
+You can also measure the degree to which a network has a degree distribution that fits
+a power-law distribution.
+With an alpha/power-law exponent between 2 and 3,
+one generally cannot reject the hypothesis that the observed data
+comes from a power-law distribution.
+**Fit the power-law exponent to a scale-free network generated with an alpha of 2.**
+
+```{r scaleftest, exercise = TRUE, purl = FALSE}
+
+```
+
+```{r scaleftest-solution}
+net_by_scalefree(generate_scalefree(50, 2))
+```
+
+Why does this matter?
+A power-law degree distribution means the network is dominated by a few hubs,
+and such networks behave distinctively:
+they are remarkably robust to _random_ failure
+(a random node is almost surely peripheral),
+yet fragile to _targeted_ attack on their hubs —
+a theme we return to on the Resilience page.
+
+::: {.callout}
+<span class="callout-label">**Going further**:</span>
+The exponent reported by `net_by_scalefree()` is fitted to the empirical
+degree distribution, so it is most informative for networks large enough to
+have a meaningful tail. For a visual check, `plot()` the network's degree
+distribution (see the Centrality tutorial) and look for the heavy right tail.
+:::
+
+### Degree mixing {#degree-mixing}
+
+Once a network has hubs, two further topological questions arise about how
+degrees are arranged with respect to one another.
+_Do the hubs stick together?_ — the **rich-club** coefficient
+(`net_by_richclub()`) asks whether high-degree nodes are more densely tied to
+_each other_ than their numbers alone would predict.
+And _do similar nodes attach to similar nodes?_ — degree **assortativity**
+(`net_by_assortativity()`) correlates the degrees at the two ends of each tie:
+positive means high-degree nodes pair with high-degree nodes (assortative),
+negative means hubs mostly attach to the periphery (disassortative).
+Both are purely structural, needing no node attributes.
+**Contrast a scale-free network with a random one.**
+
+```{r degmix, exercise = TRUE}
+set.seed(123)
+sf <- generate_scalefree(50, 2)
+net_by_richclub(sf)          # hubs interconnected?
+net_by_assortativity(sf)     # do like degrees attach?
+net_by_assortativity(generate_random(50, 0.08))
+```
+
+The scale-free network is strongly _disassortative_ (a negative score):
+its preferential-attachment hubs are joined mostly to the many low-degree
+nodes, not to each other — the signature of technological and biological
+networks. Many _social_ networks, by contrast, are mildly assortative, as
+popular people tend to know one another. A random graph sits near zero,
+having no degree-mixing tendency at all.
+
+### More generators {#more-generators}
+
+Beyond the three classics above, `{manynet}` offers a few further generative
+models worth knowing about, each motivated by how real networks _grow_:
+
+- `generate_fire()` implements the **forest-fire** model, in which each
+arriving node "burns" outward from a random contact along existing ties,
+producing the heavy tails, high clustering, and shrinking diameters seen in
+many evolving networks (Leskovec et al. 2007).
+- `generate_islands()` stitches together several dense **islands** (à la
+communities) joined by a few `bridges` — handy for pairing this tutorial's
+topology measures with the community structure of the earlier tutorial.
+- `generate_citations()` grows a **citation** network in which new nodes cite
+existing ones with a recency bias, the classic model of directed,
+(near-)acyclic reference networks.
+
+**Generate and glance at all three.**
+
+```{r moregen, exercise = TRUE, fig.width=9}
+set.seed(123)
+graphr(generate_fire(50)) + ggtitle("Forest fire")
+graphr(generate_islands(50, islands = 3, bridges = 2)) + ggtitle("Islands")
+graphr(generate_citations(50)) + ggtitle("Citations")
+```
+
+Each model leaves its own visual fingerprint:
+the forest-fire network grows a few dominant hubs (like a scale-free network,
+but with more clustering around them),
+the islands network shows several dense blobs joined by a handful of lone
+bridging ties, and the citation network fans out as a directed, tree-like
+cascade from the earliest nodes.
+These are exactly the ideal patterns you have learned to _measure_ in this
+tutorial — so you could, for instance, confirm the islands model with
+`net_by_modularity()` (from the community tutorial) or the citation model's
+one-directional flow with `net_by_reciprocity()`.
+
+::: {.callout}
+<span class="callout-label">**Going further**:</span>
+These three are more advanced and we will not dwell on them in class.
+Each takes further arguments controlling its growth
+(e.g. `islands`, `bridges`, or the forest-fire burn probabilities);
+see `?generate_fire`, `?generate_islands`, and `?generate_citations`,
+and their underlying `igraph` samplers, for the details.
+:::
+
+::: {.callout}
+<span class="callout-label">**In brief**:</span> The `generate_*()` functions add randomness:
+`generate_random()` places ties by probability or count (Erdös-Renyi),
+`generate_smallworld()` rewires a ring so paths shorten while clustering
+survives (Watts–Strogatz), and `generate_scalefree()` grows hubs through
+preferential attachment (Barabasi-Albert);
+`generate_fire()`, `generate_islands()`, and `generate_citations()` add
+forest-fire, modular, and citation growth models.
+`net_by_richclub()` and `net_by_assortativity()` then describe how a
+network's degrees mix — whether hubs cluster together, and whether like
+attaches to like.
+:::
+
+## Core-Periphery
+
+<span class="page-toc">On this page:
+<span class="page-toc-link" onclick="document.getElementById('section-core-periphery-graphs').scrollIntoView({behavior:'auto',block:'start'});">Ideal graphs</span> ·
+<span class="page-toc-link" onclick="document.getElementById('section-core-periphery-assignment').scrollIntoView({behavior:'auto',block:'start'});">Assignment</span> ·
+<span class="page-toc-link" onclick="document.getElementById('section-coreness').scrollIntoView({behavior:'auto',block:'start'});">Coreness</span></span>
+
+### Core-periphery graphs {#core-periphery-graphs}
+
+Lastly, we'll take a look at some `r gloss("core-periphery","core")` graphs.
+The most common definition of a core-periphery network
+is one in which the network can be partitioned into two groups
+such that one group of nodes (the core) has
+dense interactions among themselves,
+moderately dense interactions with the second group,
+and the second group (the periphery) has
+sparse interactions among themselves.
+
+```{r corevcomm-qa, echo=FALSE, purl = FALSE}
+question("Can a single network have both a community structure and a core-periphery structure?",
+         answer("No", message = learnr::random_encouragement()),
+         answer("Yes",
+                message = "That's right. For example, the core and periphery might represent two or more communities.",
+                correct = TRUE),
+         random_answer_order = TRUE,
+         allow_retry = TRUE)
+```
+
+We can visualise extreme versions of such a network
+using the `create_core()` function.
+**Graph a core-periphery network of 50 nodes**
+(which, unless a core-periphery membership assignment is given,
+will be split evenly between core and periphery partitions).
+
+```{r core, exercise=TRUE, purl = FALSE, fig.width=9}
+
+```
+
+```{r core-solution}
+(graphr(create_core(50)) + ggtitle("Core"))
+```
+
+Notice the tell-tale shape: a tight knot of mutually-connected core nodes in
+the middle, a scatter of peripheral nodes around the edge that connect to the
+core but rarely to each other. This is the ideal that the fitting measures
+below compare real networks against.
+
+### Core-periphery assignment {#core-periphery-assignment}
+
+Let's consider identifying the core and peripheral nodes in a network.
+Let's use the `ison_lawfirm` dataset from `{manynet}`.
+This dataset involves relations between partners in a corporate law firm in New England.
+First of all, **graph the data and see whether you can guess which nodes
+might be part of the core and which are part of the periphery.
+Colour the nodes by Gender, Office, Practice, and School.**
+Any you might think correlate with core status?
+
+```{r gnet, exercise=TRUE, fig.width=9}
+lawfirm <- ison_lawfirm |> to_uniplex("friends") |> to_undirected()
+```
+
+```{r gnet-solution}
+lawfirm <- ison_lawfirm |> to_uniplex("friends") |> to_undirected()
+graphr(lawfirm, node_color = "school", edge_color = "darkgray")
+graphr(lawfirm, node_color = "gender", edge_color = "darkgray")
+graphr(lawfirm, node_color = "office", edge_color = "darkgray")
+graphr(lawfirm, node_color = "practice", edge_color = "darkgray")
+```
+
+Next, let's assign nodes to the core and periphery blocks
+using the `node_is_core()` function.
+It works pretty straightforwardly.
+By default it runs down the rank order of nodes by their degree,
+at each step working out whether including the next highest degree node
+in the core will maximise the core-periphery structure of the network.
+**Assign core/periphery membership and graph the network coloured by it.**
+
+```{r nodecore, exercise=TRUE, purl = FALSE, fig.width=9, exercise.setup="gnet"}
+
+```
+
+```{r nodecore-solution}
+lawfirm |>
+  mutate_nodes(nc = node_is_core()) |>
+  graphr(node_color = "nc", edge_color = "gray")
+```
+
+This graph suggests that there is a core and a periphery.
+There might even be two cores here,
+one on the left and one on the right.
+
+But is it really all that much of a core-periphery structure?
+We can establish how correlated our network is compared to
+a core-periphery model of the same dimension using `net_by_core()`.
+A value close to 1 would mean the observed ties line up almost perfectly
+with the ideal blockmodel — dense within the core, sparse within the periphery —
+while a value near 0 means the partition fits no better than chance.
+**Measure how well a core-periphery model fits this network with `net_by_core()`.**
+
+```{r netcore, exercise=TRUE, purl = FALSE, exercise.setup="gnet"}
+
+```
+
+```{r netcore-solution}
+net_by_core(lawfirm, node_is_core(lawfirm))
+```
+
+```{r corecorr-qa, echo=FALSE, purl = FALSE}
+question("What can we say about this correlation.",
+         answer("It is a perfect negative relationship",
+                message = learnr::random_encouragement()),
+         answer("It is fairly strong",
+                message = learnr::random_encouragement()),
+         answer("It is positive",
+                message = learnr::random_encouragement()),
+         answer("There is absolutely no correlation",
+                message = learnr::random_encouragement()),
+         answer("None of the above", correct = TRUE,
+                message = learnr::random_praise()),
+         allow_retry = TRUE
+)
+```
+
+So despite what the eye suggested,
+this friendship network is only weakly — indeed slightly _negatively_ —
+characterised by a single core-periphery structure.
+That is substantively interesting in itself:
+the firm's friendships seem to cluster into groups
+(remember the two suspected "cores")
+rather than stratify into insiders and outsiders.
+
+Note that `node_is_core()` also includes a method that descends through
+the rank order of nodes' eigenvector centralities instead of degree centralities.
+Why might that not be such a good choice here?
+
+::: {.callout}
+<span class="callout-label">**Going further**:</span>
+A two-way split can be too blunt. `node_in_core()` classifies nodes into
+_three_ blocks — "Core", "Semi-periphery", and "Periphery" — for when the
+world-systems flavour of the concept fits better.
+:::
+
+Now let's see whether our core-periphery membership vector correlates with any of the three
+categorical attributes we looked at before.
+Since we're doing this on categorical variables, we'll use the Chi-squared test in base R.
+**Take a look and see whether there is a statistically significant association
+between gender and core (or periphery) status.**
+
+```{r chisq, exercise=TRUE, purl=FALSE, exercise.setup="gnet"}
+chisq.test(as.factor(node_is_core(lawfirm)),
+           as.factor(node_attribute(lawfirm, "gender")))
+```
+
+```{r chisq-solution}
+chisq.test(as.factor(node_is_core(lawfirm)),
+           as.factor(node_attribute(lawfirm, "gender")))
+chisq.test(as.factor(node_is_core(lawfirm)),
+           as.factor(node_attribute(lawfirm, "office")))
+chisq.test(as.factor(node_is_core(lawfirm)),
+           as.factor(node_attribute(lawfirm, "school")))
+chisq.test(as.factor(node_is_core(lawfirm)),
+           as.factor(node_attribute(lawfirm, "practice")))
+```
+
+```{r chisq-qa, echo=FALSE, purl = FALSE}
+question("There a statistically significant association between the core assignment and...",
+         answer("gender.",
+                message = learnr::random_encouragement()),
+         answer("office.",
+                message = learnr::random_encouragement()),
+         answer("school.",
+                message = learnr::random_encouragement()),
+         answer("practice.",
+                message = learnr::random_encouragement()),
+         answer("none of the above variables.", correct = TRUE,
+                message = "That's right. The p-value for office is close, but no cigar."),
+         allow_retry = TRUE
+)
+```
+
+### Coreness {#coreness}
+
+An alternative route is to identify 'core' nodes
+depending on their `r gloss("k-coreness","kcoreness")`.
+In `{manynet}`, we can return nodes _k_-coreness
+with `node_by_kcoreness()` instead of
+the `node_is_core()` used for core-periphery.
+**Run the code to colour the law-firm network by each node's _k_-coreness.**
+
+```{r nodecoren, exercise=TRUE, exercise.setup="gnet"}
+lawfirm |>
+  mutate_nodes(ncn = node_by_kcoreness()) |>
+  graphr(node_color = "ncn")
+```
+
+Where `node_is_core()` forces a yes/no answer,
+_k_-coreness grades how deep each node sits in the network:
+a node with coreness _k_ survives even after all nodes of degree
+less than _k_ have been successively peeled away.
+High-coreness nodes are thus embedded in a densely interlocked middle,
+which matters for processes like diffusion —
+what starts in a high _k_-core is far more likely to spread widely
+than what starts among the peelable outer layers.
+
+```{r dich-qa, echo=FALSE, purl = FALSE}
+question("Which has more than two classes/groups.",
+         answer("node_kcoreness()", correct = TRUE,
+                message = learnr::random_praise()),
+         answer("node_is_core()",
+                message = learnr::random_encouragement()),
+         random_answer_order = TRUE,
+         allow_retry = TRUE
+)
+```
+
+```{r ness-qa, echo=FALSE, purl = FALSE}
+question("Select the correct definitions:",
+         answer("The k-core of a network is a maximal subgraph in which each vertex has at least degree k.", correct = TRUE,
+                message = learnr::random_praise()),
+         answer("The coreness of a node is k if it belongs to the k-core but not to the (k+1)-core.", correct = TRUE,
+                message = "Yes -- a node's coreness is the highest k for which it still sits inside the k-core, so it tells you how deep in the network's core the node lies."),
+         answer("The coreness of a node is equal to its degree.",
+                message = paste(learnr::random_encouragement(), "Coreness is usually less than or equal to degree: a node needs at least degree k to be in the k-core, but many high-degree nodes have lower coreness because their neighbours don't all qualify.")),
+         random_answer_order = TRUE,
+         allow_retry = TRUE
+)
+```
+
+::: {.callout}
+<span class="callout-label">**In brief**:</span> `create_core()` draws the ideal core-periphery
+network; `node_is_core()` assigns each node to core or periphery, and
+`net_by_core()` reports how well that bipartition actually fits the network
+(1 = perfectly, ~0 = not at all). `node_by_kcoreness()` offers a graded
+alternative, peeling the network into successively deeper _k_-cores.
+:::
+
+## Hierarchy
+
+<span class="page-toc">On this page:
+<span class="page-toc-link" onclick="document.getElementById('section-graph-theoretic-dimensions-of-hierarchy').scrollIntoView({behavior:'auto',block:'start'});">Dimensions</span> ·
+<span class="page-toc-link" onclick="document.getElementById('section-measuring-gtdh').scrollIntoView({behavior:'auto',block:'start'});">Measuring</span> ·
+<span class="page-toc-link" onclick="document.getElementById('section-comparing-gtdh').scrollIntoView({behavior:'auto',block:'start'});">Comparing</span></span>
+
+What sometimes drives our interest in whether a network resembles a
+core-periphery network is that it offers a generalisation of hierarchy:
+the core are the rule-makers; the periphery are the rule-takers.
+But where we have a directed network,
+we may be able to measure hierarchy explicitly.
+
+### Graph theoretic dimensions of hierarchy {#graph-theoretic-dimensions-of-hierarchy}
+
+Recall that measuring hierarchy directly is difficult,
+as the concept incorporates several different aspects.
+Can you recall which of the following are aspects of
+the graph theoretic dimensions of hierarchy?
+
+```{r gtdh-qa, echo=FALSE, purl = FALSE}
+question("Select the measures included in the graph theoretic dimensions of hierarchy:",
+         answer("reciprocity", correct = TRUE,
+                message = paste(learnr::random_praise(), "The hierarchy dimension is measured through (a lack of) reciprocity: in a perfect hierarchy relations run one way, never back.")),
+         answer("connectedness", correct = TRUE,
+                message = "Yes -- connectedness asks whether every pair of nodes is joined by some (undirected) path, the first of Krackhardt's four dimensions."),
+         answer("efficiency", correct = TRUE,
+                message = "Yes -- efficiency asks whether the structure uses no more ties than necessary (no redundant links beyond those needed to hold it together)."),
+         answer("least upper bound", correct = TRUE,
+                message = "Yes -- least upper bound asks whether every pair of nodes shares a common superior they both ultimately report up to."),
+         answer("components", message = learnr::random_encouragement()),
+         answer("degree", message = learnr::random_encouragement()),
+         answer("density", message = learnr::random_encouragement()),
+         random_answer_order = TRUE,
+         allow_retry = TRUE
+)
+```
+
+### Measuring GTDH {#measuring-gtdh}
+
+Ok, so let's now take a closer look at how to investigate the degree of
+hierarchy in a given network.
+The classic example would be to look at a tree network,
+like the one constructed earlier.
+**Run the code to try the function `net_x_hierarchy()` on a directed tree of 11 nodes.**
+
+```{r treeh, exercise = TRUE}
+treeleven <- create_tree(11, directed = TRUE)
+net_x_hierarchy(treeleven)
+rowMeans(net_x_hierarchy(treeleven))
+```
+
+We see here four different measures of hierarchy:
+
+- **connectedness**: the proportion of dyads that can reach each other
+- **reciprocity**: the proportion of ties that are reciprocated (inverse) —
+in a perfect hierarchy no `r gloss("reciprocity")` is expected,
+since deference flows one way
+- **efficiency**: the minimum indegrees required to connect the network over
+the actual indegrees present
+- **least upper bound**: all nodes in a hierarchy should have a node that can
+reach both of them
+
+Note that to get an overall score, we can take the average of these four measures.
+A directed tree is the perfect hierarchy —
+it scores 1 on all four dimensions —
+which is exactly why organisational charts are drawn as trees.
+
+::: {.callout}
+<span class="callout-label">**Going further**:</span>
+Each dimension can also be obtained on its own:
+`net_by_connectedness()`, `net_by_reciprocity()`,
+`net_by_efficiency()`, and `net_by_upperbound()`.
+See `?measure_hierarchy` for definitions and the Krackhardt references.
+:::
+
+### Comparing GTDH {#comparing-gtdh}
+
+Because some of these measures (reciprocity), only make sense for a directed
+network, we'll switch to a couple of directed networks for this exercise.
+Which one would you consider is more hierarchical:
+`ison_emotions`, a directed network of emotional transitions,
+or `fict_thrones`, a directed network of kinship ties?
+**Graph each network, then add a `net_x_hierarchy()` call for both and compare their profiles.**
+
+```{r hierarchy, exercise = TRUE}
+graphr(ison_emotions)
+graphr(fict_thrones)
+```
+
+```{r hierarchy-solution}
+graphr(ison_emotions)
+net_x_hierarchy(ison_emotions)
+graphr(fict_thrones)
+net_x_hierarchy(fict_thrones)
+```
+
+Actually, these two networks have the same average hierarchy score of around 0.525.
+But they have quite different profiles.
+Can you make sense of these results?
+
+```{r gtdhcompare-qa, echo=FALSE, purl = FALSE}
+question("Compared to the emotional transitions network, the Game of Thrones kinship network has:",
+         answer("more nodes able to reach each other",
+                message = learnr::random_encouragement()),
+         answer("fewer reciprocated ties", correct = TRUE,
+                message = learnr::random_praise()),
+         answer("fewer redundant ties", correct = TRUE,
+                message = "Yes -- that shows up as a higher efficiency score: the kinship structure carries fewer redundant ties than the emotional transitions network."),
+         answer("at least one boss for all pairs",
+                message = "Not here -- that would be the least-upper-bound property, but not every pair in the kinship network shares a common ancestor they both report up to."),
+         random_answer_order = TRUE,
+         allow_retry = TRUE
+)
+```
+
+This is the payoff of a multidimensional measure:
+a single "hierarchy score" would have called these two networks identical,
+but their profiles show they are hierarchical in quite different _ways_ —
+the emotions network is fully connected but saturated with reciprocated,
+redundant ties, while the kinship network is sparser and more one-directional
+but does not integrate everyone under common superiors.
+
+::: {.callout}
+<span class="callout-label">**In brief**:</span> `net_x_hierarchy()` returns Krackhardt's four
+graph-theoretic dimensions of hierarchy — connectedness, (inverse)
+reciprocity, efficiency, and least upper bound. Average them (e.g. with
+`rowMeans()`) for an overall score, but read the whole profile to see _how_ a
+network is hierarchical. A directed tree scores perfectly on all four.
+:::
+
+## Resilience
+
+<span class="page-toc">On this page:
+<span class="page-toc-link" onclick="document.getElementById('section-how-cohesive-is-the-network').scrollIntoView({behavior:'auto',block:'start'});">Cohesion</span> ·
+<span class="page-toc-link" onclick="document.getElementById('section-identifying-cutpoints').scrollIntoView({behavior:'auto',block:'start'});">Cutpoints</span> ·
+<span class="page-toc-link" onclick="document.getElementById('section-identifying-bridges').scrollIntoView({behavior:'auto',block:'start'});">Bridges</span></span>
+
+### How cohesive is the network? {#how-cohesive-is-the-network}
+
+When investigating a network's resilience,
+we might think of whether the network will remain connected despite some nodes or ties dropping out.
+Let's explore how resilient a (core) network of adolescents (`ison_adolescents`) might be.
+First, we might be interested in whether the network is `r gloss("connected","connected")` at all.
+**Check whether `ison_adolescents` is connected.**
+
+```{r connected, exercise=TRUE, purl = FALSE}
+
+```
+
+```{r connected-solution}
+net_by_connectedness(ison_adolescents)
+```
+
+This measure gets at the proportion of dyads that can reach each other in the network.
+In this case, the proportion is 1, i.e. all nodes can reach every other node.
+Another way to get at this would be to see how many `r gloss("components","component")` there are in the network.
+
+```{r connect-qa, echo=FALSE, purl=FALSE}
+question("But counting the number of components instead of connectedness can overemphasise:",
+         answer("Isolates", correct = TRUE,
+                message = learnr::random_praise()),
+         answer("Small components", correct = TRUE,
+                message = learnr::random_encouragement()),
+         answer("Density",
+                message = learnr::random_encouragement()),
+         random_answer_order = TRUE,
+         allow_retry = TRUE
+)
+```
+
+A dropped tie can have severe consequences to the topology of a network
+if it is a bridge, say.
+The more ties you would need to remove to fragment the network,
+the greater the `r gloss("adhesion","adhesion")` of the network.
+But a dropped node can be even more consequential, as it will take any ties it has with it.
+**Find out the `r gloss("cohesion","cohesion")`,
+or how many dropped nodes it would take to (further) fragment the network.**
+
+```{r cohesion, exercise=TRUE, purl = FALSE}
+
+```
+
+```{r cohesion-solution}
+net_by_cohesion(ison_adolescents)
+```
+
+```{r cohesion-qa, echo=FALSE, purl = FALSE}
+question("The result of this function represents...",
+         answer("the minimum number of nodes necessary to remove from the network to increase the number of components.", correct = TRUE,
+                message = learnr::random_praise()),
+         answer("the number of strong components in the network.",
+                message = learnr::random_encouragement()),
+         answer("the minimum number of ties necessary to remove from the network to increase the number of components.",
+                message = "This is actually the definition of `node_adhesion()`."),
+         random_answer_order = TRUE,
+         allow_retry = TRUE
+)
+```
+
+```{r res-qa, echo=FALSE, purl = FALSE}
+question("The higher the minimum number of nodes to remove...",
+         answer("the more resilient is the network.", correct = TRUE,
+                message = learnr::random_praise()),
+         answer("the less resilient the network.",
+                message = learnr::random_encouragement()),
+         random_answer_order = TRUE,
+         allow_retry = TRUE
+)
+```
+
+A cohesion of 1, as here, is the most fragile a connected network can be:
+there is at least one single node whose departure would break the network
+apart. Recall the star and scale-free networks from earlier —
+highly centralised topologies buy efficiency at exactly this price.
+
+::: {.callout}
+<span class="callout-label">**Going further**:</span>
+Cohesion and adhesion report a minimum _count_, regardless of network size.
+For measures that weigh the removals against the fragments they create,
+see `net_by_toughness()` (for nodes) and `net_by_strength()` (for ties).
+:::
+
+### Identifying cutpoints {#identifying-cutpoints}
+
+But which are these nodes? Is there more than one?
+Nodes that endanger fragmentation of the network are called `r gloss("cutpoints","cutpoint")`.
+**Find and use a function to identify which, if any, of the nodes in the `ison_adolescents`
+network are cutpoints.**
+
+```{r idcuts, exercise = TRUE, purl=FALSE}
+
+```
+
+```{r idcuts-solution}
+node_is_cutpoint(ison_adolescents)
+```
+
+Ok, so this results in a vector identifying which nodes are cutpoints (TRUE) or not (FALSE).
+Somewhat more useful though would be to highlight these nodes on the network.
+**Can you add a node attribute that highlights which nodes are cutpoints?**
+
+```{r closerlook, exercise = TRUE, purl=FALSE}
+
+```
+
+```{r closerlook-solution}
+ison_adolescents |>
+  mutate_nodes(cut = node_is_cutpoint()) |>
+  graphr(node_color = "cut")
+```
+
+The highlighted node(s) are the network's single points of failure:
+each sits astride the only path between two otherwise-separate parts of the
+network, so its removal would split the adolescents into disconnected groups.
+These are the nodes you would protect first if you cared about keeping the
+network together.
+
+### Identifying bridges {#identifying-bridges}
+
+Let's do something similar now, but with respect to ties rather than nodes.
+Here we are interested in identifying which ties are `r gloss("bridges","bridge")`.
+**Report the network's adhesion, then graph it with the bridging ties highlighted.**
+
+```{r tieside, exercise = TRUE, purl=FALSE}
+
+```
+
+```{r tieside-solution}
+net_by_adhesion(ison_adolescents)
+ison_adolescents |>
+  mutate_ties(cut = tie_is_bridge()) |>
+  graphr(edge_color = "cut")
+```
+
+The adhesion tells you the minimum number of ties to cut to fragment the
+network, and the highlighted ties show _which_ ones do that work.
+As with cutpoints, a network held together by only one or two bridges is
+fragile: losing a single highlighted tie would break it apart.
+
+We could also investigate the opposite of a bridge,
+the degree to which ties are deeply embedded in
+`r gloss("triangles","triangle")`.
+This is called (rather confusingly) tie cohesion.
+**Size the ties by their cohesion to see which are most embedded.**
+
+```{r tiecoh, exercise = TRUE, purl=FALSE}
+
+```
+
+```{r tiecoh-solution}
+ison_adolescents |>
+  mutate_ties(coh = tie_by_cohesion()) |>
+  graphr(edge_size = "coh")
+```
+
+Where would you target your efforts if you wanted to fragment this network?
+And conversely, if you wanted to make this network more resilient,
+the map of bridges and cutpoints shows where redundancy is missing:
+adding even one tie between the far sides of a bridge
+would rob both the bridge and its cutpoints of their fragility.
+
+::: {.callout}
+<span class="callout-label">**In brief**:</span> `net_by_connectedness()`, `net_by_cohesion()`, and
+`net_by_adhesion()` summarise how hard a network is to fragment — the share
+of dyads that can reach each other, and the minimum nodes or ties whose
+removal would fragment it. `node_is_cutpoint()` and `tie_is_bridge()` point
+to _where_ it would break, and `tie_by_cohesion()` shows which ties are
+buttressed by triangles.
+:::
+
+## Free play
+
+Choose another dataset included in `{manynet}` (browse them with `table_data()`),
+and ask of it the questions this tutorial has equipped you to answer.
+Which ideal topology does it most resemble —
+is it more lattice-like, small-world, or scale-free?
+Does it have a discernible core and periphery?
+And how resilient is it: where are its cutpoints and bridges,
+and what would it take to fragment it?
+
+If you are not sure where to start,
+here is one suggestion per flavour:
+
+| Classic (small, tidy) | Fiction (moderate) | Real-world (larger) |
+|---|---|---|
+| `ison_karateka` (the karate club that famously split in two — its degree distribution fits a power-law exponent close to 2, and its cutpoints and bridges foreshadowed where the split would come) | `fict_greys` (a sparse network of romantic entanglements in several separate components — find the cutpoints, and check the cohesion of its largest component with `to_giant()`) | `irps_books` (co-purchases of 105 political books — does polarised buying sort the market into a core and periphery, into communities, or around a few hub titles?) |
+
+```{r freeplay, exercise = TRUE, purl=FALSE, fig.width=9}
+
+```
+
+## Summary
+
+<img src="https://media1.tenor.com/m/gSsbNTouixUAAAAC/bravo-applause.gif" alt="gif of an enthusiastic standing ovation and cries of bravo"/>
+
+Well done -- you have completed the tutorial on topology and resilience!
+Along the way, you have learned to use these functions:
+
+| Function | What it does |
+|---|---|
+| `create_empty()`, `create_filled()` | networks with no ties, or with all possible ties |
+| `create_star()` | one universal node connected to all others |
+| `create_tree()` | branching networks, with `width` branches per node |
+| `create_lattice()` | balanced two-dimensional grids of a given number of nodes |
+| `create_ring()` | circles, with `width` setting how far along the ring ties reach |
+| `create_core()` | an ideal core-periphery network |
+| `generate_random()` | ties placed at random, by probability or count (Erdös-Renyi) |
+| `generate_smallworld()` | a ring rewired at some probability (Watts–Strogatz) |
+| `generate_scalefree()` | growth with preferential attachment (Barabasi-Albert) |
+| `generate_fire()`, `generate_islands()`, `generate_citations()` | forest-fire, modular-islands, and citation growth models |
+| `net_by_density()` | proportion of possible ties present |
+| `net_by_transitivity()` | clustering: how often two nodes' shared neighbour closes into a triangle |
+| `net_by_diameter()`, `net_by_length()` | longest and average shortest path lengths |
+| `net_by_smallworld()` | small-world coefficient (default 'omega', 1 = maximally small-world) |
+| `net_by_scalefree()` | power-law exponent fitted to the degree distribution |
+| `net_by_richclub()`, `net_by_assortativity()` | whether hubs interconnect, and whether like degrees attach to like |
+| `node_is_core()`, `node_in_core()` | assigns nodes to core/periphery (or core/semi-periphery/periphery) |
+| `net_by_core()` | correlation of the network with an ideal core-periphery model |
+| `node_by_kcoreness()` | each node's _k_-coreness (depth in the network's successive cores) |
+| `net_x_hierarchy()` | Krackhardt's four graph-theoretic dimensions of hierarchy |
+| `net_by_connectedness()` | proportion of dyads that can reach each other |
+| `net_by_cohesion()`, `net_by_adhesion()` | minimum nodes / ties to remove to fragment the network |
+| `node_is_cutpoint()`, `tie_is_bridge()` | flags the nodes / ties whose removal would fragment the network |
+| `tie_by_cohesion()` | how deeply each tie is embedded in triangles |
+| `to_uniplex()`, `to_undirected()`, `to_redirected()`, `to_giant()` | extract one tie type, drop direction, reverse direction, keep the largest component |
+| `mutate_nodes()`, `mutate_ties()`, `graphr()` | map marks and measures onto the graph |
+| `chisq.test()` | (base R) association between core status and a categorical attribute |
+
+This completes the `{netrics}` tutorials on describing network structure —
+centrality, community, position, and now topology.
+Run `run_tute()` at the console to see all available tutorials,
+including those in the other `{stocnet}` packages.
+
+### Glossary
+
+Here are some of the terms that we have covered in this tutorial:
+
+`r print_glossary()`

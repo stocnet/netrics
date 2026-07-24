@@ -3,11 +3,14 @@
 \name{measure_centralisation_close}
 \alias{measure_centralisation_close}
 \alias{net_by_closeness}
+\alias{mode_by_closeness}
 \alias{net_by_reach}
 \alias{net_by_harmonic}
 \title{Measuring networks closeness-like centralisation}
 \usage{
 net_by_closeness(.data, normalized = TRUE, direction = c("all", "out", "in"))
+
+mode_by_closeness(.data, normalized = TRUE, direction = c("all", "out", "in"))
 
 net_by_reach(.data, normalized = TRUE, cutoff = 2)
 
@@ -31,11 +34,17 @@ By default "all".}
 If negative or NULL (the default), there's no limit to the path lengths considered.}
 }
 \value{
-A \code{network_measure} numeric score.
+\verb{net_by_*()} functions return a \code{network_measure} scalar;
+\code{mode_by_closeness()} returns a \code{mode_measure} numeric vector of length two,
+giving one centralization score per mode.
 }
 \description{
 \itemize{
-\item \code{net_by_closeness()} measures a network's closeness centralization.
+\item \code{net_by_closeness()} measures a network's closeness centralization as a
+single score.
+\item \code{mode_by_closeness()} measures closeness centralization separately for each
+mode of a two-mode network, returning one score per mode
+(following Borgatti and Everett, 1997).
 \item \code{net_by_reach()} measures a network's reach centralization.
 \item \code{net_by_harmonic()} measures a network's harmonic centralization.
 }
@@ -46,9 +55,21 @@ If this would produce unintended results,
 first transform the salient properties using e.g. \code{\link[manynet:to_undirected]{to_undirected()}} functions.
 All centrality and centralization measures return normalized measures by default,
 including for two-mode networks.
+
+For two-mode networks the two modes have different theoretical maxima, so
+\code{net_by_closeness()} reports a single network-level score by applying
+Freeman's general centralization index over the normalized node closeness
+scores, whereas \code{mode_by_closeness()} reports the per-mode scores directly.
 }
 \examples{
 net_by_closeness(ison_southern_women, direction = "in")
+mode_by_closeness(ison_southern_women, direction = "in")
+}
+\references{
+Borgatti, Stephen P., and Martin G. Everett. 1997.
+"Network analysis of 2-mode data."
+\emph{Social Networks} 19(3): 243-269.
+\doi{10.1016/S0378-8733(96)00301-2}
 }
 \seealso{
 Other closeness:
@@ -67,39 +88,6 @@ Other centrality:
 \code{\link{measure_centralities_close}},
 \code{\link{measure_centralities_degree}},
 \code{\link{measure_centralities_eigen}}
-
-Other measures:
-\code{\link{measure_assort_net}},
-\code{\link{measure_assort_node}},
-\code{\link{measure_breadth}},
-\code{\link{measure_broker_node}},
-\code{\link{measure_broker_tie}},
-\code{\link{measure_brokerage}},
-\code{\link{measure_central_between}},
-\code{\link{measure_central_close}},
-\code{\link{measure_central_degree}},
-\code{\link{measure_central_eigen}},
-\code{\link{measure_centralisation_between}},
-\code{\link{measure_centralisation_degree}},
-\code{\link{measure_centralisation_eigen}},
-\code{\link{measure_centralities_between}},
-\code{\link{measure_centralities_close}},
-\code{\link{measure_centralities_degree}},
-\code{\link{measure_centralities_eigen}},
-\code{\link{measure_closure}},
-\code{\link{measure_closure_node}},
-\code{\link{measure_cohesion}},
-\code{\link{measure_core}},
-\code{\link{measure_diffusion_infection}},
-\code{\link{measure_diffusion_net}},
-\code{\link{measure_diffusion_node}},
-\code{\link{measure_diverse_net}},
-\code{\link{measure_diverse_node}},
-\code{\link{measure_features}},
-\code{\link{measure_fragmentation}},
-\code{\link{measure_hierarchy}},
-\code{\link{measure_periods}}
 }
 \concept{centrality}
 \concept{closeness}
-\concept{measures}

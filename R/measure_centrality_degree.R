@@ -234,30 +234,47 @@ tie_by_degree <- function(.data, normalized = TRUE){
 #' Measuring networks degree-like centralisation
 #' @name measure_centralisation_degree
 #' @description
-#'   - `net_by_degree()` measures a network's degree centralization; 
-#'   there are several related shortcut functions:
+#'   - `net_by_degree()` measures a network's degree centralization as a single
+#'   score; there are several related shortcut functions:
 #'     - `net_by_indegree()` returns the `direction = 'in'` results.
 #'     - `net_by_outdegree()` returns the `direction = 'out'` results.
-#'   
+#'   - `mode_by_degree()` measures degree centralization separately for each mode
+#'   of a two-mode network, returning one score per mode
+#'   (following Borgatti and Everett, 1997); it has the same shortcuts:
+#'     - `mode_by_indegree()` returns the `direction = 'in'` results.
+#'     - `mode_by_outdegree()` returns the `direction = 'out'` results.
+#'
 #'   All measures attempt to use as much information as they are offered,
 #'   including whether the networks are directed, weighted, or multimodal.
-#'   If this would produce unintended results, 
+#'   If this would produce unintended results,
 #'   first transform the salient properties using e.g. [to_undirected()] functions.
-#'   All centrality and centralization measures return normalized measures 
+#'   All centrality and centralization measures return normalized measures
 #'   by default, including for two-mode networks.
-#'   
-#'   For two-mode networks, "all" uses as numerator the sum of differences
-#'   between the maximum centrality score for the mode 
+#'
+#'   For two-mode networks, the two modes have different theoretical maxima,
+#'   so `net_by_degree()` reports a single network-level score by applying
+#'   Freeman's general centralization index over the mode-normalized node
+#'   degrees, whereas `mode_by_degree()` reports the per-mode centralization
+#'   scores directly. For the per-mode scores, "all" uses as numerator the sum
+#'   of differences between the maximum centrality score for the mode
 #'   against all other centrality scores in the network,
 #'   whereas "in" uses as numerator the sum of differences
-#'   between the maximum centrality score for the mode 
+#'   between the maximum centrality score for the mode
 #'   against only the centrality scores of the other nodes in that mode.
 #' @template param_data
 #' @template param_norm
 #' @template param_dir
 #' @family degree
 #' @family centrality
-#' @template net_measure
+#' @references
+#'   Borgatti, Stephen P., and Martin G. Everett. 1997.
+#'   "Network analysis of 2-mode data."
+#'   _Social Networks_ 19(3): 243-269.
+#'   \doi{10.1016/S0378-8733(96)00301-2}
+#' @returns
+#'   `net_by_*()` functions return a `network_measure` scalar;
+#'   `mode_by_*()` functions return a `mode_measure` numeric vector of length two,
+#'   giving one centralization score per mode.
 NULL
 
 #' @rdname measure_centralisation_degree
@@ -266,35 +283,60 @@ NULL
 #' @export
 net_by_degree <- function(.data, normalized = TRUE,
                            direction = c("all", "out", "in")){
-  
+
   .data <- manynet::expect_nodes(.data)
   direction <- match.arg(direction)
-  
+
   if (manynet::is_twomode(.data)) {
-    mat <- manynet::as_matrix(.data)
-    mode <- c(rep(FALSE, nrow(mat)), rep(TRUE, ncol(mat)))
-    
-    out <- list()
-    if (direction == "all") {
-      if (!normalized) {
-        allcent <- c(rowSums(mat), colSums(mat))
-        out$nodes1 <- sum(max(allcent[!mode]) - allcent)/((nrow(mat) + ncol(mat))*ncol(mat) - 2*(ncol(mat) + nrow(mat) - 1))
-        out$nodes2 <- sum(max(allcent[mode]) - allcent)/((nrow(mat) + ncol(mat))*nrow(mat) - 2*(ncol(mat) + nrow(mat) - 1))
-      } else if (normalized) {
-        allcent <- node_by_degree(.data, normalized = TRUE)
-        out$nodes1 <- sum(max(allcent[!mode]) - allcent)/((nrow(mat) + ncol(mat) - 1) - (ncol(mat) - 1) / nrow(mat) - (ncol(mat) + nrow(mat) - 1)/nrow(mat))
-        out$nodes2 <- sum(max(allcent[mode]) - allcent)/((ncol(mat) + nrow(mat) - 1) - (nrow(mat) - 1) / ncol(mat) - (nrow(mat)  + ncol(mat) - 1)/ncol(mat))
-      }
-    } else if (direction == "in" | direction == "out") {
-      out$nodes1 <- sum(max(rowSums(mat)) - rowSums(mat))/((ncol(mat) - 1)*(nrow(mat) - 1))
-      out$nodes2 <- sum(max(colSums(mat)) - colSums(mat))/((ncol(mat) - 1)*(nrow(mat) - 1))
-    }
-    out <- c("Mode 1" = out$nodes1, "Mode 2" = out$nodes2)
+    # For two-mode networks the two modes have different theoretical maxima,
+    # so degree centralization is intrinsically defined per mode (see
+    # `mode_by_degree()`, following Borgatti and Everett (1997)). To return a
+    # single network-level score we apply Freeman's general centralization index
+    # over the whole node set, using the mode-normalized node degrees (each in
+    # [0, 1]); the theoretical maximum of the numerator is then (n - 1).
+    nc <- node_by_degree(.data, normalized = TRUE, direction = direction)
+    out <- sum(max(nc) - nc) / (length(nc) - 1)
   } else {
-    out <- igraph::centr_degree(graph = .data, mode = direction, 
+    out <- igraph::centr_degree(graph = .data, mode = direction,
                                 normalized = normalized)$centralization
   }
   out <- make_network_measure(out, .data, call = deparse(sys.call()))
+  out
+}
+
+#' @rdname measure_centralisation_degree
+#' @examples
+#' mode_by_degree(ison_southern_women, direction = "in")
+#' @export
+mode_by_degree <- function(.data, normalized = TRUE,
+                           direction = c("all", "out", "in")){
+
+  .data <- manynet::expect_nodes(.data)
+  direction <- match.arg(direction)
+
+  if (!manynet::is_twomode(.data))
+    manynet::snet_abort("`mode_by_degree()` is only defined for two-mode networks; use `net_by_degree()` for one-mode networks.")
+
+  mat <- manynet::as_matrix(.data)
+  mode <- c(rep(FALSE, nrow(mat)), rep(TRUE, ncol(mat)))
+
+  out <- list()
+  if (direction == "all") {
+    if (!normalized) {
+      allcent <- c(rowSums(mat), colSums(mat))
+      out$nodes1 <- sum(max(allcent[!mode]) - allcent)/((nrow(mat) + ncol(mat))*ncol(mat) - 2*(ncol(mat) + nrow(mat) - 1))
+      out$nodes2 <- sum(max(allcent[mode]) - allcent)/((nrow(mat) + ncol(mat))*nrow(mat) - 2*(ncol(mat) + nrow(mat) - 1))
+    } else if (normalized) {
+      allcent <- node_by_degree(.data, normalized = TRUE)
+      out$nodes1 <- sum(max(allcent[!mode]) - allcent)/((nrow(mat) + ncol(mat) - 1) - (ncol(mat) - 1) / nrow(mat) - (ncol(mat) + nrow(mat) - 1)/nrow(mat))
+      out$nodes2 <- sum(max(allcent[mode]) - allcent)/((ncol(mat) + nrow(mat) - 1) - (nrow(mat) - 1) / ncol(mat) - (nrow(mat)  + ncol(mat) - 1)/ncol(mat))
+    }
+  } else if (direction == "in" | direction == "out") {
+    out$nodes1 <- sum(max(rowSums(mat)) - rowSums(mat))/((ncol(mat) - 1)*(nrow(mat) - 1))
+    out$nodes2 <- sum(max(colSums(mat)) - colSums(mat))/((ncol(mat) - 1)*(nrow(mat) - 1))
+  }
+  out <- c("Mode 1" = out$nodes1, "Mode 2" = out$nodes2)
+  out <- make_mode_measure(out, .data, call = deparse(sys.call()))
   out
 }
 
@@ -310,5 +352,19 @@ net_by_outdegree <- function(.data, normalized = TRUE){
 net_by_indegree <- function(.data, normalized = TRUE){
   .data <- manynet::expect_nodes(.data)
   net_by_degree(.data, normalized = normalized, direction = "in")
+}
+
+#' @rdname measure_centralisation_degree
+#' @export
+mode_by_outdegree <- function(.data, normalized = TRUE){
+  .data <- manynet::expect_nodes(.data)
+  mode_by_degree(.data, normalized = normalized, direction = "out")
+}
+
+#' @rdname measure_centralisation_degree
+#' @export
+mode_by_indegree <- function(.data, normalized = TRUE){
+  .data <- manynet::expect_nodes(.data)
+  mode_by_degree(.data, normalized = normalized, direction = "in")
 }
 

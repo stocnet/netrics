@@ -1,0 +1,1150 @@
+---
+title: "Centrality"
+author: "by James Hollway"
+output:
+  learnr::tutorial:
+    theme: flatly
+runtime: shiny_prerendered
+description: >
+  This tutorial covers how to measure and map degree, betweenness,
+  closeness, eigenvector, and other types of centrality, explore their
+  distributions, highlight the most central nodes, and summarise a whole
+  network's centralisation.
+---
+
+```{r pkgs, include = FALSE, eval=TRUE}
+library(netrics)
+library(autograph)
+library(patchwork)
+```
+
+```{r setup, include = FALSE, purl=FALSE, eval=TRUE}
+library(learnr)
+knitr::opts_chunk$set(echo = FALSE)
+library(netrics)
+library(autograph)
+stocnet_theme("default")
+clear_glossary()
+learnr::random_phrases_add(language = "fr",
+                           praise = c("C'est génial!",
+                                      "Beau travail",
+                                      "Excellent travail!",
+                                      "Bravo!",
+                                      "Super!",
+                                      "Bien fait",
+                                      "Bien joué",
+                                      "Tu l'as fait!",
+                                      "Je savais que tu pouvais le faire.",
+                                      "Ça a l'air facile!",
+                                      "C'était un travail de première classe.",
+                                      "C'est ce que j'appelle un bon travail!"),
+                          encouragement = c("Bon effort",
+                                            "Vous l'avez presque maîtrisé!",
+                                            "Ça avance bien.",
+                                            "Continuez comme ça.",
+                                            "Continuez à travailler dur!",
+                                            "Vous apprenez vite!",
+                                            "Vous faites un excellent travail aujourd'hui."))
+learnr::random_phrases_add(language = "en",
+                           praise = c("That's brilliant!",
+                                      "Great work!",
+                                      "Well done!",
+                                      "Awesome!"),
+                           encouragement = c("Good effort"))
+ison_brandes2 <- ison_brandes %>% rename_nodes(type = twomode_type)
+```
+
+```{r detect-language, context="server-start", purl=FALSE}
+sys_locale <- Sys.getlocale("LC_CTYPE")
+if (grepl("fr", sys_locale, ignore.case = TRUE)) {
+  options(tutorial.language = "fr")
+} else {
+  options(tutorial.language = "en")
+}
+```
+
+<style>
+html { font-size: 115%; }
+.callout {
+  border-left: 3px solid #5B9C78;
+  padding: 0.1em 1em;
+  margin: 1.2em 0;
+}
+.callout-label { color: #5B9C78; }
+.page-toc { font-style: italic; }
+.page-toc-link { color: #5B9C78; cursor: pointer; text-decoration: underline; }
+.tutorialTitle { color: #5B9C78 !important; }
+#tutorial-topic .nav-link { color: #5B9C78 !important; }
+.section a:not(.btn) { color: #5B9C78; }
+.section a:not(.btn):hover { color: #487E61; }
+.btn-tutorial-run,
+.btn-tutorial-run:hover,
+.btn-tutorial-run:focus,
+.btn-tutorial-run:active {
+  background-color: #5B9C78;
+  border-color: #5B9C78;
+  color: #fff;
+}
+</style>
+
+## Today's target
+
+Centrality is one of the oldest and most-used ideas in network analysis:
+the question of which `r gloss("nodes","node")` are, in some sense, the most
+important, prominent, or well-placed in a `r gloss("network")`.
+The catch is that "important" can mean several different things,
+and each meaning has its own measure — indeed its own _family_ of measures.
+This tutorial shows how to measure and map
+`r gloss("degree")`, `r gloss("betweenness")`, `r gloss("closeness")`,
+`r gloss("eigenvector")`, and related types of centrality,
+explore their `r gloss("distributions","distribution")`,
+and summarise the whole network's `r gloss("centralisation","centralization")`.
+
+<img src="https://i.giphy.com/media/v1.Y2lkPTc5MGI3NjExbG5oYmVtYmcxMWs1d3MzOGh3Zng5dTZhc241ZHR2NTE0YThiZWp4NiZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/970Sr8vpwEbXG/giphy.gif" height="480px"/>
+
+::: {.callout}
+<span class="callout-label">**Catching up**:</span>
+This tutorial assumes you can already load or make a network in R,
+and draw it with `graphr()`.
+If any of that is hazy, work through the earlier `{stocnet}` tutorials first:
+run `run_tute("Making")` and `run_tute("Manipulating")` for network data,
+and `run_tute("Visualising")` for graphing,
+or read their static versions on the
+[manynet](https://stocnet.github.io/manynet/) and
+[autograph](https://stocnet.github.io/autograph/) websites.
+:::
+
+::: {.callout}
+<span class="callout-label">**New to network vocabulary?**:</span>
+Throughout this tutorial, key terms are italicised:
+hover over them for a definition,
+and a full glossary of the terms used appears at the end of the tutorial.
+:::
+
+### Aims
+
+By the end of this tutorial, you should be able to:
+
+- [ ] &nbsp; Calculate degree centrality by hand and with `node_by_degree()`, including in- and out-degree for directed networks and strength for weighted ones
+- [ ] &nbsp; Compute betweenness, closeness, and eigenvector centrality and interpret what each one means
+- [ ] &nbsp; Recognise the wider betweenness-, closeness-, and eigenvector-type families, and choose an appropriate variant (e.g. reach, pagerank, or power)
+- [ ] &nbsp; Highlight the most central node(s) on a graph with `node_is_max()` and `graphr()`
+- [ ] &nbsp; Read a measure's `r gloss("distribution")` with `plot()`, and see how its shape drives a network's `r gloss("centralisation","centralization")`, computed with `net_by_*()`
+- [ ] &nbsp; Know when scores are normalised, and how to obtain the raw scores
+
+**Choose your own data**: The worked examples below use `ison_brandes`,
+a small, tidy teaching network bundled with `{manynet}`.
+But wherever there is an exercise box, you are encouraged to swap in
+a network that interests _you_.
+Remember the three flavours of bundled data as a rough difficulty ladder —
+**Classic** (`ison_*`, small & tidy),
+**Fiction** (`fict_*`, mid-sized & fun),
+**Real-world** (`irps_*`, larger & realistic) —
+and that you can browse the full list with `table_data()`.
+
+### Setting up {#setting-up}
+
+For this exercise, we'll use the `ison_brandes` dataset in `{manynet}`.
+This dataset is in a 'tidygraph' format,
+but `manynet` makes it easy to coerce this into other forms
+to be compatible with other packages.
+We can create a `r gloss("two-mode","twomode")` version of the dataset
+by renaming the nodal attribute "twomode_type" to just "type".
+Let's begin by graphing these datasets using `graphr()`.
+
+```{r coercion, exercise = TRUE, purl = FALSE}
+
+```
+
+```{r coercion-hint-1, purl = FALSE}
+# Let's graph the one-mode version
+graphr(____)
+```
+
+```{r coercion-hint-2, purl = FALSE}
+# Now, let's create a two-mode version 'ison_brandes2' and graph it.
+ison_brandes2 <- ison_brandes |> rename_nodes(type = twomode_type)
+graphr(____)
+```
+
+```{r coercion-solution}
+# plot the one-mode version
+graphr(ison_brandes)
+ison_brandes2 <- ison_brandes |> rename_nodes(type = twomode_type)
+# plot the two-mode version
+graphr(ison_brandes2, layout = "bipartite")
+```
+
+The network is anonymous, but I think it would be nice to add some names,
+even if it's just pretend.
+Luckily, `{manynet}` has a function for this: `to_named()`.
+This makes plotting the network just a wee bit more accessible and interpretable:
+
+```{r addingnames, exercise = TRUE, purl = FALSE}
+ison_brandes <- to_named(ison_brandes)
+```
+
+```{r addingnames-hint-1, purl = FALSE}
+# Now, let's graph using the object names: "ison_brandes"
+graphr(____)
+```
+
+```{r addingnames-solution}
+ison_brandes <- to_named(ison_brandes)
+# plot network with names
+graphr(ison_brandes)
+```
+
+Note that you will likely get a different set of names (though still alphabetical),
+as they are assigned randomly from a pool of (American) first names.
+
+## Degree centrality
+
+<span class="page-toc">On this page:
+<span class="page-toc-link" onclick="document.getElementById('section-counting-ties').scrollIntoView({behavior:'auto',block:'start'});">Counting ties</span> ·
+<span class="page-toc-link" onclick="document.getElementById('section-degrees-of-direction').scrollIntoView({behavior:'auto',block:'start'});">Direction</span> ·
+<span class="page-toc-link" onclick="document.getElementById('section-strength-of-ties').scrollIntoView({behavior:'auto',block:'start'});">Strength</span></span>
+
+<img src="https://i.giphy.com/media/v1.Y2lkPTc5MGI3NjExM3d6eGd2OHRxb2FvbHYzc2oyenFzOG5qcjhzMm82Mm1ncTVpOHhreiZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/uVd5gVHAq63SjtjAOe/giphy.gif" height="480px"/>
+
+### Counting ties {#counting-ties}
+
+Let's start with calculating `r gloss("degree")`.
+Remember that degree centrality is just the number of incident edges/ties to each node.
+It is therefore easy to calculate yourself.
+Just sum the rows or columns of the matrix!
+
+```{r degreesum, exercise = TRUE, exercise.setup = "addingnames", purl = FALSE}
+
+```
+
+```{r degreesum-hint-1, purl = FALSE}
+# We can calculate degree centrality like this:
+(mat <- as_matrix(ison_brandes))
+(degrees <- rowSums(mat))
+rowSums(mat) == colSums(mat)
+```
+
+```{r degreesum-hint-2, purl = FALSE}
+# Or by using a built in command in netrics like this:
+node_by_degree(ison_brandes, normalized = FALSE)
+# node_by_deg() is a shortcut for exactly this unnormalised version:
+node_by_deg(ison_brandes)
+```
+
+```{r degreesum-solution}
+# manually calculate degree centrality
+mat <- as_matrix(ison_brandes)
+degrees <- rowSums(mat)
+rowSums(mat) == colSums(mat)
+# You can also just use a built in command in netrics though:
+node_by_degree(ison_brandes, normalized = FALSE)
+# node_by_deg() is a shortcut for exactly this unnormalised version:
+node_by_deg(ison_brandes)
+```
+
+```{r degreesum-Q, echo=FALSE, purl = FALSE}
+question("Are the row sums the same as the column sums?",
+  answer("Yes",
+         correct = TRUE,
+         message = "That's right, that's because this is an undirected network."),
+  answer("No",
+         message = "Actually they are. Because this network is undirected, its adjacency matrix is symmetric, so the sum of row _i_ always equals the sum of column _i_. (In a directed network the row sums give out-degree and the column sums give in-degree, and these can differ.)"),
+  allow_retry = TRUE
+)
+```
+
+A node's degree is the most immediate sense in which it can be "central":
+a well-connected node has more opportunities to send or receive whatever
+flows through the network, and more visibility to the nodes around it.
+But degree is a _local_ measure — it counts a node's ties without regard to
+where those ties lead — so a high-degree node is best read as an _active_ or
+_busy_ one, not necessarily a powerful or well-positioned one.
+The other measures in this tutorial each capture a different, less local sense
+of importance.
+
+```{r degreeinterpQ, purl = FALSE}
+question("In what ways are higher degree nodes more 'central'?",
+         answer("They have more power than other nodes",
+                message = "Not necessarily -- degree counts how many ties a node has, but power can depend on *who* those ties are to, not just how many there are."),
+         answer("They are more active than other nodes",
+                correct = TRUE, message = learnr::random_praise()),
+         answer("They would be located in the centre of the graph",
+                message = "Not necessarily -- degree is about the number of ties, not where a node happens to be drawn; a high-degree node can sit anywhere in a layout."),
+         answer("They would be able to control information flow in the network",
+                message = "Not necessarily -- that is betweenness, not degree. A node can have many ties yet still not lie on the shortest paths between others."),
+         allow_retry = TRUE,
+         random_answer_order = TRUE)
+```
+
+::: {.callout}
+<span class="callout-label">**Going further**:</span>
+All centrality measures in `{netrics}` return _normalised_ scores by default,
+so that values are comparable across networks of different sizes.
+For the raw scores, add `normalized = FALSE` to any of these functions —
+or, for degree, just use the truncated `node_by_deg()`,
+which is an alias for the unnormalised version.
+:::
+
+### Degrees of direction {#degrees-of-direction}
+
+So far each node has had a single degree, because `ison_brandes` is
+`r gloss("undirected")`. In a `r gloss("directed")` network, ties are sent
+_from_ one node _to_ another, so every node has two degrees:
+an _in-degree_ (ties received) and an _out-degree_ (ties sent).
+These can tell quite different stories:
+in an advice network, for example, a high in-degree suggests a sought-after
+source of advice, while a high out-degree marks an eager asker.
+
+`ison_brandes` has no natural direction, but `{manynet}`'s `to_directed()`
+will assign a random direction to each tie —
+just as `to_named()` assigned random names —
+which is all we need for a worked comparison.
+**Run the code, and check whether the row and column sums still agree.**
+
+```{r directing, exercise = TRUE, exercise.setup = "addingnames"}
+ison_brandes_dir <- to_directed(ison_brandes)
+node_by_indegree(ison_brandes_dir, normalized = FALSE)
+node_by_outdegree(ison_brandes_dir, normalized = FALSE)
+mat <- as_matrix(ison_brandes_dir)
+rowSums(mat) == colSums(mat)
+```
+
+Now the row sums (out-degree) and column sums (in-degree) part ways —
+the answer to the earlier quiz question flips as soon as direction enters.
+Because the directions here are assigned at random,
+your in- and out-degrees will differ from run to run;
+with real directed data they would of course be meaningful and stable.
+`node_by_indegree()` and `node_by_outdegree()` are shortcuts for
+`node_by_degree()`'s `direction = "in"` and `direction = "out"` arguments.
+
+### Strength of ties {#strength-of-ties}
+
+What about `r gloss("weighted")` networks, where ties record not just presence
+but amounts — messages exchanged, hours worked together, tonnes traded?
+There, counting ties is only half the story:
+two nodes with three ties each are hardly equivalent if one's ties are ten
+times heavier. Summing the _weights_ of a node's ties instead of counting them
+yields what is often called _strength_ centrality.
+
+Again `{manynet}` can conjure the missing property for practice purposes:
+`to_weighted()` assigns random weights to the ties.
+The `alpha` argument to `node_by_deg()` then trades off between
+counting ties and summing weights:
+`alpha = 0` ignores the weights entirely (pure degree),
+`alpha = 1` ignores the counts entirely (pure strength),
+and values in between mix the two.
+**Compare the two extremes.**
+
+```{r weighting, exercise = TRUE, exercise.setup = "addingnames"}
+ison_brandes_wtd <- to_weighted(ison_brandes)
+node_by_deg(ison_brandes_wtd)             # alpha = 0: count ties
+node_by_deg(ison_brandes_wtd, alpha = 1)  # alpha = 1: sum tie weights
+```
+
+Note that on a weighted network, `node_by_degree()` itself defaults to
+strength (`alpha = 1`) — the assumption being that if you have measured
+weights, you probably care about them.
+
+::: {.callout}
+<span class="callout-label">**Going further**:</span>
+The degree family has several further members for special kinds of networks:
+`node_by_multidegree()` compares tie types in a
+`r gloss("multiplex")` network,
+`node_by_posneg()` handles `r gloss("signed")` networks with positive and
+negative ties,
+`node_by_neighbours_degree()` averages the degrees of each node's neighbours,
+and `tie_by_degree()` scores each _tie_ by the degrees of its endpoints.
+See `?measure_central_degree` for definitions and references.
+:::
+
+::: {.callout}
+<span class="callout-label">**In brief**:</span> Degree centrality counts each node's ties:
+`node_by_degree()` for normalised scores, `node_by_deg()` for raw counts,
+`node_by_indegree()`/`node_by_outdegree()` for directed networks,
+and `alpha = 1` to sum tie weights (strength) in weighted networks.
+It is a local measure of _activity_.
+:::
+
+## Betweenness centralities
+
+<span class="page-toc">On this page:
+<span class="page-toc-link" onclick="document.getElementById('section-betweenness-centrality').scrollIntoView({behavior:'auto',block:'start'});">Betweenness</span> ·
+<span class="page-toc-link" onclick="document.getElementById('section-ties-can-be-between-too').scrollIntoView({behavior:'auto',block:'start'});">Tie betweenness</span> ·
+<span class="page-toc-link" onclick="document.getElementById('section-induced-and-other-variants').scrollIntoView({behavior:'auto',block:'start'});">Variants</span></span>
+
+The next three pages tour the three main _families_ of centrality measures
+beyond degree.
+What the members of the **betweenness family** all have in common is that they
+measure how much of the traffic between _other_ nodes depends on a given node
+or tie — importance as _control_ over flow.
+Where they differ is in what they assume about how things flow:
+along shortest paths only, along all paths, or in electrical-current fashion.
+
+### Betweenness centrality {#betweenness-centrality}
+
+`r gloss("Betweenness","betweenness")` measures how often a node lies on the
+shortest paths (`r gloss("geodesics","geodesic")`) between other pairs of nodes.
+A node with high betweenness sits at a crossroads: whatever passes between
+otherwise-distant parts of the network has to go through it, giving it the
+_opportunity_ to broker, filter, or bottleneck that flow.
+**Calculate the betweenness centralities for `ison_brandes`.**
+
+```{r betcalc, exercise = TRUE, exercise.setup = "addingnames", purl = FALSE}
+
+```
+
+```{r betcalc-hint-1, purl = FALSE}
+# Use the node_by_betweenness() function to calculate the
+# betweenness centralities of nodes in a network
+node_by_betweenness(____)
+```
+
+```{r betcalc-solution}
+node_by_betweenness(ison_brandes)
+```
+
+```{r betinterpQ, purl = FALSE}
+question("Why would a node lying 'between' many other nodes be 'central'?",
+         answer("They have more power than other nodes",
+                message = "Not necessarily -- lying on many shortest paths gives a node the *opportunity* to broker, but that potential isn't automatically power."),
+         answer("They would be able to control information flow in the network",
+                correct = TRUE, message = learnr::random_praise()),
+         answer("They would be located in the centre of the graph",
+                message = "Not necessarily -- betweenness is about lying on shortest paths between others, not about a node's position in a layout."),
+         answer("They can distribute a message to all other nodes in the network most quickly",
+                message = "Not necessarily -- that describes closeness. A node can broker between others without being the quickest to reach everyone."),
+         allow_retry = TRUE,
+         random_answer_order = TRUE)
+```
+
+### Ties can be between too {#ties-can-be-between-too}
+
+Nodes are not the only things that can lie between:
+`tie_by_betweenness()` counts the shortest paths that run through each _tie_.
+Ties with high betweenness often act as `r gloss("bridges","bridge")` between
+otherwise separate parts of the network —
+indeed this score is the basis of a famous community-detection algorithm
+(Girvan-Newman), which you will meet in the community tutorial.
+**Map tie betweenness onto tie width to see the network's main thoroughfares.**
+
+```{r tiebet, exercise = TRUE, exercise.setup = "addingnames"}
+ison_brandes %>%
+  mutate_ties(bridgeness = tie_by_betweenness(ison_brandes)) %>%
+  graphr(edge_size = "bridgeness")
+```
+
+The widest ties are the ones the network can least afford to lose:
+cut one and many shortest paths between nodes lengthen — or disappear.
+
+### Induced and other variants {#induced-and-other-variants}
+
+The rest of the betweenness family keeps the "who depends on whom" logic
+but varies the assumptions:
+
+- `node_by_induced()` measures _induced_ or vitality betweenness:
+how much the network's _total_ betweenness changes when the node is removed.
+It answers "what would we lose without this node?" rather than
+"how often is this node in between?".
+- `node_by_flow()` measures _flow_ betweenness,
+which models spreading as electrical current across _all_ paths,
+not just the shortest ones —
+useful when whatever flows does not know the shortest route.
+- `node_by_stress()` counts the shortest paths through each node without
+weighting them by how many alternatives exist —
+an older, "rawer" cousin of betweenness.
+
+**Compare classic and induced betweenness — do they agree here?**
+
+```{r induced, exercise = TRUE, exercise.setup = "addingnames"}
+node_by_betweenness(ison_brandes, normalized = FALSE)
+node_by_induced(ison_brandes, normalized = FALSE)
+```
+
+For this network the rankings broadly agree, but on networks with more
+redundancy they can diverge: a node can lie on few shortest paths itself yet
+still be sorely missed when removed.
+For formal definitions and references, see `?measure_central_between`.
+
+::: {.callout}
+<span class="callout-label">**In brief**:</span> The betweenness family measures control over flow:
+`node_by_betweenness()` via shortest paths,
+`tie_by_betweenness()` for ties rather than nodes,
+`node_by_induced()` via a node's contribution to total betweenness,
+`node_by_flow()` via current across all paths,
+and `node_by_stress()` via raw path counts.
+:::
+
+## Closeness centralities
+
+<span class="page-toc">On this page:
+<span class="page-toc-link" onclick="document.getElementById('section-closeness-centrality').scrollIntoView({behavior:'auto',block:'start'});">Closeness</span> ·
+<span class="page-toc-link" onclick="document.getElementById('section-reach-and-distance').scrollIntoView({behavior:'auto',block:'start'});">Reach & distance</span> ·
+<span class="page-toc-link" onclick="document.getElementById('section-harmonic-and-other-variants').scrollIntoView({behavior:'auto',block:'start'});">Variants</span></span>
+
+What the members of the **closeness family** have in common is that they
+measure how easily a node can reach — or be reached by — the rest of the
+network: importance as _access_ or _independence_ rather than control.
+Where they differ is in how they summarise the distances involved:
+their total, their average, their maximum, or how many nodes fall within a
+given range.
+
+### Closeness centrality {#closeness-centrality}
+
+`r gloss("Closeness","closeness")` measures how short a node's paths are to
+_all_ other nodes — the smaller the total `r gloss("geodesic")` distance, the
+higher the closeness. A node with high closeness can reach the rest of the
+network in few steps, so it is well placed to spread (or hear) something quickly.
+**Calculate the closeness centralities for `ison_brandes`.**
+
+```{r closecalc, exercise = TRUE, exercise.setup = "addingnames", purl = FALSE}
+
+```
+
+```{r closecalc-hint-1, purl = FALSE}
+# Use the node_by_closeness() function to calculate the
+# closeness centrality of nodes in a network
+node_by_closeness(____)
+```
+
+```{r closecalc-solution}
+node_by_closeness(ison_brandes)
+```
+
+```{r closeinterpQ, purl = FALSE}
+question("In what way is a node with the smallest sum of geodesic distances to all other nodes 'central'?",
+         answer("They have more power than other nodes",
+                message = "Not necessarily -- closeness reflects how efficiently a node can reach everyone else, which isn't the same as holding power over them."),
+         answer("They can distribute a message to all other nodes in the network most quickly",
+                correct = TRUE, message = learnr::random_praise()),
+         answer("They would be located in the centre of the graph",
+                message = "Not necessarily -- closeness is defined by geodesic distances, not by where a node is placed in a drawing."),
+         answer("They would be able to control information flow in the network",
+                message = "Not necessarily -- that is betweenness. Being close to everyone doesn't mean you sit *between* them on their shortest paths."),
+         allow_retry = TRUE,
+         random_answer_order = TRUE)
+```
+
+### Reach and distance {#reach-and-distance}
+
+Sometimes what matters is not the average distance to everyone,
+but a more concrete question:
+_how much of the network can this node reach within k steps?_
+That is `node_by_reach()`, which by default counts the proportion of the
+network within two steps — a good proxy for "who could mobilise the most
+others quickly?".
+And sometimes the question is about one node in particular:
+`node_by_distance()` returns every node's `r gloss("geodesic")` distance
+from (or to) a given node — the network equivalent of dropping a pin on a map.
+**Try both: how far does the first-named node's reach extend?**
+
+```{r reach, exercise = TRUE, exercise.setup = "addingnames"}
+node_by_reach(ison_brandes)
+node_by_distance(ison_brandes, from = node_names(ison_brandes)[1])
+```
+
+Note that `node_by_reach()` takes a `cutoff` argument to change the number of
+steps considered: `cutoff = 1` reduces it to degree,
+while a large cutoff approaches a measure of component membership.
+
+### Harmonic and other variants {#harmonic-and-other-variants}
+
+Classic closeness has a well-known weakness: in a disconnected network,
+some distances are infinite, and the measure breaks down.
+The family includes several responses to this, and other refinements:
+
+- `node_by_harmonic()` sums the _reciprocals_ of distances,
+so unreachable nodes simply contribute zero —
+the recommended drop-in replacement for closeness on disconnected networks.
+- `node_by_eccentricity()` reports each node's _worst case_:
+the distance to whatever node is furthest from it.
+- `node_by_information()` measures current-flow closeness,
+crediting all paths (weighted by efficiency) rather than only the shortest.
+- `node_by_vitality()` measures how much the network's total closeness
+would change without the node — the closeness analogue of induced betweenness.
+
+For formal definitions and references, see `?measure_central_close`.
+
+::: {.callout}
+<span class="callout-label">**In brief**:</span> The closeness family measures access:
+`node_by_closeness()` via total distances,
+`node_by_reach()` via the share of the network within _k_ steps,
+`node_by_distance()` via distances from a chosen node,
+`node_by_harmonic()` as the disconnection-proof variant,
+and `node_by_eccentricity()` via each node's furthest distance.
+:::
+
+## Eigenvector centralities
+
+<span class="page-toc">On this page:
+<span class="page-toc-link" onclick="document.getElementById('section-eigenvector-centrality').scrollIntoView({behavior:'auto',block:'start'});">Eigenvector</span> ·
+<span class="page-toc-link" onclick="document.getElementById('section-power-and-influence').scrollIntoView({behavior:'auto',block:'start'});">Power</span> ·
+<span class="page-toc-link" onclick="document.getElementById('section-pagerank-hubs-and-authorities').scrollIntoView({behavior:'auto',block:'start'});">Pagerank & hubs</span></span>
+
+What the members of the **eigenvector family** have in common is recursion:
+a node's score depends on the scores of the nodes it is connected to,
+which depend in turn on _their_ neighbours, and so on —
+importance as _standing among the important_.
+Where they differ is in how that recursion is tempered:
+whether alters' scores always help, how far along walks influence travels,
+and whether sending and receiving are scored separately.
+
+### Eigenvector centrality {#eigenvector-centrality}
+
+`r gloss("Eigenvector","eigenvector")` centrality weights a node's ties by how
+central its neighbours are: you are important if you are connected to important
+others. It captures influence rather than mere activity — a node with only a
+few ties, but to very well-connected nodes, can outscore a node with many ties
+to peripheral ones.
+**Calculate the eigenvector centralities for `ison_brandes`.**
+
+```{r eigencalc, exercise = TRUE, exercise.setup = "addingnames", purl = FALSE}
+
+```
+
+```{r eigencalc-hint-1, purl = FALSE}
+# Use the node_by_eigenvector() function to calculate
+# the eigenvector centrality of nodes in a network
+node_by_eigenvector(____)
+```
+
+```{r eigencalc-solution}
+node_by_eigenvector(ison_brandes)
+```
+
+```{r eiginterpQ, purl = FALSE}
+question("Which of the following is true of eigenvector centrality?",
+         answer("It is the only centrality measure that is correlated with power",
+                message = "Not necessarily -- eigenvector centrality has no unique claim on power, and other measures can correlate with it too."),
+         answer("It is a measure of influence, not activity",
+                correct = TRUE, message = learnr::random_praise()),
+         answer("It always gives the highest score to the node with the highest degree",
+                message = "Not necessarily -- because it weights ties by the importance of their neighbours, a lower-degree node connected to influential nodes can outrank a higher-degree node connected to peripheral ones."),
+         answer("It is only meaningful in networks with nodes of similar degree",
+                message = "Not necessarily -- it is meaningful (and often most revealing) precisely when degrees vary, since it distinguishes nodes with equally many but differently-connected neighbours."),
+         allow_retry = TRUE,
+         random_answer_order = TRUE)
+```
+
+::: {.callout}
+<span class="callout-label">**Going further**:</span>
+A note of caution: eigenvector centrality is only well-behaved on a single
+`r gloss("connected","connected")` `r gloss("component")` —
+on a disconnected network the scores for the smaller components can be
+misleading. The pagerank variant below is one common response.
+:::
+
+### Power and influence {#power-and-influence}
+
+Bonacich famously argued that `r gloss("power")` and influence are _not_ the
+same thing. Under eigenvector logic, well-connected neighbours always raise
+your score. But in bargaining or exchange, the reverse can hold:
+being connected to poorly-connected others makes _them_ dependent on _you_ —
+that is power.
+`node_by_power()` implements Bonacich's measure, and its `exponent` argument
+sets the sign of the recursion:
+a positive exponent rewards well-connected neighbours (influence-like),
+while a negative one rewards _dependent_, poorly-connected neighbours (power).
+**Compare the two.**
+
+```{r power, exercise = TRUE, exercise.setup = "addingnames"}
+node_by_power(ison_brandes, exponent = 1)
+node_by_power(ison_brandes, exponent = -1)
+```
+
+Try to answer the following questions for yourself:
+
+- which nodes swap fortunes when the exponent flips, and what do their
+neighbourhoods look like?
+- can you think of a real-world example when an actor might be central but not
+powerful, or powerful but not central?
+
+### Pagerank, hubs, and authorities {#pagerank-hubs-and-authorities}
+
+Two further members of this family were developed for the web,
+and shine on `r gloss("directed")` networks:
+
+- `node_by_pagerank()` measures pagerank, the algorithm behind early Google:
+a random surfer follows ties and occasionally teleports to a random node,
+and a node's score is how often the surfer visits.
+The teleporting makes it robust on disconnected and directed networks
+where plain eigenvector centrality struggles.
+- `node_by_hub()` and `node_by_authority()` split reputation in two:
+`r gloss("authorities","authority")` are nodes that many point _to_,
+while `r gloss("hubs","hub")` are nodes that point to many good authorities —
+think review sites (hubs) versus the restaurants they recommend (authorities).
+- `node_by_alpha()` measures alpha or Katz centrality,
+which extends eigenvector logic to count longer walks at a discount —
+see `?measure_central_eigen` for details on the whole family.
+
+**Try these on a directed version of our network.**
+
+```{r pagerank, exercise = TRUE, exercise.setup = "addingnames"}
+ison_brandes_dir <- to_directed(ison_brandes)
+node_by_pagerank(ison_brandes_dir)
+node_by_hub(ison_brandes_dir)
+node_by_authority(ison_brandes_dir)
+```
+
+Since the directions are again assigned at random,
+run the code a few times: watch how a node's authority score rises and falls
+with the arrows pointing at it.
+
+You have now met all four families of centrality —
+degree, betweenness, closeness, and eigenvector —
+each ranking the nodes by a different notion of importance.
+With four families (and many variants within each) to choose from,
+how do you decide? That is the subject of the next page.
+
+::: {.callout}
+<span class="callout-label">**In brief**:</span> The eigenvector family measures standing among the
+important: `node_by_eigenvector()` for influence,
+`node_by_power()` for Bonacich power (with its sign-flipping `exponent`),
+`node_by_pagerank()` for a robust directed-network variant,
+and `node_by_hub()`/`node_by_authority()` for split sending/receiving
+reputations.
+:::
+
+## Which centrality?
+
+There are, by one count, [over 200 centrality indices in the
+literature](https://www.r-bloggers.com/network-centrality-in-r-an-introduction/) —
+so which should you reach for?
+Linton Freeman's classic answer was that most of them boil down to just three
+ideas — degree, closeness, and betweenness — with everything else a variant;
+we add eigenvector as a fourth, giving the **four families** this tutorial is
+built around.
+
+Two questions organise the whole zoo, and locate each family within it.
+First: does the measure count what radiates _from_ a node — its own ties, its
+distances, its walks — or what passes _through_ it on the way between others?
+Borgatti and Everett ([2006](https://doi.org/10.1016/j.socnet.2005.11.005)) call the first **radial** and the second **medial**:
+degree, closeness, and eigenvector are radial; betweenness is medial.
+Second: does it read only a node's immediate neighbourhood (**local**),
+or its place in the whole network (**global**)?
+Degree is local; the other three are global.
+The four families are simply the most useful corners of that space,
+and each variant you met earlier is a refinement or extension within its family.
+
+| Family | Reads a node's… | Built on | Answers the question | Well-suited when |
+|---|---|---|---|---|
+| **Degree** | activity (radial, local) | direct ties | "Who is busiest, or most directly connected?" | only immediate ties matter, or influence spreads one step at a time; also the cheapest to compute on very large networks; outdegree associated with activity and indegree with popularity; tie weight and sign versions exist too |
+| **Closeness** | reach (radial, global) | shortest-path distances to all others | "Who can reach — or be reached by — everyone else in the fewest steps?" | the network is connected and things travel by efficient routes; use `node_by_harmonic()` if it is disconnected |
+| **Betweenness** | brokerage (medial, global) | shortest paths that pass through it | "Who sits between others, brokering, bridging, or bottlenecking flow?" | you care about gatekeeping, bridges between groups, or where flow is vulnerable; costly on huge networks (use a `cutoff`) |
+| **Eigenvector** | standing (radial, global) | walks of all lengths, weighted by neighbours' scores | "Who is connected to other important, well-connected nodes?" | importance is recursive — prestige, status, influence; use `node_by_pagerank()` for directed or disconnected networks; use `node_by_power()` if influence depends on being connected to poorly-connected nodes |
+
+Reading across a row tells you what a family is _for_;
+reading down the last column tells you which _kind of network_ each suits best.
+
+```{r whichcentQ, purl = FALSE}
+question("A rumour spreads step-by-step along ties, and you want to find the person who could seed it to reach everyone else in the fewest steps. Which family is the most natural first choice?",
+  answer("Closeness",
+         correct = TRUE,
+         message = "Yes -- closeness is precisely about short distances to all other nodes, i.e. reaching everyone quickly."),
+  answer("Degree",
+         message = "Degree finds who has the most direct contacts, but a well-connected node in a peripheral cluster can still be far from most of the network."),
+  answer("Betweenness",
+         message = "Betweenness finds brokers who sit between others -- great for controlling flow, but not the same as being able to reach everyone quickly yourself."),
+  answer("Eigenvector",
+         message = "Eigenvector finds nodes connected to important others (influence/prestige), which need not be the nodes that can reach everyone in few steps."),
+  allow_retry = TRUE,
+  random_answer_order = TRUE
+)
+```
+
+::: {.callout}
+<span class="callout-label">**Going further**:</span>
+For the full landscape see David Schoch's
+[periodic table of centrality](http://schochastics.net/sna/periodic.html)
+and the `{netrankr}` package, which can even compare nodes _without_ committing
+to a single index.
+:::
+
+Now let's see how to spot the most central nodes at a glance.
+
+## Plotting centrality
+
+<span class="page-toc">On this page:
+<span class="page-toc-link" onclick="document.getElementById('section-highlighting-the-most-central-node').scrollIntoView({behavior:'auto',block:'start'});">Highlighting extremes</span> ·
+<span class="page-toc-link" onclick="document.getElementById('section-the-two-mode-version').scrollIntoView({behavior:'auto',block:'start'});">Two-mode</span></span>
+
+### Highlighting the most central node {#highlighting-the-most-central-node}
+
+It is straightforward in `{autograph}` to highlight nodes and ties
+with maximum or minimum (e.g. degree) scores.
+If the vector is numeric (i.e. a "measure"),
+then this can be easily converted into a logical vector that
+identifies the node/tie with the maximum/minimum score using
+e.g. `node_is_max()` or `tie_is_min()`.
+By passing this attribute to the `graphr()` argument "node_color"
+we can highlight which node or nodes hold the maximum score in a different colour.
+
+```{r ggid, exercise = TRUE, exercise.setup = "addingnames", purl = FALSE}
+
+```
+
+```{r ggid-solution}
+# plot the network, highlighting the node with the highest centrality score with a different color
+ison_brandes %>%
+  mutate_nodes(color = node_is_max(node_by_degree())) %>%
+  graphr(node_color = "color")
+
+ison_brandes %>%
+  mutate_nodes(color = node_is_max(node_by_betweenness())) %>%
+  graphr(node_color = "color")
+
+ison_brandes %>%
+  mutate_nodes(color = node_is_max(node_by_closeness())) %>%
+  graphr(node_color = "color")
+
+ison_brandes %>%
+  mutate_nodes(color = node_is_max(node_by_eigenvector())) %>%
+  graphr(node_color = "color")
+```
+
+How neat! Notice whether the _same_ node lights up across the four measures or
+whether different nodes do — because the measures capture different things,
+a node can be top of one ranking and unremarkable on another.
+
+### The two-mode version {#the-two-mode-version}
+
+Try it with the two-mode version.
+What can you see?
+
+```{r ggid_twomode, exercise = TRUE, purl = FALSE}
+# Instead of "ison_brandes", use "ison_brandes2"
+
+```
+
+```{r ggid_twomode-solution}
+ison_brandes2 %>%
+  add_node_attribute("color", node_is_max(node_by_degree(ison_brandes2))) %>%
+  graphr(node_color = "color", layout = "bipartite")
+
+ison_brandes2 %>%
+  add_node_attribute("color", node_is_max(node_by_betweenness(ison_brandes2))) %>%
+  graphr(node_color = "color", layout = "bipartite")
+
+ison_brandes2 %>%
+  add_node_attribute("color", node_is_max(node_by_closeness(ison_brandes2))) %>%
+  graphr(node_color = "color", layout = "bipartite")
+
+ison_brandes2 %>%
+  add_node_attribute("color", node_is_max(node_by_eigenvector(ison_brandes2))) %>%
+  graphr(node_color = "color", layout = "bipartite")
+```
+
+```{r brandes2quiz, purl = FALSE}
+question("Select all that are true for the two-mode Brandes network.",
+         answer("Only one node is selected in each plot.",
+                message = "Not quite: `node_is_max()` flags every node tied for the highest score, so when there's a tie for the top several nodes light up at once."),
+         answer("The maximum degree triangle has a higher degree than the maximum degree circle(s).",
+                correct = TRUE,
+                message = "That's right -- the busiest event (triangle) has degree 4, whereas the busiest actor (circle) only reaches degree 3."),
+         answer("No node is ever the most central according to two or more different centrality measures.",
+                message = "Actually the same node can top several measures at once -- centrality measures are often correlated, so watch for a node that stays highlighted across plots."),
+         allow_retry = TRUE,
+         random_answer_order = TRUE)
+```
+
+::: {.callout}
+<span class="callout-label">**In brief**:</span> Turn any numeric measure into a logical flag with
+`node_is_max()`/`node_is_min()`, then map it to `node_color` in `graphr()`
+to spotlight the most (or least) central node(s) directly on the graph.
+:::
+
+## Centralisation
+
+<span class="page-toc">On this page:
+<span class="page-toc-link" onclick="document.getElementById('section-reading-a-distribution').scrollIntoView({behavior:'auto',block:'start'});">Distributions</span> ·
+<span class="page-toc-link" onclick="document.getElementById('section-from-distribution-to-centralisation').scrollIntoView({behavior:'auto',block:'start'});">Shape &amp; centralisation</span> ·
+<span class="page-toc-link" onclick="document.getElementById('section-measuring-centralisation').scrollIntoView({behavior:'auto',block:'start'});">Measuring</span> ·
+<span class="page-toc-link" onclick="document.getElementById('section-comparing-the-measures').scrollIntoView({behavior:'auto',block:'start'});">Comparing</span></span>
+
+So far we have scored individual nodes.
+But we can also ask a question about the _whole_ network:
+is its centrality piled up on a few nodes, or shared out evenly?
+That whole-network summary is called `r gloss("centralisation","centralization")`,
+and the bridge to it runs through the _distribution_ of a nodal measure.
+
+### Reading a distribution {#reading-a-distribution}
+
+<img src="https://i.giphy.com/media/v1.Y2lkPTc5MGI3NjExanZ4OWhwM2k0eWU1ancza3NtYXlpZDFkdTJub2RvMnFkYnlwbWZ4dCZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/3o7aTHbH39h8xYePza/giphy.gif" height="400px"/>
+
+Rather than reduce a measure to a single summary number,
+we can look at its whole `r gloss("distribution")` across the nodes.
+`{autograph}` offers a way to get a pretty good first look at this,
+though there are more elaborate ways to do this in base and grid graphics.
+**Plot the degree distribution of `ison_brandes`.**
+
+```{r distrib, exercise = TRUE, exercise.setup = "addingnames", purl = FALSE}
+
+```
+
+```{r distrib-solution}
+# distribution of degree centrality scores of nodes
+plot(node_by_degree(ison_brandes))
+```
+
+What's plotted here by default is both the degree distribution as a histogram,
+as well as a density plot overlaid on it in red.
+Reading a distribution rather than a single summary number lets you see
+_shape_: whether ties are spread fairly evenly across nodes, or concentrated
+on a few.
+
+```{r degdistshapeQ, purl = FALSE}
+question("What kind of shape does this degree distribution have?",
+         answer("Exponential",
+                message = "An exponential (or power-law) shape would show many low-degree nodes and a long tail of a few very high-degree nodes. There isn't a clear tail like that here."),
+         answer("Hard to tell",
+                correct = TRUE,
+                message = paste(learnr::random_praise(), "With only 11 nodes there simply aren't enough observations to identify a clear parametric shape -- degree distributions usually only reveal a recognisable form in larger networks.")),
+         answer("Uniform",
+                message = "A uniform distribution would have roughly equal numbers of nodes at every degree value (a flat histogram), which isn't quite what we see."),
+         answer("Normal",
+                message = "A normal distribution would be a symmetric bell centred on a modal degree. With so few nodes it's hard to justify calling this bell-shaped."),
+         allow_retry = TRUE,
+         random_answer_order = TRUE)
+```
+
+```{r degdistinterpQ, purl = FALSE}
+question("What can the degree distribution tell us?",
+         answer("Whether the network is centralized around a few key nodes",
+                correct = TRUE, message = learnr::random_praise()),
+         answer("Whether there are a few highly connected nodes and many poorly connected nodes",
+                correct = TRUE, message = learnr::random_praise()),
+         answer("Whether the network is hierarchical",
+                message = "Not necessarily -- the degree distribution shows the *spread* of degrees, but not how nodes are ordered into levels. Hierarchy is about the (directed) arrangement of ties, which degree counts alone don't reveal."),
+         answer("Whether the network is robust to random failure",
+                message = "Not necessarily -- robustness also depends on how the network is connected and how failures cascade, so the degree distribution alone can't tell you this directly."),
+         allow_retry = TRUE,
+         random_answer_order = TRUE)
+```
+
+The same works for _any_ node measure, not just degree.
+**Plot the distributions of the other three centralities you have met.**
+
+```{r otherdist, exercise=TRUE, exercise.setup = "addingnames", purl=FALSE}
+
+```
+
+```{r otherdist-solution}
+plot(node_by_betweenness(ison_brandes))
+plot(node_by_closeness(ison_brandes))
+plot(node_by_eigenvector(ison_brandes))
+```
+
+### From distribution to centralisation {#from-distribution-to-centralisation}
+
+Here is the key idea. The _shape_ of a degree distribution and the network's
+_centralisation_ are two views of the same thing.
+When degrees are spread evenly — a symmetric, roughly _normal_
+bell where most nodes are near-average — no node dominates, and centralisation
+is low. When the distribution is skewed into a long, _exponential_
+tail — a few hubs with very high degree, and many nodes with very little —
+a handful of nodes dominate, and centralisation is high.
+
+To see this, let's conjure two networks of the same size with deliberately
+different degree distributions:
+a _random_ network (whose degrees cluster around a typical
+value) and a _scale-free_ network (which grows a few dominant hubs).
+The seed just fixes the random draw so everyone sees the same picture.
+**Run it, and compare both the plots and the two centralisation scores.**
+
+```{r distcent, exercise = TRUE, fig.width=9}
+set.seed(7)
+rand <- generate_random(50, 0.1)     # bell-shaped degree distribution
+scaf <- generate_scalefree(50, 1.3)  # heavy-tailed degree distribution
+plot(node_by_degree(rand)) + plot(node_by_degree(scaf))
+net_by_degree(rand)   # low centralisation
+net_by_degree(scaf)   # much higher centralisation
+```
+
+The random network's degrees pile up in a bell, and its degree centralisation
+is low — no node is far above the crowd.
+The scale-free network's degrees trail off into a long tail, and its
+centralisation is several times higher — a few hubs carry the network.
+Our `ison_brandes` example sits somewhere between these two extremes.
+
+```{r shapecentQ, purl = FALSE}
+question("A network's degree distribution is a symmetric bell around its average. What can you say about its degree centralisation?",
+  answer("It will be relatively low",
+         correct = TRUE,
+         message = "Right -- a symmetric bell means most nodes are near-average and none dominates, so there is little inequality for centralisation to register."),
+  answer("It will be relatively high",
+         message = "High centralisation goes with a skewed, hub-dominated distribution (a long tail), not a symmetric bell where nodes are similar."),
+  answer("It cannot be determined from the distribution",
+         message = "It can, at least roughly: centralisation is essentially a summary of how unequal (spread out and skewed) the distribution is."),
+  allow_retry = TRUE,
+  random_answer_order = TRUE
+)
+```
+
+::: {.callout}
+<span class="callout-label">**In brief**:</span> `plot()` on any node measure draws its distribution
+(a histogram plus a density curve). An even, bell-shaped distribution signals
+low centralisation; a skewed, heavy-tailed one signals high centralisation.
+Centralisation just turns that distributional inequality into a single number.
+:::
+
+### Measuring centralisation {#measuring-centralisation}
+
+`{netrics}` also implements network `r gloss("centralisation","centralization")` functions.
+Here we are no longer interested in the level of the node,
+but in the level of the whole network,
+so the syntax replaces `node_` with `net_`:
+
+```{r centzn, exercise = TRUE, exercise.setup = "addingnames", purl = FALSE}
+
+```
+
+```{r centzn-solution}
+net_by_degree(ison_brandes)
+net_by_betweenness(ison_brandes)
+net_by_closeness(ison_brandes)
+print(net_by_eigenvector(ison_brandes), digits = 5)
+```
+
+By default, scores are printed up to 3 decimal places,
+but this can be modified and, in any case,
+the unrounded values are retained internally.
+This means that even if rounded values are printed (to respect console space),
+as much precision as is available is used in further calculations.
+
+::: {.callout}
+<span class="callout-label">**Going further**:</span>
+For centralisation in `r gloss("two-mode","twomode")` networks,
+`mode_by_*()` functions are available to return two values, one per mode.
+:::
+
+### Comparing the measures {#comparing-the-measures}
+
+What if we want to have a single image/figure with multiple plots?
+This can be a little tricky with gg-based plots,
+but fortunately the `{patchwork}` package is here to help.
+We use `|` to place graphs side-by-side and `/` to stack them,
+and `ggtitle()` to record each measure's centralisation score as a subtitle.
+
+```{r multiplot, exercise = TRUE, exercise.setup = "addingnames", purl = FALSE, fig.width=9}
+
+```
+
+```{r multiplot-solution}
+ison_brandes <- ison_brandes |>
+  add_node_attribute("degree", node_is_max(node_by_degree(ison_brandes)))  |>
+  add_node_attribute("betweenness", node_is_max(node_by_betweenness(ison_brandes))) |>
+  add_node_attribute("closeness", node_is_max(node_by_closeness(ison_brandes)))  |>
+  add_node_attribute("eigenvector", node_is_max(node_by_eigenvector(ison_brandes)))
+gd <- graphr(ison_brandes, node_color = "degree") +
+  ggtitle("Degree", subtitle = round(net_by_degree(ison_brandes), 2))
+gc <- graphr(ison_brandes, node_color = "closeness") +
+  ggtitle("Closeness", subtitle = round(net_by_closeness(ison_brandes), 2))
+gb <- graphr(ison_brandes, node_color = "betweenness") +
+  ggtitle("Betweenness", subtitle = round(net_by_betweenness(ison_brandes), 2))
+ge <- graphr(ison_brandes, node_color = "eigenvector") +
+  ggtitle("Eigenvector", subtitle = round(net_by_eigenvector(ison_brandes), 2))
+(gd | gb) / (gc | ge)
+# ggsave("brandes-centralities.pdf")
+```
+
+```{r centzdq, purl = FALSE}
+question("How centralized is the ison_brandes network? Select all that apply.",
+         answer("It is more degree centralised than betweenness centralised.",
+                message = "Degree centralisation is at 0.18 for this network whereas betweenness centralisation is at 0.32. In other words, the network is better characterised as having 1 or 2 nodes lying on the shortest paths between others than one where 1 or 2 nodes have many more ties than the others."),
+         answer("It is more closeness centralised than betweenness centralised.",
+                message = "Closeness centralisation is at 0.23 for this network whereas betweenness centralisation is at 0.32. In other words, the network is better characterised as having 1 or 2 nodes lying on the shortest paths between others than one where 1 or 2 nodes can reach or access most other nodes."),
+         answer("It is more eigenvector centralised than betweenness centralised.",
+                correct = TRUE,
+                message = "That's right, eigenvector centralisation is at 0.48 for this network whereas betweenness centralisation is at 0.32. In other words, the network is better characterised as having a core (or cores) of well-connected nodes rather than a wide network with only 1 or 2 nodes lying on the shortest paths between others."),
+         random_answer_order = TRUE,
+         allow_retry = TRUE)
+```
+
+```{r centvcent, echo=FALSE, purl = FALSE}
+question("What is the difference between centrality and centralisation according to the literature?",
+  answer("Centrality is for nodes and centralisation is for networks",
+         correct = TRUE,
+         message = "That's right -- centrality is a nodal property (how central each node is), while centralisation summarises the whole network (how unequally centrality is distributed across its nodes)."),
+  answer("Centrality is a state and centralisation is a process",
+         message = "This is a nice intuition, but it isn't the distinction drawn in the network literature -- both are measured on a fixed network, not as an unfolding process."),
+  answer("Centrality is a '-ity' and centralisation is a '-isation'",
+         message = "The spelling differs, but that's not the substantive distinction -- think about which level (node vs. network) each one describes."),
+  answer("Centrality is to centralisation what polarity is to polarisation",
+         message = "A tempting analogy, but it doesn't capture the actual difference, which is about the level of analysis: nodes for centrality, the whole network for centralisation."),
+  allow_retry = TRUE,
+  random_answer_order = TRUE
+)
+```
+
+::: {.callout}
+<span class="callout-label">**In brief**:</span> Swap `node_` for `net_` to move from a node's
+centrality to the whole network's _centralisation_, summarising how unequally that centrality is
+distributed. For multimodal networks, `mode_by_*()` returns one value per mode,
+which can be compared to see which mode is more centralised with respect to the other.
+:::
+
+## Free play
+
+<img src="https://i.giphy.com/media/v1.Y2lkPTc5MGI3NjExejh4dXBha3JhNW0yenJwMDd5aGpwd3Brc201ZXoxZnY2aWFna3Z4cCZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/7ROgX60TtTVK0mZwkJ/giphy.gif" height="400px"/>
+
+Choose another dataset included in `{manynet}` (browse them with `table_data()`).
+Name a plausible research question you could ask of the dataset relating to each
+of the four main centrality measures (degree, betweenness, closeness, eigenvector).
+Plot the network with nodes sized or coloured by each centrality measure,
+using titles or subtitles to record the question and/or centralisation measure.
+
+If you are not sure where to start,
+here is one suggestion per flavour, each with real direction and/or weights
+to practise the measures from this tutorial on:
+
+| Classic (small, tidy) | Fiction (moderate) | Real-world (larger) |
+|---|---|---|
+| `ison_networkers` (directed, weighted messages among early network researchers — compare in-degree with strength: who receives from many, and who receives a lot?) | `fict_starwars` (directed, weighted interactions between Star Wars characters — who dominates the dialogue, and is that the same as being influential?) | `irps_blogs` (directed hyperlinks among 1,490 political blogs — made for pagerank, hubs, and authorities) |
+
+And if betweenness is what intrigues you,
+`irps_911` — Krebs' study of a covert network —
+is a classic setting for asking who brokers while staying inconspicuous.
+
+```{r freeplayend, exercise=TRUE, purl=FALSE, fig.width=9}
+
+```
+
+## Summary
+
+<img src="https://media1.tenor.com/m/gSsbNTouixUAAAAC/bravo-applause.gif" alt="gif of an enthusiastic standing ovation and cries of bravo"/>
+
+Well done -- you have completed the tutorial on centrality!
+Along the way, you have learned to use these functions:
+
+| Function | What it does |
+|---|---|
+| `node_by_degree()`, `node_by_deg()` | degree centrality (ties per node); `node_by_deg()` returns the raw, unnormalised counts |
+| `node_by_indegree()`, `node_by_outdegree()` | ties received and sent in directed networks |
+| `node_by_deg(..., alpha = 1)` | strength: sums tie weights instead of counting ties |
+| `node_by_betweenness()` | betweenness centrality (lying on others' shortest paths) |
+| `tie_by_betweenness()` | shortest paths through each tie (bridges) |
+| `node_by_induced()`, `node_by_flow()`, `node_by_stress()` | betweenness variants: contribution to total, current flow, raw path counts |
+| `node_by_closeness()` | closeness centrality (short paths to all others) |
+| `node_by_reach()`, `node_by_distance()` | share of network within _k_ steps; distances from a chosen node |
+| `node_by_harmonic()`, `node_by_eccentricity()` | closeness variants for disconnected networks and worst-case distance |
+| `node_by_eigenvector()` | eigenvector centrality (connected to well-connected others) |
+| `node_by_power()` | Bonacich power, with its sign-flipping `exponent` |
+| `node_by_pagerank()`, `node_by_hub()`, `node_by_authority()` | web-style variants for directed networks |
+| `node_by_*(..., normalized = FALSE)` | returns raw rather than normalised scores |
+| `plot()` | draws the distribution of a node measure (histogram + density) |
+| `generate_random()`, `generate_scalefree()` | (manynet) make example networks with contrasting degree distributions |
+| `node_is_max()`, `node_is_min()` | flags the node(s) with the extreme score, for highlighting |
+| `graphr(..., node_color = )`, `graphr(..., edge_size = )` | maps node or tie measures onto the graph |
+| `net_by_degree()`, `net_by_betweenness()`, `net_by_closeness()`, `net_by_eigenvector()` | whole-network centralisation |
+| `+`, `/` (patchwork) | place graphs beside or above one another in one figure |
+
+When you are ready, continue with the other `{netrics}` tutorials —
+on community, position, and topology —
+where further ways of summarising network structure are introduced.
+Run `run_tute()` at the console to see all available tutorials.
+
+### Glossary
+
+Here are some of the terms that we have covered in this tutorial:
+
+`r print_glossary()`

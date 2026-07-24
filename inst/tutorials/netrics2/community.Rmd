@@ -1,0 +1,1456 @@
+---
+title: "Cohesion and Community"
+author: "by James Hollway"
+output:
+  learnr::tutorial:
+    theme: flatly
+runtime: shiny_prerendered
+description: >
+  This tutorial covers how to measure the cohesion of a network through
+  density, reciprocity, and transitivity, project two-mode networks,
+  identify components and factions, judge the fit of any grouping with
+  modularity, and detect communities using a variety of algorithms.
+---
+
+```{r pkgs, include = FALSE, eval=TRUE}
+library(netrics)
+library(autograph)
+library(patchwork)
+```
+
+```{r setup, include = FALSE, purl=FALSE, eval=TRUE}
+library(learnr)
+knitr::opts_chunk$set(echo = FALSE)
+library(netrics)
+library(autograph)
+stocnet_theme("default")
+clear_glossary()
+learnr::random_phrases_add(language = "fr",
+                           praise = c("C'est génial!",
+                                      "Beau travail",
+                                      "Excellent travail!",
+                                      "Bravo!",
+                                      "Super!",
+                                      "Bien fait",
+                                      "Bien joué",
+                                      "Tu l'as fait!",
+                                      "Je savais que tu pouvais le faire.",
+                                      "Ça a l'air facile!",
+                                      "C'était un travail de première classe.",
+                                      "C'est ce que j'appelle un bon travail!"),
+                          encouragement = c("Bon effort",
+                                            "Vous l'avez presque maîtrisé!",
+                                            "Ça avance bien.",
+                                            "Continuez comme ça.",
+                                            "Continuez à travailler dur!",
+                                            "Vous apprenez vite!",
+                                            "Vous faites un excellent travail aujourd'hui."))
+learnr::random_phrases_add(language = "en",
+                           praise = c("That's brilliant!",
+                                      "Great work!",
+                                      "Well done!",
+                                      "Awesome!"),
+                           encouragement = c("Good effort"))
+friends <- to_uniplex(ison_algebra, "friends")
+social <- to_uniplex(ison_algebra, "social")
+tasks <- to_uniplex(ison_algebra, "tasks")
+```
+
+```{r detect-language, context="server-start", purl=FALSE}
+sys_locale <- Sys.getlocale("LC_CTYPE")
+if (grepl("fr", sys_locale, ignore.case = TRUE)) {
+  options(tutorial.language = "fr")
+} else {
+  options(tutorial.language = "en")
+}
+```
+
+<style>
+html { font-size: 115%; }
+.callout {
+  border-left: 3px solid #5B9C78;
+  padding: 0.1em 1em;
+  margin: 1.2em 0;
+}
+.callout-label { color: #5B9C78; }
+.page-toc { font-style: italic; }
+.page-toc-link { color: #5B9C78; cursor: pointer; text-decoration: underline; }
+.tutorialTitle { color: #5B9C78 !important; }
+#tutorial-topic .nav-link { color: #5B9C78 !important; }
+.section a:not(.btn) { color: #5B9C78; }
+.section a:not(.btn):hover { color: #487E61; }
+.btn-tutorial-run,
+.btn-tutorial-run:hover,
+.btn-tutorial-run:focus,
+.btn-tutorial-run:active {
+  background-color: #5B9C78;
+  border-color: #5B9C78;
+  color: #fff;
+}
+</style>
+
+## Today's target
+
+In the Centrality tutorial, we asked which `r gloss("nodes","node")` stand out
+in a `r gloss("network")` — centrality as an expression of structural
+inequality. But nodes don't always seek to differentiate themselves in a
+network. Sometimes they are interested in being part of a group.
+This tutorial considers various ways in which such 'groupness' might be
+examined: how `r gloss("cohesive","cohesion")` a network is overall,
+whether its ties close into groups,
+how it breaks into `r gloss("components","component")` and factions,
+and how well any proposed grouping fits —
+its `r gloss("modularity")` — including groupings discovered by
+`r gloss("community")` detection algorithms.
+
+<img src="https://i.giphy.com/media/v1.Y2lkPTc5MGI3NjExbDNsNmZnNzJ2YzRyYzE5cDl4M2pxeGU4d2M1bnMwZm1qd3JvMWw3MyZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/N7AOIqqUpjXUc/giphy.gif" alt="gif of man not knowing how to study"/>
+
+::: {.callout}
+<span class="callout-label">**Catching up**:</span>
+This tutorial assumes you can already load or make a network in R,
+draw it with `graphr()`, and measure it with `node_by_*()` and `net_by_*()`
+functions.
+If any of that is hazy, work through the earlier `{stocnet}` tutorials first:
+run `run_tute("Making")` and `run_tute("Manipulating")` for network data,
+`run_tute("Visualising")` for graphing,
+and `run_tute("Centrality")` for the measuring syntax used throughout,
+or read their static versions on the
+[manynet](https://stocnet.github.io/manynet/),
+[autograph](https://stocnet.github.io/autograph/), and
+[netrics](https://stocnet.github.io/netrics/) websites.
+:::
+
+::: {.callout}
+<span class="callout-label">**New to network vocabulary?**:</span>
+Throughout this tutorial, key terms are italicised:
+hover over them for a definition,
+and a full glossary of the terms used appears at the end of the tutorial.
+:::
+
+### Aims
+
+By the end of this tutorial, you should be able to:
+
+- [ ] &nbsp; Measure how cohesive a network is with `net_by_density()`, and interpret the result for the type of network at hand
+- [ ] &nbsp; Measure closure with `net_by_reciprocity()` and `net_by_transitivity()`, and connect each to a mechanism of tie formation
+- [ ] &nbsp; Project a two-mode network into its one-mode projections with `to_mode1()` and `to_mode2()`, choosing an appropriate similarity option — and know what projection obscures
+- [ ] &nbsp; Count weak and strong components with `net_by_components()` and map their membership with `node_in_component()`
+- [ ] &nbsp; Concentrate on a network's giant component with `to_giant()` and split it into factions with `node_in_partition()`
+- [ ] &nbsp; Judge the fit of _any_ membership assignment with `net_by_modularity()`
+- [ ] &nbsp; Detect communities with the walktrap, edge-betweenness, and fast-greedy algorithms, and let `node_in_community()` choose among them for you
+
+**Choose your own data**: The worked examples below use `ison_algebra`,
+`ison_southern_women`, and `irps_blogs`,
+all bundled with `{manynet}`.
+But wherever there is an exercise box, you are encouraged to swap in
+a network that interests _you_.
+Remember the three flavours of bundled data as a rough difficulty ladder —
+**Classic** (`ison_*`, small & tidy),
+**Fiction** (`fict_*`, mid-sized & fun),
+**Real-world** (`irps_*`, larger & realistic) —
+and that you can browse the full list with `table_data()`.
+
+### Setting up {#setting-up}
+
+The data we're going to use here, "ison_algebra", is included in the `{manynet}` package.
+Do you remember how to call the data?
+Can you find out some more information about it?
+
+```{r data, exercise = TRUE, purl = FALSE}
+
+```
+
+```{r data-hint-1, purl = FALSE}
+# Let's call and load the 'ison_algebra' dataset
+data("ison_algebra", package = "manynet")
+# Or you can retrieve like this:
+ison_algebra <- manynet::ison_algebra
+```
+
+```{r data-hint-2, purl = FALSE}
+# If you want to learn more about the 'ison_algebra' dataset, use the following function (below)
+?manynet::ison_algebra
+```
+
+```{r data-solution}
+data("ison_algebra", package = "manynet")
+?manynet::ison_algebra
+# If you want to see the network object, you can run the name of the object
+ison_algebra
+# or print the code with brackets at the front and end of the code
+(ison_algebra <- manynet::ison_algebra)
+```
+
+We can see after printing the object that the dataset is
+`r gloss("multiplex")`,
+meaning that it contains several different types of ties:
+friendship (friends), social (social) and task interactions (tasks).
+
+### Adding names {#adding-names}
+
+The network is also anonymous, but I think it would be nice to add some names,
+even if it's just pretend.
+Luckily, `{manynet}` has a function for this, `to_named()`.
+This makes plotting the network just a wee bit more accessible and interpretable.
+Let's try adding names and graphing the network now:
+
+```{r addingnames, exercise=TRUE, exercise.setup = "data", purl = FALSE}
+
+```
+
+```{r addingnames-hint-1, purl = FALSE}
+ison_algebra <- to_named(ison_algebra)
+```
+
+```{r addingnames-hint-2, purl = FALSE}
+graphr(ison_algebra)
+```
+
+```{r addingnames-solution}
+ison_algebra <- to_named(ison_algebra)
+graphr(ison_algebra)
+```
+
+Note that you will likely get a different set of names,
+as they are assigned randomly from a pool of (American) first names.
+
+### Separating multiplex networks {#separating-networks}
+
+As a multiplex network,
+there are actually three different types of ties (friends, social, and tasks)
+in this network.
+We can extract them and graph them separately using `to_uniplex()`:
+
+```{r separatingnets, exercise=TRUE, exercise.setup = "data", purl = FALSE}
+
+```
+
+```{r separatingnets-hint-1, purl = FALSE}
+# to_uniplex extracts ties of a single type,
+# focusing on the 'friends' tie attribute here
+friends <- to_uniplex(ison_algebra, "friends")
+gfriend <- graphr(friends) + ggtitle("Friendship")
+```
+
+```{r separatingnets-hint-2, purl = FALSE}
+# now let's focus on the 'social' tie attribute
+social <- to_uniplex(ison_algebra, "social")
+gsocial <- graphr(social) + ggtitle("Social")
+```
+
+```{r separatingnets-hint-3, purl = FALSE}
+# and the 'tasks' tie attribute
+tasks <- to_uniplex(ison_algebra, "tasks")
+gtask <- graphr(tasks) + ggtitle("Task")
+```
+
+```{r separatingnets-hint-4, purl = FALSE}
+# now, let's compare each attribute's graph, side-by-side
+gfriend + gsocial + gtask
+# if you get an error here, you may need to install and load
+# the package 'patchwork'.
+# It's highly recommended for assembling multiple plots together.
+# Otherwise you can just plot them separately on different lines.
+```
+
+```{r separatingnets-solution}
+friends <- to_uniplex(ison_algebra, "friends")
+gfriend <- graphr(friends) + ggtitle("Friendship")
+
+social <- to_uniplex(ison_algebra, "social")
+gsocial <- graphr(social) + ggtitle("Social")
+
+tasks <- to_uniplex(ison_algebra, "tasks")
+gtask <- graphr(tasks) + ggtitle("Task")
+
+# We now have three separate networks depicting each type of tie from the ison_algebra network:
+gfriend + gsocial + gtask
+```
+
+::: {.callout}
+<span class="callout-label">**Beginner note**:</span>
+Placing two or more gg-based plots side by side with `+`
+relies on the `{patchwork}` package.
+If `gfriend + gsocial + gtask` errors for you,
+install and load `{patchwork}` —
+or just plot each object on its own line.
+:::
+
+Note also that these are `r gloss("weighted")` networks.
+`graphr()` automatically recognises these different weights and plots them.
+Where useful (less dense `r gloss("directed")` networks),
+`graphr()` also bends reciprocated arcs.
+What (else) can we say about these three networks?
+
+## Cohesion
+
+<span class="page-toc">On this page:
+<span class="page-toc-link" onclick="document.getElementById('section-defining-density').scrollIntoView({behavior:'auto',block:'start'});">Defining density</span> ·
+<span class="page-toc-link" onclick="document.getElementById('section-calculating-density').scrollIntoView({behavior:'auto',block:'start'});">Calculating density</span></span>
+
+Let's concentrate on the **task** network for now and calculate
+perhaps the most common generalised measure of cohesion:
+`r gloss("density")`.
+
+### Defining density {#defining-density}
+
+Density represents a generalised measure of cohesion,
+characterising how cohesive the network is in terms of how many
+potential ties (i.e. `r gloss("dyads","dyad")`) are actualised.
+Recall that there are different equations depending on the type of network.
+Below are three equations:
+
+$$A: \frac{|T|}{|N|(|N|-1)}$$
+$$B: \frac{2|T|}{|N|(|N|-1)}$$
+$$C: \frac{|T|}{|N||M|}$$
+
+where $|T|$ is the number of ties in the network,
+and $|N|$ and $|M|$ are the number of nodes in the first and second mode respectively.
+
+```{r densq, echo=FALSE, purl = FALSE}
+question("Which equation is used for measuring density for a directed network:",
+         answer("A",
+                correct = TRUE,
+                message = '<img src="https://i.giphy.com/media/v1.Y2lkPTc5MGI3NjExb2M5cTNmZm1kdmszdmR6Yzc3MnczcWxvb3MzdHRic2N0ZncwYml2MSZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/YcMs3OGd89Pxu/giphy.gif" alt="gif of a thumbs up"/>'
+),
+         answer("B",
+                message = "This is the equation for an undirected network."),
+         answer("C",
+                message = "This is the equation for a two-mode network."),
+        allow_retry = TRUE
+)
+```
+
+### Calculating density {#calculating-density}
+
+One can calculate the density of the network using the number of nodes
+and the number of ties using the functions `net_nodes()` and `net_ties()`,
+respectively:
+
+```{r dens-explicit, exercise=TRUE, exercise.setup = "separatingnets", purl = FALSE}
+
+```
+
+```{r dens-explicit-solution}
+# calculating network density manually according to equation
+net_ties(tasks)/(net_nodes(tasks)*(net_nodes(tasks)-1))
+```
+
+but we can also just use the `{netrics}` function for calculating the density,
+which always uses the equation appropriate for the type of network...
+
+```{r dens, exercise=TRUE, exercise.setup = "separatingnets", purl = FALSE}
+
+```
+
+```{r dens-solution}
+net_by_density(tasks)
+```
+
+Note that the various measures in `{netrics}` print results to three decimal points
+by default, but the underlying result retains the same recurrence.
+So same result...
+
+::: {.callout}
+<span class="callout-label">**Beginner note**:</span>
+The `net_by_` prefix signals a whole-network measure,
+just as `node_by_` signalled a nodal measure in the Centrality tutorial.
+The same grammar recurs throughout `{netrics}`:
+`net_by_density()`, `net_by_reciprocity()`, `net_by_transitivity()`,
+`net_by_components()`, `net_by_modularity()`, and so on.
+:::
+
+```{r dens-qa, echo=FALSE, purl = FALSE}
+question("Is this network's density high or low in absolute terms?",
+         answer("High",
+                message = "The closer the value is to 1, the more dense the network and the more cohesive the network is as a whole."),
+         answer("Low",
+                correct = TRUE,
+                message = 'The closer the value is to 0, the sparser the network and the less cohesive the network is as a whole. But this is still quite typical density for a relatively small, social network like this one.  <br><br>    <img src="https://i.giphy.com/media/v1.Y2lkPTc5MGI3NjExOWs4Y292OXg5YmlvNTF3OWp4YWxmNjNpdm11c2kyMm55Z2U4eTJkeiZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/6agGMtS4rEVSo/giphy.gif" alt="gif of i knew it"/>'),
+        allow_retry = TRUE
+)
+```
+
+Density offers an important baseline measure for characterising
+the network as a whole.
+Here a little over a third of the possible task ties are present (0.367) —
+far from complete, yet busy enough that task activity clearly spreads
+beyond a handful of pairs.
+Because density depends so strongly on network size
+(each new node adds many more _possible_ ties than actual ones),
+raw densities should only be compared across networks of similar size —
+larger networks are almost always sparser.
+
+::: {.callout}
+<span class="callout-label">**Going further**:</span>
+Density is not the only sense in which a network can be cohesive.
+`net_by_cohesion()` reports the minimum number of nodes
+that would need to be removed to disconnect the network,
+and `net_by_adhesion()` the minimum number of ties —
+`r gloss("adhesion")` is thus the tie-based counterpart to node-based
+cohesion. See `?measure_cohesion` for the full set.
+:::
+
+::: {.callout}
+<span class="callout-label">**In brief**:</span> Density is the proportion of possible ties that are
+actually present: `net_by_density()` always applies the equation appropriate
+to the network's type, or calculate it by hand from `net_ties()` and
+`net_nodes()`. It is a size-sensitive baseline for how cohesive a network is
+as a whole.
+:::
+
+## Closure
+
+<span class="page-toc">On this page:
+<span class="page-toc-link" onclick="document.getElementById('section-reciprocity').scrollIntoView({behavior:'auto',block:'start'});">Reciprocity</span> ·
+<span class="page-toc-link" onclick="document.getElementById('section-transitivity').scrollIntoView({behavior:'auto',block:'start'});">Transitivity</span></span>
+
+In this section we're going to move from generalised measures of cohesion,
+like density, to more localised measures of cohesion.
+These are not only measures of cohesion though,
+but are also often associated with certain mechanisms of closure.
+Closure involves ties being more likely because other ties are present.
+There are two common examples of this in the literature:
+`r gloss("reciprocity")`,
+where a directed tie is often likely to prompt a reciprocating tie,
+and `r gloss("transitivity")`,
+where a directed two-path is likely to be shortened
+by an additional arc connecting the first and third nodes on that path.
+
+<img src="https://i.giphy.com/media/v1.Y2lkPTc5MGI3NjExZ29idmxwMGNpb3Z6YzV0NGdremNoZ3A3OXdjeHlsd3UwNDdwY3ZwOCZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/dxVdo4ca7FkME/giphy.gif" alt="gif of ah ha gotcha"/>
+
+### Reciprocity {#reciprocity}
+
+First, let's calculate reciprocity in the task network.
+While one could do this by hand,
+it's more efficient to do this using the `{netrics}` package.
+Can you guess the correct name of the function?
+
+```{r recip, exercise=TRUE, exercise.setup = "separatingnets", purl = FALSE}
+
+```
+
+```{r recip-solution}
+net_by_reciprocity(tasks)
+# this function calculates the amount of reciprocity in the whole network
+```
+
+Wow, this seems quite high based on what we observed visually!
+But if we look closer, this makes sense.
+We can use `tie_is_reciprocated()` to identify those ties that are
+reciprocated and not.
+
+```{r recip-explanation, exercise = TRUE, exercise.setup = "separatingnets"}
+tasks |> mutate_ties(rec = tie_is_reciprocated(tasks)) |>
+  graphr(edge_color = "rec")
+net_by_indegree(tasks)
+```
+
+So we can see that indeed there are very few asymmetric ties,
+and yet node 16 is both the sender and receiver of most of the task activity.
+So our reciprocity measure has taught us something about this network
+that might not have been obvious visually:
+task interactions here are nearly always mutual —
+where one node works with another, the recognition flows both ways —
+even though _how much_ each node participates remains very unequal.
+
+### Transitivity {#transitivity}
+
+And let's calculate transitivity in the task network.
+Again, can you guess the correct name of this function?
+
+```{r trans, exercise=TRUE, exercise.setup = "separatingnets", purl = FALSE}
+
+```
+
+```{r trans-solution}
+net_by_transitivity(tasks)
+# this function calculates the amount of transitivity in the whole network
+```
+
+```{r trans-interp, echo=FALSE, purl = FALSE}
+question("What can we say about task closure in this network? Choose all that apply.",
+  answer("Transitivity for the task network is 0.568",
+         correct = TRUE,
+         message = '<img src="https://i.giphy.com/media/v1.Y2lkPTc5MGI3NjExZXBpNDlsZzNraTJ1bHN6MW1scjA4aDVzdXo1NW11bGI5bWF0dzYxMyZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/Hg7gPa05K6bAc/giphy.gif" alt="gif of cool cool cool"/>'),
+  answer("Transitivity for the task network is -0.568",
+         message = "Transivitity must be between 0 and 1."),
+  answer("Transitivity is quite low in this network",
+         message = "Transitivity is often around 0.3 in most social networks."),
+  answer("Transitivity is quite high in this network",
+         correct = TRUE,
+         message = "Yes -- at 0.568 it is well above the ~0.3 typical of many social networks, so a lot of this network's two-paths are closed into triangles."),
+  answer("Transitivity is likely higher in the task network than the friendship network",
+         correct = TRUE,
+         message = "Yes -- task collaboration tends to be strongly clustered (if A works with B and B with C, A and C often end up working together too), so we'd expect higher transitivity here than among friendships."),
+  random_answer_order = TRUE,
+  allow_retry = TRUE
+)
+```
+
+At 0.568, well over half of this network's two-paths are closed into
+`r gloss("triangles","triangle")` —
+if two students each work with a common third, they usually end up
+working with each other too.
+That is exactly what we would expect of task interactions,
+which tend to happen within teams,
+and it foreshadows this tutorial's destination:
+where closure concentrates, groups emerge.
+
+::: {.callout}
+<span class="callout-label">**Going further**:</span>
+Both closure measures also come in nodal versions:
+`node_by_reciprocity()` and `node_by_transitivity()` score each node's
+_local_ closure, and `tie_is_transitive()` flags the ties involved in
+closed triads. See `?measure_closure` and `?measure_closure_node`
+for definitions and references.
+:::
+
+::: {.callout}
+<span class="callout-label">**In brief**:</span> Closure measures capture ties begetting ties:
+`net_by_reciprocity()` for how often directed ties are returned
+(with `tie_is_reciprocated()` to map which ones),
+and `net_by_transitivity()` for how often two-paths close into triangles.
+Both hint at the group structure explored in the rest of this tutorial.
+:::
+
+## Projection
+
+<span class="page-toc">On this page:
+<span class="page-toc-link" onclick="document.getElementById('section-a-two-mode-network').scrollIntoView({behavior:'auto',block:'start'});">A two-mode network</span> ·
+<span class="page-toc-link" onclick="document.getElementById('section-two-projections').scrollIntoView({behavior:'auto',block:'start'});">Two projections</span> ·
+<span class="page-toc-link" onclick="document.getElementById('section-projection-options').scrollIntoView({behavior:'auto',block:'start'});">Projection options</span> ·
+<span class="page-toc-link" onclick="document.getElementById('section-two-mode-closure').scrollIntoView({behavior:'auto',block:'start'});">Two-mode closure</span></span>
+
+### A two-mode network {#a-two-mode-network}
+
+The next dataset, 'ison_southern_women', is also available in `{manynet}`.
+It's a classic `r gloss("two-mode","twomode")` network about the attendance
+of 18 women at 14 social events in the 1930s American South.
+For more details see `?ison_southern_women` for documentation in your R/RStudio.
+Let's load and graph the data.
+
+```{r setup-women, exercise=TRUE, exercise.setup = "data", purl = FALSE}
+
+```
+
+```{r setup-women-hint-1, purl = FALSE}
+# let's load the data and analyze it
+data("ison_southern_women")
+ison_southern_women
+```
+
+```{r setup-women-hint-2, purl = FALSE}
+graphr(ison_southern_women, node_color = "type")
+graphr(ison_southern_women, "railway", node_color = "type")
+```
+
+```{r setup-women-solution}
+data("ison_southern_women")
+ison_southern_women
+graphr(ison_southern_women, node_color = "type")
+```
+
+### Two projections {#two-projections}
+
+Now what if we are only interested in one part of the network?
+For that, we can obtain a `r gloss("projection")` of the two-mode network.
+There are two ways of doing this.
+The hard way...
+
+```{r hardway, exercise=TRUE, exercise.setup = "setup-women", purl = FALSE}
+
+```
+
+```{r hardway-solution}
+twomode_matrix <- as_matrix(ison_southern_women)
+women_matrix <- twomode_matrix %*% t(twomode_matrix)
+event_matrix <- t(twomode_matrix) %*% twomode_matrix
+```
+
+Or the easy way:
+
+```{r easyway, exercise=TRUE, exercise.setup = "setup-women"}
+# women-graph
+# to_mode1(): Results in a weighted one-mode object that retains the row nodes from
+# a two-mode object, and weights the ties between them on the basis of their joint
+# ties to nodes in the second mode (columns)
+
+women_graph <- to_mode1(ison_southern_women)
+graphr(women_graph)
+
+# note that projection `to_mode1` involves keeping one type of nodes
+# this is different from to_uniplex above, which keeps one type of ties in the network
+
+# event-graph
+# to_mode2(): Results in a weighted one-mode object that retains the column nodes from
+# a two-mode object, and weights the ties between them on the basis of their joint ties
+# to nodes in the first mode (rows)
+
+event_graph <- to_mode2(ison_southern_women)
+graphr(event_graph)
+```
+
+The women's projection now records which women moved in the same social
+circles, and the event projection which events drew a common crowd —
+but note how much denser both look than the original two-mode network:
+every event has been replaced by ties among _all_ of its attendees,
+a point we will return to below.
+
+### Projection options {#projection-options}
+
+`{manynet}` also includes several other options for how to construct the projection.
+The default ("count") might be interpreted as indicating the degree or amount of
+shared ties to the other mode.
+"jaccard" divides this count by the number of nodes in the other mode
+to which either of the nodes are tied.
+It can thus be interpreted as opportunity weighted by participation.
+"rand" instead counts both shared ties and shared absences,
+and can thus be interpreted as the degree of behavioural mirroring between the
+nodes.
+Lastly, "pearson" (Pearson's coefficient) and "yule" (Yule's Q) produce
+correlations in ties for valued and binary data respectively.
+
+```{r otherway, exercise=TRUE, exercise.setup = "setup-women", purl = FALSE}
+
+```
+
+```{r otherway-solution}
+tie_weights(to_mode1(ison_southern_women, similarity = "count"))
+tie_weights(to_mode1(ison_southern_women, similarity = "jaccard"))
+tie_weights(to_mode1(ison_southern_women, similarity = "rand"))
+tie_weights(to_mode1(ison_southern_women, similarity = "pearson"))
+tie_weights(to_mode1(ison_southern_women, similarity = "yule"))
+```
+
+Practically speaking, most projection is conducted using the "count" method,
+as it reflects the absolute overlap, the frequency of co-occurrence.
+As such, it is most commonly used in social and organisational network analysis,
+reflecting shared group membership or collaboration intensity.
+But it is sensitive to asymmetries in the number of nodes in each node set and
+the degree distribution of each node set, and ignores the absence of ties as
+uninformative.
+To normalise for these effects, "jaccard" and "rand" are often used.
+"pearson" and "yule" are less commonly used, but can be useful when
+interested in the correlation of ties between nodes.
+
+### Closure in two-mode networks {#two-mode-closure}
+
+Let's return to the question of closure.
+First try one of the closure measures we have already treated that gives us
+a sense of shared partners for one-mode networks.
+Then compare this with `net_by_equivalency()`, which can be used on the original
+two-mode network.
+
+```{r twomode-cohesion, exercise=TRUE, exercise.setup = "easyway", purl = FALSE}
+
+```
+
+```{r twomode-cohesion-hint-1, purl = FALSE}
+# net_by_transitivity(): Calculate transitivity in a network
+
+net_by_transitivity(women_graph)
+net_by_transitivity(event_graph)
+```
+
+```{r twomode-cohesion-hint-2, purl = FALSE}
+# net_by_equivalency(): Calculate equivalence or reinforcement in a (usually two-mode) network
+
+net_by_equivalency(ison_southern_women)
+```
+
+```{r twomode-cohesion-solution}
+net_by_transitivity(women_graph)
+net_by_transitivity(event_graph)
+net_by_equivalency(ison_southern_women)
+```
+
+```{r equil-interp, echo=FALSE, purl = FALSE}
+question("What do we learn from this? Choose all that apply.",
+  answer("Transitivity in the women projection is very high.",
+         correct = TRUE,
+         message = "Yes -- transitivity in the women projection is about 0.93, close to the maximum of 1."),
+  answer("Transitivity in the event projection is very high.",
+         correct = TRUE,
+         message = "Yes -- transitivity in the event projection is about 0.83, also very high."),
+  answer("Equivalence for the two-mode Southern Women dataset is moderate.",
+         correct = TRUE,
+         message = '<img src="https://i.giphy.com/media/v1.Y2lkPTc5MGI3NjExZmdqZHFraGR5Ym9udTBrYzA1ejhwd3ljOXdma3ppNWp2cXozMTh0bCZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/xqjZLKH1iTBe0/giphy.gif" alt="gif of you just wrinkled my brain"/>'),
+  answer("Transitivity will often be very high in projected networks.",
+         correct = TRUE,
+         message = "Yes -- projecting a two-mode network turns every event into a clique of its attendees, and cliques are perfectly transitive, so projections almost always inflate transitivity."),
+  answer("Projection obscures which women are members of which events and vice versa.",
+         correct = TRUE,
+         message = "Yes -- once projected we only see woman-to-woman (or event-to-event) ties, losing the original membership information that connected the two modes."),
+  # random_answer_order = TRUE,
+  allow_retry = TRUE
+)
+```
+
+The lesson here is that projection _manufactures_ closure:
+every event becomes a `r gloss("clique")` of its attendees,
+and since cliques are perfectly transitive,
+the projections' transitivity scores (0.93 and 0.83) are inflated
+well beyond anything the underlying behaviour requires.
+The two-mode `r gloss("equivalency")` score (0.47) is the more honest summary
+of how much the women's attendance patterns actually reinforce one another.
+
+Try to explain in no more than a paragraph why projection can lead to misleading transitivity measures and what some consequences of this might be.
+
+::: {.callout}
+<span class="callout-label">**In brief**:</span> `to_mode1()`/`to_mode2()` project a two-mode network
+into ties among one of its node sets, with a `similarity` argument
+("count", "jaccard", "rand", "pearson", "yule") governing the weights.
+Projection inflates transitivity and hides memberships, so where possible
+measure the two-mode network directly, e.g. with `net_by_equivalency()`.
+:::
+
+## Components
+
+<span class="page-toc">On this page:
+<span class="page-toc-link" onclick="document.getElementById('section-counting-components').scrollIntoView({behavior:'auto',block:'start'});">Counting components</span> ·
+<span class="page-toc-link" onclick="document.getElementById('section-component-membership').scrollIntoView({behavior:'auto',block:'start'});">Component membership</span></span>
+
+### Counting components {#counting-components}
+
+Now let's look at the friendship network, 'friends'.
+We're interested here in how many
+`r gloss("components", "component")`
+there are.
+By default, the `net_by_components()` function will
+return the number of _strong_ components for directed networks.
+For _weak_ components, you will need to first make the network
+`r gloss("undirected")`.
+Remember the difference between weak and strong components?
+
+```{r weak-strong, echo = FALSE, purl = FALSE}
+question("Weak components...",
+  answer("don't care about tie direction when establishing components.",
+         correct = TRUE,
+         message = "That's right -- a weak component treats every tie as if it were undirected, so two nodes are in the same weak component if a path connects them ignoring arrow direction."),
+  answer("care about tie direction when establishing components.",
+         message = "That describes *strong* components, where every node must be reachable from every other following tie direction. Weak components ignore direction."),
+  allow_retry = TRUE
+)
+```
+
+```{r comp-no, exercise=TRUE, exercise.setup = "separatingnets", purl = FALSE}
+
+```
+
+```{r comp-no-hint-1, purl = FALSE}
+net_by_components(friends)
+# note that friends is a directed network
+# you can see this by calling the object 'friends'
+# or by running `is_directed(friends)`
+```
+
+```{r comp-no-hint-2, purl = FALSE}
+# Now let's look at the number of components for objects connected by an undirected edge
+# Note: to_undirected() returns an object with all tie direction removed,
+# so any pair of nodes with at least one directed edge
+# will be connected by an undirected edge in the new network.
+net_by_components(to_undirected(friends))
+```
+
+```{r comp-no-solution}
+# note that friends is a directed network
+net_by_components(friends)
+net_by_components(to_undirected(friends))
+```
+
+```{r comp-interp, echo = FALSE, purl = FALSE}
+question("How many components are there?",
+  answer("2",
+         message = "There are more than 2 components."),
+  answer("3",
+         message = "There are 3 _weak_ components.",
+         correct = TRUE),
+  answer("4",
+         message = 'There are 4 _strong_ components. <img src="https://i.giphy.com/media/v1.Y2lkPTc5MGI3NjExMDB5bzhjcGo3NHozZm5jdHcyMWk5emhnajNyZnFxc3Z2cmJnbGN0ZyZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/YpS0oFFC2VJ84/giphy.gif" alt="gif of two thumbs up"/>',
+         correct = TRUE),
+  answer("5",
+         message = "There are fewer than 5 components."),
+  allow_retry = TRUE
+)
+```
+
+### Component membership {#component-membership}
+
+So we know how many components there are,
+but maybe we're also interested in which nodes are members of which components?
+`node_in_component()` returns a membership vector
+that can be used to color nodes in `graphr()`:
+
+```{r comp-memb, exercise=TRUE, exercise.setup = "separatingnets", purl = FALSE}
+
+```
+
+```{r comp-memb-hint-1, purl = FALSE}
+friends <- friends |>
+  mutate_nodes(weak_comp = node_in_component(to_undirected(friends)),
+               strong_comp = node_in_component(friends))
+# node_in_component returns a vector of nodes' memberships to components in the network
+# here, we are adding the nodes' membership to components as an attribute in the network
+# alternatively, we can also use the function `add_node_attribute()`
+# eg. `add_node_attribute(friends, "weak_comp", node_in_component(to_undirected(friends)))`
+```
+
+```{r comp-memb-hint-2, purl = FALSE}
+graphr(friends, node_color = "weak_comp") + ggtitle("Weak components") +
+graphr(friends, node_color = "strong_comp") + ggtitle("Strong components")
+# by using the 'node_color' argument, we are telling graphr to color
+# the nodes in the graph according to the values of the 'weak_comp' attribute in the network
+```
+
+```{r comp-memb-solution}
+friends <- friends |>
+  mutate_nodes(weak_comp = node_in_component(to_undirected(friends)),
+               strong_comp = node_in_component(friends))
+graphr(friends, node_color = "weak_comp") + ggtitle("Weak components") +
+graphr(friends, node_color = "strong_comp") + ggtitle("Strong components")
+```
+
+```{r node-comp-interp, echo = FALSE, purl = FALSE}
+question("Why is there a difference between the weak and strong components results?",
+  answer("Because one node has only incoming ties.",
+         correct = TRUE,
+         message = "Yes -- a node that only receives ties can't reach anyone by following arrows, so it is stranded as its own *strong* component; ignore direction and it re-joins whoever points at it, which is why there is one fewer weak component."),
+  answer("Because three nodes cannot reach any other nodes.",
+         correct = TRUE,
+         message = "Yes -- three nodes have no outgoing ties, so in the directed (strong) view each is stranded on its own. Dropping direction lets the connectable one rejoin the graph."),
+  answer("Because there is an extra isolate.",
+         message = "Not quite -- the isolates are identical in both analyses, so they can't account for the *difference* between the weak and strong counts."),
+  answer("Because the tie strength matters.",
+         message = "No -- components depend only on whether a path exists, not on how strong the ties are. Tie weights play no role here."),
+  random_answer_order = TRUE,
+  allow_retry = TRUE
+)
+```
+
+Substantively, the difference between the two maps is one node that only
+_receives_ friendship nominations: following the arrows it can reach no one,
+so it counts as its own strong component,
+but ignoring direction it rejoins the main friendship cluster.
+Components thus give us a first, strict sense of groupness —
+who is connected to whom _at all_ —
+before we ask the subtler question of who clusters with whom.
+
+::: {.callout}
+<span class="callout-label">**In brief**:</span> Components partition a network by
+`r gloss("reachability")`: `net_by_components()` counts them
+(strong by default for directed networks; wrap in `to_undirected()` for weak),
+and `node_in_component()` returns each node's membership,
+ready to map onto `node_color` in `graphr()`.
+:::
+
+## Factions
+
+<span class="page-toc">On this page:
+<span class="page-toc-link" onclick="document.getElementById('section-a-bigger-network').scrollIntoView({behavior:'auto',block:'start'});">A bigger network</span> ·
+<span class="page-toc-link" onclick="document.getElementById('section-the-giant-component').scrollIntoView({behavior:'auto',block:'start'});">The giant component</span> ·
+<span class="page-toc-link" onclick="document.getElementById('section-finding-a-partition').scrollIntoView({behavior:'auto',block:'start'});">Finding a partition</span></span>
+
+### A bigger network {#a-bigger-network}
+
+Components offer a precise way of understanding groups in a network.
+However, they can also ignore some 'groupiness' that is obvious to even a
+cursory examination of the graph.
+The `irps_blogs` network concerns the url links between political blogs
+in the 2004 election.
+It is a big network (you can check below),
+so in our experience it can take a few seconds to graph —
+we will concentrate on a random sample to speed things up.
+
+```{r blogsize, exercise = TRUE}
+# This is a large network
+net_nodes(irps_blogs)
+# Let's concentrate on just a sample of 240
+# (by deleting a random sample of 1250)
+blogs <- delete_nodes(irps_blogs, sample(1:1490, 1250))
+graphr(blogs)
+```
+
+But are they all actually linked?
+Even among the smaller sample, there seems to be a number of
+`r gloss("isolates","isolate")`.
+We can calculate the number of isolates by simply summing `node_is_isolate()`.
+
+```{r blogisolates, exercise = TRUE, exercise.setup = "blogsize"}
+sum(node_is_isolate(blogs))
+```
+
+Since there are many isolates, there will be many components,
+even if we look at weak components and not just strong components.
+
+```{r blogcomp, exercise = TRUE, exercise.setup = "blogsize"}
+node_in_component(blogs)
+node_in_component(to_undirected(blogs))
+```
+
+### The giant component {#the-giant-component}
+
+So, it looks like most of the (weak) components are due to isolates!
+How do we concentrate on the main component of this network?
+Well, the main/largest component in a network is called the
+`r gloss("giant component", "giant")`.
+
+```{r blogtogiant, exercise=TRUE, warning=FALSE, fig.width=9, exercise.setup = "blogsize"}
+blogs <- blogs |> to_giant()
+sum(node_is_isolate(blogs))
+graphr(blogs)
+```
+
+Finally, we have a single 'giant' component to examine.
+However, now we have a different kind of challenge:
+everything is one big hairball.
+And yet, if we think about what we might expect of the structure of a network
+of political blogs, we might not think it is so undifferentiated.
+We might hypothesise that, despite the _graphical_ presentation of a hairball,
+there is actually a reasonable `r gloss("partition")` of the network into
+two `r gloss("factions", "faction")`.
+
+### Finding a partition {#finding-a-partition}
+
+To find a partition in a network, we use the `node_in_partition()` function.
+
+::: {.callout}
+<span class="callout-label">**Beginner note**:</span>
+All `node_in_*()` functions return a string vector the length of the number
+of nodes in the network — a string vector because membership is a
+categorical result, unlike the numeric vectors the `node_by_*()` measures
+return. Since it is the length of the nodes,
+we can assign the result to the nodes as an attribute and graph with it.
+:::
+
+```{r bloggraph, exercise=TRUE, exercise.setup = "blogtogiant", warning=FALSE, fig.width=9}
+blogs |> mutate_nodes(part = node_in_partition()) |>
+  graphr(node_color = "part")
+```
+
+We see from this graph that indeed there seems to be an obvious separation
+between the left and right 'hemispheres' of the network.
+Where the components view saw a single undifferentiated blob,
+the bipartition recovers a plausible two-camp structure —
+but how good a description of the network is it really?
+That question needs a measure of fit, which is where we turn next.
+
+::: {.callout}
+<span class="callout-label">**Going further**:</span>
+`net_by_factions()` offers a whole-network summary of how factional
+a network is: it measures the correlation between the observed network and
+an idealised component model with the same dimensions,
+using `node_in_partition()`'s bipartition when no membership is supplied.
+See `?measure_features` for details.
+:::
+
+::: {.callout}
+<span class="callout-label">**In brief**:</span> When a network is dominated by isolates and minor
+components, `to_giant()` focuses analysis on the giant component
+(count isolates first with `sum(node_is_isolate())`).
+`node_in_partition()` then splits the network into two factions,
+returning a categorical membership vector you can map onto `node_color`.
+:::
+
+## Modularity
+
+<span class="page-toc">On this page:
+<span class="page-toc-link" onclick="document.getElementById('section-measuring-fit').scrollIntoView({behavior:'auto',block:'start'});">Measuring fit</span> ·
+<span class="page-toc-link" onclick="document.getElementById('section-given-memberships').scrollIntoView({behavior:'auto',block:'start'});">Given memberships</span></span>
+
+### Measuring fit {#measuring-fit}
+
+But what is the 'fit' of this assignment of the blog nodes into two partitions?
+The most common measure of the fit of a community assignment in a network is
+`r gloss("modularity")`.
+
+```{r blogmod, exercise=TRUE, exercise.setup = "blogtogiant"}
+net_by_modularity(blogs, membership = node_in_partition(blogs))
+```
+
+Remember that modularity is conventionally described as ranging between 1 and -1,
+though in practice the lowest value a real partition reaches is only about -0.5.
+How can we interpret this result?
+
+```{r blogQ, echo = FALSE, purl = FALSE}
+question("Which statements about modularity are true?",
+  answer("A community assignment with modularity > 0 means there are more ties within communities than between communities.",
+         correct = TRUE,
+         message = "Yes -- positive modularity means more ties fall within communities than we'd expect if ties were placed at random, i.e. more within than between."),
+  answer("A community assignment with modularity = 0 means any tie is as likely to occur within a community as between assigned communities.",
+         correct = TRUE,
+         message = "Yes -- modularity of 0 is exactly the chance baseline: the within-community tie share matches what the null model expects, so the partition captures no extra structure."),
+  answer("In a community assignment with modularity = 1, every community must have an internal density of 1 and an external density of 0.",
+         message = "Not so -- modularity is defined relative to a random null model, not by raw densities, and 1 is an upper bound that real partitions approach but never actually reach."),
+  # FLAG: correctness of this answer is arguable -- see message. Under the
+  # strict/real-world reading (floor ~= -0.5) the statement is actually TRUE,
+  # so you may want to mark it correct = TRUE or reword it. Left as-is for review.
+  answer("A community assignment with modularity = -1 is impossible.",
+         message = "It depends what we mean by 'range'. Modularity is often *quoted* as running from -1 to 1, and in that nominal sense -1 is just its stated lower boundary. In practice, though, the lowest value a real partition can reach is only about -0.5, so a modularity of exactly -1 is effectively unattainable. Keep that gap between the quoted range and the achievable minimum in mind."),
+  random_answer_order = TRUE,
+  allow_retry = TRUE
+)
+```
+
+A clearly positive modularity like this one tells us the two-faction reading
+of the blogosphere is not an artefact of the layout:
+ties really do fall within the two camps more often than a random
+rewiring of the network would produce.
+
+### Given memberships {#given-memberships}
+
+While the partition algorithm is useful for deriving a partition of the network
+into the number of factions assigned,
+it is still an algorithm that tries to maximise modularity.
+Other times we might instead have an empirically collected grouping,
+and we are keen to see how 'modular' the network is around this attribute.
+This only works on categorical attributes, of course,
+but is otherwise quite flexible.
+
+```{r blogmodassign, exercise=TRUE, exercise.setup = "blogtogiant", warning=FALSE, fig.width=9}
+graphr(blogs, node_color = "Leaning")
+net_by_modularity(blogs, membership = node_attribute(blogs, "Leaning"))
+```
+
+<img src="https://i.giphy.com/media/v1.Y2lkPTc5MGI3NjExcXFwZWF2azV0YTlwdnM0bTZncXpuOTdxdHFyMjJqcXJod2V3b29vYiZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/PsBRTPKG71YVq/giphy.gif" alt="gif of Chevy Chase saying plot twist"/>
+
+How interesting.
+Perhaps the partitioning algorithm is not the algorithm that maximises
+modularity after all...
+The blogs' own declared political leanings describe the network's tie
+pattern _better_ than the bipartition the algorithm found —
+so there must be room for other solutions
+that return an even greater modularity criterion.
+
+::: {.callout}
+<span class="callout-label">**In brief**:</span> `net_by_modularity()` scores the fit of _any_
+membership vector — algorithmic (e.g. `node_in_partition()`) or empirical
+(e.g. `node_attribute()`) — as the excess of within-group ties over a random
+baseline. Positive values mean the grouping captures real structure,
+and competing groupings can be compared on the same yardstick.
+:::
+
+## Communities
+
+<span class="page-toc">On this page:
+<span class="page-toc-link" onclick="document.getElementById('section-walktrap').scrollIntoView({behavior:'auto',block:'start'});">Walktrap</span> ·
+<span class="page-toc-link" onclick="document.getElementById('section-edge-betweenness').scrollIntoView({behavior:'auto',block:'start'});">Edge betweenness</span> ·
+<span class="page-toc-link" onclick="document.getElementById('section-fast-greedy').scrollIntoView({behavior:'auto',block:'start'});">Fast greedy</span> ·
+<span class="page-toc-link" onclick="document.getElementById('section-detecting-communities').scrollIntoView({behavior:'auto',block:'start'});">Detecting communities</span></span>
+
+Ok, the friendship network has 3-4 components, but how many 'groups' are there?
+Visually, it looks like there are some denser clusters within the main component.
+
+Today we'll use the 'friends' subgraph for exploring community detection methods.
+For clarity and simplicity,
+we will concentrate on the main component (the so-called 'giant' component)
+and consider friendship undirected.
+
+```{r manip-fri, exercise=TRUE, exercise.setup = "separatingnets"}
+# to_giant() returns an object that includes only the main component without any smaller components or isolates
+(friends <- to_giant(friends))
+(friends <- to_undirected(friends))
+graphr(friends)
+```
+
+Comparing `friends` before and after these operations,
+you'll notice the number of ties decreases as reciprocated directed ties
+are consolidated into single undirected ties,
+and the number of nodes decreases as two isolates are removed.
+
+There is no one single best community detection algorithm.
+Instead there are several, each with their strengths and weaknesses.
+Since this is a rather small network, we'll focus on the following methods:
+walktrap, edge betweenness, and fast greedy.
+(Others are included in `{netrics}`/`{igraph}`)
+As you use them, consider how they portray communities and consider which one(s)
+afford a sensible view of the social world as cohesively organized.
+
+### Walktrap {#walktrap}
+
+This algorithm detects communities through a series of short random walks,
+with the idea that nodes encountered on any given random `r gloss("walk")`
+are more likely to be within a community than not.
+It was proposed by Pons and Latapy (2005).
+
+The algorithm initially treats all nodes as communities of their own, then
+merges them into larger communities, still larger communities, and so on.
+In each step a new community is created from two other communities,
+and its ID will be one larger than the largest community ID so far.
+This means that before the first merge we have n communities
+(the number of vertices in the graph) numbered from zero to n-1.
+The first merge creates community n, the second community n+1, etc.
+This merge history is returned by the function:
+` # ?igraph::cluster_walktrap`
+
+Note the "steps=" argument that specifies the length of the random walks.
+While `{igraph}` sets this to 4 by default,
+which is what is recommended by Pons and Latapy,
+Waugh et al (2009) found that for many groups (Congresses),
+these lengths did not provide the maximum modularity score.
+To be thorough in their attempts to optimize modularity, they ran the walktrap
+algorithm 50 times for each group (using random walks of lengths 1–50) and
+selected the network partition with the highest modularity value from those 50.
+They call this the "maximum modularity partition" and insert the parenthetical
+"(though, strictly speaking, this cannot be proven to be the optimum without
+computationally-prohibitive exhaustive enumeration (Brandes et al. 2008))."
+
+So let's try and get a community classification using the walktrap algorithm, `node_in_walktrap()`,
+with path lengths of the random walks specified to be 50.
+
+```{r walk, exercise=TRUE, exercise.setup = "manip-fri"}
+friend_wt <- node_in_walktrap(friends, times=50)
+```
+
+```{r walk-hint-1, purl = FALSE}
+friend_wt # note that it prints pretty, but underlying its just a vector:
+c(friend_wt)
+```
+
+```{r walk-hint-2, purl = FALSE}
+# This says that dividing the graph into 3 communities maximises modularity,
+# one with the nodes
+which(friend_wt == "A")
+# another with
+which(friend_wt == "B")
+# and the last with
+which(friend_wt == "C")
+```
+
+```{r walk-hint-3, purl = FALSE}
+# resulting in a modularity of
+net_by_modularity(friends, friend_wt)
+```
+
+```{r walk-solution}
+friend_wt <- node_in_walktrap(friends, times=50)
+# results in a modularity of
+net_by_modularity(friends, friend_wt)
+```
+
+We can also visualise the clusters on the original network
+How does the following look? Plausible?
+
+```{r walkplot, exercise=TRUE, exercise.setup = "walk", purl = FALSE}
+```
+
+```{r walkplot-hint-1, purl = FALSE}
+# plot 1: groups by node color
+
+friends <- friends |>
+  mutate_nodes(walk_comm = friend_wt)
+graphr(friends, node_color = "walk_comm")
+```
+
+```{r walkplot-hint-2, purl = FALSE}
+#plot 2: groups by borders
+
+# to be fancy, we could even draw the group borders around the nodes using the node_group argument
+graphr(friends, node_group = "walk_comm")
+```
+
+```{r walkplot-hint-3, purl = FALSE}
+# plot 3: group and node colors
+
+# or both!
+graphr(friends,
+       node_color = "walk_comm",
+       node_group = "walk_comm") +
+  ggtitle("Walktrap",
+    subtitle = round(net_by_modularity(friends, friend_wt), 3))
+# the function `round()` rounds the values to a specified number of decimal places
+# here, we are telling it to round the net_by_modularity score to 3 decimal places
+```
+
+```{r walkplot-solution}
+friends <- friends |>
+  mutate_nodes(walk_comm = friend_wt)
+graphr(friends, node_color = "walk_comm")
+# to be fancy, we could even draw the group borders around the nodes using the node_group argument
+graphr(friends, node_group = "walk_comm")
+# or both!
+graphr(friends,
+       node_color = "walk_comm",
+       node_group = "walk_comm") +
+  ggtitle("Walktrap",
+    subtitle = round(net_by_modularity(friends, friend_wt), 3))
+```
+
+This can be helpful when polygons overlap to better identify membership
+Or you can use node color and size to indicate other attributes...
+
+The walktrap solution divides the giant component's friendships into three
+communities at a modularity of about 0.41 —
+comfortably positive, so these clusters hold together much more than a
+random rewiring would suggest.
+
+### Edge betweenness {#edge-betweenness}
+
+Edge betweenness is like `r gloss("betweenness")` centrality but for ties not nodes.
+The edge-betweenness score of an edge measures the number of
+shortest paths from one vertex to another that go through it.
+
+The idea of the edge-betweenness based community structure detection is that
+it is likely that edges connecting separate clusters have high edge-betweenness,
+as all the shortest paths from one cluster to another must traverse through them.
+So if we iteratively remove the edge with the highest edge-betweenness score
+we will get a hierarchical map (`r gloss("dendrogram")`) of the communities in the graph.
+
+The following works similarly to walktrap, but no need to set a step length.
+
+```{r eb, exercise=TRUE, exercise.setup = "manip-fri"}
+friend_eb <- node_in_betweenness(friends)
+friend_eb
+```
+
+How does community membership differ here from that found by walktrap?
+
+We can see how the edge betweenness community detection method works
+here: http://jfaganuk.github.io/2015/01/24/basic-network-analysis/
+
+To visualise the result:
+
+```{r ebplot, exercise=TRUE, exercise.setup = "eb", purl = FALSE}
+
+```
+
+```{r ebplot-hint-1, purl = FALSE}
+# create an object
+
+friends <- friends |>
+  mutate_nodes(eb_comm = friend_eb)
+```
+
+```{r ebplot-hint-2, purl = FALSE}
+# create a graph with a title and subtitle returning the modularity score
+
+graphr(friends,
+       node_color = "eb_comm",
+       node_group = "eb_comm") +
+  ggtitle("Edge-betweenness",
+    subtitle = round(net_by_modularity(friends, friend_eb), 3))
+```
+
+```{r ebplot-solution}
+friends <- friends |>
+  mutate_nodes(eb_comm = friend_eb)
+graphr(friends,
+       node_color = "eb_comm",
+       node_group = "eb_comm") +
+  ggtitle("Edge-betweenness",
+    subtitle = round(net_by_modularity(friends, friend_eb), 3))
+```
+
+For more on this algorithm, see M Newman and M Girvan: Finding and
+evaluating community structure in networks, Physical Review E 69, 026113
+(2004), https://arxiv.org/abs/cond-mat/0308217.
+
+On this small network, cutting the bridges between clusters arrives at
+essentially the same three friendship communities as chasing random walks
+did — reassuring, since the two algorithms reason about
+communities in quite different ways.
+
+### Fast greedy {#fast-greedy}
+
+This algorithm is the Clauset-Newman-Moore algorithm.
+Whereas edge betweenness was `r gloss("divisive")` (top-down),
+the fast greedy algorithm is `r gloss("agglomerative")` (bottom-up).
+
+At each step, the algorithm seeks a merge that would most increase modularity.
+This is very fast, but has the disadvantage of being a greedy algorithm,
+so it might not produce the best overall community partitioning,
+although I personally find it both useful and in many cases quite "accurate".
+
+```{r fg, exercise=TRUE, exercise.setup = "manip-fri", purl = FALSE}
+
+```
+
+```{r fg-hint-1, purl = FALSE}
+friend_fg <- node_in_greedy(friends)
+friend_fg # Does this result in a different community partition?
+net_by_modularity(friends, friend_fg) # Compare this to the edge betweenness procedure
+```
+
+```{r fg-hint-2, purl = FALSE}
+# Again, we can visualise these communities in different ways:
+friends <- friends |>
+  mutate_nodes(fg_comm = friend_fg)
+graphr(friends,
+       node_color = "fg_comm",
+       node_group = "fg_comm") +
+  ggtitle("Fast-greedy",
+    subtitle = round(net_by_modularity(friends, friend_fg), 3))
+#
+```
+
+```{r fg-solution}
+friend_fg <- node_in_greedy(friends)
+friend_fg # Does this result in a different community partition?
+net_by_modularity(friends, friend_fg) # Compare this to the edge betweenness procedure
+
+# Again, we can visualise these communities in different ways:
+friends <- friends |>
+  mutate_nodes(fg_comm = friend_fg)
+graphr(friends,
+       node_color = "fg_comm",
+       node_group = "fg_comm") +
+  ggtitle("Fast-greedy",
+    subtitle = round(net_by_modularity(friends, friend_fg), 3))
+```
+
+See A Clauset, MEJ Newman, C Moore:
+Finding community structure in very large networks,
+https://arxiv.org/abs/cond-mat/0408187
+
+```{r comm-comp, echo=FALSE, purl = FALSE}
+question("What is the difference between communities and components?",
+         answer("Communities and components are just different terms for the same thing",
+                message = "Not quite -- they answer different questions. Components ask whether nodes are connected at all; communities ask how densely they are connected relative to the rest of the network."),
+         answer("Communities are a stricter form of component",
+                message = "Not exactly -- a community need not be a component (it can have ties leaving it) and a component need not be a community, so one isn't simply a stricter version of the other."),
+         answer("Components are about paths whereas communities are about the relationship between within-group and between-group ties",
+                correct = TRUE,
+                message = "That's right -- components are defined by reachability (is there a path?), whereas communities are defined by comparing the density of ties within a group to those between groups."),
+  random_answer_order = TRUE,
+         allow_retry = TRUE)
+```
+
+### Detecting communities {#detecting-communities}
+
+Lastly, `{netrics}` includes a function to run through and find the membership
+assignment that maximises modularity across any of the applicable community
+detection procedures.
+This is helpfully called `node_in_community()`.
+This function pays attention to the size and other salient network properties,
+such as whether it is directed, weighted, or connected.
+It either uses the algorithm that maximises modularity by default
+(`node_in_optimal()`) for smaller networks, or surveys the approximations
+provided by other algorithms for the result that maximises the modularity.
+
+```{r incomm, exercise = TRUE, exercise.setup = "manip-fri"}
+node_in_community(friends)
+```
+
+It is important to name _which_ algorithm produced the membership assignment
+that is then subsequently analysed though.
+
+```{r alg-comp, echo=FALSE, purl = FALSE}
+question("Which algorithm provides the 'best' membership assignment here?",
+         answer("Walktrap",
+                message = "Walktrap finds communities using short random walks. It's a fast heuristic, but not guaranteed to reach the highest possible modularity."),
+         answer("Edge betweenness",
+                message = "Edge betweenness (Girvan-Newman) removes high-betweenness ties one by one. It's intuitive but slow and only approximate."),
+         answer("Leiden",
+                message = "Leiden is a fast, high-quality heuristic, but on a small network it can still fall short of the exact maximum."),
+         answer("Louvain",
+                message = "Louvain is a popular fast greedy multi-level heuristic, but 'fast' comes at the cost of not being guaranteed optimal."),
+         answer("Infomap",
+                message = "Infomap optimises a description of information flow (the map equation) rather than modularity directly, so it isn't the 'best' by this modularity yardstick."),
+         answer("Fluid",
+                message = "Fluid communities is a heuristic that requires you to fix the number of communities in advance, so it's approximate."),
+         answer("Fast Greedy",
+                message = "Fast greedy maximises modularity greedily -- quick, but it can get stuck below the true maximum."),
+         answer("Eigenvector",
+                message = "The leading-eigenvector method is a spectral heuristic, again only an approximation to the optimum."),
+         answer("Spinglass",
+                message = "Spinglass uses simulated annealing, so it's stochastic and not guaranteed to land on the optimal assignment."),
+         answer("Partition",
+                message = "Partition splits the network structurally rather than maximising modularity, so it isn't the 'best' modularity assignment."),
+         answer("Optimal",
+                correct = TRUE,
+                message = "That's right -- `node_in_optimal()` exhaustively maximises modularity, so on a network small enough for it to run it returns the highest possible modularity by definition. That's exactly why `node_in_community()` prefers it for smaller networks."),
+  random_answer_order = TRUE,
+         allow_retry = TRUE)
+```
+
+::: {.callout}
+<span class="callout-label">**Going further**:</span>
+The three algorithms treated here are only the start of the menagerie:
+`{netrics}` also offers `node_in_louvain()` and `node_in_leiden()`
+(fast multilevel modularity maximisers),
+`node_in_infomap()` (information-flow based),
+`node_in_spinglass()` (simulated annealing),
+`node_in_fluid()` (fixed number of communities),
+and `node_in_eigen()` (spectral).
+See `?member_community` for the full list with definitions and references.
+:::
+
+::: {.callout}
+<span class="callout-label">**In brief**:</span> Community detection algorithms cluster nodes by
+tie density: `node_in_walktrap()` via random walks,
+`node_in_betweenness()` divisively by cutting bridging ties,
+and `node_in_greedy()` agglomeratively by modularity-improving merges.
+`node_in_community()` surveys the applicable algorithms
+(exhaustively via `node_in_optimal()` on small networks)
+and returns the assignment that maximises modularity —
+but always report which algorithm produced the result you analyse.
+:::
+
+## Free play
+
+<img src="https://i.giphy.com/media/v1.Y2lkPTc5MGI3NjExc3Z1ZmlueXJhNzU5eHQ4eW14bHc3YWRiemdubnhkdzR5YzFvOHN4dCZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/mnLSsJi13Sgmc/giphy.gif" alt="gif of two dancing"/>
+
+We've looked here at the `irps_blogs` dataset.
+Now choose another dataset included in `{manynet}`
+(browse them with `table_data()`).
+What is the density? Does it make sense to investigate reciprocity,
+transitivity, or equivalence? How can we interpret the results?
+How many components are in the network? Is there a strong factional structure?
+Which community detection algorithm returns the highest modularity score,
+or corresponds best to what is in the data or what you see in the graph?
+
+If you are not sure where to start,
+here is one suggestion per flavour,
+each well suited to the measures from this tutorial:
+
+| Classic (small, tidy) | Fiction (moderate) | Real-world (larger) |
+|---|---|---|
+| `ison_dolphins` (62 dolphins observed associating off New Zealand — a classic community-detection benchmark: do the algorithms recover the two groups the observers saw?) | `fict_lotr` (36 Middle-Earth characters and their interactions — how modular is the fellowship around the `Race` attribute compared with detected communities?) | `irps_books` (105 co-purchased US politics books with a `Leaning` attribute — do purchasing communities align with political leaning, as the blogs did?) |
+
+```{r freeplay, exercise = TRUE, fig.width=9}
+irps_books
+```
+
+## Summary
+
+<img src="https://media1.tenor.com/m/gSsbNTouixUAAAAC/bravo-applause.gif" alt="gif of an enthusiastic standing ovation and cries of bravo"/>
+
+Well done -- you have completed the tutorial on cohesion and community!
+Along the way, you have learned to use these functions:
+
+| Function | What it does |
+|---|---|
+| `net_nodes()`, `net_ties()` | counts the nodes and ties in a network |
+| `net_by_density()` | proportion of possible ties present, by the equation for the network's type |
+| `net_by_reciprocity()` | how often directed ties are returned |
+| `tie_is_reciprocated()` | flags each tie as reciprocated or not, for mapping with `edge_color` |
+| `net_by_indegree()` | centralisation of incoming ties, to see how unequal participation is |
+| `net_by_transitivity()` | how often two-paths close into triangles |
+| `to_uniplex()`, `to_named()`, `to_undirected()`, `to_giant()` | extracts one tie type, adds names, drops direction, keeps the giant component |
+| `as_matrix()` | coerces a network to a matrix, e.g. for manual projection |
+| `to_mode1()`, `to_mode2()` | projects a two-mode network onto its row or column nodes, with a `similarity` option |
+| `tie_weights()` | extracts the tie weights, e.g. of a projection |
+| `net_by_equivalency()` | equivalence/reinforcement measured on the two-mode network itself |
+| `net_by_components()` | number of (strong) components; wrap in `to_undirected()` for weak |
+| `node_in_component()` | each node's component membership |
+| `node_is_isolate()` | flags isolates (sum it to count them) |
+| `delete_nodes()` | removes chosen (e.g. sampled) nodes |
+| `node_in_partition()` | splits a network into two factions |
+| `net_by_factions()` | how factional the network is around a (bi)partition |
+| `net_by_modularity()` | fit of any membership assignment against a random baseline |
+| `node_attribute()` | extracts a nodal attribute, e.g. as an empirical membership |
+| `node_in_walktrap()`, `node_in_betweenness()`, `node_in_greedy()` | community detection via random walks, divisive tie removal, agglomerative merges |
+| `node_in_community()` | surveys applicable algorithms and returns the best assignment by modularity |
+| `mutate_nodes()`, `mutate_ties()` | adds measures or memberships to the network for graphing |
+| `graphr(..., node_color = , node_group = , edge_color = )` | maps memberships onto colours and group outlines |
+
+When you are ready, continue with the other `{netrics}` tutorials —
+on position and topology —
+where further ways of summarising network structure are introduced.
+Run `run_tute()` at the console to see all available tutorials.
+
+### Glossary
+
+Here are some of the terms that we have covered in this tutorial:
+
+`r print_glossary()`

@@ -3,9 +3,12 @@
 \name{measure_centralisation_eigen}
 \alias{measure_centralisation_eigen}
 \alias{net_by_eigenvector}
+\alias{mode_by_eigenvector}
 \title{Measuring networks eigenvector-like centralisation}
 \usage{
 net_by_eigenvector(.data, normalized = TRUE)
+
+mode_by_eigenvector(.data, normalized = TRUE)
 }
 \arguments{
 \item{.data}{A network object of class \code{mnet}, \code{igraph}, \code{tbl_graph}, \code{network}, or similar.
@@ -18,11 +21,18 @@ whether the object is one-mode or two-mode, and other arguments.
 By default TRUE.}
 }
 \value{
-A \code{network_measure} numeric score.
+\code{net_by_eigenvector()} returns a \code{network_measure} scalar;
+\code{mode_by_eigenvector()} returns a \code{mode_measure} numeric vector of length two,
+giving one centralization score per mode.
 }
 \description{
-\code{net_by_eigenvector()} measures the eigenvector centralization for a
-network.
+\itemize{
+\item \code{net_by_eigenvector()} measures the eigenvector centralization for a
+network as a single score.
+\item \code{mode_by_eigenvector()} measures eigenvector centralization separately for
+each mode of a two-mode network (via projection to each mode), returning one
+score per mode (following Borgatti and Everett, 1997).
+}
 
 All measures attempt to use as much information as they are offered,
 including whether the networks are directed, weighted, or multimodal.
@@ -30,9 +40,21 @@ If this would produce unintended results,
 first transform the salient properties using e.g. \code{\link[manynet:to_undirected]{to_undirected()}} functions.
 All centrality and centralization measures return normalized measures
 by default, including for two-mode networks.
+
+For two-mode networks the two modes have different theoretical maxima, so
+\code{net_by_eigenvector()} reports a single network-level score by applying
+Freeman's general centralization index over the normalized node eigenvector
+scores, whereas \code{mode_by_eigenvector()} reports the per-mode scores directly.
 }
 \examples{
 net_by_eigenvector(ison_southern_women)
+mode_by_eigenvector(ison_southern_women)
+}
+\references{
+Borgatti, Stephen P., and Martin G. Everett. 1997.
+"Network analysis of 2-mode data."
+\emph{Social Networks} 19(3): 243-269.
+\doi{10.1016/S0378-8733(96)00301-2}
 }
 \seealso{
 Other eigenvector:
@@ -51,39 +73,6 @@ Other centrality:
 \code{\link{measure_centralities_close}},
 \code{\link{measure_centralities_degree}},
 \code{\link{measure_centralities_eigen}}
-
-Other measures:
-\code{\link{measure_assort_net}},
-\code{\link{measure_assort_node}},
-\code{\link{measure_breadth}},
-\code{\link{measure_broker_node}},
-\code{\link{measure_broker_tie}},
-\code{\link{measure_brokerage}},
-\code{\link{measure_central_between}},
-\code{\link{measure_central_close}},
-\code{\link{measure_central_degree}},
-\code{\link{measure_central_eigen}},
-\code{\link{measure_centralisation_between}},
-\code{\link{measure_centralisation_close}},
-\code{\link{measure_centralisation_degree}},
-\code{\link{measure_centralities_between}},
-\code{\link{measure_centralities_close}},
-\code{\link{measure_centralities_degree}},
-\code{\link{measure_centralities_eigen}},
-\code{\link{measure_closure}},
-\code{\link{measure_closure_node}},
-\code{\link{measure_cohesion}},
-\code{\link{measure_core}},
-\code{\link{measure_diffusion_infection}},
-\code{\link{measure_diffusion_net}},
-\code{\link{measure_diffusion_node}},
-\code{\link{measure_diverse_net}},
-\code{\link{measure_diverse_node}},
-\code{\link{measure_features}},
-\code{\link{measure_fragmentation}},
-\code{\link{measure_hierarchy}},
-\code{\link{measure_periods}}
 }
 \concept{centrality}
 \concept{eigenvector}
-\concept{measures}

@@ -1,3 +1,28 @@
+# netrics 0.4.0
+
+## Measures
+
+- `net_by_degree()`, `net_by_indegree()`, `net_by_outdegree()`, `net_by_betweenness()`, `net_by_closeness()`, and `net_by_eigenvector()` now return a single network-level score for two-mode networks (via Freeman's general centralization index over the mode-normalized node scores), consistent with returning a scalar `network_measure` for all networks
+  - This is a behavioural change: these functions previously returned a length-two vector (one score per mode) for two-mode networks
+- Added a `mode_by_*()` family (`mode_by_degree()`, `mode_by_indegree()`, `mode_by_outdegree()`, `mode_by_betweenness()`, `mode_by_closeness()`, `mode_by_eigenvector()`) that returns the per-mode centralization scores for two-mode networks, following Borgatti and Everett (1997); these error on one-mode networks
+- Fixed `net_by_betweenness()` to respect its `normalized` argument for one-mode networks, which was previously ignored because `igraph::centr_betw()` always applied its default normalization
+- Fixed `net_by_closeness()` and `mode_by_closeness()` to pass their `direction` argument through to the underlying node scores, so `direction = "in"`/`"all"` is now effective for two-mode networks
+
+## Tutorials
+
+- Improved the centrality tutorial (`netrics1`) with a new interactive style, and added an article version to the website
+  - Added more examples to the centrality tutorial for degree-style analysis of directed and weighted networks
+  - Added extensions to the centrality tutorial's betweenness, closeness, and eigenvector sections (the latter including power and influence)
+  - Added a "which centrality?" section to the centrality tutorial
+  - Improved the centrality tutorial by moving degree distribution and centralisation together and expanding the discussion
+- Improved the community tutorial (`netrics2`) with a new version
+- Improved the position tutorial (`netrics3`) with a new interactive style
+  - Added sections introducing regular and automorphic equivalence in more detail to the position tutorial
+  - Added a section on structural folds and ties that torture to the position tutorial
+- Improved the topology tutorial (`netrics4`) with a new interactive style
+  - Added a section on degree mixing measures for characterising centralisation to the topology tutorial
+  - Added a section on further generators, such as fire, islands, and citations, to the topology tutorial
+
 # netrics 0.3.1
 
 ## Package
