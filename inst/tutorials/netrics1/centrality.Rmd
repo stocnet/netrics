@@ -475,6 +475,30 @@ For formal definitions and references, see `?measure_central_between`.
 and `node_by_stress()` via raw path counts.
 :::
 
+## Closeness centralities
+
+<span class="page-toc">On this page:
+<span class="page-toc-link" onclick="document.getElementById('section-closeness-centrality').scrollIntoView({behavior:'auto',block:'start'});">Closeness</span> ·
+<span class="page-toc-link" onclick="document.getElementById('section-reach-and-distance').scrollIntoView({behavior:'auto',block:'start'});">Reach & distance</span> ·
+<span class="page-toc-link" onclick="document.getElementById('section-harmonic-and-other-variants').scrollIntoView({behavior:'auto',block:'start'});">Variants</span></span>
+
+What the members of the **closeness family** have in common is that they
+measure how easily a node can reach — or be reached by — the rest of the
+network: importance as _access_ or _independence_ rather than control.
+Where they differ is in how they summarise the distances involved:
+their total, their average, their maximum, or how many nodes fall within a
+given range.
+
+### Closeness centrality {#closeness-centrality}
+
+`r gloss("Closeness","closeness")` measures how short a node's paths are to
+_all_ other nodes — the smaller the total `r gloss("geodesic")` distance, the
+higher the closeness. A node with high closeness can reach the rest of the
+network in few steps, so it is well placed to spread (or hear) something quickly.
+**Calculate the closeness centralities for `ison_brandes`.**
+
+```{r closecalc, exercise = TRUE, exercise.setup = "addingnames", purl = FALSE}
+
 ```
 
 ```{r closecalc-hint-1, purl = FALSE}
@@ -501,18 +525,55 @@ question("In what way is a node with the smallest sum of geodesic distances to a
          random_answer_order = TRUE)
 ```
 
-```{r betinterpQ, purl = FALSE}
-question("Why would a node lying 'between' many other nodes be 'central'?",
-         answer("They have more power than other nodes",
-                message = "Not necessarily"),
-         answer("They would be able to control information flow in the network",
-                correct = TRUE, message = learnr::random_praise()),
-         answer("They would be located in the centre of the graph",
-                message = "Not necessarily"),
-         answer("They can distribute a message to all other nodes in the network most quickly",
-                message = "Not necessarily"),
-         allow_retry = TRUE,
-         random_answer_order = TRUE)
+### Reach and distance {#reach-and-distance}
+
+Sometimes what matters is not the average distance to everyone,
+but a more concrete question:
+_how much of the network can this node reach within k steps?_
+That is `node_by_reach()`, which by default counts the proportion of the
+network within two steps — a good proxy for "who could mobilise the most
+others quickly?".
+And sometimes the question is about one node in particular:
+`node_by_distance()` returns every node's `r gloss("geodesic")` distance
+from (or to) a given node — the network equivalent of dropping a pin on a map.
+**Try both: how far does the first-named node's reach extend?**
+
+```{r reach, exercise = TRUE, exercise.setup = "addingnames"}
+node_by_reach(ison_brandes)
+node_by_distance(ison_brandes, from = node_names(ison_brandes)[1])
+```
+
+Note that `node_by_reach()` takes a `cutoff` argument to change the number of
+steps considered: `cutoff = 1` reduces it to degree,
+while a large cutoff approaches a measure of component membership.
+
+### Harmonic and other variants {#harmonic-and-other-variants}
+
+Classic closeness has a well-known weakness: in a disconnected network,
+some distances are infinite, and the measure breaks down.
+The family includes several responses to this, and other refinements:
+
+- `node_by_harmonic()` sums the _reciprocals_ of distances,
+so unreachable nodes simply contribute zero —
+the recommended drop-in replacement for closeness on disconnected networks.
+- `node_by_eccentricity()` reports each node's _worst case_:
+the distance to whatever node is furthest from it.
+- `node_by_information()` measures current-flow closeness,
+crediting all paths (weighted by efficiency) rather than only the shortest.
+- `node_by_vitality()` measures how much the network's total closeness
+would change without the node — the closeness analogue of induced betweenness.
+
+For formal definitions and references, see `?measure_central_close`.
+
+::: {.callout}
+<span class="callout-label">**In brief**:</span> The closeness family measures access:
+`node_by_closeness()` via total distances,
+`node_by_reach()` via the share of the network within _k_ steps,
+`node_by_distance()` via distances from a chosen node,
+`node_by_harmonic()` as the disconnection-proof variant,
+and `node_by_eccentricity()` via each node's furthest distance.
+:::
+
 ```
 
 ```{r eiginterpQ, purl = FALSE}
