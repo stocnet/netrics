@@ -137,12 +137,3 @@ jobs:
             echo "::error::PR description does not itemize changes under subsection titles (e.g. \"## Data\")"
             exit 1
           fi
-
-      - name: Check PR description references an issue
-        env:
-          PR_BODY: ${{ github.event.pull_request.body }}
-        run: |
-          if ! grep -qiE '(close[sd]?|fix(e[sd])?|resolve[sd]?)[[:space:]]+#[0-9]+' <<< "$PR_BODY"; then
-            echo "::error::PR description does not reference a closed/fixed/related issue (e.g. \"Fixes #12 by adding X\")"
-            exit 1
-          fi
