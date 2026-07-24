@@ -96,21 +96,36 @@ test_that("one-mode centralisation is calculated correctly", {
   expect_equal(as.numeric(net_by_eigenvector(ison_adolescents)), 0.5479, tolerance = 0.001)
 })
 
-test_that("two mode degree centralisation calculated correctly", {
-  expect_equal(as.numeric(net_by_degree(ison_southern_women, normalized = FALSE)), c(0.2021, 0.5253), tolerance = 0.001)
-  expect_equal(as.numeric(net_by_degree(ison_southern_women, direction = "in")), c(0.249, 0.484), tolerance = 0.001)
-  expect_equal(as.numeric(net_by_degree(ison_southern_women, normalized = TRUE)), c(0.245, 0.493), tolerance = 0.001)
+test_that("two mode per-mode degree centralisation calculated correctly", {
+  expect_equal(as.numeric(mode_by_degree(ison_southern_women, normalized = FALSE)), c(0.2021, 0.5253), tolerance = 0.001)
+  expect_equal(as.numeric(mode_by_degree(ison_southern_women, direction = "in")), c(0.249, 0.484), tolerance = 0.001)
+  expect_equal(as.numeric(mode_by_degree(ison_southern_women, normalized = TRUE)), c(0.245, 0.493), tolerance = 0.001)
 })
 
-test_that("two mode closeness centralisation calculated correctly", {
-  expect_equal(as.numeric(net_by_closeness(ison_southern_women, normalized = TRUE)), c(0.293, 0.452), tolerance = 0.001)
-  expect_equal(as.numeric(net_by_closeness(ison_southern_women, direction = "in")), c(0.224, 0.537), tolerance = 0.001)
+test_that("two mode per-mode closeness centralisation calculated correctly", {
+  expect_equal(as.numeric(mode_by_closeness(ison_southern_women, normalized = TRUE)), c(0.293, 0.452), tolerance = 0.001)
+  expect_equal(as.numeric(mode_by_closeness(ison_southern_women, direction = "in")), c(0.224, 0.537), tolerance = 0.001)
 })
 
-test_that("two mode betweenness centralisation calculated correctly", {
-  expect_equal(as.numeric(net_by_betweenness(ison_southern_women, normalized = FALSE)), c(0.0733, 0.2113), tolerance = 0.001)
-  expect_equal(as.numeric(net_by_betweenness(ison_southern_women, direction = "in")), c(0.082, 0.202), tolerance = 0.001)
-  expect_equal(as.numeric(net_by_betweenness(ison_southern_women, normalized = TRUE)), c(0.0739, 0.2113), tolerance = 0.001)
+test_that("two mode per-mode betweenness centralisation calculated correctly", {
+  expect_equal(as.numeric(mode_by_betweenness(ison_southern_women, normalized = FALSE)), c(0.0733, 0.2113), tolerance = 0.001)
+  expect_equal(as.numeric(mode_by_betweenness(ison_southern_women, direction = "in")), c(0.082, 0.202), tolerance = 0.001)
+  expect_equal(as.numeric(mode_by_betweenness(ison_southern_women, normalized = TRUE)), c(0.0739, 0.2113), tolerance = 0.001)
+})
+
+test_that("net_by_*() returns a single scalar for two-mode networks", {
+  expect_length(net_by_degree(ison_southern_women), 1L)
+  expect_length(net_by_closeness(ison_southern_women), 1L)
+  expect_length(net_by_betweenness(ison_southern_women), 1L)
+  expect_length(net_by_eigenvector(ison_southern_women), 1L)
+  expect_equal(as.numeric(net_by_degree(ison_southern_women)), 0.4383, tolerance = 0.001)
+  expect_equal(as.numeric(net_by_closeness(ison_southern_women)), 0.1930, tolerance = 0.001)
+  expect_equal(as.numeric(net_by_betweenness(ison_southern_women)), 0.2050, tolerance = 0.001)
+  expect_equal(as.numeric(net_by_eigenvector(ison_southern_women)), 0.4186, tolerance = 0.001)
+  # single network-level score is valid input to summary()
+  expect_match(summary(net_by_degree(ison_southern_women)), "z =")
+  # mode_by_*() errors on one-mode input
+  expect_error(mode_by_degree(ison_adolescents), "two-mode")
 })
 
 test_that("net_measure class works", {

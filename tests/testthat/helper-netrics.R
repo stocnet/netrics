@@ -99,28 +99,11 @@ find_pkg_tutorial_paths <- function(pkg) {
   tute_files
 }
 
-check_tute_rendering <- function(path, quiet = TRUE){
-  
-  skip_if_not_installed("rmarkdown")
-  stopifnot(all(file.exists(path)))
-  
-  for(i in path){
-    if(!quiet) message("Rendering: ", basename(i))
-    tryCatch({
-      rmarkdown::render(input = i, 
-                        output_dir = tempdir(),
-                        intermediates_dir = tempdir(), quiet = quiet)
-      # Note that the Debian setup on CRAN does not allow for writing files to any
-      # location other than the temporary directory, which is why we must specify
-      # tempdir() in the two dir arguments.
-      if(!quiet) message("Successfully rendered: ", basename(i))
-    }, error = function(e) {
-      stop("Failed to render ", i, ": ", e$message, call. = FALSE)
-    })
-  }
-  invisible(NULL)
-}
-
+# The tutorials' code chunks are purled to a script and evaluated expression by
+# expression, so that any chunk that errors or raises a deprecation warning fails
+# the suite. Rendering the learnr tutorials themselves is deliberately not tested
+# (that check was fragile and added no coverage value), mirroring {autograph}'s
+# tests/testthat/helper-tutorials.R.
 check_tute_functions <- function(path, skip = "ergm\\(", quiet = TRUE){
   tmp <- tempfile(fileext = ".R")
   knitr::purl(
@@ -130,24 +113,20 @@ check_tute_functions <- function(path, skip = "ergm\\(", quiet = TRUE){
   )
   exprs <- parse(tmp)  # your purled file
   env <- new.env(parent = globalenv())
-  
-  skip_rest <- FALSE
+
   is_skipped_call <- function(expr) {
     any(grepl(skip, deparse(expr)))
   }
-  
+
   for (i in seq_along(exprs)) {
-    if (skip_rest) {
-      skip(paste("Skipping dependent expressions in", basename(path)))
-      next
-    }
-    
+    # Stop at the first slow call: it and any later (dependent) expressions
+    # are skipped, but we return normally so the caller's loop over the
+    # remaining tutorials continues. Using skip() here would unwind to the
+    # enclosing test_that() and abort every subsequent tutorial too.
     if (is_skipped_call(exprs[[i]])) {
-      skip_rest <- TRUE
-      skip(paste("Skipping slow functions in", basename(path)))
-      next
+      break
     }
-    
+
     w <- NULL
     e <- NULL
     m <- NULL
