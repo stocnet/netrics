@@ -1,10 +1,7 @@
 ---
 title: "Topology and Resilience"
 author: "by James Hollway"
-output:
-  learnr::tutorial:
-    theme: flatly
-runtime: shiny_prerendered
+output: rmarkdown::html_document
 description: >
   This tutorial covers how to create deterministic networks,
   generate probabilistic networks, identify core-periphery structures,
@@ -18,8 +15,7 @@ library(patchwork)
 ```
 
 ```{r setup, include = FALSE, purl=FALSE, eval=TRUE}
-library(learnr)
-knitr::opts_chunk$set(echo = FALSE)
+knitr::opts_chunk$set(echo = TRUE, eval = FALSE)
 library(netrics)
 library(autograph)
 stocnet_theme("default")
@@ -52,14 +48,6 @@ learnr::random_phrases_add(language = "en",
                            encouragement = c("Good effort"))
 ```
 
-```{r detect-language, context="server-start", purl=FALSE}
-sys_locale <- Sys.getlocale("LC_CTYPE")
-if (grepl("fr", sys_locale, ignore.case = TRUE)) {
-  options(tutorial.language = "fr")
-} else {
-  options(tutorial.language = "en")
-}
-```
 
 <style>
 html { font-size: 115%; }
@@ -84,6 +72,11 @@ html { font-size: 115%; }
   color: #fff;
 }
 </style>
+
+
+::: {.callout}
+<span class="callout-label">**Static preview**:</span> This is a static, read-only preview of the "Topology and Resilience" tutorial. To keep it a preview, the code output and exercise solutions are not shown here, and the quizzes are replaced with notes like this one. Install the package and run `run_tute()` at the R console to work through the tutorial interactively — running the code, seeing the results, and getting hints, solutions, and quizzes.
+:::
 
 ## Today's target
 
@@ -198,15 +191,6 @@ give them an informative title, and plot the graphs together.
 What would a complete network with half the nodes look like?
 Add that too.**
 
-```{r empty, exercise=TRUE, purl = FALSE}
-
-```
-
-```{r empty-solution}
-(graphr(create_empty(50), "circle") + ggtitle("Empty graph"))
-(graphr(create_filled(50)) + ggtitle("Complete graph"))
-(graphr(create_filled(50/2)) + ggtitle("Complete graph (smaller)"))
-```
 
 These two extremes bookend every topology to come:
 an empty network has a `r gloss("density")` of 0
@@ -228,15 +212,6 @@ And `r gloss("degree", "degree")` centrality is maximised!^[In fact, all central
 - a out-directed star network
 - and an in-directed star network
 
-```{r star, exercise = TRUE, purl = FALSE}
-
-```
-
-```{r star-solution}
-(graphr(create_star(50)) + ggtitle("Star graph"))
-(graphr(create_star(50, directed = TRUE)) + ggtitle("Star out"))
-(graphr(to_redirected(create_star(50, directed = TRUE))) + ggtitle("Star in"))
-```
 
 Substantively, a star is what maximal centralisation looks like:
 everything depends on the hub.
@@ -257,16 +232,6 @@ at the bottom.
 - a directed network with 2 branches per node
 - the same as above, but graphed using the "tree" layout
 
-```{r tree, exercise = TRUE, purl = FALSE}
-
-```
-
-```{r tree-solution}
-# width argument specifies the breadth of the branches
-(graphr(create_tree(50, width = 2)) + ggtitle("Tree graph"))
-(graphr(create_tree(50, width = 2, directed = TRUE)) + ggtitle("Tree out"))
-(graphr(create_tree(50, width = 2, directed = TRUE), "tree") + ggtitle("Tree layout"))
-```
 
 Try varying the `width` argument to see the result.
 We will return to trees when we measure hierarchy later in this tutorial.
@@ -278,20 +243,9 @@ where there is a high likelihood that interaction partners also interact.
 They are used to show how clustering facilitates or limits diffusion
 or makes pockets of behaviour stable.
 
-```{r lat-qa, echo=FALSE, purl = FALSE}
-question("Why are lattices considered highly clustered?",
-         answer("Because neighbours are likely also neighbours of each other",
-                message = learnr::random_praise(),
-                correct = TRUE),
-         answer("Because all nodes are directly connected to each other",
-                message = learnr::random_encouragement()),
-         answer("Because there is a single component",
-                message = learnr::random_encouragement()),
-         answer("Because there is a single community",
-                message = learnr::random_encouragement()),
-         random_answer_order = TRUE,
-         allow_retry = TRUE)
-```
+::: {.callout}
+<span class="callout-label">**Try it yourself**:</span> This section includes an interactive quiz in the live tutorial — run `run_tute()` at the R console to try it.
+:::
 
 Note that `create_lattice()` in `{manynet}` works a little differently
 to how it works in `{igraph}`.
@@ -314,14 +268,6 @@ two-dimensional representation with a given number of nodes.
 **Graph two lattices, one with 50 nodes,
 and another with half the number of nodes.**
 
-```{r lattices, exercise = TRUE, purl = FALSE}
-
-```
-
-```{r lattices-solution}
-(graphr(create_lattice(50)) + ggtitle("One-mode lattice graph"))
-(graphr(create_lattice(50/2)) + ggtitle("Smaller lattice graph"))
-```
 
 We can put numbers on what makes a lattice special.
 Its density is low, but its `r gloss("transitivity","transitivity")` —
@@ -329,7 +275,7 @@ the tendency for two nodes with a shared neighbour to be tied themselves —
 is high.
 **Measure both for a 50-node lattice.**
 
-```{r latmeasures, exercise = TRUE}
+```{r latmeasures}
 net_by_density(create_lattice(50))
 net_by_transitivity(create_lattice(50))
 ```
@@ -349,16 +295,6 @@ which creates a ring graph.
   on a "circle" layout
 - the same as above, but on a "stress" layout
 
-```{r rings, exercise = TRUE, purl = FALSE}
-
-```
-
-```{r rings-solution}
-(graphr(create_ring(50)) + ggtitle("Ring graph", subtitle = "Starring Naomi Watts"))
-# width argument specifies the width of the ring
-(graphr(create_ring(50, width = 2), "circle") + ggtitle("The Ring Two", subtitle = "No different?"))
-(graphr(create_ring(50, width = 2), "stress") + ggtitle("The Ring Two v2.0"))
-```
 
 The price a ring pays for its regularity is distance.
 The `r gloss("diameter")` of a network is the length of its longest
@@ -367,7 +303,7 @@ and `net_by_length()` returns the _average_ shortest path length.
 **Check how far apart nodes in a ring really are,
 and what widening the ring does about it.**
 
-```{r ringmeasures, exercise = TRUE}
+```{r ringmeasures}
 net_by_diameter(create_ring(50))
 net_by_length(create_ring(50))
 net_by_diameter(create_ring(50, width = 2))
@@ -424,28 +360,12 @@ which connects each pair of nodes ${i,j}$ with probability $p$, independent.
 Note that for a `r gloss("sparse","sparse")` ER graph, $p$ must decrease as $N$ goes up.
 **Generate three random networks of 50 nodes and a density of 0.08.**
 
-```{r random, exercise = TRUE, purl = FALSE}
-
-```
-
-```{r random-solution}
-(graphr(generate_random(50, 0.08)) + ggtitle("Random 1 graph"))
-(graphr(generate_random(50, 0.08)) + ggtitle("Random 2 graph"))
-(graphr(generate_random(50, 0.08)) + ggtitle("Random 3 graph"))
-```
 
 Keep going if you like... it will be a little different every time.
 Note that you can also pass the second argument an integer,
 in which case the function will interpret that as the number of ties/edges rather than the probability that a tie is present.
 **Try generating a random graph with 200 edges/ties now.**
 
-```{r randomno, exercise = TRUE, purl = FALSE}
-
-```
-
-```{r randomno-solution}
-(erdren4 <- graphr(generate_random(50, 200)) + ggtitle("Random 1 graph"))
-```
 
 Random graphs are the mirror image of the lattice:
 their paths are short, but they have next to no clustering —
@@ -462,15 +382,6 @@ What if we rewire (change) some of the edges at a certain probability?
 This is how `r gloss("small-world","smallworld")` networks are generated.
 **Graph three small-world networks, all with 50 nodes and a rewiring probability of 0.025.**
 
-```{r smallw, exercise = TRUE, purl = FALSE}
-
-```
-
-```{r smallw-solution}
-(graphr(generate_smallworld(50, 0.025)) + ggtitle("Smallworld 1 graph"))
-(graphr(generate_smallworld(50, 0.025)) + ggtitle("Smallworld 2 graph"))
-(graphr(generate_smallworld(50, 0.025)) + ggtitle("Smallworld 3 graph"))
-```
 
 With on average 2.5 ties randomly rewired, does the structure look different?
 This is a small-world network, where clustering/transitivity remains high
@@ -481,7 +392,7 @@ You can also call these networks a Watts–Strogatz toy network.
 If you want to review this, go back to the reading by Watts (2004).
 **Check both properties for a generated small-world network.**
 
-```{r swcompare, exercise = TRUE}
+```{r swcompare}
 sw <- generate_smallworld(50, 0.025)
 net_by_transitivity(sw)
 net_by_length(sw)
@@ -502,13 +413,6 @@ where 1 is as close to a small-world as possible.
 **Try it now on a small-world generated network,
 but with a rewiring probability of 0.25.**
 
-```{r smallwtest, exercise = TRUE, purl = FALSE}
-
-```
-
-```{r smallwtest-solution}
-net_by_smallworld(generate_smallworld(50, 0.25))
-```
 
 Substantively, a coefficient near 1 says the network offers
 the best of both worlds:
@@ -540,18 +444,6 @@ connect to already well-connected nodes rather than poorly connected ones.
 **Generate and graph three scale-free networks,
 with alpha parameters of 0.5, 1, and 1.5.**
 
-```{r scalef, exercise = TRUE, purl = FALSE}
-
-```
-
-```{r scalef-solution}
-(graphr(generate_scalefree(50, 0.5)) +
-    ggtitle("Scalefree 1 graph", subtitle = "Power = .5"))
-(graphr(generate_scalefree(50, 1)) +
-    ggtitle("Scalefree 2 graph", subtitle = "Power = 1"))
-(graphr(generate_scalefree(50, 1.5)) +
-    ggtitle("Scalefree 3 graph", subtitle = "Power = 1.5"))
-```
 
 You can also measure the degree to which a network has a degree distribution that fits
 a power-law distribution.
@@ -560,13 +452,6 @@ one generally cannot reject the hypothesis that the observed data
 comes from a power-law distribution.
 **Fit the power-law exponent to a scale-free network generated with an alpha of 2.**
 
-```{r scaleftest, exercise = TRUE, purl = FALSE}
-
-```
-
-```{r scaleftest-solution}
-net_by_scalefree(generate_scalefree(50, 2))
-```
 
 Why does this matter?
 A power-law degree distribution means the network is dominated by a few hubs,
@@ -598,7 +483,7 @@ negative means hubs mostly attach to the periphery (disassortative).
 Both are purely structural, needing no node attributes.
 **Contrast a scale-free network with a random one.**
 
-```{r degmix, exercise = TRUE}
+```{r degmix}
 set.seed(123)
 sf <- generate_scalefree(50, 2)
 net_by_richclub(sf)          # hubs interconnected?
@@ -631,7 +516,7 @@ existing ones with a recency bias, the classic model of directed,
 
 **Generate and glance at all three.**
 
-```{r moregen, exercise = TRUE, fig.width=9}
+```{r moregen, fig.width=9}
 set.seed(123)
 graphr(generate_fire(50)) + ggtitle("Forest fire")
 graphr(generate_islands(50, islands = 3, bridges = 2)) + ggtitle("Islands")
@@ -689,15 +574,9 @@ moderately dense interactions with the second group,
 and the second group (the periphery) has
 sparse interactions among themselves.
 
-```{r corevcomm-qa, echo=FALSE, purl = FALSE}
-question("Can a single network have both a community structure and a core-periphery structure?",
-         answer("No", message = learnr::random_encouragement()),
-         answer("Yes",
-                message = "That's right. For example, the core and periphery might represent two or more communities.",
-                correct = TRUE),
-         random_answer_order = TRUE,
-         allow_retry = TRUE)
-```
+::: {.callout}
+<span class="callout-label">**Try it yourself**:</span> This section includes an interactive quiz in the live tutorial — run `run_tute()` at the R console to try it.
+:::
 
 We can visualise extreme versions of such a network
 using the `create_core()` function.
@@ -705,13 +584,6 @@ using the `create_core()` function.
 (which, unless a core-periphery membership assignment is given,
 will be split evenly between core and periphery partitions).
 
-```{r core, exercise=TRUE, purl = FALSE, fig.width=9}
-
-```
-
-```{r core-solution}
-(graphr(create_core(50)) + ggtitle("Core"))
-```
 
 Notice the tell-tale shape: a tight knot of mutually-connected core nodes in
 the middle, a scatter of peripheral nodes around the edge that connect to the
@@ -728,17 +600,10 @@ might be part of the core and which are part of the periphery.
 Colour the nodes by Gender, Office, Practice, and School.**
 Any you might think correlate with core status?
 
-```{r gnet, exercise=TRUE, fig.width=9}
+```{r gnet, fig.width=9}
 lawfirm <- ison_lawfirm |> to_uniplex("friends") |> to_undirected()
 ```
 
-```{r gnet-solution}
-lawfirm <- ison_lawfirm |> to_uniplex("friends") |> to_undirected()
-graphr(lawfirm, node_color = "school", edge_color = "darkgray")
-graphr(lawfirm, node_color = "gender", edge_color = "darkgray")
-graphr(lawfirm, node_color = "office", edge_color = "darkgray")
-graphr(lawfirm, node_color = "practice", edge_color = "darkgray")
-```
 
 Next, let's assign nodes to the core and periphery blocks
 using the `node_is_core()` function.
@@ -748,15 +613,6 @@ at each step working out whether including the next highest degree node
 in the core will maximise the core-periphery structure of the network.
 **Assign core/periphery membership and graph the network coloured by it.**
 
-```{r nodecore, exercise=TRUE, purl = FALSE, fig.width=9, exercise.setup="gnet"}
-
-```
-
-```{r nodecore-solution}
-lawfirm |>
-  mutate_nodes(nc = node_is_core()) |>
-  graphr(node_color = "nc", edge_color = "gray")
-```
 
 This graph suggests that there is a core and a periphery.
 There might even be two cores here,
@@ -770,29 +626,10 @@ with the ideal blockmodel — dense within the core, sparse within the periphery
 while a value near 0 means the partition fits no better than chance.
 **Measure how well a core-periphery model fits this network with `net_by_core()`.**
 
-```{r netcore, exercise=TRUE, purl = FALSE, exercise.setup="gnet"}
 
-```
-
-```{r netcore-solution}
-net_by_core(lawfirm, node_is_core(lawfirm))
-```
-
-```{r corecorr-qa, echo=FALSE, purl = FALSE}
-question("What can we say about this correlation.",
-         answer("It is a perfect negative relationship",
-                message = learnr::random_encouragement()),
-         answer("It is fairly strong",
-                message = learnr::random_encouragement()),
-         answer("It is positive",
-                message = learnr::random_encouragement()),
-         answer("There is absolutely no correlation",
-                message = learnr::random_encouragement()),
-         answer("None of the above", correct = TRUE,
-                message = learnr::random_praise()),
-         allow_retry = TRUE
-)
-```
+::: {.callout}
+<span class="callout-label">**Try it yourself**:</span> This section includes an interactive quiz in the live tutorial — run `run_tute()` at the R console to try it.
+:::
 
 So despite what the eye suggested,
 this friendship network is only weakly — indeed slightly _negatively_ —
@@ -819,37 +656,15 @@ Since we're doing this on categorical variables, we'll use the Chi-squared test 
 **Take a look and see whether there is a statistically significant association
 between gender and core (or periphery) status.**
 
-```{r chisq, exercise=TRUE, purl=FALSE, exercise.setup="gnet"}
+```{r chisq, purl=FALSE}
 chisq.test(as.factor(node_is_core(lawfirm)),
            as.factor(node_attribute(lawfirm, "gender")))
 ```
 
-```{r chisq-solution}
-chisq.test(as.factor(node_is_core(lawfirm)),
-           as.factor(node_attribute(lawfirm, "gender")))
-chisq.test(as.factor(node_is_core(lawfirm)),
-           as.factor(node_attribute(lawfirm, "office")))
-chisq.test(as.factor(node_is_core(lawfirm)),
-           as.factor(node_attribute(lawfirm, "school")))
-chisq.test(as.factor(node_is_core(lawfirm)),
-           as.factor(node_attribute(lawfirm, "practice")))
-```
 
-```{r chisq-qa, echo=FALSE, purl = FALSE}
-question("There a statistically significant association between the core assignment and...",
-         answer("gender.",
-                message = learnr::random_encouragement()),
-         answer("office.",
-                message = learnr::random_encouragement()),
-         answer("school.",
-                message = learnr::random_encouragement()),
-         answer("practice.",
-                message = learnr::random_encouragement()),
-         answer("none of the above variables.", correct = TRUE,
-                message = "That's right. The p-value for office is close, but no cigar."),
-         allow_retry = TRUE
-)
-```
+::: {.callout}
+<span class="callout-label">**Try it yourself**:</span> This section includes an interactive quiz in the live tutorial — run `run_tute()` at the R console to try it.
+:::
 
 ### Coreness {#coreness}
 
@@ -860,7 +675,7 @@ with `node_by_kcoreness()` instead of
 the `node_is_core()` used for core-periphery.
 **Run the code to colour the law-firm network by each node's _k_-coreness.**
 
-```{r nodecoren, exercise=TRUE, exercise.setup="gnet"}
+```{r nodecoren}
 lawfirm |>
   mutate_nodes(ncn = node_by_kcoreness()) |>
   graphr(node_color = "ncn")
@@ -875,29 +690,9 @@ which matters for processes like diffusion —
 what starts in a high _k_-core is far more likely to spread widely
 than what starts among the peelable outer layers.
 
-```{r dich-qa, echo=FALSE, purl = FALSE}
-question("Which has more than two classes/groups.",
-         answer("node_kcoreness()", correct = TRUE,
-                message = learnr::random_praise()),
-         answer("node_is_core()",
-                message = learnr::random_encouragement()),
-         random_answer_order = TRUE,
-         allow_retry = TRUE
-)
-```
-
-```{r ness-qa, echo=FALSE, purl = FALSE}
-question("Select the correct definitions:",
-         answer("The k-core of a network is a maximal subgraph in which each vertex has at least degree k.", correct = TRUE,
-                message = learnr::random_praise()),
-         answer("The coreness of a node is k if it belongs to the k-core but not to the (k+1)-core.", correct = TRUE,
-                message = "Yes -- a node's coreness is the highest k for which it still sits inside the k-core, so it tells you how deep in the network's core the node lies."),
-         answer("The coreness of a node is equal to its degree.",
-                message = paste(learnr::random_encouragement(), "Coreness is usually less than or equal to degree: a node needs at least degree k to be in the k-core, but many high-degree nodes have lower coreness because their neighbours don't all qualify.")),
-         random_answer_order = TRUE,
-         allow_retry = TRUE
-)
-```
+::: {.callout}
+<span class="callout-label">**Try it yourself**:</span> This section includes an interactive quiz in the live tutorial — run `run_tute()` at the R console to try it.
+:::
 
 ::: {.callout}
 <span class="callout-label">**In brief**:</span> `create_core()` draws the ideal core-periphery
@@ -927,23 +722,9 @@ as the concept incorporates several different aspects.
 Can you recall which of the following are aspects of
 the graph theoretic dimensions of hierarchy?
 
-```{r gtdh-qa, echo=FALSE, purl = FALSE}
-question("Select the measures included in the graph theoretic dimensions of hierarchy:",
-         answer("reciprocity", correct = TRUE,
-                message = paste(learnr::random_praise(), "The hierarchy dimension is measured through (a lack of) reciprocity: in a perfect hierarchy relations run one way, never back.")),
-         answer("connectedness", correct = TRUE,
-                message = "Yes -- connectedness asks whether every pair of nodes is joined by some (undirected) path, the first of Krackhardt's four dimensions."),
-         answer("efficiency", correct = TRUE,
-                message = "Yes -- efficiency asks whether the structure uses no more ties than necessary (no redundant links beyond those needed to hold it together)."),
-         answer("least upper bound", correct = TRUE,
-                message = "Yes -- least upper bound asks whether every pair of nodes shares a common superior they both ultimately report up to."),
-         answer("components", message = learnr::random_encouragement()),
-         answer("degree", message = learnr::random_encouragement()),
-         answer("density", message = learnr::random_encouragement()),
-         random_answer_order = TRUE,
-         allow_retry = TRUE
-)
-```
+::: {.callout}
+<span class="callout-label">**Try it yourself**:</span> This section includes an interactive quiz in the live tutorial — run `run_tute()` at the R console to try it.
+:::
 
 ### Measuring GTDH {#measuring-gtdh}
 
@@ -953,7 +734,7 @@ The classic example would be to look at a tree network,
 like the one constructed earlier.
 **Run the code to try the function `net_x_hierarchy()` on a directed tree of 11 nodes.**
 
-```{r treeh, exercise = TRUE}
+```{r treeh}
 treeleven <- create_tree(11, directed = TRUE)
 net_x_hierarchy(treeleven)
 rowMeans(net_x_hierarchy(treeleven))
@@ -992,36 +773,19 @@ Which one would you consider is more hierarchical:
 or `fict_thrones`, a directed network of kinship ties?
 **Graph each network, then add a `net_x_hierarchy()` call for both and compare their profiles.**
 
-```{r hierarchy, exercise = TRUE}
+```{r hierarchy}
 graphr(ison_emotions)
 graphr(fict_thrones)
 ```
 
-```{r hierarchy-solution}
-graphr(ison_emotions)
-net_x_hierarchy(ison_emotions)
-graphr(fict_thrones)
-net_x_hierarchy(fict_thrones)
-```
 
 Actually, these two networks have the same average hierarchy score of around 0.525.
 But they have quite different profiles.
 Can you make sense of these results?
 
-```{r gtdhcompare-qa, echo=FALSE, purl = FALSE}
-question("Compared to the emotional transitions network, the Game of Thrones kinship network has:",
-         answer("more nodes able to reach each other",
-                message = learnr::random_encouragement()),
-         answer("fewer reciprocated ties", correct = TRUE,
-                message = learnr::random_praise()),
-         answer("fewer redundant ties", correct = TRUE,
-                message = "Yes -- that shows up as a higher efficiency score: the kinship structure carries fewer redundant ties than the emotional transitions network."),
-         answer("at least one boss for all pairs",
-                message = "Not here -- that would be the least-upper-bound property, but not every pair in the kinship network shares a common ancestor they both report up to."),
-         random_answer_order = TRUE,
-         allow_retry = TRUE
-)
-```
+::: {.callout}
+<span class="callout-label">**Try it yourself**:</span> This section includes an interactive quiz in the live tutorial — run `run_tute()` at the R console to try it.
+:::
 
 This is the payoff of a multidimensional measure:
 a single "hierarchy score" would have called these two networks identical,
@@ -1053,30 +817,14 @@ Let's explore how resilient a (core) network of adolescents (`ison_adolescents`)
 First, we might be interested in whether the network is `r gloss("connected","connected")` at all.
 **Check whether `ison_adolescents` is connected.**
 
-```{r connected, exercise=TRUE, purl = FALSE}
-
-```
-
-```{r connected-solution}
-net_by_connectedness(ison_adolescents)
-```
 
 This measure gets at the proportion of dyads that can reach each other in the network.
 In this case, the proportion is 1, i.e. all nodes can reach every other node.
 Another way to get at this would be to see how many `r gloss("components","component")` there are in the network.
 
-```{r connect-qa, echo=FALSE, purl=FALSE}
-question("But counting the number of components instead of connectedness can overemphasise:",
-         answer("Isolates", correct = TRUE,
-                message = learnr::random_praise()),
-         answer("Small components", correct = TRUE,
-                message = learnr::random_encouragement()),
-         answer("Density",
-                message = learnr::random_encouragement()),
-         random_answer_order = TRUE,
-         allow_retry = TRUE
-)
-```
+::: {.callout}
+<span class="callout-label">**Try it yourself**:</span> This section includes an interactive quiz in the live tutorial — run `run_tute()` at the R console to try it.
+:::
 
 A dropped tie can have severe consequences to the topology of a network
 if it is a bridge, say.
@@ -1086,37 +834,10 @@ But a dropped node can be even more consequential, as it will take any ties it h
 **Find out the `r gloss("cohesion","cohesion")`,
 or how many dropped nodes it would take to (further) fragment the network.**
 
-```{r cohesion, exercise=TRUE, purl = FALSE}
 
-```
-
-```{r cohesion-solution}
-net_by_cohesion(ison_adolescents)
-```
-
-```{r cohesion-qa, echo=FALSE, purl = FALSE}
-question("The result of this function represents...",
-         answer("the minimum number of nodes necessary to remove from the network to increase the number of components.", correct = TRUE,
-                message = learnr::random_praise()),
-         answer("the number of strong components in the network.",
-                message = learnr::random_encouragement()),
-         answer("the minimum number of ties necessary to remove from the network to increase the number of components.",
-                message = "This is actually the definition of `node_adhesion()`."),
-         random_answer_order = TRUE,
-         allow_retry = TRUE
-)
-```
-
-```{r res-qa, echo=FALSE, purl = FALSE}
-question("The higher the minimum number of nodes to remove...",
-         answer("the more resilient is the network.", correct = TRUE,
-                message = learnr::random_praise()),
-         answer("the less resilient the network.",
-                message = learnr::random_encouragement()),
-         random_answer_order = TRUE,
-         allow_retry = TRUE
-)
-```
+::: {.callout}
+<span class="callout-label">**Try it yourself**:</span> This section includes an interactive quiz in the live tutorial — run `run_tute()` at the R console to try it.
+:::
 
 A cohesion of 1, as here, is the most fragile a connected network can be:
 there is at least one single node whose departure would break the network
@@ -1137,27 +858,11 @@ Nodes that endanger fragmentation of the network are called `r gloss("cutpoints"
 **Find and use a function to identify which, if any, of the nodes in the `ison_adolescents`
 network are cutpoints.**
 
-```{r idcuts, exercise = TRUE, purl=FALSE}
-
-```
-
-```{r idcuts-solution}
-node_is_cutpoint(ison_adolescents)
-```
 
 Ok, so this results in a vector identifying which nodes are cutpoints (TRUE) or not (FALSE).
 Somewhat more useful though would be to highlight these nodes on the network.
 **Can you add a node attribute that highlights which nodes are cutpoints?**
 
-```{r closerlook, exercise = TRUE, purl=FALSE}
-
-```
-
-```{r closerlook-solution}
-ison_adolescents |>
-  mutate_nodes(cut = node_is_cutpoint()) |>
-  graphr(node_color = "cut")
-```
 
 The highlighted node(s) are the network's single points of failure:
 each sits astride the only path between two otherwise-separate parts of the
@@ -1171,16 +876,6 @@ Let's do something similar now, but with respect to ties rather than nodes.
 Here we are interested in identifying which ties are `r gloss("bridges","bridge")`.
 **Report the network's adhesion, then graph it with the bridging ties highlighted.**
 
-```{r tieside, exercise = TRUE, purl=FALSE}
-
-```
-
-```{r tieside-solution}
-net_by_adhesion(ison_adolescents)
-ison_adolescents |>
-  mutate_ties(cut = tie_is_bridge()) |>
-  graphr(edge_color = "cut")
-```
 
 The adhesion tells you the minimum number of ties to cut to fragment the
 network, and the highlighted ties show _which_ ones do that work.
@@ -1193,15 +888,6 @@ the degree to which ties are deeply embedded in
 This is called (rather confusingly) tie cohesion.
 **Size the ties by their cohesion to see which are most embedded.**
 
-```{r tiecoh, exercise = TRUE, purl=FALSE}
-
-```
-
-```{r tiecoh-solution}
-ison_adolescents |>
-  mutate_ties(coh = tie_by_cohesion()) |>
-  graphr(edge_size = "coh")
-```
 
 Where would you target your efforts if you wanted to fragment this network?
 And conversely, if you wanted to make this network more resilient,
@@ -1235,9 +921,6 @@ here is one suggestion per flavour:
 |---|---|---|
 | `ison_karateka` (the karate club that famously split in two — its degree distribution fits a power-law exponent close to 2, and its cutpoints and bridges foreshadowed where the split would come) | `fict_greys` (a sparse network of romantic entanglements in several separate components — find the cutpoints, and check the cohesion of its largest component with `to_giant()`) | `irps_books` (co-purchases of 105 political books — does polarised buying sort the market into a core and periphery, into communities, or around a few hub titles?) |
 
-```{r freeplay, exercise = TRUE, purl=FALSE, fig.width=9}
-
-```
 
 ## Summary
 

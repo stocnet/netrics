@@ -35,6 +35,8 @@ navbar:
         href: articles/community.html
       - text: Position
         href: articles/position.html
+      - text: Topology
+        href: articles/topology.html
     news:
       text: News
       href: news/index.html
@@ -56,6 +58,7 @@ articles:
       - "`articles/centrality`"
       - "`articles/community`"
       - "`articles/position`"
+      - "`articles/topology`"
 reference:
   - title: "Marking"
     desc: |
