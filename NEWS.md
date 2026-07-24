@@ -2,8 +2,9 @@
 
 ## Package
 
-- Added `{learnr}` to Config/Needs/website
 - Updated actions/checkout@v2 to actions/checkout@v4
+- Fixed the website deploy job installing `Config/Needs/check` packages instead of `Config/Needs/website`, which meant `{learnr}` was never actually installed before the pkgdown deploy step
+
 
 # netrics 0.4.0
 

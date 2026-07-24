@@ -73,6 +73,25 @@ jobs:
         run: spelling::spell_check_package()
         shell: Rscript {0}
 
+  articles-in-sync:
+    name: Tutorial articles are in sync
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: r-lib/actions/setup-r@v2
+
+      - name: Regenerate tutorial articles
+        run: Rscript data-raw/build_tutorial_articles.R
+
+      - name: Check for drift
+        run: |
+          if ! git diff --exit-code -- vignettes/articles/; then
+            echo "::error::vignettes/articles/*.Rmd are out of date with inst/tutorials/*.Rmd. Run 'Rscript data-raw/build_tutorial_articles.R' and commit the result."
+            exit 1
+          fi
+
   pr-metadata:
     name: PR metadata checks
     runs-on: macOS-latest
