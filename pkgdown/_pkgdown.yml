@@ -31,6 +31,8 @@ navbar:
       menu:
       - text: Centrality
         href: articles/centrality.html
+      - text: Community
+        href: articles/community.html
     news:
       text: News
       href: news/index.html
@@ -50,6 +52,7 @@ articles:
       for the full interactive experience.
     contents:
       - "`articles/centrality`"
+      - "`articles/community`"
 reference:
   - title: "Marking"
     desc: |
