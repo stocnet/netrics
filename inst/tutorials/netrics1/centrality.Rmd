@@ -853,6 +853,139 @@ question("Select all that are true for the two-mode Brandes network.",
 to spotlight the most (or least) central node(s) directly on the graph.
 :::
 
+## Centralisation
+
+<span class="page-toc">On this page:
+<span class="page-toc-link" onclick="document.getElementById('section-reading-a-distribution').scrollIntoView({behavior:'auto',block:'start'});">Distributions</span> ·
+<span class="page-toc-link" onclick="document.getElementById('section-from-distribution-to-centralisation').scrollIntoView({behavior:'auto',block:'start'});">Shape &amp; centralisation</span> ·
+<span class="page-toc-link" onclick="document.getElementById('section-measuring-centralisation').scrollIntoView({behavior:'auto',block:'start'});">Measuring</span> ·
+<span class="page-toc-link" onclick="document.getElementById('section-comparing-the-measures').scrollIntoView({behavior:'auto',block:'start'});">Comparing</span></span>
+
+So far we have scored individual nodes.
+But we can also ask a question about the _whole_ network:
+is its centrality piled up on a few nodes, or shared out evenly?
+That whole-network summary is called `r gloss("centralisation","centralization")`,
+and the bridge to it runs through the _distribution_ of a nodal measure.
+
+### Reading a distribution {#reading-a-distribution}
+
+<img src="https://i.giphy.com/media/v1.Y2lkPTc5MGI3NjExanZ4OWhwM2k0eWU1ancza3NtYXlpZDFkdTJub2RvMnFkYnlwbWZ4dCZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/3o7aTHbH39h8xYePza/giphy.gif" height="400px"/>
+
+Rather than reduce a measure to a single summary number,
+we can look at its whole `r gloss("distribution")` across the nodes.
+`{autograph}` offers a way to get a pretty good first look at this,
+though there are more elaborate ways to do this in base and grid graphics.
+**Plot the degree distribution of `ison_brandes`.**
+
+```{r distrib, exercise = TRUE, exercise.setup = "addingnames", purl = FALSE}
+
+```
+
+```{r distrib-solution}
+# distribution of degree centrality scores of nodes
+plot(node_by_degree(ison_brandes))
+```
+
+What's plotted here by default is both the degree distribution as a histogram,
+as well as a density plot overlaid on it in red.
+Reading a distribution rather than a single summary number lets you see
+_shape_: whether ties are spread fairly evenly across nodes, or concentrated
+on a few.
+
+```{r degdistshapeQ, purl = FALSE}
+question("What kind of shape does this degree distribution have?",
+         answer("Exponential",
+                message = "An exponential (or power-law) shape would show many low-degree nodes and a long tail of a few very high-degree nodes. There isn't a clear tail like that here."),
+         answer("Hard to tell",
+                correct = TRUE,
+                message = paste(learnr::random_praise(), "With only 11 nodes there simply aren't enough observations to identify a clear parametric shape -- degree distributions usually only reveal a recognisable form in larger networks.")),
+         answer("Uniform",
+                message = "A uniform distribution would have roughly equal numbers of nodes at every degree value (a flat histogram), which isn't quite what we see."),
+         answer("Normal",
+                message = "A normal distribution would be a symmetric bell centred on a modal degree. With so few nodes it's hard to justify calling this bell-shaped."),
+         allow_retry = TRUE,
+         random_answer_order = TRUE)
+```
+
+```{r degdistinterpQ, purl = FALSE}
+question("What can the degree distribution tell us?",
+         answer("Whether the network is centralized around a few key nodes",
+                correct = TRUE, message = learnr::random_praise()),
+         answer("Whether there are a few highly connected nodes and many poorly connected nodes",
+                correct = TRUE, message = learnr::random_praise()),
+         answer("Whether the network is hierarchical",
+                message = "Not necessarily -- the degree distribution shows the *spread* of degrees, but not how nodes are ordered into levels. Hierarchy is about the (directed) arrangement of ties, which degree counts alone don't reveal."),
+         answer("Whether the network is robust to random failure",
+                message = "Not necessarily -- robustness also depends on how the network is connected and how failures cascade, so the degree distribution alone can't tell you this directly."),
+         allow_retry = TRUE,
+         random_answer_order = TRUE)
+```
+
+The same works for _any_ node measure, not just degree.
+**Plot the distributions of the other three centralities you have met.**
+
+```{r otherdist, exercise=TRUE, exercise.setup = "addingnames", purl=FALSE}
+
+```
+
+```{r otherdist-solution}
+plot(node_by_betweenness(ison_brandes))
+plot(node_by_closeness(ison_brandes))
+plot(node_by_eigenvector(ison_brandes))
+```
+
+### From distribution to centralisation {#from-distribution-to-centralisation}
+
+Here is the key idea. The _shape_ of a degree distribution and the network's
+_centralisation_ are two views of the same thing.
+When degrees are spread evenly — a symmetric, roughly _normal_
+bell where most nodes are near-average — no node dominates, and centralisation
+is low. When the distribution is skewed into a long, _exponential_
+tail — a few hubs with very high degree, and many nodes with very little —
+a handful of nodes dominate, and centralisation is high.
+
+To see this, let's conjure two networks of the same size with deliberately
+different degree distributions:
+a _random_ network (whose degrees cluster around a typical
+value) and a _scale-free_ network (which grows a few dominant hubs).
+The seed just fixes the random draw so everyone sees the same picture.
+**Run it, and compare both the plots and the two centralisation scores.**
+
+```{r distcent, exercise = TRUE, fig.width=9}
+set.seed(7)
+rand <- generate_random(50, 0.1)     # bell-shaped degree distribution
+scaf <- generate_scalefree(50, 1.3)  # heavy-tailed degree distribution
+plot(node_by_degree(rand)) + plot(node_by_degree(scaf))
+net_by_degree(rand)   # low centralisation
+net_by_degree(scaf)   # much higher centralisation
+```
+
+The random network's degrees pile up in a bell, and its degree centralisation
+is low — no node is far above the crowd.
+The scale-free network's degrees trail off into a long tail, and its
+centralisation is several times higher — a few hubs carry the network.
+Our `ison_brandes` example sits somewhere between these two extremes.
+
+```{r shapecentQ, purl = FALSE}
+question("A network's degree distribution is a symmetric bell around its average. What can you say about its degree centralisation?",
+  answer("It will be relatively low",
+         correct = TRUE,
+         message = "Right -- a symmetric bell means most nodes are near-average and none dominates, so there is little inequality for centralisation to register."),
+  answer("It will be relatively high",
+         message = "High centralisation goes with a skewed, hub-dominated distribution (a long tail), not a symmetric bell where nodes are similar."),
+  answer("It cannot be determined from the distribution",
+         message = "It can, at least roughly: centralisation is essentially a summary of how unequal (spread out and skewed) the distribution is."),
+  allow_retry = TRUE,
+  random_answer_order = TRUE
+)
+```
+
+::: {.callout}
+<span class="callout-label">**In brief**:</span> `plot()` on any node measure draws its distribution
+(a histogram plus a density curve). An even, bell-shaped distribution signals
+low centralisation; a skewed, heavy-tailed one signals high centralisation.
+Centralisation just turns that distributional inequality into a single number.
+:::
 
 ### Measuring centralisation {#measuring-centralisation}
 
