@@ -1,10 +1,7 @@
 ---
 title: "Position and Equivalence"
 author: "by James Hollway"
-output:
-  learnr::tutorial:
-    theme: flatly
-runtime: shiny_prerendered
+output: rmarkdown::html_document
 description: >
   This tutorial covers how to identify bridges and measure structural
   holes through constraint, how structural folds differ from holes, how
@@ -19,8 +16,7 @@ library(autograph)
 ```
 
 ```{r setup, include = FALSE, purl=FALSE, eval=TRUE}
-library(learnr)
-knitr::opts_chunk$set(echo = FALSE)
+knitr::opts_chunk$set(echo = TRUE, eval = FALSE)
 library(netrics)
 library(autograph)
 stocnet_theme("default")
@@ -57,14 +53,6 @@ tasks <- to_uniplex(ison_algebra, "tasks")
 alge <- to_named(ison_algebra)
 ```
 
-```{r detect-language, context="server-start", purl=FALSE}
-sys_locale <- Sys.getlocale("LC_CTYPE")
-if (grepl("fr", sys_locale, ignore.case = TRUE)) {
-  options(tutorial.language = "fr")
-} else {
-  options(tutorial.language = "en")
-}
-```
 
 <style>
 html { font-size: 115%; }
@@ -89,6 +77,11 @@ html { font-size: 115%; }
   color: #fff;
 }
 </style>
+
+
+::: {.callout}
+<span class="callout-label">**Static preview**:</span> This is a static, read-only preview of the "Position and Equivalence" tutorial. To keep it a preview, the code output and exercise solutions are not shown here, and the quizzes are replaced with notes like this one. Install the package and run `run_tute()` at the R console to work through the tutorial interactively — running the code, seeing the results, and getting hints, solutions, and quizzes.
+:::
 
 ## Today's target
 
@@ -177,34 +170,6 @@ Can you find out some more information about it via its help file?
 **Load the `ison_algebra` dataset, and open its help file to read about it.**
 If you get stuck, work through the hints one at a time.
 
-```{r data, exercise = TRUE, purl = FALSE}
-
-```
-
-```{r data-hint-1, purl = FALSE}
-# There are two ways to bring a bundled dataset into your session.
-# The first is data(), naming the dataset and the package it lives in:
-data("ison_algebra", package = "manynet")
-```
-
-```{r data-hint-2, purl = FALSE}
-# The second is to assign it directly from the package with the :: operator:
-ison_algebra <- manynet::ison_algebra
-```
-
-```{r data-hint-3, purl = FALSE}
-# To open the help file, put a ? in front of the (package-qualified) name:
-?manynet::ison_algebra
-```
-
-```{r data-solution}
-data("ison_algebra", package = "manynet")
-?manynet::ison_algebra
-# If you want to see the network object, you can run the name of the object
-# ison_algebra
-# or print the code with brackets at the front and end of the code
-# (ison_algebra <- manynet::ison_algebra)
-```
 
 From the help file (and by printing the object) we can see that the dataset is
 multiplex, meaning that it contains several different _types_ of ties:
@@ -229,43 +194,6 @@ and then as a second argument put the name of the tie attribute in quotation mar
 **Extract all three networks (friends, social, and tasks) with `to_uniplex()`,
 then graph each one and give it a descriptive title.**
 
-```{r separatingnets, exercise=TRUE, exercise.setup = "data", purl = FALSE}
-
-```
-
-```{r separatingnets-hint-1, purl = FALSE}
-# Here's the basic idea/code syntax you will need to extract each type of network.
-# Replace the first blank with a name for the new object,
-# and the second with the tie type in quotation marks, e.g. "friends":
-____ <- to_uniplex(ison_algebra, _____)
-```
-
-```{r separatingnets-hint-2, purl = FALSE}
-# So, to extract the friendship network:
-friends <- to_uniplex(ison_algebra, "friends")
-```
-
-```{r separatingnets-hint-3, purl = FALSE}
-# To graph a network and add a title, add a ggtitle() layer with +
-graphr(friends) + ggtitle("Friendship")
-```
-
-```{r separatingnets-hint-4, purl = FALSE}
-# Now do the same for the "social" and "tasks" tie types.
-social <- to_uniplex(ison_algebra, "social")
-graphr(social) + ggtitle("Social")
-```
-
-```{r separatingnets-solution}
-friends <- to_uniplex(ison_algebra, "friends")
-graphr(friends) + ggtitle("Friendship")
-
-social <- to_uniplex(ison_algebra, "social")
-graphr(social) + ggtitle("Social")
-
-tasks <- to_uniplex(ison_algebra, "tasks")
-graphr(tasks) + ggtitle("Task")
-```
 
 Note also that these are `r gloss("weighted")` networks:
 each tie carries a number recording how strong that friendship, social,
@@ -274,21 +202,9 @@ or task relationship is.
 drawing stronger ties more heavily.
 That weighting matters for the theory we turn to next.
 
-```{r strongties-qa, echo=FALSE, purl = FALSE}
-question("If we interpret ties with higher weights as strong ties, and lesser weights as weak ties, then, according to network theory (Granovetter's 'strength of weak ties'), where would we expect novel information to come from?",
-         answer("Weak ties",
-                correct = TRUE,
-                message = paste(learnr::random_praise(), "Weak ties tend to reach beyond our immediate, tightly-knit circle, so they are more likely to bring in information we don't already have.")),
-         answer("Strong ties",
-                message = "Not quite -- strong ties usually connect us to people who already share our circle (and so our information), which is why Granovetter emphasised the *weak* ones for novelty."),
-         answer("Isolates",
-                message = "Not quite -- an isolate has no ties at all, so it can neither send nor receive novel information through the network."),
-         answer("Highest degree nodes",
-                message = "Not quite -- having many ties is not the same as having ties that reach into different parts of the network; a high-degree node may still sit inside a single, redundant cluster."),
-  random_answer_order = TRUE,
-  allow_retry = TRUE
-)
-```
+::: {.callout}
+<span class="callout-label">**Try it yourself**:</span> This section includes an interactive quiz in the live tutorial — run `run_tute()` at the R console to try it.
+:::
 
 ::: {.callout}
 <span class="callout-label">**In brief**:</span> `to_uniplex()` extracts one type of tie from a
@@ -322,24 +238,9 @@ it enjoys early access to non-redundant information,
 and control over what passes between the two sides.
 Before measuring anything, let's check the core idea is clear.
 
-```{r structinnov-qa, echo=FALSE, purl = FALSE}
-question("Which network concepts are associated with innovation?",
-         answer("Structural holes",
-                correct = TRUE,
-                message = "Being positioned in a structural hole is said to be a brokerage position that brings with it information arbitrage possibilities."),
-         answer("Structural folds",
-                correct = TRUE,
-                message = "Being positioned in a structural fold, with in-group membership in multiple groups, can provide not only information arbitrage possibilities, but also the standing in the target group to introduce novelty successfully. (More on this in the next section.)"),
-         answer("Structural balance",
-                message = "Structural balance is about whether signed (e.g. friend/enemy) ties form stable, tension-free configurations -- a different question from where innovation appears."),
-         answer("Structural equivalence",
-                message = '<img src="https://i.giphy.com/media/v1.Y2lkPTc5MGI3NjExdmY4ejhpMnZoZmh3OGUxbTdjbXQwMTcwcmg0ZHo5dmJ6NzI3c3FxNyZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9dg/2E7VU4zGVm8H1mFSAz/giphy.gif" alt="gif of a morty assassinating another morty"/>'),
-         answer("Structuralism",
-                message = "Structuralism is a broad intellectual movement, not a specific network mechanism for innovation."),
-  random_answer_order = TRUE,
-  allow_retry = TRUE
-)
-```
+::: {.callout}
+<span class="callout-label">**Try it yourself**:</span> This section includes an interactive quiz in the live tutorial — run `run_tute()` at the R console to try it.
+:::
 
 ### Measuring structural holes {#measuring-structural-holes}
 
@@ -349,30 +250,9 @@ instead there is a small family of related measures,
 each capturing a slightly different facet of the same idea.
 Try to reason through which of the following could stand in for the concept.
 
-```{r shmeasures-qa, echo=FALSE, purl = FALSE}
-question("There are a number of measures that might be used to approximate the concept of structural holes. Select all that apply.",
-         answer("Constraint",
-                correct = TRUE,
-                message = paste(learnr::random_praise(), "Constraint captures how far a node's contacts are tied to one another -- high constraint means few structural holes to exploit.")),
-         answer("Effective size",
-                correct = TRUE,
-                message = "Yes -- effective size counts a node's *non-redundant* contacts, so it grows as the node spans more structural holes."),
-         answer("Bridges",
-                correct = TRUE,
-                message = "Yes -- a bridge is precisely a tie that spans a structural hole between otherwise disconnected parts of the network."),
-         answer("Redundancy",
-                correct = TRUE,
-                message = "Yes -- redundancy measures how much a node's contacts overlap, so it is the flip side of having structural holes."),
-         answer("Efficiency",
-                correct = TRUE,
-                message = "Yes -- efficiency is effective size relative to degree, i.e. how much structural-hole benefit each contact yields on average."),
-         answer("Hierarchy",
-                correct = TRUE,
-                message = "Yes -- hierarchy captures whether a node's constraint is concentrated in a single dominant contact, another facet of its structural-hole position."),
-  random_answer_order = TRUE,
-  allow_retry = TRUE
-)
-```
+::: {.callout}
+<span class="callout-label">**Try it yourself**:</span> This section includes an interactive quiz in the live tutorial — run `run_tute()` at the R console to try it.
+:::
 
 All of these measures are implemented in `{netrics}`.
 Rather than race through all six, we will concentrate on the two most common
@@ -399,7 +279,7 @@ and `node_by_bridges()` returns a count for each node.
 `sum()` over a logical vector counts the `TRUE`s,
 and `any(... > 0)` asks whether _any_ node touches a bridge.
 
-```{r bridges, exercise = TRUE, exercise.setup = "objects-setup"}
+```{r bridges}
 sum(tie_is_bridge(friends))
 any(node_by_bridges(friends)>0)
 ```
@@ -426,32 +306,9 @@ by their position in the *task* network —
 where advice about the algebra problems flows.
 `{netrics}` makes this easy with the `node_by_constraint()` function.
 
-```{r objects-setup, purl=FALSE}
-alge <- to_named(ison_algebra)
-friends <- to_uniplex(alge, "friends")
-social <- to_uniplex(alge, "social")
-tasks <- to_uniplex(alge, "tasks")
-```
 
 **Calculate the constraint score of each node in the `tasks` network.**
 
-```{r constraint, exercise = TRUE, exercise.setup = "objects-setup", purl = FALSE}
-
-```
-
-```{r constraint-hint-1, purl = FALSE}
-# The function is node_by_constraint(). It takes a network as its argument.
-node_by_constraint(____)
-```
-
-```{r constraint-hint-2, purl = FALSE}
-# Remember we want the *task* network, which we extracted as 'tasks':
-node_by_constraint(tasks)
-```
-
-```{r constraint-solution}
-node_by_constraint(tasks)
-```
 
 This function returns a vector of constraint scores that can range between 0 and 1.
 Reading a column of numbers is hard, though,
@@ -465,42 +322,6 @@ centrality tutorial.
 **Graph the `tasks` network, sizing nodes by their constraint score and
 colouring the least-constrained node.** Build it up through the hints.
 
-```{r constraintplot, exercise=TRUE, exercise.setup = "objects-setup", purl = FALSE}
-
-```
-
-```{r constraintplot-hint-1, purl = FALSE}
-# First, attach two new node attributes with mutate():
-# the constraint score itself, and a flag for the minimum.
-tasks <- tasks %>%
-  mutate(constraint = node_by_constraint(____),
-         low_constraint = node_is_min(node_by_constraint(____)))
-# Don't forget, we are still looking at the 'tasks' network.
-```
-
-```{r constraintplot-hint-2, purl = FALSE}
-# node_is_min() turns the numeric scores into a TRUE/FALSE flag,
-# TRUE for whichever node(s) have the lowest constraint:
-tasks <- tasks %>%
-  mutate(constraint = node_by_constraint(tasks),
-         low_constraint = node_is_min(node_by_constraint(tasks)))
-```
-
-```{r constraintplot-hint-3, purl = FALSE}
-# Now graph it: map 'constraint' to node_size and 'low_constraint' to node_color.
-graphr(____, node_size = "____", node_color = "____")
-```
-
-```{r constraintplot-hint-4, purl = FALSE}
-graphr(tasks, node_size = "constraint", node_color = "low_constraint")
-```
-
-```{r constraintplot-solution}
-tasks <- tasks %>%
-  mutate(constraint = node_by_constraint(tasks),
-         low_constraint = node_is_min(node_by_constraint(tasks)))
-graphr(tasks, node_size = "constraint", node_color = "low_constraint")
-```
 
 Why look for the _minimum_?
 Because constraint measures how well connected each node's partners are,
@@ -524,17 +345,9 @@ and can broker — choosing what passes between the two sides, and on what terms
 So what can we learn from this plot
 about where innovation might occur within this network?
 
-```{r constraintQ, echo=FALSE, purl = FALSE}
-question("Do bridges innovate?",
-         answer("No",
-                correct = TRUE,
-                message = paste(learnr::random_praise(), "Ties don't have agency -- people (nodes) do. It is the *broker* sitting in the structural hole who can act on the novel information, not the tie itself.")),
-         answer("Yes",
-                message = "Bridges can be important conduits for information, but ties do not typically have agency. Nodes do. Nodes in structural holes are called brokers. Nodes that are located in structural holes that would be there but for the node and their ties can be identified through various measures such as the number of bridges they are adjacent to, or their constraint score."),
-  random_answer_order = TRUE,
-  allow_retry = TRUE
-)
-```
+::: {.callout}
+<span class="callout-label">**Try it yourself**:</span> This section includes an interactive quiz in the live tutorial — run `run_tute()` at the R console to try it.
+:::
 
 ### The rest of the family {#the-rest-of-the-family}
 
@@ -554,7 +367,7 @@ slightly different part of the story.
 also tend to have the largest effective size?** (They should, roughly —
 more non-redundant contacts means less constraint.)
 
-```{r shfamily, exercise = TRUE, exercise.setup = "objects-setup"}
+```{r shfamily}
 node_by_effsize(tasks)
 node_by_redundancy(tasks)
 node_by_hierarchy(tasks)
@@ -613,21 +426,9 @@ solution from one group into a problem in the other,
 and be taken seriously when it does.
 Folds are where information advantage meets the legitimacy to act on it.
 
-```{r foldvshole-qa, echo=FALSE, purl = FALSE}
-question("What does a structural fold add to the structural-hole story?",
-         answer("Membership: the node is a recognised insider to both groups, giving it the standing to get novel ideas adopted, not just heard.",
-                correct = TRUE,
-                message = learnr::random_praise()),
-         answer("Nothing new -- a fold is just another name for a structural hole.",
-                message = "Not quite -- a hole is a *gap between* groups spanned from outside, whereas a fold is an *overlap*: the node belongs to both groups at once."),
-         answer("It measures how many ties a node has.",
-                message = "Not quite -- that would be degree. A fold is about overlapping *group membership*, not tie count."),
-         answer("It guarantees the node has the highest betweenness.",
-                message = "Not quite -- betweenness is about lying on shortest paths; a fold is about cohesive membership in more than one group."),
-         allow_retry = TRUE,
-         random_answer_order = TRUE
-)
-```
+::: {.callout}
+<span class="callout-label">**Try it yourself**:</span> This section includes an interactive quiz in the live tutorial — run `run_tute()` at the R console to try it.
+:::
 
 ### Finding folds {#finding-folds}
 
@@ -638,7 +439,7 @@ group. Let's try it on the (named) algebra network.
 
 **Run `node_is_fold()` on `alge`, and check whether _any_ node is in a fold.**
 
-```{r folds, exercise = TRUE, exercise.setup = "objects-setup"}
+```{r folds}
 node_is_fold(alge)
 any(node_is_fold(alge))
 ```
@@ -678,21 +479,9 @@ _two_ such dense, watchful groups.
 The very embeddedness that gives a fold its legitimacy
 can also become a vice that grips.
 
-```{r torture-qa, echo=FALSE, purl = FALSE}
-question("According to Krackhardt's 'ties that torture' argument, why might a node in a structural fold be *more* constrained rather than less?",
-         answer("It is subject to the norms and obligations of two cohesive groups at once, which may conflict.",
-                correct = TRUE,
-                message = paste(learnr::random_praise(), "Dual membership means dual accountability -- the same embeddedness that grants legitimacy can also trap the node between competing expectations.")),
-         answer("It has too few ties to be influential.",
-                message = "Not quite -- the problem isn't too few ties; it is being bound by the (possibly conflicting) obligations of two groups simultaneously."),
-         answer("Its constraint score is always exactly zero.",
-                message = "Not quite -- the argument is substantive, not about a particular numeric value; the point is that dual embeddedness can be constraining rather than liberating."),
-         answer("Structural folds and structural holes are the same thing.",
-                message = "Not quite -- they are opposites: a hole is a gap spanned from outside, a fold is an overlap of memberships."),
-         allow_retry = TRUE,
-         random_answer_order = TRUE
-)
-```
+::: {.callout}
+<span class="callout-label">**Try it yourself**:</span> This section includes an interactive quiz in the live tutorial — run `run_tute()` at the R console to try it.
+:::
 
 ::: {.callout}
 <span class="callout-label">**Going further**:</span>
@@ -736,19 +525,9 @@ Think of two assistants who both report to the same three managers:
 they need not know each other, but their ties point to the same people.
 Let's make sure the definition is clear before we compute it.
 
-```{r equiv-qa, echo=FALSE, purl = FALSE}
-question("Structural equivalence means identifying classes of nodes with...",
-         answer("same/similar tie partners.",
-                correct = TRUE,
-                message = learnr::random_praise()),
-         answer("same/similar pattern of ties.",
-                message = "Close, but that is the definition for *regular* equivalence -- equivalent nodes tie to equivalent others, not necessarily the *same* others. We'll get to it."),
-         answer("same/similar distance from all others.",
-                message = "Not quite -- that is closer to *automorphic* equivalence (interchangeable positions). We'll get to it too."),
-         allow_retry = TRUE,
-         random_answer_order = TRUE
-)
-```
+::: {.callout}
+<span class="callout-label">**Try it yourself**:</span> This section includes an interactive quiz in the live tutorial — run `run_tute()` at the R console to try it.
+:::
 
 We're going to identify structurally equivalent positions
 across all the data that we have, including 'task', 'social', and 'friend' ties.
@@ -765,7 +544,7 @@ into structurally equivalent classes can be as easy as one function call,
 **Run the code below to compute the structural-equivalence classes and colour
 the graph by them.**
 
-```{r find-se, exercise = TRUE, exercise.setup = "data"}
+```{r find-se}
 node_in_structural(ison_algebra)
 
 ison_algebra %>%
@@ -796,28 +575,6 @@ The function that produces this tie census is `node_x_tie()`.
 **Produce the tie census of `ison_algebra`, and find its dimensions with
 `dim()`.** What do the numbers of rows and columns represent?
 
-```{r construct-cor, exercise = TRUE, exercise.setup = "data", purl = FALSE}
-
-```
-
-```{r construct-cor-hint-1, purl = FALSE}
-# node_x_tie() takes the network as its argument:
-node_x_tie(____)
-```
-
-```{r construct-cor-hint-2, purl = FALSE}
-node_x_tie(ison_algebra)
-```
-
-```{r construct-cor-hint-3, purl = FALSE}
-# Wrap the census in dim() to get its number of rows and columns:
-dim(node_x_tie(ison_algebra))
-```
-
-```{r construct-cor-solution}
-node_x_tie(ison_algebra)
-dim(node_x_tie(ison_algebra))
-```
 
 We can see that the result is a matrix of 16 rows and 96 columns,
 because we want to catalogue or take a census of all the different
@@ -830,30 +587,6 @@ what would you do if you wanted it to be binary (just present/absent)?
 
 **Turn the tie census into a binary one — try it yourself before peeking.**
 
-```{r construct-binary, exercise = TRUE, exercise.setup = "data", purl = FALSE}
-
-```
-
-```{r construct-binary-hint-1, purl = FALSE}
-# One way: compare the census to 0 to get TRUE/FALSE, then add 0 to get 1/0.
-as.matrix((node_x_tie(ison_algebra)>0)+0)
-```
-
-```{r construct-binary-hint-2, purl = FALSE}
-# A tidier way: simplify the network first by dropping the tie-type distinction,
-# then take the census.
-ison_algebra %>%
-  select_ties(-type) %>%
-  node_x_tie()
-```
-
-```{r construct-binary-solution}
-# But it's easier to simplify the network by removing the classification into different types of ties.
-# Note that this also reduces the total number of possible paths between nodes
-ison_algebra %>%
-  select_ties(-type) %>%
-  node_x_tie()
-```
 
 Note that `node_x_tie()` does not need to be passed to `node_in_structural()` ---
 this is done automatically!
@@ -888,7 +621,7 @@ by plotting the dendrograms (hidden) in the output from `node_in_structural()`.
 **Run the code to plot three dendrograms — varying first the distance, then the
 algorithm — and watch how the tree changes.**
 
-```{r varyclust, exercise = TRUE, exercise.setup = "data"}
+```{r varyclust}
 alge <- to_named(ison_algebra) # fake names to make comparison clearer
 plot(node_in_structural(alge, cluster = "hier", distance = "euclidean"))
 
@@ -899,14 +632,9 @@ plot(node_in_structural(alge, cluster = "hier", distance = "manhattan"))
 plot(node_in_structural(alge, cluster = "concor", distance = "euclidean"))
 ```
 
-```{r scale-interp, echo = FALSE, purl = FALSE}
-question("Do you see any differences?",
-         answer("Yes", correct = TRUE,
-                message = paste(learnr::random_praise(), "The dendrograms shift as you change the distance measure and the clustering algorithm -- which is exactly why it matters to report which options you used.")),
-         answer("No",
-                message = "Look again -- changing the distance (euclidean vs. manhattan) and especially the algorithm (hierarchical vs. CONCOR) reshapes the dendrogram and can regroup the nodes."),
-        allow_retry = TRUE)
-```
+::: {.callout}
+<span class="callout-label">**Try it yourself**:</span> This section includes an interactive quiz in the live tutorial — run `run_tute()` at the R console to try it.
+:::
 
 So plotting a `membership` vector from `{netrics}` returns a dendrogram
 with the names of the nodes on the _y_-axis and the distance between them on the _x_-axis.
@@ -962,7 +690,7 @@ into two clusters, no matter how dissimilar they are.
 
 **Run the code to force a two-cluster solution, and see where the red line lands.**
 
-```{r k-discrete, exercise = TRUE, exercise.setup = "varyclust"}
+```{r k-discrete}
 plot(node_in_structural(to_named(ison_algebra), k = 2))
 ```
 
@@ -1007,7 +735,7 @@ can return a somewhat different result to the elbow method.
 
 **Compare the elbow and silhouette solutions, holding everything else the same.**
 
-```{r elbowsil, exercise = TRUE, exercise.setup = "varyclust"}
+```{r elbowsil}
 plot(node_in_structural(to_named(ison_algebra), k = "elbow"))
 plot(node_in_structural(to_named(ison_algebra), k = "silhouette"))
 ```
@@ -1037,7 +765,7 @@ despite some variation, can be considered as similar on some dimension.
 
 **Try the strict solution. How many clusters does it produce, and why?**
 
-```{r strict, exercise = TRUE, exercise.setup = "varyclust"}
+```{r strict}
 plot(node_in_structural(to_named(ison_algebra), k = "strict"))
 ```
 
@@ -1075,7 +803,7 @@ We can graph this of course, as we did above.
 
 **Colour the graph by structural-equivalence class.**
 
-```{r strplot, exercise = TRUE, exercise.setup = "varyclust"}
+```{r strplot}
 alge <- to_named(ison_algebra)
 alge %>%
   mutate(se = node_in_structural(alge)) %>%
@@ -1101,27 +829,6 @@ but this can be tweaked by assigning some other summary statistic as `FUN = `.
 
 **Summarise the tie census by the structural-equivalence membership.**
 
-```{r summ, exercise = TRUE, exercise.setup = "strplot", purl = FALSE}
-
-```
-
-```{r summ-hint-1, purl = FALSE}
-# Wrap node_x_tie() inside summary(), and pass a membership result.
-# The census goes first, then membership = a membership vector.
-summary(node_x_tie(____),
-        membership = ____)
-```
-
-```{r summ-hint-2, purl = FALSE}
-# Use the named algebra network 'alge' for both:
-summary(node_x_tie(alge),
-        membership = node_in_structural(alge))
-```
-
-```{r summ-solution}
-summary(node_x_tie(alge),
-        membership = node_in_structural(alge))
-```
 
 This node census produces 96 columns,
 $16 \text{nodes} * 2 \text{directions} * 3 \text{edge types}$,
@@ -1141,43 +848,6 @@ along with a membership vector allows the matrix to be sorted and framed
 
 **Plot the blockmodel for the whole network, then for each tie type separately.**
 
-```{r block, exercise = TRUE, exercise.setup = "strplot", purl = FALSE}
-
-```
-
-```{r block-hint-1, purl = FALSE}
-# Use the same plot() you used for the dendrograms, but pass it a matrix.
-# as_matrix() turns the network into its adjacency matrix.
-plot(as_matrix(____),
-     membership = ____)
-```
-
-```{r block-hint-2, purl = FALSE}
-# For the whole network:
-plot(as_matrix(alge),
-     membership = node_in_structural(alge))
-```
-
-```{r block-hint-3, purl = FALSE}
-# For a single tie type, extract it first with to_uniplex(),
-# but keep the membership from the whole network so the blocks line up:
-plot(as_matrix(to_uniplex(alge, "friends")),
-     membership = node_in_structural(alge))
-```
-
-```{r block-solution}
-# plot the blockmodel for the whole network
-plot(as_matrix(alge),
-     membership = node_in_structural(alge))
-
-# plot the blockmodel for the friends, tasks, and social networks separately
-plot(as_matrix(to_uniplex(alge, "friends")),
-     membership = node_in_structural(alge))
-plot(as_matrix(to_uniplex(alge, "tasks")),
-     membership = node_in_structural(alge))
-plot(as_matrix(to_uniplex(alge, "social")),
-     membership = node_in_structural(alge))
-```
 
 By passing the membership argument our structural equivalence results,
 the matrix is re-sorted to cluster or 'block' nodes from the same class together.
@@ -1215,21 +885,9 @@ but everyone hangs out with them for task advice.
 Reading a blockmodel like this — turning blocks of density into a sentence about
 each role — is the interpretive skill this whole section is building towards.
 
-```{r blockinterp-qa, echo=FALSE, purl = FALSE}
-question("In a blockmodel plot sorted by class, what does an empty (white) off-diagonal block between class A (rows) and class B (columns) tell you?",
-         answer("Members of class A rarely or never send ties to members of class B.",
-                correct = TRUE,
-                message = learnr::random_praise()),
-         answer("Classes A and B are the same class.",
-                message = "Not quite -- an empty block is about the *absence of ties* from one class to another, not about the classes being identical. Identical classes wouldn't be drawn as two separate blocks."),
-         answer("Every member of class A sends a tie to every member of class B.",
-                message = "That would be a full, dark block -- the opposite of an empty one."),
-         answer("Class A has no members.",
-                message = "Not quite -- an empty block still has rows (members); it just records that those members don't tie to class B."),
-         allow_retry = TRUE,
-         random_answer_order = TRUE
-)
-```
+::: {.callout}
+<span class="callout-label">**Try it yourself**:</span> This section includes an interactive quiz in the live tutorial — run `run_tute()` at the R console to try it.
+:::
 
 ::: {.callout}
 <span class="callout-label">**In brief**:</span> Once you have a membership vector,
@@ -1266,7 +924,7 @@ where each cell holds the average tie (weight) from one class to another.
 
 **Contract the algebra network into its four structural-equivalence blocks.**
 
-```{r structblock, exercise = TRUE, exercise.setup = "varyclust", warning=FALSE}
+```{r structblock, warning=FALSE}
 (bm <- to_blocks(alge, node_in_structural(alge)))
 ```
 
@@ -1284,7 +942,7 @@ and graph it.
 
 **Turn the block matrix into a graph, give the four positions names, and plot it.**
 
-```{r reducedgraph, exercise = TRUE, exercise.setup = "structblock", warning=FALSE}
+```{r reducedgraph, warning=FALSE}
 bm <- bm %>% as_tidygraph %>%
   mutate(name = c("Freaks", "Squares", "Nerds", "Geek"))
 graphr(bm)
@@ -1328,19 +986,9 @@ alongside `node_in_structural()`, all built on the same
 census → dendrogram → cut machinery you unpacked earlier —
 only starting from a different census.
 
-```{r threeq-qa, echo=FALSE, purl = FALSE}
-question("Match the intuition to the equivalence. Which statement describes *regular* equivalence?",
-         answer("Nodes tie to equivalent others -- the same *pattern* of ties, not necessarily to the same people.",
-                correct = TRUE,
-                message = paste(learnr::random_praise(), "Two managers who each supervise their own (different) team are regularly equivalent.")),
-         answer("Nodes have exactly the same tie partners.",
-                message = "That is *structural* equivalence -- the strictest of the three."),
-         answer("Nodes can be swapped without changing the network's structure.",
-                message = "That is *automorphic* equivalence -- interchangeable positions."),
-         allow_retry = TRUE,
-         random_answer_order = TRUE
-)
-```
+::: {.callout}
+<span class="callout-label">**Try it yourself**:</span> This section includes an interactive quiz in the live tutorial — run `run_tute()` at the R console to try it.
+:::
 
 ### Regular equivalence {#regular-equivalence}
 
@@ -1358,7 +1006,7 @@ neighbourhoods rather than their exact membership.
 **Compute the regular-equivalence classes for `alge`, plot the dendrogram,
 and colour the graph by class.**
 
-```{r regular, exercise = TRUE, exercise.setup = "varyclust"}
+```{r regular}
 node_in_regular(alge)
 plot(node_in_regular(alge))
 
@@ -1389,7 +1037,7 @@ summarising each node by the distances to everyone else.
 **Compute the automorphic-equivalence classes for `alge`, plot the dendrogram,
 and colour the graph by class.**
 
-```{r automorphic, exercise = TRUE, exercise.setup = "varyclust"}
+```{r automorphic}
 node_in_automorphic(alge)
 plot(node_in_automorphic(alge))
 
@@ -1412,7 +1060,7 @@ so structural is strictest, regular loosest.
 
 **Run all three side by side and compare how many classes each finds.**
 
-```{r compareq, exercise = TRUE, exercise.setup = "varyclust"}
+```{r compareq}
 node_in_structural(alge)
 node_in_regular(alge)
 node_in_automorphic(alge)
@@ -1432,19 +1080,9 @@ Which you reach for depends on your question:
 "who plays the same kind of role?" (regular),
 or "who is structurally interchangeable?" (automorphic).
 
-```{r whichq-qa, echo=FALSE, purl = FALSE}
-question("You want to identify which employees play the 'regional manager' role in a company network, regardless of which particular staff or head office they connect to. Which equivalence best fits?",
-         answer("Regular equivalence",
-                correct = TRUE,
-                message = paste(learnr::random_praise(), "Roles defined by *pattern* of ties -- relating to some staff below and some office above -- are exactly what regular equivalence captures.")),
-         answer("Structural equivalence",
-                message = "Too strict here -- it would require the managers to share the *same* staff and office, which regional managers in different regions do not."),
-         answer("Automorphic equivalence",
-                message = "Closer, but it demands identical structural surroundings; the everyday notion of the same *role* across different regions is better matched by regular equivalence."),
-         allow_retry = TRUE,
-         random_answer_order = TRUE
-)
-```
+::: {.callout}
+<span class="callout-label">**Try it yourself**:</span> This section includes an interactive quiz in the live tutorial — run `run_tute()` at the R console to try it.
+:::
 
 ::: {.callout}
 <span class="callout-label">**In brief**:</span> `node_in_structural()` (same partners, via a
@@ -1468,30 +1106,6 @@ the result.
 **As an extension, also compute the structurally and automorphically equivalent
 classes and compare all three** — do they agree on who plays which role?
 
-```{r freeplay, exercise = TRUE, purl = FALSE}
-
-```
-
-```{r freeplay-hint-1, purl = FALSE}
-# Load the data and peek at its tie types (it is multiplex):
-data("ison_lawfirm", package = "manynet")
-ison_lawfirm
-```
-
-```{r freeplay-hint-2, purl = FALSE}
-# Extract one tie type, e.g. "friends", and find its regular-equivalence classes:
-lawfirm_friends <- to_uniplex(ison_lawfirm, "friends")
-node_in_regular(lawfirm_friends)
-```
-
-```{r freeplay-hint-3, purl = FALSE}
-# Colour a graph by the classes, and compare with the other two equivalences:
-lawfirm_friends %>%
-  mutate(re = node_in_regular(lawfirm_friends)) %>%
-  graphr(node_color = "re")
-node_in_structural(lawfirm_friends)
-node_in_automorphic(lawfirm_friends)
-```
 
 If you would rather choose your own data
 (browse the bundled datasets with `table_data()`),
