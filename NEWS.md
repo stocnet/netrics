@@ -31,6 +31,7 @@
 - Improved the position tutorial (`netrics3`) with a new interactive style
   - Added sections introducing regular and automorphic equivalence in more detail to the position tutorial
   - Added a section on structural folds and ties that torture to the position tutorial
+  - Added a section on Gould and Fernandez's brokerage roles (`node_x_brokerage()` and `net_x_brokerage()`) to the position tutorial
 - Improved the topology tutorial (`netrics4`) with a new interactive style
   - Added a section on degree mixing measures for characterising centralisation to the topology tutorial
   - Added a section on further generators, such as fire, islands, and citations, to the topology tutorial

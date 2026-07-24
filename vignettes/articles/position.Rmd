@@ -145,6 +145,7 @@ By the end of this tutorial, you should be able to:
 - [ ] &nbsp; Identify bridging ties with `tie_is_bridge()` and count them per node with `node_by_bridges()`
 - [ ] &nbsp; Measure structural holes with `node_by_constraint()`, and interpret what high and low constraint mean substantively
 - [ ] &nbsp; Distinguish structural holes from structural folds, and explain why a fold can constrain a broker rather than free them
+- [ ] &nbsp; Classify a node's brokerage into Gould and Fernandez's five roles with `node_x_brokerage()`, once nodes belong to known groups
 - [ ] &nbsp; Distinguish structural, regular, and automorphic equivalence, and compute each with `node_in_structural()`, `node_in_regular()`, and `node_in_automorphic()`
 - [ ] &nbsp; Partition a network into equivalent classes, and understand the census, clustering, and _k_-selection choices behind it
 - [ ] &nbsp; Read a dendrogram and a blockmodel, and justify a choice of _k_
@@ -382,12 +383,11 @@ For formal definitions and references, see `?measure_broker_node`.
 
 ::: {.callout}
 <span class="callout-label">**Going further**:</span>
-Structural holes are closely related to _brokerage_ as a behaviour:
-`node_by_brokering_activity()` and `node_by_brokering_exclusivity()`
-measure how often a node sits between its contacts and how exclusively,
-and `node_x_brokerage()` counts Gould and Fernandez's five brokerage roles
-(coordinator, gatekeeper, representative, itinerant, liaison)
-once nodes belong to known groups.
+So far every broker has looked alike — constraint measures _how much_ brokerage
+potential a node has, but not _what kind_.
+Once nodes belong to known groups, we can be far more specific:
+the **Brokerage roles** section below unpacks Gould and Fernandez's typology of
+five distinct ways to sit between others.
 :::
 
 ::: {.callout}
@@ -501,6 +501,134 @@ occupied from inside for information advantage _plus_ the standing to act.
 `node_is_fold()` flags fold members.
 Krackhardt's "ties that torture" is the reminder that dual membership brings
 dual obligations, and can constrain rather than liberate.
+:::
+
+## Brokerage roles
+
+<span class="page-toc">On this page:
+<span class="page-toc-link" onclick="document.getElementById('section-five-roles').scrollIntoView({behavior:'auto',block:'start'});">Five roles</span> ·
+<span class="page-toc-link" onclick="document.getElementById('section-counting-roles').scrollIntoView({behavior:'auto',block:'start'});">Counting roles</span> ·
+<span class="page-toc-link" onclick="document.getElementById('section-brokerage-network').scrollIntoView({behavior:'auto',block:'start'});">Whole network</span></span>
+
+Constraint told us _how much_ brokerage potential a node has,
+but it treated every broker alike: a broker is simply someone whose contacts
+are not tied to one another.
+Once nodes belong to known _groups_, though,
+we can ask a sharper question — not just _how much_ a node brokers,
+but _what kind_ of brokering it does.
+Passing information between two members of your own team
+is a rather different act from passing it between two outsiders,
+or from being the single gateway through which news reaches your team.
+
+Gould and Fernandez (1989) turned this intuition into a compact typology.
+Take any directed two-path in which a broker _B_ sits between a source _A_ and
+a target _C_ (that is, _A_ → _B_ → _C_), and look only at which _groups_ the
+three belong to. That alone distinguishes five kinds of brokerage.
+
+### Five roles from group membership {#five-roles}
+
+To make the five roles concrete, imagine a law firm with offices in different
+cities, and think of _B_ as the lawyer who relays a piece of advice from _A_
+on to _C_:
+
+- A **coordinator** brokers _within_ a single group: _A_, _B_, and _C_ all
+belong to the same group (a lawyer relaying advice between two colleagues in
+their own office).
+- An **itinerant broker** (or _consultant_) stands _outside_ the group it
+serves: _A_ and _C_ share a group, but the broker _B_ belongs to a different
+one (an out-of-town lawyer connecting two colleagues who both work in one
+office).
+- A **gatekeeper** guards the way _in_: the source _A_ is an outsider while the
+broker _B_ and the target _C_ share a group, so _B_ governs what reaches its
+own group (a lawyer who takes advice from another office and passes it to a
+colleague in theirs).
+- A **representative** speaks _out_: the source _A_ and broker _B_ share a
+group but the target _C_ is an outsider, so _B_ governs what its group sends
+out (a lawyer relaying a colleague's advice to another office).
+- A **liaison** connects three different worlds: _A_, _B_, and _C_ each belong
+to a different group (a lawyer brokering between two other offices, neither of
+them their own).
+
+Notice that the direction of the tie matters: gatekeeper and representative are
+mirror images of one another, distinguished only by whether the broker sits on
+the _receiving_ or the _sending_ side of its own group's boundary.
+
+::: {.callout}
+<span class="callout-label">**Try it yourself**:</span> This section includes an interactive quiz in the live tutorial — run `run_tute()` at the R console to try it.
+:::
+
+### Counting each node's roles {#counting-roles}
+
+`node_x_brokerage()` counts, for every node, how many two-paths it brokers in
+each of the five roles. It needs two things: a _directed_ network (so that
+source and target can be told apart) and a `membership` — the groups the roles
+are defined against. Those groups are supplied from outside; here we use the
+advice network among lawyers in `ison_lawfirm`, with each lawyer's `office`
+(Boston, Hartford, or Providence) as the grouping.
+
+
+**Run the code to count each lawyer's brokerage roles in the advice network,
+grouped by office.**
+
+```{r nodebrokerage}
+node_x_brokerage(lawfirm_advice, "office")
+```
+
+Each row is a lawyer and each column one of the five roles, plus a `Total`.
+Reading across a row tells you _how_ that lawyer brokers, not just how often:
+most counts fall in the **Coordinator** column, because the bulk of advice
+stays within an office, while the lawyers with high **Gatekeeper** or
+**Representative** counts are the ones mediating _across_ office boundaries —
+regulating what flows in to, or out of, their own office.
+**Liaison** counts are the rarest, since a liaison needs a two-path spanning
+three _different_ offices at once.
+
+The raw counts depend on how big and how active each group is, which makes them
+hard to compare across nodes. Passing `standardized = TRUE` instead returns a
+_z_-score for each role, saying how far above or below chance a node's count
+lies given the group sizes — often the fairer basis for comparison.
+
+### Brokerage across the whole network {#brokerage-network}
+
+Sometimes we care less about which individual brokers most and more about the
+_network's_ overall brokerage profile: is advice mostly kept within offices,
+or does it flow across them? `net_x_brokerage()` returns a single count per
+role for the network as a whole.
+
+**Summarise the whole advice network's brokerage profile by office.**
+
+```{r netbrokerage}
+net_x_brokerage(lawfirm_advice, "office")
+```
+
+Comparing the columns tells us how _open_ the firm's advice-seeking is: a
+profile dominated by coordinators describes a firm where advice stays close to
+home, whereas large gatekeeper, representative, and liaison counts would mark a
+firm whose offices lean heavily on one another for guidance.
+
+**Try it yourself**: `node_x_brokerage()` works on any directed network with a
+group attribute. Try it on `ison_monks`, whose nodes carry Sampson's factional
+`groups` — which monks broker _across_ factions rather than within them?
+
+
+::: {.callout}
+<span class="callout-label">**Going further**:</span>
+The Gould-Fernandez roles are one way to characterise brokerage,
+but not the only one. `node_by_brokering_activity()` counts how often a node
+sits on a two-path between _different_ groups, `node_by_brokering_exclusivity()`
+counts only the two-paths where it is the _sole_ broker, and
+`node_in_brokering()` combines the two to label nodes as powerhouses,
+connectors, linchpins, or sideliners (Hamilton et al. 2020).
+See `?measure_brokerage` and `?member_brokerage` for details.
+:::
+
+::: {.callout}
+<span class="callout-label">**In brief**:</span> Once nodes belong to known groups,
+`node_x_brokerage()` counts, per node, how many two-paths it brokers as a
+_coordinator_, _itinerant broker_, _gatekeeper_, _representative_, or _liaison_
+(Gould and Fernandez's five roles), and `net_x_brokerage()` gives the same
+profile for the whole network. Both need a _directed_ network and a
+`membership`; `standardized = TRUE` returns _z_-scores instead of raw counts.
 :::
 
 ## Structural equivalence
@@ -1131,6 +1259,7 @@ Along the way, you have learned to use these functions:
 | `node_by_constraint()` | Burt's constraint: how closed each node's neighbourhood is |
 | `node_by_effsize()`, `node_by_redundancy()`, `node_by_efficiency()`, `node_by_hierarchy()` | further structural-holes measures: non-redundant contacts, their overlap, and more |
 | `node_is_fold()` | flags nodes in a structural fold (cohesive membership in more than one group) |
+| `node_x_brokerage()`, `net_x_brokerage()` | Gould and Fernandez's five brokerage roles, per node and for the whole network |
 | `node_is_min()` | flags the node(s) with the minimum score, for highlighting |
 | `node_in_structural()` | structurally equivalent classes (same tie partners; `cluster`, `distance`, `k`, `range` options) |
 | `node_in_regular()`, `node_in_automorphic()` | regularly and automorphically equivalent classes (same role; interchangeable) |
