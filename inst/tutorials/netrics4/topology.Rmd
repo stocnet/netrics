@@ -568,6 +568,51 @@ comes from a power-law distribution.
 net_by_scalefree(generate_scalefree(50, 2))
 ```
 
+Why does this matter?
+A power-law degree distribution means the network is dominated by a few hubs,
+and such networks behave distinctively:
+they are remarkably robust to _random_ failure
+(a random node is almost surely peripheral),
+yet fragile to _targeted_ attack on their hubs —
+a theme we return to on the Resilience page.
+
+::: {.callout}
+<span class="callout-label">**Going further**:</span>
+The exponent reported by `net_by_scalefree()` is fitted to the empirical
+degree distribution, so it is most informative for networks large enough to
+have a meaningful tail. For a visual check, `plot()` the network's degree
+distribution (see the Centrality tutorial) and look for the heavy right tail.
+:::
+
+### Degree mixing {#degree-mixing}
+
+Once a network has hubs, two further topological questions arise about how
+degrees are arranged with respect to one another.
+_Do the hubs stick together?_ — the **rich-club** coefficient
+(`net_by_richclub()`) asks whether high-degree nodes are more densely tied to
+_each other_ than their numbers alone would predict.
+And _do similar nodes attach to similar nodes?_ — degree **assortativity**
+(`net_by_assortativity()`) correlates the degrees at the two ends of each tie:
+positive means high-degree nodes pair with high-degree nodes (assortative),
+negative means hubs mostly attach to the periphery (disassortative).
+Both are purely structural, needing no node attributes.
+**Contrast a scale-free network with a random one.**
+
+```{r degmix, exercise = TRUE}
+set.seed(123)
+sf <- generate_scalefree(50, 2)
+net_by_richclub(sf)          # hubs interconnected?
+net_by_assortativity(sf)     # do like degrees attach?
+net_by_assortativity(generate_random(50, 0.08))
+```
+
+The scale-free network is strongly _disassortative_ (a negative score):
+its preferential-attachment hubs are joined mostly to the many low-degree
+nodes, not to each other — the signature of technological and biological
+networks. Many _social_ networks, by contrast, are mildly assortative, as
+popular people tend to know one another. A random graph sits near zero,
+having no degree-mixing tendency at all.
+
 ## Core-Periphery
 
 <span class="page-toc">On this page:
