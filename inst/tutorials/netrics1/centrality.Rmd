@@ -100,7 +100,7 @@ This tutorial shows how to measure and map
 explore their `r gloss("distributions","distribution")`,
 and summarise the whole network's `r gloss("centralisation","centralization")`.
 
-<img src="https://i.giphy.com/media/v1.Y2lkPTc5MGI3NjExbG5oYmVtYmcxMWs1d3MzOGh3Zng5dTZhc241ZHR2NTE0YThiZWp4NiZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/970Sr8vpwEbXG/giphy.gif" height="480px"/>
+<img src="https://i.giphy.com/media/v1.Y2lkPTc5MGI3NjExbG5oYmVtYmcxMWs1d3MzOGh3Zng5dTZhc241ZHR2NTE0YThiZWp4NiZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/970Sr8vpwEbXG/giphy.gif" height="480px" alt="gif of a glowing circuit board captioned 'Central Processing Unit'"/>
 
 ::: {.callout}
 <span class="callout-label">**Catching up**:</span>
@@ -205,7 +205,7 @@ as they are assigned randomly from a pool of (American) first names.
 <span class="page-toc-link" onclick="document.getElementById('section-degrees-of-direction').scrollIntoView({behavior:'auto',block:'start'});">Direction</span> ·
 <span class="page-toc-link" onclick="document.getElementById('section-strength-of-ties').scrollIntoView({behavior:'auto',block:'start'});">Strength</span></span>
 
-<img src="https://i.giphy.com/media/v1.Y2lkPTc5MGI3NjExM3d6eGd2OHRxb2FvbHYzc2oyenFzOG5qcjhzMm82Mm1ncTVpOHhreiZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/uVd5gVHAq63SjtjAOe/giphy.gif" height="480px"/>
+<img src="https://i.giphy.com/media/v1.Y2lkPTc5MGI3NjExM3d6eGd2OHRxb2FvbHYzc2oyenFzOG5qcjhzMm82Mm1ncTVpOHhreiZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/uVd5gVHAq63SjtjAOe/giphy.gif" height="480px" alt="gif of a man saying 'I am a bit of a social butterfly'"/>
 
 ### Counting ties {#counting-ties}
 
@@ -869,7 +869,7 @@ and the bridge to it runs through the _distribution_ of a nodal measure.
 
 ### Reading a distribution {#reading-a-distribution}
 
-<img src="https://i.giphy.com/media/v1.Y2lkPTc5MGI3NjExanZ4OWhwM2k0eWU1ancza3NtYXlpZDFkdTJub2RvMnFkYnlwbWZ4dCZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/3o7aTHbH39h8xYePza/giphy.gif" height="400px"/>
+<img src="https://i.giphy.com/media/v1.Y2lkPTc5MGI3NjExanZ4OWhwM2k0eWU1ancza3NtYXlpZDFkdTJub2RvMnFkYnlwbWZ4dCZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/3o7aTHbH39h8xYePza/giphy.gif" height="400px" alt="gif of a woman saying 'But I can't help it that I'm popular'"/>
 
 Rather than reduce a measure to a single summary number,
 we can look at its whole `r gloss("distribution")` across the nodes.
@@ -1085,7 +1085,7 @@ which can be compared to see which mode is more centralised with respect to the 
 
 ## Free play
 
-<img src="https://i.giphy.com/media/v1.Y2lkPTc5MGI3NjExejh4dXBha3JhNW0yenJwMDd5aGpwd3Brc201ZXoxZnY2aWFna3Z4cCZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/7ROgX60TtTVK0mZwkJ/giphy.gif" height="400px"/>
+<img src="https://i.giphy.com/media/v1.Y2lkPTc5MGI3NjExejh4dXBha3JhNW0yenJwMDd5aGpwd3Brc201ZXoxZnY2aWFna3Z4cCZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/7ROgX60TtTVK0mZwkJ/giphy.gif" height="400px" alt="gif of a man saying 'I'm so tired of being so popular'"/>
 
 Choose another dataset included in `{manynet}` (browse them with `table_data()`).
 Name a plausible research question you could ask of the dataset relating to each

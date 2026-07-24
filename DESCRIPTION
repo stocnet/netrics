@@ -1,6 +1,6 @@
 Package: netrics
 Title: Many Ways to Measure and Classify Membership for Networks, Nodes, and Ties
-Version: 0.4.0
+Version: 0.4.1
 Description: Many tools for calculating network, node, or tie
    marks, measures, motifs and memberships of many different types of networks.
    Marks identify structural positions, measures quantify network properties,
@@ -39,7 +39,8 @@ Config/Needs/check:
     lintr,
     spelling
 Config/Needs/website:
-    pkgdown
+    pkgdown,
+    learnr
 Config/testthat/parallel: true
 Config/testthat/edition: 3
 Config/testthat/start-first: tutorials_netrics, measure_net, member_nodes, measure_nodes

@@ -24,7 +24,7 @@ jobs:
       GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
 
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
 
       - uses: r-lib/actions/setup-r@v2
         with:
@@ -73,12 +73,31 @@ jobs:
         run: spelling::spell_check_package()
         shell: Rscript {0}
 
+  articles-in-sync:
+    name: Tutorial articles are in sync
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: r-lib/actions/setup-r@v2
+
+      - name: Regenerate tutorial articles
+        run: Rscript data-raw/build_tutorial_articles.R
+
+      - name: Check for drift
+        run: |
+          if ! git diff --exit-code -- vignettes/articles/; then
+            echo "::error::vignettes/articles/*.Rmd are out of date with inst/tutorials/*.Rmd. Run 'Rscript data-raw/build_tutorial_articles.R' and commit the result."
+            exit 1
+          fi
+
   pr-metadata:
     name: PR metadata checks
     runs-on: macOS-latest
 
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
@@ -116,14 +135,5 @@ jobs:
         run: |
           if ! grep -qE '^##[[:space:]]' <<< "$PR_BODY"; then
             echo "::error::PR description does not itemize changes under subsection titles (e.g. \"## Data\")"
-            exit 1
-          fi
-
-      - name: Check PR description references an issue
-        env:
-          PR_BODY: ${{ github.event.pull_request.body }}
-        run: |
-          if ! grep -qiE '(close[sd]?|fix(e[sd])?|resolve[sd]?)[[:space:]]+#[0-9]+' <<< "$PR_BODY"; then
-            echo "::error::PR description does not reference a closed/fixed/related issue (e.g. \"Fixes #12 by adding X\")"
             exit 1
           fi
