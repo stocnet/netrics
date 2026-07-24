@@ -56,16 +56,16 @@ then the scores will be labelled with the nodes' names.
 These functions calculate common eigenvector-related centrality
 measures, or walk-based eigenmeasures, for one- and two-mode networks:
 \itemize{
-\item \code{node_eigenvector()} measures the eigenvector centrality of nodes
+\item \code{node_by_eigenvector()} measures the eigenvector centrality of nodes
 in a network.
-\item \code{node_power()} measures the Bonacich, beta, or power centrality of
+\item \code{node_by_power()} measures the Bonacich, beta, or power centrality of
 nodes in a network.
-\item \code{node_alpha()} measures the alpha or Katz centrality of nodes in a
+\item \code{node_by_alpha()} measures the alpha or Katz centrality of nodes in a
 network.
-\item \code{node_pagerank()} measures the pagerank centrality of nodes in a network.
-\item \code{node_hub()} measures how well nodes in a network serve as hubs pointing
+\item \code{node_by_pagerank()} measures the pagerank centrality of nodes in a network.
+\item \code{node_by_hub()} measures how well nodes in a network serve as hubs pointing
 to many authorities.
-\item \code{node_authority()} measures how well nodes in a network serve as
+\item \code{node_by_authority()} measures how well nodes in a network serve as
 authorities from many hubs.
 }
 
@@ -234,10 +234,6 @@ Other measures:
 \code{\link{measure_central_between}},
 \code{\link{measure_central_close}},
 \code{\link{measure_central_degree}},
-\code{\link{measure_centralisation_between}},
-\code{\link{measure_centralisation_close}},
-\code{\link{measure_centralisation_degree}},
-\code{\link{measure_centralisation_eigen}},
 \code{\link{measure_centralities_between}},
 \code{\link{measure_centralities_close}},
 \code{\link{measure_centralities_degree}},

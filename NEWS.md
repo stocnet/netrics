@@ -1,3 +1,11 @@
+# netrics 0.4.0
+
+## Measures
+
+- `net_by_degree()`, `net_by_indegree()`, `net_by_outdegree()`, `net_by_betweenness()`, `net_by_closeness()`, and `net_by_eigenvector()` now return a single network-level score for two-mode networks (via Freeman's general centralization index over the mode-normalized node scores), consistent with returning a scalar `network_measure` for all networks
+  - This is a behavioural change: these functions previously returned a length-two vector (one score per mode) for two-mode networks
+- Added a `mode_by_*()` family (`mode_by_degree()`, `mode_by_indegree()`, `mode_by_outdegree()`, `mode_by_betweenness()`, `mode_by_closeness()`, `mode_by_eigenvector()`) that returns the per-mode centralization scores for two-mode networks, following Borgatti and Everett (1997); these error on one-mode networks
+
 # netrics 0.3.1
 
 ## Package

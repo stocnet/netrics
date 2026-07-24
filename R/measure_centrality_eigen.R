@@ -6,16 +6,16 @@
 #'   These functions calculate common eigenvector-related centrality 
 #'   measures, or walk-based eigenmeasures, for one- and two-mode networks:
 #'   
-#'   - `node_eigenvector()` measures the eigenvector centrality of nodes 
+#'   - `node_by_eigenvector()` measures the eigenvector centrality of nodes 
 #'   in a network.
-#'   - `node_power()` measures the Bonacich, beta, or power centrality of 
+#'   - `node_by_power()` measures the Bonacich, beta, or power centrality of 
 #'   nodes in a network.
-#'   - `node_alpha()` measures the alpha or Katz centrality of nodes in a 
+#'   - `node_by_alpha()` measures the alpha or Katz centrality of nodes in a 
 #'   network.
-#'   - `node_pagerank()` measures the pagerank centrality of nodes in a network.
-#'   - `node_hub()` measures how well nodes in a network serve as hubs pointing 
+#'   - `node_by_pagerank()` measures the pagerank centrality of nodes in a network.
+#'   - `node_by_hub()` measures how well nodes in a network serve as hubs pointing 
 #'   to many authorities.
-#'   - `node_authority()` measures how well nodes in a network serve as 
+#'   - `node_by_authority()` measures how well nodes in a network serve as 
 #'   authorities from many hubs.
 #'   
 #'   All measures attempt to use as much information as they are offered,
@@ -295,38 +295,73 @@ tie_by_eigenvector <- function(.data, normalized = TRUE){
 #' Measuring networks eigenvector-like centralisation
 #' @name measure_centralisation_eigen
 #' @description
-#'   `net_by_eigenvector()` measures the eigenvector centralization for a 
-#'   network.
-#'   
+#'   - `net_by_eigenvector()` measures the eigenvector centralization for a
+#'   network as a single score.
+#'   - `mode_by_eigenvector()` measures eigenvector centralization separately for
+#'   each mode of a two-mode network (via projection to each mode), returning one
+#'   score per mode (following Borgatti and Everett, 1997).
+#'
 #'   All measures attempt to use as much information as they are offered,
 #'   including whether the networks are directed, weighted, or multimodal.
-#'   If this would produce unintended results, 
+#'   If this would produce unintended results,
 #'   first transform the salient properties using e.g. [to_undirected()] functions.
-#'   All centrality and centralization measures return normalized measures 
+#'   All centrality and centralization measures return normalized measures
 #'   by default, including for two-mode networks.
+#'
+#'   For two-mode networks the two modes have different theoretical maxima, so
+#'   `net_by_eigenvector()` reports a single network-level score by applying
+#'   Freeman's general centralization index over the normalized node eigenvector
+#'   scores, whereas `mode_by_eigenvector()` reports the per-mode scores directly.
 #' @template param_data
 #' @template param_norm
 #' @family eigenvector
 #' @family centrality
-#' @template net_measure
+#' @references
+#'   Borgatti, Stephen P., and Martin G. Everett. 1997.
+#'   "Network analysis of 2-mode data."
+#'   _Social Networks_ 19(3): 243-269.
+#'   \doi{10.1016/S0378-8733(96)00301-2}
+#' @returns
+#'   `net_by_eigenvector()` returns a `network_measure` scalar;
+#'   `mode_by_eigenvector()` returns a `mode_measure` numeric vector of length two,
+#'   giving one centralization score per mode.
 NULL
 
-#' @rdname measure_centralisation_eigen 
+#' @rdname measure_centralisation_eigen
 #' @examples
 #' net_by_eigenvector(ison_southern_women)
 #' @export
 net_by_eigenvector <- function(.data, normalized = TRUE){
   .data <- manynet::expect_nodes(.data)
   if (manynet::is_twomode(.data)) {
-    out <- c(igraph::centr_eigen(manynet::as_igraph(manynet::to_mode1(.data)), 
-                                 normalized = normalized)$centralization,
-             igraph::centr_eigen(manynet::as_igraph(manynet::to_mode2(.data)), 
-                                 normalized = normalized)$centralization)
+    # Two-mode eigenvector centralization is intrinsically per mode
+    # (see `mode_by_eigenvector()`, following Borgatti and Everett, 1997).
+    # For a single network-level score we apply Freeman's general
+    # centralization index over the whole node set, using the normalized node
+    # eigenvector scores (each in [0, 1]); the numerator's maximum is (n - 1).
+    nc <- node_by_eigenvector(.data, normalized = TRUE)
+    out <- sum(max(nc) - nc) / (length(nc) - 1)
   } else {
-    out <- igraph::centr_eigen(manynet::as_igraph(.data), 
+    out <- igraph::centr_eigen(manynet::as_igraph(.data),
                                normalized = normalized)$centralization
   }
   out <- make_network_measure(out, .data, call = deparse(sys.call()))
+  out
+}
+
+#' @rdname measure_centralisation_eigen
+#' @examples
+#' mode_by_eigenvector(ison_southern_women)
+#' @export
+mode_by_eigenvector <- function(.data, normalized = TRUE){
+  .data <- manynet::expect_nodes(.data)
+  if (!manynet::is_twomode(.data))
+    manynet::snet_abort("`mode_by_eigenvector()` is only defined for two-mode networks; use `net_by_eigenvector()` for one-mode networks.")
+  out <- c("Mode 1" = igraph::centr_eigen(manynet::as_igraph(manynet::to_mode1(.data)),
+                                          normalized = normalized)$centralization,
+           "Mode 2" = igraph::centr_eigen(manynet::as_igraph(manynet::to_mode2(.data)),
+                                          normalized = normalized)$centralization)
+  out <- make_mode_measure(out, .data, call = deparse(sys.call()))
   out
 }
 

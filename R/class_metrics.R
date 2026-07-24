@@ -52,6 +52,13 @@ make_network_measure <- function(out, .data, call) {
   out
 }
 
+make_mode_measure <- function(out, .data, call) {
+  class(out) <- c("mode_measure", "network_measure", class(out))
+  attr(out, "mode") <- manynet::net_dims(.data)
+  attr(out, "call") <- call
+  out
+}
+
 make_node_member <- function(out, .data) {
   if(is.numeric(out))
     out <- MORELETTERS[out]
