@@ -1,3 +1,10 @@
+# netrics 0.4.1
+
+## Package
+
+- Added `{learnr}` to Config/Needs/website
+- Updated actions/checkout@v2 to actions/checkout@v4
+
 # netrics 0.4.0
 
 ## Measures
