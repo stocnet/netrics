@@ -93,7 +93,7 @@ This tutorial shows how to measure and map
 explore their `r gloss("distributions","distribution")`,
 and summarise the whole network's `r gloss("centralisation","centralization")`.
 
-<img src="https://i.giphy.com/media/v1.Y2lkPTc5MGI3NjExbG5oYmVtYmcxMWs1d3MzOGh3Zng5dTZhc241ZHR2NTE0YThiZWp4NiZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/970Sr8vpwEbXG/giphy.gif" height="480px"/>
+<img src="https://i.giphy.com/media/v1.Y2lkPTc5MGI3NjExbG5oYmVtYmcxMWs1d3MzOGh3Zng5dTZhc241ZHR2NTE0YThiZWp4NiZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/970Sr8vpwEbXG/giphy.gif" height="480px" alt="gif of a glowing circuit board captioned 'Central Processing Unit'"/>
 
 ::: {.callout}
 <span class="callout-label">**Catching up**:</span>
@@ -166,7 +166,7 @@ as they are assigned randomly from a pool of (American) first names.
 <span class="page-toc-link" onclick="document.getElementById('section-degrees-of-direction').scrollIntoView({behavior:'auto',block:'start'});">Direction</span> ·
 <span class="page-toc-link" onclick="document.getElementById('section-strength-of-ties').scrollIntoView({behavior:'auto',block:'start'});">Strength</span></span>
 
-<img src="https://i.giphy.com/media/v1.Y2lkPTc5MGI3NjExM3d6eGd2OHRxb2FvbHYzc2oyenFzOG5qcjhzMm82Mm1ncTVpOHhreiZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/uVd5gVHAq63SjtjAOe/giphy.gif" height="480px"/>
+<img src="https://i.giphy.com/media/v1.Y2lkPTc5MGI3NjExM3d6eGd2OHRxb2FvbHYzc2oyenFzOG5qcjhzMm82Mm1ncTVpOHhreiZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/uVd5gVHAq63SjtjAOe/giphy.gif" height="480px" alt="gif of a man saying 'I am a bit of a social butterfly'"/>
 
 ### Counting ties {#counting-ties}
 
@@ -562,33 +562,26 @@ ideas — degree, closeness, and betweenness — with everything else a variant;
 we add eigenvector as a fourth, giving the **four families** this tutorial is
 built around.
 
-Two questions organise the whole zoo, and locate each family within it.^[
-This 2×2 framing is due to Borgatti and Everett
-([2006](https://doi.org/10.1016/j.socnet.2005.11.005)),
-"A graph-theoretic perspective on centrality".]
+Two questions organise the whole zoo, and locate each family within it.
 First: does the measure count what radiates _from_ a node — its own ties, its
 distances, its walks — or what passes _through_ it on the way between others?
-Borgatti and Everett call the first **radial** and the second **medial**:
+Borgatti and Everett ([2006](https://doi.org/10.1016/j.socnet.2005.11.005)) call the first **radial** and the second **medial**:
 degree, closeness, and eigenvector are radial; betweenness is medial.
 Second: does it read only a node's immediate neighbourhood (**local**),
 or its place in the whole network (**global**)?
 Degree is local; the other three are global.
 The four families are simply the most useful corners of that space,
-and each variant you met earlier is a refinement within its family.
+and each variant you met earlier is a refinement or extension within its family.
 
 | Family | Reads a node's… | Built on | Answers the question | Well-suited when |
 |---|---|---|---|---|
-| **Degree** | activity (radial, local) | its direct ties | "Who is busiest, or most directly connected?" | only immediate ties matter, or influence spreads one step at a time; also the cheapest to compute on very large networks |
+| **Degree** | activity (radial, local) | direct ties | "Who is busiest, or most directly connected?" | only immediate ties matter, or influence spreads one step at a time; also the cheapest to compute on very large networks; outdegree associated with activity and indegree with popularity; tie weight and sign versions exist too |
 | **Closeness** | reach (radial, global) | shortest-path distances to all others | "Who can reach — or be reached by — everyone else in the fewest steps?" | the network is connected and things travel by efficient routes; use `node_by_harmonic()` if it is disconnected |
 | **Betweenness** | brokerage (medial, global) | shortest paths that pass through it | "Who sits between others, brokering, bridging, or bottlenecking flow?" | you care about gatekeeping, bridges between groups, or where flow is vulnerable; costly on huge networks (use a `cutoff`) |
-| **Eigenvector** | standing (radial, global) | walks of all lengths, weighted by neighbours' scores | "Who is connected to other important, well-connected nodes?" | importance is recursive — prestige, status, influence; use `node_by_pagerank()` for directed or disconnected networks |
+| **Eigenvector** | standing (radial, global) | walks of all lengths, weighted by neighbours' scores | "Who is connected to other important, well-connected nodes?" | importance is recursive — prestige, status, influence; use `node_by_pagerank()` for directed or disconnected networks; use `node_by_power()` if influence depends on being connected to poorly-connected nodes |
 
 Reading across a row tells you what a family is _for_;
 reading down the last column tells you which _kind of network_ each suits best.
-The families are usually positively correlated — central nodes tend to be
-central on several measures at once — but the interesting findings often lie
-where they _disagree_: the low-degree broker, or the well-connected node that
-nonetheless reaches the rest of the network slowly.
 
 ::: {.callout}
 <span class="callout-label">**Try it yourself**:</span> This section includes an interactive quiz in the live tutorial — run `run_tute()` at the R console to try it.
@@ -663,7 +656,7 @@ and the bridge to it runs through the _distribution_ of a nodal measure.
 
 ### Reading a distribution {#reading-a-distribution}
 
-<img src="https://i.giphy.com/media/v1.Y2lkPTc5MGI3NjExanZ4OWhwM2k0eWU1ancza3NtYXlpZDFkdTJub2RvMnFkYnlwbWZ4dCZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/3o7aTHbH39h8xYePza/giphy.gif" height="400px"/>
+<img src="https://i.giphy.com/media/v1.Y2lkPTc5MGI3NjExanZ4OWhwM2k0eWU1ancza3NtYXlpZDFkdTJub2RvMnFkYnlwbWZ4dCZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/3o7aTHbH39h8xYePza/giphy.gif" height="400px" alt="gif of a woman saying 'But I can't help it that I'm popular'"/>
 
 Rather than reduce a measure to a single summary number,
 we can look at its whole `r gloss("distribution")` across the nodes.
@@ -745,14 +738,8 @@ as much precision as is available is used in further calculations.
 
 ::: {.callout}
 <span class="callout-label">**Going further**:</span>
-For `r gloss("two-mode","twomode")` networks, `net_by_*()` still returns a
-single network-level score, obtained by applying Freeman's general
-centralisation index over the normalised node scores across the whole node set.
-If you instead want a score _per mode_ — since normalisation typically depends
-on the number of nodes in each mode, and those two counts are usually different
-(asymmetric) — use the `mode_by_*()` family (e.g. `mode_by_closeness()`), which
-returns the two per-mode centralisation scores following Borgatti and Everett
-(1997).
+For centralisation in `r gloss("two-mode","twomode")` networks,
+`mode_by_*()` functions are available to return two values, one per mode.
 :::
 
 ### Comparing the measures {#comparing-the-measures}
@@ -770,14 +757,14 @@ and `ggtitle()` to record each measure's centralisation score as a subtitle.
 
 ::: {.callout}
 <span class="callout-label">**In brief**:</span> Swap `node_` for `net_` to move from a node's
-centrality to the whole network's _centralisation_ — a single number
-summarising how unequally that centrality is distributed (use `mode_` for the
-per-mode scores of a two-mode network).
+centrality to the whole network's _centralisation_, summarising how unequally that centrality is
+distributed. For multimodal networks, `mode_by_*()` returns one value per mode,
+which can be compared to see which mode is more centralised with respect to the other.
 :::
 
 ## Free play
 
-<img src="https://i.giphy.com/media/v1.Y2lkPTc5MGI3NjExejh4dXBha3JhNW0yenJwMDd5aGpwd3Brc201ZXoxZnY2aWFna3Z4cCZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/7ROgX60TtTVK0mZwkJ/giphy.gif" height="400px"/>
+<img src="https://i.giphy.com/media/v1.Y2lkPTc5MGI3NjExejh4dXBha3JhNW0yenJwMDd5aGpwd3Brc201ZXoxZnY2aWFna3Z4cCZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/7ROgX60TtTVK0mZwkJ/giphy.gif" height="400px" alt="gif of a man saying 'I'm so tired of being so popular'"/>
 
 Choose another dataset included in `{manynet}` (browse them with `table_data()`).
 Name a plausible research question you could ask of the dataset relating to each

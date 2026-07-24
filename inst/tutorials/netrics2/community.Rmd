@@ -692,7 +692,7 @@ every event becomes a `r gloss("clique")` of its attendees,
 and since cliques are perfectly transitive,
 the projections' transitivity scores (0.93 and 0.83) are inflated
 well beyond anything the underlying behaviour requires.
-The two-mode `r gloss("equivalency")` score (0.47) is the more honest summary
+The two-mode _equivalence_ score (0.47) is the more honest summary
 of how much the women's attendance patterns actually reinforce one another.
 
 Try to explain in no more than a paragraph why projection can lead to misleading transitivity measures and what some consequences of this might be.
@@ -907,8 +907,8 @@ everything is one big hairball.
 And yet, if we think about what we might expect of the structure of a network
 of political blogs, we might not think it is so undifferentiated.
 We might hypothesise that, despite the _graphical_ presentation of a hairball,
-there is actually a reasonable `r gloss("partition")` of the network into
-two `r gloss("factions", "faction")`.
+there is actually a reasonable _partition_ of the network into
+two _factions_.
 
 ### Finding a partition {#finding-a-partition}
 

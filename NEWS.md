@@ -5,6 +5,10 @@
 - Updated actions/checkout@v2 to actions/checkout@v4
 - Fixed the website deploy job installing `Config/Needs/check` packages instead of `Config/Needs/website`, which meant `{learnr}` was never actually installed before the pkgdown deploy step
 
+## Tutorials
+
+- Added missing alt-text to the decorative gifs in the centrality tutorial's article, which was failing pkgdown's accessibility check
+- Fixed broken glossary references (`equivalency`, `partition`, `faction`) in the community tutorial that had no matching `{manynet}` glossary entry, which was breaking the tutorial's article rendering
 
 # netrics 0.4.0
 
