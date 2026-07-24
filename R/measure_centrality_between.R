@@ -248,7 +248,8 @@ net_by_betweenness <- function(.data, normalized = TRUE,
     nc <- node_by_betweenness(graph, normalized = TRUE)
     out <- sum(max(nc) - nc) / (length(nc) - 1)
   } else {
-    out <- igraph::centr_betw(graph = graph)$centralization
+    out <- igraph::centr_betw(graph = graph,
+                              normalized = normalized)$centralization
   }
   out <- make_network_measure(out, .data, call = deparse(sys.call()))
   out

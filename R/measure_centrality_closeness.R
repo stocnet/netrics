@@ -430,7 +430,7 @@ net_by_closeness <- function(.data, normalized = TRUE,
     # For a single network-level score we apply Freeman's general
     # centralization index over the whole node set, using the normalized node
     # closeness scores (each in [0, 1]); the numerator's maximum is (n - 1).
-    nc <- node_by_closeness(graph, normalized = TRUE)
+    nc <- node_by_closeness(graph, normalized = TRUE, direction = direction)
     out <- sum(max(nc) - nc) / (length(nc) - 1)
   } else {
     out <- igraph::centr_clo(graph = graph,
@@ -456,7 +456,7 @@ mode_by_closeness <- function(.data, normalized = TRUE,
     manynet::snet_abort("`mode_by_closeness()` is only defined for two-mode networks; use `net_by_closeness()` for one-mode networks.")
 
   {
-    clcent <- node_by_closeness(graph, normalized = TRUE)
+    clcent <- node_by_closeness(graph, normalized = TRUE, direction = direction)
     mode <- igraph::V(graph)$type
     mode1 <- length(mode) - sum(mode)
     mode2 <- sum(mode)
