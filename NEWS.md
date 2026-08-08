@@ -1,5 +1,9 @@
 # netrics 0.5.0
 
+## Package
+
+- Updated GitHub Actions workflows to latest major action versions
+- Fixed release workflow referring to `actions/actions/checkout`, a doubled path segment that would have failed every step using it
 ## Measures
 
 - Added `net_by_cyclicality()` for detecting generalised exchange
