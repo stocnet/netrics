@@ -13,9 +13,7 @@
 
   local_version <- utils::packageVersion("netrics")
   manynet::snet_info("You are using {.pkg netrics} version {.version {local_version}}.")
-  old.list <- as.data.frame(utils::old.packages())
-  behind_cran <- "netrics" %in% old.list$Package
-  
+
   greet_startup_cli <- function() {
     tips <- c(
       "i" = "Contribute to {.pkg netrics} at {.url https://github.com/stocnet/netrics/}.",
@@ -33,18 +31,7 @@
     manynet::snet_info(sample(tips, 1))
   }
 
-  if (interactive()) {
-    if (behind_cran) {
-      msg <- "A new version of netrics is available with bug fixes and new features."
-      packageStartupMessage(msg, "\nWould you like to install it?")
-      if (utils::menu(c("Yes", "No")) == 1) {
-        utils::update.packages("netrics")
-      }
-    } else {
-      greet_startup_cli()
-      # packageStartupMessage(paste(strwrap(tip), collapse = "\n"))
-    }
-  }
+  greet_startup_cli()
 
 }
 
