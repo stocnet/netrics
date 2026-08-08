@@ -23,3 +23,18 @@ test_that("three-mode clustering calculated correctly",{
   expect_equal(as.numeric(net_by_congruency(mat1, mat2)),
                0.3684, tolerance = 0.001)
 })
+
+test_that("network cyclicality works", {
+  # a pure 3-cycle is fully cyclical but not transitive
+  cyc <- matrix(c(0,1,0, 0,0,1, 1,0,0), 3, 3, byrow = TRUE)
+  expect_equal(as.numeric(net_by_cyclicality(cyc)), 1)
+  # a transitive triple is the reverse
+  tri <- matrix(c(0,1,1, 0,0,1, 0,0,0), 3, 3, byrow = TRUE)
+  expect_equal(as.numeric(net_by_cyclicality(tri)), 0)
+  # undirected networks close two-paths in both directions equally
+  expect_equal(as.numeric(net_by_cyclicality(ison_adolescents)),
+               as.numeric(net_by_transitivity(ison_adolescents)))
+  expect_equal(as.numeric(net_by_cyclicality(ison_networkers)),
+               0.5912, tolerance = 0.001)
+  expect_output(print(net_by_cyclicality(ison_networkers)))
+})

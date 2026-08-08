@@ -8,6 +8,7 @@
 #'   
 #'   - `net_by_reciprocity()` measures reciprocity in a (usually directed) network.
 #'   - `net_by_transitivity()` measures transitivity in a network.
+#'   - `net_by_cyclicality()` measures cyclicality in a (necessarily directed) network.
 #'   - `net_by_equivalency()` measures equivalence or reinforcement 
 #'   in a (usually two-mode) network.
 #'   - `net_by_congruency()` measures congruency across two two-mode networks.
@@ -52,7 +53,41 @@ net_by_transitivity <- function(.data) {
 }
 
 #' @rdname measure_closure
-#' @section Equivalency: 
+#' @section Cyclicality:
+#'   Where transitivity asks how often a two-path \eqn{i \to j \to k} is closed
+#'   by a tie \eqn{i \to k}, cyclicality asks how often it is closed in the
+#'   other direction, by \eqn{k \to i}:
+#'   \deqn{C = \frac{|\{i \to j \to k \to i\}|}{|\{i \to j \to k\}|}}
+#'   The two capture different social logics. Transitivity is the signature of
+#'   hierarchy and of "a friend of a friend is a friend", while cyclicality is
+#'   the signature of generalised exchange, where resources circulate around a
+#'   loop rather than flowing consistently in one direction.
+#'
+#'   In an undirected network every two-path closed in one direction is also
+#'   closed in the other, so cyclicality and transitivity coincide.
+#' @references
+#' ## On cyclicality and generalised exchange
+#' Bearman, Peter. 1997.
+#' "Generalized Exchange".
+#' _American Journal of Sociology_ 102(5): 1383-1415.
+#' \doi{10.1086/231087}
+#' @examples
+#' net_by_cyclicality(ison_networkers)
+#' @export
+net_by_cyclicality <- function(.data) {
+  .data <- manynet::expect_nodes(.data)
+  mat <- manynet::as_matrix(manynet::to_unweighted(.data))
+  diag(mat) <- 0
+  twopaths <- mat %*% mat
+  diag(twopaths) <- 0 # i -> j -> i is not a two-path
+  denom <- sum(twopaths)
+  # closed cyclically where a tie runs back from k to i
+  out <- if(denom == 0) NaN else sum(twopaths * t(mat))/denom
+  make_network_measure(out, .data, call = deparse(sys.call()))
+}
+
+#' @rdname measure_closure
+#' @section Equivalency:
 #'   The `net_by_equivalency()` function calculates the Robins and Alexander (2004) 
 #'   clustering coefficient for two-mode networks.
 #'   Note that for weighted two-mode networks, the result is divided by the average tie weight.

@@ -1,3 +1,8 @@
+# netrics 0.5.0
+
+## Measures
+
+- Added `net_by_cyclicality()` for detecting generalised exchange
 # netrics 0.4.1
 
 ## Package

@@ -4,6 +4,7 @@
 \alias{measure_closure}
 \alias{net_by_reciprocity}
 \alias{net_by_transitivity}
+\alias{net_by_cyclicality}
 \alias{net_by_equivalency}
 \alias{net_by_congruency}
 \title{Measuring network closure}
@@ -11,6 +12,8 @@
 net_by_reciprocity(.data, method = "default")
 
 net_by_transitivity(.data)
+
+net_by_cyclicality(.data)
 
 net_by_equivalency(.data)
 
@@ -35,6 +38,7 @@ in one-, two-, and three-mode networks:
 \itemize{
 \item \code{net_by_reciprocity()} measures reciprocity in a (usually directed) network.
 \item \code{net_by_transitivity()} measures transitivity in a network.
+\item \code{net_by_cyclicality()} measures cyclicality in a (necessarily directed) network.
 \item \code{net_by_equivalency()} measures equivalence or reinforcement
 in a (usually two-mode) network.
 \item \code{net_by_congruency()} measures congruency across two two-mode networks.
@@ -51,6 +55,21 @@ For three-mode networks, \code{net_congruency} calculates the proportion of thre
 spanning two two-mode networks that are closed by a fourth tie to establish a
 "congruent four-cycle" structure.
 }
+\section{Cyclicality}{
+
+Where transitivity asks how often a two-path \eqn{i \to j \to k} is closed
+by a tie \eqn{i \to k}, cyclicality asks how often it is closed in the
+other direction, by \eqn{k \to i}:
+\deqn{C = \frac{|\{i \to j \to k \to i\}|}{|\{i \to j \to k\}|}}
+The two capture different social logics. Transitivity is the signature of
+hierarchy and of "a friend of a friend is a friend", while cyclicality is
+the signature of generalised exchange, where resources circulate around a
+loop rather than flowing consistently in one direction.
+
+In an undirected network every two-path closed in one direction is also
+closed in the other, so cyclicality and transitivity coincide.
+}
+
 \section{Equivalency}{
 
 The \code{net_by_equivalency()} function calculates the Robins and Alexander (2004)
@@ -61,9 +80,18 @@ Note that for weighted two-mode networks, the result is divided by the average t
 \examples{
 net_by_reciprocity(ison_southern_women)
 net_by_transitivity(ison_adolescents)
+net_by_cyclicality(ison_networkers)
 net_by_equivalency(ison_southern_women)
 }
 \references{
+\subsection{On cyclicality and generalised exchange}{
+
+Bearman, Peter. 1997.
+"Generalized Exchange".
+\emph{American Journal of Sociology} 102(5): 1383-1415.
+\doi{10.1086/231087}
+}
+
 \subsection{On equivalency or four-cycles}{
 
 Robins, Garry L, and Malcolm Alexander. 2004.
