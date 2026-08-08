@@ -107,9 +107,11 @@ node_in_community <- function(.data){
 #'   based on analogy to model from fluid dynamics.
 #'   - `node_in_louvain()` is an agglomerative multilevel algorithm that seeks to maximise 
 #'   modularity over all possible partitions.
-#'   - `node_in_leiden()` is an agglomerative multilevel algorithm that seeks to maximise 
+#'   - `node_in_leiden()` is an agglomerative multilevel algorithm that seeks to maximise
 #'   the Constant Potts Model over all possible partitions.
-#'  
+#'   - `node_in_labels()` is a fast, propagation-based algorithm in which nodes
+#'   iteratively adopt whichever community label is most common among their neighbours.
+#'
 #'   The different algorithms offer various advantages in terms of computation time,
 #'   availability on different types of networks, ability to maximise modularity,
 #'   and their logic or domain of inspiration.
@@ -395,8 +397,46 @@ node_in_leiden <- function(.data, resolution = 1){
     n <- manynet::net_nodes(.data)
     resolution <- sum(manynet::tie_weights(.data))/(n*(n - 1)/2)
   }
-  out <- igraph::cluster_leiden(manynet::as_igraph(.data), 
+  out <- igraph::cluster_leiden(manynet::as_igraph(.data),
                                 resolution = resolution
+  )$membership
+  make_node_member(out, .data)
+}
+
+#' @rdname member_community_non
+#' @section Label propagation:
+#'   Every node is initially given a unique label.
+#'   Nodes are then visited in random order, each adopting whichever label is
+#'   most frequent among its neighbours, until no node has a label that a
+#'   majority of its neighbours does not share.
+#'   Densely connected groups quickly converge on a common label,
+#'   which is what makes the communities.
+#'
+#'   This is the fastest of the algorithms here, running in near-linear time,
+#'   which makes it useful on large networks where the others are infeasible.
+#'   The trade-off is that it is stochastic: because both the visiting order and
+#'   ties between equally frequent labels are broken at random, repeated runs on
+#'   the same network can return different partitions,
+#'   and on sparse networks it may return a single community.
+#'   Set a seed for reproducibility, or use `node_in_community()` to select
+#'   among algorithms by modularity.
+#' @references
+#' ## On label propagation community detection
+#' Raghavan, Usha Nandini, Reka Albert, and Soundar Kumara. 2007.
+#' "Near linear time algorithm to detect community structures in large-scale networks",
+#' _Physical Review E_, 76(3):036106.
+#' \doi{10.1103/PhysRevE.76.036106}
+#' @examples
+#' node_in_labels(ison_adolescents)
+#' @export
+node_in_labels <- function(.data){
+  .data <- manynet::expect_nodes(.data)
+  if(manynet::is_directed(.data)){
+    manynet::snet_info("This algorithm only works for undirected networks.",
+              "Converting to undirected")
+    .data <- manynet::to_undirected(.data)
+  }
+  out <- igraph::cluster_label_prop(manynet::as_igraph(.data)
   )$membership
   make_node_member(out, .data)
 }

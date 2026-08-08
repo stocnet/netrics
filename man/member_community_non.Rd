@@ -9,6 +9,7 @@
 \alias{node_in_fluid}
 \alias{node_in_louvain}
 \alias{node_in_leiden}
+\alias{node_in_labels}
 \title{Memberships in non-hierarchical communities}
 \usage{
 node_in_optimal(.data)
@@ -24,6 +25,8 @@ node_in_fluid(.data)
 node_in_louvain(.data, resolution = 1)
 
 node_in_leiden(.data, resolution = 1)
+
+node_in_labels(.data)
 }
 \arguments{
 \item{.data}{A network object of class \code{mnet}, \code{igraph}, \code{tbl_graph}, \code{network}, or similar.
@@ -64,6 +67,8 @@ based on analogy to model from fluid dynamics.
 modularity over all possible partitions.
 \item \code{node_in_leiden()} is an agglomerative multilevel algorithm that seeks to maximise
 the Constant Potts Model over all possible partitions.
+\item \code{node_in_labels()} is a fast, propagation-based algorithm in which nodes
+iteratively adopt whichever community label is most common among their neighbours.
 }
 
 The different algorithms offer various advantages in terms of computation time,
@@ -149,6 +154,25 @@ Compared to the Louvain method, the Leiden algorithm additionally
 tries to avoid unconnected communities.
 }
 
+\section{Label propagation}{
+
+Every node is initially given a unique label.
+Nodes are then visited in random order, each adopting whichever label is
+most frequent among its neighbours, until no node has a label that a
+majority of its neighbours does not share.
+Densely connected groups quickly converge on a common label,
+which is what makes the communities.
+
+This is the fastest of the algorithms here, running in near-linear time,
+which makes it useful on large networks where the others are infeasible.
+The trade-off is that it is stochastic: because both the visiting order and
+ties between equally frequent labels are broken at random, repeated runs on
+the same network can return different partitions,
+and on sparse networks it may return a single community.
+Set a seed for reproducibility, or use \code{node_in_community()} to select
+among algorithms by modularity.
+}
+
 \examples{
 node_in_optimal(ison_adolescents)
 node_in_partition(ison_adolescents)
@@ -158,6 +182,7 @@ node_in_spinglass(ison_adolescents)
 node_in_fluid(ison_adolescents)
 node_in_louvain(ison_adolescents)
 node_in_leiden(ison_adolescents)
+node_in_labels(ison_adolescents)
 }
 \references{
 \subsection{On optimal community detection}{
@@ -224,6 +249,14 @@ Traag, Vincent A., Ludo Waltman, and Nees Jan van Eck. 2019.
 \emph{Scientific Reports}, 9(1):5233.
 \doi{10.1038/s41598-019-41695-z}
 }
+
+\subsection{On label propagation community detection}{
+
+Raghavan, Usha Nandini, Reka Albert, and Soundar Kumara. 2007.
+"Near linear time algorithm to detect community structures in large-scale networks",
+\emph{Physical Review E}, 76(3):036106.
+\doi{10.1103/PhysRevE.76.036106}
+}
 }
 \seealso{
 Other community:
@@ -238,7 +271,8 @@ Other memberships:
 \code{\link{member_components}},
 \code{\link{member_core}},
 \code{\link{member_diffusion}},
-\code{\link{member_equivalence}}
+\code{\link{member_equivalence}},
+\code{\link{method_equivalence}}
 
 Other nodal:
 \code{\link{mark_core}},
@@ -266,6 +300,8 @@ Other nodal:
 \code{\link{member_diffusion}},
 \code{\link{member_equivalence}},
 \code{\link{motif_brokerage_node}},
+\code{\link{motif_clique}},
+\code{\link{motif_composition}},
 \code{\link{motif_exposure}},
 \code{\link{motif_node}},
 \code{\link{motif_path}}

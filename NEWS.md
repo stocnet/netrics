@@ -9,6 +9,10 @@
 ## Measures
 
 - Added `net_by_cyclicality()` for detecting generalised exchange
+
+## Memberships
+
+- Added `node_in_labels()` for label propagation community detection
 # netrics 0.4.1
 
 ## Package

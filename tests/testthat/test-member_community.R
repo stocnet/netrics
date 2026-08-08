@@ -32,3 +32,15 @@ test_that("node_in_community uses node_in_optimal on small networks", {
   options(manynet_verbosity = "quiet")
   options(snet_verbosity = "quiet")
 })
+test_that("label propagation membership works", {
+  # stochastic, so assert on structure rather than exact labels
+  set.seed(1234)
+  res <- node_in_labels(ison_adolescents)
+  expect_s3_class(res, "node_member")
+  expect_length(res, manynet::net_nodes(ison_adolescents))
+  expect_gte(length(unique(res)), 1)
+  expect_output(print(node_in_labels(ison_adolescents)))
+  # directed networks are converted rather than refused
+  expect_length(node_in_labels(ison_networkers),
+                manynet::net_nodes(ison_networkers))
+})
