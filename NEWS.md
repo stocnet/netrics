@@ -12,6 +12,13 @@
 
 - Added `net_by_cyclicality()` for detecting generalised exchange
 - Added `net_by_compactness()` for the average closeness of all pairs of nodes
+- Added `node_by_decay()` and `net_by_decay()` for decay centrality, which
+  weights alters by distance instead of truncating at a cutoff
+- Added `node_by_integration()` and `net_by_integration()` for Valente and
+  Foreman's integration and radiality
+  - Note these two centralizations normalize over node scores rather
+    than reusing `net_by_reach()`'s denominator, which assumes scores bounded
+    by N-1 and would return negative values here
 - Added `net_by_inconsistency()`, which scores how far a partition's blocks depart
   from ideal types (`nul`, `com`, `reg`, `rdo`, `cdo`, `dnc`), generalising
   `net_by_factions()` beyond structural equivalence

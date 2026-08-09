@@ -142,3 +142,62 @@ test_that("tie_closeness works", {
   expect_equal(unname(tie_by_closeness(ison_adolescents)[1:3]),
                c(0.562,0.692,0.600), tolerance = 0.001)
 })
+
+test_that("node decay centrality works", {
+  # as decay approaches 0, only immediate neighbours count, i.e. degree
+  expect_equal(
+    round(as.numeric(node_by_decay(ison_adolescents, decay = 1e-6,
+                                   normalized = FALSE))),
+    as.numeric(node_by_degree(ison_adolescents, normalized = FALSE)))
+  # as decay approaches 1, every reachable node counts equally, i.e. reach
+  expect_equal(
+    as.numeric(node_by_decay(ison_adolescents, decay = 1, normalized = FALSE)),
+    as.numeric(node_by_reach(ison_adolescents, cutoff = Inf,
+                             normalized = FALSE)))
+  expect_equal(top3(node_by_decay(ison_adolescents)), c(0.4464, 0.75, 0.75))
+  expect_error(node_by_decay(ison_adolescents, decay = 2))
+  expect_length(node_by_decay(ison_southern_women),
+                manynet::net_nodes(ison_southern_women))
+})
+
+test_that("node integration centrality works", {
+  expect_equal(top3(node_by_integration(ison_adolescents)),
+               c(0.6429, 0.8571, 0.8571))
+  # in a complete network every node is maximally integrated
+  expect_true(all(node_by_integration(create_filled(6)) == 1))
+  # direction matters in a directed network
+  expect_false(identical(
+    as.numeric(node_by_integration(ison_networkers, direction = "in")),
+    as.numeric(node_by_integration(ison_networkers, direction = "out"))))
+  expect_length(node_by_integration(ison_southern_women),
+                manynet::net_nodes(ison_southern_women))
+})
+
+test_that("decay and integration centralization works", {
+  # both are bounded in [0,1], unlike a naive reach-style denominator
+  for (f in list(net_by_decay, net_by_integration)) {
+    for (net in list(ison_adolescents, ison_southern_women,
+                     create_star(8), create_ring(8))) {
+      expect_gte(as.numeric(f(net)), 0)
+      expect_lte(as.numeric(f(net)), 1)
+    }
+    # a star is centralized, a ring is not
+    expect_equal(as.numeric(f(create_ring(8))), 0)
+    expect_gt(as.numeric(f(create_star(8))), 0)
+  }
+  expect_output(print(net_by_decay(ison_adolescents)))
+})
+
+test_that("node_by_decay respects tie direction", {
+  dir <- to_unweighted(ison_networkers)
+  # reaching out is not the same as being reached
+  expect_false(isTRUE(all.equal(
+    as.numeric(node_by_decay(dir, direction = "out")),
+    as.numeric(node_by_decay(dir, direction = "in")))))
+  # in a one-way chain the first node reaches everyone and the last no one
+  chain <- matrix(0, 4, 4)
+  chain[cbind(1:3, 2:4)] <- 1
+  out <- as.numeric(node_by_decay(chain, normalized = FALSE))
+  expect_gt(out[1], out[4])
+  expect_equal(out[4], 0)
+})
