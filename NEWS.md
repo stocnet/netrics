@@ -25,8 +25,7 @@
   reporting any gaps as audit messages rather than failures
 - Added `net_by_cyclicality()` for detecting generalised exchange
 - Added `net_by_compactness()` for the average closeness of all pairs of nodes
-- Added `node_by_decay()` and `net_by_decay()` for decay centrality, which
-  weights alters by distance instead of truncating at a cutoff
+- Added `decay` argument to `node_by_harmonic()`, and added `node_by_decay()` as a shortcut for decay centrality
 - Added `node_by_integration()` and `net_by_integration()` for Valente and
   Foreman's integration and radiality
 - Added `node_by_radiality()` as a shortcut for `node_by_integration(direction = "out")`

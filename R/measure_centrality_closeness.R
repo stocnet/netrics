@@ -101,6 +101,13 @@ node_by_closeness <- function(.data, normalized = TRUE,
 #'   Since the harmonic mean performs better than the arithmetic mean on
 #'   unconnected networks, i.e. networks with infinite distances,
 #'   harmonic centrality is to be preferred in these cases.
+#'
+#'   Harmonic centrality sums a decreasing function of each distance,
+#'   \eqn{\sum_j f(d(i,j))}, and setting `decay` simply swaps in a different
+#'   such function, \eqn{\delta^d}, giving decay centrality (see below).
+#'   Note that `node_by_closeness()` cannot be reached this way: it sums the
+#'   distances and inverts once, \eqn{1/\sum_j d(i,j)}, which is a different
+#'   order of aggregation that no choice of decay function reproduces.
 #' @references
 #'   ## On harmonic centrality
 #'   Marchiori, Massimo, and Vito Latora. 2000. 
@@ -112,12 +119,29 @@ node_by_closeness <- function(.data, normalized = TRUE,
 #'   "Conceptual distance in social network analysis".
 #'   _Journal of Social Structure_ 6(3).
 #' @export
-node_by_harmonic <- function(.data, normalized = TRUE, cutoff = -1){
+node_by_harmonic <- function(.data, normalized = TRUE, cutoff = -1,
+                             decay = NULL, direction = c("out", "in")){
   .data <- manynet::expect_nodes(.data)
-  out <- igraph::harmonic_centrality(as_igraph(.data), # weighted if present
-                                     normalized = normalized, cutoff = cutoff)
-  out <- make_node_measure(out, .data)
-  out
+  direction <- match.arg(direction)
+  if(is.null(decay)){
+    out <- igraph::harmonic_centrality(as_igraph(.data), # weighted if present
+                                       mode = direction,
+                                       normalized = normalized, cutoff = cutoff)
+    meas <- "harmonic centrality"
+  } else {
+    if(decay < 0 | decay > 1)
+      manynet::snet_abort("`decay` must be a proportion between 0 and 1.")
+    # note that igraph's default mode ignores direction, which would treat a
+    # directed network as though every tie ran both ways
+    dists <- igraph::distances(manynet::as_igraph(.data), mode = direction)
+    diag(dists) <- Inf # exclude self from own score
+    out <- rowSums(decay^(dists-1), na.rm = TRUE) # unreachable contribute 0
+    if(normalized) out <- out/(manynet::net_nodes(.data)-1)
+    meas <- "decay centrality"
+  }
+  make_node_measure(out, .data, measure = meas,
+                    range = `if`(normalized, c(0, 1), c(0, Inf)),
+                    normalization = `if`(normalized, "normalized", "none"))
 }
 
 #' @rdname measure_central_close 
@@ -183,16 +207,8 @@ node_by_reach <- function(.data, normalized = TRUE, cutoff = 2){
 node_by_decay <- function(.data, normalized = TRUE, decay = 0.5,
                           direction = c("out", "in")){
   .data <- manynet::expect_nodes(.data)
-  if(decay < 0 | decay > 1)
-    manynet::snet_abort("`decay` must be a proportion between 0 and 1.")
-  # note that igraph's default mode ignores direction, which would treat a
-  # directed network as though every tie ran both ways
-  dists <- igraph::distances(manynet::as_igraph(.data),
-                             mode = match.arg(direction))
-  diag(dists) <- Inf # exclude self from own score
-  out <- rowSums(decay^(dists-1), na.rm = TRUE) # unreachable contribute 0
-  if(normalized) out <- out/(manynet::net_nodes(.data)-1)
-  make_node_measure(out, .data)
+  node_by_harmonic(.data, normalized = normalized, decay = decay,
+                   direction = match.arg(direction))
 }
 
 #' @rdname measure_central_close
