@@ -15,11 +15,16 @@
 ## Memberships
 
 - Added `node_in_labels()` for label propagation community detection
+
+## Motifs
+
+- Added `node_x_clique()`, returning which maximal cliques each node belongs to,
+  and branching on two-mode networks to find bicliques (closes #8, thanks @noortjemay)
+
 # netrics 0.4.1
 
 ## Package
 
-- Updated actions/checkout@v2 to actions/checkout@v4
 - Fixed the website deploy job installing `Config/Needs/check` packages instead of `Config/Needs/website`, which meant `{learnr}` was never actually installed before the pkgdown deploy step
 
 ## Tutorials
