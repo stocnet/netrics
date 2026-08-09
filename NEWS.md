@@ -32,6 +32,7 @@
 - Added `net_by_inconsistency()`, which scores how far a partition's blocks depart
   from ideal types (`nul`, `com`, `reg`, `rdo`, `cdo`, `dnc`), generalising
   `net_by_factions()` beyond structural equivalence
+- Fixed `node_by_degree()` to default to `alpha = 0` to match documentation
 - Fixed `node_by_reach()` counting the node itself so normalised scores could exceed 1
 - Fixed how `node_by_vitality()` treats cut nodes
   - Unnormalised returns `-Inf` for cut nodes as the Wiener index definition requires

@@ -81,45 +81,56 @@ NULL
 #'   indegree (degree of incoming ties).
 #' @importFrom manynet as_igraph is_weighted tie_weights is_twomode is_complex
 #' @export
-node_by_degree <- function (.data, normalized = TRUE, alpha = 1,
+node_by_degree <- function (.data, normalized = TRUE, alpha = 0,
                          direction = c("all","out","in")){
   .data <- manynet::expect_nodes(.data)
   graph <- manynet::as_igraph(.data)
-  weights <- `if`(manynet::is_weighted(.data), 
+  weights <- `if`(manynet::is_weighted(.data),
                   manynet::tie_weights(.data), NA)
   direction <- match.arg(direction)
-  
+
   # Do the calculations
   if (manynet::is_twomode(graph) & normalized){
-    degrees <- igraph::degree(graph = graph, 
-                              v = igraph::V(graph), 
-                              mode = direction, 
+    degrees <- igraph::degree(graph = graph,
+                              v = igraph::V(graph),
+                              mode = direction,
                               loops = manynet::is_complex(.data))
-    other_set_size <- ifelse(igraph::V(graph)$type, 
-                             sum(!igraph::V(graph)$type), 
+    other_set_size <- ifelse(igraph::V(graph)$type,
+                             sum(!igraph::V(graph)$type),
                              sum(igraph::V(graph)$type))
     out <- degrees/other_set_size
+    # Each mode's degree is divided by the size of the opposite mode,
+    # which is that mode's theoretical maximum.
+    meas <- "degree centrality"; rng <- c(0, 1); norm <- "normalized"
   } else {
     if (all(is.na(weights))) {
-      out <- igraph::degree(graph = graph, v = igraph::V(graph), 
-                     mode = direction, 
+      out <- igraph::degree(graph = graph, v = igraph::V(graph),
+                     mode = direction,
                      loops = manynet::is_complex(.data),
                      normalized = normalized)
+      meas <- "degree centrality"
+      rng <- `if`(normalized, c(0, 1), c(0, Inf))
+      norm <- `if`(normalized, "normalized", "none")
     }
     else {
-      ki <- igraph::degree(graph = graph, v = igraph::V(graph), 
-                     mode = direction, 
+      ki <- igraph::degree(graph = graph, v = igraph::V(graph),
+                     mode = direction,
                      loops = manynet::is_complex(.data))
-      si <- igraph::strength(graph = graph, vids = igraph::V(graph), 
+      si <- igraph::strength(graph = graph, vids = igraph::V(graph),
                        mode = direction,
                        loops = manynet::is_complex(.data), weights = weights)
       out <- ki * (si/ki)^alpha
       out[is.nan(out)] <- 0
+      # Strength has no theoretical maximum, so `normalized` here divides by
+      # the observed maximum: the result scales rather than normalises.
       if(normalized) out <- out/max(out)
+      meas <- `if`(alpha == 0, "degree centrality", "strength centrality")
+      rng <- `if`(normalized, c(0, 1), c(0, Inf))
+      norm <- `if`(normalized, "scaled", "none")
     }
   }
-  out <- make_node_measure(out, .data)
-  out
+  make_node_measure(out, .data, measure = meas, range = rng,
+                    normalization = norm)
 }
 
 #' @rdname measure_central_degree

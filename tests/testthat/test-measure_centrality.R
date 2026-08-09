@@ -134,8 +134,14 @@ test_that("net_measure class works", {
 
 # ####### Edge centrality
 test_that("tie_betweenness works", {
-  expect_equal(unname(tie_by_betweenness(ison_adolescents)[1:3]),
+  # The raw counts of shortest paths through each tie.
+  expect_equal(unname(tie_by_betweenness(ison_adolescents,
+                                         normalized = FALSE)[1:3]),
                c(7,3,5), tolerance = 0.001)
+  # `normalized = TRUE` now divides by the number of node pairs whose
+  # shortest paths could run through a tie, here choose(8, 2) = 28.
+  expect_equal(unname(tie_by_betweenness(ison_adolescents)[1:3]),
+               c(7,3,5)/28, tolerance = 0.001)
 })
 
 test_that("tie_closeness works", {
