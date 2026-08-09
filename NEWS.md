@@ -33,12 +33,15 @@
   from ideal types (`nul`, `com`, `reg`, `rdo`, `cdo`, `dnc`), generalising
   `net_by_factions()` beyond structural equivalence
 - Fixed `node_by_degree()` to default to `alpha = 0` to match documentation
+- Fixed `mode_by_betweenness()` to accepts only `"all"` and `"in"`, as implemented
 - Fixed `node_by_reach()` counting the node itself so normalised scores could exceed 1
 - Fixed `node_by_eigenvector()` discarding tie weights it had computed, silently returning unweighted scores for weighted networks
+- Fixed `tie_by_betweenness()`, `node_by_randomwalk()` and `node_by_betweenness()` (when given a `cutoff`) accepting `normalized` and then ignoring it
 - Fixed how `node_by_vitality()` treats cut nodes
   - Unnormalised returns `-Inf` for cut nodes as the Wiener index definition requires
   - Normalised `node_by_vitality()` rescales finite scores onto `[0,1]` and places cut nodes at 0
 - Improved `node_by_closeness()` to validate `direction` via `match.arg()`
+- Removed `direction` from `net_by_betweenness()` which never used it
 - Moved `node_by_posneg()` (PN centrality) to eigenvector doc group as a
   matrix-inversion walk-based measure — Katz for signed networks
 

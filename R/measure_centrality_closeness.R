@@ -30,13 +30,19 @@
 #'   - `node_by_vitality()` measures a network's closeness vitality centrality,
 #'   or the change in closeness centrality between networks with and without a
 #'   given node.
-#'   
+#'   - `node_by_randomwalk()` measures nodes' random walk closeness centrality,
+#'   or the inverse of the average time a random walk takes to reach them.
+#'
 #'   All measures attempt to use as much information as they are offered,
 #'   including whether the networks are directed, weighted, or multimodal.
 #'   If this would produce unintended results,
 #'   first transform the salient properties using e.g. [to_undirected()] functions.
 #'   All centrality and centralization measures return normalised or scaled
 #'   measures where available, reported when the measure is printed.
+#'   Most of these measures are _normalised_ against a theoretical maximum,
+#'   so that scores can be compared across networks;
+#'   `node_by_randomwalk()` and `node_by_distance()` have no such maximum and
+#'   are instead _scaled_ against the largest value observed in this network.
 #' @template param_data
 #' @template param_norm
 #' @template param_dir
@@ -456,8 +462,13 @@ node_by_randomwalk <- function(.data, normalized = TRUE){
     avg_ht <- mean(hitting_times[-i])
     out[i] <- 1 / avg_ht
   }
-  
-  make_node_measure(out, .data)
+
+  # Inverse mean hitting time has no theoretical maximum, so `normalized`
+  # divides by the observed maximum: the result scales rather than normalises.
+  if(normalized) out <- out/max(out)
+  make_node_measure(out, .data, measure = "random walk closeness centrality",
+                    range = `if`(normalized, c(0, 1), c(0, Inf)),
+                    normalization = `if`(normalized, "scaled", "none"))
 }
 
 # This is a helper function to compute the Moore-Penrose generalized inverse

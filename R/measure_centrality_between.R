@@ -60,19 +60,17 @@ node_by_betweenness <- function(.data, normalized = TRUE,
                   betw_scores/(2*(set_size-1)*(other_set_size-1)), 
                   betw_scores/(1/2*other_set_size*(other_set_size-1)+1/2*(set_size-1)*(set_size-2)+(set_size-1)*(other_set_size-1)))
   } else {
-    if (is.null(cutoff)) {
-      out <- igraph::betweenness(graph = graph, v = igraph::V(graph), 
-                                 directed = manynet::is_directed(graph), weights = weights, 
-                                 normalized = normalized)
-    } else {
-      out <- igraph::betweenness(graph = graph, v = igraph::V(graph), 
-                                 directed = manynet::is_directed(graph), 
-                                 cutoff = cutoff, 
-                                 weights = weights)
-    }
+    # `igraph::betweenness()` accepts a cutoff and normalization together,
+    # so limiting path length does not preclude normalizing the result.
+    out <- igraph::betweenness(graph = graph, v = igraph::V(graph),
+                               directed = manynet::is_directed(graph),
+                               weights = weights,
+                               cutoff = `if`(is.null(cutoff), -1, cutoff),
+                               normalized = normalized)
   }
-  out <- make_node_measure(out, .data)
-  out
+  make_node_measure(out, .data, measure = "betweenness centrality",
+                    range = `if`(normalized, c(0, 1), c(0, Inf)),
+                    normalization = `if`(normalized, "normalized", "none"))
 }
 
 #' @rdname measure_central_between 
@@ -187,8 +185,18 @@ tie_by_betweenness <- function(.data, normalized = TRUE){
   eddies <- manynet::as_edgelist(.data)
   eddies <- paste(eddies[["from"]], eddies[["to"]], sep = "-")
   out <- igraph::edge_betweenness(.data)
+  # `igraph::edge_betweenness()` offers no normalization of its own, so we
+  # divide by the number of node pairs whose shortest paths could run through
+  # a tie, which is the theoretical maximum.
+  if(normalized){
+    n <- manynet::net_nodes(.data)
+    pairs <- `if`(manynet::is_directed(.data), n*(n-1), n*(n-1)/2)
+    if(pairs > 0) out <- out/pairs
+  }
   names(out) <- eddies
-  make_tie_measure(out, .data)
+  make_tie_measure(out, .data, measure = "betweenness centrality",
+                   range = `if`(normalized, c(0, 1), c(0, Inf)),
+                   normalization = `if`(normalized, "normalized", "none"))
 }
 
 # Betweenness centralisation ####
@@ -227,16 +235,24 @@ tie_by_betweenness <- function(.data, normalized = TRUE){
 #'   `net_by_betweenness()` returns a `network_measure` scalar;
 #'   `mode_by_betweenness()` returns a `mode_measure` numeric vector of length two,
 #'   giving one centralization score per mode.
+#' @details
+#'   Betweenness centralisation has no directional variants:
+#'   `igraph::centr_betw()` derives directedness from the network itself,
+#'   so `net_by_betweenness()` takes no `direction` argument.
+#'   For the per-mode scores, `direction` chooses the comparison set rather
+#'   than a tie direction — `"all"` compares each mode's most central node
+#'   against every node in the network, whereas `"in"` compares it only
+#'   against the other nodes of its own mode. Since a two-mode incidence
+#'   structure gives these no distinct "out" counterpart,
+#'   `mode_by_betweenness()` accepts only `"all"` and `"in"`.
 NULL
 
 #' @rdname measure_centralisation_between
 #' @examples
-#' net_by_betweenness(ison_southern_women, direction = "in")
+#' net_by_betweenness(ison_southern_women)
 #' @export
-net_by_betweenness <- function(.data, normalized = TRUE,
-                               direction = c("all", "out", "in")) {
+net_by_betweenness <- function(.data, normalized = TRUE) {
   .data <- manynet::expect_nodes(.data)
-  direction <- match.arg(direction)
   graph <- manynet::as_igraph(.data)
 
   if (manynet::is_twomode(.data)) {
@@ -251,8 +267,10 @@ net_by_betweenness <- function(.data, normalized = TRUE,
     out <- igraph::centr_betw(graph = graph,
                               normalized = normalized)$centralization
   }
-  out <- make_network_measure(out, .data, call = deparse(sys.call()))
-  out
+  make_network_measure(out, .data, call = deparse(sys.call()),
+                       measure = "betweenness centralisation",
+                       range = `if`(normalized, c(0, 1), c(0, Inf)),
+                       normalization = `if`(normalized, "normalized", "none"))
 }
 
 #' @rdname measure_centralisation_between
@@ -260,7 +278,7 @@ net_by_betweenness <- function(.data, normalized = TRUE,
 #' mode_by_betweenness(ison_southern_women, direction = "in")
 #' @export
 mode_by_betweenness <- function(.data, normalized = TRUE,
-                                direction = c("all", "out", "in")) {
+                                direction = c("all", "in")) {
   .data <- manynet::expect_nodes(.data)
   direction <- match.arg(direction)
   graph <- manynet::as_igraph(.data)
@@ -308,7 +326,9 @@ mode_by_betweenness <- function(.data, normalized = TRUE,
     }
     out <- c("Mode 1" = out$nodes1, "Mode 2" = out$nodes2)
   }
-  out <- make_mode_measure(out, .data, call = deparse(sys.call()))
-  out
+  make_mode_measure(out, .data, call = deparse(sys.call()),
+                    measure = "betweenness centralisation",
+                    range = `if`(normalized, c(0, 1), c(0, Inf)),
+                    normalization = `if`(normalized, "normalized", "none"))
 }
 
