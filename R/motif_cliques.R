@@ -40,12 +40,13 @@
 #' \doi{10.1007/BF02289146}
 #' @examples
 #' node_x_clique(ison_adolescents)
-#' node_x_clique(ison_southern_women, min = c(3, 3))
+#' node_x_clique(ison_southern_women, min_clique_size = c(3, 3))
 #' @export
-node_x_clique <- function(.data, min = 3){
+node_x_clique <- function(.data, min_clique_size = 3){
   .data <- manynet::expect_nodes(.data)
   twomode <- manynet::is_twomode(.data)
-  if(twomode && length(min) == 1) min <- c(min, min)
+  if(twomode && length(min_clique_size) == 1)
+    min_clique_size <- c(min_clique_size, min_clique_size)
   # a clique is a cohesive subgroup, so where ties are signed only the
   # positive ones can contribute to one
   if(manynet::is_signed(.data))
@@ -57,15 +58,16 @@ node_x_clique <- function(.data, min = 3){
     # biclique becomes an ordinary clique of the combined node set
     mat <- ((mat %*% mat) + mat) > 0
     diag(mat) <- 0
-    smallest <- sum(min)
-  } else smallest <- min
+    smallest <- sum(min_clique_size)
+  } else smallest <- min_clique_size
   graph <- igraph::graph_from_adjacency_matrix(mat*1, mode = "undirected",
                                                diag = FALSE)
   cliques <- igraph::max_cliques(graph, min = smallest)
   if(twomode){
     modes <- manynet::node_is_mode(.data)
     keep <- vapply(cliques, function(cl)
-      sum(!modes[cl]) >= min[1] && sum(modes[cl]) >= min[2],
+      sum(!modes[cl]) >= min_clique_size[1] &&
+        sum(modes[cl]) >= min_clique_size[2],
       FUN.VALUE = logical(1))
     cliques <- cliques[keep]
   }

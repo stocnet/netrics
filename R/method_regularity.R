@@ -1,13 +1,13 @@
 # Recursive role similarity ####
 
-#' Methods for calculating regular equivalence
-#' @name method_equivalence
+#' Methods for calculating regularity
+#' @name method_regularity
 #' @description
 #'   These functions calculate how regularly equivalent each pair of nodes is,
 #'   returning a similarity matrix that [node_in_regular()] then clusters.
 #'
-#'   - `sim_rolesim()` calculates RoleSim similarity.
-#'   - `sim_rege()` calculates REGE similarity.
+#'   - `regularity_rolesim()` calculates RoleSim similarity.
+#'   - `regularity_rege()` calculates REGE similarity.
 #'
 #'   Both are recursive: two nodes are similar to the extent that their alters
 #'   are similar, which is the defining property of regular equivalence.
@@ -16,7 +16,7 @@
 #' @param beta A decay parameter between 0 and 1 controlling how much weight
 #'   is given to the recursive component. By default 0.15.
 #' @param iterations Integer number of iterations. 
-#'   By default 3 for `sim_rege()`; `sim_rolesim()` iterates to convergence.
+#'   By default 3 for `regularity_rege()`; `regularity_rolesim()` iterates to convergence.
 #' @returns A square similarity matrix with one row and column per node.
 #' @references
 #' ## On RoleSim
@@ -34,7 +34,7 @@
 #' @family methods
 NULL
 
-#' @rdname method_equivalence
+#' @rdname method_regularity
 #' @section RoleSim:
 #'   RoleSim pairs up two nodes' alters by finding the _maximal matching_
 #'   between them, that is, the one-to-one pairing that maximises total
@@ -49,7 +49,7 @@ NULL
 #'   It converges to a unique solution regardless of where it starts,
 #'   so the result does not depend on initialisation.
 #' @export
-sim_rolesim <- function(.data, beta = 0.15){
+regularity_rolesim <- function(.data, beta = 0.15){
   .data <- manynet::expect_nodes(.data)
   if(beta < 0 | beta > 1)
     manynet::snet_abort("`beta` must be a proportion between 0 and 1.")
@@ -100,7 +100,7 @@ sim_rolesim <- function(.data, beta = 0.15){
   total
 }
 
-#' @rdname method_equivalence
+#' @rdname method_regularity
 #' @section REGE:
 #'   REGE instead pairs each alter with its _best_ counterpart, allowing the
 #'   same alter to be used more than once:
@@ -122,15 +122,15 @@ sim_rolesim <- function(.data, beta = 0.15){
 #'   an alter that matches every other node's alter perfectly, all nodes come
 #'   out maximally equivalent, which is the correct but uninformative answer
 #'   that the maximal regular equivalence of a connected graph is a single
-#'   class. Use `sim_rolesim()` for unweighted networks.
+#'   class. Use `regularity_rolesim()` for unweighted networks.
 #' @export
-sim_rege <- function(.data, iterations = 3){
+regularity_rege <- function(.data, iterations = 3){
   .data <- manynet::expect_nodes(.data)
   mat <- manynet::as_matrix(manynet::to_multilevel(.data))
   if(!manynet::is_weighted(.data) && manynet::is_connected(.data))
     manynet::snet_warn("REGE is degenerate on unweighted connected networks,",
                        "where all nodes are maximally regularly equivalent.",
-                       "Consider {.fn sim_rolesim} instead.")
+                       "Consider {.fn regularity_rolesim} instead.")
   n <- nrow(mat)
   nbrs <- .neighbourhoods(mat, manynet::is_directed(.data))
   sim <- matrix(1, n, n) # all nodes begin maximally similar

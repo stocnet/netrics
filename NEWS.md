@@ -16,6 +16,12 @@
 ## Memberships
 
 - Added `node_in_labels()` for label propagation community detection
+- Fixed `node_in_regular()` to compute regular equivalence using recursive
+  similarity (`regularity = "rolesim"` (default) or `"rege"`) between nodes 
+  rather than a triad census
+  - Note existing scripts calling `node_in_regular()` will now return more correct results
+  - Moved former behaviour of `node_in_regular()` to `node_in_motif()`, 
+  documented as capturing similarity of local embedding not role equivalence
 
 ## Motifs
 
@@ -39,8 +45,8 @@ or its spread across layers in a multiplex network
 
 ## Methods
 
-- Added `sim_rolesim()` and `sim_rege()`, recursive role similarity methods
-  - Note `sim_rege()` degenerate on unweighted connected ones, where it warns
+- Added `regularity_rolesim()` and `regularity_rege()`, recursive role similarity methods
+  - Note `regularity_rege()` degenerate on unweighted connected ones, where it warns
 
 # netrics 0.4.1
 
