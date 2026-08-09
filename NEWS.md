@@ -37,6 +37,8 @@
   - Unnormalised returns `-Inf` for cut nodes as the Wiener index definition requires
   - Normalised `node_by_vitality()` rescales finite scores onto `[0,1]` and places cut nodes at 0
 - Improved `node_by_closeness()` to validate `direction` via `match.arg()`
+- Moved `node_by_posneg()` (PN centrality) to eigenvector doc group as a
+  matrix-inversion walk-based measure — Katz for signed networks
 
 ## Memberships
 

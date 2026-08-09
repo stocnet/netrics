@@ -12,9 +12,8 @@
 #'     - `node_by_indegree()` returns the `direction = 'in'` results.
 #'     - `node_by_outdegree()` returns the `direction = 'out'` results.
 #'   - `node_by_multidegree()` measures the ratio between types of ties in a multiplex network.
-#'   - `node_by_posneg()` measures the PN (positive-negative) centrality of a signed network.
 #'   - `node_by_leverage()` measures the leverage centrality of nodes in a network.
-#'   
+#'
 #'   All measures attempt to use as much information as they are offered,
 #'   including whether the networks are directed, weighted, or multimodal.
 #'   If this would produce unintended results, 
@@ -151,31 +150,12 @@ node_by_indegree <- function (.data, normalized = TRUE, alpha = 0){
 node_by_multidegree <- function (.data, tie1, tie2){
   .data <- manynet::expect_nodes(.data)
   stopifnot(manynet::is_multiplex(.data))
-  out <- node_by_degree(manynet::to_uniplex(.data, tie1)) - 
+  out <- node_by_degree(manynet::to_uniplex(.data, tie1)) -
     node_by_degree(manynet::to_uniplex(.data, tie2))
-  make_node_measure(out, .data)
-}
-
-#' @rdname measure_central_degree
-#' @references
-#' ## On signed centrality
-#' Everett, Martin G., and Stephen P. Borgatti. 2014. 
-#' “Networks Containing Negative Ties.” 
-#' _Social Networks_ 38:111–20. 
-#' \doi{10.1016/j.socnet.2014.03.005}
-#' @export
-node_by_posneg <- function(.data){
-  .data <- manynet::expect_nodes(.data)
-  stopifnot(manynet::is_signed(.data))
-  pos <- manynet::as_matrix(manynet::to_unsigned(.data, keep = "positive"))
-  neg <- manynet::as_matrix(manynet::to_unsigned(.data, keep = "negative"))
-  nn <- manynet::net_nodes(.data)
-  pn <- pos-neg*2
-  diag(pn) <- 0
-  idmat <- diag(nn)
-  v1 <- matrix(1,nn,1)
-  out <- solve(idmat - ((pn%*%t(pn))/(4*(nn-1)^2))) %*% (idmat+( pn/(2*(nn-1)) )) %*% v1
-  make_node_measure(out, .data)
+  # Bounded by construction rather than divided by a maximum: the difference
+  # of two normalised degrees.
+  make_node_measure(out, .data, measure = "multidegree centrality",
+                    range = c(-1, 1), normalization = "none")
 }
 
 #' @rdname measure_central_degree

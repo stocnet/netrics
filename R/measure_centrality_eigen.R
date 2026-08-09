@@ -18,6 +18,9 @@
 #'   - `node_by_authority()` measures how well nodes in a network serve as 
 #'   authorities from many hubs.
 #'   
+#'   - `node_by_posneg()` measures the PN (positive-negative) centrality of a
+#'   signed network.
+#'
 #'   All measures attempt to use as much information as they are offered,
 #'   including whether the networks are directed, weighted, or multimodal.
 #'   If this would produce unintended results, 
@@ -253,8 +256,43 @@ node_by_hub <- function(.data){
 #' @export 
 node_by_subgraph <- function(.data){
   .data <- manynet::expect_nodes(.data)
+  # Subgraph centrality grows exponentially in the number of closed walks and
+  # has no theoretical maximum, so no normalisation is offered.
   make_node_measure(igraph::subgraph_centrality(manynet::as_igraph(.data)),
-                    .data)
+                    .data, measure = "subgraph centrality",
+                    range = c(0, Inf), normalization = "none")
+}
+
+#' @rdname measure_central_eigen
+#' @section PN (positive-negative) centrality:
+#'   PN centrality extends walk-based centrality to signed networks.
+#'   Negative ties are weighted twice as heavily as positive ties,
+#'   \eqn{P - 2N}, and the measure is then obtained in closed form by matrix
+#'   inversion, so that — like alpha centrality, of which it is the signed
+#'   analogue — it counts walks of all lengths with a length discount rather
+#'   than counting only direct ties.
+#'   Scores centre on 1: nodes above 1 are advantaged by their pattern of
+#'   positive and negative ties, and those below 1 disadvantaged.
+#' @references
+#' ## On signed centrality
+#' Everett, Martin G., and Stephen P. Borgatti. 2014.
+#' “Networks Containing Negative Ties.”
+#' _Social Networks_ 38:111–20.
+#' \doi{10.1016/j.socnet.2014.03.005}
+#' @export
+node_by_posneg <- function(.data){
+  .data <- manynet::expect_nodes(.data)
+  stopifnot(manynet::is_signed(.data))
+  pos <- manynet::as_matrix(manynet::to_unsigned(.data, keep = "positive"))
+  neg <- manynet::as_matrix(manynet::to_unsigned(.data, keep = "negative"))
+  nn <- manynet::net_nodes(.data)
+  pn <- pos-neg*2
+  diag(pn) <- 0
+  idmat <- diag(nn)
+  v1 <- matrix(1,nn,1)
+  out <- solve(idmat - ((pn%*%t(pn))/(4*(nn-1)^2))) %*% (idmat+( pn/(2*(nn-1)) )) %*% v1
+  make_node_measure(out, .data, measure = "PN centrality",
+                    range = c(0, Inf), normalization = "none")
 }
 
 # Eigenvector-like centralities ####
