@@ -36,6 +36,11 @@ or its spread across layers in a multiplex network
   - Note that on weighted networks this counts ties where
     `net_by_heterophily()` sums weights, so the two agree only when unweighted
 
+## Methods
+
+- Added `sim_rolesim()` and `sim_rege()`, recursive role similarity methods
+  - Note `sim_rege()` degenerate on unweighted connected ones, where it warns
+
 # netrics 0.4.1
 
 ## Package
