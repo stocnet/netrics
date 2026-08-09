@@ -185,7 +185,9 @@ node_by_reach <- function(.data, normalized = TRUE, cutoff = 2){
     out <- 1/tore
   } else out <- igraph::distances(manynet::as_igraph(.data))
   diag(out) <- Inf # exclude self from own score
-  out <- rowSums(out <= cutoff)
+  # test finiteness explicitly, since `Inf <= Inf` is TRUE and would otherwise
+  # count the node itself, and unreachable nodes, when `cutoff = Inf`
+  out <- rowSums(is.finite(out) & out <= cutoff)
   if(normalized) out <- out/(manynet::net_nodes(.data)-1)
   make_node_measure(out, .data, measure = "reach centrality",
                     range = `if`(normalized, c(0, 1), c(0, Inf)),
