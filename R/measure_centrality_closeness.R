@@ -364,8 +364,14 @@ node_by_distance <- function(.data, from, to, normalized = TRUE){
 #' @section Closeness vitality centrality: 
 #'   The closeness vitality of a node is the change in the sum of all distances
 #'   in a network, also known as the Wiener Index, when that node is removed.
-#'   Note that the closeness vitality may be negative infinity if
-#'   removing that node would disconnect the network.
+#'   Since the Wiener Index of a disconnected network is infinite,
+#'   the unnormalised closeness vitality of a cut node — one whose removal
+#'   would disconnect the network — is negative infinity.
+#'   This is a property of the definition rather than a failure of it:
+#'   it picks out exactly the cut nodes.
+#'   Because that is awkward to work with, the normalised version rescales the
+#'   finite scores onto \eqn{[0,1]} and gives cut nodes a score of 0,
+#'   the endpoint that negative infinity occupies.
 #'   Formally:
 #'   \deqn{C_V(i) = \sum_{j,k} d(j,k) - \sum_{j,k} d(j,k,G\ i)}
 #'   where \eqn{d(j,k,G\ i)} is the distance between nodes \eqn{j} and \eqn{k}
@@ -383,11 +389,26 @@ node_by_vitality <- function(.data, normalized = TRUE){
   .data <- manynet::expect_nodes(.data)
   .data <- manynet::as_igraph(.data)
   out <- vapply(manynet::snet_progress_nodes(.data), function(x){
-    sum(igraph::distances(.data)) - 
+    sum(igraph::distances(.data)) -
       sum(igraph::distances(manynet::delete_nodes(.data, x)))
   }, FUN.VALUE = numeric(1))
-  if(normalized) out <- out/max(out)
-  make_node_measure(out, .data)
+  cuts <- !is.finite(out)
+  if(any(cuts))
+    manynet::snet_info("Removing {sum(cuts)} node{?s} would disconnect this network, giving them infinite closeness vitality.")
+  if(normalized){
+    # Dividing by the maximum would not bound these scores, since they can be
+    # negative; a min-max rescaling of the finite scores does, leaving the
+    # cut nodes at 0, the endpoint negative infinity occupies.
+    if(any(!cuts)){
+      lims <- range(out[!cuts])
+      out[!cuts] <- `if`(diff(lims) > 0,
+                         (out[!cuts] - lims[1])/diff(lims), 1)
+    }
+    out[cuts] <- 0
+  }
+  make_node_measure(out, .data, measure = "closeness vitality centrality",
+                    range = `if`(normalized, c(0, 1), c(-Inf, Inf)),
+                    normalization = `if`(normalized, "normalized", "none"))
 }
 
 #' @rdname measure_central_close 

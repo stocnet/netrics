@@ -33,6 +33,9 @@
   from ideal types (`nul`, `com`, `reg`, `rdo`, `cdo`, `dnc`), generalising
   `net_by_factions()` beyond structural equivalence
 - Fixed `node_by_reach()` counting the node itself so normalised scores could exceed 1
+- Fixed how `node_by_vitality()` treats cut nodes
+  - Unnormalised returns `-Inf` for cut nodes as the Wiener index definition requires
+  - Normalised `node_by_vitality()` rescales finite scores onto `[0,1]` and places cut nodes at 0
 - Improved `node_by_closeness()` to validate `direction` via `match.arg()`
 
 ## Memberships
