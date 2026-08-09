@@ -7,6 +7,7 @@
 \alias{node_by_reach}
 \alias{node_by_decay}
 \alias{node_by_integration}
+\alias{node_by_radiality}
 \alias{node_by_information}
 \alias{node_by_eccentricity}
 \alias{node_by_distance}
@@ -14,9 +15,20 @@
 \alias{node_by_randomwalk}
 \title{Measuring nodes closeness-like centrality}
 \usage{
-node_by_closeness(.data, normalized = TRUE, direction = "out", cutoff = NULL)
+node_by_closeness(
+  .data,
+  normalized = TRUE,
+  direction = c("out", "in", "all"),
+  cutoff = NULL
+)
 
-node_by_harmonic(.data, normalized = TRUE, cutoff = -1)
+node_by_harmonic(
+  .data,
+  normalized = TRUE,
+  cutoff = -1,
+  decay = NULL,
+  direction = c("out", "in")
+)
 
 node_by_reach(.data, normalized = TRUE, cutoff = 2)
 
@@ -28,6 +40,8 @@ node_by_decay(
 )
 
 node_by_integration(.data, normalized = TRUE, direction = c("in", "out"))
+
+node_by_radiality(.data, normalized = TRUE)
 
 node_by_information(.data, normalized = TRUE)
 
@@ -87,7 +101,11 @@ or how many nodes they can reach within \emph{k} steps.
 \item \code{node_by_decay()} measures nodes' decay centrality,
 a distance-weighted generalisation of reach centrality.
 \item \code{node_by_integration()} measures nodes' integration or radiality,
-which weights alters by how close they are rather than counting them.
+which weights alters by how close they are rather than counting them;
+\code{node_by_radiality()} returns the \code{direction = 'out'} results.
+Note that on a connected network integration ranks nodes identically to
+closeness centrality, of which it is an affine transformation;
+it differs only in how it treats unreachable nodes.
 \item \code{node_by_information()} measures nodes' information centrality or
 current-flow closeness centrality.
 \item \code{node_by_eccentricity()} measures nodes' eccentricity or maximum distance
@@ -97,14 +115,20 @@ given node.
 \item \code{node_by_vitality()} measures a network's closeness vitality centrality,
 or the change in closeness centrality between networks with and without a
 given node.
+\item \code{node_by_randomwalk()} measures nodes' random walk closeness centrality,
+or the inverse of the average time a random walk takes to reach them.
 }
 
 All measures attempt to use as much information as they are offered,
 including whether the networks are directed, weighted, or multimodal.
 If this would produce unintended results,
 first transform the salient properties using e.g. \code{\link[manynet:to_undirected]{to_undirected()}} functions.
-All centrality and centralization measures return normalized measures by default,
-including for two-mode networks.
+All centrality and centralization measures return normalised or scaled
+measures where available, reported when the measure is printed.
+Most of these measures are \emph{normalised} against a theoretical maximum,
+so that scores can be compared across networks;
+\code{node_by_randomwalk()} and \code{node_by_distance()} have no such maximum and
+are instead \emph{scaled} against the largest value observed in this network.
 }
 \section{Closeness centrality}{
 
@@ -125,6 +149,13 @@ where \eqn{\frac{1}{d(i,j)} = 0} where there is no path between \eqn{i} and
 Since the harmonic mean performs better than the arithmetic mean on
 unconnected networks, i.e. networks with infinite distances,
 harmonic centrality is to be preferred in these cases.
+
+Harmonic centrality sums a decreasing function of each distance,
+\eqn{\sum_j f(d(i,j))}, and setting \code{decay} simply swaps in a different
+such function, \eqn{\delta^d}, giving decay centrality (see below).
+Note that \code{node_by_closeness()} cannot be reached this way: it sums the
+distances and inverts once, \eqn{1/\sum_j d(i,j)}, which is a different
+order of aggregation that no choice of decay function reproduces.
 }
 
 \section{Reach centrality}{
@@ -206,12 +237,28 @@ where the distance from \eqn{i} to \eqn{j} is \eqn{\infty} if unconnected.
 As such it is only well defined for connected networks.
 }
 
+\section{Geodesic distance}{
+
+Unlike the other functions documented here, \code{node_by_distance()} is not a
+centrality index but a distance query: it reports each node's geodesic
+distance from (or to) one named node, rather than summarising its position
+with respect to the network as a whole.
+It is grouped here because the closeness-like centralities are all built
+from the same geodesic distances.
+}
+
 \section{Closeness vitality centrality}{
 
 The closeness vitality of a node is the change in the sum of all distances
 in a network, also known as the Wiener Index, when that node is removed.
-Note that the closeness vitality may be negative infinity if
-removing that node would disconnect the network.
+Since the Wiener Index of a disconnected network is infinite,
+the unnormalised closeness vitality of a cut node — one whose removal
+would disconnect the network — is negative infinity.
+This is a property of the definition rather than a failure of it:
+it picks out exactly the cut nodes.
+Because that is awkward to work with, the normalised version rescales the
+finite scores onto \eqn{[0,1]} and gives cut nodes a score of 0,
+the endpoint that negative infinity occupies.
 Formally:
 \deqn{C_V(i) = \sum_{j,k} d(j,k) - \sum_{j,k} d(j,k,G\ i)}
 where \eqn{d(j,k,G\ i)} is the distance between nodes \eqn{j} and \eqn{k}
@@ -235,6 +282,7 @@ node_by_closeness(ison_southern_women)
 node_by_reach(ison_adolescents)
 node_by_decay(ison_adolescents)
 node_by_integration(ison_adolescents)
+node_by_radiality(ison_adolescents)
 }
 \references{
 \subsection{On closeness centrality}{

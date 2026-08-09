@@ -11,14 +11,26 @@
 #'   which uses an electrical current model for information spreading 
 #'   in contrast to the shortest paths model used by normal betweenness centrality.
 #'   - `node_by_stress()` measures the stress centrality of nodes in a network.
-#'   - `tie_by_betweenness()` measures the number of shortest paths going through a tie.
-#'   
+#'
+#'   These four differ in what they count:
+#'   `node_by_betweenness()` sums the _proportion_ of shortest paths between
+#'   each pair that run through a node, so every pair of nodes contributes at
+#'   most one unit however many shortest paths connect it;
+#'   `node_by_stress()` instead sums the raw _count_ of those paths, so pairs
+#'   joined by many equally short routes count for more;
+#'   `node_by_flow()` abandons shortest paths altogether for maximum flow,
+#'   crediting nodes that carry traffic along longer routes as well;
+#'   and `node_by_induced()` asks a different question again — not how much
+#'   passes through a node, but how much total betweenness the network would
+#'   lose if it were removed.
+#'   For ties rather than nodes, see [tie_by_betweenness()].
+#'
 #'   All measures attempt to use as much information as they are offered,
 #'   including whether the networks are directed, weighted, or multimodal.
-#'   If this would produce unintended results, 
+#'   If this would produce unintended results,
 #'   first transform the salient properties using e.g. [to_undirected()] functions.
-#'   All centrality and centralization measures return normalized measures by default,
-#'   including for two-mode networks.
+#'   All centrality and centralization measures return normalised or scaled
+#'   measures where available, reported when the measure is printed.
 #' @template param_data
 #' @template param_norm
 #' @family betweenness
@@ -98,7 +110,8 @@ node_by_induced <- function(.data, normalized = TRUE,
                                  na.rm = TRUE),
                  FUN.VALUE = numeric(1))
   out <- endog - exog
-  make_node_measure(out, .data)
+  make_node_measure(out, .data, measure = "induced centrality",
+                    range = c(-Inf, Inf), normalization = "none")
 }
 
 #' @rdname measure_central_between 
@@ -126,7 +139,11 @@ node_by_flow <- function(.data, normalized = TRUE){
                       gmode = ifelse(manynet::is_directed(.data), "digraph", "graph"),
                       diag = manynet::is_complex(.data),
                       cmode = ifelse(normalized, "normflow", "rawflow"))
-  make_node_measure(out, .data)
+  # `sna`'s "normflow" divides each node's mediated flow by the total flow,
+  # bounding the result by one.
+  make_node_measure(out, .data, measure = "flow betweenness centrality",
+                    range = `if`(normalized, c(0, 1), c(0, Inf)),
+                    normalization = `if`(normalized, "normalized", "none"))
 }
 
 #' @rdname measure_central_between 
@@ -150,7 +167,11 @@ node_by_stress <- function(.data, normalized = TRUE){
                          gmode = ifelse(manynet::is_directed(.data), "digraph", "graph"),
                          diag = manynet::is_complex(.data),
                          rescale = normalized)
-  make_node_measure(out, .data)
+  # `sna::stresscent(rescale = TRUE)` divides by the sum of all scores,
+  # so the result is a set of shares rather than a [0,1] normalisation.
+  make_node_measure(out, .data, measure = "stress centrality",
+                    range = `if`(normalized, c(0, 1), c(0, Inf)),
+                    normalization = `if`(normalized, "proportion", "none"))
 }
 
 # Tie betweenness centrality ####

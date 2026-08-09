@@ -18,11 +18,14 @@
   - `range`, theoretical range of the returned values
   - These are additive: measures that do not set them behave exactly as before.
     Surfacing them when printing is a companion change in `{manynet}`.
+- Improved specificity of arguments, separating normalising from scaling
+  - Renamed `scale` argument to `scaled`, the old spelling still works but warns
 - Added family-wide contract test sweeping every node-level centrality:
   - that scores stay inside declared ranges
   - that declared normalisations match values
   - that arguments have an effect,
   reporting any gaps as audit messages rather than failures
+- Corrected claim in documentation that all measures return normalized values by default
 - Added `net_by_cyclicality()` for detecting generalised exchange
 - Added `net_by_compactness()` for the average closeness of all pairs of nodes
 - Added `decay` argument to `node_by_harmonic()`, and added `node_by_decay()` as a shortcut for decay centrality

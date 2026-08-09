@@ -16,10 +16,18 @@
 #'
 #'   All measures attempt to use as much information as they are offered,
 #'   including whether the networks are directed, weighted, or multimodal.
-#'   If this would produce unintended results, 
+#'   If this would produce unintended results,
 #'   first transform the salient properties using e.g. [manynet::to_undirected()] functions.
-#'   All centrality and centralization measures return normalized measures by default,
-#'   including for two-mode networks.
+#'   All centrality and centralization measures return normalised or scaled
+#'   measures where available, reported when the measure is printed.
+#'   Note that a weighted network has no theoretical maximum degree,
+#'   so `node_by_degree()` there returns _scaled_ rather than normalised
+#'   scores, which rank nodes within this network but are not comparable
+#'   with those of another.
+#'
+#'   `node_by_multidegree()` is the one measure here that is not reached by
+#'   dispatch: a multiplex network does not itself say _which_ two types of
+#'   tie to contrast, so `tie1` and `tie2` must be named.
 #' @template param_data
 #' @template param_norm
 #' @template param_dir
@@ -185,7 +193,10 @@ node_by_leverage <- function(.data){
   .data <- manynet::expect_nodes(.data)
   out <- (node_by_deg(.data) - node_by_neighbours_degree(.data))/
     (node_by_deg(.data) + node_by_neighbours_degree(.data))
-  make_node_measure(out, .data)
+  # Bounded by construction rather than divided by a maximum: a ratio of
+  # differences between a node's degree and its neighbours'.
+  make_node_measure(out, .data, measure = "leverage centrality",
+                    range = c(-1, 1), normalization = "none")
 }
 
 # Degree-like centralities ####
@@ -217,7 +228,9 @@ tie_by_degree <- function(.data, normalized = TRUE){
   edge_adj <- manynet::to_ties(.data)
   out <- node_by_degree(edge_adj, normalized = normalized)
   class(out) <- "numeric"
-  make_tie_measure(out, .data)
+  make_tie_measure(out, .data, measure = "degree centrality",
+                   range = `if`(normalized, c(0, 1), c(0, Inf)),
+                   normalization = `if`(normalized, "normalized", "none"))
 }
 
 # Degree centralisation ####
@@ -291,8 +304,10 @@ net_by_degree <- function(.data, normalized = TRUE,
     out <- igraph::centr_degree(graph = .data, mode = direction,
                                 normalized = normalized)$centralization
   }
-  out <- make_network_measure(out, .data, call = deparse(sys.call()))
-  out
+  make_network_measure(out, .data, call = deparse(sys.call()),
+                       measure = "degree centralisation",
+                       range = `if`(normalized, c(0, 1), c(0, Inf)),
+                       normalization = `if`(normalized, "normalized", "none"))
 }
 
 #' @rdname measure_centralisation_degree
@@ -323,12 +338,18 @@ mode_by_degree <- function(.data, normalized = TRUE,
       out$nodes2 <- sum(max(allcent[mode]) - allcent)/((ncol(mat) + nrow(mat) - 1) - (nrow(mat) - 1) / ncol(mat) - (nrow(mat)  + ncol(mat) - 1)/ncol(mat))
     }
   } else if (direction == "in" | direction == "out") {
+    # `direction` here selects the comparison set rather than a tie direction:
+    # each mode's most central node is compared only against the other nodes
+    # of its own mode. A two-mode incidence structure gives "in" and "out" no
+    # distinct meaning, so both take the same within-mode denominator.
     out$nodes1 <- sum(max(rowSums(mat)) - rowSums(mat))/((ncol(mat) - 1)*(nrow(mat) - 1))
     out$nodes2 <- sum(max(colSums(mat)) - colSums(mat))/((ncol(mat) - 1)*(nrow(mat) - 1))
   }
   out <- c("Mode 1" = out$nodes1, "Mode 2" = out$nodes2)
-  out <- make_mode_measure(out, .data, call = deparse(sys.call()))
-  out
+  make_mode_measure(out, .data, call = deparse(sys.call()),
+                    measure = "degree centralisation",
+                    range = `if`(normalized, c(0, 1), c(0, Inf)),
+                    normalization = `if`(normalized, "normalized", "none"))
 }
 
 #' @rdname measure_centralisation_degree

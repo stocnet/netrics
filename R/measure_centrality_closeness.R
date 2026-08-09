@@ -314,7 +314,11 @@ node_by_information <- function(.data, normalized = TRUE){
                        gmode = ifelse(manynet::is_directed(.data), "digraph", "graph"),
                        diag = manynet::is_complex(.data),
                        rescale = normalized)
-  make_node_measure(out, .data)
+  # `sna::infocent(rescale = TRUE)` divides by the sum of all scores,
+  # so the result is a set of shares rather than a [0,1] normalisation.
+  make_node_measure(out, .data, measure = "information centrality",
+                    range = `if`(normalized, c(0, 1), c(0, Inf)),
+                    normalization = `if`(normalized, "proportion", "none"))
 }
 
 #' @rdname measure_central_close
@@ -337,8 +341,12 @@ node_by_eccentricity <- function(.data, normalized = TRUE){
     manynet::snet_unavailable("Eccentricity centrality is only available for connected networks.")
   disties <- igraph::distances(as_igraph(.data))
   out <- apply(disties, 1, max)
+  # Inverting the maximum distance bounds the result by 1, achieved by a node
+  # adjacent to every other.
   if(normalized) out <- 1/out
-  make_node_measure(out, .data)
+  make_node_measure(out, .data, measure = "eccentricity centrality",
+                    range = `if`(normalized, c(0, 1), c(0, Inf)),
+                    normalization = `if`(normalized, "normalized", "none"))
 }
 
 #   - `node_eccentricity()` measures nodes' eccentricity or Koenig number,
@@ -354,16 +362,27 @@ node_by_eccentricity <- function(.data, normalized = TRUE){
 #  make_node_measure(out, .data)
 # }
 
-#' @rdname measure_central_close 
+#' @rdname measure_central_close
 #' @param from,to Index or name of a node to calculate distances from or to.
+#' @section Geodesic distance:
+#'   Unlike the other functions documented here, `node_by_distance()` is not a
+#'   centrality index but a distance query: it reports each node's geodesic
+#'   distance from (or to) one named node, rather than summarising its position
+#'   with respect to the network as a whole.
+#'   It is grouped here because the closeness-like centralities are all built
+#'   from the same geodesic distances.
 #' @export
 node_by_distance <- function(.data, from, to, normalized = TRUE){
   .data <- manynet::expect_nodes(.data)
   if(missing(from) && missing(to)) manynet::snet_abort("Either 'from' or 'to' must be specified.")
-  if(!missing(from)) out <- igraph::distances(manynet::as_igraph(.data), v = from) else 
+  if(!missing(from)) out <- igraph::distances(manynet::as_igraph(.data), v = from) else
     if(!missing(to)) out <- igraph::distances(manynet::as_igraph(.data), to = to)
-    if(normalized) out <- out/max(out)
-    make_node_measure(out, .data)
+  # Distances have no theoretical maximum, so this divides by the largest
+  # distance observed from (or to) the named node.
+  if(normalized) out <- out/max(out)
+  make_node_measure(out, .data, measure = "geodesic distance",
+                    range = `if`(normalized, c(0, 1), c(0, Inf)),
+                    normalization = `if`(normalized, "scaled", "none"))
 }
 
 #' @rdname measure_central_close 
@@ -521,7 +540,9 @@ tie_by_closeness <- function(.data, normalized = TRUE){
   edge_adj <- manynet::to_ties(.data)
   out <- node_by_closeness(edge_adj, normalized = normalized)
   class(out) <- "numeric"
-  make_tie_measure(out, .data)
+  make_tie_measure(out, .data, measure = "closeness centrality",
+                   range = `if`(normalized, c(0, 1), c(0, Inf)),
+                   normalization = `if`(normalized, "normalized", "none"))
 }
 
 # Closeness centralisation ####
@@ -591,8 +612,10 @@ net_by_closeness <- function(.data, normalized = TRUE,
                              mode = direction,
                              normalized = normalized)$centralization
   }
-  out <- make_network_measure(out, .data, call = deparse(sys.call()))
-  out
+  make_network_measure(out, .data, call = deparse(sys.call()),
+                       measure = "closeness centralisation",
+                       range = `if`(normalized, c(0, 1), c(0, Inf)),
+                       normalization = `if`(normalized, "normalized", "none"))
 }
 
 #' @rdname measure_centralisation_close
@@ -655,8 +678,10 @@ mode_by_closeness <- function(.data, normalized = TRUE,
     }
     out <- c("Mode 1" = out$nodes1, "Mode 2" = out$nodes2)
   }
-  out <- make_mode_measure(out, .data, call = deparse(sys.call()))
-  out
+  make_mode_measure(out, .data, call = deparse(sys.call()),
+                    measure = "closeness centralisation",
+                    range = `if`(normalized, c(0, 1), c(0, Inf)),
+                    normalization = `if`(normalized, "normalized", "none"))
 }
 
 #' @rdname measure_centralisation_close
@@ -666,7 +691,10 @@ net_by_reach <- function(.data, normalized = TRUE, cutoff = 2){
   reaches <- node_by_reach(.data, normalized = FALSE, cutoff = cutoff)
   out <- sum(max(reaches) - reaches)
   if(normalized) out <- out / sum(manynet::net_nodes(.data) - reaches)
-  make_network_measure(out, .data, call = deparse(sys.call()))
+  make_network_measure(out, .data, call = deparse(sys.call()),
+                       measure = "reach centralisation",
+                       range = `if`(normalized, c(0, 1), c(0, Inf)),
+                       normalization = `if`(normalized, "normalized", "none"))
 }
 
 #' @rdname measure_centralisation_close
@@ -690,7 +718,10 @@ net_by_decay <- function(.data, normalized = TRUE, decay = 0.5,
                         direction = match.arg(direction))
   out <- sum(max(decs) - decs)
   if(normalized) out <- out / (length(decs) - 1)
-  make_network_measure(out, .data, call = deparse(sys.call()))
+  make_network_measure(out, .data, call = deparse(sys.call()),
+                       measure = "decay centralisation",
+                       range = `if`(normalized, c(0, 1), c(0, Inf)),
+                       normalization = `if`(normalized, "normalized", "none"))
 }
 
 #' @rdname measure_centralisation_close
@@ -704,7 +735,10 @@ net_by_integration <- function(.data, normalized = TRUE,
                               direction = match.arg(direction))
   out <- sum(max(ints) - ints)
   if(normalized) out <- out / (length(ints) - 1)
-  make_network_measure(out, .data, call = deparse(sys.call()))
+  make_network_measure(out, .data, call = deparse(sys.call()),
+                       measure = "integration centralisation",
+                       range = `if`(normalized, c(0, 1), c(0, Inf)),
+                       normalization = `if`(normalized, "normalized", "none"))
 }
 
 #' @rdname measure_centralisation_close
@@ -714,6 +748,9 @@ net_by_harmonic <- function(.data, normalized = TRUE, cutoff = 2){
   harm <- node_by_harmonic(.data, normalized = FALSE, cutoff = cutoff)
   out <- sum(max(harm) - harm)
   if(normalized) out <- out / sum(manynet::net_nodes(.data) - harm)
-  make_network_measure(out, .data, call = deparse(sys.call()))
+  make_network_measure(out, .data, call = deparse(sys.call()),
+                       measure = "harmonic centralisation",
+                       range = `if`(normalized, c(0, 1), c(0, Inf)),
+                       normalization = `if`(normalized, "normalized", "none"))
 }
 

@@ -9,21 +9,30 @@
 \alias{node_by_authority}
 \alias{node_by_hub}
 \alias{node_by_subgraph}
+\alias{node_by_posneg}
 \title{Measuring nodes eigenvector-like centrality}
 \usage{
-node_by_eigenvector(.data, normalized = TRUE, scale = TRUE)
+node_by_eigenvector(.data, normalized = TRUE, scaled = TRUE, scale = NULL)
 
-node_by_power(.data, normalized = TRUE, scale = FALSE, exponent = 1)
+node_by_power(
+  .data,
+  normalized = TRUE,
+  scaled = FALSE,
+  scale = NULL,
+  exponent = 1
+)
 
 node_by_alpha(.data, alpha = 0.85)
 
 node_by_pagerank(.data)
 
-node_by_authority(.data)
+node_by_authority(.data, scaled = TRUE)
 
-node_by_hub(.data)
+node_by_hub(.data, scaled = TRUE)
 
 node_by_subgraph(.data)
+
+node_by_posneg(.data)
 }
 \arguments{
 \item{.data}{A network object of class \code{stocnet}, \code{igraph}, \code{tbl_graph}, \code{network}, or similar.
@@ -35,7 +44,12 @@ Different denominators may be used depending on the measure,
 whether the object is one-mode or two-mode, and other arguments.
 By default TRUE.}
 
-\item{scale}{Logical scalar, whether to rescale the vector so the maximum score is 1.}
+\item{scaled}{Logical scalar, whether to divide the results by the maximum
+observed in this network, so that the highest-scoring node takes the value
+one. Note that, unlike normalisation against a theoretical maximum, scaled
+scores are not comparable across different networks.}
+
+\item{scale}{Deprecated; use \code{scaled} instead.}
 
 \item{exponent}{Decay rate or attentuation factor for
 the Bonacich power centrality score.
@@ -67,14 +81,24 @@ network.
 to many authorities.
 \item \code{node_by_authority()} measures how well nodes in a network serve as
 authorities from many hubs.
+\item \code{node_by_subgraph()} measures nodes' participation in all closed walks
+in the network, weighting shorter walks more heavily.
+\item \code{node_by_posneg()} measures the PN (positive-negative) centrality of a
+signed network.
 }
 
 All measures attempt to use as much information as they are offered,
 including whether the networks are directed, weighted, or multimodal.
 If this would produce unintended results,
 first transform the salient properties using e.g. \code{\link[manynet:to_undirected]{to_undirected()}} functions.
-All centrality and centralization measures return normalized measures
-by default, including for two-mode networks.
+All centrality and centralization measures return normalised or scaled
+measures where available, reported when the measure is printed.
+
+Walk-based measures are mostly unbounded, so few of them can be
+\emph{normalised} against a theoretical maximum in the way that degree,
+closeness and betweenness can. Most are instead \emph{scaled} against the
+observed maximum, which ranks nodes within one network but does not
+give scores that are comparable between networks.
 }
 \details{
 We use \code{{igraph}} routines behind the scenes here for consistency and because they are often faster.
@@ -92,6 +116,9 @@ Rather than performing this iteration,
 most routines solve the eigenvector equation \eqn{Ax = \lambda x}.
 Note that since \code{{igraph}} v2.1.1,
 the values will always be rescaled so that the maximum is 1.
+This is not a limitation so much as a property of the measure:
+an eigenvector is defined only up to a scalar multiple,
+so its scores carry no absolute units to preserve.
 }
 
 \section{Power or beta (or Bonacich) centrality}{
@@ -151,6 +178,18 @@ Note though that because of the way spectral decomposition is used to
 calculate this measure, this is not a good measure for very large graphs.
 }
 
+\section{PN (positive-negative) centrality}{
+
+PN centrality extends walk-based centrality to signed networks.
+Negative ties are weighted twice as heavily as positive ties,
+\eqn{P - 2N}, and the measure is then obtained in closed form by matrix
+inversion, so that — like alpha centrality, of which it is the signed
+analogue — it counts walks of all lengths with a length discount rather
+than counting only direct ties.
+Scores centre on 1: nodes above 1 are advantaged by their pattern of
+positive and negative ties, and those below 1 disadvantaged.
+}
+
 \examples{
 node_by_eigenvector(ison_southern_women)
 node_by_power(ison_southern_women, exponent = 0.5)
@@ -204,6 +243,14 @@ Estrada, Ernesto and Rodríguez-Velázquez, Juan A. 2005.
 "Subgraph centrality in complex networks".
 \emph{Physical Review E} 71(5): 056103.
 \doi{10.1103/PhysRevE.71.056103}
+}
+
+\subsection{On signed centrality}{
+
+Everett, Martin G., and Stephen P. Borgatti. 2014.
+“Networks Containing Negative Ties.”
+\emph{Social Networks} 38:111–20.
+\doi{10.1016/j.socnet.2014.03.005}
 }
 }
 \seealso{

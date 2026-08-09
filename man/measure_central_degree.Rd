@@ -7,14 +7,13 @@
 \alias{node_by_outdegree}
 \alias{node_by_indegree}
 \alias{node_by_multidegree}
-\alias{node_by_posneg}
 \alias{node_by_leverage}
 \title{Measuring nodes degree-like centrality}
 \usage{
 node_by_degree(
   .data,
   normalized = TRUE,
-  alpha = 1,
+  alpha = 0,
   direction = c("all", "out", "in")
 )
 
@@ -25,8 +24,6 @@ node_by_outdegree(.data, normalized = TRUE, alpha = 0)
 node_by_indegree(.data, normalized = TRUE, alpha = 0)
 
 node_by_multidegree(.data, tie1, tie2)
-
-node_by_posneg(.data)
 
 node_by_leverage(.data)
 }
@@ -79,7 +76,6 @@ there are several related shortcut functions:
 \item \code{node_by_outdegree()} returns the \code{direction = 'out'} results.
 }
 \item \code{node_by_multidegree()} measures the ratio between types of ties in a multiplex network.
-\item \code{node_by_posneg()} measures the PN (positive-negative) centrality of a signed network.
 \item \code{node_by_leverage()} measures the leverage centrality of nodes in a network.
 }
 
@@ -87,8 +83,16 @@ All measures attempt to use as much information as they are offered,
 including whether the networks are directed, weighted, or multimodal.
 If this would produce unintended results,
 first transform the salient properties using e.g. \code{\link[manynet:to_undirected]{manynet::to_undirected()}} functions.
-All centrality and centralization measures return normalized measures by default,
-including for two-mode networks.
+All centrality and centralization measures return normalised or scaled
+measures where available, reported when the measure is printed.
+Note that a weighted network has no theoretical maximum degree,
+so \code{node_by_degree()} there returns \emph{scaled} rather than normalised
+scores, which rank nodes within this network but are not comparable
+with those of another.
+
+\code{node_by_multidegree()} is the one measure here that is not reached by
+dispatch: a multiplex network does not itself say \emph{which} two types of
+tie to contrast, so \code{tie1} and \code{tie2} must be named.
 }
 \section{Degree centrality}{
 
@@ -141,14 +145,6 @@ Opsahl, Tore, Filip Agneessens, and John Skvoretz. 2010.
 "Node centrality in weighted networks: Generalizing degree and shortest paths."
 \emph{Social Networks} 32, 245-251.
 \doi{10.1016/j.socnet.2010.03.006}
-}
-
-\subsection{On signed centrality}{
-
-Everett, Martin G., and Stephen P. Borgatti. 2014.
-“Networks Containing Negative Ties.”
-\emph{Social Networks} 38:111–20.
-\doi{10.1016/j.socnet.2014.03.005}
 }
 
 \subsection{On leverage centrality}{

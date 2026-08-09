@@ -15,20 +15,32 @@
 #'   - `node_by_pagerank()` measures the pagerank centrality of nodes in a network.
 #'   - `node_by_hub()` measures how well nodes in a network serve as hubs pointing 
 #'   to many authorities.
-#'   - `node_by_authority()` measures how well nodes in a network serve as 
+#'   - `node_by_authority()` measures how well nodes in a network serve as
 #'   authorities from many hubs.
-#'   
+#'   - `node_by_subgraph()` measures nodes' participation in all closed walks
+#'   in the network, weighting shorter walks more heavily.
 #'   - `node_by_posneg()` measures the PN (positive-negative) centrality of a
 #'   signed network.
 #'
 #'   All measures attempt to use as much information as they are offered,
 #'   including whether the networks are directed, weighted, or multimodal.
-#'   If this would produce unintended results, 
+#'   If this would produce unintended results,
 #'   first transform the salient properties using e.g. [to_undirected()] functions.
-#'   All centrality and centralization measures return normalized measures 
-#'   by default, including for two-mode networks.
+#'   All centrality and centralization measures return normalised or scaled
+#'   measures where available, reported when the measure is printed.
+#'
+#'   Walk-based measures are mostly unbounded, so few of them can be
+#'   _normalised_ against a theoretical maximum in the way that degree,
+#'   closeness and betweenness can. Most are instead _scaled_ against the
+#'   observed maximum, which ranks nodes within one network but does not
+#'   give scores that are comparable between networks.
 #' @template param_data
 #' @template param_norm
+#' @param scaled Logical scalar, whether to divide the results by the maximum
+#'   observed in this network, so that the highest-scoring node takes the value
+#'   one. Note that, unlike normalisation against a theoretical maximum, scaled
+#'   scores are not comparable across different networks.
+#' @param scale Deprecated; use `scaled` instead.
 #' @family eigenvector
 #' @family centrality
 #' @template node_measure
@@ -46,7 +58,9 @@ NULL
 #'   most routines solve the eigenvector equation \eqn{Ax = \lambda x}.
 #'   Note that since `{igraph}` v2.1.1,
 #'   the values will always be rescaled so that the maximum is 1.
-#' @param scale Logical scalar, whether to rescale the vector so the maximum score is 1. 
+#'   This is not a limitation so much as a property of the measure:
+#'   an eigenvector is defined only up to a scalar multiple,
+#'   so its scores carry no absolute units to preserve.
 #' @details
 #'   We use `{igraph}` routines behind the scenes here for consistency and because they are often faster.
 #'   For example, `igraph::eigencentrality()` is approximately 25% faster than `sna::evcent()`.
@@ -127,13 +141,18 @@ node_by_eigenvector <- function(.data, normalized = TRUE, scaled = TRUE,
 #' @examples
 #' node_by_power(ison_southern_women, exponent = 0.5)
 #' @export 
-node_by_power <- function(.data, normalized = TRUE, scale = FALSE, exponent = 1){
-  
+node_by_power <- function(.data, normalized = TRUE, scaled = FALSE,
+                          scale = NULL, exponent = 1){
+
   .data <- manynet::expect_nodes(.data)
-  weights <- `if`(manynet::is_weighted(.data), 
-                  manynet::tie_weights(.data), NA)
+  scaled <- resolve_scaled(scaled, scale)
   graph <- manynet::as_igraph(.data)
-  
+
+  # `igraph::power_centrality()` operates on the unweighted adjacency matrix
+  # and offers no weights argument, so tie weights cannot be honoured here.
+  if(manynet::is_weighted(.data))
+    manynet::snet_info("Power centrality ignores tie weights; consider {.fn node_by_alpha} for a weighted walk-based measure.")
+
   if(var(node_by_deg(graph))==0){
     manynet::snet_minor_info("All nodes have the same degree, so power centrality equals degree centrality.")
     exponent <- 0
@@ -141,24 +160,28 @@ node_by_power <- function(.data, normalized = TRUE, scale = FALSE, exponent = 1)
   
   # Do the calculations
   if (!manynet::is_twomode(graph)){
-    out <- igraph::power_centrality(graph = graph, 
+    out <- igraph::power_centrality(graph = graph,
                                     exponent = exponent,
-                                    rescale = scale)
-    if (normalized) out <- out / sqrt(1/2)
+                                    rescale = scaled)
+    if (normalized && !scaled) out <- out / sqrt(1/2)
   } else {
     eigen1 <- manynet::to_mode1(graph)
-    eigen1 <- igraph::power_centrality(graph = eigen1, 
+    eigen1 <- igraph::power_centrality(graph = eigen1,
                                        exponent = exponent,
-                                       rescale = scale)
+                                       rescale = scaled)
     eigen2 <- manynet::to_mode2(graph)
-    eigen2 <- igraph::power_centrality(graph = eigen2, 
+    eigen2 <- igraph::power_centrality(graph = eigen2,
                                        exponent = exponent,
-                                       rescale = scale)
+                                       rescale = scaled)
     out <- c(eigen1, eigen2)
-    if (normalized) out <- out / sqrt(1/2)
+    if (normalized && !scaled) out <- out / sqrt(1/2)
   }
-  out <- make_node_measure(out, .data)
-  out
+  # Power centrality is unbounded and may be negative (for a negative
+  # exponent), so `normalized` applies a constant factor rather than mapping
+  # onto [0,1]; `scaled = TRUE` instead returns shares summing to one.
+  make_node_measure(out, .data, measure = "power centrality",
+                    range = `if`(scaled, c(0, 1), c(-Inf, Inf)),
+                    normalization = `if`(scaled, "proportion", "none"))
 }
 
 #' @rdname measure_central_eigen 
@@ -198,9 +221,12 @@ node_by_power <- function(.data, normalized = TRUE, scale = FALSE, exponent = 1)
 #' @export 
 node_by_alpha <- function(.data, alpha = 0.85){
   .data <- manynet::expect_nodes(.data)
-  make_node_measure(igraph::alpha_centrality(manynet::as_igraph(.data), 
+  # Alpha centrality is unbounded and can be negative, so there is no
+  # theoretical maximum to normalise against.
+  make_node_measure(igraph::alpha_centrality(manynet::as_igraph(.data),
                                              alpha = alpha),
-                    .data)
+                    .data, measure = "alpha centrality",
+                    range = c(-Inf, Inf), normalization = "none")
 }
 
 #' @rdname measure_central_eigen 
@@ -212,8 +238,11 @@ node_by_alpha <- function(.data, alpha = 0.85){
 #' @export 
 node_by_pagerank <- function(.data){
   .data <- manynet::expect_nodes(.data)
+  # PageRank is a stationary distribution over a random walk, so scores are
+  # already shares summing to one and no further rescaling applies.
   make_node_measure(igraph::page_rank(manynet::as_igraph(.data))$vector,
-                    .data)
+                    .data, measure = "pagerank centrality",
+                    range = c(0, 1), normalization = "proportion")
 }
 
 #' @rdname measure_central_eigen 
@@ -224,18 +253,22 @@ node_by_pagerank <- function(.data){
 #'   _Journal of the ACM_ 46(5): 604–632.
 #'   \doi{10.1145/324133.324140}
 #' @export 
-node_by_authority <- function(.data){
+node_by_authority <- function(.data, scaled = TRUE){
   .data <- manynet::expect_nodes(.data)
-  make_node_measure(igraph::hits_scores(manynet::as_igraph(.data))$authority,
-                    .data)
+  out <- igraph::hits_scores(manynet::as_igraph(.data), scale = scaled)$authority
+  make_node_measure(out, .data, measure = "authority centrality",
+                    range = `if`(scaled, c(0, 1), c(0, Inf)),
+                    normalization = `if`(scaled, "scaled", "none"))
 }
 
-#' @rdname measure_central_eigen 
-#' @export 
-node_by_hub <- function(.data){
+#' @rdname measure_central_eigen
+#' @export
+node_by_hub <- function(.data, scaled = TRUE){
   .data <- manynet::expect_nodes(.data)
-  make_node_measure(igraph::hits_scores(manynet::as_igraph(.data))$hub,
-                    .data)
+  out <- igraph::hits_scores(manynet::as_igraph(.data), scale = scaled)$hub
+  make_node_measure(out, .data, measure = "hub centrality",
+                    range = `if`(scaled, c(0, 1), c(0, Inf)),
+                    normalization = `if`(scaled, "scaled", "none"))
 }
 
 #' @rdname measure_central_eigen 
@@ -334,7 +367,8 @@ tie_by_eigenvector <- function(.data, normalized = TRUE){
   edge_adj <- manynet::to_ties(.data)
   out <- node_by_eigenvector(edge_adj, normalized = normalized)
   class(out) <- "numeric"
-  make_tie_measure(out, .data)
+  make_tie_measure(out, .data, measure = "eigenvector centrality",
+                   range = c(0, 1), normalization = "scaled")
 }
 
 # Eigenvector centralisation ####
@@ -392,8 +426,10 @@ net_by_eigenvector <- function(.data, normalized = TRUE){
     out <- igraph::centr_eigen(manynet::as_igraph(.data),
                                normalized = normalized)$centralization
   }
-  out <- make_network_measure(out, .data, call = deparse(sys.call()))
-  out
+  make_network_measure(out, .data, call = deparse(sys.call()),
+                       measure = "eigenvector centralisation",
+                       range = `if`(normalized, c(0, 1), c(0, Inf)),
+                       normalization = `if`(normalized, "normalized", "none"))
 }
 
 #' @rdname measure_centralisation_eigen
@@ -408,8 +444,10 @@ mode_by_eigenvector <- function(.data, normalized = TRUE){
                                           normalized = normalized)$centralization,
            "Mode 2" = igraph::centr_eigen(manynet::as_igraph(manynet::to_mode2(.data)),
                                           normalized = normalized)$centralization)
-  out <- make_mode_measure(out, .data, call = deparse(sys.call()))
-  out
+  make_mode_measure(out, .data, call = deparse(sys.call()),
+                    measure = "eigenvector centralisation",
+                    range = `if`(normalized, c(0, 1), c(0, Inf)),
+                    normalization = `if`(normalized, "normalized", "none"))
 }
 
 

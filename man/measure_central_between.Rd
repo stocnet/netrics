@@ -44,15 +44,27 @@ These functions calculate common betweenness-related centrality measures for one
 which uses an electrical current model for information spreading
 in contrast to the shortest paths model used by normal betweenness centrality.
 \item \code{node_by_stress()} measures the stress centrality of nodes in a network.
-\item \code{tie_by_betweenness()} measures the number of shortest paths going through a tie.
 }
+
+These four differ in what they count:
+\code{node_by_betweenness()} sums the \emph{proportion} of shortest paths between
+each pair that run through a node, so every pair of nodes contributes at
+most one unit however many shortest paths connect it;
+\code{node_by_stress()} instead sums the raw \emph{count} of those paths, so pairs
+joined by many equally short routes count for more;
+\code{node_by_flow()} abandons shortest paths altogether for maximum flow,
+crediting nodes that carry traffic along longer routes as well;
+and \code{node_by_induced()} asks a different question again — not how much
+passes through a node, but how much total betweenness the network would
+lose if it were removed.
+For ties rather than nodes, see \code{\link[=tie_by_betweenness]{tie_by_betweenness()}}.
 
 All measures attempt to use as much information as they are offered,
 including whether the networks are directed, weighted, or multimodal.
 If this would produce unintended results,
 first transform the salient properties using e.g. \code{\link[manynet:to_undirected]{to_undirected()}} functions.
-All centrality and centralization measures return normalized measures by default,
-including for two-mode networks.
+All centrality and centralization measures return normalised or scaled
+measures where available, reported when the measure is printed.
 }
 \section{Betweenness centrality}{
 
