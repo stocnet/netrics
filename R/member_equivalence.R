@@ -157,7 +157,7 @@ node_in_regular <- function(.data,
 #'   closed neighbourhoods from those that bridge open ones,
 #'   but it is not regular equivalence: see `node_in_regular()` for that.
 #'
-#'   This function was called `node_in_regular()` prior to version 0.5.0.
+#'   This function was called `node_in_regular()` prior to version 1.0.0.
 #' @examples
 #' (nme <- node_in_motif(ison_southern_women, cluster = "concor"))
 #' @export

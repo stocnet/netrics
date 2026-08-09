@@ -167,7 +167,7 @@ role. It is well suited to distinguishing nodes that sit in dense,
 closed neighbourhoods from those that bridge open ones,
 but it is not regular equivalence: see \code{node_in_regular()} for that.
 
-This function was called \code{node_in_regular()} prior to version 0.5.0.
+This function was called \code{node_in_regular()} prior to version 1.0.0.
 }
 
 \section{Direct blockmodelling}{

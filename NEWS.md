@@ -1,4 +1,4 @@
-# netrics 0.5.0
+# netrics 1.0.0
 
 ## Package
 
