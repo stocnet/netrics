@@ -417,8 +417,6 @@ and `r gloss("transitivity")`,
 where a directed two-path is likely to be shortened
 by an additional arc connecting the first and third nodes on that path.
 
-<img src="https://i.giphy.com/media/v1.Y2lkPTc5MGI3NjExZ29idmxwMGNpb3Z6YzV0NGdremNoZ3A3OXdjeHlsd3UwNDdwY3ZwOCZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/dxVdo4ca7FkME/giphy.gif" alt="gif of ah ha gotcha"/>
-
 ### Reciprocity {#reciprocity}
 
 First, let's calculate reciprocity in the task network.
@@ -727,7 +725,7 @@ Remember the difference between weak and strong components?
 question("Weak components...",
   answer("don't care about tie direction when establishing components.",
          correct = TRUE,
-         message = "That's right -- a weak component treats every tie as if it were undirected, so two nodes are in the same weak component if a path connects them ignoring arrow direction."),
+         message = 'That\'s right -- a weak component treats every tie as if it were undirected, so two nodes are in the same weak component if a path connects them ignoring arrow direction. <br><br> <img src="https://i.giphy.com/media/v1.Y2lkPTc5MGI3NjExZ29idmxwMGNpb3Z6YzV0NGdremNoZ3A3OXdjeHlsd3UwNDdwY3ZwOCZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/dxVdo4ca7FkME/giphy.gif" alt="gif of ah ha gotcha"/>'),
   answer("care about tie direction when establishing components.",
          message = "That describes *strong* components, where every node must be reachable from every other following tie direction. Weak components ignore direction."),
   allow_retry = TRUE
@@ -1012,7 +1010,18 @@ graphr(blogs, node_color = "Leaning")
 net_by_modularity(blogs, membership = node_attribute(blogs, "Leaning"))
 ```
 
-<img src="https://i.giphy.com/media/v1.Y2lkPTc5MGI3NjExcXFwZWF2azV0YTlwdnM0bTZncXpuOTdxdHFyMjJqcXJod2V3b29vYiZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/PsBRTPKG71YVq/giphy.gif" alt="gif of Chevy Chase saying plot twist"/>
+```{r leaningQ, echo = FALSE, purl = FALSE}
+question("How does the modularity of the blogs' declared leanings compare with that of the partition the algorithm found?",
+  answer("It is higher",
+         correct = TRUE,
+         message = 'Indeed -- the empirical attribute describes the tie pattern *better* than the algorithm\'s own bipartition. <br><br> <img src="https://i.giphy.com/media/v1.Y2lkPTc5MGI3NjExcXFwZWF2azV0YTlwdnM0bTZncXpuOTdxdHFyMjJqcXJod2V3b29vYiZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/PsBRTPKG71YVq/giphy.gif" alt="gif of Chevy Chase saying plot twist"/>'),
+  answer("It is lower",
+         message = "Have another look at the two numbers -- the leanings score the higher modularity here."),
+  answer("It is the same",
+         message = "Not quite -- the two memberships give noticeably different scores."),
+  allow_retry = TRUE
+)
+```
 
 How interesting.
 Perhaps the partitioning algorithm is not the algorithm that maximises

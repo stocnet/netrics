@@ -183,9 +183,6 @@ build_article(
   "vignettes/articles/centrality.Rmd"
 )
 
-# The following tutorials have not yet been reworked into the branded flatly
-# format, so the YAML/theme transform above would not apply cleanly. Uncomment
-# each call once its tutorial has been reworked (see the replication phase).
 build_article(
   "inst/tutorials/netrics2/community.Rmd",
   "vignettes/articles/community.Rmd"

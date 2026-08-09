@@ -258,7 +258,7 @@ node_in_block <- function(.data, k = 2L,
       out <- soln
       fit <- new_fit
     }
-    if(t %% 10) soln <- .strongPerturb(soln)
+    if(t %% 10 == 0) soln <- .strongPerturb(soln)
   }
   out <- make_node_member(out, .data)
   attr(out, "k") <- k

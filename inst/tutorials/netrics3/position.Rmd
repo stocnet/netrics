@@ -883,8 +883,6 @@ profile for the whole network. Both need a _directed_ network and a
 <span class="page-toc-link" onclick="document.getElementById('section-growing-a-tree-of-similarity').scrollIntoView({behavior:'auto',block:'start'});">Dendrograms</span> ·
 <span class="page-toc-link" onclick="document.getElementById('section-identifying-the-number-of-clusters').scrollIntoView({behavior:'auto',block:'start'});">Choosing k</span></span>
 
-<img src="https://i.giphy.com/media/v1.Y2lkPTc5MGI3NjExNGhvaTZ2Z3NxOW0yeTJ6ZjVoZ2ZqM2NqMjlxbXp1YnBmb2VtdTBldiZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/XcFqv8EzBiAlzeEID9/giphy.gif" alt="gif of rick multiplying"/>
-
 We now switch from asking about _individual_ positions (who is a broker?)
 to asking about _shared_ positions: which nodes play the same kind of role?
 Grouping nodes that occupy similar positions into classes is called finding
@@ -901,7 +899,8 @@ Let's make sure the definition is clear before we compute it.
 question("Structural equivalence means identifying classes of nodes with...",
          answer("same/similar tie partners.",
                 correct = TRUE,
-                message = learnr::random_praise()),
+                message = paste0(learnr::random_praise(),
+                                 ' <br><br> <img src="https://i.giphy.com/media/v1.Y2lkPTc5MGI3NjExNGhvaTZ2Z3NxOW0yeTJ6ZjVoZ2ZqM2NqMjlxbXp1YnBmb2VtdTBldiZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/XcFqv8EzBiAlzeEID9/giphy.gif" alt="gif of rick multiplying"/>')),
          answer("same/similar pattern of ties.",
                 message = "Close, but that is the definition for *regular* equivalence -- equivalent nodes tie to equivalent others, not necessarily the *same* others. We'll get to it."),
          answer("same/similar distance from all others.",
@@ -1226,8 +1225,6 @@ and a cut-point choosing the number of clusters
 <span class="page-toc-link" onclick="document.getElementById('section-summarising-profiles').scrollIntoView({behavior:'auto',block:'start'});">Summarising profiles</span> ·
 <span class="page-toc-link" onclick="document.getElementById('section-plotting-blockmodels').scrollIntoView({behavior:'auto',block:'start'});">Plotting blockmodels</span></span>
 
-<img src="https://i.giphy.com/media/v1.Y2lkPTc5MGI3NjExeHVzdGlhOGkyOWg2Z3BnMmE2eDgxMnlhZHhwaWx0bGZ3dTNmZnYyaSZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/dsKkAGVnds7aXQKBI7/giphy.gif" alt="gif of mortys in a block parade"/>
-
 ### Summarising profiles {#summarising-profiles}
 
 Ok, so now we have a result from establishing nodes' membership in
@@ -1250,8 +1247,6 @@ classes relate, and more interested in how the different classes relate in aggre
 This aggregation of a network into the relationships _between_ classes is called
 `r gloss("blockmodelling","blockmodel")`, and it is the pay-off of all the
 equivalence work we just did.
-
-<img src="https://i.giphy.com/media/v1.Y2lkPTc5MGI3NjExdmRlczhzaDJzaTBma3Q0c3pydDJjZTFkY20yMmhzbW13YmU3cnl6ZSZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9dg/QIEol1DjEwSOc9PvLu/giphy.gif" alt="gif of mortys learning about roles"/>
 
 One option that can be useful for characterising what
 the profile of ties (partners) is for each position/equivalence class
@@ -1380,9 +1375,10 @@ each role — is the interpretive skill this whole section is building towards.
 question("In a blockmodel plot sorted by class, what does an empty (white) off-diagonal block between class A (rows) and class B (columns) tell you?",
          answer("Members of class A rarely or never send ties to members of class B.",
                 correct = TRUE,
-                message = learnr::random_praise()),
+                message = paste0(learnr::random_praise(),
+                                 ' <br><br> <img src="https://i.giphy.com/media/v1.Y2lkPTc5MGI3NjExeHVzdGlhOGkyOWg2Z3BnMmE2eDgxMnlhZHhwaWx0bGZ3dTNmZnYyaSZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/dsKkAGVnds7aXQKBI7/giphy.gif" alt="gif of mortys in a block parade"/>')),
          answer("Classes A and B are the same class.",
-                message = "Not quite -- an empty block is about the *absence of ties* from one class to another, not about the classes being identical. Identical classes wouldn't be drawn as two separate blocks."),
+                message = 'Not quite -- an empty block is about the *absence of ties* from one class to another, not about the classes being identical. Identical classes wouldn\'t be drawn as two separate blocks. <br><br> <img src="https://i.giphy.com/media/v1.Y2lkPTc5MGI3NjExdmRlczhzaDJzaTBma3Q0c3pydDJjZTFkY20yMmhzbW13YmU3cnl6ZSZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9dg/QIEol1DjEwSOc9PvLu/giphy.gif" alt="gif of mortys learning about roles"/>'),
          answer("Every member of class A sends a tie to every member of class B.",
                 message = "That would be a full, dark block -- the opposite of an empty one."),
          answer("Class A has no members.",

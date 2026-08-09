@@ -100,8 +100,6 @@ This tutorial shows how to measure and map
 explore their `r gloss("distributions","distribution")`,
 and summarise the whole network's `r gloss("centralisation","centralization")`.
 
-<img src="https://i.giphy.com/media/v1.Y2lkPTc5MGI3NjExbG5oYmVtYmcxMWs1d3MzOGh3Zng5dTZhc241ZHR2NTE0YThiZWp4NiZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/970Sr8vpwEbXG/giphy.gif" height="480px" alt="gif of a glowing circuit board captioned 'Central Processing Unit'"/>
-
 ::: {.callout}
 <span class="callout-label">**Catching up**:</span>
 This tutorial assumes you can already load or make a network in R,
@@ -205,8 +203,6 @@ as they are assigned randomly from a pool of (American) first names.
 <span class="page-toc-link" onclick="document.getElementById('section-degrees-of-direction').scrollIntoView({behavior:'auto',block:'start'});">Direction</span> ·
 <span class="page-toc-link" onclick="document.getElementById('section-strength-of-ties').scrollIntoView({behavior:'auto',block:'start'});">Strength</span></span>
 
-<img src="https://i.giphy.com/media/v1.Y2lkPTc5MGI3NjExM3d6eGd2OHRxb2FvbHYzc2oyenFzOG5qcjhzMm82Mm1ncTVpOHhreiZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/uVd5gVHAq63SjtjAOe/giphy.gif" height="480px" alt="gif of a man saying 'I am a bit of a social butterfly'"/>
-
 ### Counting ties {#counting-ties}
 
 Let's start with calculating `r gloss("degree")`.
@@ -268,7 +264,8 @@ question("In what ways are higher degree nodes more 'central'?",
          answer("They have more power than other nodes",
                 message = "Not necessarily -- degree counts how many ties a node has, but power can depend on *who* those ties are to, not just how many there are."),
          answer("They are more active than other nodes",
-                correct = TRUE, message = learnr::random_praise()),
+                correct = TRUE, message = paste0(learnr::random_praise(),
+                                                 "<br/><img src=\"https://i.giphy.com/media/v1.Y2lkPTc5MGI3NjExanZ4OWhwM2k0eWU1ancza3NtYXlpZDFkdTJub2RvMnFkYnlwbWZ4dCZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/3o7aTHbH39h8xYePza/giphy.gif\" alt=\"gif of a woman saying 'But I can't help it that I'm popular'\"/>")),
          answer("They would be located in the centre of the graph",
                 message = "Not necessarily -- degree is about the number of ties, not where a node happens to be drawn; a high-degree node can sit anywhere in a layout."),
          answer("They would be able to control information flow in the network",
@@ -409,7 +406,8 @@ question("Why would a node lying 'between' many other nodes be 'central'?",
          answer("They have more power than other nodes",
                 message = "Not necessarily -- lying on many shortest paths gives a node the *opportunity* to broker, but that potential isn't automatically power."),
          answer("They would be able to control information flow in the network",
-                correct = TRUE, message = learnr::random_praise()),
+                correct = TRUE, message = paste0(learnr::random_praise(),
+                                                 "<br/><img src=\"https://i.giphy.com/media/v1.Y2lkPTc5MGI3NjExbG5oYmVtYmcxMWs1d3MzOGh3Zng5dTZhc241ZHR2NTE0YThiZWp4NiZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/970Sr8vpwEbXG/giphy.gif\" alt=\"gif of a glowing circuit board captioned 'Central Processing Unit'\"/>")),
          answer("They would be located in the centre of the graph",
                 message = "Not necessarily -- betweenness is about lying on shortest paths between others, not about a node's position in a layout."),
          answer("They can distribute a message to all other nodes in the network most quickly",
@@ -516,7 +514,9 @@ question("In what way is a node with the smallest sum of geodesic distances to a
          answer("They have more power than other nodes",
                 message = "Not necessarily -- closeness reflects how efficiently a node can reach everyone else, which isn't the same as holding power over them."),
          answer("They can distribute a message to all other nodes in the network most quickly",
-                correct = TRUE, message = learnr::random_praise()),
+                correct = TRUE,
+                message = paste0(learnr::random_praise(),
+                                 "<br/><img src=\"https://i.giphy.com/media/v1.Y2lkPTc5MGI3NjExM3d6eGd2OHRxb2FvbHYzc2oyenFzOG5qcjhzMm82Mm1ncTVpOHhreiZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/uVd5gVHAq63SjtjAOe/giphy.gif\" alt=\"gif of a man saying 'I am a bit of a social butterfly'\"/>")),
          answer("They would be located in the centre of the graph",
                 message = "Not necessarily -- closeness is defined by geodesic distances, not by where a node is placed in a drawing."),
          answer("They would be able to control information flow in the network",
@@ -617,7 +617,8 @@ question("Which of the following is true of eigenvector centrality?",
          answer("It is the only centrality measure that is correlated with power",
                 message = "Not necessarily -- eigenvector centrality has no unique claim on power, and other measures can correlate with it too."),
          answer("It is a measure of influence, not activity",
-                correct = TRUE, message = learnr::random_praise()),
+                correct = TRUE, message = paste0(learnr::random_praise(),
+                                                 "<br/><img src=\"https://i.giphy.com/media/v1.Y2lkPTc5MGI3NjExejh4dXBha3JhNW0yenJwMDd5aGpwd3Brc201ZXoxZnY2aWFna3Z4cCZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/7ROgX60TtTVK0mZwkJ/giphy.gif\" alt=\"gif of a man saying 'I'm so tired of being so popular'\"/>")),
          answer("It always gives the highest score to the node with the highest degree",
                 message = "Not necessarily -- because it weights ties by the importance of their neighbours, a lower-degree node connected to influential nodes can outrank a higher-degree node connected to peripheral ones."),
          answer("It is only meaningful in networks with nodes of similar degree",
@@ -714,27 +715,75 @@ Linton Freeman's classic answer was that most of them boil down to just three
 ideas — degree, closeness, and betweenness — with everything else a variant;
 we add eigenvector as a fourth, giving the **four families** this tutorial is
 built around.
+Another way of thinking about each of the centrality measures included
+here is in terms of three questions.
 
-Two questions organise the whole zoo, and locate each family within it.
 First: does the measure count what radiates _from_ a node — its own ties, its
 distances, its walks — or what passes _through_ it on the way between others?
 Borgatti and Everett ([2006](https://doi.org/10.1016/j.socnet.2005.11.005)) call the first **radial** and the second **medial**:
 degree, closeness, and eigenvector are radial; betweenness is medial.
+
 Second: does it read only a node's immediate neighbourhood (**local**),
 or its place in the whole network (**global**)?
 Degree is local; the other three are global.
-The four families are simply the most useful corners of that space,
-and each variant you met earlier is a refinement or extension within its family.
+There is no medial-local family, so the four families are the useful corners
+of that space rather than a full grid.
+Note too that this is a dial rather than a switch: `node_by_reach()` takes a
+`cutoff` that walks a measure from one end to the other, and at `cutoff = 1`
+reach centrality simply _is_ degree.
 
-| Family | Reads a node's… | Built on | Answers the question | Well-suited when |
+Third: what does the measure actually **traverse**? 
+Closeness and eigenvector are both radial and both global, 
+so the first two questions cannot tell them apart; 
+what separates them is that closeness travels by shortest paths 
+while eigenvector counts walks of every length. 
+The possibilities are nested by how much repetition they allow:
+
+> **walks** (anything goes) ⊇ **trails** (no tie used twice) ⊇ **paths** (no
+> node visited twice) ⊇ **geodesics** (only the shortest paths)
+
+Two measures can traverse the same thing and still differ in how they _weight_
+what they find. Eigenvector, alpha and subgraph centrality count all walks
+deterministically, discounting the longer ones; `node_by_pagerank()` and
+`node_by_randomwalk()` traverse those same walks but weight them by the
+probability that a random walker would take them. A few measures — 
+`node_by_information()` and `node_by_flow()` — sit outside this scheme
+altogether, modelling current or maximum flow rather than any single route.
+
+| Family | Reads a node's… | Traverses | Answers the question | Well-suited when |
 |---|---|---|---|---|
-| **Degree** | activity (radial, local) | direct ties | "Who is busiest, or most directly connected?" | only immediate ties matter, or influence spreads one step at a time; also the cheapest to compute on very large networks; outdegree associated with activity and indegree with popularity; tie weight and sign versions exist too |
-| **Closeness** | reach (radial, global) | shortest-path distances to all others | "Who can reach — or be reached by — everyone else in the fewest steps?" | the network is connected and things travel by efficient routes; use `node_by_harmonic()` if it is disconnected |
-| **Betweenness** | brokerage (medial, global) | shortest paths that pass through it | "Who sits between others, brokering, bridging, or bottlenecking flow?" | you care about gatekeeping, bridges between groups, or where flow is vulnerable; costly on huge networks (use a `cutoff`) |
-| **Eigenvector** | standing (radial, global) | walks of all lengths, weighted by neighbours' scores | "Who is connected to other important, well-connected nodes?" | importance is recursive — prestige, status, influence; use `node_by_pagerank()` for directed or disconnected networks; use `node_by_power()` if influence depends on being connected to poorly-connected nodes |
+| **Degree** | activity (radial, local) | direct ties only | "Who is busiest, or most directly connected?" | only immediate ties matter, or influence spreads one step at a time; also the cheapest to compute on very large networks; outdegree associated with activity and indegree with popularity; tie weight and sign versions exist too |
+| **Closeness** | reach (radial, global) | geodesics — shortest paths to all others | "Who can reach — or be reached by — everyone else in the fewest steps?" | the network is connected and things travel by efficient routes; use `node_by_harmonic()` if it is disconnected |
+| **Betweenness** | brokerage (medial, global) | geodesics — shortest paths passing through it | "Who sits between others, brokering, bridging, or bottlenecking flow?" | you care about gatekeeping, bridges between groups, or where flow is vulnerable; costly on huge networks (use a `cutoff`) |
+| **Eigenvector** | standing (radial, global) | walks of every length, weighted by neighbours' scores | "Who is connected to other important, well-connected nodes?" | importance is recursive — prestige, status, influence; use `node_by_pagerank()` for directed or disconnected networks; use `node_by_power()` if influence depends on being connected to poorly-connected nodes |
 
-Reading across a row tells you what a family is _for_;
-reading down the last column tells you which _kind of network_ each suits best.
+### Reading the numbers you get back
+
+Choosing a measure is half the job; knowing what its scores mean is the other half. 
+Every measure here reports how it was rescaled, and there are three possibilities worth telling apart.
+
+A **normalised** score has been divided by a _theoretical_ maximum — 
+the largest value the measure could take on a network of this size and shape.
+Degree, closeness and betweenness all work this way, and because the yardstick
+does not depend on the particular network you measured, their scores can be
+compared _between_ networks: a normalised degree of 0.6 means the same thing in
+either of two networks.
+
+A **scaled** score has been divided by the _observed_ maximum, the largest
+value that actually turned up in this network. Eigenvector centrality works
+this way, because an eigenvector is only defined up to a scalar multiple and so
+has no absolute units to preserve. The consequence is easy to miss: the
+top-scoring node always gets exactly 1.0, in every network, however central it
+really is. Scaled scores rank nodes _within_ one network; they say nothing
+across networks.
+
+A **proportion** — `node_by_pagerank()` is the example — divides each score by
+their total, so the values sum to one and can be read as shares.
+
+And some measures are rescaled by none of these, because no sensible maximum exists: 
+`node_by_alpha()` can return negative values, and `node_by_subgraph()` grows exponentially. 
+There is no normalised version of every centrality measure, 
+and it is better to know that than to be handed a number between 0 and 1 that was never really bounded.
 
 ```{r whichcentQ, purl = FALSE}
 question("A rumour spreads step-by-step along ties, and you want to find the person who could seed it to reach everyone else in the fewest steps. Which family is the most natural first choice?",
@@ -868,8 +917,6 @@ That whole-network summary is called `r gloss("centralisation","centralization")
 and the bridge to it runs through the _distribution_ of a nodal measure.
 
 ### Reading a distribution {#reading-a-distribution}
-
-<img src="https://i.giphy.com/media/v1.Y2lkPTc5MGI3NjExanZ4OWhwM2k0eWU1ancza3NtYXlpZDFkdTJub2RvMnFkYnlwbWZ4dCZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/3o7aTHbH39h8xYePza/giphy.gif" height="400px" alt="gif of a woman saying 'But I can't help it that I'm popular'"/>
 
 Rather than reduce a measure to a single summary number,
 we can look at its whole `r gloss("distribution")` across the nodes.
@@ -1084,8 +1131,6 @@ which can be compared to see which mode is more centralised with respect to the 
 :::
 
 ## Free play
-
-<img src="https://i.giphy.com/media/v1.Y2lkPTc5MGI3NjExejh4dXBha3JhNW0yenJwMDd5aGpwd3Brc201ZXoxZnY2aWFna3Z4cCZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/7ROgX60TtTVK0mZwkJ/giphy.gif" height="400px" alt="gif of a man saying 'I'm so tired of being so popular'"/>
 
 Choose another dataset included in `{manynet}` (browse them with `table_data()`).
 Name a plausible research question you could ask of the dataset relating to each

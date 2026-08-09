@@ -293,8 +293,6 @@ and `r gloss("transitivity")`,
 where a directed two-path is likely to be shortened
 by an additional arc connecting the first and third nodes on that path.
 
-<img src="https://i.giphy.com/media/v1.Y2lkPTc5MGI3NjExZ29idmxwMGNpb3Z6YzV0NGdremNoZ3A3OXdjeHlsd3UwNDdwY3ZwOCZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/dxVdo4ca7FkME/giphy.gif" alt="gif of ah ha gotcha"/>
-
 ### Reciprocity {#reciprocity}
 
 First, let's calculate reciprocity in the task network.
@@ -676,7 +674,9 @@ graphr(blogs, node_color = "Leaning")
 net_by_modularity(blogs, membership = node_attribute(blogs, "Leaning"))
 ```
 
-<img src="https://i.giphy.com/media/v1.Y2lkPTc5MGI3NjExcXFwZWF2azV0YTlwdnM0bTZncXpuOTdxdHFyMjJqcXJod2V3b29vYiZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/PsBRTPKG71YVq/giphy.gif" alt="gif of Chevy Chase saying plot twist"/>
+::: {.callout}
+<span class="callout-label">**Try it yourself**:</span> This section includes an interactive quiz in the live tutorial — run `run_tute()` at the R console to try it.
+:::
 
 How interesting.
 Perhaps the partitioning algorithm is not the algorithm that maximises

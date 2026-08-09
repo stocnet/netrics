@@ -143,7 +143,10 @@ node_by_harmonic <- function(.data, normalized = TRUE, cutoff = -1,
     # directed network as though every tie ran both ways
     dists <- igraph::distances(manynet::as_igraph(.data), mode = direction)
     diag(dists) <- Inf # exclude self from own score
-    out <- rowSums(decay^(dists-1), na.rm = TRUE) # unreachable contribute 0
+    contribs <- decay^(dists-1)
+    # zero these out explicitly, since e.g. 1^Inf is 1 rather than 0
+    contribs[!is.finite(dists)] <- 0 # unreachable and self contribute 0
+    out <- rowSums(contribs, na.rm = TRUE)
     if(normalized) out <- out/(manynet::net_nodes(.data)-1)
     meas <- "decay centrality"
   }

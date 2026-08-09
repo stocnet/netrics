@@ -161,8 +161,6 @@ and that you can browse the full list with `table_data()`.
 <span class="page-toc-link" onclick="document.getElementById('section-lattices').scrollIntoView({behavior:'auto',block:'start'});">Lattices</span> ·
 <span class="page-toc-link" onclick="document.getElementById('section-rings').scrollIntoView({behavior:'auto',block:'start'});">Rings</span></span>
 
-<img src="https://media.tenor.com/images/e26e64a8cce94a6ee491f0ddeecc8b88/tenor.gif"/>
-
 In this practical, we're going to create/generate
 a number of ideal-typical network topologies and plot them.
 We'll first look at some deterministic algorithms for _creating_ networks
@@ -281,7 +279,8 @@ or makes pockets of behaviour stable.
 ```{r lat-qa, echo=FALSE, purl = FALSE}
 question("Why are lattices considered highly clustered?",
          answer("Because neighbours are likely also neighbours of each other",
-                message = learnr::random_praise(),
+                message = paste0(learnr::random_praise(),
+                                 ' <br><br> <img src="https://media.tenor.com/images/e26e64a8cce94a6ee491f0ddeecc8b88/tenor.gif"/>'),
                 correct = TRUE),
          answer("Because all nodes are directly connected to each other",
                 message = learnr::random_encouragement()),
