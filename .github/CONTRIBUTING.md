@@ -86,6 +86,44 @@ Functions are grouped into four families by naming pattern, each with dedicated 
 When adding a new analytic function, pick the family that matches its semantics and follow the existing naming scheme exactly.
 This predictability is a stated project goal.
 
+### Method helper naming
+
+Besides the four analytic families, some functions take a **character argument that selects a method**.
+These are not S3 methods; dispatch is by `switch()`. The rule is that the function called is named **`<argument>_<value>`**, so `k = "elbow"` calls `k_elbow()`, `cluster = "concor"` calls `cluster_concor()`, and `regularity = "rege"` calls `regularity_rege()`.
+Users can therefore find the implementation, and its documentation, from the argument alone.
+
+**Each family is named for what it returns** — not for the concept it serves, and not for the function that calls it:
+
+| Rd name | Returns | Functions | Argument |
+|---|---|---|---|
+| `method_kselect` | an integer, the number of clusters | `k_*` | `k =` |
+| `method_cluster` | an `hclust` clustering object | `cluster_*` | `cluster =` |
+| `method_regularity` | a node-by-node similarity matrix | `regularity_*` | `regularity =` |
+
+Apply that test when naming a new family. For example, `equivalence_*` would be the wrong name for `regularity_*`, even though those methods are only ever called from `node_in_regular()`: they return a *similarity*, which `cluster_*()` only later partitions into an equivalence. Naming the step for the pipeline's eventual output rather than its own return value breaks the rule.
+
+Two further points of style:
+
+- Pick a word narrow enough to own the family. `regularity` is preferred over `similarity` because the latter is broad enough to be overrun later, and because generic similarities (`to_cosine()`, `to_correlation()`) belong to `{manynet}` and are consumed here through `distance =` and `cluster_*()`, so they would never live in this family anyway.
+- The dispatching function should name the method in its `snet_info()` message by interpolation, e.g. `manynet::snet_info("...using {.fn regularity_{regularity}}.")`. This surfaces the convention to users at run time, and makes it obvious if the argument and the prefix ever drift apart.
+
+One known exception: `node_in_equivalence()`'s `motif =` argument is fed by `node_x_*()` functions rather than `motif_*()` ones. Motifs are one of the four core families above and cannot be renamed to suit this rule, so leave that as it is.
+
+### Naming within the membership family
+
+`node_in_*()` names divide into two kinds, and new functions should follow whichever fits:
+
+- **Group-nouns** name the grouping itself, and are the generic entry point where there is one: `node_in_community()` tries every applicable algorithm and returns the highest-modularity partition; `node_in_component()` sits above `node_in_strong()`/`node_in_weak()`. Also `node_in_core()`, `node_in_block()`.
+- **Algorithm names** name one specific method: `node_in_louvain()`, `node_in_leiden()`, `node_in_walktrap()`, `node_in_infomap()`, `node_in_spinglass()`, `node_in_roulette()`, `node_in_partition()` (Kernighan–Lin).
+
+Two rules about number:
+
+- **Number follows level, not stem.** `node_in_*()` is singular, because a node belongs to one group; `net_by_*()` takes the plural when the measure concerns all of them. Hence `node_in_component()` with `net_by_components()`. Do not "correct" one of a pair to match the other — the mismatch is the convention. (Note that `net_by_*` names ending in *s* are not all plurals: `betweenness`, `compactness`, `richness` and `toughness` are abstract nouns. The real plurals are `components`, `factions` and `waves`.)
+- **The rule is about number, not about the stem.** It settles whether to write `component` or `components` at a given level; it does not establish that a stem is the right one. `net_by_components()` returns a count *of the components*, a fact about the things named — but a measure of, say, how far a partition departs from an ideal structure is not a fact about those groups in that way, and should be named for the quantity it returns instead. That is why the blockmodelling criterion is `net_by_inconsistency()` rather than `net_by_blocks()`, even though its partitions come from `node_in_block()`.
+- **Never plural in `node_in_*()`**, both because of the rule above and because `to_*s()` already means "returns a list" in `{manynet}` (`to_components()`, `to_egos()`).
+
+Finally, avoid words that imply another stocnet package's remit. `{netrics}` is descriptive; statistical modelling and testing belong to `{migraph}`. This is why the direct blockmodelling search is `node_in_block()` rather than `node_in_blockmodel()`, even though "blockmodel" is the literature's term — prose and `@section` headings should still say blockmodelling, since it is only the exported name that signals remit.
+
 ### Function body convention
 
 Functions consistently:

@@ -52,6 +52,10 @@ or its spread across layers in a multiplex network
 
 - Added `regularity_rolesim()` and `regularity_rege()`, recursive role similarity methods
   - Note `regularity_rege()` degenerate on unweighted connected ones, where it warns
+  
+## Tutorials
+
+- Updated position tutorial to use `node_in_regular()` for regular equivalence rather than the triad census
 
 # netrics 0.4.1
 
