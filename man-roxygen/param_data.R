@@ -1,3 +1,3 @@
-#' @param .data A network object of class `mnet`, `igraph`, `tbl_graph`, `network`, or similar.
-#'   For more information on the standard coercion possible,
-#'   see [manynet::as_tidygraph()].
+#' @param .data A network object of class `stocnet`, `igraph`, `tbl_graph`, `network`, or similar.
+#'   Internally any of these will be coerced to an efficient implementation.
+#'   For more information on possible coercions, see e.g. [manynet::as_stocnet()].

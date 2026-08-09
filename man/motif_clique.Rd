@@ -5,12 +5,12 @@
 \alias{node_x_clique}
 \title{Motifs of clique participation}
 \usage{
-node_x_clique(.data, min = 3)
+node_x_clique(.data, min_clique_size = 3)
 }
 \arguments{
-\item{.data}{A network object of class \code{mnet}, \code{igraph}, \code{tbl_graph}, \code{network}, or similar.
-For more information on the standard coercion possible,
-see \code{\link[manynet:as_tidygraph]{manynet::as_tidygraph()}}.}
+\item{.data}{A network object of class \code{stocnet}, \code{igraph}, \code{tbl_graph}, \code{network}, or similar.
+Internally any of these will be coerced to an efficient implementation.
+For more information on possible coercions, see e.g. \code{\link[manynet:as_stocnet]{manynet::as_stocnet()}}.}
 
 \item{min_clique_size}{Integer, the minimum size of clique to return.
 By default 3, since dyads and isolates are trivially cliques.
@@ -57,7 +57,7 @@ considered. Use \code{\link[manynet:to_unsigned]{manynet::to_unsigned()}} first 
 
 \examples{
 node_x_clique(ison_adolescents)
-node_x_clique(ison_southern_women, min = c(3, 3))
+node_x_clique(ison_southern_women, min_clique_size = c(3, 3))
 }
 \references{
 \subsection{On cliques}{

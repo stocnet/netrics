@@ -8,9 +8,9 @@
 node_in_adopter(.data)
 }
 \arguments{
-\item{.data}{A network object of class \code{mnet}, \code{igraph}, \code{tbl_graph}, \code{network}, or similar.
-For more information on the standard coercion possible,
-see \code{\link[manynet:as_tidygraph]{manynet::as_tidygraph()}}.}
+\item{.data}{A network object of class \code{stocnet}, \code{igraph}, \code{tbl_graph}, \code{network}, or similar.
+Internally any of these will be coerced to an efficient implementation.
+For more information on possible coercions, see e.g. \code{\link[manynet:as_stocnet]{manynet::as_stocnet()}}.}
 }
 \value{
 A \code{node_member} character vector the length of the nodes in the network,
@@ -61,8 +61,7 @@ Other memberships:
 \code{\link{member_community_non}},
 \code{\link{member_components}},
 \code{\link{member_core}},
-\code{\link{member_equivalence}},
-\code{\link{method_equivalence}}
+\code{\link{member_equivalence}}
 
 Other nodal:
 \code{\link{mark_core}},

@@ -23,3 +23,4 @@ vignettes/precompile\.R
 ^\.positai$
 ^\.claude$
 ^CLAUDE\.md$
+^Rplots\.pdf$

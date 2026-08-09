@@ -8,7 +8,7 @@ test_that("node_x_clique finds the maximal cliques", {
                                           min = 3)))
   # every returned clique respects the minimum size
   expect_true(all(colSums(res) >= 3))
-  expect_true(all(colSums(node_x_clique(ison_adolescents, min = 4)) >= 4))
+  expect_true(all(colSums(node_x_clique(ison_adolescents, min_clique_size = 4)) >= 4))
   # and every returned clique really is complete
   mat <- manynet::as_matrix(ison_adolescents)
   for (j in seq_len(ncol(res))) {
@@ -20,7 +20,7 @@ test_that("node_x_clique finds the maximal cliques", {
 })
 
 test_that("node_x_clique finds bicliques in two-mode networks", {
-  res <- node_x_clique(ison_southern_women, min = c(3, 3))
+  res <- node_x_clique(ison_southern_women, min_clique_size = c(3, 3))
   expect_s3_class(res, "node_motif")
   expect_equal(nrow(res), c(manynet::net_nodes(ison_southern_women)))
   modes <- manynet::node_is_mode(ison_southern_women)

@@ -7,7 +7,9 @@
 #'   
 #'   - `net_by_density()` measures the ratio of ties to the number
 #'   of possible ties.
-#'   - `net_by_components()` measures the number of (strong) components 
+#'   - `net_by_compactness()` measures the average closeness of all pairs
+#'   of nodes in the network.
+#'   - `net_by_components()` measures the number of (strong) components
 #'   in the network.
 #'   - `net_by_independence()` measures the independence number, 
 #'   or size of the largest independent set in the network.
@@ -35,13 +37,62 @@ net_by_density <- function(.data) {
 }
 
 #' @rdname measure_cohesion
-#' @section Components: 
+#' @section Compactness:
+#'   Compactness is the average of the reciprocal distances between all pairs
+#'   of nodes:
+#'   \deqn{C = \frac{\sum_{i \neq j} \frac{1}{d(i,j)}}{N(N-1)}}
+#'   where unreachable pairs contribute \eqn{0}.
+#'   Its complement, \eqn{1 - C}, is sometimes called breadth.
+#'
+#'   Compactness is more discriminating than
+#'   [net_by_connectedness()], which counts only whether pairs are reachable at
+#'   all. Two networks in which every node can reach every other are equally
+#'   connected, but the one in which they do so in fewer steps is more compact.
+#'   A complete network scores 1, and an empty network 0.
+#'   It is the network-level counterpart of [node_by_harmonic()], such that 
+#'   `net_by_compactness(ison_adolescents) == mean(node_by_harmonic(ison_adolescents, normalized = TRUE, cutoff = -1))`.
+#'   
+#'   Note that this quantity is known in the physics literature as the
+#'   _global efficiency_ of a network (Latora and Marchiori 2001).
+#'   It is named compactness here for the social network analytic tradition,
+#'   partly to avoid confusion with the unrelated
+#'   [net_by_efficiency()] (Krackhardt) and [node_by_efficiency()] (Burt).
+#' @references
+#' ## On compactness
+#' Borgatti, Stephen P., Martin G. Everett, Jeffrey C. Johnson,
+#' and Filip Agneessens. 2022.
+#' _Analyzing Social Networks Using R_, chapter 10.
+#' London: SAGE.
+#'
+#' Latora, Vito, and Massimo Marchiori. 2001.
+#' "Efficient Behavior of Small-World Networks".
+#' _Physical Review Letters_ 87(19): 198701.
+#' \doi{10.1103/PhysRevLett.87.198701}
+#' @examples
+#' net_by_compactness(ison_adolescents)
+#' net_by_compactness(ison_southern_women)
+#' @export
+net_by_compactness <- function(.data) {
+  .data <- manynet::expect_nodes(.data)
+  # note that igraph's default mode ignores direction, which would treat a
+  # directed network as though every tie ran both ways
+  dists <- igraph::distances(manynet::as_igraph(.data), mode = "out")
+  recip <- 1/dists
+  diag(recip) <- 0 # exclude self-pairs
+  recip[!is.finite(recip)] <- 0 # unreachable pairs contribute nothing
+  n <- manynet::net_nodes(.data)
+  out <- if(n < 2) NaN else sum(recip)/(n*(n-1))
+  make_network_measure(out, .data, call = deparse(sys.call()))
+}
+
+#' @rdname measure_cohesion
+#' @section Components:
 #'   To get the 'weak' components of a directed graph, 
 #'   please use `manynet::to_undirected()` first.
 #' @importFrom igraph components
 #' @examples
-#'   net_by_components(fict_thrones)
-#'   net_by_components(to_undirected(fict_thrones))
+#' net_by_components(fict_thrones)
+#' net_by_components(to_undirected(fict_thrones))
 #' @export
 net_by_components <- function(.data){
   .data <- manynet::expect_nodes(.data)

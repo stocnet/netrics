@@ -11,6 +11,7 @@
 ## Measures
 
 - Added `net_by_cyclicality()` for detecting generalised exchange
+- Added `net_by_compactness()` for the average closeness of all pairs of nodes
 
 ## Memberships
 
