@@ -12,6 +12,9 @@
 
 - Added `net_by_cyclicality()` for detecting generalised exchange
 - Added `net_by_compactness()` for the average closeness of all pairs of nodes
+- Added `net_by_inconsistency()`, which scores how far a partition's blocks depart
+  from ideal types (`nul`, `com`, `reg`, `rdo`, `cdo`, `dnc`), generalising
+  `net_by_factions()` beyond structural equivalence
 
 ## Memberships
 

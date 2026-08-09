@@ -2,10 +2,7 @@
 % Please edit documentation in R/measure_features.R
 \name{measure_features}
 \alias{measure_features}
-\alias{net_by_core}
 \alias{net_by_richclub}
-\alias{net_by_factions}
-\alias{net_by_modularity}
 \alias{net_by_smallworld}
 \alias{net_by_scalefree}
 \alias{net_by_balance}
@@ -14,17 +11,7 @@
 \code{{signnet}} by David Schoch
 }
 \usage{
-net_by_core(
-  .data,
-  mark = NULL,
-  method = c("correlation", "ident", "ndiff", "diff")
-)
-
 net_by_richclub(.data)
-
-net_by_factions(.data, membership = NULL)
-
-net_by_modularity(.data, membership = NULL, resolution = 1)
 
 net_by_smallworld(.data, method = c("omega", "sigma", "SWI"), times = 100)
 
@@ -33,11 +20,9 @@ net_by_scalefree(.data)
 net_by_balance(.data)
 }
 \arguments{
-\item{.data}{A network object of class \code{mnet}, \code{igraph}, \code{tbl_graph}, \code{network}, or similar.
-For more information on the standard coercion possible,
-see \code{\link[manynet:as_tidygraph]{manynet::as_tidygraph()}}.}
-
-\item{mark}{A logical vector indicating which nodes belong to the core.}
+\item{.data}{A network object of class \code{stocnet}, \code{igraph}, \code{tbl_graph}, \code{network}, or similar.
+Internally any of these will be coerced to an efficient implementation.
+For more information on possible coercions, see e.g. \code{\link[manynet:as_stocnet]{manynet::as_stocnet()}}.}
 
 \item{method}{There are three small-world measures implemented:
 \itemize{
@@ -63,35 +48,17 @@ with the same dimensions.
 but where there may not be a network for which \eqn{SWI = 1}.
 }}
 
-\item{membership}{A character string naming an existing node attribute in
-the network, or a categorical vector of the same length as the number of
-nodes in the network where each element indicates the group membership of
-the corresponding node.
-While this may often be a vector created using \verb{node_in_*()} functions,
-it can be any character vector that assigns nodes to groups or categories.}
-
-\item{resolution}{A proportion indicating the resolution scale.
-By default 1, which returns the original definition of modularity.
-The higher this parameter, the more smaller communities will be privileged.
-The lower this parameter, the fewer larger communities are likely to be found.}
-
 \item{times}{Integer of number of simulations.}
 }
 \value{
 A \code{network_measure} numeric score.
 }
 \description{
-These functions measure certain topological features of networks:
+These functions measure topological features that are intrinsic to a
+network, in the sense that they require nothing of the user beyond the
+network itself:
 \itemize{
-\item \code{net_by_core()} measures the correlation between a network
-and a core-periphery model with the same dimensions.
 \item \code{net_by_richclub()} measures the rich-club coefficient of a network.
-\item \code{net_by_factions()} measures the correlation between a network
-and a component model with the same dimensions.
-If no 'membership' vector is given for the data,
-\code{node_partition()} is used to partition nodes into two groups.
-\item \code{net_by_modularity()} measures the modularity of a network
-based on nodes' membership in defined clusters.
 \item \code{net_by_smallworld()} measures the small-world coefficient for one- or
 two-mode networks. Small-world networks can be highly clustered and yet
 have short path lengths.
@@ -104,44 +71,8 @@ ranging between \code{0} if all triangles are imbalanced and
 \code{1} if all triangles are balanced.
 }
 }
-\section{Core-Periphery}{
-
-\code{net_core()} calculates the Pearson correlation between the given network,
-where the nodes in the core are assigned by some given mark, and an ideal
-typical core-periphery network with the same number of nodes in the core
-and the periphery.
-}
-
-\section{Modularity}{
-
-Modularity measures the difference between the number of ties within each community
-from the number of ties expected within each community in a random graph
-with the same degrees, and ranges between -1 and +1.
-Modularity scores of +1 mean that ties only appear within communities,
-while -1 would mean that ties only appear between communities.
-A score of 0 would mean that ties are half within and half between communities,
-as one would expect in a random graph.
-
-Modularity faces a difficult problem known as the resolution limit
-(Fortunato and Barthélemy 2007).
-This problem appears when optimising modularity,
-particularly with large networks or depending on the degree of interconnectedness,
-can miss small clusters that 'hide' inside larger clusters.
-In the extreme case, this can be where they are only connected
-to the rest of the network through a single tie.
-To help manage this problem, a \code{resolution} parameter is added.
-Please see the argument definition for more details.
-}
-
 \examples{
-net_by_core(ison_adolescents)
-net_by_core(ison_southern_women)
 net_by_richclub(ison_adolescents)
-  net_by_factions(ison_southern_women)
-net_by_modularity(ison_adolescents, 
-  node_in_partition(ison_adolescents))
-net_by_modularity(ison_southern_women, 
-  node_in_partition(ison_southern_women))
 net_by_smallworld(ison_brandes)
 net_by_smallworld(ison_southern_women)
 net_by_scalefree(ison_adolescents)
@@ -150,35 +81,12 @@ net_by_scalefree(create_lattice(100))
 net_by_balance(to_uniplex(fict_marvel, "relationship"))
 }
 \references{
-\subsection{On core-periphery}{
-
-Borgatti, Stephen P., and Martin G. Everett. 2000.
-“Models of Core/Periphery Structures.”
-\emph{Social Networks} 21(4):375–95.
-\doi{10.1016/S0378-8733(99)00019-2}
-}
-
 \subsection{On the rich-club coefficient}{
 
 Zhou, Shi, and Raul J. Mondragon. 2004.
 "The Rich-Club Phenomenon in the Internet Topology".
 \emph{IEEE Communications Letters}, 8(3): 180-182.
 \doi{10.1109/lcomm.2004.823426}
-}
-
-\subsection{On modularity}{
-
-Newman, Mark E.J. 2006.
-"Modularity and community structure in networks",
-\emph{Proceedings of the National Academy of Sciences} 103(23): 8577-8696.
-\doi{https://doi.org/10.1073/pnas.0601602103}
-
-Murata, Tsuyoshi. 2010.
-"Modularity for Bipartite Networks".
-In: Memon, N., Xu, J., Hicks, D., Chen, H. (eds)
-\emph{Data Mining for Social Network Data. Annals of Information Systems}, Vol 12.
-Springer, Boston, MA.
-\doi{10.1007/978-1-4419-6287-4_7}
 }
 
 \subsection{On small-worldliness}{
@@ -239,6 +147,9 @@ Cartwright, D., and Frank Harary. 1956.
 \code{\link[=net_by_transitivity]{net_by_transitivity()}} and \code{\link[=net_by_equivalency]{net_by_equivalency()}}
 for how clustering is calculated
 
+Other features:
+\code{\link{measure_fit}}
+
 Other measures:
 \code{\link{measure_assort_net}},
 \code{\link{measure_assort_node}},
@@ -263,8 +174,10 @@ Other measures:
 \code{\link{measure_diffusion_node}},
 \code{\link{measure_diverse_net}},
 \code{\link{measure_diverse_node}},
+\code{\link{measure_fit}},
 \code{\link{measure_fragmentation}},
 \code{\link{measure_hierarchy}},
 \code{\link{measure_periods}}
 }
+\concept{features}
 \concept{measures}
