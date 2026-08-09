@@ -33,10 +33,10 @@
 #'   
 #'   All measures attempt to use as much information as they are offered,
 #'   including whether the networks are directed, weighted, or multimodal.
-#'   If this would produce unintended results, 
+#'   If this would produce unintended results,
 #'   first transform the salient properties using e.g. [to_undirected()] functions.
-#'   All centrality and centralization measures return normalized measures by default,
-#'   including for two-mode networks.
+#'   All centrality and centralization measures return normalised or scaled
+#'   measures where available, reported when the measure is printed.
 #' @template param_data
 #' @template param_norm
 #' @template param_dir
@@ -67,14 +67,15 @@ NULL
 #' @examples
 #' node_by_closeness(ison_southern_women)
 #' @export
-node_by_closeness <- function(.data, normalized = TRUE, 
-                              direction = "out", cutoff = NULL){
-  
+node_by_closeness <- function(.data, normalized = TRUE,
+                              direction = c("out", "in", "all"), cutoff = NULL){
+
   .data <- manynet::expect_nodes(.data)
-  weights <- `if`(manynet::is_weighted(.data), 
+  direction <- match.arg(direction)
+  weights <- `if`(manynet::is_weighted(.data),
                   manynet::tie_weights(.data), NA)
   graph <- manynet::as_igraph(.data)
-  
+
   # Do the calculations
   if (manynet::is_twomode(graph) & normalized){
     # farness <- rowSums(igraph::distances(graph = graph))
@@ -84,12 +85,13 @@ node_by_closeness <- function(.data, normalized = TRUE,
     out <- closeness/(1/(other_set_size+2*set_size-2))
   } else {
     cutoff <- if (is.null(cutoff)) -1 else cutoff
-    out <- igraph::closeness(graph = graph, vids = igraph::V(graph), mode = direction, 
+    out <- igraph::closeness(graph = graph, vids = igraph::V(graph), mode = direction,
                              cutoff = cutoff, weights = weights, normalized = normalized)
   }
-  out <- make_node_measure(out, .data)
-  out
-} 
+  make_node_measure(out, .data, measure = "closeness centrality",
+                    range = `if`(normalized, c(0, 1), c(0, Inf)),
+                    normalization = `if`(normalized, "normalized", "none"))
+}
 
 #' @rdname measure_central_close 
 #' @section Harmonic centrality:

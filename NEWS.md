@@ -32,6 +32,7 @@
 - Added `net_by_inconsistency()`, which scores how far a partition's blocks depart
   from ideal types (`nul`, `com`, `reg`, `rdo`, `cdo`, `dnc`), generalising
   `net_by_factions()` beyond structural equivalence
+- Improved `node_by_closeness()` to validate `direction` via `match.arg()`
 
 ## Memberships
 
