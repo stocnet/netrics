@@ -42,7 +42,8 @@ Other memberships:
 \code{\link{member_components}},
 \code{\link{member_core}},
 \code{\link{member_diffusion}},
-\code{\link{member_equivalence}}
+\code{\link{member_equivalence}},
+\code{\link{method_equivalence}}
 
 Other nodal:
 \code{\link{mark_core}},
@@ -70,6 +71,8 @@ Other nodal:
 \code{\link{member_diffusion}},
 \code{\link{member_equivalence}},
 \code{\link{motif_brokerage_node}},
+\code{\link{motif_clique}},
+\code{\link{motif_composition}},
 \code{\link{motif_exposure}},
 \code{\link{motif_node}},
 \code{\link{motif_path}}

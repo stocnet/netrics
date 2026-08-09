@@ -3,7 +3,7 @@ for(fn in names(node_motifs)) {
   for (ob in names(data_objs)) { 
     test_that(paste(fn, "works on", ob), {
       skip_if(grepl("triad|dyad", fn) && is_twomode(data_objs[[ob]]))
-      if(grepl("brokerage", fn)){
+      if(grepl("brokerage|alters|similarity", fn)){
         if(ob == "attribute")
           expect_s3_class(node_motifs[[fn]](data_objs[[ob]], "group"), "node_motif") else
             succeed("Only used for attribute objects")

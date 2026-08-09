@@ -55,7 +55,9 @@ node_by_diversity(marvel_friends, "Attractive")
 Other diversity:
 \code{\link{measure_assort_net}},
 \code{\link{measure_assort_node}},
-\code{\link{measure_diverse_net}}
+\code{\link{measure_diverse_net}},
+\code{\link{motif_composition}},
+\code{\link{motif_homophily}}
 
 Other measures:
 \code{\link{measure_assort_net}},
@@ -111,6 +113,8 @@ Other nodal:
 \code{\link{member_diffusion}},
 \code{\link{member_equivalence}},
 \code{\link{motif_brokerage_node}},
+\code{\link{motif_clique}},
+\code{\link{motif_composition}},
 \code{\link{motif_exposure}},
 \code{\link{motif_node}},
 \code{\link{motif_path}}

@@ -140,7 +140,9 @@ Princeton: Princeton University Press.
 Other diversity:
 \code{\link{measure_assort_net}},
 \code{\link{measure_assort_node}},
-\code{\link{measure_diverse_node}}
+\code{\link{measure_diverse_node}},
+\code{\link{motif_composition}},
+\code{\link{motif_homophily}}
 
 Other measures:
 \code{\link{measure_assort_net}},

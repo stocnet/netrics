@@ -20,6 +20,21 @@
 
 - Added `node_x_clique()`, returning which maximal cliques each node belongs to,
   and branching on two-mode networks to find bicliques (closes #8, thanks @noortjemay)
+  - Note that `node_x_clique()` considers only positive ties, 
+  since a clique is a cohesive subgroup
+- Added `node_x_ties()`, describing the distribution of each node's tie values, 
+or its spread across layers in a multiplex network
+- Added `node_x_alters()` and `node_x_similarity()`, describing the composition
+  of each node's alters and their similarity to it, each branching on whether
+  the attribute given is categorical or continuous
+  - For two-mode networks, `node_x_similarity()` compares each node with those
+    at distance two, that is, those it shares a node of the other mode with,
+    following the tertius effect of `{migraph}` and `{goldfish}`
+    (Haunss and Hollway 2023)
+- Added `net_x_homophily()`, returning the table behind the EI index together
+  with an expected-EI baseline and Yule's Q
+  - Note that on weighted networks this counts ties where
+    `net_by_heterophily()` sums weights, so the two agree only when unweighted
 
 # netrics 0.4.1
 
