@@ -175,11 +175,12 @@ node_by_reach <- function(.data, normalized = TRUE, cutoff = 2){
     tore <- manynet::as_matrix(.data)/mean(manynet::as_matrix(.data))
     out <- 1/tore
   } else out <- igraph::distances(manynet::as_igraph(.data))
-  diag(out) <- 0
+  diag(out) <- Inf # exclude self from own score
   out <- rowSums(out <= cutoff)
   if(normalized) out <- out/(manynet::net_nodes(.data)-1)
-  out <- make_node_measure(out, .data)
-  out
+  make_node_measure(out, .data, measure = "reach centrality",
+                    range = `if`(normalized, c(0, 1), c(0, Inf)),
+                    normalization = `if`(normalized, "normalized", "none"))
 }
 
 #' @rdname measure_central_close
