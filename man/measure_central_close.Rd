@@ -5,6 +5,8 @@
 \alias{node_by_closeness}
 \alias{node_by_harmonic}
 \alias{node_by_reach}
+\alias{node_by_decay}
+\alias{node_by_integration}
 \alias{node_by_information}
 \alias{node_by_eccentricity}
 \alias{node_by_distance}
@@ -18,6 +20,15 @@ node_by_harmonic(.data, normalized = TRUE, cutoff = -1)
 
 node_by_reach(.data, normalized = TRUE, cutoff = 2)
 
+node_by_decay(
+  .data,
+  normalized = TRUE,
+  decay = 0.5,
+  direction = c("out", "in")
+)
+
+node_by_integration(.data, normalized = TRUE, direction = c("in", "out"))
+
 node_by_information(.data, normalized = TRUE)
 
 node_by_eccentricity(.data, normalized = TRUE)
@@ -29,9 +40,9 @@ node_by_vitality(.data, normalized = TRUE)
 node_by_randomwalk(.data, normalized = TRUE)
 }
 \arguments{
-\item{.data}{A network object of class \code{mnet}, \code{igraph}, \code{tbl_graph}, \code{network}, or similar.
-For more information on the standard coercion possible,
-see \code{\link[manynet:as_tidygraph]{manynet::as_tidygraph()}}.}
+\item{.data}{A network object of class \code{stocnet}, \code{igraph}, \code{tbl_graph}, \code{network}, or similar.
+Internally any of these will be coerced to an efficient implementation.
+For more information on possible coercions, see e.g. \code{\link[manynet:as_stocnet]{manynet::as_stocnet()}}.}
 
 \item{normalized}{Logical scalar, whether scores are normalized.
 Different denominators may be used depending on the measure,
@@ -42,7 +53,17 @@ By default TRUE.}
 “in” on incoming ties, and "all" on either/the sum of the two.
 By default "all".}
 
-\item{cutoff}{Maximum path length to use during calculations.}
+\item{cutoff}{Integer scalar, the maximum path length considered.
+Paths longer than this are ignored, which restricts the measure to a
+node's local neighbourhood.
+Where a measure is defined over all paths by default,
+a negative value or \code{NULL} imposes no limit.}
+
+\item{decay}{A proportion between 0 and 1 indicating how quickly
+the contribution of more distant nodes decays.
+By default 0.5, so that each additional step halves a node's contribution.
+As \code{decay} approaches 0 this approaches degree centrality,
+and as it approaches 1 this approaches the size of the node's component.}
 
 \item{from, to}{Index or name of a node to calculate distances from or to.}
 }
@@ -63,6 +84,10 @@ centrality, which is thought to behave better than reach centrality
 for disconnected networks.
 \item \code{node_by_reach()} measures nodes' reach centrality,
 or how many nodes they can reach within \emph{k} steps.
+\item \code{node_by_decay()} measures nodes' decay centrality,
+a distance-weighted generalisation of reach centrality.
+\item \code{node_by_integration()} measures nodes' integration or radiality,
+which weights alters by how close they are rather than counting them.
 \item \code{node_by_information()} measures nodes' information centrality or
 current-flow closeness centrality.
 \item \code{node_by_eccentricity()} measures nodes' eccentricity or maximum distance
@@ -117,6 +142,37 @@ other nodes in the network in \eqn{k} steps or less,
 but the normalised version, \eqn{\frac{C_R}{N-1}}, is more common.
 Note that if \eqn{k = 1} (i.e. cutoff = 1), then this returns the node's degree.
 At higher cutoff reach centrality returns the size of the node's component.
+}
+
+\section{Decay centrality}{
+
+Where reach centrality counts how many others are within a fixed number of
+steps, decay centrality weights every reachable other by how far away they
+are, so that nearer nodes count for more:
+\deqn{C_D(i) = \sum_{j, j \neq i} \delta^{d(i,j)-1}}
+where \eqn{\delta} is the decay parameter and unreachable nodes contribute
+nothing. This avoids having to choose a single cutoff, since the
+contribution of distant nodes tapers off smoothly rather than being
+truncated. Normalization is by \eqn{N-1}, the score achieved when a node
+is adjacent to all others.
+}
+
+\section{Integration and radiality}{
+
+Integration centrality, also known as radiality, inverts the usual farness
+logic: instead of summing distances, it sums how much \emph{closer} than the
+network's diameter each other node is:
+\deqn{C_I(i) = \sum_{j, j \neq i} (\Delta - d(i,j) + 1)}
+where \eqn{\Delta} is the maximum finite distance in the network.
+Nodes that are near to many others therefore score highly,
+while unreachable pairs contribute nothing.
+Normalization is by \eqn{(N-1)\Delta}.
+
+Valente and Foreman distinguish the two directions:
+\emph{integration} is calculated on incoming ties, capturing how well a node is
+reached by others, whereas \emph{radiality} is calculated on outgoing ties,
+capturing how well a node reaches others.
+Use \code{direction} to choose; in undirected networks they coincide.
 }
 
 \section{Information centrality}{
@@ -177,6 +233,8 @@ where \eqn{H_{ji}} is the hitting time from node \eqn{j} to node \eqn{i}.
 \examples{
 node_by_closeness(ison_southern_women)
 node_by_reach(ison_adolescents)
+node_by_decay(ison_adolescents)
+node_by_integration(ison_adolescents)
 }
 \references{
 \subsection{On closeness centrality}{
@@ -209,6 +267,22 @@ Dekker, Anthony. 2005.
 Borgatti, Stephen P., Martin G. Everett, and J.C. Johnson. 2013.
 \emph{Analyzing social networks}.
 London: SAGE Publications Limited.
+}
+
+\subsection{On decay centrality}{
+
+Jackson, Matthew O. 2008.
+\emph{Social and Economic Networks}.
+Princeton: Princeton University Press.
+}
+
+\subsection{On integration and radiality}{
+
+Valente, Thomas W., and Robert K. Foreman. 1998.
+"Integration and radiality: Measuring the extent of an individual's
+connectedness and reachability in a network".
+\emph{Social Networks} 20(1): 89-105.
+\doi{10.1016/S0378-8733(97)00007-5}
 }
 
 \subsection{On information centrality}{
@@ -292,6 +366,7 @@ Other measures:
 \code{\link{measure_diverse_net}},
 \code{\link{measure_diverse_node}},
 \code{\link{measure_features}},
+\code{\link{measure_fit}},
 \code{\link{measure_fragmentation}},
 \code{\link{measure_hierarchy}},
 \code{\link{measure_periods}}
@@ -322,6 +397,8 @@ Other nodal:
 \code{\link{member_diffusion}},
 \code{\link{member_equivalence}},
 \code{\link{motif_brokerage_node}},
+\code{\link{motif_clique}},
+\code{\link{motif_composition}},
 \code{\link{motif_exposure}},
 \code{\link{motif_node}},
 \code{\link{motif_path}}

@@ -113,6 +113,7 @@ reference:
       - measure_features
       - measure_fragmentation
       - measure_core
+      - measure_fit
   - subtitle: "Heterogeneity"
     contents:
       - starts_with("measure_assort")

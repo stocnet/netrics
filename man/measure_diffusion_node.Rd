@@ -153,6 +153,7 @@ Other measures:
 \code{\link{measure_diverse_net}},
 \code{\link{measure_diverse_node}},
 \code{\link{measure_features}},
+\code{\link{measure_fit}},
 \code{\link{measure_fragmentation}},
 \code{\link{measure_hierarchy}},
 \code{\link{measure_periods}}

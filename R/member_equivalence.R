@@ -202,3 +202,65 @@ node_in_automorphic <- function(.data,
   node_in_equivalence(.data, mat, 
                    k = k, cluster = cluster, distance = distance, Kmax = Kmax)
 }
+
+#' @rdname member_equivalence
+#' @param blocks A character vector of permitted ideal block types,
+#'   or a list-matrix giving the permitted types per block position.
+#'   See [net_by_inconsistency()] for the available types.
+#' @param times Integer number of search iterations.
+#'   By default the number of nodes times the number of positions.
+#' @section Direct blockmodelling:
+#'   The other functions here are _indirect_: they build a similarity between
+#'   nodes, cluster it, and read a partition off the result.
+#'   `node_in_block()` is _direct_. It searches the space of partitions for
+#'   the one that best fits an ideal block structure, scoring each candidate
+#'   with [net_by_inconsistency()] and keeping whichever is most consistent.
+#'
+#'   The advantage is that the criterion being optimised is the one you
+#'   actually care about, rather than a similarity that stands in for it,
+#'   and that ideal types other than "null and complete" become available —
+#'   `blocks = c("nul", "reg")` searches directly for a regular-equivalence
+#'   blockmodel.
+#'   The cost is that the number of positions `k` must be chosen in advance,
+#'   and that the search is stochastic: it explores by random restarts and
+#'   perturbations, so repeated runs may return different partitions and a
+#'   longer search is more likely to find a good one.
+#'   Set a seed for reproducibility, and compare runs with [net_by_inconsistency()].
+#' @references
+#' ## On direct blockmodelling
+#' Doreian, Patrick, Vladimir Batagelj, and Anuska Ferligoj. 2005.
+#' _Generalized Blockmodeling_.
+#' Cambridge: Cambridge University Press.
+#' \doi{10.1017/CBO9780511584176}
+#' @examples
+#' (nbm <- node_in_block(ison_adolescents, k = 3))
+#' net_by_inconsistency(ison_adolescents, nbm)
+#' @export
+node_in_block <- function(.data, k = 2L,
+                               blocks = c("nul", "com"),
+                               times = NULL){
+  .data <- manynet::expect_nodes(.data)
+  if(!is.numeric(k) || k < 2)
+    manynet::snet_abort("`k` must be the number of positions sought, at least 2.")
+  n <- manynet::net_nodes(.data)
+  if(k > n) manynet::snet_abort("`k` cannot exceed the number of nodes.")
+  if(is.null(times)) times <- n * k
+  fitness <- function(m) as.numeric(net_by_inconsistency(.data, m, blocks = blocks))
+  # begin from a random partition into k roughly equal positions
+  shuffled <- sample(seq.int(n))
+  out <- cut(seq_along(shuffled), k, labels = FALSE)[shuffled]
+  fit <- fitness(out)
+  soln <- out
+  for(t in seq.int(times)){
+    soln <- .weakPerturb(soln)
+    new_fit <- fitness(soln)
+    if(new_fit < fit){
+      out <- soln
+      fit <- new_fit
+    }
+    if(t %% 10) soln <- .strongPerturb(soln)
+  }
+  out <- make_node_member(out, .data)
+  attr(out, "k") <- k
+  out
+}

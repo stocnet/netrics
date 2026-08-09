@@ -25,6 +25,8 @@
   - Note existing scripts calling `node_in_regular()` will now return more correct results
   - Moved former behaviour of `node_in_regular()` to `node_in_motif()`, 
   documented as capturing similarity of local embedding not role equivalence
+- Added `node_in_block()` for direct blockmodelling, searching partitions
+  for the one that minimises `net_by_inconsistency()`
 
 ## Motifs
 

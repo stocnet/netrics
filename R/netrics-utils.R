@@ -52,4 +52,44 @@ seq_nodes <- function(.data){
   }
 }
 
+
+# Local-search perturbations over a membership vector, shared by the
+# random-restart searches in `node_in_roulette()` and `node_in_block()`.
+# A weak perturbation makes one small move; a strong one makes enough moves
+# to escape a local optimum.
+.weakPerturb <- function(soln){
+  gsizes <- table(soln)
+  evens <- all(gsizes == max(gsizes))
+  if(evens){
+    soln <- .swapMove(soln)
+  } else {
+    if(stats::runif(1)<0.5) soln <- .swapMove(soln) else 
+      soln <- .oneMove(soln)
+  }
+  soln
+}
+
+.swapMove <- function(soln){
+  from <- sample(seq.int(length(soln)), 1)
+  to <- sample(which(soln != soln[from]), 1)
+  soln[c(to,from)] <- soln[c(from,to)]
+  soln
+}
+
+.oneMove <- function(soln){
+  gsizes <- table(soln)
+  maxg <- which(gsizes == max(gsizes))
+  from <- sample(which(soln %in% maxg), 1)
+  soln[from] <- sample(which(gsizes != max(gsizes)), 1)
+  soln
+}
+
+.strongPerturb <- function(soln, strength = 1){
+  times <- ceiling(strength * length(soln)/max(soln))
+  for (t in seq.int(times)){
+    soln <- .weakPerturb(soln)
+  }
+  soln
+}
+
 # nocov end
