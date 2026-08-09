@@ -97,18 +97,26 @@ reference:
   - subtitle: "Centrality"
     contents:
       - starts_with("measure_central")
+  - subtitle: "Brokerage"
+    contents:
       - starts_with("measure_broker")
+  - subtitle: "Hierarchy"
+    contents:
       - measure_hierarchy
   - subtitle: "Cohesion"
     contents:
+      - measure_breadth
       - measure_cohesion
       - starts_with("measure_closure")
+  - subtitle: "Topology"
+    contents:
       - measure_features
       - measure_fragmentation
+      - measure_core
+  - subtitle: "Heterogeneity"
+    contents:
       - starts_with("measure_assort")
       - starts_with("measure_diverse")
-      - measure_breadth
-      - measure_core
   - subtitle: "Dynamics"
     contents:
       - measure_periods
