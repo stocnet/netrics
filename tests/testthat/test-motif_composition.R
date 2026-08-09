@@ -4,9 +4,10 @@ test_that("node_x_ties branches on network type", {
   expect_s3_class(ws, "node_motif")
   expect_equal(colnames(ws), c("Ties", "Sum", "Mean", "SD",
                                "Min", "Median", "Max", "IQR"))
-  # the sum of a node's tie values is its weighted degree
+  # the sum of a node's tie values is its strength, i.e. `alpha = 1`
   expect_equal(unname(ws[, "Sum"]),
-               as.numeric(node_by_degree(ison_networkers, normalized = FALSE)))
+               as.numeric(node_by_degree(ison_networkers, normalized = FALSE,
+                                         alpha = 1)))
   expect_true(all(ws[, "Min"] <= ws[, "Max"], na.rm = TRUE))
 
   # multiplex networks get one column per layer, plus diversity

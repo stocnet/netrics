@@ -16,7 +16,11 @@
 #'   - `node_by_decay()` measures nodes' decay centrality,
 #'   a distance-weighted generalisation of reach centrality.
 #'   - `node_by_integration()` measures nodes' integration or radiality,
-#'   which weights alters by how close they are rather than counting them.
+#'   which weights alters by how close they are rather than counting them;
+#'   `node_by_radiality()` returns the `direction = 'out'` results.
+#'   Note that on a connected network integration ranks nodes identically to
+#'   closeness centrality, of which it is an affine transformation;
+#'   it differs only in how it treats unreachable nodes.
 #'   - `node_by_information()` measures nodes' information centrality or
 #'   current-flow closeness centrality.
 #'   - `node_by_eccentricity()` measures nodes' eccentricity or maximum distance
@@ -230,7 +234,20 @@ node_by_integration <- function(.data, normalized = TRUE,
   contrib[!is.finite(dists)] <- 0 # unreachable contribute nothing
   out <- rowSums(contrib, na.rm = TRUE)
   if(normalized && maxd > 0) out <- out/((manynet::net_nodes(.data)-1)*maxd)
-  make_node_measure(out, .data)
+  make_node_measure(out, .data,
+                    measure = `if`(direction == "in", "integration centrality",
+                                   "radiality centrality"),
+                    range = `if`(normalized, c(0, 1), c(0, Inf)),
+                    normalization = `if`(normalized, "normalized", "none"))
+}
+
+#' @rdname measure_central_close
+#' @examples
+#' node_by_radiality(ison_adolescents)
+#' @export
+node_by_radiality <- function(.data, normalized = TRUE){
+  .data <- manynet::expect_nodes(.data)
+  node_by_integration(.data, normalized = normalized, direction = "out")
 }
 
 #' @rdname measure_central_close
