@@ -34,6 +34,7 @@
   `net_by_factions()` beyond structural equivalence
 - Fixed `node_by_degree()` to default to `alpha = 0` to match documentation
 - Fixed `node_by_reach()` counting the node itself so normalised scores could exceed 1
+- Fixed `node_by_eigenvector()` discarding tie weights it had computed, silently returning unweighted scores for weighted networks
 - Fixed how `node_by_vitality()` treats cut nodes
   - Unnormalised returns `-Inf` for cut nodes as the Wiener index definition requires
   - Normalised `node_by_vitality()` rescales finite scores onto `[0,1]` and places cut nodes at 0

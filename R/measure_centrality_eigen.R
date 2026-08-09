@@ -59,37 +59,46 @@ NULL
 #' @examples
 #' node_by_eigenvector(ison_southern_women)
 #' @export 
-node_by_eigenvector <- function(.data, normalized = TRUE, scale = TRUE){
-  
+node_by_eigenvector <- function(.data, normalized = TRUE, scaled = TRUE,
+                                scale = NULL){
+
   .data <- manynet::expect_nodes(.data)
-  weights <- `if`(manynet::is_weighted(.data), 
-                  manynet::tie_weights(.data), NA)
+  scaled <- resolve_scaled(scaled, scale)
+  weights <- `if`(manynet::is_weighted(.data),
+                  manynet::tie_weights(.data), NULL)
   graph <- manynet::as_igraph(.data)
-  
-  if(!normalized) manynet::snet_info("This function always returns a normalized value now.")
-  if(!scale) manynet::snet_info("This function always returns a scaled value now.")
-  
-  if(!manynet::is_connected(.data)) 
+
+  # An eigenvector is only defined up to a scalar multiple, so its scores
+  # carry no absolute units: scaling to the observed maximum is intrinsic to
+  # the measure rather than an option. (igraph removed the choice in 2.1.1.)
+  # Neither is there a theoretical maximum to normalise against.
+  if(!normalized || !scaled)
+    manynet::snet_info("Eigenvector scores are defined only up to a scalar multiple, so they are always scaled to the observed maximum; `normalized` and `scaled` have no effect here.")
+
+  if(!manynet::is_connected(.data))
     manynet::snet_warn("Unconnected networks will only allow nodes from one component to have non-zero eigenvector scores.")
-  
+
   # Do the calculations
   if (!manynet::is_twomode(graph)){
-    out <- igraph::eigen_centrality(graph = graph, 
+    out <- igraph::eigen_centrality(graph = graph,
                                     directed = manynet::is_directed(graph),
+                                    weights = weights,
                                     options = igraph::arpack_defaults())$vector
   } else {
+    # The projections carry their own (co-membership count) weights,
+    # which igraph picks up from the graph itself.
     eigen1 <- manynet::to_mode1(graph)
-    eigen1 <- igraph::eigen_centrality(graph = eigen1, 
+    eigen1 <- igraph::eigen_centrality(graph = eigen1,
                                        directed = manynet::is_directed(eigen1),
                                        options = igraph::arpack_defaults())$vector
     eigen2 <- manynet::to_mode2(graph)
-    eigen2 <- igraph::eigen_centrality(graph = eigen2, 
+    eigen2 <- igraph::eigen_centrality(graph = eigen2,
                                        directed = manynet::is_directed(eigen2),
                                        options = igraph::arpack_defaults())$vector
     out <- c(eigen1, eigen2)
   }
-  out <- make_node_measure(out, .data)
-  out
+  make_node_measure(out, .data, measure = "eigenvector centrality",
+                    range = c(0, 1), normalization = "scaled")
 }
 
 #' @rdname measure_central_eigen
