@@ -10,6 +10,14 @@
 
 ## Measures
 
+- Improved measures to record what they computed, so results can be interpreted without
+  consulting the manual. `make_*_measure()` attaches three attributes:
+  - `measure`, name of measure actually calculated, 
+    e.g. `node_by_degree()` reports "strength centrality" on a weighted network with `alpha = 1`
+  - `normalization`, one of `"normalized"`, `"scaled"`, `"proportion"`, or `"none"`
+  - `range`, theoretical range of the returned values
+  - These are additive: measures that do not set them behave exactly as before.
+    Surfacing them when printing is a companion change in `{manynet}`.
 - Added `net_by_cyclicality()` for detecting generalised exchange
 - Added `net_by_compactness()` for the average closeness of all pairs of nodes
 - Added `node_by_decay()` and `net_by_decay()` for decay centrality, which
