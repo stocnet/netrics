@@ -201,53 +201,61 @@ export(tie_is_simmelian)
 export(tie_is_transitive)
 export(tie_is_triangular)
 export(tie_is_triplet)
-importFrom(dplyr,filter)
-importFrom(dplyr,group_by)
-importFrom(dplyr,mutate)
-importFrom(dplyr,select)
-importFrom(igraph,V)
-importFrom(igraph,adhesion)
-importFrom(igraph,all_shortest_paths)
-importFrom(igraph,alpha_centrality)
-importFrom(igraph,articulation_points)
-importFrom(igraph,assortativity_degree)
-importFrom(igraph,cohesion)
-importFrom(igraph,components)
-importFrom(igraph,decompose)
-importFrom(igraph,degree)
-importFrom(igraph,delete_edges)
-importFrom(igraph,delete_vertices)
-importFrom(igraph,diameter)
-importFrom(igraph,distances)
-importFrom(igraph,edge_betweenness)
-importFrom(igraph,edge_density)
-importFrom(igraph,feedback_arc_set)
-importFrom(igraph,fit_power_law)
-importFrom(igraph,graph_from_incidence_matrix)
-importFrom(igraph,is_bipartite)
-importFrom(igraph,ivs_size)
-importFrom(igraph,knn)
-importFrom(igraph,largest_ivs)
-importFrom(igraph,make_ego_graph)
-importFrom(igraph,mean_distance)
-importFrom(igraph,power_centrality)
-importFrom(igraph,reciprocity)
-importFrom(igraph,transitivity)
-importFrom(igraph,triad_census)
-importFrom(igraph,triangles)
-importFrom(igraph,vcount)
-importFrom(igraph,which_loop)
-importFrom(igraph,which_multiple)
-importFrom(igraph,which_mutual)
-importFrom(manynet,as_igraph)
-importFrom(manynet,is_complex)
-importFrom(manynet,is_twomode)
-importFrom(manynet,is_weighted)
-importFrom(manynet,tie_weights)
-importFrom(stats,as.dist)
-importFrom(stats,coef)
-importFrom(stats,complete.cases)
-importFrom(stats,cor)
-importFrom(stats,cutree)
-importFrom(stats,hclust)
-importFrom(stats,median)
+importFrom(dplyr,
+  filter,
+  group_by,
+  mutate,
+  select
+)
+importFrom(igraph,
+  V,
+  adhesion,
+  all_shortest_paths,
+  alpha_centrality,
+  articulation_points,
+  assortativity_degree,
+  cohesion,
+  components,
+  decompose,
+  degree,
+  delete_edges,
+  delete_vertices,
+  diameter,
+  distances,
+  edge_betweenness,
+  edge_density,
+  feedback_arc_set,
+  fit_power_law,
+  graph_from_incidence_matrix,
+  is_bipartite,
+  ivs_size,
+  knn,
+  largest_ivs,
+  make_ego_graph,
+  mean_distance,
+  power_centrality,
+  reciprocity,
+  transitivity,
+  triad_census,
+  triangles,
+  vcount,
+  which_loop,
+  which_multiple,
+  which_mutual
+)
+importFrom(manynet,
+  as_igraph,
+  is_complex,
+  is_twomode,
+  is_weighted,
+  tie_weights
+)
+importFrom(stats,
+  as.dist,
+  coef,
+  complete.cases,
+  cor,
+  cutree,
+  hclust,
+  median
+)
