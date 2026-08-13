@@ -217,7 +217,7 @@ equivalent classes, and understand the census, clustering, and
 <li><label><input type="checkbox" />  Read a dendrogram and a
 blockmodel, and justify a choice of <em>k</em></label></li>
 <li><label><input type="checkbox" />  Contract a network into a reduced
-graph of positions with <code>to_blocks()</code></label></li>
+graph of positions with <code>to_blockmodel()</code></label></li>
 </ul>
 <p><strong>Choose your own data</strong>: The worked examples below use
 <code>ison_algebra</code>, a multiplex network of interactions in an
@@ -1310,7 +1310,7 @@ complex </dfn></abbr>), any within-class ties will end up becoming loops
 and thus the network will be complex.</p>
 <div id="section-from-blocks-to-ties" class="section level3">
 <h3>From blocks to ties</h3>
-<p><code>to_blocks()</code> carries out this contraction: pass it the
+<p><code>to_blockmodel()</code> carries out this contraction: pass it the
 network and a membership vector, and it returns a matrix with one row
 and column per <em>class</em>, where each cell holds the average tie
 (weight) from one class to another.</p>
@@ -1319,7 +1319,7 @@ structural-equivalence blocks.</strong></p>
 <div class="tutorial-exercise" data-label="structblock"
 data-completion="1" data-diagnostics="1" data-startover="1"
 data-lines="0" data-pipe="|&gt;">
-<pre class="text"><code>(bm &lt;- to_blocks(alge, node_in_structural(alge)))</code></pre>
+<pre class="text"><code>(bm &lt;- to_blockmodel(alge, node_in_structural(alge)))</code></pre>
 <script type="application/json" data-ui-opts="1">{"engine":"r","has_checker":false,"caption":"<span data-i18n=\"text.enginecap\" data-i18n-opts=\"{&quot;engine&quot;:&quot;R&quot;}\">R Code<\/span>"}</script>
 </div>
 <p>Notice how this is just a compact, numerical version of the
@@ -1352,7 +1352,7 @@ individuals compressed into a comprehensible structure of four
 roles.</p>
 <div class="callout">
 <p><span class="callout-label"><strong>In brief</strong>:</span>
-<code>to_blocks()</code> contracts a network into its classes, yielding
+<code>to_blockmodel()</code> contracts a network into its classes, yielding
 a
 <abbr><dfn title='A reduced graph is a contraction of a network into the ties within and between blocks.'>
 reduced graph </dfn></abbr> whose nodes are positions and whose ties
@@ -1656,7 +1656,7 @@ census</td>
 <td>averages each class’s census profile</td>
 </tr>
 <tr class="even">
-<td><code>to_blocks()</code></td>
+<td><code>to_blockmodel()</code></td>
 <td>contracts a network into a reduced graph of positions</td>
 </tr>
 <tr class="odd">
@@ -3334,7 +3334,7 @@ learnr:::store_exercise_cache(structure(list(label = "structblock", global_setup
         engine = "r"), list(label = "varyclust", code = "alge <- to_named(ison_algebra) # fake names to make comparison clearer\nplot(node_in_structural(alge, cluster = \"hier\", distance = \"euclidean\"))\n\n# changing the type of distance used\nplot(node_in_structural(alge, cluster = \"hier\", distance = \"manhattan\"))\n\n# changing the clustering algorithm\nplot(node_in_structural(alge, cluster = \"concor\", distance = \"euclidean\"))", 
         opts = list(label = "\"varyclust\"", exercise = "TRUE", 
             exercise.setup = "\"data\""), engine = "r"), list(
-        label = "structblock", code = "(bm <- to_blocks(alge, node_in_structural(alge)))", 
+        label = "structblock", code = "(bm <- to_blockmodel(alge, node_in_structural(alge)))", 
         opts = list(label = "\"structblock\"", exercise = "TRUE", 
             exercise.setup = "\"varyclust\"", warning = "FALSE"), 
         engine = "r")), code_check = NULL, error_check = NULL, 
@@ -3355,7 +3355,7 @@ learnr:::store_exercise_cache(structure(list(label = "structblock", global_setup
         message = TRUE, render = NULL, ref.label = NULL, child = NULL, 
         engine = "r", split = FALSE, include = TRUE, purl = TRUE, 
         max.print = 1000, label = "structblock", exercise = TRUE, 
-        exercise.setup = "varyclust", code = "(bm <- to_blocks(alge, node_in_structural(alge)))", 
+        exercise.setup = "varyclust", code = "(bm <- to_blockmodel(alge, node_in_structural(alge)))", 
         out.width.px = 624, out.height.px = 384, params.src = "structblock, exercise = TRUE, exercise.setup = \"varyclust\", warning=FALSE", 
         fig.num = 0, exercise.df_print = "paged", exercise.checker = "NULL"), 
     engine = "r", version = "4"), class = c("r", "tutorial_exercise"
@@ -3395,13 +3395,13 @@ learnr:::store_exercise_cache(structure(list(label = "reducedgraph", global_setu
 "friends <- to_uniplex(ison_algebra, \"friends\")", "social <- to_uniplex(ison_algebra, \"social\")", 
 "tasks <- to_uniplex(ison_algebra, \"tasks\")", "alge <- to_named(ison_algebra)"
 ), chunk_opts = list(label = "setup", include = FALSE, purl = FALSE, 
-    eval = TRUE)), setup = "\nalge <- to_named(ison_algebra) # fake names to make comparison clearer\nplot(node_in_structural(alge, cluster = \"hier\", distance = \"euclidean\"))\n\n# changing the type of distance used\nplot(node_in_structural(alge, cluster = \"hier\", distance = \"manhattan\"))\n\n# changing the clustering algorithm\nplot(node_in_structural(alge, cluster = \"concor\", distance = \"euclidean\"))\n(bm <- to_blocks(alge, node_in_structural(alge)))", 
+    eval = TRUE)), setup = "\nalge <- to_named(ison_algebra) # fake names to make comparison clearer\nplot(node_in_structural(alge, cluster = \"hier\", distance = \"euclidean\"))\n\n# changing the type of distance used\nplot(node_in_structural(alge, cluster = \"hier\", distance = \"manhattan\"))\n\n# changing the clustering algorithm\nplot(node_in_structural(alge, cluster = \"concor\", distance = \"euclidean\"))\n(bm <- to_blockmodel(alge, node_in_structural(alge)))", 
     chunks = list(list(label = "data", code = "", opts = list(
         label = "\"data\"", exercise = "TRUE", purl = "FALSE"), 
         engine = "r"), list(label = "varyclust", code = "alge <- to_named(ison_algebra) # fake names to make comparison clearer\nplot(node_in_structural(alge, cluster = \"hier\", distance = \"euclidean\"))\n\n# changing the type of distance used\nplot(node_in_structural(alge, cluster = \"hier\", distance = \"manhattan\"))\n\n# changing the clustering algorithm\nplot(node_in_structural(alge, cluster = \"concor\", distance = \"euclidean\"))", 
         opts = list(label = "\"varyclust\"", exercise = "TRUE", 
             exercise.setup = "\"data\""), engine = "r"), list(
-        label = "structblock", code = "(bm <- to_blocks(alge, node_in_structural(alge)))", 
+        label = "structblock", code = "(bm <- to_blockmodel(alge, node_in_structural(alge)))", 
         opts = list(label = "\"structblock\"", exercise = "TRUE", 
             exercise.setup = "\"varyclust\"", warning = "FALSE"), 
         engine = "r"), list(label = "reducedgraph", code = "bm <- bm %>% as_tidygraph %>%\n  mutate(name = c(\"Freaks\", \"Squares\", \"Nerds\", \"Geek\"))\ngraphr(bm)", 

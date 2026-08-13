@@ -157,7 +157,7 @@ By the end of this tutorial, you should be able to:
 - [ ] &nbsp; Partition a network into equivalent classes, and understand the census, clustering, and _k_-selection choices behind it
 - [ ] &nbsp; Read a dendrogram and a blockmodel, and justify a choice of _k_
 - [ ] &nbsp; Score how well a partition fits with `net_by_inconsistency()`, and search for one directly with `node_in_block()`
-- [ ] &nbsp; Contract a network into a reduced graph of positions with `to_blocks()`
+- [ ] &nbsp; Contract a network into a reduced graph of positions with `to_blockmodel()`
 
 **Choose your own data**: The worked examples below use `ison_algebra`,
 a multiplex network of interactions in an algebra class
@@ -1494,7 +1494,7 @@ any within-class ties will end up becoming loops and thus the network will be co
 
 ### From blocks to ties {#from-blocks-to-ties}
 
-`to_blocks()` carries out this contraction:
+`to_blockmodel()` carries out this contraction:
 pass it the network and a membership vector,
 and it returns a matrix with one row and column per _class_,
 where each cell holds the average tie (weight) from one class to another.
@@ -1502,7 +1502,7 @@ where each cell holds the average tie (weight) from one class to another.
 **Contract the algebra network into its four structural-equivalence blocks.**
 
 ```{r structblock, exercise = TRUE, exercise.setup = "varyclust", warning=FALSE}
-(bm <- to_blocks(alge, node_in_structural(alge)))
+(bm <- to_blockmodel(alge, node_in_structural(alge)))
 ```
 
 Notice how this is just a compact, numerical version of the blockmodel plot
@@ -1536,7 +1536,7 @@ a network of sixteen individuals compressed into a comprehensible
 structure of four roles.
 
 ::: {.callout}
-<span class="callout-label">**In brief**:</span> `to_blocks()` contracts a network into its classes,
+<span class="callout-label">**In brief**:</span> `to_blockmodel()` contracts a network into its classes,
 yielding a `r gloss("reduced graph","reduced")` whose nodes are positions and
 whose ties (including loops) are the average ties within and between classes —
 a role-level summary of the whole network.
@@ -1777,7 +1777,7 @@ Along the way, you have learned to use these functions:
 | `net_by_inconsistency()` | scores how far a partition's blocks are from ideal (0 is perfect); `blocks` sets which ideals |
 | `node_in_block()` | searches directly for the partition that best fits an ideal block structure |
 | `summary(census, membership = )` | averages each class's census profile |
-| `to_blocks()` | contracts a network into a reduced graph of positions |
+| `to_blockmodel()` | contracts a network into a reduced graph of positions |
 | `graphr(..., node_color = , node_size = )` | maps memberships or measures onto the graph |
 
 When you are ready, continue with the other `{netrics}` tutorials —
