@@ -4,23 +4,9 @@ Contributions to `netrics`,
 whether in the form of issue identification, bug fixes, new code or documentation 
 are encouraged and welcome.
 
-## Aims
-
-Here is some things that Guy Kawasaki, Silicon Valley venture capitalist,
-learned from Steve Jobs:
-
-- "Experts" are clueless. Especially self-declared ones.
-- Customers cannot tell you what they need. They can help with evolution, but not revolution.
-- Biggest challenges beget the best work.
-- Design counts. Users will see the skin/UI of your product, not the great algorithms.
-- Big graphics, big fonts.
-- Jump curves---do things 10 times better, not 10 percent.
-- All that truly matters is whether something works or doesn't work. Open or close, iPhone or Android, car or train, doesn't matter---make
-it work.
-- "Value" is different from "price". There is a class of people who do care about value. Ease of use -> less support costs. You have to create a unique and valuable product as an engineer.
-- Real CEOs can demo. If you can't demo your own product, then quit.
-- Real entrepreneurs ship, not slip.
-- Some things need to be believed to be seen.
+Please note that the `netrics` project is released with a 
+[Contributor Code of Conduct](CODE_OF_CONDUCT.md). 
+By contributing to this project, you agree to abide by its terms.
 
 ## Git
 
@@ -39,6 +25,42 @@ There are various other git software packages available, but this one is fairly 
 The GitHub page allows to access the issues assigned to you and check the commits.
 You can also access the documents in the repository, 
 although this won't be necessary after you have cloned it on your computer via Fork.
+
+### Cloning
+
+Once you have downloaded Fork, the first thing you have to do is to 
+clone the remote repository on your computer. 
+Before cloning, you will be able to choose on which `branch` you want to work: 
+develop or main. 
+
+### Pull 
+
+This command allows you to `pull` changes from the remote repository to your local repository on Sourcetree.
+Make sure you do that before starting working on your files so you have the newest versions. 
+When pulling, make sure you choose master or develop, 
+depending on the branch you decided to work with. 
+Once you pulled, you have now all the new commits and files and 
+you can start working on your assigned tasks.
+Note that you can access and open the files either from the Finder or from Fork. 
+Some documents might be stored using Large File Storage (LFS) to save space on the repository. 
+
+### Commit and Push
+
+Once you have made modifications on a file and saved them, it will appear in your `commit` window. 
+Here you can control one last time your file, write the commit message with the 
+issue reference (see below) and commit. 
+Once your commit is ready, you can `push` them to the origin/main repository.
+Note that you can click the "push immediately" box in the commit window 
+if you don't want to do it in two steps. 
+If you are working on a separate branch, 
+it is important to select this branch when pushing to origin/main.
+
+### Branching and CI
+
+- `main` is the release branch; `develop` is the working branch (clone/work on `develop`).
+- PRs into `main` trigger [prchecks.yml](workflows/prchecks.yml): R CMD check (macOS/Windows/Linux), binary build, codecov, lintr, spell check, a check that the tutorial articles are in sync with the tutorials, and PR metadata checks (DESCRIPTION version bump, PR title/description conventions).
+- Merges/pushes to `main` trigger [pushrelease.yml](workflows/pushrelease.yml): check, auto-bump version tag, GitHub release with binaries, then pkgdown site deploy.
+- Commits should reference an existing GitHub issue number (`#123`), see below.
 
 ## Style
 
@@ -68,9 +90,16 @@ Run these from an R console with the working directory set to the package root (
 - Full package check (mirrors CI): `devtools::check()` or `rcmdcheck::rcmdcheck()`
 - Lint: `lintr::lint_package()`
 - Spell check: `spelling::spell_check_package()`
+- Code coverage: `covr::package_coverage()`
+- Rebuild `README.md` from `README.Rmd`: `devtools::build_readme()`
 - Build pkgdown site locally: `pkgdown::build_site()`
 
 There is no non-R build system — no package.json/Makefile.
+Roxygen is configured with `markdown = TRUE`;
+`NAMESPACE` and all `man/*.Rd` files are generated — never hand-edit them.
+Some other files are generated rather than edited directly — `README.md` and the tutorial
+articles in `vignettes/articles/`.
+See [README and website](#readme-and-website) below for which source each is built from.
 
 ### Function family naming (the core convention)
 
@@ -151,86 +180,153 @@ Tests in `tests/testthat/` mirror the `R/` files (e.g. `test-measure_centrality.
 `testthat` edition 3 with parallel execution is configured in `DESCRIPTION` (`Config/testthat/parallel: true`). 
 `Config/testthat/start-first` prioritizes `tutorials_netrics, measure_net, member_nodes, measure_nodes`.
 
-### Branching and CI
+### Console messaging
 
-- `main` is the release branch; `develop` is the working branch (clone/work on `develop`).
-- PRs into `main` trigger [prchecks.yml](workflows/prchecks.yml): R CMD check (macOS/Windows/Linux), binary build, codecov, lintr, spell check, and PR metadata checks (DESCRIPTION version bump, PR title/description conventions).
-- Merges/pushes to `main` trigger [pushrelease.yml](workflows/pushrelease.yml): check, auto-bump version tag, GitHub release with binaries, then pkgdown site deploy.
-- Commits should reference an existing GitHub issue number (`#123`), see below.
+All user-facing messages go through the `snet_*()` wrappers exported by `{manynet}`,
+rather than base `message()`/`stop()`/`warning()` or `{cli}` calls directly:
 
-## Fork
+| Wrapper | Use for |
+|---|---|
+| `snet_abort()` | errors: the function cannot proceed |
+| `snet_warn()` | the function proceeds, but the user should know something |
+| `snet_info()` | notable information about what was done, e.g. a defaulted argument or the method dispatched to |
+| `snet_minor_info()` | incidental detail |
+| `snet_success()` | confirmation that a requested operation completed |
+| `snet_prompt()` | interactive questions to the user |
+| `snet_unavailable()` | not-yet-implemented features |
+| `snet_progress_step()`, `snet_progress_along()`, `snet_progress_seq()`, `snet_progress_nodes()` | progress reporting in longer-running loops |
 
-### Cloning
-Once you have downloaded Fork, the first thing you have to do is to 
-clone the remote repository on your computer. 
-Before cloning, you will be able to choose on which `branch` you want to work: 
-develop or main. 
+Every wrapper except `snet_abort()` (and `snet_prompt()`) is silenced by
+`options(snet_verbosity = "quiet")`, which is the *default* —
+so informational output must never be load-bearing,
+and errors must carry everything the user needs to act.
+Users opt in with e.g. `options(snet_verbosity = "verbose")`.
 
-### Pull 
-This command allows you to `pull` changes from the remote repository to your local repository on Sourcetree.
-Make sure you do that before starting working on your files so you have the newest versions. 
-When pulling, make sure you choose master or develop, 
-depending on the branch you decided to work with. 
-Once you pulled, you have now all the new commits and files and 
-you can start working on your assigned tasks.
-Note that you can access and open the files either from the Finder or from Fork. 
-Some documents might be stored using Large File Storage (LFS) to save space on the repository. 
+These wrappers pass their input to `{cli}`, so:
 
-### Commit and Push
+- Braces interpolate, replacing `paste()`: `snet_abort("{.val {unknown}} is not a recognised method.")`.
+- Use `{cli}` inline classes to mark up what you refer to — `{.fn}` for functions,
+  `{.arg}`/`{.var}` for arguments and variables, `{.val}` for values,
+  `{.url}` for links — so that styling stays consistent across the ecosystem.
+- Use `{cli}`'s pluralisation rather than hand-written branches:
+  `snet_warn("Node{?s} {.val {missing}} {?was/were} dropped.")`.
+- Multiple strings can be passed as separate arguments for multiline messages.
 
-Once you have made modifications on a file and saved them, it will appear in your `commit` window. 
-Here you can control one last time your file, write the commit message with the 
-issue reference (see below) and commit. 
-Once your commit is ready, you can `push` them to the origin/main repository.
-Note that you can click the "push immediately" box in the commit window 
-if you don't want to do it in two steps. 
-If you are working on a separate branch, 
-it is important to select this branch when pushing to origin/main.
+Messages, warnings, and errors should be written in a way that is useful for new and advanced users alike.
+This might include listing likely causes, mentioning objects or variables explicitly,
+and indicating next actions clearly.
+Prefer "`{.arg alpha}` must be a single number between 0 and 1" over "invalid input".
+Functions that dispatch on a character argument should name the method they chose,
+e.g. `manynet::snet_info("...using {.fn regularity_{regularity}}.")`,
+which surfaces the method-helper convention above at run time.
 
-## Issues and tests
+### Documentation
 
-Please use the issues tracker on GitHub to identify any function-related issues.
-You can use these issues to track progress on the issue and 
-to comment or continue a conversation on that issue.
-Currently issue tracking is only open to those involved in the project.
+Roxygen is configured with `markdown = TRUE`;
+`NAMESPACE` and all `man/*.Rd` files are generated — never hand-edit them.
+Run `devtools::document()` after changing any roxygen comment.
 
-The most useful issues are ones that precisely identify an error,
-or propose a test that should pass but instead fails.
-This package uses the `testthat` package for testing functions.
-Please see the [testthat website](https://testthat.r-lib.org) for more details.
+- Reuse the shared `@template` fragments in `man-roxygen/` (e.g. `param_data.R`,
+  `node_measure.R`, `param_norm.R`) instead of re-writing standard `@param`/`@returns` docs.
+  If you find yourself writing the same `@param` twice, add a template.
+  Indeed, prefer defining fewer arguments, so if alpha and beta are both decays,
+  just use `decay=` as the argument.
+- Related functions share one roxygen block via `@name`/`@rdname`,
+  matching the file organisation above.
+- Every exported function needs a runnable `@examples` block:
+  examples are run by R CMD check, and they are also the fastest documentation for users.
+  Prefer the bundled `ison_*`/`fict_*` networks over ad hoc constructions,
+  unless they take too long to run.
+- Cite the source of a measure with `@references` in the ecosystem's format
+  (authors, year, title, journal, and `\doi{}` where available),
+  so that users can trace an implementation back to its definition.
+- Documented behaviour and implemented behaviour must agree.
+  Several past bugs were documentation claiming a default or a normalisation that the code did not apply,
+  so when you change a default, search the roxygen and templates for it too.
 
-## Bug fixing or adding new code
+### README and website
 
-Independent or assigned code contributions are most welcome.
-When writing new code, please follow 
-[standard R guidelines](https://www.r-bloggers.com/🖊-r-coding-style-guide/). 
-It can help to use packages such as `lintr`, `goodpractice` and `formatR` 
-to ensure these are followed.
+The README offers a landing page for new users, both on the GitHub repository
+as well as on the website.
+As such, it should make a compelling case for the value added of the package,
+and not drift out of date.
+Note that `README.md` is generated from `README.Rmd` — edit `README.Rmd` and re-knit
+(`devtools::build_readme()`), never edit `README.md` directly.
 
-Currently, commits can only be pushed to GitHub where they reference an existing issue.
-If no issue exists for the code you have developed, please add an issue first before pushing.
-Once the issue exists, you will need to mention the issue number (preceded by a hash symbol: #)
-in the commit description:
+The website is created by pkgdown from [pkgdown/_pkgdown.yml](../pkgdown/_pkgdown.yml),
+and is deployed automatically when changes reach `main`.
+Please make sure that the pkgdown website will build correctly:
+run `pkgdown::build_site()` locally before opening a PR.
+The most common failure is a new exported function that is not picked up under the
+function overview (the `reference:` section of `_pkgdown.yml`) —
+pkgdown requires *every* exported topic to appear there exactly once, or it will not build.
+Where possible, add functions to an existing subtitle's `starts_with()`/`contains()` pattern
+(e.g. a new `node_is_*()` mark or `node_in_*()` membership needs no change),
+and only list the topic explicitly where it does not fit a pattern.
+These `reference:` titles are also the headings used in `NEWS.md` (see below),
+so keep the two in step.
 
-` Resolved #31 by adding a new function that does things, also updated documentation `
+The static pkgdown versions of the `{learnr}` tutorials, `vignettes/articles/*.Rmd`,
+are generated rather than edited directly:
+they are built from `inst/tutorials/*/*.Rmd` by
+[data-raw/build_tutorial_articles.R](../data-raw/build_tutorial_articles.R).
+After editing a tutorial, re-run that script and commit the regenerated articles;
+CI checks that the two are in sync.
+New tutorials also need an entry under `articles:` in `_pkgdown.yml`.
 
-Where the issue hash (i.e. #31) is preceded by
-`resolve`, `resolves`, `resolved`, `close`, `closes`, `closed`, `fix`, `fixes`, or `fixed`
-(capitalised or not),
-Github will automatically updated the status of the issue(s) mentioned.
+### `NEWS.md` conventions
 
-Our current syntactical standard is to mention the issue first and then 
-provide a short description of what the committed changes do 
-in relation to that issue.
-Any ancillary changes can be mentioned after a comma.
+`NEWS.md` groups each version's changes under `##` headings that mirror the website
+function overview (`pkgdown/_pkgdown.yml` `reference:` titles).
+Lead with `## Package` (package-wide/website/infrastructure changes),
+then the function families in overview order:
+`## Marks`, `## Measures`, `## Memberships`, `## Motifs`, `## Methods`.
+Put `## Tutorials` and any `## Data` section at the end.
+Each heading appears at most once per version.
 
-## Documentation
+Start each bullet with a verb matching the change type:
 
-A final way of contributing to the package is in developing the 
-vignettes/articles that illustrate the value added in the package. 
-Please contact me with any proposals here.
+- `Added ...` — new functionality
+- `Fixed ...` — bug fixes; if it relates to a GitHub issue, suffix with `(closing #123)`
+- `Renamed ... to ...` — function or data name migrations
+- `Improved ...` — functional updates to existing behaviour
+- `Updated ...` — documentation changes
 
-Please note that the `netrics` project is released with a 
-[Contributor Code of Conduct](CODE_OF_CONDUCT.md). 
-By contributing to this project, you agree to abide by its terms.
+If a cited GitHub issue was **not** authored by @jhollway, thank the author with an
+`@`-tag in the bullet.
+Cluster related changes (e.g. several fixes to the same function, or sub-points of one
+feature) as indented sub-bullets under a lead bullet, to improve readability.
 
+#### Writing the bullets
+
+`NEWS.md` is read by users scanning for what changed, not by reviewers reading prose,
+so each bullet is a headline rather than a sentence,
+so avoid over-punctuation or over-explanation.
+Details can be added to the function documentation, if necessary.
+
+- No full stop at the end of a bullet
+- One clause where possible, and at most one comma
+  - If a bullet needs a second clause to be understood, use a sub-bullet
+- Name the function or object in backticks and say what changed to it,
+  dropping scaffolding like "This change ...", "In order to ...", or "as part of an effort to"
+- Keep the *what*, and add the *why* only where the behaviour would otherwise look arbitrary
+- No trailing rationale, no restating the same change twice in different words,
+  and no marketing adjectives such as "comprehensive" or "robust"
+
+For example, instead of:
+
+> Fixed a bug where, in some cases, `node_by_reach()` was counting the node itself,
+> which meant that normalised scores could exceed 1.
+
+write:
+
+> Fixed `node_by_reach()` counting the node itself so normalised scores no longer exceed 1
+
+and instead of:
+
+> Added a new function, `net_by_compactness()`, which is a useful measure that
+> calculates the average closeness of all pairs of nodes in the network.
+
+write:
+
+> Added `net_by_compactness()` for the average closeness of all pairs of nodes

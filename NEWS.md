@@ -4,9 +4,10 @@
 
 - Removed the CRAN version check from `.onAttach()` making `library(netrics)` faster to attach
   - It now runs once, for the whole stack, in `{migraph}`, where it is cached and checks GitHub as well as CRAN
-- Updated GitHub Actions workflows to latest major action versions
 - Fixed release workflow referring to `actions/actions/checkout`, a doubled path segment that would have failed every step using it
 - Added `param_cutoff` roxygen template, correctly documenting geodesic cutoff for six functions
+- Updated GitHub Actions workflows to latest major action versions
+- Updated CONTRIBUTING to be clearer about documentation conventions
 
 ## Measures
 
