@@ -2,23 +2,22 @@
 
 ## Package
 
-- Removed the CRAN version check from `.onAttach()` making `library(netrics)` faster to attach
-  - It now runs once, for the whole stack, in `{migraph}`, where it is cached and checks GitHub as well as CRAN
-- Fixed release workflow referring to `actions/actions/checkout`, a doubled path segment that would have failed every step using it
+- Removed CRAN version check from `.onAttach()` making `library(netrics)` faster to attach
+- Fixed release workflow referring to `actions/actions/checkout`; the doubled path segment would have failed every step using it
 - Added `param_cutoff` roxygen template, correctly documenting geodesic cutoff for six functions
+- Added `param_decay` roxygen template, correctly documenting decay parameter
 - Updated GitHub Actions workflows to latest major action versions
-- Updated CONTRIBUTING to be clearer about documentation conventions
+- Updated CONTRIBUTING to be clearer about documentation, website and NEWS conventions
 
 ## Measures
 
-- Improved measures to record what they computed, so results can be interpreted without
-  consulting the manual. `make_*_measure()` attaches three attributes:
-  - `measure`, name of measure actually calculated, 
-    e.g. `node_by_degree()` reports "strength centrality" on a weighted network with `alpha = 1`
-  - `normalization`, one of `"normalized"`, `"scaled"`, `"proportion"`, or `"none"`
-  - `range`, theoretical range of the returned values
-  - These are additive: measures that do not set them behave exactly as before.
-    Surfacing them when printing is a companion change in `{manynet}`.
+- Improved `make_*_measure()` to record what was computed so results can be read without the script/manual
+  - `measure`, the measure actually calculated, e.g. `node_by_degree()` reports "strength centrality" on a weighted network
+  - `normalization`, one of `"normalized"`, `"scaled"`, `"proportional"` or `"none"`
+  - `range`, the theoretical range of the returned values
+  - `variant`, which variant was computed where a measure offers a choice, e.g. `net_by_reciprocity()` reports "ratio" when asked for the ratio
+  - Measures that set none of these behave exactly as before
+  - Printing them is a companion change in `{manynet}`
 - Improved specificity of arguments, separating normalising from scaling
   - Renamed `scale` argument to `scaled`, the old spelling still works but warns
 - Added family-wide contract test sweeping every node-level centrality:

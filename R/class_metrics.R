@@ -30,21 +30,30 @@ make_tie_mark <- function(out, .data) {
 #                 across different networks
 #   "scaled"      divided by the observed maximum, so the top node is always
 #                 exactly 1 and values rank nodes within one network only
-#   "proportion"  shares of a fixed total, summing to 1
+#   "proportional" shares of a fixed total, summing to 1
 #   "none"        raw values on the measure's own scale
-NORMALIZATIONS <- c("normalized", "scaled", "proportion", "none")
+NORMALIZATIONS <- c("normalized", "scaled", "proportional", "none")
+
+# Where a measure offers a choice between several ways of counting the same
+# thing, `variant` records which one ran. It is orthogonal to `normalization`:
+# the first says *which* quantity was computed, the second *how* its values
+# were rescaled, and a measure may meaningfully declare both, as
+# `net_by_smallworld()` does in reporting the "SWI" variant as normalised.
+# Unlike `NORMALIZATIONS` there is no fixed vocabulary to match against, since
+# each family names its own variants.
 
 # Attaches the interpretive metadata shared by all measure classes.
 # Each argument is optional; absent metadata is simply not set, so measures
 # that do not (yet) declare it behave exactly as they did before.
 set_measure_attributes <- function(out, measure = NULL, range = NULL,
-                                   normalization = NULL) {
+                                   normalization = NULL, variant = NULL) {
   if(!is.null(measure)) attr(out, "measure") <- measure
   if(!is.null(range)) attr(out, "range") <- range
   if(!is.null(normalization)) {
     normalization <- match.arg(normalization, NORMALIZATIONS)
     attr(out, "normalization") <- normalization
   }
+  if(!is.null(variant)) attr(out, "variant") <- as.character(variant)[1]
   out
 }
 
