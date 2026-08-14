@@ -11,24 +11,17 @@
 
 ## Measures
 
-- Improved `make_*_measure()` to record what was computed so results can be read without the script/manual
+- Improved `make_*_measure()` to record algorithm details so results can be read without the script/manual
   - `measure`, the measure actually calculated, e.g. `node_by_degree()` reports "strength centrality" on a weighted network
   - `normalization`, one of `"normalized"`, `"scaled"`, `"proportional"` or `"none"`
   - `range`, the theoretical range of the returned values
   - `variant`, which variant was computed where a measure offers a choice, e.g. `net_by_reciprocity()` reports "ratio" when asked for the ratio
-  - Measures that set none of these behave exactly as before
-  - Printing them is a companion change in `{manynet}`
+  - Printing is a companion change in `{manynet}`, which defaults to previous behavior
 - Improved specificity of arguments, separating normalising from scaling
-  - Renamed `scale` argument to `scaled`, the old spelling still works but warns
-- Added family-wide contract test sweeping every node-level centrality:
-  - that scores stay inside declared ranges
-  - that declared normalisations match values
-  - that arguments have an effect,
-  reporting any gaps as audit messages rather than failures
-- Corrected claim in documentation that all measures return normalized values by default
+- Improved consistency by consolidating every per-step discount as `decay`
+  - Always proportional [0,1] where higher values discount less
 - Added `net_by_cyclicality()` for detecting generalised exchange
 - Added `net_by_compactness()` for the average closeness of all pairs of nodes
-- Added `decay` argument to `node_by_harmonic()`, and added `node_by_decay()` as a shortcut for decay centrality
 - Added `node_by_integration()` and `net_by_integration()` for Valente and
   Foreman's integration and radiality
 - Added `node_by_radiality()` as a shortcut for `node_by_integration(direction = "out")`
@@ -45,8 +38,7 @@
   - Normalised `node_by_vitality()` rescales finite scores onto `[0,1]` and places cut nodes at 0
 - Improved `node_by_closeness()` to validate `direction` via `match.arg()`
 - Removed `direction` from `net_by_betweenness()` which never used it
-- Moved `node_by_posneg()` (PN centrality) to eigenvector doc group as a
-  matrix-inversion walk-based measure — Katz for signed networks
+- Moved `node_by_posneg()` to the eigenvector doc group as a Katz matrix-inversion walk-based measure for signed networks
 
 ## Memberships
 
