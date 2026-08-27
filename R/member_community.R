@@ -137,98 +137,186 @@ apply_k <- function(k, Kmax, .data, at_k, default){
   report_k(memb, k)
 }
 
+# Helpers for combining algorithms ####
+
+# Assembles the algorithms applicable to this network.
+# Both the selection and the consensus route draw on this, so the eligibility
+# rules live in one place.
+poss_algs <- function(k, .data){
+  if(is.null(k)){
+    if(manynet::net_nodes(.data) >= 100)
+      manynet::snet_info("Excluding {.fn node_in_optimal} because network rather large.")
+    poss <- c("node_in_infomap",
+              "node_in_spinglass",
+              "node_in_fluid",
+              "node_in_louvain",
+              "node_in_leiden",
+              "node_in_greedy",
+              "node_in_eigen",
+              "node_in_walktrap")
+  } else {
+    manynet::snet_info("Considering only those algorithms that accept {.arg k}.")
+    poss <- c("node_in_fluid",
+              "node_in_louvain",
+              "node_in_leiden",
+              "node_in_labels",
+              "node_in_partition",
+              "node_in_greedy",
+              "node_in_eigen",
+              "node_in_walktrap",
+              "node_in_betweenness")
+  }
+  exclude <- function(poss, these, why){
+    hit <- intersect(poss, these)
+    if(length(hit)) manynet::snet_info("Excluding {.fn {hit}} because {why}.")
+    setdiff(poss, hit)
+  }
+  if(manynet::net_nodes(.data) >= 100)
+    poss <- exclude(poss, "node_in_betweenness", "network rather large")
+  if(!manynet::is_connected(.data))
+    poss <- exclude(poss, c("node_in_spinglass", "node_in_fluid"),
+                    "network unconnected")
+  if(manynet::is_directed(.data))
+    poss <- exclude(poss, c("node_in_louvain",
+                            "node_in_leiden",
+                            "node_in_labels",
+                            "node_in_partition",
+                            "node_in_eigen"), "network directed")
+  poss
+}
+
+# Runs one algorithm by name.
+# Where `k` was requested the algorithm warns when it cannot reach it, which
+# the caller reports once instead.
+run_alg <- function(alg, .data, k, Kmax){
+  if(is.null(k)) get(alg)(.data) else
+    suppressWarnings(get(alg)(.data, k = k, Kmax = Kmax))
+}
+
+# The algorithms that return a different partition on a second run.
+STOCHASTIC_ALGS <- c("node_in_infomap", "node_in_spinglass", "node_in_fluid",
+                     "node_in_louvain", "node_in_leiden", "node_in_labels")
+
+# The proportion of the given partitions in which each pair of nodes falls in
+# the same group. `.to_cliques()` marks the pairs within one partition.
+coassociation <- function(parts, n){
+  out <- matrix(0, n, n)
+  for(p in parts) out <- out + .to_cliques(as.integer(factor(p)))
+  out/length(parts)
+}
+
+# Combines many partitions into one, after Lancichinetti and Fortunato (2012).
+# The algorithms are rerun on the co-association matrix until every pair either
+# always or never shares a group, at which point the groups are its components.
+consensus_memb <- function(.data, k, Kmax, times, threshold = 0.5, iter = 10){
+  n <- manynet::net_nodes(.data)
+  gr <- .data
+  cons <- NULL
+  for(i in seq_len(iter)){
+    algs <- poss_algs(k, gr)
+    parts <- unlist(lapply(algs, function(alg){
+      reps <- if(alg %in% STOCHASTIC_ALGS) times else 1L
+      lapply(seq_len(reps), function(r) run_alg(alg, gr, k, Kmax))
+    }), recursive = FALSE)
+    cons <- coassociation(parts, n)
+    cons[cons < threshold] <- 0
+    if(all(cons == 0 | cons == 1)) break
+    gr <- igraph::graph_from_adjacency_matrix(cons, mode = "undirected",
+                                              weighted = TRUE, diag = FALSE)
+  }
+  igraph::components(
+    igraph::graph_from_adjacency_matrix(cons >= threshold,
+                                        mode = "undirected",
+                                        diag = FALSE))$membership
+}
+
 #' Memberships in communities
 #' @name member_community
 #' @description
-#'   `node_in_community()` runs through all available community detection algorithms 
-#'   for a given network type, finds the algorithm that returns the
-#'   largest modularity score, and returns the corresponding membership
-#'   partition.
+#'   `node_in_community()` returns a single community partition of a network,
+#'   drawing on all the community detection algorithms available for that
+#'   type of network.
+#'   
+#'   By default it *selects* a partition.
 #'   Where feasible (a small enough network), the optimal problem solving
 #'   technique is used to ensure the maximal modularity partition.
-#'   For larger networks, it identifies the applicable algorithms and 
-#'   finds the algorithm that maximises modularity and 
-#'   returns that membership vector.
+#'   For larger networks, it identifies the applicable algorithms, 
+#'   runs each of them, and returns the partition with the largest
+#'   modularity score.
+#'   
+#'   Where `consensus = TRUE` it *combines* the partitions instead.
+#'   Each applicable algorithm is run, the stochastic ones repeatedly,
+#'   and the algorithms are then rerun on how often each pair of nodes
+#'   is placed together until they agree.
+#'   This costs considerably more time than selection,
+#'   but does not rest the answer on a single run of a single algorithm.
 #'   
 #' @template param_data
 #' @template param_k
+#' @param consensus Logical, whether to combine the partitions of all the
+#'   applicable algorithms instead of selecting the one with the highest
+#'   modularity. By default `FALSE`, since combining them costs more time.
+#'   This argument is ignored on a network small enough for
+#'   `node_in_optimal()`, which already returns the maximum modularity
+#'   partition.
+#' @param times An integer of how many times each stochastic algorithm is run
+#'   when `consensus = TRUE`. By default 20. Deterministic algorithms are run
+#'   once however this is set.
 #' @family community
 #' @template node_member
+#' @references
+#' ## On consensus community detection
+#' Lancichinetti, Andrea, and Santo Fortunato. 2012.
+#' "Consensus clustering in complex networks".
+#' _Scientific Reports_ 2: 336.
+#' \doi{10.1038/srep00336}
+#' 
+#' Tagarelli, Andrea, Alessia Amelio, and Francesco Gullo. 2017.
+#' "Ensemble-based Community Detection in Multilayer Networks".
+#' _Data Mining and Knowledge Discovery_ 31: 1506-1543.
+#' \doi{10.1007/s10618-017-0528-8}
 NULL
 
 #' @rdname member_community
+#' @examples
+#' node_in_community(ison_adolescents)
 #' @export
-node_in_community <- function(.data, k = NULL, Kmax = 8L){
+node_in_community <- function(.data, k = NULL, Kmax = 8L,
+                              consensus = FALSE, times = 20){
   .data <- manynet::expect_nodes(.data)
   k <- check_k(k, .data)
   if(is.null(k) && manynet::net_nodes(.data)<100){
     # don't use node_in_betweenness because slow and poorer quality to optimal
+    if(consensus)
+      manynet::snet_info("Ignoring {.arg consensus} because {.fn node_in_optimal}",
+                         "already returns the maximum modularity partition.")
     manynet::snet_success("{.fn node_in_optimal} available and", 
                           "will return the highest modularity partition.")
     netrics::node_in_optimal(.data)
+  } else if(consensus){
+    # `apply_k()` is not used here because its `at_k()` would rerun the whole
+    # consensus for every candidate number of groups. The constituent
+    # algorithms are given `k` instead, and the result merged only if it
+    # overshoots.
+    memb <- consensus_memb(.data, k, Kmax, times)
+    if(is.numeric(k) && length(unique(memb)) > k)
+      memb <- merge_to_k(.data, memb, k)
+    make_node_member(report_k(memb, k), .data)
   } else {
-    if(is.null(k)){
-      manynet::snet_info("Excluding {.fn node_in_optimal} because network rather large.")
-      poss_algs <- c("node_in_infomap",
-                     "node_in_spinglass",
-                     "node_in_fluid",
-                     "node_in_louvain",
-                     "node_in_leiden",
-                     "node_in_greedy",
-                     "node_in_eigen",
-                     "node_in_walktrap")
-    } else {
-      manynet::snet_info("Considering only those algorithms that accept {.arg k}.")
-      poss_algs <- c("node_in_fluid",
-                     "node_in_louvain",
-                     "node_in_leiden",
-                     "node_in_labels",
-                     "node_in_partition",
-                     "node_in_greedy",
-                     "node_in_eigen",
-                     "node_in_walktrap",
-                     "node_in_betweenness")
-    }
-    if(manynet::net_nodes(.data)>=100){
-      notforlarge <- intersect(poss_algs, "node_in_betweenness")
-      if(length(notforlarge)){
-        manynet::snet_info("Excluding {.fn {notforlarge}} because network rather large.")
-        poss_algs <- setdiff(poss_algs, notforlarge)
-      }
-    }
-    if(!manynet::is_connected(.data)){
-      notforconnected <- intersect(poss_algs, c("node_in_spinglass", 
-                                                "node_in_fluid"))
-      if(length(notforconnected)){
-        manynet::snet_info("Excluding {.fn {notforconnected}} because network unconnected.")
-        poss_algs <- setdiff(poss_algs, notforconnected)
-      }
-    }
-    if(manynet::is_directed(.data)){
-      notfordirected <- intersect(poss_algs, c("node_in_louvain", 
-                                               "node_in_leiden",
-                                               "node_in_labels",
-                                               "node_in_partition",
-                                               "node_in_eigen"))
-      if(length(notfordirected)){
-        manynet::snet_info("Excluding {.fn {notfordirected}} because network directed.")
-        poss_algs <- setdiff(poss_algs, notfordirected)
-      }
-    }
-    manynet::snet_info("Considering each of {.fn {poss_algs}}.")
+    poss <- poss_algs(k, .data)
+    manynet::snet_info("Considering each of {.fn {poss}}.")
     # `snet_progress_along()` returns nothing unless verbosity is "verbose",
     # so fall back to a plain sequence to keep the loop running when quiet
-    idx <- manynet::snet_progress_along(poss_algs)
-    if(length(idx) != length(poss_algs)) idx <- seq_along(poss_algs)
+    idx <- manynet::snet_progress_along(poss)
+    if(length(idx) != length(poss)) idx <- seq_along(poss)
     candidates <- lapply(idx, function(comm){
-      memb <- if(is.null(k)) get(poss_algs[comm])(.data) else
-        suppressWarnings(get(poss_algs[comm])(.data, k = k, Kmax = Kmax))
+      memb <- run_alg(poss[comm], .data, k, Kmax)
       mod <- net_by_modularity(.data, memb)
       list(memb, mod)
     })
     mods <- unlist(sapply(candidates, "[", 2))
     maxmod <- which.max(mods)
-    manynet::snet_success("{.fn {poss_algs[maxmod]}} returns the highest modularity ({round(mods[maxmod],3)}).")
+    manynet::snet_success("{.fn {poss[maxmod]}} returns the highest modularity ({round(mods[maxmod],3)}).")
     out <- candidates[[maxmod]][[1]]
     if(is.numeric(k) && length(unique(out)) != k)
       manynet::snet_warn("No available algorithm returns {k} communities here.",
@@ -236,31 +324,6 @@ node_in_community <- function(.data, k = NULL, Kmax = 8L){
     out
   }
 }
-
-# #' @rdname member_community_hier 
-# #' @section Ensemble:
-# #'   Ensemble-based community detection runs community detection
-# #'   algorithms over multilayer or multiplex networks.
-# #' @references
-# #' ## On ensemble-based community detection
-# #' Tagarelli, Andrea, Alessia Amelio, and Francesco Gullo. 2017.
-# #' "Ensemble-based Community Detection in Multilayer Networks".
-# #' _Data Mining and Knowledge Discovery_, 31: 1506-1543.
-# #' \doi{10.1007/s10618-017-0528-8}
-# #' @examples
-# #' node_in_ensemble(ison_adolescents)
-# #' @export
-# node_in_ensemble <- function(.data, linkage_constraint = TRUE){
-#   if(missing(.data)) {expect_nodes(); .data <- .G()}
-#   clust <- igraph::cluster_walktrap(manynet::as_igraph(.data))
-#   out <- clust$membership
-#   make_node_member(out, .data)
-#   out <- make_node_member(out, .data)
-#   attr(out, "hc") <- stats::as.hclust(clust, 
-#                                       use.modularity = igraph::is_connected(.data))
-#   attr(out, "k") <- max(clust$membership)
-#   out
-# }
 
 # Non-hierarchical community clustering ####
 

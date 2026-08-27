@@ -96,6 +96,9 @@
   - `node_in_community()` considers only these algorithms when `k` is given
   - `k` also accepts `"silhouette"`, `"elbow"`, and `"strict"`, as in `node_in_equivalence()`
   - Note `k=` is now the second argument, so positional calls such as `node_in_louvain(x, 0.5)` must become `node_in_louvain(x, resolution = 0.5)`
+- Added `consensus=` to `node_in_community()` for combining partitions of all applicable algorithms
+  - Runs each algorithm (stochastic ones `times`), then converges on how often each pair of nodes is grouped together
+  - `consensus = FALSE` default, and ignored where network small enough for `node_in_optimal()`
 - Renamed `node_by_coreness()` to `node_by_core()`
   - Fixed search starting points rather than random
   - Fixed it returning identical scores for a directed network and its reverse

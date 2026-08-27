@@ -5,7 +5,7 @@
 \alias{node_in_community}
 \title{Memberships in communities}
 \usage{
-node_in_community(.data, k = NULL, Kmax = 8L)
+node_in_community(.data, k = NULL, Kmax = 8L, consensus = FALSE, times = 20)
 }
 \arguments{
 \item{.data}{A network object of class \code{stocnet}, \code{igraph}, \code{tbl_graph}, \code{network}, or similar.
@@ -31,6 +31,17 @@ Otherwise ignored.
 Note that for \code{node_in_louvain()} and \code{node_in_leiden()} each candidate
 requires its own search over the resolution parameter,
 so a large \code{Kmax} is costly on large networks.}
+
+\item{consensus}{Logical, whether to combine the partitions of all the
+applicable algorithms instead of selecting the one with the highest
+modularity. By default \code{FALSE}, since combining them costs more time.
+This argument is ignored on a network small enough for
+\code{node_in_optimal()}, which already returns the maximum modularity
+partition.}
+
+\item{times}{An integer of how many times each stochastic algorithm is run
+when \code{consensus = TRUE}. By default 20. Deterministic algorithms are run
+once however this is set.}
 }
 \value{
 A \code{node_member} character vector the length of the nodes in the network,
@@ -39,15 +50,40 @@ If the network is labelled,
 then the assignments will be labelled with the nodes' names.
 }
 \description{
-\code{node_in_community()} runs through all available community detection algorithms
-for a given network type, finds the algorithm that returns the
-largest modularity score, and returns the corresponding membership
-partition.
+\code{node_in_community()} returns a single community partition of a network,
+drawing on all the community detection algorithms available for that
+type of network.
+
+By default it \emph{selects} a partition.
 Where feasible (a small enough network), the optimal problem solving
 technique is used to ensure the maximal modularity partition.
-For larger networks, it identifies the applicable algorithms and
-finds the algorithm that maximises modularity and
-returns that membership vector.
+For larger networks, it identifies the applicable algorithms,
+runs each of them, and returns the partition with the largest
+modularity score.
+
+Where \code{consensus = TRUE} it \emph{combines} the partitions instead.
+Each applicable algorithm is run, the stochastic ones repeatedly,
+and the algorithms are then rerun on how often each pair of nodes
+is placed together until they agree.
+This costs considerably more time than selection,
+but does not rest the answer on a single run of a single algorithm.
+}
+\examples{
+node_in_community(ison_adolescents)
+}
+\references{
+\subsection{On consensus community detection}{
+
+Lancichinetti, Andrea, and Santo Fortunato. 2012.
+"Consensus clustering in complex networks".
+\emph{Scientific Reports} 2: 336.
+\doi{10.1038/srep00336}
+
+Tagarelli, Andrea, Alessia Amelio, and Francesco Gullo. 2017.
+"Ensemble-based Community Detection in Multilayer Networks".
+\emph{Data Mining and Knowledge Discovery} 31: 1506-1543.
+\doi{10.1007/s10618-017-0528-8}
+}
 }
 \seealso{
 Other community:

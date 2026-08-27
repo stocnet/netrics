@@ -123,3 +123,32 @@ test_that("node_in_walktrap passes steps to igraph", {
   expect_length(node_in_walktrap(ison_adolescents, steps = 8),
                 net_nodes(ison_adolescents))
 })
+
+test_that("node_in_community consensus recovers planted components", {
+  set.seed(1234)
+  # four disjoint cliques, so every algorithm must agree on the partition
+  planted <- manynet::create_components(120, membership = rep(1:4, each = 30))
+  res <- node_in_community(planted, consensus = TRUE, times = 2)
+  expect_s3_class(res, "node_member")
+  expect_length(res, manynet::net_nodes(planted))
+  expect_equal(length(unique(res)), 4)
+  expect_equal(length(unique(paste(res, rep(1:4, each = 30)))), 4)
+})
+
+test_that("node_in_community consensus accepts k", {
+  set.seed(1234)
+  res <- node_in_community(ison_adolescents, k = 3, consensus = TRUE, times = 2)
+  expect_s3_class(res, "node_member")
+  expect_length(res, manynet::net_nodes(ison_adolescents))
+  expect_equal(length(unique(res)), 3)
+})
+
+test_that("node_in_community ignores consensus where optimal is available", {
+  options(snet_verbosity = "verbose")
+  small <- manynet::create_ring(10)
+  # snet_info() signals a cli message, not an R condition
+  expect_message(node_in_community(small, consensus = TRUE), "Ignoring")
+  expect_equal(as.character(node_in_community(small, consensus = TRUE)),
+               as.character(node_in_optimal(small)))
+  options(snet_verbosity = "quiet")
+})
