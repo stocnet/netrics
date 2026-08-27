@@ -6,7 +6,7 @@
 \alias{regularity_rege}
 \title{Methods for calculating regularity}
 \usage{
-regularity_rolesim(.data, beta = 0.15)
+regularity_rolesim(.data, decay = 0.15, beta = NULL)
 
 regularity_rege(.data, iterations = 3)
 }
@@ -15,8 +15,15 @@ regularity_rege(.data, iterations = 3)
 Internally any of these will be coerced to an efficient implementation.
 For more information on possible coercions, see e.g. \code{\link[manynet:as_stocnet]{manynet::as_stocnet()}}.}
 
-\item{beta}{A decay parameter between 0 and 1 controlling how much weight
-is given to the recursive component. By default 0.15.}
+\item{decay}{A proportion between 0 and 1 giving how much of a contribution
+survives each additional step of distance or walk length.
+Lower values discount more steeply, so that only nearby others count;
+higher values discount less, so that longer walks continue to contribute.
+The measures that take a \code{decay} differ in what they discount and in what
+value leaves the measure in its most familiar form,
+so each documents its own default.}
+
+\item{beta}{Deprecated; use \code{decay} instead.}
 
 \item{iterations}{Integer number of iterations.
 By default 3 for \code{regularity_rege()}; \code{regularity_rolesim()} iterates to convergence.}
@@ -41,8 +48,9 @@ They differ in how they pair up two nodes' alters.
 RoleSim pairs up two nodes' alters by finding the \emph{maximal matching}
 between them, that is, the one-to-one pairing that maximises total
 similarity, and then averages over it:
-\deqn{s(u,v) = (1-\beta) \frac{\sum_{(x,y) \in M} s(x,y)}{|N(u)| + |N(v)| - |M|} + \beta}
-where \eqn{M} is that matching.
+\deqn{s(u,v) = (1-\delta) \frac{\sum_{(x,y) \in M} s(x,y)}{|N(u)| + |N(v)| - |M|} + \delta}
+where \eqn{M} is that matching and \eqn{\delta} is \code{decay},
+which RoleSim calls \eqn{\beta}; by default 0.15.
 Because each alter can be used only once, two nodes are similar only if
 their neighbourhoods can be lined up as wholes.
 

@@ -48,7 +48,14 @@ test_that("regularity_rolesim satisfies automorphic confirmation", {
   expect_equal(r, t(r))
   expect_true(all(diag(r) == 1))
   expect_true(all(r >= 0 & r <= 1))
-  expect_error(regularity_rolesim(ison_adolescents, beta = 2))
+  expect_error(regularity_rolesim(ison_adolescents, decay = 2))
+})
+
+test_that("renamed `beta` argument still works, with a warning", {
+  expect_warning(regularity_rolesim(ison_adolescents, beta = 0.2), "renamed")
+  expect_equal(suppressWarnings(regularity_rolesim(ison_adolescents, beta = 0.2)),
+               regularity_rolesim(ison_adolescents, decay = 0.2))
+  expect_warning(node_in_regular(ison_adolescents, beta = 0.2), "renamed")
 })
 
 test_that("regularity_rege discriminates on valued networks", {

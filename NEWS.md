@@ -44,40 +44,31 @@
 ## Memberships
 
 - Added `node_in_labels()` for label propagation community detection
-- Fixed `node_in_regular()` to compute regular equivalence using recursive
-  similarity (`regularity = "rolesim"` (default) or `"rege"`) between nodes 
-  rather than a triad census
+- Added `node_in_block()` for direct blockmodelling, searching partitions for the one that minimises `net_by_inconsistency()`
+- Fixed `node_in_regular()` to compute regular equivalence using recursive similarity between nodes rather than a triad census
+  - Choose between `regularity = "rolesim"` (default) and `"rege"`
   - Note existing scripts calling `node_in_regular()` will now return more correct results
-  - Moved former behaviour of `node_in_regular()` to `node_in_motif()`, 
-  documented as capturing similarity of local embedding not role equivalence
-- Added `node_in_block()` for direct blockmodelling, searching partitions
-  for the one that minimises `net_by_inconsistency()`
+  - Moved former behaviour to `node_in_motif()`, documented as capturing similarity of local embedding rather than role equivalence
 
 ## Motifs
 
-- Added `node_x_clique()`, returning which maximal cliques each node belongs to,
-  and branching on two-mode networks to find bicliques (closes #8, thanks @noortjemay)
-  - Note that `node_x_clique()` considers only positive ties, 
-  since a clique is a cohesive subgroup
-- Added `node_x_ties()`, describing the distribution of each node's tie values, 
-or its spread across layers in a multiplex network
-- Added `node_x_alters()` and `node_x_similarity()`, describing the composition
-  of each node's alters and their similarity to it, each branching on whether
-  the attribute given is categorical or continuous
-  - For two-mode networks, `node_x_similarity()` compares each node with those
-    at distance two, that is, those it shares a node of the other mode with,
-    following the tertius effect of `{migraph}` and `{goldfish}`
-    (Haunss and Hollway 2023)
-- Added `net_x_homophily()`, returning the table behind the EI index together
-  with an expected-EI baseline and Yule's Q
-  - Note that on weighted networks this counts ties where
-    `net_by_heterophily()` sums weights, so the two agree only when unweighted
+- Added `node_x_clique()`, returning which maximal cliques each node belongs to
+  - It branches on two-mode networks to find bicliques (closes #8, thanks @noortjemay)
+  - Note that it considers only positive ties, since a clique is a cohesive subgroup
+- Added `node_x_ties()`, describing the distribution of each node's tie values
+  - In a multiplex network it describes their spread across layers
+- Added `node_x_alters()` and `node_x_similarity()`, describing the composition of each node's alters and their similarity to it
+  - Each branches on whether the attribute given is categorical or continuous
+  - For two-mode networks, `node_x_similarity()` compares each node with those at distance two
+    - These are the nodes it shares a node of the other mode with, following the tertius effect of `{migraph}` and `{goldfish}` (Haunss and Hollway 2023)
+- Added `net_x_homophily()`, returning the table behind the EI index together with an expected-EI baseline and Yule's Q
+  - Note that on weighted networks this counts ties where `net_by_heterophily()` sums weights, so the two agree only when unweighted
 
 ## Methods
 
 - Added `regularity_rolesim()` and `regularity_rege()`, recursive role similarity methods
-  - Note `regularity_rege()` degenerate on unweighted connected ones, where it warns
-  
+  - Note `regularity_rege()` is degenerate on unweighted connected networks, where it warns
+
 ## Tutorials
 
 - Updated position tutorial to use `node_in_regular()` for regular equivalence rather than the triad census

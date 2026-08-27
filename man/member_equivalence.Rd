@@ -37,7 +37,8 @@ node_in_regular(
   distance = c("euclidean", "maximum", "manhattan", "canberra", "binary", "minkowski"),
   Kmax = 8L,
   regularity = c("rolesim", "rege"),
-  beta = 0.15
+  decay = 0.15,
+  beta = NULL
 )
 
 node_in_motif(
@@ -96,8 +97,15 @@ By default \code{"rolesim"}; \code{"rege"} is also available.
 Fewer, identifiable letters, e.g. \code{"ro"} for RoleSim, is sufficient.
 See \code{\link[=regularity_rolesim]{regularity_rolesim()}} and \code{\link[=regularity_rege]{regularity_rege()}} for how they differ.}
 
-\item{beta}{A decay parameter between 0 and 1 passed to \code{\link[=regularity_rolesim]{regularity_rolesim()}},
-controlling how much weight is given to the recursive component.}
+\item{decay}{A proportion between 0 and 1 giving how much of a contribution
+survives each additional step of distance or walk length.
+Lower values discount more steeply, so that only nearby others count;
+higher values discount less, so that longer walks continue to contribute.
+The measures that take a \code{decay} differ in what they discount and in what
+value leaves the measure in its most familiar form,
+so each documents its own default.}
+
+\item{beta}{Deprecated; use \code{decay} instead.}
 
 \item{blocks}{A character vector of permitted ideal block types,
 or a list-matrix giving the permitted types per block position.
