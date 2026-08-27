@@ -130,7 +130,8 @@ By the end of this tutorial, you should be able to:
 - [ ] &nbsp; Count weak and strong components with `net_by_components()` and map their membership with `node_in_component()`
 - [ ] &nbsp; Concentrate on a network's giant component with `to_giant()` and split it into factions with `node_in_partition()`
 - [ ] &nbsp; Judge the fit of _any_ membership assignment with `net_by_modularity()`
-- [ ] &nbsp; Detect communities with the walktrap, edge-betweenness, and fast-greedy algorithms, and let `node_in_community()` choose among them for you
+- [ ] &nbsp; Detect communities with the walktrap, edge-betweenness, fast-greedy, and Louvain algorithms, and let `node_in_community()` choose among them for you
+- [ ] &nbsp; Tune how large a community must be to be kept separate with `resolution=`, and say why the resolution limit makes this necessary
 
 **Choose your own data**: The worked examples below use `ison_algebra`,
 `ison_southern_women`, and `irps_blogs`,
@@ -832,6 +833,67 @@ See A Clauset, MEJ Newman, C Moore:
 Finding community structure in very large networks,
 https://arxiv.org/abs/cond-mat/0408187
 
+### Louvain {#louvain}
+
+The three algorithms so far are all rather slow on a large network.
+Walktrap simulates random walks, 
+edge betweenness recomputes betweenness after every cut, 
+and fast greedy merges one pair of groups at a time.
+The Louvain algorithm by contrast scales,
+and is perhaps the most widely used community detection method today.
+
+It iterates in two phases until nothing improves:
+
+1. Each node is moved to whichever neighbouring group most improves modularity.
+2. Each group is then contracted into a single node,
+   with ties between groups becoming weighted ties between these new nodes.
+
+The second phase is why it is so much faster.
+After even only one pass the network is much smaller,
+so the next pass is much cheaper,
+and a network of millions of nodes collapses within a few rounds.
+
+```{r louv}
+friend_lv <- node_in_louvain(friends)
+friend_lv
+
+# The resolution argument changes how large a community has to be
+# before it is worth keeping separate.
+node_in_louvain(friends, resolution = 0.5) # fewer, larger communities
+node_in_louvain(friends, resolution = 3)   # more, smaller communities
+```
+
+
+That `resolution` argument relates to a known weakness of modularity itself,
+the `r gloss("resolution limit")`.
+Below a certain size, a community can be missed entirely,
+because merging it into a neighbour scores better than leaving it alone.
+This happens for example when a small community is joined to the rest of the network 
+by a single tie.
+The resolution argument lets you adjust the threshold for what counts as a community.
+Raising the resolution privileges smaller communities,
+and lowering it privileges larger ones.
+
+See VD Blondel, J-L Guillaume, R Lambiotte, E Lefebvre:
+Fast unfolding of communities in large networks,
+https://arxiv.org/abs/0803.0476
+
+::: {.callout}
+<span class="callout-label">**Going further**:</span>
+Not every algorithm optimises modularity.
+`node_in_infomap()` minimises the _map equation_ instead,
+which asks how briefly (i.e. information theory) 
+you could describe the path of a random walker on the network.
+A walker that stays inside a group for a long time can be described more briefly, 
+so good communities are the ones that compress well.
+The practical difference is what happens to a weakly attached node:
+Infomap tends to put it in a small community of its own,
+whereas Louvain absorbs it into a neighbouring community.
+Both do well on benchmark networks with a known answer
+(Lancichinetti and Fortunato 2009),
+so where the two disagree it is worth running both and comparing.
+:::
+
 ::: {.callout}
 <span class="callout-label">**Try it yourself**:</span> This section includes an interactive quiz in the live tutorial — run `run_tute()` at the R console to try it.
 :::
@@ -855,16 +917,30 @@ node_in_community(friends)
 It is important to name _which_ algorithm produced the membership assignment
 that is then subsequently analysed though.
 
+Where the algorithms disagree, there is another option.
+`node_in_community(consensus = TRUE)` does not pick a winner.
+It runs every applicable algorithm, the stochastic ones several times over,
+records how often each pair of nodes ends up together,
+and then runs the algorithms again on that record until they agree.
+The answer no longer rests on a single run of a single algorithm.
+It costs considerably more time, which is why it is not the default,
+and it is ignored on a network small enough for `node_in_optimal()`,
+where the exact maximum is already available.
+
+```{r inconsensus}
+node_in_community(irps_blogs, consensus = TRUE)
+```
+
 ::: {.callout}
 <span class="callout-label">**Try it yourself**:</span> This section includes an interactive quiz in the live tutorial — run `run_tute()` at the R console to try it.
 :::
 
 ::: {.callout}
 <span class="callout-label">**Going further**:</span>
-The three algorithms treated here are only the start of the menagerie:
-`{netrics}` also offers `node_in_louvain()` and `node_in_leiden()`
-(fast multilevel modularity maximisers),
-`node_in_infomap()` (information-flow based),
+The four algorithms treated here are only the start of the menagerie:
+`{netrics}` also offers `node_in_leiden()`
+(a refinement of Louvain that avoids leaving a community internally
+disconnected),
 `node_in_spinglass()` (simulated annealing),
 `node_in_fluid()` (fixed number of communities),
 and `node_in_eigen()` (spectral).
@@ -875,10 +951,13 @@ See `?member_community` for the full list with definitions and references.
 <span class="callout-label">**In brief**:</span> Community detection algorithms cluster nodes by
 tie density: `node_in_walktrap()` via random walks,
 `node_in_betweenness()` divisively by cutting bridging ties,
-and `node_in_greedy()` agglomeratively by modularity-improving merges.
+`node_in_greedy()` agglomeratively by modularity-improving merges,
+and `node_in_louvain()` by moving nodes and then contracting groups,
+which is what makes it fast enough for a large network.
 `node_in_community()` surveys the applicable algorithms
 (exhaustively via `node_in_optimal()` on small networks)
-and returns the assignment that maximises modularity —
+and returns the assignment that maximises modularity,
+or combines them all with `consensus = TRUE` —
 but always report which algorithm produced the result you analyse.
 :::
 
