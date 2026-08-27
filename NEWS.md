@@ -144,6 +144,7 @@
 ## Tutorials
 
 - Updated position tutorial to use `node_in_regular()` for regular equivalence rather than the triad census
+- Updated topology tutorial with weighted, directed, and continuous core-periphery
 
 # netrics 0.4.1
 

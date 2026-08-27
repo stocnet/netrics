@@ -675,6 +675,8 @@ attaches to like.
 <span class="page-toc">On this page:
 <span class="page-toc-link" onclick="document.getElementById('section-core-periphery-graphs').scrollIntoView({behavior:'auto',block:'start'});">Ideal graphs</span> ·
 <span class="page-toc-link" onclick="document.getElementById('section-core-periphery-assignment').scrollIntoView({behavior:'auto',block:'start'});">Assignment</span> ·
+<span class="page-toc-link" onclick="document.getElementById('section-weighted-cores').scrollIntoView({behavior:'auto',block:'start'});">Weighted</span> ·
+<span class="page-toc-link" onclick="document.getElementById('section-directed-cores').scrollIntoView({behavior:'auto',block:'start'});">Directed</span> ·
 <span class="page-toc-link" onclick="document.getElementById('section-coreness').scrollIntoView({behavior:'auto',block:'start'});">Coreness</span></span>
 
 ### Core-periphery graphs {#core-periphery-graphs}
@@ -850,13 +852,168 @@ question("There a statistically significant association between the core assignm
 )
 ```
 
+### Weighted cores {#weighted-cores}
+
+So far we have treated every tie as the same. 
+But in networks such as trade networks, airline networks, or communication networks, 
+the ties can carry very different weights.
+Being part of the core is not just about having many ties, 
+but about having many *strong* ties.
+
+`ison_networkers` is a network of messages sent between researchers on an
+electronic information exchange system. 
+It is both weighted, by the number of messages, and directed. 
+**Run the code to see how many messages the busiest ties carry.**
+
+```{r netw, exercise=TRUE}
+netw <- ison_networkers
+summary(tie_weights(netw))
+```
+
+For a weighted network, `{netrics}` uses the *rich-core* method by default.
+It ranks the nodes by the total weight of their ties, not their count,
+and walks down that ranking, 
+adding up the weight each node sends to the nodes ranked above it. 
+Added nodes that are still strongly tied to those already in the core will increase that total;
+but a node that is not strongly tied to those already assigned to the core
+will not add much, and the peak of this total signals the boundary of the core.
+**Assign core membership on the weighted network, then on the same network
+with its weights removed, and compare the two.**
+
+```{r wcore, exercise=TRUE, purl = FALSE, exercise.setup="netw"}
+
+```
+
+```{r wcore-solution}
+weighted_core <- node_is_core(netw)
+binary_core <- node_is_core(to_unweighted(netw))
+table(weighted = weighted_core, binary = binary_core)
+```
+
+Note that the two do not agree.
+The weighted core assigns six researchers to the core, 
+while the binary core assigns 15.
+That means nine researchers who have many correspondents nonetheless 
+do not exchange enough messages with the busiest others to survive the weighted cut.
+Ignoring weights means the core is who exchange messages with the most others. 
+Reading the weights means it is the set of researchers who 
+exchange the most messages with each other. 
+Neither answer is the right one in general -- but you should know
+which one you asked for.
+
+```{r weight-qa, echo=FALSE, purl = FALSE}
+question("A node in a large, dense network has only three correspondents, but exchanges a very large number of messages with each. Which method is more likely to place it in the core?",
+         answer("The weighted method, since strength counts the messages and degree counts only the correspondents.", correct = TRUE,
+                message = learnr::random_praise()),
+         answer("The binary method, since three ties is already unusual.",
+                message = learnr::random_encouragement()),
+         answer("Either, since the two always agree.",
+                message = learnr::random_encouragement()),
+         answer("Neither, since three ties is too few for any method.",
+                message = learnr::random_encouragement()),
+         random_answer_order = TRUE,
+         allow_retry = TRUE)
+```
+
+::: {.callout}
+<span class="callout-label">**In brief**:</span> On a weighted network,
+`node_is_core()` and `node_by_core()` read the weights by default.
+To ask the binary question instead, drop the weights first with
+`to_unweighted()`.
+:::
+
+### Directed cores {#directed-cores}
+
+Notice that at the very start of this section we wrote `to_undirected()`,
+throwing away which partner named which. 
+For a core-periphery question that may be a real loss, 
+because tie direction can matter.
+Indeed, a node could be core in one direction and peripheral in the other.
+It might be core in *whom it reaches* yet peripheral in *who reaches it*. 
+An influencer might be followed by everyone yet follow no one; 
+an enthusiastic subscriber might follow everyone yet be followed by no one.
+Let us keep the direction this time. 
+**Extract the friendship network again, without dropping direction.**
+
+```{r dlaw, exercise=TRUE}
+lawdir <- ison_lawfirm |> to_uniplex("friends")
+is_directed(lawdir)
+```
+
+`node_by_core()` takes a `direction` argument, exactly as
+`node_by_degree()` does. **Score the partners on the friendships they name,
+then on the friendships they are named in, and see how far the two agree.**
+
+```{r dcore, exercise=TRUE, purl = FALSE, exercise.setup="dlaw"}
+
+```
+
+```{r dcore-solution}
+names_others <- node_by_core(lawdir, direction = "out")
+named_by_others <- node_by_core(lawdir, direction = "in")
+cor(as.numeric(names_others), as.numeric(named_by_others))
+plot(as.numeric(names_others), as.numeric(named_by_others),
+     xlab = "core in whom they name", ylab = "core in who names them")
+```
+
+The two correlate, but only moderately. 
+Partners sitting off the diagonal are effectively core in one direction but peripheral in the other, 
+meaning a single core-periphery split misdescribes their position.
+`node_in_core(direction = "both")` keeps both answers, returning the four
+categories that Elliott and colleagues distinguish: 
+**Core** for partners in both the out-core and the in-core, 
+**Sender** for partners in the out-core only, 
+**Receiver** for partners in the in-core only, 
+and **Periphery** for partners in neither.
+**Assign the four categories and graph the network coloured by them.**
+
+```{r fourset, exercise=TRUE, purl = FALSE, exercise.setup="dlaw"}
+
+```
+
+```{r fourset-solution}
+table(node_in_core(lawdir, direction = "both"))
+lawdir |>
+  mutate_nodes(cp = node_in_core(direction = "both")) |>
+  graphr(node_color = "cp", edge_color = "gray")
+```
+
+Most partners are peripheral, 
+but the remainder splits three ways rather than falling into one core. 
+The Receivers are named as friends more than they name others, 
+and the Senders the reverse.
+
+```{r dir-qa, echo=FALSE, purl = FALSE}
+question("A partner is named by many others but names almost nobody. Which category do they fall into?",
+         answer("Receiver", correct = TRUE,
+                message = "Yes -- they are in the in-core but not the out-core."),
+         answer("Sender",
+                message = learnr::random_encouragement()),
+         answer("Core",
+                message = learnr::random_encouragement()),
+         answer("Periphery",
+                message = learnr::random_encouragement()),
+         random_answer_order = TRUE,
+         allow_retry = TRUE)
+```
+
 ### Coreness {#coreness}
 
-An alternative route is to identify 'core' nodes
-depending on their `r gloss("k-coreness","kcoreness")`.
-In `{manynet}`, we can return nodes _k_-coreness
-with `node_by_kcoreness()` instead of
-the `node_is_core()` used for core-periphery.
+`node_is_core()` classifies nodes binarily into core and periphery. 
+Two other functions grade the question instead, but they grade different things.
+
+The first is `node_by_core()`, which returns the continuous score used by `node_is_core()`. 
+It scores each node between 0 and 1 for how closely it resembles a typical core node. 
+**Score the law-firm network and compare the two.**
+
+```{r nodecoren0, exercise=TRUE, exercise.setup="gnet"}
+lawfirm |>
+  mutate_nodes(cness = node_by_core(), core = node_is_core()) |>
+  graphr(node_size = "cness", node_color = "core")
+```
+
+The second, `node_by_kcoreness()`, returns `r gloss("k-coreness","kcoreness")`. 
+This answers a different question: how deeply embedded does a node sit (in a network's core)?
 **Run the code to colour the law-firm network by each node's _k_-coreness.**
 
 ```{r nodecoren, exercise=TRUE, exercise.setup="gnet"}
@@ -865,24 +1022,21 @@ lawfirm |>
   graphr(node_color = "ncn")
 ```
 
-Where `node_is_core()` forces a yes/no answer,
-_k_-coreness grades how deep each node sits in the network:
-a node with coreness _k_ survives even after all nodes of degree
-less than _k_ have been successively peeled away.
+A node with coreness _k_ survives even after all nodes of degree less than _k_ 
+have been successively peeled away.
 High-coreness nodes are thus embedded in a densely interlocked middle,
-which matters for processes like diffusion —
-what starts in a high _k_-core is far more likely to spread widely
-than what starts among the peelable outer layers.
+which matters for processes like diffusion.
 
-```{r dich-qa, echo=FALSE, purl = FALSE}
-question("Which has more than two classes/groups.",
-         answer("node_kcoreness()", correct = TRUE,
+```{r three-qa, echo=FALSE, purl = FALSE}
+question("Match the function to the question it answers.",
+         answer("node_is_core() answers yes or no; node_by_core() grades how core-like a node is; node_by_kcoreness() grades how deep it sits.", correct = TRUE,
                 message = learnr::random_praise()),
-         answer("node_is_core()",
+         answer("All three grade the same thing, at different levels of detail.",
+                message = "Not quite -- coreness and k-coreness measure different things. A node can look core-like and still be peeled away early."),
+         answer("node_by_core() and node_by_kcoreness() always agree.",
                 message = learnr::random_encouragement()),
          random_answer_order = TRUE,
-         allow_retry = TRUE
-)
+         allow_retry = TRUE)
 ```
 
 ```{r ness-qa, echo=FALSE, purl = FALSE}
@@ -899,11 +1053,20 @@ question("Select the correct definitions:",
 ```
 
 ::: {.callout}
-<span class="callout-label">**In brief**:</span> `create_core()` draws the ideal core-periphery
-network; `node_is_core()` assigns each node to core or periphery, and
-`net_by_core()` reports how well that bipartition actually fits the network
-(1 = perfectly, ~0 = not at all). `node_by_kcoreness()` offers a graded
-alternative, peeling the network into successively deeper _k_-cores.
+<span class="callout-label">**In brief**:</span> `create_core()` draws the ideal core-periphery network; 
+`node_is_core()` assigns each node to core or periphery, 
+`node_in_core()` assigns each node into potentially more refined categories,
+and `node_by_core()` returns the continuous score behind that assignment.
+`node_by_kcoreness()` peels the network into successively deeper _k_-cores.
+`net_by_core()` reports how well a bipartition actually fits the network
+(1 = perfectly, ~0 = not at all). 
+
+All of these take a `coreness` argument naming which method to use, 
+and a `direction` argument saying which ties to read. 
+By default the method follows the network: 
+the rich-core method for a weighted, directed, or two-mode network, 
+since it is the only one that reads those properties directly, 
+and the correlation method otherwise.
 :::
 
 ## Hierarchy
@@ -1264,8 +1427,12 @@ Along the way, you have learned to use these functions:
 | `net_by_scalefree()` | power-law exponent fitted to the degree distribution |
 | `net_by_richclub()`, `net_by_assortativity()` | whether hubs interconnect, and whether like degrees attach to like |
 | `node_is_core()`, `node_in_core()` | assigns nodes to core/periphery (or core/semi-periphery/periphery) |
+| `node_in_core(direction = "both")` | the four categories of a directed structure: Core, Sender, Receiver, Periphery |
+| `node_by_core()` | continuous score, 0 to 1, for how core-like each node is |
 | `net_by_core()` | correlation of the network with an ideal core-periphery model |
 | `node_by_kcoreness()` | each node's _k_-coreness (depth in the network's successive cores) |
+| `coreness_richcore()`, `coreness_correlation()` | the methods behind those functions; `coreness_richcore()` reads weights and direction |
+| `tie_weights()`, `to_unweighted()` | read the tie weights, or drop them |
 | `net_x_hierarchy()` | Krackhardt's four graph-theoretic dimensions of hierarchy |
 | `net_by_connectedness()` | proportion of dyads that can reach each other |
 | `net_by_cohesion()`, `net_by_adhesion()` | minimum nodes / ties to remove to fragment the network |
