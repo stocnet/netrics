@@ -452,7 +452,7 @@ NULL
 #' @export
 tie_by_eigenvector <- function(.data, normalized = TRUE){
   .data <- manynet::expect_ties(.data)
-  edge_adj <- manynet::to_linegraph(.data)
+  edge_adj <- .to_linegraph(.data)
   out <- node_by_eigenvector(edge_adj, normalized = normalized)
   class(out) <- "numeric"
   make_tie_measure(out, .data, measure = "eigenvector centrality",

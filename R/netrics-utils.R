@@ -40,6 +40,17 @@ seq_nodes <- function(.data){
   seq.int(manynet::net_nodes(.data))
 }
 
+# Compatibility shim: manynet renamed `to_ties()` to `to_linegraph()` in 2.3.0.
+# The name is resolved at call time, so this uses `to_linegraph()` where it is
+# available and never raises the deprecation warning that `to_ties()` gives
+# there. Remove this and call `manynet::to_linegraph()` directly once manynet
+# 2.3.x is on CRAN and the DESCRIPTION floor is raised again.
+.to_linegraph <- function(.data) {
+  ns <- asNamespace("manynet")
+  fn <- if (is.null(ns$to_linegraph)) ns$to_ties else ns$to_linegraph
+  fn(.data)
+}
+
 # Resolve membership to a vector:
 # if a single character string naming a network attribute is provided,
 # retrieve that attribute as a vector; otherwise return the value as-is.

@@ -13,6 +13,9 @@ description: >
 ```{r pkgs, include = FALSE, eval=TRUE}
 library(netrics)
 library(autograph)
+# Compatibility shim: manynet renamed `to_blocks()` to `to_blockmodel()` in
+# 2.3.0. Remove once manynet 2.3.x is on CRAN.
+if (!exists("to_blockmodel")) to_blockmodel <- manynet::to_blocks
 ```
 
 ```{r setup, include = FALSE, purl=FALSE, eval=TRUE}
