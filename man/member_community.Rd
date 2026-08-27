@@ -5,12 +5,32 @@
 \alias{node_in_community}
 \title{Memberships in communities}
 \usage{
-node_in_community(.data)
+node_in_community(.data, k = NULL, Kmax = 8L)
 }
 \arguments{
 \item{.data}{A network object of class \code{stocnet}, \code{igraph}, \code{tbl_graph}, \code{network}, or similar.
 Internally any of these will be coerced to an efficient implementation.
 For more information on possible coercions, see e.g. \code{\link[manynet:as_stocnet]{manynet::as_stocnet()}}.}
+
+\item{k}{Integer indicating the target number of communities to return.
+By default \code{NULL}, in which case the algorithm returns the number of
+communities that it finds itself.
+Alternatively, a character string naming a selection method:
+\code{"silhouette"} selects the number that maximises the mean silhouette
+width over geodesic distances, \code{"elbow"} selects the number at the
+elbow of the coverage curve, and \code{"strict"} returns the partition in
+which no tie crosses a group, i.e. the components.
+Prefer \code{"silhouette"}; the elbow method is unreliable where the
+coverage curve has no clear elbow.
+If the algorithm cannot return exactly the number of communities
+requested, a warning is given and the nearest number is returned.}
+
+\item{Kmax}{Integer indicating the maximum number of communities to
+evaluate for \code{"silhouette"} and \code{"elbow"}. By default \code{8}.
+Otherwise ignored.
+Note that for \code{node_in_louvain()} and \code{node_in_leiden()} each candidate
+requires its own search over the resolution parameter,
+so a large \code{Kmax} is costly on large networks.}
 }
 \value{
 A \code{node_member} character vector the length of the nodes in the network,

@@ -23,6 +23,29 @@
 #' @name method_kselect
 NULL
 
+# Locates the elbow of a curve: the point furthest from the straight line
+# drawn between the curve's first and last points.
+elbow_point <- function(x_values, y_values) {
+  # Max values to create line
+  if(min(x_values)==1) x_values <- x_values[2:length(x_values)]
+  if(min(y_values)==0) y_values <- y_values[2:length(y_values)]
+  max_df <- data.frame(x = c(min(x_values), max(x_values)), 
+                       y = c(min(y_values), max(y_values)))
+  # Creating straight line between the max values
+  fit <- stats::lm(max_df$y ~ max_df$x)
+  # Distance from point to line
+  distances <- vector()
+  for (i in seq_len(length(x_values))) {
+    distances <- c(distances,
+                   abs(stats::coef(fit)[2]*x_values[i] -
+                         y_values[i] +
+                         stats::coef(fit)[1]) /
+                     sqrt(stats::coef(fit)[2]^2 + 1^2))
+  }
+  # Max distance point
+  x_values[which.max(distances)]
+}
+
 #' @rdname method_kselect 
 #' @section Strict method:
 #'   The strict method selects the number of clusters in which there is no 
@@ -52,6 +75,13 @@ k_strict <- function(hc, .data){
 #'   The point at which the elbow occurs is often considered a good choice for 
 #'   the number  of clusters, as it represents a balance between 
 #'   model complexity and fit to the data.
+#'   
+#'   The elbow is located geometrically.
+#'   A straight line is drawn between the first and the last point of the curve.
+#'   The perpendicular distance from each point to this line is measured,
+#'   and the point at the greatest distance is the elbow.
+#'   Note that where the curve is close to a straight line,
+#'   no point stands out and the method returns one of the endpoints.
 #' @references 
 #' ## On the elbow method
 #'  Thorndike, Robert L. 1953. 
@@ -80,28 +110,6 @@ k_elbow <- function(hc, .data, motif, Kmax){
     cluster_cor_mat
   }
   
-  elbow_finder <- function(x_values, y_values) {
-    # Max values to create line
-    if(min(x_values)==1) x_values <- x_values[2:length(x_values)]
-    if(min(y_values)==0) y_values <- y_values[2:length(y_values)]
-    max_df <- data.frame(x = c(min(x_values), max(x_values)), 
-                         y = c(min(y_values), max(y_values)))
-    # Creating straight line between the max values
-    fit <- stats::lm(max_df$y ~ max_df$x)
-    # Distance from point to line
-    distances <- vector()
-    for (i in seq_len(length(x_values))) {
-      distances <- c(distances,
-                     abs(stats::coef(fit)[2]*x_values[i] -
-                           y_values[i] +
-                           coef(fit)[1]) /
-                       sqrt(stats::coef(fit)[2]^2 + 1^2))
-    }
-    # Max distance point
-    x_max_dist <- x_values[which.max(distances)]
-    x_max_dist
-  }
-  
   vertices <- manynet::net_nodes(.data)
   observedcorrelation <- cor(t(motif))
   
@@ -126,7 +134,7 @@ k_elbow <- function(hc, .data, motif, Kmax){
   correct <- NULL # to satisfy the error god
   
   # k identification method
-  elbow_finder(dafr$clusters, dafr$correlations)
+  elbow_point(dafr$clusters, dafr$correlations)
 }
 
 #' @rdname method_kselect 

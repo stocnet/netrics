@@ -760,10 +760,11 @@ They call this the "maximum modularity partition" and insert the parenthetical
 computationally-prohibitive exhaustive enumeration (Brandes et al. 2008))."
 
 So let's try and get a community classification using the walktrap algorithm, `node_in_walktrap()`,
-with path lengths of the random walks specified to be 50.
+with the random walks set to four steps, which is the default.
+Longer walks reach further, and tend to return fewer, larger communities.
 
 ```{r walk}
-friend_wt <- node_in_walktrap(friends, times=50)
+friend_wt <- node_in_walktrap(friends, steps = 4)
 ```
 
 
@@ -870,6 +871,45 @@ and `node_in_eigen()` (spectral).
 See `?member_community` for the full list with definitions and references.
 :::
 
+### A target number of communities {#target-k}
+
+Each of these algorithms decides for itself how many communities there are,
+usually by maximising modularity.
+Sometimes you want a particular number instead,
+for example because you want to compare the result against
+an attribute that already has three categories.
+Pass that number as `k`:
+
+```{r targetk}
+node_in_walktrap(friends, k = 3)
+node_in_louvain(friends, k = 3)
+```
+
+The route to `k` differs by algorithm.
+The hierarchical algorithms cut their dendrogram at `k`.
+`node_in_louvain()` and `node_in_leiden()` search their resolution parameter
+for the value that returns `k` communities.
+`node_in_fluid()` and `node_in_partition()` take `k` directly.
+`node_in_labels()` fixes the labels of the `k` best-connected nodes,
+propagates from there, and merges any surplus groups.
+
+Not every network can be split into any number of communities.
+Where the requested number is out of reach,
+the function says so and returns the nearest partition it can find.
+
+`k` also accepts the name of a selection method,
+which chooses the number for you on a criterion other than modularity:
+
+```{r selectk}
+node_in_betweenness(friends, k = "silhouette")
+```
+
+`"silhouette"` prefers the number of communities where nodes sit close to
+others in their own community and far from the nearest other community.
+`"strict"` returns the partition in which no tie crosses a group at all,
+which is the components.
+These are the same method names that `node_in_equivalence()` accepts.
+
 ::: {.callout}
 <span class="callout-label">**In brief**:</span> Community detection algorithms cluster nodes by
 tie density: `node_in_walktrap()` via random walks,
@@ -936,6 +976,7 @@ Along the way, you have learned to use these functions:
 | `node_attribute()` | extracts a nodal attribute, e.g. as an empirical membership |
 | `node_in_walktrap()`, `node_in_betweenness()`, `node_in_greedy()` | community detection via random walks, divisive tie removal, agglomerative merges |
 | `node_in_community()` | surveys applicable algorithms and returns the best assignment by modularity |
+| `node_in_*(k = )` | targets a number of communities, or names a method (`"silhouette"`, `"strict"`) to choose it |
 | `mutate_nodes()`, `mutate_ties()` | adds measures or memberships to the network for graphing |
 | `graphr(..., node_color = , node_group = , edge_color = )` | maps memberships onto colours and group outlines |
 

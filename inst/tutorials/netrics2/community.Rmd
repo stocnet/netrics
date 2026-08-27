@@ -1105,10 +1105,11 @@ They call this the "maximum modularity partition" and insert the parenthetical
 computationally-prohibitive exhaustive enumeration (Brandes et al. 2008))."
 
 So let's try and get a community classification using the walktrap algorithm, `node_in_walktrap()`,
-with path lengths of the random walks specified to be 50.
+with the random walks set to four steps, which is the default.
+Longer walks reach further, and tend to return fewer, larger communities.
 
 ```{r walk, exercise=TRUE, exercise.setup = "manip-fri"}
-friend_wt <- node_in_walktrap(friends, times=50)
+friend_wt <- node_in_walktrap(friends, steps = 4)
 ```
 
 ```{r walk-hint-1, purl = FALSE}
@@ -1132,7 +1133,7 @@ net_by_modularity(friends, friend_wt)
 ```
 
 ```{r walk-solution}
-friend_wt <- node_in_walktrap(friends, times=50)
+friend_wt <- node_in_walktrap(friends, steps = 4)
 # results in a modularity of
 net_by_modularity(friends, friend_wt)
 ```

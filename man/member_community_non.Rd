@@ -14,24 +14,44 @@
 \usage{
 node_in_optimal(.data)
 
-node_in_partition(.data)
+node_in_partition(.data, k = 2L, Kmax = 8L)
 
 node_in_infomap(.data, times = 50)
 
 node_in_spinglass(.data, max_k = 200, resolution = 1)
 
-node_in_fluid(.data)
+node_in_fluid(.data, k = NULL, Kmax = 8L)
 
-node_in_louvain(.data, resolution = 1)
+node_in_louvain(.data, k = NULL, Kmax = 8L, resolution = 1)
 
-node_in_leiden(.data, resolution = 1)
+node_in_leiden(.data, k = NULL, Kmax = 8L, resolution = 1)
 
-node_in_labels(.data)
+node_in_labels(.data, k = NULL, Kmax = 8L)
 }
 \arguments{
 \item{.data}{A network object of class \code{stocnet}, \code{igraph}, \code{tbl_graph}, \code{network}, or similar.
 Internally any of these will be coerced to an efficient implementation.
 For more information on possible coercions, see e.g. \code{\link[manynet:as_stocnet]{manynet::as_stocnet()}}.}
+
+\item{k}{Integer indicating the target number of communities to return.
+By default \code{NULL}, in which case the algorithm returns the number of
+communities that it finds itself.
+Alternatively, a character string naming a selection method:
+\code{"silhouette"} selects the number that maximises the mean silhouette
+width over geodesic distances, \code{"elbow"} selects the number at the
+elbow of the coverage curve, and \code{"strict"} returns the partition in
+which no tie crosses a group, i.e. the components.
+Prefer \code{"silhouette"}; the elbow method is unreliable where the
+coverage curve has no clear elbow.
+If the algorithm cannot return exactly the number of communities
+requested, a warning is given and the nearest number is returned.}
+
+\item{Kmax}{Integer indicating the maximum number of communities to
+evaluate for \code{"silhouette"} and \code{"elbow"}. By default \code{8}.
+Otherwise ignored.
+Note that for \code{node_in_louvain()} and \code{node_in_leiden()} each candidate
+requires its own search over the resolution parameter,
+so a large \code{Kmax} is costly on large networks.}
 
 \item{times}{Integer indicating number of simulations/walks used.
 By default, \code{times=50}.}
@@ -90,10 +110,12 @@ swap pairs of nodes (one from each group) that give a positive sum of net tie co
 where the net tie cost of a node is the difference between the sum
 of the weights of ties to nodes in the other group (external costs) and
 the sum of the weights of ties to nodes in the same group (internal costs).
+Where \code{k} is greater than two, the same swap pass is run for every pair of
+groups, and the rounds repeat until no swap improves the partition.
 This is a deterministic algorithm that will always return the same partition
 for a given network, but it is not guaranteed to maximise modularity.
 Note that this algorithm is only applicable to undirected, unipartite networks,
-and will always return two communities of equal size (or as close to equal as possible).
+and returns \code{k} communities of equal size (or as close to equal as possible).
 }
 
 \section{Infomap}{
@@ -133,6 +155,8 @@ each node is moved to the community where it achieves the highest contribution t
 When no further modularity-increasing reassignments are possible,
 the resulting communities are considered nodes (like a reduced graph),
 and the process continues.
+Where \code{k} is given, the resolution parameter is searched for the value
+that returns that number of communities, and \code{resolution} is ignored.
 }
 
 \section{Leiden}{
@@ -152,6 +176,8 @@ and \eqn{\delta(\sigma_i, \sigma_j) = 1} if and only if
 \emph{i} and \emph{j} are in the same communities and 0 otherwise.
 Compared to the Louvain method, the Leiden algorithm additionally
 tries to avoid unconnected communities.
+Where \code{k} is given, the resolution parameter is searched for the value
+that returns that number of communities, and \code{resolution} is ignored.
 }
 
 \section{Label propagation}{
@@ -171,6 +197,14 @@ the same network can return different partitions,
 and on sparse networks it may return a single community.
 Set a seed for reproducibility, or use \code{node_in_community()} to select
 among algorithms by modularity.
+
+Where \code{k} is given, the algorithm becomes semi-supervised.
+The \code{k} nodes of highest degree are each given a distinct, fixed label,
+every other node starts with a label of its own,
+and propagation runs as normal.
+Seeding alone tends to leave more than \code{k} labels standing,
+so any surplus groups are then merged in the order that best preserves
+modularity, until exactly \code{k} communities remain.
 }
 
 \examples{

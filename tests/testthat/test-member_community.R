@@ -44,3 +44,82 @@ test_that("label propagation membership works", {
   expect_length(node_in_labels(ison_networkers),
                 manynet::net_nodes(ison_networkers))
 })
+
+# Target number of communities ####
+
+test_that("every k-capable algorithm returns exactly k communities", {
+  fns <- list(betweenness = node_in_betweenness, greedy = node_in_greedy,
+              walktrap = node_in_walktrap, louvain = node_in_louvain,
+              leiden = node_in_leiden, fluid = node_in_fluid,
+              labels = node_in_labels, partition = node_in_partition)
+  for(nm in names(fns)) for(k in 2:4){
+    set.seed(1234)
+    res <- fns[[nm]](ison_adolescents, k = k)
+    expect_s3_class(res, "node_member")
+    expect_length(res, net_nodes(ison_adolescents))
+    expect_equal(length(unique(res)), k)
+  }
+  # node_in_eigen stops splitting early on this network, so it cannot reach k
+  set.seed(1234)
+  expect_s3_class(node_in_eigen(ison_adolescents, k = 3), "node_member")
+})
+
+test_that("k is recorded in the k attribute of hierarchical memberships", {
+  expect_equal(attr(node_in_betweenness(ison_adolescents, k = 3), "k"), 3)
+  expect_equal(attr(node_in_greedy(ison_adolescents, k = 4), "k"), 4)
+  expect_equal(attr(node_in_walktrap(ison_adolescents, k = 2), "k"), 2)
+})
+
+test_that("k is validated", {
+  expect_error(node_in_louvain(ison_adolescents, k = 0))
+  expect_error(node_in_louvain(ison_adolescents, k = 1000))
+  expect_error(node_in_louvain(ison_adolescents, k = 0.5))
+  expect_error(node_in_louvain(ison_adolescents, k = c(2,3)))
+  expect_error(node_in_louvain(ison_adolescents, k = "nonsense"))
+})
+
+test_that("k accepts the selection methods", {
+  for(nm in c("node_in_betweenness", "node_in_greedy", "node_in_walktrap",
+              "node_in_louvain", "node_in_leiden", "node_in_fluid",
+              "node_in_labels", "node_in_partition")){
+    set.seed(1234)
+    sil <- get(nm)(ison_adolescents, k = "silhouette")
+    expect_s3_class(sil, "node_member")
+    expect_gte(length(unique(sil)), 2)
+    set.seed(1234)
+    expect_s3_class(get(nm)(ison_adolescents, k = "elbow"), "node_member")
+  }
+  # strict returns the components, so one community on a connected network
+  expect_equal(length(unique(node_in_betweenness(ison_adolescents,
+                                                 k = "strict"))), 1)
+})
+
+test_that("an unreachable k warns and returns the nearest", {
+  options(snet_verbosity = "verbose")
+  # two components cannot be merged into one community
+  unconn <- manynet::create_components(8, membership = c(1,1,1,1,2,2,2,2))
+  # snet_warn() signals a cli message, not an R warning condition
+  expect_message(node_in_betweenness(unconn, k = 1), "communities")
+  expect_equal(length(unique(node_in_betweenness(unconn, k = 1))), 2)
+  options(snet_verbosity = "quiet")
+})
+
+test_that("node_in_partition preserves its two-group result", {
+  expect_equal(unname(as.character(node_in_partition(ison_adolescents))),
+               c("B","A","A","A","B","B","A","B"))
+  expect_equal(unname(as.character(node_in_partition(ison_adolescents, k = 2))),
+               c("B","A","A","A","B","B","A","B"))
+})
+
+test_that("node_in_community accepts k", {
+  set.seed(1234)
+  res <- node_in_community(ison_adolescents, k = 3)
+  expect_s3_class(res, "node_member")
+  expect_equal(length(unique(res)), 3)
+})
+
+test_that("node_in_walktrap passes steps to igraph", {
+  expect_s3_class(node_in_walktrap(ison_adolescents, steps = 2), "node_member")
+  expect_length(node_in_walktrap(ison_adolescents, steps = 8),
+                net_nodes(ison_adolescents))
+})

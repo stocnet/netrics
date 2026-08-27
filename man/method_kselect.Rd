@@ -72,6 +72,13 @@ correlation as the number of clusters increases.
 The point at which the elbow occurs is often considered a good choice for
 the number  of clusters, as it represents a balance between
 model complexity and fit to the data.
+
+The elbow is located geometrically.
+A straight line is drawn between the first and the last point of the curve.
+The perpendicular distance from each point to this line is measured,
+and the point at the greatest distance is the elbow.
+Note that where the curve is close to a straight line,
+no point stands out and the method returns one of the endpoints.
 }
 
 \section{Silhouette method}{

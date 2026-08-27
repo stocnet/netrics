@@ -87,7 +87,18 @@
 
 ## Memberships
 
+- Added `k=` to community detection functions to target a specific number of communities (thanks @tomasdiviak)
+  - `node_in_betweenness()`, `node_in_greedy()`, `node_in_eigen()`, and `node_in_walktrap()` cut their dendrograms at `k`
+  - `node_in_louvain()` and `node_in_leiden()` search the resolution parameter for the value that returns `k`
+  - `node_in_fluid()` passes `k` straight to the algorithm, which also makes it much faster
+  - `node_in_labels()` seeds `k` fixed labels and merges any surplus groups by modularity
+  - `node_in_partition()` is now a k-way Kernighan-Lin, and no longer returns only two groups
+  - `node_in_community()` considers only these algorithms when `k` is given
+  - `k` also accepts `"silhouette"`, `"elbow"`, and `"strict"`, as in `node_in_equivalence()`
+  - Note `k=` is now the second argument, so positional calls such as `node_in_louvain(x, 0.5)` must become `node_in_louvain(x, resolution = 0.5)`
 - Added `node_in_labels()` for label propagation community detection
+- Fixed `node_in_community()` returning nothing but an error whenever verbosity was not `"verbose"`
+- Renamed `times=` in `node_in_walktrap()` to `steps=`, which is more descriptive and consistent with `{igraph}`
 - Added `node_in_block()` for direct blockmodelling, searching partitions for the one that minimises `net_by_inconsistency()`
 - Fixed `node_in_regular()` to compute regular equivalence using recursive similarity between nodes rather than a triad census
   - Choose between `regularity = "rolesim"` (default) and `"rege"`
