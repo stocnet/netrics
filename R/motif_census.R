@@ -25,7 +25,8 @@ NULL
 node_x_tie <- function(.data){
   .data <- manynet::expect_nodes(.data)
   object <- manynet::as_igraph(.data)
-  # edge_names <- net_tie_attributes(object)
+  # Only tie-level waves split the census; a diffusion model's ties do not change
+  waved <- "wave" %in% manynet::net_tie_attributes(object)
   if (manynet::is_directed(object)) {
     if (manynet::is_multiplex(.data)) {
       mat <- do.call(rbind, lapply(unique(manynet::tie_attribute(object, "type")), 
@@ -33,7 +34,7 @@ node_x_tie <- function(.data){
                                      rc <- manynet::as_matrix(manynet::to_uniplex(object, x))
                                      rbind(rc, t(rc))
                                    }))
-    } else if (manynet::is_longitudinal(object)){
+    } else if (waved){
       mat <- do.call(rbind, lapply(unique(manynet::tie_attribute(object, "wave")), 
                                    function(x){
                                      rc <- manynet::as_matrix(manynet::to_waves(object)[[x]])
@@ -50,7 +51,7 @@ node_x_tie <- function(.data){
                                    function(x){
                                      manynet::as_matrix(manynet::to_uniplex(object, x))
                                    }))
-    } else if (manynet::is_longitudinal(object)){
+    } else if (waved){
       mat <- do.call(rbind, lapply(unique(manynet::tie_attribute(object, "wave")), 
                                    function(x){
                                      manynet::as_matrix(manynet::to_waves(object)[[x]])
@@ -67,7 +68,7 @@ node_x_tie <- function(.data){
                                            paste0("to", manynet::node_names(object))),
                                          unique(manynet::tie_attribute(object, "type"))), 
                              1, paste, collapse = "_")
-    } else if (manynet::is_longitudinal(object)){
+    } else if (waved){
       rownames(mat) <- apply(expand.grid(c(paste0("from", manynet::node_names(object)),
                                            paste0("to", manynet::node_names(object))),
                                          unique(manynet::tie_attribute(object, "wave"))), 
