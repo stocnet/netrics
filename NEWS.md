@@ -96,6 +96,10 @@
   - `node_in_community()` considers only these algorithms when `k` is given
   - `k` also accepts `"silhouette"`, `"elbow"`, and `"strict"`, as in `node_in_equivalence()`
   - Note `k=` is now the second argument, so positional calls such as `node_in_louvain(x, 0.5)` must become `node_in_louvain(x, resolution = 0.5)`
+- Renamed `node_by_coreness()` to `node_by_core()`
+  - Fixed search starting points rather than random
+  - Fixed it returning identical scores for a directed network and its reverse
+  - Fixed it erroring on two-mode networks whose modes are of unequal size
 - Added `node_in_labels()` for label propagation community detection
 - Fixed `node_in_community()` returning nothing but an error whenever verbosity was not `"verbose"`
 - Renamed `times=` in `node_in_walktrap()` to `steps=`, which is more descriptive and consistent with `{igraph}`

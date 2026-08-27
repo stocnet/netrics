@@ -9,12 +9,8 @@
 #' @template param_data
 #' @family core-periphery
 #' @template node_mark
-#' @param centrality Which centrality measure to use to identify cores and periphery.
-#'   By default this is "degree", 
-#'   which relies on the heuristic that high degree nodes are more likely to be in the core.
-#'   An alternative is "eigenvector", which instead begins with high eigenvector nodes.
-#'   Other methods, such as a genetic algorithm, CONCOR, and Rombach-Porter,
-#'   can be added if there is interest.
+#' @template param_coreness
+#' @param centrality Deprecated; use `coreness` instead.
 NULL
 
 #' @rdname mark_core
@@ -23,21 +19,24 @@ NULL
 #'   and which to the periphery.
 #'   It seeks to minimize the following quantity:
 #'   \deqn{Z(S_1) = \sum_{(i<j)\in S_1} \textbf{I}_{\{A_{ij}=0\}} + \sum_{(i<j)\notin S_1} \textbf{I}_{\{A_{ij}=1\}}}
-#'   where nodes \eqn{\{i,j,...,n\}} are ordered in descending degree,
+#'   where nodes \eqn{\{i,j,...,n\}} are ordered in descending coreness,
 #'   \eqn{A} is the adjacency matrix,
 #'   and the indicator function is 1 if the predicate is true or 0 otherwise.
 #'   Note that minimising this quantity maximises density in the core block
 #'   and minimises density in the periphery block;
 #'   it ignores ties between these blocks.
+#'
+#'   Which ordering the nodes are swept in depends on the method named by
+#'   `coreness`, for which see [method_coreness].
 #' @references
 #' ## On core-periphery partitioning
-#' Borgatti, Stephen P., & Everett, Martin G. 1999. 
-#' "Models of core /periphery structures". 
-#' _Social Networks_, 21, 375–395. 
+#' Borgatti, Stephen P., and Martin G. Everett. 2000. 
+#' "Models of core/periphery structures". 
+#' _Social Networks_, 21(4), 375-395. 
 #' \doi{10.1016/S0378-8733(99)00019-2}
 #' 
 #' Lip, Sean Z. W. 2011. 
-#' “A Fast Algorithm for the Discrete Core/Periphery Bipartitioning Problem.”
+#' "A fast algorithm for the discrete core/periphery bipartitioning problem".
 #' \doi{10.48550/arXiv.1102.5511}
 #' @examples 
 #' node_is_core(ison_adolescents)
@@ -77,7 +76,7 @@ node_is_core <- function(.data, centrality = c("degree", "eigenvector")){
 #' @description
 #'   These functions identify nodes belonging to (some level of) the core of a network:
 #'   
-#'   - `node_by_coreness()` returns a continuous measure of how closely each node
+#'   - `node_by_core()` returns a continuous measure of how closely each node
 #'   resembles a typical core node.
 #'   - `node_by_kcoreness()` assigns nodes to their level of k-coreness.
 #' 
@@ -116,25 +115,37 @@ node_by_kcoreness <- function(.data){
 }
 
 #' @rdname measure_core
+#' @template param_coreness
+#' @section Coreness:
+#'   Where `node_is_core()` forces a yes or no answer,
+#'   `node_by_core()` grades how core-like each node is on a scale from
+#'   0 to 1. The two agree on which method to use and read the same
+#'   `coreness` and `direction` arguments, so the mark is always the cut of
+#'   the measure returned here.
+#'
+#'   Each method uses as much of the network as it can. The rich-core and hub
+#'   methods read tie weights and tie direction directly. The correlation and
+#'   transition methods compare the network against a symmetric ideal, so they
+#'   symmetrise a directed network and say that they have done so.
+#'   To keep a method from using a property, transform the network first with
+#'   e.g. [manynet::to_undirected()] or [manynet::to_unweighted()].
+#'
+#'   This function was called `node_by_coreness()` prior to version 1.0.0.
+#'   It is now named for the property, as `node_is_core()` and `node_in_core()`
+#'   are, which also frees "coreness" from meaning two different things: the
+#'   continuous score here, and the peeling depth of `node_by_kcoreness()`.
 #' @examples
-#' node_by_coreness(ison_adolescents)
+#' node_by_core(ison_adolescents)
+#' node_by_core(ison_networkers, direction = "out")
 #' @export
-node_by_coreness <- function(.data) {
+node_by_core <- function(.data, coreness = NULL,
+                         direction = c("all","out","in")) {
   .data <- manynet::expect_nodes(.data)
-  A <- manynet::as_matrix(.data)
-  n <- nrow(A)
-  obj_fun <- function(c) {
-    ideal <- outer(c, c)
-    val <- suppressWarnings(cor(as.vector(A), as.vector(ideal)))
-    if (!is.finite(val)) return(1e6)  # Penalize non-finite values
-    return(-val)  # Negative for maximization
-  }
-  # Initial guess: all nodes have coreness 0.5
-  init <- rep(0.5, n)
-  result <- stats::optim(init, obj_fun, method = "L-BFGS-B", 
-                         lower = 0, upper = 1)
-  make_node_measure(result$par, .data, measure = "coreness", range = c(0, 1),
-                    normalization = "none")
+  direction <- match.arg(direction)
+  coreness <- check_coreness(.data, coreness)
+  out <- run_coreness(.data, coreness, direction)
+  make_node_measure(out$coreness, .data, measure = "coreness", range = c(0, 1),
+                    normalization = "scaled", variant = coreness)
 }
 
 # Membering core ####

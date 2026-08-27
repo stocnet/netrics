@@ -103,4 +103,8 @@ White, Douglas R., and Karl P. Reitz. 1983.
 \doi{10.1016/0378-8733(83)90025-4}
 }
 }
+\seealso{
+Other methods:
+\code{\link{method_coreness}}
+}
 \concept{methods}

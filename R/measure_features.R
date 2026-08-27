@@ -396,11 +396,17 @@ NULL
 #'   member of the core and the most core-like member of the periphery.
 #'   "diff" is similar to "ndiff", but multiplies the raw "ndiff" score by the
 #'   square root of the size of the core, thus penalising large cores.
+#' @template param_coreness
 #' @section Core-Periphery: 
-#'   `net_core()` calculates the Pearson correlation between the given network, 
-#'   where the nodes in the core are assigned by some given mark, and an ideal
-#'   typical core-periphery network with the same number of nodes in the core
-#'   and the periphery.
+#'   `net_by_core()` calculates the Pearson correlation between the given
+#'   network, where the nodes in the core are assigned by some given mark, and
+#'   an ideal typical core-periphery network with the same number of nodes in
+#'   the core and the periphery.
+#'
+#'   Where `mark` is not given, it is calculated with [node_is_core()], to
+#'   which the `coreness` and `direction` arguments are passed. For a directed
+#'   network the fit itself is measured on the symmetrised network, since the
+#'   ideal it is compared against is symmetric.
 #' @references 
 #' ## On core-periphery
 #' Borgatti, Stephen P., and Martin G. Everett. 2000. 
@@ -413,20 +419,37 @@ NULL
 #' @export
 net_by_core <- function(.data,
                         mark = NULL,
-                        method = c("correlation","ident","ndiff", "diff")){
+                        method = c("correlation","ident","ndiff", "diff"),
+                        coreness = NULL,
+                        direction = c("all","out","in")){
   .data <- manynet::expect_nodes(.data)
-  if(is.null(mark)) mark <- node_is_core(.data)
+  direction <- match.arg(direction)
+  if(is.null(mark)) mark <- node_is_core(.data, coreness = coreness,
+                                         direction = direction)
   
   method <- match.arg(method)
+  # `manynet::create_core()` returns an upper-triangular matrix for a directed
+  # network rather than a directed core-periphery ideal, so comparing a
+  # directed network against it would compare unlike with unlike. Both sides
+  # are therefore symmetrised, and the user is told that direction is not read
+  # here even where the assignment in `mark` read it.
+  obs <- manynet::as_matrix(.data)
+  ideal <- manynet::as_matrix(manynet::create_core(.data, mark = mark))
+  if(manynet::is_directed(.data)){
+    manynet::snet_info("{.fn net_by_core} compares the network against a",
+                       "symmetric ideal, so tie direction is not used in the",
+                       "fit itself.")
+    obs <- pmax(obs, t(obs))
+    ideal <- pmax(ideal, t(ideal))
+  }
   if(method == "correlation"){
-    out <- stats::cor(c(manynet::as_matrix(.data)), 
-                      c(manynet::as_matrix(manynet::create_core(.data, mark = mark))))
+    out <- stats::cor(c(obs), c(ideal))
   } else if(method == "ident"){
-    out <- sqrt(sum((manynet::as_matrix(.data) - 
-                       manynet::as_matrix(manynet::create_core(.data, mark = mark)))^2))
+    out <- sqrt(sum((obs - ideal)^2))
   } else if(method %in% c("ndiff","diff")){
     # Sort nodes by coreness
-    c_scores <- node_by_coreness(.data)
+    c_scores <- node_by_core(.data, coreness = coreness,
+                                 direction = direction)
     core <- c_scores[mark]
     periphery <- c_scores[!mark]
     

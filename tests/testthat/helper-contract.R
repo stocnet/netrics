@@ -182,7 +182,10 @@ measure_rosters <- list(
   ),
   core_node = list(
     node_by_kcoreness = list(),
-    node_by_coreness  = list()
+    node_by_core  = list()
+  ),
+  core_method_node = list(
+    node_by_core = list(coreness = "richcore")
   ),
   brokerage_node = list(
     node_by_brokering_activity    = list(membership = "Discipline"),
@@ -372,9 +375,17 @@ expect_declared <- function(roster, .data) {
 # Every exported measure should be under the contract somewhere. A new
 # `net_by_*()`, `node_by_*()`, or `tie_by_*()` that is not in any roster fails
 # the build rather than quietly escaping the sweep.
+# Renamed measures are kept as warning wrappers in R/netrics-defunct.R for one
+# release. They delegate to their replacement, so they carry no contract of
+# their own and must not be swept, or the registry would demand a roster entry
+# for a name that is on its way out. The file is cleared at each minor
+# release, so this list stays short.
+defunct_measures <- c("node_by_coreness")
+
 exported_measures <- function() {
-  sort(grep("^(net|node|tie|mode)_by_", getNamespaceExports("netrics"),
-            value = TRUE))
+  sort(setdiff(grep("^(net|node|tie|mode)_by_", getNamespaceExports("netrics"),
+                    value = TRUE),
+               defunct_measures))
 }
 
 report_contract_gaps <- function() {

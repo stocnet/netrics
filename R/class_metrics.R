@@ -167,3 +167,46 @@ make_network_motif <- function(out, .data) {
   attr(out, "call") <- deparse(sys.calls())
   out
 }
+
+# Coreness methods ####
+
+# The core-periphery family used to name its methods after centralities,
+# which only made sense while every method ranked nodes by one. Accepts the
+# old spelling and warns, as `resolve_scaled()` does.
+resolve_coreness <- function(coreness, centrality = NULL) {
+  if(!is.null(centrality)) {
+    warning("The `centrality` argument has been replaced by `coreness`, ",
+            "which names the method rather than the ranking it happens to ",
+            "use. Please use `coreness` instead.", call. = FALSE)
+    if(is.null(coreness)) coreness <- "correlation"
+  }
+  coreness
+}
+
+CORENESSES <- c("correlation", "richcore", "transition", "hub")
+
+# Chooses the method when the user has not, and says which it chose. No one
+# method suits every network: the correlation and transition methods compare
+# the network against a square, symmetric ideal, so they can neither read tie
+# direction nor run on a two-mode network, while the rich-core method reads
+# both weights and direction directly. So the choice follows the network.
+check_coreness <- function(.data, coreness = NULL) {
+  if(is.null(coreness)) {
+    coreness <- if(manynet::is_twomode(.data) ||
+                   manynet::is_weighted(.data) ||
+                   manynet::is_directed(.data)) "richcore" else "correlation"
+    manynet::snet_info("Calculating coreness using",
+                       "{.fn coreness_{coreness}}.")
+  } else coreness <- match.arg(coreness, CORENESSES)
+  coreness
+}
+
+# Runs the chosen method. Kept in one place so that the mark, the measure and
+# the membership cannot drift apart in what they dispatch on.
+run_coreness <- function(.data, coreness, direction = "all") {
+  switch(coreness,
+         correlation = coreness_correlation(.data, direction = direction),
+         richcore = coreness_richcore(.data, direction = direction),
+         transition = coreness_transition(.data, direction = direction),
+         hub = coreness_hub(.data, direction = direction))
+}

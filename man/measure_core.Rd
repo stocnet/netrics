@@ -3,17 +3,29 @@
 \name{measure_core}
 \alias{measure_core}
 \alias{node_by_kcoreness}
-\alias{node_by_coreness}
+\alias{node_by_core}
 \title{Measuring nodes' coreness}
 \usage{
 node_by_kcoreness(.data)
 
-node_by_coreness(.data)
+node_by_core(.data, coreness = NULL, direction = c("all", "out", "in"))
 }
 \arguments{
 \item{.data}{A network object of class \code{stocnet}, \code{igraph}, \code{tbl_graph}, \code{network}, or similar.
 Internally any of these will be coerced to an efficient implementation.
 For more information on possible coercions, see e.g. \code{\link[manynet:as_stocnet]{manynet::as_stocnet()}}.}
+
+\item{coreness}{Which method to use to calculate nodes' coreness.
+One of "correlation", "richcore", "transition", or "hub";
+see \link{method_coreness} for what each does.
+By default NULL, which uses "richcore" for a weighted, directed, or
+two-mode network, since it is the only method that reads those properties
+directly, and "correlation" otherwise.}
+
+\item{direction}{One of "all" (the default), "out", or "in".
+For a directed network, "out" scores nodes on the ties they send and
+"in" on the ties they receive.
+Ignored for undirected and two-mode networks.}
 }
 \value{
 A \code{node_measure} numeric vector the length of the nodes in the network,
@@ -31,7 +43,7 @@ All can be retrieved with \code{attr()}.
 \description{
 These functions identify nodes belonging to (some level of) the core of a network:
 \itemize{
-\item \code{node_by_coreness()} returns a continuous measure of how closely each node
+\item \code{node_by_core()} returns a continuous measure of how closely each node
 resembles a typical core node.
 \item \code{node_by_kcoreness()} assigns nodes to their level of k-coreness.
 }
@@ -45,9 +57,31 @@ a node's coreness is \emph{k} if it belongs to the \emph{k}-core
 but not to the (\emph{k}+1)-core.
 }
 
+\section{Coreness}{
+
+Where \code{node_is_core()} forces a yes or no answer,
+\code{node_by_core()} grades how core-like each node is on a scale from
+0 to 1. The two agree on which method to use and read the same
+\code{coreness} and \code{direction} arguments, so the mark is always the cut of
+the measure returned here.
+
+Each method uses as much of the network as it can. The rich-core and hub
+methods read tie weights and tie direction directly. The correlation and
+transition methods compare the network against a symmetric ideal, so they
+symmetrise a directed network and say that they have done so.
+To keep a method from using a property, transform the network first with
+e.g. \code{\link[manynet:to_undirected]{manynet::to_undirected()}} or \code{\link[manynet:to_unweighted]{manynet::to_unweighted()}}.
+
+This function was called \code{node_by_coreness()} prior to version 1.0.0.
+It is now named for the property, as \code{node_is_core()} and \code{node_in_core()}
+are, which also frees "coreness" from meaning two different things: the
+continuous score here, and the peeling depth of \code{node_by_kcoreness()}.
+}
+
 \examples{
 node_by_kcoreness(ison_adolescents)
-node_by_coreness(ison_adolescents)
+node_by_core(ison_adolescents)
+node_by_core(ison_networkers, direction = "out")
 }
 \references{
 \subsection{On k-coreness}{
