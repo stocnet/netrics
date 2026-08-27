@@ -1623,9 +1623,9 @@ Periphery</td>
 cores)</td>
 </tr>
 <tr class="even">
-<td><code>coreness_richcore()</code>,
+<td><code>coreness_rich()</code>,
 <code>coreness_correlation()</code></td>
-<td>the methods behind those functions; <code>coreness_richcore()</code>
+<td>the methods behind those functions; <code>coreness_rich()</code>
 reads weights and direction</td>
 </tr>
 <tr class="odd">
@@ -1911,6 +1911,26 @@ learnr::random_phrases_add(language = "en",
                            encouragement = c("Good effort"))
 </script>
  
+<script type="application/shiny-prerendered" data-context="server">
+learnr:::register_http_handlers(session, metadata = NULL)
+</script>
+
+
+<script type="application/shiny-prerendered" data-context="server">
+learnr:::prepare_tutorial_state(session)
+</script>
+ 
+<script type="application/shiny-prerendered" data-context="server">
+learnr:::i18n_observe_tutorial_language(input, session)
+</script>
+
+
+<script type="application/shiny-prerendered" data-context="server">
+session$onSessionEnded(function() {
+        learnr:::event_trigger(session, "session_stop")
+      })
+</script>
+ 
 <script type="application/shiny-prerendered" data-context="server-start">
 sys_locale <- Sys.getlocale("LC_CTYPE")
 if (grepl("fr", sys_locale, ignore.case = TRUE)) {
@@ -1918,26 +1938,6 @@ if (grepl("fr", sys_locale, ignore.case = TRUE)) {
 } else {
   options(tutorial.language = "en")
 }
-</script>
-
-
-<script type="application/shiny-prerendered" data-context="server">
-learnr:::register_http_handlers(session, metadata = NULL)
-</script>
- 
-<script type="application/shiny-prerendered" data-context="server">
-learnr:::prepare_tutorial_state(session)
-</script>
-
-
-<script type="application/shiny-prerendered" data-context="server">
-learnr:::i18n_observe_tutorial_language(input, session)
-</script>
- 
-<script type="application/shiny-prerendered" data-context="server">
-session$onSessionEnded(function() {
-        learnr:::event_trigger(session, "session_stop")
-      })
 </script>
 
 
@@ -2127,27 +2127,27 @@ learnr:::store_exercise_cache(structure(list(label = "tree", global_setup = stru
 
 <script type="application/shiny-prerendered" data-context="server">
 learnr:::question_prerendered_chunk(structure(list(type = "learnr_radio", label = "lat-qa", question = structure("Why are lattices considered highly clustered?", html = TRUE, class = c("html", 
-"character")), answers = list(structure(list(id = "lnr_ans_8cf7970", 
+"character")), answers = list(structure(list(id = "lnr_ans_2894ec7", 
     option = "Because neighbours are likely also neighbours of each other", 
     value = "Because neighbours are likely also neighbours of each other", 
     label = structure("Because neighbours are likely also neighbours of each other", html = TRUE, class = c("html", 
-    "character")), correct = TRUE, message = structure("Resplendent! <br><br> <img src=\"https://media.tenor.com/images/e26e64a8cce94a6ee491f0ddeecc8b88/tenor.gif\"/>", html = TRUE, class = c("html", 
+    "character")), correct = TRUE, message = structure("Absolutely fabulous! <br><br> <img src=\"https://media.tenor.com/images/e26e64a8cce94a6ee491f0ddeecc8b88/tenor.gif\"/>", html = TRUE, class = c("html", 
     "character")), type = "literal"), class = c("tutorial_question_answer", 
-"tutorial_quiz_answer")), structure(list(id = "lnr_ans_201a696", 
+"tutorial_quiz_answer")), structure(list(id = "lnr_ans_cdcff26", 
     option = "Because all nodes are directly connected to each other", 
     value = "Because all nodes are directly connected to each other", 
     label = structure("Because all nodes are directly connected to each other", html = TRUE, class = c("html", 
-    "character")), correct = FALSE, message = structure("But no need to fret, try it again.", html = TRUE, class = c("html", 
+    "character")), correct = FALSE, message = structure("Try it again; next time’s the charm!", html = TRUE, class = c("html", 
     "character")), type = "literal"), class = c("tutorial_question_answer", 
-"tutorial_quiz_answer")), structure(list(id = "lnr_ans_f7e9a3f", 
+"tutorial_quiz_answer")), structure(list(id = "lnr_ans_bad5f4d", 
     option = "Because there is a single component", value = "Because there is a single component", 
     label = structure("Because there is a single component", html = TRUE, class = c("html", 
-    "character")), correct = FALSE, message = structure("Try it again. Perseverance is the key to success.", html = TRUE, class = c("html", 
+    "character")), correct = FALSE, message = structure("Give it another try.", html = TRUE, class = c("html", 
     "character")), type = "literal"), class = c("tutorial_question_answer", 
-"tutorial_quiz_answer")), structure(list(id = "lnr_ans_137ae50", 
+"tutorial_quiz_answer")), structure(list(id = "lnr_ans_bf13ffb", 
     option = "Because there is a single community", value = "Because there is a single community", 
     label = structure("Because there is a single community", html = TRUE, class = c("html", 
-    "character")), correct = FALSE, message = structure("But no need to fret, try it again.", html = TRUE, class = c("html", 
+    "character")), correct = FALSE, message = structure("Try it again. I have a good feeling about this.", html = TRUE, class = c("html", 
     "character")), type = "literal"), class = c("tutorial_question_answer", 
 "tutorial_quiz_answer"))), button_labels = list(submit = structure("<span data-i18n=\"button.questionsubmit\">Submit Answer<\u002fspan>", html = TRUE, class = c("html", 
 "character")), try_again = structure("<span data-i18n=\"button.questiontryagain\">Try Again<\u002fspan>", html = TRUE, class = c("html", 
@@ -2156,7 +2156,7 @@ learnr:::question_prerendered_chunk(structure(list(type = "learnr_radio", label 
 "character")), incorrect = structure("Incorrect", html = TRUE, class = c("html", 
 "character")), message = NULL, post_message = NULL), ids = list(
     answer = "lat-qa-answer", question = "lat-qa"), loading = NULL, 
-    random_answer_order = TRUE, allow_retry = TRUE, seed = 137208876.436107, 
+    random_answer_order = TRUE, allow_retry = TRUE, seed = 1473717637.31375, 
     options = list()), class = c("learnr_radio", "tutorial_question"
 )), session = session)
 </script>
@@ -2945,11 +2945,11 @@ learnr:::store_exercise_cache(structure(list(label = "moregen", global_setup = s
 <script type="application/shiny-prerendered" data-context="server">
 learnr:::question_prerendered_chunk(structure(list(type = "learnr_radio", label = "corevcomm-qa", 
     question = structure("Can a single network have both a community structure and a core-periphery structure?", html = TRUE, class = c("html", 
-    "character")), answers = list(structure(list(id = "lnr_ans_a511f77", 
+    "character")), answers = list(structure(list(id = "lnr_ans_a1e579", 
         option = "No", value = "No", label = structure("No", html = TRUE, class = c("html", 
-        "character")), correct = FALSE, message = structure("Give it another try.", html = TRUE, class = c("html", 
+        "character")), correct = FALSE, message = structure("Let’s try it again.", html = TRUE, class = c("html", 
         "character")), type = "literal"), class = c("tutorial_question_answer", 
-    "tutorial_quiz_answer")), structure(list(id = "lnr_ans_2b9da53", 
+    "tutorial_quiz_answer")), structure(list(id = "lnr_ans_71634f9", 
         option = "Yes", value = "Yes", label = structure("Yes", html = TRUE, class = c("html", 
         "character")), correct = TRUE, message = structure("That’s right. For example, the core and periphery might represent two or more communities.", html = TRUE, class = c("html", 
         "character")), type = "literal"), class = c("tutorial_question_answer", 
@@ -2961,7 +2961,7 @@ learnr:::question_prerendered_chunk(structure(list(type = "learnr_radio", label 
     "character")), message = NULL, post_message = NULL), ids = list(
         answer = "corevcomm-qa-answer", question = "corevcomm-qa"), 
     loading = NULL, random_answer_order = TRUE, allow_retry = TRUE, 
-    seed = 1129438242.97406, options = list()), class = c("learnr_radio", 
+    seed = 556753681.240741, options = list()), class = c("learnr_radio", 
 "tutorial_question")), session = session)
 </script>
 
@@ -3217,30 +3217,30 @@ learnr:::store_exercise_cache(structure(list(label = "netcore", global_setup = s
 <script type="application/shiny-prerendered" data-context="server">
 learnr:::question_prerendered_chunk(structure(list(type = "learnr_radio", label = "corecorr-qa", 
     question = structure("What can we say about this correlation.", html = TRUE, class = c("html", 
-    "character")), answers = list(structure(list(id = "lnr_ans_bf9c560", 
+    "character")), answers = list(structure(list(id = "lnr_ans_7dd0185", 
         option = "It is a perfect negative relationship", value = "It is a perfect negative relationship", 
         label = structure("It is a perfect negative relationship", html = TRUE, class = c("html", 
-        "character")), correct = FALSE, message = structure("That’s okay: you learn more from mistakes than successes. Let’s do it one more time.", html = TRUE, class = c("html", 
+        "character")), correct = FALSE, message = structure("Try it again; next time’s the charm!", html = TRUE, class = c("html", 
         "character")), type = "literal"), class = c("tutorial_question_answer", 
-    "tutorial_quiz_answer")), structure(list(id = "lnr_ans_21449f3", 
+    "tutorial_quiz_answer")), structure(list(id = "lnr_ans_73c4d8a", 
         option = "It is fairly strong", value = "It is fairly strong", 
         label = structure("It is fairly strong", html = TRUE, class = c("html", 
-        "character")), correct = FALSE, message = structure("Let’s try it again.", html = TRUE, class = c("html", 
+        "character")), correct = FALSE, message = structure("Try it again. I have a good feeling about this.", html = TRUE, class = c("html", 
         "character")), type = "literal"), class = c("tutorial_question_answer", 
-    "tutorial_quiz_answer")), structure(list(id = "lnr_ans_f136055", 
+    "tutorial_quiz_answer")), structure(list(id = "lnr_ans_8dabe5f", 
         option = "It is positive", value = "It is positive", 
         label = structure("It is positive", html = TRUE, class = c("html", 
-        "character")), correct = FALSE, message = structure("That’s okay: you learn more from mistakes than successes. Let’s do it one more time.", html = TRUE, class = c("html", 
+        "character")), correct = FALSE, message = structure("Try it again; next time’s the charm!", html = TRUE, class = c("html", 
         "character")), type = "literal"), class = c("tutorial_question_answer", 
-    "tutorial_quiz_answer")), structure(list(id = "lnr_ans_ef3ae96", 
+    "tutorial_quiz_answer")), structure(list(id = "lnr_ans_e66f8e9", 
         option = "There is absolutely no correlation", value = "There is absolutely no correlation", 
         label = structure("There is absolutely no correlation", html = TRUE, class = c("html", 
-        "character")), correct = FALSE, message = structure("Give it another try.", html = TRUE, class = c("html", 
+        "character")), correct = FALSE, message = structure("But no need to fret, try it again.", html = TRUE, class = c("html", 
         "character")), type = "literal"), class = c("tutorial_question_answer", 
-    "tutorial_quiz_answer")), structure(list(id = "lnr_ans_9dd84a9", 
+    "tutorial_quiz_answer")), structure(list(id = "lnr_ans_e46d7b1", 
         option = "None of the above", value = "None of the above", 
         label = structure("None of the above", html = TRUE, class = c("html", 
-        "character")), correct = TRUE, message = structure("Lovely job!", html = TRUE, class = c("html", 
+        "character")), correct = TRUE, message = structure("Terrific!", html = TRUE, class = c("html", 
         "character")), type = "literal"), class = c("tutorial_question_answer", 
     "tutorial_quiz_answer"))), button_labels = list(submit = structure("<span data-i18n=\"button.questionsubmit\">Submit Answer<\u002fspan>", html = TRUE, class = c("html", 
     "character")), try_again = structure("<span data-i18n=\"button.questiontryagain\">Try Again<\u002fspan>", html = TRUE, class = c("html", 
@@ -3250,7 +3250,7 @@ learnr:::question_prerendered_chunk(structure(list(type = "learnr_radio", label 
     "character")), message = NULL, post_message = NULL), ids = list(
         answer = "corecorr-qa-answer", question = "corecorr-qa"), 
     loading = NULL, random_answer_order = FALSE, allow_retry = TRUE, 
-    seed = 1214206646.93459, options = list()), class = c("learnr_radio", 
+    seed = 428910588.800273, options = list()), class = c("learnr_radio", 
 "tutorial_question")), session = session)
 </script>
  
@@ -3324,23 +3324,23 @@ learnr:::store_exercise_cache(structure(list(label = "chisq", global_setup = str
  
 <script type="application/shiny-prerendered" data-context="server">
 learnr:::question_prerendered_chunk(structure(list(type = "learnr_radio", label = "chisq-qa", question = structure("There a statistically significant association between the core assignment and…", html = TRUE, class = c("html", 
-"character")), answers = list(structure(list(id = "lnr_ans_a07aee1", 
+"character")), answers = list(structure(list(id = "lnr_ans_715bece", 
     option = "gender.", value = "gender.", label = structure("gender.", html = TRUE, class = c("html", 
+    "character")), correct = FALSE, message = structure("Try it again; next time’s the charm!", html = TRUE, class = c("html", 
+    "character")), type = "literal"), class = c("tutorial_question_answer", 
+"tutorial_quiz_answer")), structure(list(id = "lnr_ans_a5fed25", 
+    option = "office.", value = "office.", label = structure("office.", html = TRUE, class = c("html", 
     "character")), correct = FALSE, message = structure("That’s okay: you learn more from mistakes than successes. Let’s do it one more time.", html = TRUE, class = c("html", 
     "character")), type = "literal"), class = c("tutorial_question_answer", 
-"tutorial_quiz_answer")), structure(list(id = "lnr_ans_6a5d731", 
-    option = "office.", value = "office.", label = structure("office.", html = TRUE, class = c("html", 
-    "character")), correct = FALSE, message = structure("Try it again. Perseverance is the key to success.", html = TRUE, class = c("html", 
-    "character")), type = "literal"), class = c("tutorial_question_answer", 
-"tutorial_quiz_answer")), structure(list(id = "lnr_ans_d978e4a", 
+"tutorial_quiz_answer")), structure(list(id = "lnr_ans_4f53d02", 
     option = "school.", value = "school.", label = structure("school.", html = TRUE, class = c("html", 
-    "character")), correct = FALSE, message = structure("Don’t give up now, try it one more time.", html = TRUE, class = c("html", 
+    "character")), correct = FALSE, message = structure("Try it again; next time’s the charm!", html = TRUE, class = c("html", 
     "character")), type = "literal"), class = c("tutorial_question_answer", 
-"tutorial_quiz_answer")), structure(list(id = "lnr_ans_b607edf", 
+"tutorial_quiz_answer")), structure(list(id = "lnr_ans_5b626f", 
     option = "practice.", value = "practice.", label = structure("practice.", html = TRUE, class = c("html", 
     "character")), correct = FALSE, message = structure("That’s okay: you learn more from mistakes than successes. Let’s do it one more time.", html = TRUE, class = c("html", 
     "character")), type = "literal"), class = c("tutorial_question_answer", 
-"tutorial_quiz_answer")), structure(list(id = "lnr_ans_11db51b", 
+"tutorial_quiz_answer")), structure(list(id = "lnr_ans_21bed12", 
     option = "none of the above variables.", value = "none of the above variables.", 
     label = structure("none of the above variables.", html = TRUE, class = c("html", 
     "character")), correct = TRUE, message = structure("That’s right. The p-value for office is close, but no cigar.", html = TRUE, class = c("html", 
@@ -3352,7 +3352,7 @@ learnr:::question_prerendered_chunk(structure(list(type = "learnr_radio", label 
 "character")), incorrect = structure("Incorrect", html = TRUE, class = c("html", 
 "character")), message = NULL, post_message = NULL), ids = list(
     answer = "chisq-qa-answer", question = "chisq-qa"), loading = NULL, 
-    random_answer_order = FALSE, allow_retry = TRUE, seed = 304251947.858322, 
+    random_answer_order = FALSE, allow_retry = TRUE, seed = 359294059.332691, 
     options = list()), class = c("learnr_radio", "tutorial_question"
 )), session = session)
 </script>
@@ -3481,28 +3481,28 @@ learnr:::store_exercise_cache(structure(list(label = "wcore", global_setup = str
 
 <script type="application/shiny-prerendered" data-context="server">
 learnr:::question_prerendered_chunk(structure(list(type = "learnr_radio", label = "weight-qa", question = structure("A node in a large, dense network has only three correspondents, but exchanges a very large number of messages with each. Which method is more likely to place it in the core?", html = TRUE, class = c("html", 
-"character")), answers = list(structure(list(id = "lnr_ans_cfe27ee", 
+"character")), answers = list(structure(list(id = "lnr_ans_7d14a50", 
     option = "The weighted method, since strength counts the messages and degree counts only the correspondents.", 
     value = "The weighted method, since strength counts the messages and degree counts only the correspondents.", 
     label = structure("The weighted method, since strength counts the messages and degree counts only the correspondents.", html = TRUE, class = c("html", 
-    "character")), correct = TRUE, message = structure("Splendid!", html = TRUE, class = c("html", 
+    "character")), correct = TRUE, message = structure("Fantastic!", html = TRUE, class = c("html", 
     "character")), type = "literal"), class = c("tutorial_question_answer", 
-"tutorial_quiz_answer")), structure(list(id = "lnr_ans_4bd69f9", 
+"tutorial_quiz_answer")), structure(list(id = "lnr_ans_f8bc85b", 
     option = "The binary method, since three ties is already unusual.", 
     value = "The binary method, since three ties is already unusual.", 
     label = structure("The binary method, since three ties is already unusual.", html = TRUE, class = c("html", 
     "character")), correct = FALSE, message = structure("But no need to fret, try it again.", html = TRUE, class = c("html", 
     "character")), type = "literal"), class = c("tutorial_question_answer", 
-"tutorial_quiz_answer")), structure(list(id = "lnr_ans_29db2a6", 
+"tutorial_quiz_answer")), structure(list(id = "lnr_ans_3da9c46", 
     option = "Either, since the two always agree.", value = "Either, since the two always agree.", 
     label = structure("Either, since the two always agree.", html = TRUE, class = c("html", 
-    "character")), correct = FALSE, message = structure("Try it again. I have a good feeling about this.", html = TRUE, class = c("html", 
+    "character")), correct = FALSE, message = structure("Try it again. You get better each time.", html = TRUE, class = c("html", 
     "character")), type = "literal"), class = c("tutorial_question_answer", 
-"tutorial_quiz_answer")), structure(list(id = "lnr_ans_28e9368", 
+"tutorial_quiz_answer")), structure(list(id = "lnr_ans_6cb6ddd", 
     option = "Neither, since three ties is too few for any method.", 
     value = "Neither, since three ties is too few for any method.", 
     label = structure("Neither, since three ties is too few for any method.", html = TRUE, class = c("html", 
-    "character")), correct = FALSE, message = structure("Try it again. You get better each time.", html = TRUE, class = c("html", 
+    "character")), correct = FALSE, message = structure("Don’t give up now, try it one more time.", html = TRUE, class = c("html", 
     "character")), type = "literal"), class = c("tutorial_question_answer", 
 "tutorial_quiz_answer"))), button_labels = list(submit = structure("<span data-i18n=\"button.questionsubmit\">Submit Answer<\u002fspan>", html = TRUE, class = c("html", 
 "character")), try_again = structure("<span data-i18n=\"button.questiontryagain\">Try Again<\u002fspan>", html = TRUE, class = c("html", 
@@ -3511,7 +3511,7 @@ learnr:::question_prerendered_chunk(structure(list(type = "learnr_radio", label 
 "character")), incorrect = structure("Incorrect", html = TRUE, class = c("html", 
 "character")), message = NULL, post_message = NULL), ids = list(
     answer = "weight-qa-answer", question = "weight-qa"), loading = NULL, 
-    random_answer_order = TRUE, allow_retry = TRUE, seed = 1411016610.84294, 
+    random_answer_order = TRUE, allow_retry = TRUE, seed = 237428826.389439, 
     options = list()), class = c("learnr_radio", "tutorial_question"
 )), session = session)
 </script>
@@ -3706,21 +3706,21 @@ learnr:::store_exercise_cache(structure(list(label = "fourset", global_setup = s
  
 <script type="application/shiny-prerendered" data-context="server">
 learnr:::question_prerendered_chunk(structure(list(type = "learnr_radio", label = "dir-qa", question = structure("A partner is named by many others but names almost nobody. Which category do they fall into?", html = TRUE, class = c("html", 
-"character")), answers = list(structure(list(id = "lnr_ans_f014048", 
+"character")), answers = list(structure(list(id = "lnr_ans_aa9b6", 
     option = "Receiver", value = "Receiver", label = structure("Receiver", html = TRUE, class = c("html", 
     "character")), correct = TRUE, message = structure("Yes – they are in the in-core but not the out-core.", html = TRUE, class = c("html", 
     "character")), type = "literal"), class = c("tutorial_question_answer", 
-"tutorial_quiz_answer")), structure(list(id = "lnr_ans_231c93", 
+"tutorial_quiz_answer")), structure(list(id = "lnr_ans_44eaa28", 
     option = "Sender", value = "Sender", label = structure("Sender", html = TRUE, class = c("html", 
-    "character")), correct = FALSE, message = structure("Try it again. I have a good feeling about this.", html = TRUE, class = c("html", 
+    "character")), correct = FALSE, message = structure("That’s okay: you learn more from mistakes than successes. Let’s do it one more time.", html = TRUE, class = c("html", 
     "character")), type = "literal"), class = c("tutorial_question_answer", 
-"tutorial_quiz_answer")), structure(list(id = "lnr_ans_2e26f72", 
+"tutorial_quiz_answer")), structure(list(id = "lnr_ans_34dbd09", 
     option = "Core", value = "Core", label = structure("Core", html = TRUE, class = c("html", 
-    "character")), correct = FALSE, message = structure("Don’t give up now, try it one more time.", html = TRUE, class = c("html", 
+    "character")), correct = FALSE, message = structure("That’s okay: you learn more from mistakes than successes. Let’s do it one more time.", html = TRUE, class = c("html", 
     "character")), type = "literal"), class = c("tutorial_question_answer", 
-"tutorial_quiz_answer")), structure(list(id = "lnr_ans_6fa548e", 
+"tutorial_quiz_answer")), structure(list(id = "lnr_ans_4fc8b74", 
     option = "Periphery", value = "Periphery", label = structure("Periphery", html = TRUE, class = c("html", 
-    "character")), correct = FALSE, message = structure("Let’s try it again.", html = TRUE, class = c("html", 
+    "character")), correct = FALSE, message = structure("Give it another try.", html = TRUE, class = c("html", 
     "character")), type = "literal"), class = c("tutorial_question_answer", 
 "tutorial_quiz_answer"))), button_labels = list(submit = structure("<span data-i18n=\"button.questionsubmit\">Submit Answer<\u002fspan>", html = TRUE, class = c("html", 
 "character")), try_again = structure("<span data-i18n=\"button.questiontryagain\">Try Again<\u002fspan>", html = TRUE, class = c("html", 
@@ -3729,7 +3729,7 @@ learnr:::question_prerendered_chunk(structure(list(type = "learnr_radio", label 
 "character")), incorrect = structure("Incorrect", html = TRUE, class = c("html", 
 "character")), message = NULL, post_message = NULL), ids = list(
     answer = "dir-qa-answer", question = "dir-qa"), loading = NULL, 
-    random_answer_order = TRUE, allow_retry = TRUE, seed = 1647377014.73288, 
+    random_answer_order = TRUE, allow_retry = TRUE, seed = 981310304.543042, 
     options = list()), class = c("learnr_radio", "tutorial_question"
 )), session = session)
 </script>
@@ -3863,23 +3863,23 @@ learnr:::store_exercise_cache(structure(list(label = "nodecoren", global_setup =
 
 <script type="application/shiny-prerendered" data-context="server">
 learnr:::question_prerendered_chunk(structure(list(type = "learnr_radio", label = "three-qa", question = structure("Match the function to the question it answers.", html = TRUE, class = c("html", 
-"character")), answers = list(structure(list(id = "lnr_ans_5f19d21", 
+"character")), answers = list(structure(list(id = "lnr_ans_c6647cb", 
     option = "node_is_core() answers yes or no; node_by_core() grades how core-like a node is; node_by_kcoreness() grades how deep it sits.", 
     value = "node_is_core() answers yes or no; node_by_core() grades how core-like a node is; node_by_kcoreness() grades how deep it sits.", 
     label = structure("node_is_core() answers yes or no; node_by_core() grades how core-like a node is; node_by_kcoreness() grades how deep it sits.", html = TRUE, class = c("html", 
-    "character")), correct = TRUE, message = structure("Resplendent!", html = TRUE, class = c("html", 
+    "character")), correct = TRUE, message = structure("Well done!", html = TRUE, class = c("html", 
     "character")), type = "literal"), class = c("tutorial_question_answer", 
-"tutorial_quiz_answer")), structure(list(id = "lnr_ans_c256964", 
+"tutorial_quiz_answer")), structure(list(id = "lnr_ans_2e5ee04", 
     option = "All three grade the same thing, at different levels of detail.", 
     value = "All three grade the same thing, at different levels of detail.", 
     label = structure("All three grade the same thing, at different levels of detail.", html = TRUE, class = c("html", 
     "character")), correct = FALSE, message = structure("Not quite – coreness and k-coreness measure different things. A node can look core-like and still be peeled away early.", html = TRUE, class = c("html", 
     "character")), type = "literal"), class = c("tutorial_question_answer", 
-"tutorial_quiz_answer")), structure(list(id = "lnr_ans_dd5efe3", 
+"tutorial_quiz_answer")), structure(list(id = "lnr_ans_2921010", 
     option = "node_by_core() and node_by_kcoreness() always agree.", 
     value = "node_by_core() and node_by_kcoreness() always agree.", 
     label = structure("node_by_core() and node_by_kcoreness() always agree.", html = TRUE, class = c("html", 
-    "character")), correct = FALSE, message = structure("Don’t give up now, try it one more time.", html = TRUE, class = c("html", 
+    "character")), correct = FALSE, message = structure("Try it again. I have a good feeling about this.", html = TRUE, class = c("html", 
     "character")), type = "literal"), class = c("tutorial_question_answer", 
 "tutorial_quiz_answer"))), button_labels = list(submit = structure("<span data-i18n=\"button.questionsubmit\">Submit Answer<\u002fspan>", html = TRUE, class = c("html", 
 "character")), try_again = structure("<span data-i18n=\"button.questiontryagain\">Try Again<\u002fspan>", html = TRUE, class = c("html", 
@@ -3888,30 +3888,30 @@ learnr:::question_prerendered_chunk(structure(list(type = "learnr_radio", label 
 "character")), incorrect = structure("Incorrect", html = TRUE, class = c("html", 
 "character")), message = NULL, post_message = NULL), ids = list(
     answer = "three-qa-answer", question = "three-qa"), loading = NULL, 
-    random_answer_order = TRUE, allow_retry = TRUE, seed = 954651031.055456, 
+    random_answer_order = TRUE, allow_retry = TRUE, seed = 1162222863.4588, 
     options = list()), class = c("learnr_radio", "tutorial_question"
 )), session = session)
 </script>
  
 <script type="application/shiny-prerendered" data-context="server">
 learnr:::question_prerendered_chunk(structure(list(type = "learnr_checkbox", label = "ness-qa", question = structure("Select the correct definitions:", html = TRUE, class = c("html", 
-"character")), answers = list(structure(list(id = "lnr_ans_3aaaf96", 
+"character")), answers = list(structure(list(id = "lnr_ans_509b8d5", 
     option = "The k-core of a network is a maximal subgraph in which each vertex has at least degree k.", 
     value = "The k-core of a network is a maximal subgraph in which each vertex has at least degree k.", 
     label = structure("The k-core of a network is a maximal subgraph in which each vertex has at least degree k.", html = TRUE, class = c("html", 
-    "character")), correct = TRUE, message = structure("You rock!", html = TRUE, class = c("html", 
+    "character")), correct = TRUE, message = structure("Wonderful!", html = TRUE, class = c("html", 
     "character")), type = "literal"), class = c("tutorial_question_answer", 
-"tutorial_quiz_answer")), structure(list(id = "lnr_ans_e34d48f", 
+"tutorial_quiz_answer")), structure(list(id = "lnr_ans_1a0372", 
     option = "The coreness of a node is k if it belongs to the k-core but not to the (k+1)-core.", 
     value = "The coreness of a node is k if it belongs to the k-core but not to the (k+1)-core.", 
     label = structure("The coreness of a node is k if it belongs to the k-core but not to the (k+1)-core.", html = TRUE, class = c("html", 
     "character")), correct = TRUE, message = structure("Yes – a node’s coreness is the highest k for which it still sits inside the k-core, so it tells you how deep in the network’s core the node lies.", html = TRUE, class = c("html", 
     "character")), type = "literal"), class = c("tutorial_question_answer", 
-"tutorial_quiz_answer")), structure(list(id = "lnr_ans_25a6af2", 
+"tutorial_quiz_answer")), structure(list(id = "lnr_ans_b1496b4", 
     option = "The coreness of a node is equal to its degree.", 
     value = "The coreness of a node is equal to its degree.", 
     label = structure("The coreness of a node is equal to its degree.", html = TRUE, class = c("html", 
-    "character")), correct = FALSE, message = structure("Don’t give up now, try it one more time. Coreness is usually less than or equal to degree: a node needs at least degree k to be in the k-core, but many high-degree nodes have lower coreness because their neighbours don’t all qualify.", html = TRUE, class = c("html", 
+    "character")), correct = FALSE, message = structure("Try it again. I have a good feeling about this. Coreness is usually less than or equal to degree: a node needs at least degree k to be in the k-core, but many high-degree nodes have lower coreness because their neighbours don’t all qualify.", html = TRUE, class = c("html", 
     "character")), type = "literal"), class = c("tutorial_question_answer", 
 "tutorial_quiz_answer"))), button_labels = list(submit = structure("<span data-i18n=\"button.questionsubmit\">Submit Answer<\u002fspan>", html = TRUE, class = c("html", 
 "character")), try_again = structure("<span data-i18n=\"button.questiontryagain\">Try Again<\u002fspan>", html = TRUE, class = c("html", 
@@ -3920,7 +3920,7 @@ learnr:::question_prerendered_chunk(structure(list(type = "learnr_checkbox", lab
 "character")), incorrect = structure("Incorrect", html = TRUE, class = c("html", 
 "character")), message = NULL, post_message = NULL), ids = list(
     answer = "ness-qa-answer", question = "ness-qa"), loading = NULL, 
-    random_answer_order = TRUE, allow_retry = TRUE, seed = 1655764835.22897, 
+    random_answer_order = TRUE, allow_retry = TRUE, seed = 1898828852.11579, 
     options = list()), class = c("learnr_checkbox", "tutorial_question"
 )), session = session)
 </script>
@@ -3928,34 +3928,34 @@ learnr:::question_prerendered_chunk(structure(list(type = "learnr_checkbox", lab
 
 <script type="application/shiny-prerendered" data-context="server">
 learnr:::question_prerendered_chunk(structure(list(type = "learnr_checkbox", label = "gtdh-qa", question = structure("Select the measures included in the graph theoretic dimensions of hierarchy:", html = TRUE, class = c("html", 
-"character")), answers = list(structure(list(id = "lnr_ans_38afdda", 
+"character")), answers = list(structure(list(id = "lnr_ans_2021b0", 
     option = "reciprocity", value = "reciprocity", label = structure("reciprocity", html = TRUE, class = c("html", 
-    "character")), correct = TRUE, message = structure("Great work! The hierarchy dimension is measured through (a lack of) reciprocity: in a perfect hierarchy relations run one way, never back.", html = TRUE, class = c("html", 
+    "character")), correct = TRUE, message = structure("I couldn’t have done it better myself. The hierarchy dimension is measured through (a lack of) reciprocity: in a perfect hierarchy relations run one way, never back.", html = TRUE, class = c("html", 
     "character")), type = "literal"), class = c("tutorial_question_answer", 
-"tutorial_quiz_answer")), structure(list(id = "lnr_ans_c11dfaa", 
+"tutorial_quiz_answer")), structure(list(id = "lnr_ans_a5d8b7d", 
     option = "connectedness", value = "connectedness", label = structure("connectedness", html = TRUE, class = c("html", 
     "character")), correct = TRUE, message = structure("Yes – connectedness asks whether every pair of nodes is joined by some (undirected) path, the first of Krackhardt’s four dimensions.", html = TRUE, class = c("html", 
     "character")), type = "literal"), class = c("tutorial_question_answer", 
-"tutorial_quiz_answer")), structure(list(id = "lnr_ans_94a8fb6", 
+"tutorial_quiz_answer")), structure(list(id = "lnr_ans_a20262f", 
     option = "efficiency", value = "efficiency", label = structure("efficiency", html = TRUE, class = c("html", 
     "character")), correct = TRUE, message = structure("Yes – efficiency asks whether the structure uses no more ties than necessary (no redundant links beyond those needed to hold it together).", html = TRUE, class = c("html", 
     "character")), type = "literal"), class = c("tutorial_question_answer", 
-"tutorial_quiz_answer")), structure(list(id = "lnr_ans_65d3b8e", 
+"tutorial_quiz_answer")), structure(list(id = "lnr_ans_9e516ba", 
     option = "least upper bound", value = "least upper bound", 
     label = structure("least upper bound", html = TRUE, class = c("html", 
     "character")), correct = TRUE, message = structure("Yes – least upper bound asks whether every pair of nodes shares a common superior they both ultimately report up to.", html = TRUE, class = c("html", 
     "character")), type = "literal"), class = c("tutorial_question_answer", 
-"tutorial_quiz_answer")), structure(list(id = "lnr_ans_4174370", 
+"tutorial_quiz_answer")), structure(list(id = "lnr_ans_14b9289", 
     option = "components", value = "components", label = structure("components", html = TRUE, class = c("html", 
-    "character")), correct = FALSE, message = structure("Try it again. You get better each time.", html = TRUE, class = c("html", 
+    "character")), correct = FALSE, message = structure("But no need to fret, try it again.", html = TRUE, class = c("html", 
     "character")), type = "literal"), class = c("tutorial_question_answer", 
-"tutorial_quiz_answer")), structure(list(id = "lnr_ans_818def1", 
+"tutorial_quiz_answer")), structure(list(id = "lnr_ans_9333f2c", 
     option = "degree", value = "degree", label = structure("degree", html = TRUE, class = c("html", 
-    "character")), correct = FALSE, message = structure("Try it again. You get better each time.", html = TRUE, class = c("html", 
+    "character")), correct = FALSE, message = structure("But no need to fret, try it again.", html = TRUE, class = c("html", 
     "character")), type = "literal"), class = c("tutorial_question_answer", 
-"tutorial_quiz_answer")), structure(list(id = "lnr_ans_e72a1df", 
+"tutorial_quiz_answer")), structure(list(id = "lnr_ans_c556d96", 
     option = "density", value = "density", label = structure("density", html = TRUE, class = c("html", 
-    "character")), correct = FALSE, message = structure("Try it again. Perseverance is the key to success.", html = TRUE, class = c("html", 
+    "character")), correct = FALSE, message = structure("Try it again. You get better each time.", html = TRUE, class = c("html", 
     "character")), type = "literal"), class = c("tutorial_question_answer", 
 "tutorial_quiz_answer"))), button_labels = list(submit = structure("<span data-i18n=\"button.questionsubmit\">Submit Answer<\u002fspan>", html = TRUE, class = c("html", 
 "character")), try_again = structure("<span data-i18n=\"button.questiontryagain\">Try Again<\u002fspan>", html = TRUE, class = c("html", 
@@ -3964,7 +3964,7 @@ learnr:::question_prerendered_chunk(structure(list(type = "learnr_checkbox", lab
 "character")), incorrect = structure("Incorrect", html = TRUE, class = c("html", 
 "character")), message = NULL, post_message = NULL), ids = list(
     answer = "gtdh-qa-answer", question = "gtdh-qa"), loading = NULL, 
-    random_answer_order = TRUE, allow_retry = TRUE, seed = 3248779.99848717, 
+    random_answer_order = TRUE, allow_retry = TRUE, seed = 466792587.782633, 
     options = list()), class = c("learnr_checkbox", "tutorial_question"
 )), session = session)
 </script>
@@ -4092,22 +4092,22 @@ learnr:::store_exercise_cache(structure(list(label = "hierarchy", global_setup =
 <script type="application/shiny-prerendered" data-context="server">
 learnr:::question_prerendered_chunk(structure(list(type = "learnr_checkbox", label = "gtdhcompare-qa", 
     question = structure("Compared to the emotional transitions network, the Game of Thrones kinship network has:", html = TRUE, class = c("html", 
-    "character")), answers = list(structure(list(id = "lnr_ans_685f320", 
+    "character")), answers = list(structure(list(id = "lnr_ans_e4e37d1", 
         option = "more nodes able to reach each other", value = "more nodes able to reach each other", 
         label = structure("more nodes able to reach each other", html = TRUE, class = c("html", 
-        "character")), correct = FALSE, message = structure("Try it again. Perseverance is the key to success.", html = TRUE, class = c("html", 
+        "character")), correct = FALSE, message = structure("Please try again.", html = TRUE, class = c("html", 
         "character")), type = "literal"), class = c("tutorial_question_answer", 
-    "tutorial_quiz_answer")), structure(list(id = "lnr_ans_43fcab8", 
+    "tutorial_quiz_answer")), structure(list(id = "lnr_ans_d44e84", 
         option = "fewer reciprocated ties", value = "fewer reciprocated ties", 
         label = structure("fewer reciprocated ties", html = TRUE, class = c("html", 
-        "character")), correct = TRUE, message = structure("Spectacular job!", html = TRUE, class = c("html", 
+        "character")), correct = TRUE, message = structure("Success!", html = TRUE, class = c("html", 
         "character")), type = "literal"), class = c("tutorial_question_answer", 
-    "tutorial_quiz_answer")), structure(list(id = "lnr_ans_9c23283", 
+    "tutorial_quiz_answer")), structure(list(id = "lnr_ans_ed0b6a7", 
         option = "fewer redundant ties", value = "fewer redundant ties", 
         label = structure("fewer redundant ties", html = TRUE, class = c("html", 
         "character")), correct = TRUE, message = structure("Yes – that shows up as a higher efficiency score: the kinship structure carries fewer redundant ties than the emotional transitions network.", html = TRUE, class = c("html", 
         "character")), type = "literal"), class = c("tutorial_question_answer", 
-    "tutorial_quiz_answer")), structure(list(id = "lnr_ans_cb82b71", 
+    "tutorial_quiz_answer")), structure(list(id = "lnr_ans_30c76e1", 
         option = "at least one boss for all pairs", value = "at least one boss for all pairs", 
         label = structure("at least one boss for all pairs", html = TRUE, class = c("html", 
         "character")), correct = FALSE, message = structure("Not here – that would be the least-upper-bound property, but not every pair in the kinship network shares a common ancestor they both report up to.", html = TRUE, class = c("html", 
@@ -4120,7 +4120,7 @@ learnr:::question_prerendered_chunk(structure(list(type = "learnr_checkbox", lab
     "character")), message = NULL, post_message = NULL), ids = list(
         answer = "gtdhcompare-qa-answer", question = "gtdhcompare-qa"), 
     loading = NULL, random_answer_order = TRUE, allow_retry = TRUE, 
-    seed = 606085063.21777, options = list()), class = c("learnr_checkbox", 
+    seed = 921455291.570914, options = list()), class = c("learnr_checkbox", 
 "tutorial_question")), session = session)
 </script>
 
@@ -4186,18 +4186,18 @@ learnr:::store_exercise_cache(structure(list(label = "connected", global_setup =
 <script type="application/shiny-prerendered" data-context="server">
 learnr:::question_prerendered_chunk(structure(list(type = "learnr_checkbox", label = "connect-qa", 
     question = structure("But counting the number of components instead of connectedness can overemphasise:", html = TRUE, class = c("html", 
-    "character")), answers = list(structure(list(id = "lnr_ans_cd3cd34", 
+    "character")), answers = list(structure(list(id = "lnr_ans_f0862bd", 
         option = "Isolates", value = "Isolates", label = structure("Isolates", html = TRUE, class = c("html", 
-        "character")), correct = TRUE, message = structure("What first-rate work!", html = TRUE, class = c("html", 
+        "character")), correct = TRUE, message = structure("Beautiful!", html = TRUE, class = c("html", 
         "character")), type = "literal"), class = c("tutorial_question_answer", 
-    "tutorial_quiz_answer")), structure(list(id = "lnr_ans_bf4be4", 
+    "tutorial_quiz_answer")), structure(list(id = "lnr_ans_e77069b", 
         option = "Small components", value = "Small components", 
         label = structure("Small components", html = TRUE, class = c("html", 
-        "character")), correct = TRUE, message = structure("Try it again; next time’s the charm!", html = TRUE, class = c("html", 
+        "character")), correct = TRUE, message = structure("Try it again. I have a good feeling about this.", html = TRUE, class = c("html", 
         "character")), type = "literal"), class = c("tutorial_question_answer", 
-    "tutorial_quiz_answer")), structure(list(id = "lnr_ans_63d30ac", 
+    "tutorial_quiz_answer")), structure(list(id = "lnr_ans_35c82c5", 
         option = "Density", value = "Density", label = structure("Density", html = TRUE, class = c("html", 
-        "character")), correct = FALSE, message = structure("That’s okay: you learn more from mistakes than successes. Let’s do it one more time.", html = TRUE, class = c("html", 
+        "character")), correct = FALSE, message = structure("Don’t give up now, try it one more time.", html = TRUE, class = c("html", 
         "character")), type = "literal"), class = c("tutorial_question_answer", 
     "tutorial_quiz_answer"))), button_labels = list(submit = structure("<span data-i18n=\"button.questionsubmit\">Submit Answer<\u002fspan>", html = TRUE, class = c("html", 
     "character")), try_again = structure("<span data-i18n=\"button.questiontryagain\">Try Again<\u002fspan>", html = TRUE, class = c("html", 
@@ -4207,7 +4207,7 @@ learnr:::question_prerendered_chunk(structure(list(type = "learnr_checkbox", lab
     "character")), message = NULL, post_message = NULL), ids = list(
         answer = "connect-qa-answer", question = "connect-qa"), 
     loading = NULL, random_answer_order = TRUE, allow_retry = TRUE, 
-    seed = 910407721.076058, options = list()), class = c("learnr_checkbox", 
+    seed = 1668337884.22312, options = list()), class = c("learnr_checkbox", 
 "tutorial_question")), session = session)
 </script>
  
@@ -4272,19 +4272,19 @@ learnr:::store_exercise_cache(structure(list(label = "cohesion", global_setup = 
 <script type="application/shiny-prerendered" data-context="server">
 learnr:::question_prerendered_chunk(structure(list(type = "learnr_radio", label = "cohesion-qa", 
     question = structure("The result of this function represents…", html = TRUE, class = c("html", 
-    "character")), answers = list(structure(list(id = "lnr_ans_1f8e49f", 
+    "character")), answers = list(structure(list(id = "lnr_ans_2a67a3e", 
         option = "the minimum number of nodes necessary to remove from the network to increase the number of components.", 
         value = "the minimum number of nodes necessary to remove from the network to increase the number of components.", 
         label = structure("the minimum number of nodes necessary to remove from the network to increase the number of components.", html = TRUE, class = c("html", 
-        "character")), correct = TRUE, message = structure("Magnificent!", html = TRUE, class = c("html", 
+        "character")), correct = TRUE, message = structure("Great work!", html = TRUE, class = c("html", 
         "character")), type = "literal"), class = c("tutorial_question_answer", 
-    "tutorial_quiz_answer")), structure(list(id = "lnr_ans_52529b4", 
+    "tutorial_quiz_answer")), structure(list(id = "lnr_ans_5f9686f", 
         option = "the number of strong components in the network.", 
         value = "the number of strong components in the network.", 
         label = structure("the number of strong components in the network.", html = TRUE, class = c("html", 
-        "character")), correct = FALSE, message = structure("That’s okay: you learn more from mistakes than successes. Let’s do it one more time.", html = TRUE, class = c("html", 
+        "character")), correct = FALSE, message = structure("Let’s try it again.", html = TRUE, class = c("html", 
         "character")), type = "literal"), class = c("tutorial_question_answer", 
-    "tutorial_quiz_answer")), structure(list(id = "lnr_ans_c3a3be0", 
+    "tutorial_quiz_answer")), structure(list(id = "lnr_ans_ec66b17", 
         option = "the minimum number of ties necessary to remove from the network to increase the number of components.", 
         value = "the minimum number of ties necessary to remove from the network to increase the number of components.", 
         label = structure("the minimum number of ties necessary to remove from the network to increase the number of components.", html = TRUE, class = c("html", 
@@ -4298,22 +4298,22 @@ learnr:::question_prerendered_chunk(structure(list(type = "learnr_radio", label 
     "character")), message = NULL, post_message = NULL), ids = list(
         answer = "cohesion-qa-answer", question = "cohesion-qa"), 
     loading = NULL, random_answer_order = TRUE, allow_retry = TRUE, 
-    seed = 1220730604.43155, options = list()), class = c("learnr_radio", 
+    seed = 1367902665.36302, options = list()), class = c("learnr_radio", 
 "tutorial_question")), session = session)
 </script>
 
 
 <script type="application/shiny-prerendered" data-context="server">
 learnr:::question_prerendered_chunk(structure(list(type = "learnr_radio", label = "res-qa", question = structure("The higher the minimum number of nodes to remove…", html = TRUE, class = c("html", 
-"character")), answers = list(structure(list(id = "lnr_ans_9536bf8", 
+"character")), answers = list(structure(list(id = "lnr_ans_141bd62", 
     option = "the more resilient is the network.", value = "the more resilient is the network.", 
     label = structure("the more resilient is the network.", html = TRUE, class = c("html", 
-    "character")), correct = TRUE, message = structure("You should be proud.", html = TRUE, class = c("html", 
+    "character")), correct = TRUE, message = structure("You aced it!", html = TRUE, class = c("html", 
     "character")), type = "literal"), class = c("tutorial_question_answer", 
-"tutorial_quiz_answer")), structure(list(id = "lnr_ans_efb4af5", 
+"tutorial_quiz_answer")), structure(list(id = "lnr_ans_e43895b", 
     option = "the less resilient the network.", value = "the less resilient the network.", 
     label = structure("the less resilient the network.", html = TRUE, class = c("html", 
-    "character")), correct = FALSE, message = structure("Please try again.", html = TRUE, class = c("html", 
+    "character")), correct = FALSE, message = structure("But no need to fret, try it again.", html = TRUE, class = c("html", 
     "character")), type = "literal"), class = c("tutorial_question_answer", 
 "tutorial_quiz_answer"))), button_labels = list(submit = structure("<span data-i18n=\"button.questionsubmit\">Submit Answer<\u002fspan>", html = TRUE, class = c("html", 
 "character")), try_again = structure("<span data-i18n=\"button.questiontryagain\">Try Again<\u002fspan>", html = TRUE, class = c("html", 
@@ -4322,7 +4322,7 @@ learnr:::question_prerendered_chunk(structure(list(type = "learnr_radio", label 
 "character")), incorrect = structure("Incorrect", html = TRUE, class = c("html", 
 "character")), message = NULL, post_message = NULL), ids = list(
     answer = "res-qa-answer", question = "res-qa"), loading = NULL, 
-    random_answer_order = TRUE, allow_retry = TRUE, seed = 902943460.579534, 
+    random_answer_order = TRUE, allow_retry = TRUE, seed = 1779169239.17151, 
     options = list()), class = c("learnr_radio", "tutorial_question"
 )), session = session)
 </script>
@@ -4630,7 +4630,7 @@ learnr:::store_exercise_cache(structure(list(label = "freeplay", global_setup = 
 <!--/html_preserve-->
 <!--html_preserve-->
 <script type="application/shiny-prerendered" data-context="execution_dependencies">
-{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["packages"]}},"value":[{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["packages","version"]},"class":{"type":"character","attributes":{},"value":["data.frame"]},"row.names":{"type":"integer","attributes":{},"value":[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,41,42,43,44,45,46,47,48,49,50,51,52,53,54,55,56,57,58,59,60,61,62,63,64,65,66,67,68,69,70,71,72,73,74,75,76,77,78,79,80,81,82,83,84,85,86,87,88,89,90,91,92,93,94,95,96,97,98,99,100,101,102,103,104,105,106,107,108,109]}},"value":[{"type":"character","attributes":{},"value":["askpass","autograph","backports","base","bslib","cachem","callr","checkmate","cli","coda","commonmark","compiler","crayon","datasets","desc","digest","dplyr","evaluate","farver","fastmap","fontawesome","fs","generics","ggforce","ggplot2","ggraph","ggrepel","glue","graphics","graphlayouts","grDevices","grid","gridExtra","gtable","htmltools","htmlwidgets","httpuv","igraph","jquerylib","jsonlite","knitr","labeling","later","lattice","learnr","lifecycle","litedown","magrittr","manynet","manypkgs","markdown","MASS","Matrix","memoise","methods","mime","nanonext","netrics","network","NLP","otel","parallel","patchwork","pdftools","pillar","pkgconfig","pkgdown","polyclip","processx","promises","purrr","qpdf","R6","RColorBrewer","Rcpp","remotes","rlang","rmarkdown","rprojroot","rsconnect","rstudioapi","S7","sass","scales","shiny","slam","statnet.common","stats","stringi","stringr","tibble","tidygraph","tidyr","tidyselect","tm","tools","tweenr","usethis","utf8","utils","vctrs","viridis","viridisLite","whisker","withr","xfun","xml2","xtable","yaml"]},{"type":"character","attributes":{},"value":["1.2.1","1.2.0","1.5.1","4.6.1","0.12.0","1.1.0","3.8.0","2.3.4","3.6.6","0.19-4.1","2.0.0","4.6.1","1.5.3","4.6.1","1.4.3","0.6.39","1.2.1","1.0.5","2.1.2","1.2.0","0.5.3","2.1.0","0.1.4","0.5.0","4.0.3","2.2.2","0.9.8","1.8.1","4.6.1","1.2.5","4.6.1","4.6.1","2.3.1","0.3.6","0.5.9","1.6.4","1.6.17","2.3.3","0.1.4","2.0.0","1.51","0.4.3","1.4.8","0.23-1","0.11.6","1.0.5","0.10","2.0.5","2.3.1","0.3.1","2.0","7.3-66","1.7-6","2.0.1","4.6.1","0.13","1.10.2","1.0.0","1.20.0","0.3-3","0.2.0","4.6.1","1.3.2","3.9.0","1.11.1","2.0.3","2.2.1","1.10-7","3.9.0","1.5.0","1.2.2","1.4.1","2.6.1","1.1-3","1.1.2","2.5.0.9000","1.3.0","2.31","2.1.1","1.11.0","0.19.0","0.2.2","0.4.10","1.4.0","1.14.0","0.1-56","4.13.0","4.6.1","1.8.9","1.6.0","3.3.1","1.3.1","1.3.2","1.2.1","0.7-18","4.6.1","2.0.3","3.2.1","1.2.6","4.6.1","0.7.3","0.6.5","0.4.3","0.4.1","3.0.3","0.60","1.6.0","1.8-8","2.3.12"]}]}]}
+{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["packages"]}},"value":[{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["packages","version"]},"class":{"type":"character","attributes":{},"value":["data.frame"]},"row.names":{"type":"integer","attributes":{},"value":[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,41,42,43,44,45,46,47,48,49,50,51,52,53,54,55,56,57,58,59,60,61,62,63,64,65,66,67,68,69,70,71,72,73,74,75,76,77,78,79,80,81,82,83]}},"value":[{"type":"character","attributes":{},"value":["autograph","backports","base","bslib","cachem","checkmate","cli","coda","commonmark","compiler","datasets","digest","dplyr","evaluate","farver","fastmap","fontawesome","generics","ggforce","ggplot2","ggraph","ggrepel","glue","graphics","graphlayouts","grDevices","grid","gridExtra","gtable","htmltools","htmlwidgets","httpuv","igraph","jquerylib","jsonlite","knitr","later","lattice","learnr","lifecycle","litedown","magrittr","manynet","markdown","MASS","memoise","methods","mime","netrics","network","otel","patchwork","pillar","pkgconfig","polyclip","promises","purrr","R6","RColorBrewer","Rcpp","rlang","rmarkdown","rprojroot","S7","sass","scales","shiny","statnet.common","stats","tibble","tidygraph","tidyr","tidyselect","tools","tweenr","utils","vctrs","viridis","viridisLite","withr","xfun","xtable","yaml"]},{"type":"character","attributes":{},"value":["1.2.0","1.5.1","4.6.1","0.12.0","1.1.0","2.3.4","3.6.6","0.19-4.1","2.0.0","4.6.1","4.6.1","0.6.39","1.2.1","1.0.5","2.1.2","1.2.0","0.5.3","0.1.4","0.5.0","4.0.3","2.2.2","0.9.8","1.8.1","4.6.1","1.2.5","4.6.1","4.6.1","2.3.1","0.3.6","0.5.9","1.6.4","1.6.17","2.3.3","0.1.4","2.0.0","1.51","1.4.8","0.23-1","0.11.6","1.0.5","0.10","2.0.5","2.3.1","2.0","7.3-66","2.0.1","4.6.1","0.13","1.0.0","1.20.0","0.2.0","1.3.2","1.11.1","2.0.3","1.10-7","1.5.0","1.2.2","2.6.1","1.1-3","1.1.2","1.3.0","2.31","2.1.1","0.2.2","0.4.10","1.4.0","1.14.0","4.13.0","4.6.1","3.3.1","1.3.1","1.3.2","1.2.1","4.6.1","2.0.3","4.6.1","0.7.3","0.6.5","0.4.3","3.0.3","0.60","1.8-8","2.3.12"]}]}]}
 </script>
 <!--/html_preserve-->
 </div>

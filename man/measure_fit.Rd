@@ -41,9 +41,9 @@ member of the core and the most core-like member of the periphery.
 square root of the size of the core, thus penalising large cores.}
 
 \item{coreness}{Which method to use to calculate nodes' coreness.
-One of "correlation", "richcore", "transition", or "hub";
+One of "correlation", "rich", "transition", or "hub";
 see \link{method_coreness} for what each does.
-By default NULL, which uses "richcore" for a weighted, directed, or
+By default NULL, which uses "rich" for a weighted, directed, or
 two-mode network, since it is the only method that reads those properties
 directly, and "correlation" otherwise.}
 

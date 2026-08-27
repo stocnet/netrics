@@ -3,14 +3,14 @@
 \name{method_coreness}
 \alias{method_coreness}
 \alias{coreness_correlation}
-\alias{coreness_richcore}
+\alias{coreness_rich}
 \alias{coreness_transition}
 \alias{coreness_hub}
 \title{Methods for calculating coreness}
 \usage{
 coreness_correlation(.data, direction = c("all", "out", "in"), starts = 5L)
 
-coreness_richcore(.data, direction = c("all", "out", "in"))
+coreness_rich(.data, direction = c("all", "out", "in"))
 
 coreness_transition(
   .data,
@@ -60,7 +60,7 @@ continuous coreness score and a core/periphery split that
 \itemize{
 \item \code{coreness_correlation()} fits the network to an ideal core-periphery
 pattern by correlation.
-\item \code{coreness_richcore()} ranks nodes by strength and cuts where the tie
+\item \code{coreness_rich()} ranks nodes by strength and cuts where the tie
 weight to higher-ranked neighbours peaks.
 \item \code{coreness_transition()} scores nodes with a transition function whose
 sharpness and core size are free parameters.
@@ -68,7 +68,7 @@ sharpness and core size are free parameters.
 the core, which lets core and periphery differ by tie direction.
 }
 
-They differ in what they can use. \code{coreness_richcore()} and
+They differ in what they can use. \code{coreness_rich()} and
 \code{coreness_hub()} read tie direction and tie weights directly.
 \code{coreness_correlation()} and \code{coreness_transition()} compare the network
 against a symmetric ideal, so they symmetrise a directed network first
@@ -94,7 +94,7 @@ use \code{\link[manynet:to_unweighted]{manynet::to_unweighted()}} first.
 
 The search has one free value per node, so its cost grows quickly with
 the size of the network. On a large network, lower \code{starts}, or use
-\code{\link[=coreness_richcore]{coreness_richcore()}}, which needs no search at all.
+\code{\link[=coreness_rich]{coreness_rich()}}, which needs no search at all.
 }
 
 \section{Rich-core}{
@@ -118,6 +118,14 @@ Where a directed network instead has one set that sends and a different
 set that receives, \eqn{\sigma^+} never rises, and the method returns a
 core of one or two nodes. Use \code{\link[=coreness_hub]{coreness_hub()}} for that structure, which
 keeps the two sets apart rather than trying to merge them.
+
+A rich core is not a rich club, which is why this method is not named for
+one. A rich club requires the high-degree nodes to be densely tied to one
+another, and \code{\link[=net_by_richclub]{net_by_richclub()}} measures that density. A rich core only
+marks the rank at which nodes stop linking upward, so a network can have
+a rich core whose members are not densely tied. The rich core also needs
+no null model, where the rich-club coefficient does, since that
+coefficient rises with degree even in a random network.
 }
 
 \section{Transition}{
@@ -154,7 +162,7 @@ the two scores, and the core is the set of nodes in both.
 
 \examples{
 coreness_correlation(ison_adolescents)
-coreness_richcore(ison_networkers)
+coreness_rich(ison_networkers)
 coreness_transition(ison_adolescents)
 coreness_hub(ison_networkers)
 }

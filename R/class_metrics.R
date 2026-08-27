@@ -183,7 +183,7 @@ resolve_coreness <- function(coreness, centrality = NULL) {
   coreness
 }
 
-CORENESSES <- c("correlation", "richcore", "transition", "hub")
+CORENESSES <- c("correlation", "rich", "transition", "hub")
 
 # Chooses the method when the user has not, and says which it chose. No one
 # method suits every network: the correlation and transition methods compare
@@ -194,7 +194,7 @@ check_coreness <- function(.data, coreness = NULL) {
   if(is.null(coreness)) {
     coreness <- if(manynet::is_twomode(.data) ||
                    manynet::is_weighted(.data) ||
-                   manynet::is_directed(.data)) "richcore" else "correlation"
+                   manynet::is_directed(.data)) "rich" else "correlation"
     manynet::snet_info("Calculating coreness using",
                        "{.fn coreness_{coreness}}.")
   } else coreness <- match.arg(coreness, CORENESSES)
@@ -206,7 +206,7 @@ check_coreness <- function(.data, coreness = NULL) {
 run_coreness <- function(.data, coreness, direction = "all") {
   switch(coreness,
          correlation = coreness_correlation(.data, direction = direction),
-         richcore = coreness_richcore(.data, direction = direction),
+         rich = coreness_rich(.data, direction = direction),
          transition = coreness_transition(.data, direction = direction),
          hub = coreness_hub(.data, direction = direction))
 }

@@ -1431,7 +1431,7 @@ Along the way, you have learned to use these functions:
 | `node_by_core()` | continuous score, 0 to 1, for how core-like each node is |
 | `net_by_core()` | correlation of the network with an ideal core-periphery model |
 | `node_by_kcoreness()` | each node's _k_-coreness (depth in the network's successive cores) |
-| `coreness_richcore()`, `coreness_correlation()` | the methods behind those functions; `coreness_richcore()` reads weights and direction |
+| `coreness_rich()`, `coreness_correlation()` | the methods behind those functions; `coreness_rich()` reads weights and direction |
 | `tie_weights()`, `to_unweighted()` | read the tie weights, or drop them |
 | `net_x_hierarchy()` | Krackhardt's four graph-theoretic dimensions of hierarchy |
 | `net_by_connectedness()` | proportion of dyads that can reach each other |

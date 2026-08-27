@@ -9,14 +9,14 @@
 #'
 #'   - `coreness_correlation()` fits the network to an ideal core-periphery
 #'   pattern by correlation.
-#'   - `coreness_richcore()` ranks nodes by strength and cuts where the tie
+#'   - `coreness_rich()` ranks nodes by strength and cuts where the tie
 #'   weight to higher-ranked neighbours peaks.
 #'   - `coreness_transition()` scores nodes with a transition function whose
 #'   sharpness and core size are free parameters.
 #'   - `coreness_hub()` scores nodes by how well they send to and receive from
 #'   the core, which lets core and periphery differ by tie direction.
 #'
-#'   They differ in what they can use. `coreness_richcore()` and
+#'   They differ in what they can use. `coreness_rich()` and
 #'   `coreness_hub()` read tie direction and tie weights directly.
 #'   `coreness_correlation()` and `coreness_transition()` compare the network
 #'   against a symmetric ideal, so they symmetrise a directed network first
@@ -167,7 +167,7 @@ NULL
 #'
 #'   The search has one free value per node, so its cost grows quickly with
 #'   the size of the network. On a large network, lower `starts`, or use
-#'   [coreness_richcore()], which needs no search at all.
+#'   [coreness_rich()], which needs no search at all.
 #' @param starts Integer number of starting points for the search,
 #'   at most 9. By default 5.
 #'   The starting points are fixed rather than random, so that two calls on
@@ -182,7 +182,7 @@ coreness_correlation <- function(.data, direction = c("all","out","in"),
   if(manynet::is_twomode(.data))
     manynet::snet_abort("{.fn coreness_correlation} compares the network",
                         "against a square ideal, which a two-mode network is",
-                        "not. Try {.fn coreness_richcore} instead.")
+                        "not. Try {.fn coreness_rich} instead.")
   .core_symmetrise_info(.data, "coreness_correlation")
   mat <- .core_matrix(.data, "all")
   n <- nrow(mat)
@@ -228,10 +228,18 @@ coreness_correlation <- function(.data, direction = c("all","out","in"),
 #'   set that receives, \eqn{\sigma^+} never rises, and the method returns a
 #'   core of one or two nodes. Use [coreness_hub()] for that structure, which
 #'   keeps the two sets apart rather than trying to merge them.
+#'
+#'   A rich core is not a rich club, which is why this method is not named for
+#'   one. A rich club requires the high-degree nodes to be densely tied to one
+#'   another, and [net_by_richclub()] measures that density. A rich core only
+#'   marks the rank at which nodes stop linking upward, so a network can have
+#'   a rich core whose members are not densely tied. The rich core also needs
+#'   no null model, where the rich-club coefficient does, since that
+#'   coefficient rises with degree even in a random network.
 #' @examples
-#' coreness_richcore(ison_networkers)
+#' coreness_rich(ison_networkers)
 #' @export
-coreness_richcore <- function(.data, direction = c("all","out","in")){
+coreness_rich <- function(.data, direction = c("all","out","in")){
   .data <- manynet::expect_nodes(.data)
   direction <- match.arg(direction)
   twomode <- manynet::is_twomode(.data)
@@ -287,7 +295,7 @@ coreness_transition <- function(.data, direction = c("all","out","in"),
   if(manynet::is_twomode(.data))
     manynet::snet_abort("{.fn coreness_transition} compares the network",
                         "against a square ideal, which a two-mode network is",
-                        "not. Try {.fn coreness_richcore} instead.")
+                        "not. Try {.fn coreness_rich} instead.")
   .core_symmetrise_info(.data, "coreness_transition")
   mat <- .core_matrix(.data, "all")
   n <- nrow(mat)

@@ -185,7 +185,7 @@ measure_rosters <- list(
     node_by_core  = list()
   ),
   core_method_node = list(
-    node_by_core = list(coreness = "richcore")
+    node_by_core = list(coreness = "rich")
   ),
   brokerage_node = list(
     node_by_brokering_activity    = list(membership = "Discipline"),

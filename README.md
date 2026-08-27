@@ -203,7 +203,7 @@ about:
   `net_by_reciprocity()`, `net_by_upperbound()`, `net_x_hierarchy()`,
   `node_by_efficiency()`, `node_by_hierarchy()`, `node_by_reciprocity()`
 - *Topology*: `coreness_correlation()`, `coreness_hub()`,
-  `coreness_richcore()`, `coreness_transition()`, `net_by_balance()`,
+  `coreness_rich()`, `coreness_transition()`, `net_by_balance()`,
   `net_by_core()`, `net_by_factions()`, `net_by_modularity()`,
   `net_by_richclub()`, `net_by_smallworld()`, `node_by_core()`,
   `node_by_kcoreness()`, `node_in_core()`, `node_is_core()`,

@@ -104,7 +104,7 @@
   - Fixed it returning identical scores for a directed network and its reverse
   - Fixed it erroring on two-mode networks whose modes are of unequal size
 - Improved `node_in_core()`
-  - Renamed `centrality=` to `coreness=`: `"richcore"` default for weighted, directed, or two-mode networks, 
+  - Renamed `centrality=` to `coreness=`: `"rich"` default for weighted, directed, or two-mode networks, 
   `"correlation"` otherwise
   - Adds `direction=` for directed networks, adding `"Sender"` for core out-ties and periphery in-ties and 
   `"Receiver"` for core in-ties and periphery out-ties
@@ -140,7 +140,8 @@
   - Note `regularity_rege()` is degenerate on unweighted connected networks, where it warns
 - Added coreness methods for core-periphery analysis, each returning mark, member, and measure
   - `coreness_correlation()` is Borgatti and Everett's continuous model, fixed to exclude self-ties and to start its search from the degree ordering rather than from a flat vector, where the correlation is undefined
-  - `coreness_richcore()` is Ma and Mondragon's rich-core, which reads tie weights and tie direction directly, and is the only method that runs on a two-mode network
+  - `coreness_rich()` is Ma and Mondragon's rich-core, which reads tie weights and tie direction directly, and is the only method that runs on a two-mode network
+    - Note this is not the rich club that `net_by_richclub()` measures: a rich core need not be densely tied, and needs no null model
   - `coreness_transition()` is Rombach and colleagues' core score, aggregated over a grid of boundary sharpness and core size
   - `coreness_hub()` is Elliott and colleagues' directed core-periphery, distinguishing an out-core from an in-core
 

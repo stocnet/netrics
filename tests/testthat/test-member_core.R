@@ -62,7 +62,7 @@ test_that("node_by_core works on a two-mode network", {
 })
 
 test_that("every coreness method returns a coreness and a core", {
-  for (fn in list(coreness_correlation, coreness_richcore,
+  for (fn in list(coreness_correlation, coreness_rich,
                   coreness_transition, coreness_hub)) {
     out <- fn(ison_adolescents)
     expect_length(out$coreness, 8)
@@ -101,8 +101,8 @@ test_that("the methods recover a planted core", {
     m[j, i] <- 1
   }
   g <- as_igraph(m, twomode = FALSE)
-  expect_equal(which(coreness_richcore(g)$core), core)
-  expect_equal(which(coreness_richcore(to_unweighted(g))$core), core)
+  expect_equal(which(coreness_rich(g)$core), core)
+  expect_equal(which(coreness_rich(to_unweighted(g))$core), core)
 })
 
 test_that("the four sets recover a planted directed structure", {

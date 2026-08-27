@@ -26,9 +26,9 @@ One of "bins" (equal-width bins), "quantiles" (quantile-based bins),
 or "kmeans" (k-means clustering). Default is "bins".}
 
 \item{coreness}{Which method to use to calculate nodes' coreness.
-One of "correlation", "richcore", "transition", or "hub";
+One of "correlation", "rich", "transition", or "hub";
 see \link{method_coreness} for what each does.
-By default NULL, which uses "richcore" for a weighted, directed, or
+By default NULL, which uses "rich" for a weighted, directed, or
 two-mode network, since it is the only method that reads those properties
 directly, and "correlation" otherwise.}
 
