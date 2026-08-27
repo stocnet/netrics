@@ -12,8 +12,14 @@ knitr::opts_chunk$set(
   out.width = "100%"
 )
 library(netrics)
+# Renamed functions are kept as warning wrappers for one release, but the
+# README lists the current API, so the wrappers in R/netrics-defunct.R are
+# dropped rather than advertised alongside their replacements. That file is
+# cleared at each minor release, so this list stays short.
+defunct_fns <- c("node_by_coreness")
+netrics_fns <- setdiff(ls("package:netrics"), defunct_fns)
 list_functions <- function(string){
-  paste0("`", paste(paste0(ls("package:netrics")[grepl(string, ls("package:netrics"))], "()"), collapse = "`, `"), "`")
+  paste0("`", paste(paste0(netrics_fns[grepl(string, netrics_fns)], "()"), collapse = "`, `"), "`")
 }
 list_data <- function(string){
   paste0("`", paste(paste0(ls("package:netrics")[grepl(string, ls("package:netrics"))]), collapse = "`, `"), "`")
