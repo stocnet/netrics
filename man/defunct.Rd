@@ -2,7 +2,28 @@
 % Please edit documentation in R/netrics-defunct.R
 \name{defunct}
 \alias{defunct}
+\alias{node_by_coreness}
 \title{Functions that have been renamed, superseded, or are no longer working}
+\usage{
+node_by_coreness(.data, coreness = NULL, direction = c("all", "out", "in"))
+}
+\arguments{
+\item{.data}{A network object of class \code{stocnet}, \code{igraph}, \code{tbl_graph}, \code{network}, or similar.
+Internally any of these will be coerced to an efficient implementation.
+For more information on possible coercions, see e.g. \code{\link[manynet:as_stocnet]{manynet::as_stocnet()}}.}
+
+\item{coreness}{Which method to use to calculate nodes' coreness.
+One of "correlation", "richcore", "transition", or "hub";
+see \link{method_coreness} for what each does.
+By default NULL, which uses "richcore" for a weighted, directed, or
+two-mode network, since it is the only method that reads those properties
+directly, and "correlation" otherwise.}
+
+\item{direction}{One of "all" (the default), "out", or "in".
+For a directed network, "out" scores nodes on the ties they send and
+"in" on the ties they receive.
+Ignored for undirected and two-mode networks.}
+}
 \value{
 Results as expected
 along with a warning to use new function naming in the future.
@@ -16,4 +37,12 @@ we generally clear older defunct functions at each minor release,
 and so you are strongly encouraged to use the new functions/names/syntax
 wherever possible and update your scripts accordingly.
 }
+\section{Functions}{
+\itemize{
+\item \code{node_by_coreness()}: Deprecated on 2026-08-27.
+Renamed \code{node_by_core()}, for symmetry with \code{node_is_core()} and
+\code{node_in_core()}, and so that "coreness" names only the peeling depth
+that \code{node_by_kcoreness()} returns.
+
+}}
 \keyword{internal}

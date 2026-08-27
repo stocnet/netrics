@@ -11,7 +11,9 @@
 net_by_core(
   .data,
   mark = NULL,
-  method = c("correlation", "ident", "ndiff", "diff")
+  method = c("correlation", "ident", "ndiff", "diff"),
+  coreness = NULL,
+  direction = c("all", "out", "in")
 )
 
 net_by_factions(.data, membership = NULL)
@@ -37,6 +39,18 @@ based on the difference in coreness scores between the least core-like
 member of the core and the most core-like member of the periphery.
 "diff" is similar to "ndiff", but multiplies the raw "ndiff" score by the
 square root of the size of the core, thus penalising large cores.}
+
+\item{coreness}{Which method to use to calculate nodes' coreness.
+One of "correlation", "richcore", "transition", or "hub";
+see \link{method_coreness} for what each does.
+By default NULL, which uses "richcore" for a weighted, directed, or
+two-mode network, since it is the only method that reads those properties
+directly, and "correlation" otherwise.}
+
+\item{direction}{One of "all" (the default), "out", or "in".
+For a directed network, "out" scores nodes on the ties they send and
+"in" on the ties they receive.
+Ignored for undirected and two-mode networks.}
 
 \item{membership}{A character string naming an existing node attribute in
 the network, or a categorical vector of the same length as the number of
@@ -100,10 +114,15 @@ Compare partitions using one measure at a time.
 }
 \section{Core-Periphery}{
 
-\code{net_core()} calculates the Pearson correlation between the given network,
-where the nodes in the core are assigned by some given mark, and an ideal
-typical core-periphery network with the same number of nodes in the core
-and the periphery.
+\code{net_by_core()} calculates the Pearson correlation between the given
+network, where the nodes in the core are assigned by some given mark, and
+an ideal typical core-periphery network with the same number of nodes in
+the core and the periphery.
+
+Where \code{mark} is not given, it is calculated with \code{\link[=node_is_core]{node_is_core()}}, to
+which the \code{coreness} and \code{direction} arguments are passed. For a directed
+network the fit itself is measured on the symmetrised network, since the
+ideal it is compared against is symmetric.
 }
 
 \section{Modularity}{

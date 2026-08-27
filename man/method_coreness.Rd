@@ -31,8 +31,10 @@ For a directed network, "out" scores nodes on the ties they send and
 "in" on the ties they receive.
 Ignored for undirected and two-mode networks.}
 
-\item{starts}{Integer number of starting points for the search.
-By default 5.}
+\item{starts}{Integer number of starting points for the search,
+at most 9. By default 5.
+The starting points are fixed rather than random, so that two calls on
+the same network return the same answer.}
 
 \item{alpha}{Numeric vector of boundary sharpness values between 0 and 1,
 to aggregate over. By default \code{seq(0.2, 0.8, 0.2)}.}
@@ -54,7 +56,7 @@ directed core-periphery structure distinguishes.
 \description{
 These functions calculate how core-like each node is, returning both a
 continuous coreness score and a core/periphery split that
-\code{\link[=node_is_core]{node_is_core()}}, \code{\link[=node_by_coreness]{node_by_coreness()}} and \code{\link[=node_in_core]{node_in_core()}} then use.
+\code{\link[=node_is_core]{node_is_core()}}, \code{\link[=node_by_core]{node_by_core()}} and \code{\link[=node_in_core]{node_in_core()}} then use.
 \itemize{
 \item \code{coreness_correlation()} fits the network to an ideal core-periphery
 pattern by correlation.

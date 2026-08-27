@@ -100,6 +100,12 @@
   - Fixed search starting points rather than random
   - Fixed it returning identical scores for a directed network and its reverse
   - Fixed it erroring on two-mode networks whose modes are of unequal size
+- Improved `node_in_core()`
+  - Renamed `centrality=` to `coreness=`: `"richcore"` default for weighted, directed, or two-mode networks, 
+  `"correlation"` otherwise
+  - Adds `direction=` for directed networks, adding `"Sender"` for core out-ties and periphery in-ties and 
+  `"Receiver"` for core in-ties and periphery out-ties
+  - Fixed sorting numbered middle labels alphabetically or from arbitrary cluster numbers
 - Added `node_in_labels()` for label propagation community detection
 - Fixed `node_in_community()` returning nothing but an error whenever verbosity was not `"verbose"`
 - Renamed `times=` in `node_in_walktrap()` to `steps=`, which is more descriptive and consistent with `{igraph}`

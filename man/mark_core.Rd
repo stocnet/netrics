@@ -5,19 +5,31 @@
 \alias{node_is_core}
 \title{Marking nodes as core or periphery}
 \usage{
-node_is_core(.data, centrality = c("degree", "eigenvector"))
+node_is_core(
+  .data,
+  coreness = NULL,
+  direction = c("all", "out", "in"),
+  centrality = NULL
+)
 }
 \arguments{
 \item{.data}{A network object of class \code{stocnet}, \code{igraph}, \code{tbl_graph}, \code{network}, or similar.
 Internally any of these will be coerced to an efficient implementation.
 For more information on possible coercions, see e.g. \code{\link[manynet:as_stocnet]{manynet::as_stocnet()}}.}
 
-\item{centrality}{Which centrality measure to use to identify cores and periphery.
-By default this is "degree",
-which relies on the heuristic that high degree nodes are more likely to be in the core.
-An alternative is "eigenvector", which instead begins with high eigenvector nodes.
-Other methods, such as a genetic algorithm, CONCOR, and Rombach-Porter,
-can be added if there is interest.}
+\item{coreness}{Which method to use to calculate nodes' coreness.
+One of "correlation", "richcore", "transition", or "hub";
+see \link{method_coreness} for what each does.
+By default NULL, which uses "richcore" for a weighted, directed, or
+two-mode network, since it is the only method that reads those properties
+directly, and "correlation" otherwise.}
+
+\item{direction}{One of "all" (the default), "out", or "in".
+For a directed network, "out" scores nodes on the ties they send and
+"in" on the ties they receive.
+Ignored for undirected and two-mode networks.}
+
+\item{centrality}{Deprecated; use \code{coreness} instead.}
 }
 \value{
 A \code{node_mark} logical vector the length of the nodes in the network,
@@ -34,12 +46,15 @@ This function is used to identify which nodes should belong to the core,
 and which to the periphery.
 It seeks to minimize the following quantity:
 \deqn{Z(S_1) = \sum_{(i<j)\in S_1} \textbf{I}_{\{A_{ij}=0\}} + \sum_{(i<j)\notin S_1} \textbf{I}_{\{A_{ij}=1\}}}
-where nodes \eqn{\{i,j,...,n\}} are ordered in descending degree,
+where nodes \eqn{\{i,j,...,n\}} are ordered in descending coreness,
 \eqn{A} is the adjacency matrix,
 and the indicator function is 1 if the predicate is true or 0 otherwise.
 Note that minimising this quantity maximises density in the core block
 and minimises density in the periphery block;
 it ignores ties between these blocks.
+
+Which ordering the nodes are swept in depends on the method named by
+\code{coreness}, for which see \link{method_coreness}.
 }
 
 \examples{
@@ -50,13 +65,13 @@ ison_adolescents |>
 \references{
 \subsection{On core-periphery partitioning}{
 
-Borgatti, Stephen P., & Everett, Martin G. 1999.
-"Models of core /periphery structures".
-\emph{Social Networks}, 21, 375–395.
+Borgatti, Stephen P., and Martin G. Everett. 2000.
+"Models of core/periphery structures".
+\emph{Social Networks}, 21(4), 375-395.
 \doi{10.1016/S0378-8733(99)00019-2}
 
 Lip, Sean Z. W. 2011.
-“A Fast Algorithm for the Discrete Core/Periphery Bipartitioning Problem.”
+"A fast algorithm for the discrete core/periphery bipartitioning problem".
 \doi{10.48550/arXiv.1102.5511}
 }
 }

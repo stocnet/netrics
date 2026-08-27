@@ -5,7 +5,7 @@
 #' @description
 #'   These functions calculate how core-like each node is, returning both a
 #'   continuous coreness score and a core/periphery split that
-#'   [node_is_core()], [node_by_coreness()] and [node_in_core()] then use.
+#'   [node_is_core()], [node_by_core()] and [node_in_core()] then use.
 #'
 #'   - `coreness_correlation()` fits the network to an ideal core-periphery
 #'   pattern by correlation.
@@ -111,6 +111,22 @@ NULL
   seq_len(n) %in% nord[seq_len(kbest)]
 }
 
+# The starting points for a restarted search. Raising the scaled degree to a
+# ladder of powers sharpens or flattens it, which moves the start toward a
+# smaller or a larger core, and the rank vector drops degree magnitude
+# altogether. These explore different basins of the objective without any
+# randomness, so that two calls on one network return the same answer: a
+# descriptive measure that moved between calls would not be much use.
+.core_inits <- function(degi, starts){
+  powers <- c(1, 0.5, 2, 0.25, 4, 0.125, 8, 16)
+  cands <- c(lapply(powers, function(p) .core_scale(degi^p)),
+             list(.core_scale(rank(degi))))
+  if(starts > length(cands))
+    manynet::snet_info("At most {length(cands)} starting points are defined,",
+                       "so {.arg starts} is capped there.")
+  cands[seq_len(min(starts, length(cands)))]
+}
+
 # Scales a vector onto [0,1]. A constant vector has no gradient to report,
 # so every node is given the same middling score rather than an NaN.
 .core_scale <- function(x){
@@ -152,8 +168,10 @@ NULL
 #'   The search has one free value per node, so its cost grows quickly with
 #'   the size of the network. On a large network, lower `starts`, or use
 #'   [coreness_richcore()], which needs no search at all.
-#' @param starts Integer number of starting points for the search.
-#'   By default 5.
+#' @param starts Integer number of starting points for the search,
+#'   at most 9. By default 5.
+#'   The starting points are fixed rather than random, so that two calls on
+#'   the same network return the same answer.
 #' @examples
 #' coreness_correlation(ison_adolescents)
 #' @export
@@ -178,8 +196,7 @@ coreness_correlation <- function(.data, direction = c("all","out","in"),
   # Starting from the degree ordering rather than from a flat vector, which
   # makes the ideal pattern constant and the correlation undefined.
   degi <- .core_scale(rowSums(mat))
-  inits <- lapply(seq_len(starts), function(i)
-    if(i == 1) degi else .core_scale(degi + stats::runif(n, -0.25, 0.25)))
+  inits <- .core_inits(degi, starts)
   fits <- lapply(inits, function(init)
     stats::optim(init, obj_fun, method = "L-BFGS-B", lower = 0, upper = 1))
   best <- fits[[which.min(vapply(fits, function(f) f$value, numeric(1)))]]

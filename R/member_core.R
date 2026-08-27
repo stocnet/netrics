@@ -43,30 +43,14 @@ NULL
 #' ison_adolescents |> 
 #'    mutate(corep = node_is_core())
 #' @export
-node_is_core <- function(.data, centrality = c("degree", "eigenvector")){
+node_is_core <- function(.data, coreness = NULL,
+                         direction = c("all","out","in"),
+                         centrality = NULL){
   .data <- manynet::expect_nodes(.data)
-  centrality <- match.arg(centrality)
-  if(manynet::is_directed(.data)) warning("Asymmetric core-periphery not yet implemented.")
-  if(centrality == "degree"){
-    degi <- node_by_degree(.data, normalized = FALSE, 
-                           alpha = ifelse(manynet::is_weighted(.data), 1, 0))
-  } else if (centrality == "eigenvector") {
-    degi <- node_by_eigenvector(.data, normalized = FALSE)
-  } else manynet::snet_abort("This function expects either 'degree' or 'eigenvector' method to be specified.")
-  nord <- order(degi, decreasing = TRUE)
-  zbest <- manynet::net_nodes(.data)*3
-  kbest <- 0
-  z <- 1/2*sum(degi)
-  for(k in 1:(manynet::net_nodes(.data)-1)){
-    z <- z + k - 1 - degi[nord][k]
-    if(z < zbest){
-      zbest <- z
-      kbest <- k
-    }
-  }
-  out <- ifelse(seq_len(manynet::net_nodes(.data)) %in% nord[seq_len(kbest)],
-                1,2)
-  make_node_mark(out==1, .data)
+  direction <- match.arg(direction)
+  coreness <- check_coreness(.data, resolve_coreness(coreness, centrality))
+  out <- run_coreness(.data, coreness, direction)
+  make_node_mark(out$core, .data)
 }
 
 # Measuring core ####
@@ -167,6 +151,16 @@ NULL
 #' @param cluster_by Method to use to create the categories.
 #'   One of "bins" (equal-width bins), "quantiles" (quantile-based bins),
 #'   or "kmeans" (k-means clustering). Default is "bins".
+#' @param coreness Which method to use to calculate nodes' coreness.
+#'   One of "correlation", "richcore", "transition", or "hub";
+#'   see [method_coreness] for what each does.
+#'   By default NULL, which uses "richcore" for a weighted, directed, or
+#'   two-mode network, since it is the only method that reads those properties
+#'   directly, and "correlation" otherwise.
+#' @param direction One of "all" (the default), "out", "in", or "both".
+#'   For a directed network, "out" scores nodes on the ties they send and
+#'   "in" on the ties they receive, while "both" returns the four categories
+#'   described below. Ignored for undirected and two-mode networks.
 #' @section Core-periphery categories:
 #'   This function categorizes nodes based on their coreness into a specified
 #'   number of groups. The groups are labeled as "Core", "Semi-core",
@@ -174,50 +168,101 @@ NULL
 #'   specified.
 #'   The categorization can be done using different methods: equal-width bins,
 #'   quantile-based bins, or k-means clustering.
+#' @section Directed core-periphery:
+#'   In a directed network a node can be core in whom it reaches and
+#'   peripheral in who reaches it, which one core and one periphery cannot
+#'   express. `direction = "both"` therefore returns the four categories that
+#'   Elliott and colleagues distinguish:
+#'
+#'   - "Core" for nodes in both the out-core and the in-core,
+#'   - "Sender" for nodes in the out-core only,
+#'   - "Receiver" for nodes in the in-core only,
+#'   - "Periphery" for nodes in neither.
+#'
+#'   This uses [coreness_hub()], so `groups` and `cluster_by` do not apply.
 #' @references
 #' ## On core-periphery categorization
 #' Wallerstein, Immanuel. 1974.
 #' "Dependence in an Interdependent World: The Limited Possibilities of Transformation Within the Capitalist World Economy."
 #' _African Studies Review_, 17(1), 1-26.
-#' \doi{https://doi.org/10.2307/523574}
+#' \doi{10.2307/523574}
+#'
+#' ## On directed core-periphery
+#' Elliott, Andrew, Angus Chiu, Marya Bazzi, Gesine Reinert,
+#' and Mihai Cucuringu. 2020.
+#' "Core-periphery structure in directed networks".
+#' _Proceedings of the Royal Society A_ 476(2241): 20190783.
+#' \doi{10.1098/rspa.2019.0783}
 #' @examples
 #' node_in_core(ison_adolescents)
+#' node_in_core(ison_networkers, direction = "both")
 #' @export
 node_in_core <- function(.data, groups = 3,
-                         cluster_by = c("bins","quantiles","kmeans")) {
+                         cluster_by = c("bins","quantiles","kmeans"),
+                         coreness = NULL,
+                         direction = c("all","out","in","both")) {
+  .data <- manynet::expect_nodes(.data)
+  direction <- match.arg(direction)
+  if(direction == "both") return(.core_four_sets(.data))
   if (groups < 2) manynet::snet_abort("Number of categories must be at least 2")
   if (groups > manynet::net_nodes(.data)) manynet::snet_abort("There cannot be more categories than nodes.")
-  .data <- manynet::expect_nodes(.data)
-  contin <- node_by_coreness(.data)
+  contin <- as.numeric(node_by_core(.data, coreness = coreness,
+                                        direction = direction))
   cluster_by <- match.arg(cluster_by)
   out <- switch(cluster_by,
-                bins = cut(as.numeric(contin), breaks = groups, labels = FALSE),
-                quantiles = as.numeric(cut(as.numeric(contin),
-                                           breaks = stats::quantile(as.numeric(contin),
+                bins = cut(contin, breaks = groups, labels = FALSE),
+                quantiles = as.numeric(cut(contin,
+                                           breaks = stats::quantile(contin,
                                                                     probs = seq(0, 1, length.out = groups + 1)),
                                            include.lowest = TRUE, labels = FALSE)),
-                kmeans = stats::kmeans(as.numeric(contin), centers = groups)$cluster
+                # k-means numbers its clusters in whatever order it finds
+                # them, so the numbers must be put back in coreness order
+                # before they can index the labels.
+                kmeans = {
+                  km <- stats::kmeans(contin, centers = groups)
+                  order(order(km$centers))[km$cluster]
+                }
   )
-  
-  if (groups == 2) core_labels <- c("Core", "Periphery")
-  if (groups == 3) core_labels <- c("Core", "Semi-periphery", "Periphery")
-  if (groups == 4) core_labels <- c("Core", "Semi-core", "Semi-periphery", "Periphery")
-  if (groups >= 5){
-    n_middle <- groups - 2
-    middle <- character(n_middle)
-    
-    for (i in seq_len(n_middle)) {
-      if (i %% 2 == 1) {
-        middle[i] <- paste0("Semi-periphery-", (i + 1) %/% 2)
-      } else {
-        middle[i] <- paste0("Semi-core-", i %/% 2)
-      }
-    }
-    middle <- middle[order(middle)]
-    
-    core_labels <- c("Core", middle, "Periphery")
-    if(groups == 5) core_labels[2] <- "Semi-core"
-  } 
-  out <- rev(core_labels)[out]
+  out <- rev(core_labels(groups))[out]
   make_node_member(out, .data)
+}
+
+# The four sets of a directed core-periphery structure, from the two cores
+# that `coreness_hub()` distinguishes.
+.core_four_sets <- function(.data){
+  if(!manynet::is_directed(.data))
+    manynet::snet_abort("{.arg direction = \"both\"} distinguishes an",
+                        "out-core from an in-core, which an undirected",
+                        "network does not.")
+  hubs <- coreness_hub(.data, direction = "all")
+  out <- ifelse(hubs$out_core & hubs$in_core, "Core",
+                ifelse(hubs$out_core, "Sender",
+                       ifelse(hubs$in_core, "Receiver", "Periphery")))
+  make_node_member(out, .data)
+}
+
+# The labels, from most to least core. Beyond four groups the middle labels
+# are numbered, alternating outwards from the core, and sorted by that number
+# rather than by their spelling, which would put "Semi-core-10" before
+# "Semi-core-2".
+core_labels <- function(groups){
+  if (groups == 2) return(c("Core", "Periphery"))
+  if (groups == 3) return(c("Core", "Semi-periphery", "Periphery"))
+  if (groups == 4) return(c("Core", "Semi-core", "Semi-periphery", "Periphery"))
+  n_middle <- groups - 2
+  middle <- character(n_middle)
+  rank <- numeric(n_middle)
+  for (i in seq_len(n_middle)) {
+    if (i %% 2 == 1) {
+      middle[i] <- paste0("Semi-periphery-", (i + 1) %/% 2)
+      rank[i] <- n_middle + 1 - (i + 1) %/% 2
+    } else {
+      middle[i] <- paste0("Semi-core-", i %/% 2)
+      rank[i] <- i %/% 2
+    }
+  }
+  middle <- middle[order(rank)]
+  out <- c("Core", middle, "Periphery")
+  if(groups == 5) out[2] <- "Semi-core"
+  out
 }
