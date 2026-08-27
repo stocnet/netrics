@@ -49,15 +49,12 @@
   - Previously unbounded `(n-1)/sum(indegree)`, so now `net_x_hierarchy()` compares efficiency against three quantities already on `[0,1]`
 - Fixed `net_by_immunity()` returning a negative herd immunity threshold when \eqn{R < 1}
 - Fixed `net_by_density()`, `net_by_equivalency()` and `node_by_reciprocity()` summing tie weights where they should have counted ties
-  - Weighted networks could report a proportion above 1
-  - All three now dichotomise their input, and say so when given weights
 - Improved `node_by_closeness()` to validate `direction` via `match.arg()`
 - Removed `direction` from `net_by_betweenness()` which never used it
 - Moved `node_by_posneg()` to the eigenvector doc group as a Katz matrix-inversion walk-based measure for signed networks
-- Added `method` to `node_by_subgraph()`
-  - `method` chooses which closed walks to count: `"all"` (the default), `"odd"` or `"even"`
-    - These sum as `"odd" + "even" == "all"`
-- Improved `node_by_subgraph()` to honour tie weights
+- Improved `node_by_subgraph()`
+  - Now honours tie weights
+  - Added `method=` to choose which closed walks to count: `"odd"`, `"even"`, or`"all"` (default, both)
 - Documented measure aliases
   - `node_by_closeness()` as the Sabidussi index
   - `node_by_degree()` on a weighted network as strength or weighted degree centrality
@@ -84,6 +81,8 @@
   - At-risk denominator recorded at the end of each period rather than the start, so can exceed 1
 - Fixed `net_by_balance()` erroring on networks that hold signs as negative weights, which is how 'stocnet' objects keep them
 - Added family-wide contract test sweeping every measure for declared ranges, normalisation, and argument effects
+- Fixed `net_by_diameter()`, `net_by_length()`, and `net_by_compactness()` erroring on networks holding signs as negative weights, which were read as a distance
+  - These measures now consider only the positive ties
 
 ## Memberships
 

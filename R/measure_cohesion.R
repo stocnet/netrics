@@ -17,6 +17,13 @@
 #' @template param_data
 #' @family cohesion
 #' @template net_measure
+#' @section Signed networks:
+#'   `net_by_compactness()` measures distance, and a negative tie is hostility
+#'   rather than a channel along which cohesion travels.
+#'   Where the network is signed, it therefore considers only the positive ties.
+#'   Use [manynet::to_unsigned()] first to control this yourself.
+#'   The other measures in this topic do not depend on distance,
+#'   and so use every tie whatever its sign.
 NULL
 
 #' @rdname measure_cohesion
@@ -80,7 +87,8 @@ net_by_compactness <- function(.data) {
   .data <- manynet::expect_nodes(.data)
   # note that igraph's default mode ignores direction, which would treat a
   # directed network as though every tie ran both ways
-  dists <- igraph::distances(manynet::as_igraph(.data), mode = "out")
+  dists <- igraph::distances(manynet::as_igraph(.to_positive(.data)),
+                             mode = "out")
   recip <- 1/dists
   diag(recip) <- 0 # exclude self-pairs
   recip[!is.finite(recip)] <- 0 # unreachable pairs contribute nothing
@@ -139,6 +147,14 @@ net_by_independence <- function(.data){
 #' @template param_data
 #' @family cohesion
 #' @template net_measure
+#' @section Signed networks:
+#'   Both measures count path lengths, and a negative tie is hostility rather
+#'   than a channel along which cohesion travels.
+#'   Where the network is signed, they therefore consider only the positive
+#'   ties. Use [manynet::to_unsigned()] first to control this yourself.
+#'   
+#'   Note that dropping the negative ties can disconnect the network,
+#'   in which case the measure covers the reachable pairs only.
 NULL
 
 #' @rdname measure_breadth 
@@ -149,7 +165,7 @@ NULL
 #' @export
 net_by_diameter <- function(.data){
   .data <- manynet::expect_nodes(.data)
-  object <- manynet::as_igraph(.data)
+  object <- manynet::as_igraph(.to_positive(.data))
   make_network_measure(igraph::diameter(object,
                                         directed = manynet::is_directed(object)),
                        object, call = deparse(sys.call()),
@@ -165,7 +181,7 @@ net_by_diameter <- function(.data){
 #' @export
 net_by_length <- function(.data){
   .data <- manynet::expect_nodes(.data)
-  object <- manynet::as_igraph(.data)
+  object <- manynet::as_igraph(.to_positive(.data))
   make_network_measure(igraph::mean_distance(object,
                                              directed = manynet::is_directed(object)),
                        object, call = deparse(sys.call()),

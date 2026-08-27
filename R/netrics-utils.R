@@ -93,3 +93,20 @@ seq_nodes <- function(.data){
 }
 
 # nocov end
+
+# A 'stocnet' object holds a tie's sign as the sign of its weight, so a signed
+# network reaches igraph carrying a `weight` attribute of -1 and 1. igraph's
+# shortest path functions read any attribute of that name as a distance, and
+# either abort on the negative values or report a negative cycle.
+#
+# Dropping the attribute would keep the negative ties as paths of length one,
+# which is the wrong reading: a negative tie is hostility, not a channel along
+# which cohesion travels. Path-based measures therefore run over the positive
+# ties alone, as `node_x_clique()` does for the same reason.
+.to_positive <- function(.data){
+  if(manynet::is_signed(.data)){
+    manynet::snet_info("Using only the positive ties,",
+                       "since a negative tie does not carry cohesion.")
+    manynet::to_unsigned(.data, keep = "positive")
+  } else .data
+}

@@ -62,3 +62,34 @@ test_that("net_by_compactness respects tie direction", {
   expect_lt(as.numeric(net_by_compactness(chain)),
             as.numeric(net_by_compactness(chain + t(chain))))
 })
+
+test_that("path measures work on a network holding signs as negative weights", {
+  # `fict_marvel` is signed but not weighted, so its ties reach igraph as a
+  # `weight` attribute of -1 and 1, which igraph would read as a distance
+  expect_true(manynet::is_signed(fict_marvel))
+  expect_false(manynet::is_weighted(fict_marvel))
+  expect_s3_class(net_by_diameter(fict_marvel), "network_measure")
+  expect_s3_class(net_by_length(fict_marvel), "network_measure")
+  expect_s3_class(net_by_compactness(fict_marvel), "network_measure")
+  # each equals the same measure over the positive ties taken explicitly
+  positive <- manynet::to_unsigned(fict_marvel, keep = "positive")
+  expect_equal(as.numeric(net_by_diameter(fict_marvel)),
+               as.numeric(net_by_diameter(positive)))
+  expect_equal(as.numeric(net_by_length(fict_marvel)),
+               as.numeric(net_by_length(positive)))
+  expect_equal(as.numeric(net_by_compactness(fict_marvel)),
+               as.numeric(net_by_compactness(positive)))
+  # and the negative ties really were excluded, not merely stripped of their
+  # weight: a network keeping all 1241 ties but forgetting their signs gives a
+  # different answer from the 960 positive ties alone
+  expect_lt(manynet::net_ties(positive), manynet::net_ties(fict_marvel))
+  signless <- igraph::delete_edge_attr(manynet::as_igraph(fict_marvel), "weight")
+  expect_false(isTRUE(all.equal(as.numeric(net_by_length(fict_marvel)),
+                                igraph::mean_distance(signless))))
+})
+
+test_that("an unsigned network is untouched by the sign handling", {
+  expect_values(net_by_diameter(ison_adolescents), 4)
+  expect_values(net_by_length(ison_adolescents), 2.071)
+  expect_values(net_by_compactness(ison_adolescents), 0.616)
+})

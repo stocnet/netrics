@@ -44,6 +44,16 @@ in the network.
 or size of the largest independent set in the network.
 }
 }
+\section{Signed networks}{
+
+\code{net_by_compactness()} measures distance, and a negative tie is hostility
+rather than a channel along which cohesion travels.
+Where the network is signed, it therefore considers only the positive ties.
+Use \code{\link[manynet:to_unsigned]{manynet::to_unsigned()}} first to control this yourself.
+The other measures in this topic do not depend on distance,
+and so use every tie whatever its sign.
+}
+
 \section{Compactness}{
 
 Compactness is the average of the reciprocal distances between all pairs

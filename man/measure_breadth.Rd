@@ -32,6 +32,17 @@ These functions return values or vectors relating to how broad a network is.
 \item \code{net_by_length()} measures the average path length in the network.
 }
 }
+\section{Signed networks}{
+
+Both measures count path lengths, and a negative tie is hostility rather
+than a channel along which cohesion travels.
+Where the network is signed, they therefore consider only the positive
+ties. Use \code{\link[manynet:to_unsigned]{manynet::to_unsigned()}} first to control this yourself.
+
+Note that dropping the negative ties can disconnect the network,
+in which case the measure covers the reachable pairs only.
+}
+
 \examples{
 net_by_diameter(fict_marvel)
 net_by_diameter(to_giant(fict_marvel))
