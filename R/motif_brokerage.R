@@ -139,7 +139,8 @@ node_by_brokering_activity <- function(.data, membership){
   }
   # missings should be none
   out[is.na(out)] <- 0
-  make_node_measure(out, .data)
+  make_node_measure(out, .data, measure = "brokerage activity",
+                    range = c(0, Inf), normalization = "none")
 }
 
 #' @rdname measure_brokerage 
@@ -171,7 +172,8 @@ node_by_brokering_exclusivity <- function(.data, membership){
   }
   # missings should be none
   out[is.na(out)] <- 0
-  make_node_measure(out, .data)
+  make_node_measure(out, .data, measure = "brokerage exclusivity",
+                    range = c(0, Inf), normalization = "none")
 }
 
 # Memberships ####

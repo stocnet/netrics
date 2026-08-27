@@ -17,11 +17,21 @@ A \code{tie_measure} numeric vector the length of the ties in the network,
 providing the scores for each tie.
 If the network is labelled,
 then the scores will be labelled with the ties' adjacent nodes' names.
+
+The object also carries the \code{measure} it computed, the \code{range} its values
+can fall within, and whether and how those values were \code{normalized}.
+These are shown as a one-line header when the object is printed.
+Where a measure offers a choice between several ways of counting the
+same thing, it also carries the \code{variant} it used.
+All can be retrieved with \code{attr()}.
 }
 \description{
 \code{tie_by_cohesion()} measures the ratio between common neighbors to ties'
 adjacent nodes and the total number of adjacent nodes,
 where high values indicate ties' embeddedness in dense local environments.
+
+A tie whose two endpoints have no other neighbours has nothing to be
+embedded in, and so returns \code{NaN} rather than 0.
 }
 \seealso{
 Other brokerage:

@@ -73,11 +73,13 @@ node's local neighbourhood.
 Where a measure is defined over all paths by default,
 a negative value or \code{NULL} imposes no limit.}
 
-\item{decay}{A proportion between 0 and 1 indicating how quickly
-the contribution of more distant nodes decays.
-By default 0.5, so that each additional step halves a node's contribution.
-As \code{decay} approaches 0 this approaches degree centrality,
-and as it approaches 1 this approaches the size of the node's component.}
+\item{decay}{A proportion between 0 and 1 giving how much of a contribution
+survives each additional step of distance or walk length.
+Lower values discount more steeply, so that only nearby others count;
+higher values discount less, so that longer walks continue to contribute.
+The measures that take a \code{decay} differ in what they discount and in what
+value leaves the measure in its most familiar form,
+so each documents its own default.}
 
 \item{from, to}{Index or name of a node to calculate distances from or to.}
 }
@@ -86,6 +88,13 @@ A \code{node_measure} numeric vector the length of the nodes in the network,
 providing the scores for each node.
 If the network is labelled,
 then the scores will be labelled with the nodes' names.
+
+The object also carries the \code{measure} it computed, the \code{range} its values
+can fall within, and whether and how those values were \code{normalized}.
+These are shown as a one-line header when the object is printed.
+Where a measure offers a choice between several ways of counting the
+same thing, it also carries the \code{variant} it used.
+All can be retrieved with \code{attr()}.
 }
 \description{
 These functions calculate common closeness-related centrality measures
@@ -132,8 +141,9 @@ are instead \emph{scaled} against the largest value observed in this network.
 }
 \section{Closeness centrality}{
 
-Closeness centrality, status centrality, or barycenter centrality is
-defined as the reciprocal of the farness or distance, \eqn{d},
+Closeness centrality is also known as status centrality,
+barycenter centrality, or the Sabidussi index.
+It is defined as the reciprocal of the farness or distance, \eqn{d},
 from a node to all other nodes in the network:
 \deqn{C_C(i) = \frac{1}{\sum_j d(i,j)}}
 When (more commonly) normalised, the numerator is instead \eqn{N-1}.
@@ -173,9 +183,17 @@ other nodes in the network in \eqn{k} steps or less,
 but the normalised version, \eqn{\frac{C_R}{N-1}}, is more common.
 Note that if \eqn{k = 1} (i.e. cutoff = 1), then this returns the node's degree.
 At higher cutoff reach centrality returns the size of the node's component.
+Counting the others reachable by a geodesic of length at most \eqn{k} is
+also known as \emph{geodesic \eqn{k}-path centrality} (Borgatti and Everett, 2006);
+note that it is not the same as the \eqn{k}-path indices that count paths
+rather than nodes.
 }
 
 \section{Decay centrality}{
+
+Here \code{decay} defaults to 0.5, so that each additional step halves a node's
+contribution. As it approaches 0 this approaches degree centrality,
+and as it approaches 1 the size of the node's component.
 
 Where reach centrality counts how many others are within a fixed number of
 steps, decay centrality weights every reachable other by how far away they
@@ -226,6 +244,10 @@ and \eqn{T} is the trace of \eqn{C} and \eqn{S_R} an arbitrary row sum
 Nodes with higher information centrality have a large number of short paths
 to many others in the network, and are thus considered to have greater
 control of the flow of information.
+
+Information centrality is the closeness-like member of the current-flow
+family; its betweenness-like counterpart is random walk (or current-flow)
+betweenness centrality, which netrics does not yet offer.
 }
 
 \section{Eccentricity centrality}{
@@ -263,6 +285,8 @@ Formally:
 \deqn{C_V(i) = \sum_{j,k} d(j,k) - \sum_{j,k} d(j,k,G\ i)}
 where \eqn{d(j,k,G\ i)} is the distance between nodes \eqn{j} and \eqn{k}
 in the network with node \eqn{i} removed.
+This is the closeness instance of the \emph{delta centrality} framework;
+for its betweenness instance see \code{\link[=node_by_induced]{node_by_induced()}}.
 }
 
 \section{Random walk closeness centrality}{
@@ -287,6 +311,11 @@ node_by_radiality(ison_adolescents)
 \references{
 \subsection{On closeness centrality}{
 
+Sabidussi, Gert. 1966.
+"The centrality index of a graph".
+\emph{Psychometrika}, 31(4): 581–603.
+\doi{10.1007/BF02289527}
+
 Bavelas, Alex. 1950.
 "Communication Patterns in Task‐Oriented Groups".
 \emph{The Journal of the Acoustical Society of America}, 22(6): 725–730.
@@ -308,6 +337,11 @@ Marchiori, Massimo, and Vito Latora. 2000.
 Dekker, Anthony. 2005.
 "Conceptual distance in social network analysis".
 \emph{Journal of Social Structure} 6(3).
+
+Boldi, Paolo, and Sebastiano Vigna. 2014.
+"Axioms for Centrality".
+\emph{Internet Mathematics} 10(3-4): 222-262.
+\doi{10.1080/15427951.2013.865686}
 }
 
 \subsection{On reach centrality}{
@@ -315,6 +349,11 @@ Dekker, Anthony. 2005.
 Borgatti, Stephen P., Martin G. Everett, and J.C. Johnson. 2013.
 \emph{Analyzing social networks}.
 London: SAGE Publications Limited.
+
+Borgatti, Stephen P., and Martin G. Everett. 2006.
+"A graph-theoretic perspective on centrality".
+\emph{Social Networks} 28(4): 466-484.
+\doi{10.1016/j.socnet.2005.11.005}
 }
 
 \subsection{On decay centrality}{

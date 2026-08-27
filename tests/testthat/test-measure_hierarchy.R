@@ -21,14 +21,21 @@ test_that("net_efficiency works correctly", {
   # Basic functionality tests
   effic_judo <- net_by_efficiency(ison_judo_moves)
 
-  # Return type tests
+  # Return type and range tests
   expect_true(is.numeric(as.numeric(effic_judo)))
-  expect_true(as.numeric(effic_judo) > 0)
+  expect_true(as.numeric(effic_judo) >= 0)
+  expect_true(as.numeric(effic_judo) <= 1)
+
+  # A tree carries no ties beyond those needed to connect it, and a complete
+  # network carries every tie it could; these are the endpoints of the scale.
+  expect_equal(as.numeric(net_by_efficiency(create_tree(8))), 1)
+  expect_equal(as.numeric(net_by_efficiency(create_empty(5))), 1)
+  expect_equal(as.numeric(net_by_efficiency(create_filled(6))), 0)
 })
 
 test_that("net_upperbound works correctly", {
   # Basic functionality tests
-  upper_judo <- net_by_efficiency(ison_judo_moves)
+  upper_judo <- net_by_upperbound(ison_judo_moves)
 
   # Return type and range tests
   expect_true(is.numeric(as.numeric(upper_judo)))
@@ -53,6 +60,7 @@ test_that("net_x_hierarchy works correctly", {
   expect_true(all(sapply(result, is.numeric)))
   expect_true(result$Connectedness >= 0 && result$Connectedness <= 1)
   expect_true(result$InvReciprocity >= 0 && result$InvReciprocity <= 1)
-  expect_true(result$Efficiency > 0)  # Should be positive (can be > 1)
+  # All four dimensions are on [0,1], which is what makes them comparable
+  expect_true(result$Efficiency >= 0 && result$Efficiency <= 1)
   expect_true(result$LeastUpperBound >= 0 && result$LeastUpperBound <= 1)
 })

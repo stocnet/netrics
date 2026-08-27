@@ -57,6 +57,13 @@ See the section below.}
 }
 \value{
 A \code{network_measure} numeric score.
+
+The object also carries the \code{measure} it computed, the \code{range} its values
+can fall within, and whether and how those values were \code{normalized}.
+These are shown as a one-line header when the object is printed.
+Where a measure offers a choice between several ways of counting the
+same thing, it also carries the \code{variant} it used.
+All can be retrieved with \code{attr()}.
 }
 \description{
 These functions measure how well some proposed structure describes a
@@ -84,7 +91,7 @@ direction, so they are not interchangeable:\tabular{llll}{
    measure \tab compares the network against \tab range \tab better \cr
    \code{net_by_core()} \tab a core-periphery model \tab -1 to 1 \tab higher \cr
    \code{net_by_factions()} \tab a components model \tab -1 to 1 \tab higher \cr
-   \code{net_by_modularity()} \tab the partition's communities \tab -0.5 to 1 \tab higher \cr
+   \code{net_by_modularity()} \tab the partition's communities \tab -0.5 to 1 (at the default resolution) \tab higher \cr
    \code{net_by_inconsistency()} \tab ideal block types \tab 0 upwards \tab \strong{lower} \cr
 }
 
@@ -103,9 +110,11 @@ and the periphery.
 
 Modularity measures the difference between the number of ties within each community
 from the number of ties expected within each community in a random graph
-with the same degrees, and ranges between -1 and +1.
-Modularity scores of +1 mean that ties only appear within communities,
-while -1 would mean that ties only appear between communities.
+with the same degrees. At the default \code{resolution} it ranges between
+-0.5 and +1; a higher resolution can push it further below that floor.
+Modularity scores approaching +1 mean that ties only appear within
+communities, while negative scores mean that ties appear between
+communities more often than chance would predict.
 A score of 0 would mean that ties are half within and half between communities,
 as one would expect in a random graph.
 

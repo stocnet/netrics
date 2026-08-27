@@ -81,10 +81,21 @@ net_by_degree(ison_southern_women, direction = "in")
 mode_by_degree(ison_southern_women, direction = "in")
 }
 \references{
+\subsection{On centralisation}{
+
+Freeman, Linton C. 1978.
+"Centrality in social networks: Conceptual clarification".
+\emph{Social Networks} 1(3): 215-239.
+\doi{10.1016/0378-8733(78)90021-7}
+}
+
+\subsection{On two-mode centralisation}{
+
 Borgatti, Stephen P., and Martin G. Everett. 1997.
 "Network analysis of 2-mode data."
 \emph{Social Networks} 19(3): 243-269.
 \doi{10.1016/S0378-8733(96)00301-2}
+}
 }
 \seealso{
 Other degree:

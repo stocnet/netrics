@@ -33,6 +33,13 @@ A \code{node_measure} numeric vector the length of the nodes in the network,
 providing the scores for each node.
 If the network is labelled,
 then the scores will be labelled with the nodes' names.
+
+The object also carries the \code{measure} it computed, the \code{range} its values
+can fall within, and whether and how those values were \code{normalized}.
+These are shown as a one-line header when the object is printed.
+Where a measure offers a choice between several ways of counting the
+same thing, it also carries the \code{variant} it used.
+All can be retrieved with \code{attr()}.
 }
 \description{
 These functions offer ways to measure the heterogeneity of an attribute

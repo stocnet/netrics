@@ -22,6 +22,13 @@ A \code{tie_measure} numeric vector the length of the ties in the network,
 providing the scores for each tie.
 If the network is labelled,
 then the scores will be labelled with the ties' adjacent nodes' names.
+
+The object also carries the \code{measure} it computed, the \code{range} its values
+can fall within, and whether and how those values were \code{normalized}.
+These are shown as a one-line header when the object is printed.
+Where a measure offers a choice between several ways of counting the
+same thing, it also carries the \code{variant} it used.
+All can be retrieved with \code{attr()}.
 }
 \description{
 \code{tie_by_betweenness()} measures the number of shortest paths going through a tie.
@@ -33,9 +40,32 @@ first transform the salient properties using e.g. \code{\link[manynet:to_undirec
 All centrality and centralization measures return normalized measures by default,
 including for two-mode networks.
 }
+\section{Edge betweenness centrality}{
+
+The betweenness centrality of a tie, also known as \emph{edge betweenness},
+counts the shortest paths between other nodes that run along it.
+It is best known as the quantity iteratively recomputed by the
+Girvan-Newman community detection algorithm, where the ties with the
+highest betweenness are removed first; see \code{\link[=node_in_betweenness]{node_in_betweenness()}}.
+}
+
 \examples{
 (tb <- tie_by_betweenness(ison_adolescents))
 ison_adolescents |> mutate_ties(weight = tb)
+}
+\references{
+\subsection{On edge betweenness centrality}{
+
+Girvan, Michelle, and Mark E.J. Newman. 2002.
+"Community structure in social and biological networks".
+\emph{Proceedings of the National Academy of Sciences} 99(12): 7821-7826.
+\doi{10.1073/pnas.122653799}
+
+Brandes, Ulrik. 2001.
+"A faster algorithm for betweenness centrality".
+\emph{Journal of Mathematical Sociology} 25(2): 163-177.
+\doi{10.1080/0022250X.2001.9990249}
+}
 }
 \seealso{
 Other betweenness:

@@ -9,7 +9,7 @@
 \alias{net_by_congruency}
 \title{Measuring network closure}
 \usage{
-net_by_reciprocity(.data, method = "default")
+net_by_reciprocity(.data, method = c("default", "ratio"))
 
 net_by_transitivity(.data)
 
@@ -31,6 +31,13 @@ See \code{?igraph::reciprocity}}
 }
 \value{
 A \code{network_measure} numeric score.
+
+The object also carries the \code{measure} it computed, the \code{range} its values
+can fall within, and whether and how those values were \code{normalized}.
+These are shown as a one-line header when the object is printed.
+Where a measure offers a choice between several ways of counting the
+same thing, it also carries the \code{variant} it used.
+All can be retrieved with \code{attr()}.
 }
 \description{
 These functions offer methods for summarising the closure in configurations
@@ -74,7 +81,8 @@ closed in the other, so cyclicality and transitivity coincide.
 
 The \code{net_by_equivalency()} function calculates the Robins and Alexander (2004)
 clustering coefficient for two-mode networks.
-Note that for weighted two-mode networks, the result is divided by the average tie weight.
+The coefficient is a proportion of three-paths, and so is defined on
+binary data; weighted networks are dichotomised before it is calculated.
 }
 
 \examples{

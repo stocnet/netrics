@@ -64,11 +64,16 @@ NULL
 #' @details
 #'   We use `{igraph}` routines behind the scenes here for consistency and because they are often faster.
 #'   For example, `igraph::eigencentrality()` is approximately 25% faster than `sna::evcent()`.
-#' @references 
+#' @references
 #'   ## On eigenvector centrality
-#'   Bonacich, Phillip. 1991. 
-#'   “Simultaneous Group and Individual Centralities.” 
-#'   _Social Networks_ 13(2):155–68. 
+#'   Bonacich, Phillip. 1972.
+#'   “Factoring and Weighting Approaches to Status Scores and Clique Identification.”
+#'   _The Journal of Mathematical Sociology_ 2(1): 113–120.
+#'   \doi{10.1080/0022250X.1972.9989806}
+#'
+#'   Bonacich, Phillip. 1991.
+#'   “Simultaneous Group and Individual Centralities.”
+#'   _Social Networks_ 13(2):155–68.
 #'   \doi{10.1016/0378-8733(91)90018-O}
 #' @examples
 #' node_by_eigenvector(ison_southern_women)
@@ -181,16 +186,23 @@ node_by_power <- function(.data, normalized = TRUE, scaled = FALSE,
   # onto [0,1]; `scaled = TRUE` instead returns shares summing to one.
   make_node_measure(out, .data, measure = "power centrality",
                     range = `if`(scaled, c(0, 1), c(-Inf, Inf)),
-                    normalization = `if`(scaled, "proportion", "none"))
+                    normalization = `if`(scaled, "proportional", "none"))
 }
 
-#' @rdname measure_central_eigen 
-#' @param alpha A constant that trades off the importance of external influence against the importance of connection.
-#'   When \eqn{\alpha = 0}, only the external influence matters.
-#'   As \eqn{\alpha} gets larger, only the connectivity matters and we reduce to eigenvector centrality.
-#'   By default \eqn{\alpha = 0.85}.
+#' @rdname measure_central_eigen
+#' @template param_decay
+#' @param alpha Deprecated; use `decay` instead.
 #' @section Alpha centrality:
-#'   Alpha or Katz (or Katz-Bonacich) centrality operates better than 
+#'   Alpha centrality is also known as Katz centrality, Katz-Bonacich
+#'   centrality, or Katz status.
+#'   The measure is named for the \eqn{\alpha} of Bonacich and Lloyd, which
+#'   trades off the importance of external influence against the importance of
+#'   connection: when \eqn{\alpha = 0} only the external influence matters, and
+#'   as \eqn{\alpha} grows only the connectivity matters and we reduce to
+#'   eigenvector centrality.
+#'   Since \eqn{\alpha} is a per-step discount, netrics takes it as `decay`,
+#'   the name it uses for that parameter throughout; by default 0.85.
+#'   It operates better than
 #'   eigenvector centrality for directed networks because eigenvector centrality 
 #'   will return 0s for all nodes not in the main strongly-connected component.
 #'   Each node's alpha centrality can be defined as:
@@ -218,41 +230,63 @@ node_by_power <- function(.data, normalized = TRUE, scaled = FALSE,
 #'   Bonacich, P. and Lloyd, P. 2001. 
 #'   “Eigenvector-like measures of centrality for asymmetric relations” 
 #'   _Social Networks_. 23(3):191-201.
-#' @export 
-node_by_alpha <- function(.data, alpha = 0.85){
+#' @export
+node_by_alpha <- function(.data, decay = 0.85, alpha = NULL){
   .data <- manynet::expect_nodes(.data)
+  decay <- check_decay(resolve_decay(decay, alpha, "alpha"))
   # Alpha centrality is unbounded and can be negative, so there is no
   # theoretical maximum to normalise against.
   make_node_measure(igraph::alpha_centrality(manynet::as_igraph(.data),
-                                             alpha = alpha),
+                                             alpha = decay),
                     .data, measure = "alpha centrality",
                     range = c(-Inf, Inf), normalization = "none")
 }
 
-#' @rdname measure_central_eigen 
-#' @references 
+#' @rdname measure_central_eigen
+#' @section Pagerank centrality:
+#'   Pagerank centrality, or the PageRank citation ranking, is the stationary
+#'   distribution of a random walk that at each step either follows an outgoing
+#'   tie or teleports to a node chosen at random.
+#'   Scores are therefore already shares that sum to one.
+#'   `decay` is the probability of following a tie rather than teleporting,
+#'   elsewhere called the damping factor; by default 0.85.
+#'   As it approaches 0 the walk teleports at every step and all nodes score
+#'   alike; as it approaches 1 the walk never teleports.
+#' @references
 #' ## On pagerank centrality
 #'   Brin, Sergey and Page, Larry. 1998.
 #'   "The anatomy of a large-scale hypertextual web search engine".
 #'   _Proceedings of the 7th World-Wide Web Conference_. Brisbane, Australia.
-#' @export 
-node_by_pagerank <- function(.data){
+#'
+#'   Page, Lawrence, Sergey Brin, Rajeev Motwani, and Terry Winograd. 1999.
+#'   "The PageRank Citation Ranking: Bringing Order to the Web".
+#'   _Stanford InfoLab Technical Report_ 1999-66.
+#' @export
+node_by_pagerank <- function(.data, decay = 0.85){
   .data <- manynet::expect_nodes(.data)
+  decay <- check_decay(decay)
   # PageRank is a stationary distribution over a random walk, so scores are
   # already shares summing to one and no further rescaling applies.
-  make_node_measure(igraph::page_rank(manynet::as_igraph(.data))$vector,
+  make_node_measure(igraph::page_rank(manynet::as_igraph(.data),
+                                      damping = decay)$vector,
                     .data, measure = "pagerank centrality",
-                    range = c(0, 1), normalization = "proportion")
+                    range = c(0, 1), normalization = "proportional")
 }
 
-#' @rdname measure_central_eigen 
-#' @references 
+#' @rdname measure_central_eigen
+#' @section Hub and authority centrality:
+#'   Hub and authority centrality are the two halves of Kleinberg's HITS
+#'   (Hyperlink-Induced Topic Search) algorithm, and are computed together:
+#'   good authorities are pointed to by good hubs, and good hubs point to good
+#'   authorities. `node_by_hub()` and `node_by_authority()` return one each.
+#'   In an undirected network the two coincide.
+#' @references
 #' ## On hub and authority centrality
 #'   Kleinberg, Jon. 1999.
-#'   "Authoritative sources in a hyperlinked environment". 
+#'   "Authoritative sources in a hyperlinked environment".
 #'   _Journal of the ACM_ 46(5): 604–632.
 #'   \doi{10.1145/324133.324140}
-#' @export 
+#' @export
 node_by_authority <- function(.data, scaled = TRUE){
   .data <- manynet::expect_nodes(.data)
   out <- igraph::hits_scores(manynet::as_igraph(.data), scale = scaled)$authority
@@ -271,38 +305,92 @@ node_by_hub <- function(.data, scaled = TRUE){
                     normalization = `if`(scaled, "scaled", "none"))
 }
 
-#' @rdname measure_central_eigen 
+#' @rdname measure_central_eigen
+#' @template param_decay
+#' @param method Character string indicating which closed walks to count.
+#'   By default `"all"`, which is subgraph centrality as usually defined.
+#'   `"odd"` counts only walks of odd length and `"even"` only those of even
+#'   length; the two sum to `"all"`.
+#'   Odd closed walks cannot occur within a bipartite structure, so a node
+#'   scoring near zero on `"odd"` sits in a locally two-mode-like neighbourhood.
+#'   See [net_by_bipartivity()] for the network-level counterpart.
 #' @section Subgraph centrality:
 #'   Subgraph centrality measures the participation of a node in all subgraphs
 #'   in the network, giving higher weight to smaller subgraphs.
 #'   It is defined as:
-#'   \deqn{C_S(i) = \sum_{k=0}^{\infty} \frac{(A^k)_{ii}}{k!}}
+#'   \deqn{C_S(i) = \sum_{k=0}^{\infty} \frac{\delta^k (A^k)_{ii}}{k!}}
 #'   where \eqn{(A^k)_{ii}} is the \eqn{i}th diagonal element of the \eqn{k}th power
 #'   of the adjacency matrix \eqn{A}, representing the number of closed walks
 #'   of length \eqn{k} starting and ending at node \eqn{i}.
 #'   Weighting by \eqn{\frac{1}{k!}} ensures that shorter walks contribute more
 #'   to the centrality score than longer walks.
-#'   
+#'   The `decay` parameter \eqn{\delta} tunes that further, discounting each
+#'   step by a further factor: at the default of 1 the measure takes its usual
+#'   form, and lower values concentrate it on ever shorter walks.
+#'
 #'   Subgraph centrality is a good choice of measure when the focus is on
 #'   local connectivity and clustering around a node,
 #'   as it captures the extent to which a node is embedded in tightly-knit
 #'   groups within the network.
 #'   Note though that because of the way spectral decomposition is used to
 #'   calculate this measure, this is not a good measure for very large graphs.
+#'
+#'   Summing these scores over all nodes gives the network's _Estrada index_,
+#'   so a node's subgraph centrality is its contribution to that index.
 #' @references
 #' ## On subgraph centrality
 #'   Estrada, Ernesto and Rodríguez-Velázquez, Juan A. 2005.
 #'   "Subgraph centrality in complex networks".
 #'   _Physical Review E_ 71(5): 056103.
 #'   \doi{10.1103/PhysRevE.71.056103}
-#' @export 
-node_by_subgraph <- function(.data){
+#'
+#' ## On odd and even closed walks
+#'   Estrada, Ernesto and Rodríguez-Velázquez, Juan A. 2005.
+#'   "Spectral measures of bipartivity in complex networks".
+#'   _Physical Review E_ 72(4): 046105.
+#'   \doi{10.1103/PhysRevE.72.046105}
+#' @export
+node_by_subgraph <- function(.data, decay = 1,
+                             method = c("all", "odd", "even")){
   .data <- manynet::expect_nodes(.data)
+  method <- match.arg(method)
+  decay <- check_decay(decay)
+  out <- .closed_walks(.data, decay, method)
   # Subgraph centrality grows exponentially in the number of closed walks and
   # has no theoretical maximum, so no normalisation is offered.
-  make_node_measure(igraph::subgraph_centrality(manynet::as_igraph(.data)),
-                    .data, measure = "subgraph centrality",
-                    range = c(0, Inf), normalization = "none")
+  # Every node has one closed walk of length zero, itself, which the "odd"
+  # count alone excludes.
+  make_node_measure(out, .data,
+                    measure = switch(method,
+                                     all = "subgraph centrality",
+                                     odd = "odd subgraph centrality",
+                                     even = "even subgraph centrality"),
+                    range = `if`(method == "odd", c(0, Inf), c(1, Inf)),
+                    normalization = "none", variant = method)
+}
+
+# Counts each node's closed walks, weighting a walk of length k by
+# `decay^k / k!`, which the eigendecomposition of a symmetric adjacency matrix
+# evaluates in closed form: `exp` sums walks of every length, while `sinh` and
+# `cosh` split that sum into the odd- and even-length walks respectively.
+# Shared by `node_by_subgraph()` and `net_by_bipartivity()`.
+# Unlike `igraph::subgraph_centrality()` this honours tie weights, which are
+# carried by the adjacency matrix itself.
+.closed_walks <- function(.data, decay = 1, method = c("all", "odd", "even")) {
+  method <- match.arg(method)
+  mat <- manynet::as_matrix(manynet::to_multilevel(.data))
+  if(!isSymmetric(unname(mat))) {
+    manynet::snet_info("Counting closed walks on the undirected form of this network, since the decomposition requires a symmetric matrix.")
+    mat <- (mat + t(mat))/2
+  }
+  eig <- eigen(mat, symmetric = TRUE)
+  weights <- switch(method,
+                    all = exp(decay * eig$values),
+                    odd = sinh(decay * eig$values),
+                    even = cosh(decay * eig$values))
+  out <- as.numeric((eig$vectors^2) %*% weights)
+  names(out) <- rownames(mat)
+  out
 }
 
 #' @rdname measure_central_eigen
@@ -364,7 +452,7 @@ NULL
 #' @export
 tie_by_eigenvector <- function(.data, normalized = TRUE){
   .data <- manynet::expect_ties(.data)
-  edge_adj <- manynet::to_ties(.data)
+  edge_adj <- manynet::to_linegraph(.data)
   out <- node_by_eigenvector(edge_adj, normalized = normalized)
   class(out) <- "numeric"
   make_tie_measure(out, .data, measure = "eigenvector centrality",

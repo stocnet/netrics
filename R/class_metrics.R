@@ -71,16 +71,45 @@ resolve_scaled <- function(scaled, scale = NULL) {
   scaled
 }
 
+# Several measures discount a contribution once per step of distance or walk
+# length. The literature names that discount differently in each case —
+# Bonacich and Lloyd's alpha, RoleSim's beta, PageRank's damping factor,
+# the t of subgraph centrality — but it is one parameter, so netrics calls it
+# `decay` everywhere: higher values discount less, so longer walks count for
+# more. These two helpers keep that vocabulary in step.
+
+# Accepts a superseded spelling and warns, as `resolve_scaled()` does.
+resolve_decay <- function(decay, old = NULL, old_name) {
+  if(!is.null(old)) {
+    warning("The `", old_name, "` argument has been renamed `decay`, ",
+            "the name this package uses for a per-step discount. ",
+            "Please use `decay` instead.", call. = FALSE)
+    decay <- old
+  }
+  decay
+}
+
+# The single bound for every such discount, so that the message and the
+# accepted range cannot drift apart between measures.
+check_decay <- function(decay, arg = "decay") {
+  if(!is.numeric(decay) || length(decay) != 1L || !is.finite(decay) ||
+     decay < 0 || decay > 1)
+    # `arg` is interpolated by `snet_abort()`, so it is passed as a value
+    # rather than pasted into the string.
+    manynet::snet_abort("`{arg}` must be a proportion between 0 and 1.")
+  decay
+}
+
 make_node_measure <- function(out, .data, measure = NULL, range = NULL,
-                              normalization = NULL) {
+                              normalization = NULL, variant = NULL) {
   if(manynet::is_labelled(.data)) names(out) <- manynet::node_names(.data)
   class(out) <- c("node_measure", class(out))
   attr(out, "mode") <- manynet::node_is_mode(.data)
-  set_measure_attributes(out, measure, range, normalization)
+  set_measure_attributes(out, measure, range, normalization, variant)
 }
 
 make_tie_measure <- function(out, .data, measure = NULL, range = NULL,
-                             normalization = NULL) {
+                             normalization = NULL, variant = NULL) {
   class(out) <- c("tie_measure", class(out))
   if(manynet::is_labelled(.data)){
     tie_names <- attr(igraph::E(.data), "vnames")
@@ -93,23 +122,25 @@ make_tie_measure <- function(out, .data, measure = NULL, range = NULL,
       names(out) <- paste0(ties$from, "->", ties$to) else
         names(out) <- paste0(ties$from, "-", ties$to)
   }
-  set_measure_attributes(out, measure, range, normalization)
+  set_measure_attributes(out, measure, range, normalization, variant)
 }
 
 make_network_measure <- function(out, .data, call, measure = NULL,
-                                 range = NULL, normalization = NULL) {
+                                 range = NULL, normalization = NULL,
+                                 variant = NULL) {
   class(out) <- c("network_measure", class(out))
   attr(out, "mode") <- manynet::net_dims(.data)
   attr(out, "call") <- call
-  set_measure_attributes(out, measure, range, normalization)
+  set_measure_attributes(out, measure, range, normalization, variant)
 }
 
 make_mode_measure <- function(out, .data, call, measure = NULL,
-                              range = NULL, normalization = NULL) {
+                              range = NULL, normalization = NULL,
+                              variant = NULL) {
   class(out) <- c("mode_measure", "network_measure", class(out))
   attr(out, "mode") <- manynet::net_dims(.data)
   attr(out, "call") <- call
-  set_measure_attributes(out, measure, range, normalization)
+  set_measure_attributes(out, measure, range, normalization, variant)
 }
 
 make_node_member <- function(out, .data) {

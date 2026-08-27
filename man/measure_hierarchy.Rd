@@ -20,6 +20,13 @@ For more information on possible coercions, see e.g. \code{\link[manynet:as_stoc
 }
 \value{
 A \code{network_measure} numeric score.
+
+The object also carries the \code{measure} it computed, the \code{range} its values
+can fall within, and whether and how those values were \code{normalized}.
+These are shown as a one-line header when the object is printed.
+Where a measure offers a choice between several ways of counting the
+same thing, it also carries the \code{variant} it used.
+All can be retrieved with \code{attr()}.
 }
 \description{
 These functions, together with \code{net_reciprocity()}, are used jointly to
@@ -32,6 +39,19 @@ or the degree to which network is a single component.
 \item \code{net_by_upperbound()} measures the Krackhardt (least) upper bound score.
 }
 }
+\section{Efficiency}{
+
+A perfect hierarchy is a tree: every node but the root has exactly one
+superior, and there are no ties to spare. Krackhardt's efficiency asks how
+close a network comes to that, by counting the ties it carries in excess of
+the minimum needed to hold its components together, as a proportion of the
+most excess ties it could possibly carry:
+\deqn{E = 1 - \frac{|E| - \sum_i (N_i - 1)}{\sum_i \left(M_i - (N_i - 1)\right)}}
+where \eqn{N_i} is the size of weak component \eqn{i} and \eqn{M_i} the
+number of ties possible within it. A tree or forest scores 1, and a
+complete network 0.
+}
+
 \examples{
 net_by_connectedness(ison_networkers)
 1 - net_by_reciprocity(ison_networkers)

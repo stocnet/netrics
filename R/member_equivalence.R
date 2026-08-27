@@ -103,8 +103,8 @@ node_in_structural <- function(.data,
 #'   By default `"rolesim"`; `"rege"` is also available.
 #'   Fewer, identifiable letters, e.g. `"ro"` for RoleSim, is sufficient.
 #'   See [regularity_rolesim()] and [regularity_rege()] for how they differ.
-#' @param beta A decay parameter between 0 and 1 passed to [regularity_rolesim()],
-#'   controlling how much weight is given to the recursive component.
+#' @template param_decay
+#' @param beta Deprecated; use `decay` instead.
 #' @section Regular equivalence:
 #'   Two nodes are regularly equivalent if each has ties to the same _kinds_ of
 #'   others, even where those others are not the same individuals and are not
@@ -133,13 +133,14 @@ node_in_regular <- function(.data,
                                          "canberra", "binary", "minkowski"),
                             Kmax = 8L,
                             regularity = c("rolesim", "rege"),
-                            beta = 0.15){
+                            decay = 0.15, beta = NULL){
   .data <- manynet::expect_nodes(.data)
   regularity <- match.arg(regularity)
+  decay <- resolve_decay(decay, beta, "beta")
   manynet::snet_info("Calculating regular equivalence using",
                      "{.fn regularity_{regularity}}.")
   mat <- switch(regularity,
-                rolesim = regularity_rolesim(.data, beta = beta),
+                rolesim = regularity_rolesim(.data, decay = decay),
                 rege = regularity_rege(.data))
   node_in_equivalence(.data, mat,
                    k = k, cluster = cluster, distance = distance, Kmax = Kmax)

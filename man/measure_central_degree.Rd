@@ -63,6 +63,13 @@ A \code{node_measure} numeric vector the length of the nodes in the network,
 providing the scores for each node.
 If the network is labelled,
 then the scores will be labelled with the nodes' names.
+
+The object also carries the \code{measure} it computed, the \code{range} its values
+can fall within, and whether and how those values were \code{normalized}.
+These are shown as a one-line header when the object is printed.
+Where a measure offers a choice between several ways of counting the
+same thing, it also carries the \code{variant} it used.
+All can be retrieved with \code{attr()}.
 }
 \description{
 These functions calculate common degree-related centrality measures for one- and two-mode networks:
@@ -108,6 +115,15 @@ outdegree (degree of outgoing ties) and
 indegree (degree of incoming ties).
 }
 
+\section{Strength centrality}{
+
+Given a weighted network, \code{node_by_degree()} sums tie weights rather than
+counting ties, which is also known as \emph{strength centrality} or \emph{weighted
+degree centrality}. The \code{alpha} argument tunes between the two, following
+Opsahl et al. (2010), and the measure reports itself as
+"strength centrality" whenever \code{alpha} is not zero.
+}
+
 \section{Leverage centrality}{
 
 Leverage centrality concerns the degree of a node compared with that of its
@@ -119,6 +135,14 @@ neighbours, \eqn{J}:
 node_by_degree(ison_southern_women)
 }
 \references{
+\subsection{On degree centrality}{
+
+Freeman, Linton C. 1978.
+"Centrality in social networks: Conceptual clarification".
+\emph{Social Networks} 1(3): 215-239.
+\doi{10.1016/0378-8733(78)90021-7}
+}
+
 \subsection{On multimodal centrality}{
 
 Faust, Katherine. 1997.

@@ -5,6 +5,7 @@
 \alias{net_by_richclub}
 \alias{net_by_smallworld}
 \alias{net_by_scalefree}
+\alias{net_by_bipartivity}
 \alias{net_by_balance}
 \title{Measuring network topological features}
 \source{
@@ -16,6 +17,8 @@ net_by_richclub(.data)
 net_by_smallworld(.data, method = c("omega", "sigma", "SWI"), times = 100)
 
 net_by_scalefree(.data)
+
+net_by_bipartivity(.data)
 
 net_by_balance(.data)
 }
@@ -38,20 +41,28 @@ but this measure is highly sensitive to network size.
 \deqn{\frac{L_r}{L} - \frac{C}{C_l}},
 where \eqn{C_l} is the clustering coefficient for a lattice graph
 with the same dimensions.
-\eqn{\omega} ranges between 0 and 1,
-where 1 is as close to a small-world as possible.
+\eqn{\omega} ranges between -1 and 1, where values close to 0 are
+as close to a small-world as possible; negative values indicate a
+lattice-like network, and positive values a more random one.
 \item "SWI" is an alternative proposed by Neal (2017),
 \deqn{\frac{L - L_l}{L_r - L_l} \times \frac{C - C_r}{C_l - C_r}},
 where \eqn{L_l} is the average path length for a lattice graph
 with the same dimensions.
-\eqn{SWI} also ranges between 0 and 1 with the same interpretation,
-but where there may not be a network for which \eqn{SWI = 1}.
+\eqn{SWI} ranges between 0 and 1, where 1 is as close to a small-world
+as possible, though there may not be a network for which \eqn{SWI = 1}.
 }}
 
 \item{times}{Integer of number of simulations.}
 }
 \value{
 A \code{network_measure} numeric score.
+
+The object also carries the \code{measure} it computed, the \code{range} its values
+can fall within, and whether and how those values were \code{normalized}.
+These are shown as a one-line header when the object is printed.
+Where a measure offers a choice between several ways of counting the
+same thing, it also carries the \code{variant} it used.
+All can be retrieved with \code{attr()}.
 }
 \description{
 These functions measure topological features that are intrinsic to a
@@ -69,8 +80,29 @@ a power-law distribution.
 the proportion of balanced triangles,
 ranging between \code{0} if all triangles are imbalanced and
 \code{1} if all triangles are balanced.
+\item \code{net_by_bipartivity()} measures how close a network is to being
+bipartite, that is, to dividing into two sets with ties only between them.
 }
 }
+\section{Bipartivity}{
+
+A network is bipartite when its nodes divide into two sets with ties only
+running between them and never within, which is exactly the condition that
+it contains no closed walk of odd length.
+Bipartivity therefore measures how close a network comes to that condition,
+as the share of its closed walks that are of even length:
+\deqn{b(G) = \frac{\sum_i C_{even}(i)}{\sum_i C_{all}(i)}}
+A genuinely two-mode network scores exactly 1,
+and the more odd-length structure a network carries — triangles above all —
+the further it falls below 1.
+Note that this asks whether a network \emph{could} be split in two,
+not whether it has been: it is defined on a one-mode network,
+whereas \code{\link[manynet:is_twomode]{manynet::is_twomode()}} reports whether nodes are already
+partitioned into two modes.
+The node-level counterpart is \code{\link[=node_by_subgraph]{node_by_subgraph()}} with
+\code{method = "odd"} or \code{"even"}.
+}
+
 \examples{
 net_by_richclub(ison_adolescents)
 net_by_smallworld(ison_brandes)
@@ -78,6 +110,9 @@ net_by_smallworld(ison_southern_women)
 net_by_scalefree(ison_adolescents)
 net_by_scalefree(generate_scalefree(50, 1.5))
 net_by_scalefree(create_lattice(100))
+# A two-mode network is bipartite by construction
+net_by_bipartivity(ison_southern_women)
+net_by_bipartivity(ison_adolescents)
 net_by_balance(to_uniplex(fict_marvel, "relationship"))
 }
 \references{
@@ -128,6 +163,14 @@ Holme, Petter. 2019.
 "Rare and everywhere: Perspectives on scale-free networks",
 \emph{Nature Communications}, 10(1): 1016.
 \doi{10.1038/s41467-019-09038-8}
+}
+
+\subsection{On bipartivity}{
+
+Estrada, Ernesto, and Juan A. Rodríguez-Velázquez. 2005.
+"Spectral measures of bipartivity in complex networks".
+\emph{Physical Review E} 72(4): 046105.
+\doi{10.1103/PhysRevE.72.046105}
 }
 
 \subsection{On balance theory}{

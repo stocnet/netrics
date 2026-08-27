@@ -22,6 +22,13 @@ A \code{tie_measure} numeric vector the length of the ties in the network,
 providing the scores for each tie.
 If the network is labelled,
 then the scores will be labelled with the ties' adjacent nodes' names.
+
+The object also carries the \code{measure} it computed, the \code{range} its values
+can fall within, and whether and how those values were \code{normalized}.
+These are shown as a one-line header when the object is printed.
+Where a measure offers a choice between several ways of counting the
+same thing, it also carries the \code{variant} it used.
+All can be retrieved with \code{attr()}.
 }
 \description{
 \code{tie_by_degree()} measures the degree centrality of ties in a network

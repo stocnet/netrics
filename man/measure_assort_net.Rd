@@ -64,6 +64,13 @@ a suitable alternative will be used instead with a message.}
 }
 \value{
 A \code{network_measure} numeric score.
+
+The object also carries the \code{measure} it computed, the \code{range} its values
+can fall within, and whether and how those values were \code{normalized}.
+These are shown as a one-line header when the object is printed.
+Where a measure offers a choice between several ways of counting the
+same thing, it also carries the \code{variant} it used.
+All can be retrieved with \code{attr()}.
 }
 \description{
 These functions offer ways to measure the distribution or assortativity
@@ -96,6 +103,17 @@ minus the number of ties within (or \emph{internal}) these groups
 divided by the total number of ties.
 This value can range from 1 to -1,
 where 1 indicates ties only between categories/groups and -1 ties only within categories/groups.
+}
+
+\section{Spatial autocorrelation}{
+
+Moran's I is conventionally read on \eqn{[-1, 1]}, where positive values
+indicate that tied nodes hold similar values and negative values that they
+hold dissimilar ones. Its actual bounds, however, are set by the
+eigenvalues of the weight matrix, and on the unstandardised weights used
+here it can fall outside that interval. Its range is therefore declared
+open at both ends, and the conventional interval read as a guide rather
+than a guarantee.
 }
 
 \examples{

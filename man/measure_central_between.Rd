@@ -34,6 +34,13 @@ A \code{node_measure} numeric vector the length of the nodes in the network,
 providing the scores for each node.
 If the network is labelled,
 then the scores will be labelled with the nodes' names.
+
+The object also carries the \code{measure} it computed, the \code{range} its values
+can fall within, and whether and how those values were \code{normalized}.
+These are shown as a one-line header when the object is printed.
+Where a measure offers a choice between several ways of counting the
+same thing, it also carries the \code{variant} it used.
+All can be retrieved with \code{attr()}.
 }
 \description{
 These functions calculate common betweenness-related centrality measures for one- and two-mode networks:
@@ -71,13 +78,23 @@ measures where available, reported when the measure is printed.
 Betweenness centrality is based on the number of shortest paths between
 other nodes that a node lies upon:
 \deqn{C_B(i) = \sum_{j,k:j \neq k, j \neq i, k \neq i} \frac{g_{jik}}{g_{jk}}}
+
+Setting \code{cutoff} counts only those shortest paths no longer than \eqn{k},
+which elsewhere goes by \emph{distance-bounded betweenness} (Brandes, 2008) or
+\emph{range-limited betweenness} (Ercsey-Ravasz et al., 2012).
+Normalization still applies, so a bounded score remains comparable across
+networks.
 }
 
 \section{Induced centrality}{
 
-Induced centrality or vitality centrality concerns the change in
-total betweenness centrality between networks with and without a given node:
+Induced centrality concerns the change in total betweenness centrality
+between networks with and without a given node:
 \deqn{C_I(i) = C_B(G) - C_B(G\ i)}
+This "remove the node and re-measure" logic is the general
+\emph{delta centrality} framework of Latora and Marchiori (2007);
+\code{node_by_induced()} is its betweenness instance, and
+\code{\link[=node_by_vitality]{node_by_vitality()}} its closeness instance.
 }
 
 \section{Flow betweenness centrality}{
@@ -111,6 +128,19 @@ Freeman, Linton. 1977.
 \doi{10.2307/3033543}
 }
 
+\subsection{On bounding path length}{
+
+Brandes, Ulrik. 2008.
+"On variants of shortest-path betweenness centrality and their generic computation".
+\emph{Social Networks} 30(2): 136-145.
+\doi{10.1016/j.socnet.2007.11.001}
+
+Ercsey-Ravasz, Maria, Ryan N. Lichtenwalter, Nitesh V. Chawla, and Zoltan Toroczkai. 2012.
+"Range-limited centrality measures in complex networks".
+\emph{Physical Review E} 85(6): 066103.
+\doi{10.1103/PhysRevE.85.066103}
+}
+
 \subsection{On induced centrality}{
 
 Everett, Martin and Steve Borgatti. 2010.
@@ -119,11 +149,20 @@ Everett, Martin and Steve Borgatti. 2010.
 \doi{10.1016/j.socnet.2010.06.004}
 }
 
+\subsection{On delta centrality}{
+
+Latora, Vito, and Massimo Marchiori. 2007.
+"A measure of centrality based on network efficiency".
+\emph{New Journal of Physics} 9(6): 188.
+\doi{10.1088/1367-2630/9/6/188}
+}
+
 \subsection{On flow centrality}{
 
-Freeman, Lin, Stephen Borgatti, and Douglas White. 1991.
+Freeman, Linton C., Stephen P. Borgatti, and Douglas R. White. 1991.
 "Centrality in Valued Graphs: A Measure of Betweenness Based on Network Flow".
 \emph{Social Networks}, 13(2), 141-154.
+\doi{10.1016/0378-8733(91)90017-N}
 
 Koschutzki, D., K.A. Lehmann, L. Peeters, S. Richter, D. Tenfelde-Podehl, and O. Zlotowski. 2005.
 "Centrality Indices".

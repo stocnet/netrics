@@ -54,21 +54,27 @@ NULL
 
 #' @rdname measure_central_close
 #' @section Closeness centrality:
-#'   Closeness centrality, status centrality, or barycenter centrality is 
-#'   defined as the reciprocal of the farness or distance, \eqn{d}, 
+#'   Closeness centrality is also known as status centrality,
+#'   barycenter centrality, or the Sabidussi index.
+#'   It is defined as the reciprocal of the farness or distance, \eqn{d},
 #'   from a node to all other nodes in the network:
 #'   \deqn{C_C(i) = \frac{1}{\sum_j d(i,j)}}
 #'   When (more commonly) normalised, the numerator is instead \eqn{N-1}.
 #' @references
 #' ## On closeness centrality
-#' Bavelas, Alex. 1950. 
-#' "Communication Patterns in Task‐Oriented Groups". 
+#' Sabidussi, Gert. 1966.
+#' "The centrality index of a graph".
+#' _Psychometrika_, 31(4): 581–603.
+#' \doi{10.1007/BF02289527}
+#'
+#' Bavelas, Alex. 1950.
+#' "Communication Patterns in Task‐Oriented Groups".
 #' _The Journal of the Acoustical Society of America_, 22(6): 725–730.
 #' \doi{10.1121/1.1906679}
-#' 
-#' Harary, Frank. 1959. 
-#' "Status and Contrastatus". 
-#' _Sociometry_, 22(1): 23–43. 
+#'
+#' Harary, Frank. 1959.
+#' "Status and Contrastatus".
+#' _Sociometry_, 22(1): 23–43.
 #' \doi{10.2307/2785610}
 #' @examples
 #' node_by_closeness(ison_southern_women)
@@ -126,6 +132,11 @@ node_by_closeness <- function(.data, normalized = TRUE,
 #'   Dekker, Anthony. 2005.
 #'   "Conceptual distance in social network analysis".
 #'   _Journal of Social Structure_ 6(3).
+#'
+#'   Boldi, Paolo, and Sebastiano Vigna. 2014.
+#'   "Axioms for Centrality".
+#'   _Internet Mathematics_ 10(3-4): 222-262.
+#'   \doi{10.1080/15427951.2013.865686}
 #' @export
 node_by_harmonic <- function(.data, normalized = TRUE, cutoff = -1,
                              decay = NULL, direction = c("out", "in")){
@@ -137,8 +148,7 @@ node_by_harmonic <- function(.data, normalized = TRUE, cutoff = -1,
                                        normalized = normalized, cutoff = cutoff)
     meas <- "harmonic centrality"
   } else {
-    if(decay < 0 | decay > 1)
-      manynet::snet_abort("`decay` must be a proportion between 0 and 1.")
+    check_decay(decay)
     # note that igraph's default mode ignores direction, which would treat a
     # directed network as though every tie ran both ways
     dists <- igraph::distances(manynet::as_igraph(.data), mode = direction)
@@ -170,11 +180,20 @@ node_by_harmonic <- function(.data, normalized = TRUE, cutoff = -1,
 #'   but the normalised version, \eqn{\frac{C_R}{N-1}}, is more common.
 #'   Note that if \eqn{k = 1} (i.e. cutoff = 1), then this returns the node's degree.
 #'   At higher cutoff reach centrality returns the size of the node's component.
+#'   Counting the others reachable by a geodesic of length at most \eqn{k} is
+#'   also known as _geodesic \eqn{k}-path centrality_ (Borgatti and Everett, 2006);
+#'   note that it is not the same as the \eqn{k}-path indices that count paths
+#'   rather than nodes.
 #' @references
 #' ## On reach centrality
-#' Borgatti, Stephen P., Martin G. Everett, and J.C. Johnson. 2013. 
-#' _Analyzing social networks_. 
+#' Borgatti, Stephen P., Martin G. Everett, and J.C. Johnson. 2013.
+#' _Analyzing social networks_.
 #' London: SAGE Publications Limited.
+#'
+#' Borgatti, Stephen P., and Martin G. Everett. 2006.
+#' "A graph-theoretic perspective on centrality".
+#' _Social Networks_ 28(4): 466-484.
+#' \doi{10.1016/j.socnet.2005.11.005}
 #' @examples
 #' node_by_reach(ison_adolescents)
 #' @export
@@ -195,12 +214,12 @@ node_by_reach <- function(.data, normalized = TRUE, cutoff = 2){
 }
 
 #' @rdname measure_central_close
-#' @param decay A proportion between 0 and 1 indicating how quickly
-#'   the contribution of more distant nodes decays.
-#'   By default 0.5, so that each additional step halves a node's contribution.
-#'   As `decay` approaches 0 this approaches degree centrality,
-#'   and as it approaches 1 this approaches the size of the node's component.
+#' @template param_decay
 #' @section Decay centrality:
+#'   Here `decay` defaults to 0.5, so that each additional step halves a node's
+#'   contribution. As it approaches 0 this approaches degree centrality,
+#'   and as it approaches 1 the size of the node's component.
+#'
 #'   Where reach centrality counts how many others are within a fixed number of
 #'   steps, decay centrality weights every reachable other by how far away they
 #'   are, so that nearer nodes count for more:
@@ -300,6 +319,10 @@ node_by_radiality <- function(.data, normalized = TRUE){
 #'   Nodes with higher information centrality have a large number of short paths
 #'   to many others in the network, and are thus considered to have greater
 #'   control of the flow of information.
+#'
+#'   Information centrality is the closeness-like member of the current-flow
+#'   family; its betweenness-like counterpart is random walk (or current-flow)
+#'   betweenness centrality, which netrics does not yet offer.
 #' @references
 #' ## On information centrality
 #' Stephenson, Karen, and Marvin Zelen. 1989.
@@ -323,7 +346,7 @@ node_by_information <- function(.data, normalized = TRUE){
   # so the result is a set of shares rather than a [0,1] normalisation.
   make_node_measure(out, .data, measure = "information centrality",
                     range = `if`(normalized, c(0, 1), c(0, Inf)),
-                    normalization = `if`(normalized, "proportion", "none"))
+                    normalization = `if`(normalized, "proportional", "none"))
 }
 
 #' @rdname measure_central_close
@@ -406,6 +429,8 @@ node_by_distance <- function(.data, from, to, normalized = TRUE){
 #'   \deqn{C_V(i) = \sum_{j,k} d(j,k) - \sum_{j,k} d(j,k,G\ i)}
 #'   where \eqn{d(j,k,G\ i)} is the distance between nodes \eqn{j} and \eqn{k}
 #'   in the network with node \eqn{i} removed.
+#'   This is the closeness instance of the _delta centrality_ framework;
+#'   for its betweenness instance see [node_by_induced()].
 #' @references
 #' ## On closeness vitality centrality
 #'   Koschuetzki, Dirk, Katharina Lehmann, Leon Peeters, Stefan Richter,
@@ -542,7 +567,7 @@ NULL
 #' @export
 tie_by_closeness <- function(.data, normalized = TRUE){
   .data <- manynet::expect_ties(.data)
-  edge_adj <- manynet::to_ties(.data)
+  edge_adj <- manynet::to_linegraph(.data)
   out <- node_by_closeness(edge_adj, normalized = normalized)
   class(out) <- "numeric"
   make_tie_measure(out, .data, measure = "closeness centrality",

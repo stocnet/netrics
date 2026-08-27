@@ -22,15 +22,15 @@ node_by_power(
   exponent = 1
 )
 
-node_by_alpha(.data, alpha = 0.85)
+node_by_alpha(.data, decay = 0.85, alpha = NULL)
 
-node_by_pagerank(.data)
+node_by_pagerank(.data, decay = 0.85)
 
 node_by_authority(.data, scaled = TRUE)
 
 node_by_hub(.data, scaled = TRUE)
 
-node_by_subgraph(.data)
+node_by_subgraph(.data, decay = 1, method = c("all", "odd", "even"))
 
 node_by_posneg(.data)
 }
@@ -55,16 +55,36 @@ scores are not comparable across different networks.}
 the Bonacich power centrality score.
 Can be positive or negative.}
 
-\item{alpha}{A constant that trades off the importance of external influence against the importance of connection.
-When \eqn{\alpha = 0}, only the external influence matters.
-As \eqn{\alpha} gets larger, only the connectivity matters and we reduce to eigenvector centrality.
-By default \eqn{\alpha = 0.85}.}
+\item{decay}{A proportion between 0 and 1 giving how much of a contribution
+survives each additional step of distance or walk length.
+Lower values discount more steeply, so that only nearby others count;
+higher values discount less, so that longer walks continue to contribute.
+The measures that take a \code{decay} differ in what they discount and in what
+value leaves the measure in its most familiar form,
+so each documents its own default.}
+
+\item{alpha}{Deprecated; use \code{decay} instead.}
+
+\item{method}{Character string indicating which closed walks to count.
+By default \code{"all"}, which is subgraph centrality as usually defined.
+\code{"odd"} counts only walks of odd length and \code{"even"} only those of even
+length; the two sum to \code{"all"}.
+Odd closed walks cannot occur within a bipartite structure, so a node
+scoring near zero on \code{"odd"} sits in a locally two-mode-like neighbourhood.
+See \code{\link[=net_by_bipartivity]{net_by_bipartivity()}} for the network-level counterpart.}
 }
 \value{
 A \code{node_measure} numeric vector the length of the nodes in the network,
 providing the scores for each node.
 If the network is labelled,
 then the scores will be labelled with the nodes' names.
+
+The object also carries the \code{measure} it computed, the \code{range} its values
+can fall within, and whether and how those values were \code{normalized}.
+These are shown as a one-line header when the object is printed.
+Where a measure offers a choice between several ways of counting the
+same thing, it also carries the \code{variant} it used.
+All can be retrieved with \code{attr()}.
 }
 \description{
 These functions calculate common eigenvector-related centrality
@@ -138,7 +158,16 @@ the network size.
 
 \section{Alpha centrality}{
 
-Alpha or Katz (or Katz-Bonacich) centrality operates better than
+Alpha centrality is also known as Katz centrality, Katz-Bonacich
+centrality, or Katz status.
+The measure is named for the \eqn{\alpha} of Bonacich and Lloyd, which
+trades off the importance of external influence against the importance of
+connection: when \eqn{\alpha = 0} only the external influence matters, and
+as \eqn{\alpha} grows only the connectivity matters and we reduce to
+eigenvector centrality.
+Since \eqn{\alpha} is a per-step discount, netrics takes it as \code{decay},
+the name it uses for that parameter throughout; by default 0.85.
+It operates better than
 eigenvector centrality for directed networks because eigenvector centrality
 will return 0s for all nodes not in the main strongly-connected component.
 Each node's alpha centrality can be defined as:
@@ -158,17 +187,41 @@ Rather than performing this iteration though,
 most routines solve the equation \eqn{x = (I - \frac{1}{\lambda} A^T)^{-1} e}.
 }
 
+\section{Pagerank centrality}{
+
+Pagerank centrality, or the PageRank citation ranking, is the stationary
+distribution of a random walk that at each step either follows an outgoing
+tie or teleports to a node chosen at random.
+Scores are therefore already shares that sum to one.
+\code{decay} is the probability of following a tie rather than teleporting,
+elsewhere called the damping factor; by default 0.85.
+As it approaches 0 the walk teleports at every step and all nodes score
+alike; as it approaches 1 the walk never teleports.
+}
+
+\section{Hub and authority centrality}{
+
+Hub and authority centrality are the two halves of Kleinberg's HITS
+(Hyperlink-Induced Topic Search) algorithm, and are computed together:
+good authorities are pointed to by good hubs, and good hubs point to good
+authorities. \code{node_by_hub()} and \code{node_by_authority()} return one each.
+In an undirected network the two coincide.
+}
+
 \section{Subgraph centrality}{
 
 Subgraph centrality measures the participation of a node in all subgraphs
 in the network, giving higher weight to smaller subgraphs.
 It is defined as:
-\deqn{C_S(i) = \sum_{k=0}^{\infty} \frac{(A^k)_{ii}}{k!}}
+\deqn{C_S(i) = \sum_{k=0}^{\infty} \frac{\delta^k (A^k)_{ii}}{k!}}
 where \eqn{(A^k)_{ii}} is the \eqn{i}th diagonal element of the \eqn{k}th power
 of the adjacency matrix \eqn{A}, representing the number of closed walks
 of length \eqn{k} starting and ending at node \eqn{i}.
 Weighting by \eqn{\frac{1}{k!}} ensures that shorter walks contribute more
 to the centrality score than longer walks.
+The \code{decay} parameter \eqn{\delta} tunes that further, discounting each
+step by a further factor: at the default of 1 the measure takes its usual
+form, and lower values concentrate it on ever shorter walks.
 
 Subgraph centrality is a good choice of measure when the focus is on
 local connectivity and clustering around a node,
@@ -176,6 +229,9 @@ as it captures the extent to which a node is embedded in tightly-knit
 groups within the network.
 Note though that because of the way spectral decomposition is used to
 calculate this measure, this is not a good measure for very large graphs.
+
+Summing these scores over all nodes gives the network's \emph{Estrada index},
+so a node's subgraph centrality is its contribution to that index.
 }
 
 \section{PN (positive-negative) centrality}{
@@ -196,6 +252,11 @@ node_by_power(ison_southern_women, exponent = 0.5)
 }
 \references{
 \subsection{On eigenvector centrality}{
+
+Bonacich, Phillip. 1972.
+“Factoring and Weighting Approaches to Status Scores and Clique Identification.”
+\emph{The Journal of Mathematical Sociology} 2(1): 113–120.
+\doi{10.1080/0022250X.1972.9989806}
 
 Bonacich, Phillip. 1991.
 “Simultaneous Group and Individual Centralities.”
@@ -227,6 +288,10 @@ Bonacich, P. and Lloyd, P. 2001.
 Brin, Sergey and Page, Larry. 1998.
 "The anatomy of a large-scale hypertextual web search engine".
 \emph{Proceedings of the 7th World-Wide Web Conference}. Brisbane, Australia.
+
+Page, Lawrence, Sergey Brin, Rajeev Motwani, and Terry Winograd. 1999.
+"The PageRank Citation Ranking: Bringing Order to the Web".
+\emph{Stanford InfoLab Technical Report} 1999-66.
 }
 
 \subsection{On hub and authority centrality}{
@@ -243,6 +308,14 @@ Estrada, Ernesto and Rodríguez-Velázquez, Juan A. 2005.
 "Subgraph centrality in complex networks".
 \emph{Physical Review E} 71(5): 056103.
 \doi{10.1103/PhysRevE.71.056103}
+}
+
+\subsection{On odd and even closed walks}{
+
+Estrada, Ernesto and Rodríguez-Velázquez, Juan A. 2005.
+"Spectral measures of bipartivity in complex networks".
+\emph{Physical Review E} 72(4): 046105.
+\doi{10.1103/PhysRevE.72.046105}
 }
 
 \subsection{On signed centrality}{

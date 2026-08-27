@@ -13,9 +13,9 @@
 #'   are similar, which is the defining property of regular equivalence.
 #'   They differ in how they pair up two nodes' alters.
 #' @template param_data
-#' @param beta A decay parameter between 0 and 1 controlling how much weight
-#'   is given to the recursive component. By default 0.15.
-#' @param iterations Integer number of iterations. 
+#' @template param_decay
+#' @param beta Deprecated; use `decay` instead.
+#' @param iterations Integer number of iterations.
 #'   By default 3 for `regularity_rege()`; `regularity_rolesim()` iterates to convergence.
 #' @returns A square similarity matrix with one row and column per node.
 #' @references
@@ -39,8 +39,9 @@ NULL
 #'   RoleSim pairs up two nodes' alters by finding the _maximal matching_
 #'   between them, that is, the one-to-one pairing that maximises total
 #'   similarity, and then averages over it:
-#'   \deqn{s(u,v) = (1-\beta) \frac{\sum_{(x,y) \in M} s(x,y)}{|N(u)| + |N(v)| - |M|} + \beta}
-#'   where \eqn{M} is that matching.
+#'   \deqn{s(u,v) = (1-\delta) \frac{\sum_{(x,y) \in M} s(x,y)}{|N(u)| + |N(v)| - |M|} + \delta}
+#'   where \eqn{M} is that matching and \eqn{\delta} is `decay`,
+#'   which RoleSim calls \eqn{\beta}; by default 0.15.
 #'   Because each alter can be used only once, two nodes are similar only if
 #'   their neighbourhoods can be lined up as wholes.
 #'
@@ -49,16 +50,15 @@ NULL
 #'   It converges to a unique solution regardless of where it starts,
 #'   so the result does not depend on initialisation.
 #' @export
-regularity_rolesim <- function(.data, beta = 0.15){
+regularity_rolesim <- function(.data, decay = 0.15, beta = NULL){
   .data <- manynet::expect_nodes(.data)
-  if(beta < 0 | beta > 1)
-    manynet::snet_abort("`beta` must be a proportion between 0 and 1.")
+  decay <- check_decay(resolve_decay(decay, beta, "beta"))
   mat <- manynet::as_matrix(manynet::to_unweighted(manynet::to_multilevel(.data)))
   n <- nrow(mat)
   nbrs <- .neighbourhoods(mat, manynet::is_directed(.data))
   sim <- matrix(1, n, n) # all nodes begin maximally similar
   for(it in seq_len(100L)){
-    new <- .rolesim_step(sim, nbrs, beta, n)
+    new <- .rolesim_step(sim, nbrs, decay, n)
     if(max(abs(new - sim)) < 1e-6){ sim <- new; break }
     sim <- new
   }

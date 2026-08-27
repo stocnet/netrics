@@ -14,11 +14,13 @@
 #'   - `net_by_scalefree()` measures the exponent of a fitted
 #'   power-law distribution. An exponent between 2 and 3 usually indicates 
 #'   a power-law distribution.
-#'   - `net_by_balance()` measures the structural balance index on 
+#'   - `net_by_balance()` measures the structural balance index on
 #'   the proportion of balanced triangles,
-#'   ranging between `0` if all triangles are imbalanced and 
+#'   ranging between `0` if all triangles are imbalanced and
 #'   `1` if all triangles are balanced.
-#' 
+#'   - `net_by_bipartivity()` measures how close a network is to being
+#'   bipartite, that is, to dividing into two sets with ties only between them.
+#'
 #' @template param_data
 #' @family features
 #' @template net_measure
@@ -73,7 +75,9 @@ net_by_richclub <- function(.data){
   if(length(which(coefs == 1)) == 0) out <- 0 else
     out <- coefs[.elbow_finder(seq_along(coefs), coefs)]
   # max(coefs, na.rm = TRUE)
-  make_network_measure(out, .data, call = deparse(sys.call()))
+  make_network_measure(out, .data, call = deparse(sys.call()),
+                       measure = "rich-club coefficient", range = c(0, 1),
+                       normalization = "normalized")
 }
 #' @rdname measure_features 
 #' @param times Integer of number of simulations.
@@ -90,14 +94,15 @@ net_by_richclub <- function(.data){
 #'     \deqn{\frac{L_r}{L} - \frac{C}{C_l}},
 #'     where \eqn{C_l} is the clustering coefficient for a lattice graph
 #'     with the same dimensions.
-#'     \eqn{\omega} ranges between 0 and 1, 
-#'     where 1 is as close to a small-world as possible.
+#'     \eqn{\omega} ranges between -1 and 1, where values close to 0 are
+#'     as close to a small-world as possible; negative values indicate a
+#'     lattice-like network, and positive values a more random one.
 #'  -  "SWI" is an alternative proposed by Neal (2017),
 #'     \deqn{\frac{L - L_l}{L_r - L_l} \times \frac{C - C_r}{C_l - C_r}},
 #'     where \eqn{L_l} is the average path length for a lattice graph
 #'     with the same dimensions.
-#'     \eqn{SWI} also ranges between 0 and 1 with the same interpretation, 
-#'     but where there may not be a network for which \eqn{SWI = 1}.
+#'     \eqn{SWI} ranges between 0 and 1, where 1 is as close to a small-world
+#'     as possible, though there may not be a network for which \eqn{SWI = 1}.
 #' @seealso [net_by_transitivity()] and [net_by_equivalency()]
 #'   for how clustering is calculated
 #' @references 
@@ -158,7 +163,16 @@ net_by_smallworld <- function(.data,
                 "sigma" = (co/cr)/(lo/lr),
                 "SWI" = ((lo - ll)/(lr - ll))*((co - cr)/(cl - cr)))
   make_network_measure(out,
-                       .data, call = deparse(sys.call()))
+                       .data, call = deparse(sys.call()),
+                       measure = "small-world coefficient",
+                       range = switch(method,
+                                      omega = c(-1, 1),
+                                      sigma = c(0, Inf),
+                                      SWI = c(0, 1)),
+                       # Only SWI is a proportion of a theoretical maximum;
+                       # omega is signed and sigma is an unbounded ratio.
+                       normalization = `if`(method == "SWI", "normalized", "none"),
+                       variant = method)
 }
 #' @rdname measure_features 
 #' @importFrom igraph fit_power_law
@@ -195,7 +209,9 @@ net_by_scalefree <- function(.data){
     manynet::snet_info("Note: Kolmogorov-Smirnov test that data could have been drawn",
                        "from a power-law distribution rejected.")
   make_network_measure(out$alpha, .data, 
-                       call = deparse(sys.call()))
+                       call = deparse(sys.call()),
+                       measure = "power-law exponent", range = c(1, Inf),
+                       normalization = "none")
 }
 #' @rdname measure_features
 #' @section Bipartivity:
@@ -312,7 +328,9 @@ net_by_balance <- function(.data) {
   tria_count <- .count_signed_triangles(g)
   make_network_measure(unname((tria_count["+++"] + tria_count["+--"])/sum(tria_count)),
                        .data, 
-                       call = deparse(sys.call()))
+                       call = deparse(sys.call()),
+                       measure = "structural balance", range = c(0, 1),
+                       normalization = "normalized")
 }
 
 # Structural fit ####
@@ -346,7 +364,7 @@ net_by_balance <- function(.data) {
 #'   | --- | --- | --- | --- |
 #'   | `net_by_core()` | a core-periphery model | -1 to 1 | higher |
 #'   | `net_by_factions()` | a components model | -1 to 1 | higher |
-#'   | `net_by_modularity()` | the partition's communities | -0.5 to 1 | higher |
+#'   | `net_by_modularity()` | the partition's communities | -0.5 to 1 (at the default resolution) | higher |
 #'   | `net_by_inconsistency()` | ideal block types | 0 upwards | **lower** |
 #'
 #'   Compare partitions using one measure at a time.
@@ -415,7 +433,19 @@ net_by_core <- function(.data,
       out <- (diff1 + diff2) * sqrt(sum(mark))
     } 
   } else manynet::snet_unavailable(method)
-  make_network_measure(out, .data, call = deparse(sys.call()))
+  # The methods are on genuinely different scales: a correlation, a Euclidean
+  # distance, and two signed differences in coreness, so each declares its own.
+  make_network_measure(out, .data, call = deparse(sys.call()),
+                       measure = switch(method,
+                                        correlation = "core-periphery correlation",
+                                        ident = "core-periphery distance",
+                                        ndiff = "normalised core-periphery difference",
+                                        diff = "core-periphery difference"),
+                       range = switch(method,
+                                      correlation = c(-1, 1),
+                                      ident = c(0, Inf),
+                                      ndiff = , diff = c(-Inf, Inf)),
+                       normalization = "none", variant = method)
 }
 
 #' @rdname measure_fit 
@@ -434,16 +464,20 @@ net_by_factions <- function(.data,
   out <- stats::cor(c(manynet::as_matrix(.data)), 
                     c(manynet::as_matrix(manynet::create_components(.data,
                                                                     membership = membership))))
-  make_network_measure(out, .data, call = deparse(sys.call()))
+  make_network_measure(out, .data, call = deparse(sys.call()),
+                       measure = "factional correlation", range = c(-1, 1),
+                       normalization = "none")
 }
 
 #' @rdname measure_fit
 #' @section Modularity:
 #'   Modularity measures the difference between the number of ties within each community
 #'   from the number of ties expected within each community in a random graph
-#'   with the same degrees, and ranges between -1 and +1.
-#'   Modularity scores of +1 mean that ties only appear within communities,
-#'   while -1 would mean that ties only appear between communities.
+#'   with the same degrees. At the default `resolution` it ranges between
+#'   -0.5 and +1; a higher resolution can push it further below that floor.
+#'   Modularity scores approaching +1 mean that ties only appear within
+#'   communities, while negative scores mean that ties appear between
+#'   communities more often than chance would predict.
 #'   A score of 0 would mean that ties are half within and half between communities,
 #'   as one would expect in a random graph.
 #'   
@@ -495,11 +529,17 @@ net_by_modularity <- function(.data,
     make_network_measure(igraph::modularity(manynet::to_multilevel(.data), 
                                             membership = membership,
                                             resolution = resolution), 
-                         .data, call = deparse(sys.call()))
+                         .data, call = deparse(sys.call()),
+                         measure = "modularity",
+                         range = `if`(resolution == 1, c(-0.5, 1), c(-Inf, 1)),
+                         normalization = "none")
   } else make_network_measure(igraph::modularity(.data, 
                                                  membership = membership,
                                                  resolution = resolution),
-                              .data, call = deparse(sys.call()))
+                              .data, call = deparse(sys.call()),
+                              measure = "modularity",
+                              range = `if`(resolution == 1, c(-0.5, 1), c(-Inf, 1)),
+                              normalization = "none")
 }
 
 #' @rdname measure_fit
@@ -601,7 +641,9 @@ net_by_inconsistency <- function(.data, membership = NULL,
                                 FUN.VALUE = numeric(1)))
   }
   cells <- if(loops) length(mat) else length(mat) - nrow(mat)
-  make_network_measure(total/cells, .data, call = deparse(sys.call()))
+  make_network_measure(total/cells, .data, call = deparse(sys.call()),
+                       measure = "blockmodel inconsistency", range = c(0, Inf),
+                       normalization = "none")
 }
 
 # Resolve the vocabulary permitted at block position (i,j), which is either

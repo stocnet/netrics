@@ -34,6 +34,13 @@ By default TRUE.}
 }
 \value{
 A \code{network_measure} numeric score.
+
+The object also carries the \code{measure} it computed, the \code{range} its values
+can fall within, and whether and how those values were \code{normalized}.
+These are shown as a one-line header when the object is printed.
+Where a measure offers a choice between several ways of counting the
+same thing, it also carries the \code{variant} it used.
+All can be retrieved with \code{attr()}.
 }
 \description{
 These functions allow measurement of various features of
@@ -120,6 +127,11 @@ A HIT or immunity score of 0.75 would mean that 75\% of the nodes in the network
 would need to be vaccinated or otherwise protected to achieve herd immunity.
 To identify how many nodes this would be, multiply this proportion with the number
 of nodes in the network.
+
+Where \eqn{R < 1} the diffusion is already sub-critical and dies out of its
+own accord, so no one needs protecting and the threshold is reported as 0.
+The formula would otherwise return a negative proportion, which has no
+interpretation.
 }
 
 \examples{

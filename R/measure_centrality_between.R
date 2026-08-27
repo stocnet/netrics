@@ -45,12 +45,29 @@ NULL
 #'   Betweenness centrality is based on the number of shortest paths between
 #'   other nodes that a node lies upon:
 #'   \deqn{C_B(i) = \sum_{j,k:j \neq k, j \neq i, k \neq i} \frac{g_{jik}}{g_{jk}}}
+#'
+#'   Setting `cutoff` counts only those shortest paths no longer than \eqn{k},
+#'   which elsewhere goes by _distance-bounded betweenness_ (Brandes, 2008) or
+#'   _range-limited betweenness_ (Ercsey-Ravasz et al., 2012).
+#'   Normalization still applies, so a bounded score remains comparable across
+#'   networks.
 #' @references
 #' ## On betweenness centrality
-#' Freeman, Linton. 1977. 
-#' "A set of measures of centrality based on betweenness". 
-#' _Sociometry_, 40(1): 35–41. 
+#' Freeman, Linton. 1977.
+#' "A set of measures of centrality based on betweenness".
+#' _Sociometry_, 40(1): 35–41.
 #' \doi{10.2307/3033543}
+#'
+#' ## On bounding path length
+#' Brandes, Ulrik. 2008.
+#' "On variants of shortest-path betweenness centrality and their generic computation".
+#' _Social Networks_ 30(2): 136-145.
+#' \doi{10.1016/j.socnet.2007.11.001}
+#'
+#' Ercsey-Ravasz, Maria, Ryan N. Lichtenwalter, Nitesh V. Chawla, and Zoltan Toroczkai. 2012.
+#' "Range-limited centrality measures in complex networks".
+#' _Physical Review E_ 85(6): 066103.
+#' \doi{10.1103/PhysRevE.85.066103}
 #' @examples
 #' node_by_betweenness(ison_southern_women)
 #' @export 
@@ -86,16 +103,26 @@ node_by_betweenness <- function(.data, normalized = TRUE,
 }
 
 #' @rdname measure_central_between 
-#' @section Induced centrality: 
-#'   Induced centrality or vitality centrality concerns the change in 
-#'   total betweenness centrality between networks with and without a given node:
+#' @section Induced centrality:
+#'   Induced centrality concerns the change in total betweenness centrality
+#'   between networks with and without a given node:
 #'   \deqn{C_I(i) = C_B(G) - C_B(G\ i)}
+#'   This "remove the node and re-measure" logic is the general
+#'   _delta centrality_ framework of Latora and Marchiori (2007);
+#'   `node_by_induced()` is its betweenness instance, and
+#'   [node_by_vitality()] its closeness instance.
 #' @references
 #' ## On induced centrality
 #' Everett, Martin and Steve Borgatti. 2010.
 #' "Induced, endogenous and exogenous centrality"
 #' _Social Networks_, 32: 339-344.
 #' \doi{10.1016/j.socnet.2010.06.004}
+#'
+#' ## On delta centrality
+#' Latora, Vito, and Massimo Marchiori. 2007.
+#' "A measure of centrality based on network efficiency".
+#' _New Journal of Physics_ 9(6): 188.
+#' \doi{10.1088/1367-2630/9/6/188}
 #' @examples
 #' node_by_induced(ison_adolescents)
 #' @export 
@@ -123,10 +150,11 @@ node_by_induced <- function(.data, normalized = TRUE,
 #'   sum of flows \eqn{f(i,j,G)}.
 #' @references
 #' ## On flow centrality
-#' Freeman, Lin, Stephen Borgatti, and Douglas White. 1991. 
-#' "Centrality in Valued Graphs: A Measure of Betweenness Based on Network Flow". 
+#' Freeman, Linton C., Stephen P. Borgatti, and Douglas R. White. 1991.
+#' "Centrality in Valued Graphs: A Measure of Betweenness Based on Network Flow".
 #' _Social Networks_, 13(2), 141-154.
-#' 
+#' \doi{10.1016/0378-8733(91)90017-N}
+#'
 #' Koschutzki, D., K.A. Lehmann, L. Peeters, S. Richter, D. Tenfelde-Podehl, and O. Zlotowski. 2005. 
 #' "Centrality Indices". 
 #' In U. Brandes and T. Erlebach (eds.), _Network Analysis: Methodological Foundations_. 
@@ -171,7 +199,7 @@ node_by_stress <- function(.data, normalized = TRUE){
   # so the result is a set of shares rather than a [0,1] normalisation.
   make_node_measure(out, .data, measure = "stress centrality",
                     range = `if`(normalized, c(0, 1), c(0, Inf)),
-                    normalization = `if`(normalized, "proportion", "none"))
+                    normalization = `if`(normalized, "proportional", "none"))
 }
 
 # Tie betweenness centrality ####
@@ -195,6 +223,23 @@ node_by_stress <- function(.data, normalized = TRUE){
 NULL
 
 #' @rdname measure_centralities_between
+#' @section Edge betweenness centrality:
+#'   The betweenness centrality of a tie, also known as _edge betweenness_,
+#'   counts the shortest paths between other nodes that run along it.
+#'   It is best known as the quantity iteratively recomputed by the
+#'   Girvan-Newman community detection algorithm, where the ties with the
+#'   highest betweenness are removed first; see [node_in_betweenness()].
+#' @references
+#' ## On edge betweenness centrality
+#' Girvan, Michelle, and Mark E.J. Newman. 2002.
+#' "Community structure in social and biological networks".
+#' _Proceedings of the National Academy of Sciences_ 99(12): 7821-7826.
+#' \doi{10.1073/pnas.122653799}
+#'
+#' Brandes, Ulrik. 2001.
+#' "A faster algorithm for betweenness centrality".
+#' _Journal of Mathematical Sociology_ 25(2): 163-177.
+#' \doi{10.1080/0022250X.2001.9990249}
 #' @importFrom igraph edge_betweenness
 #' @examples
 #' (tb <- tie_by_betweenness(ison_adolescents))

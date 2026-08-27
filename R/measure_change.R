@@ -20,7 +20,9 @@ net_by_waves <- function(.data){
     chg_waves <- (max(chltime)+1) - max(min(chltime)-1, 0)
   } else chg_waves <- 1
   make_network_measure(max(tie_waves, chg_waves),
-                       .data, call = deparse(sys.call()))
+                       .data, call = deparse(sys.call()),
+                       measure = "waves", range = c(1, Inf),
+                       normalization = "none")
 }
 
 # Change motifs ####

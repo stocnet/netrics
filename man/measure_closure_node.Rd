@@ -23,6 +23,13 @@ A \code{node_measure} numeric vector the length of the nodes in the network,
 providing the scores for each node.
 If the network is labelled,
 then the scores will be labelled with the nodes' names.
+
+The object also carries the \code{measure} it computed, the \code{range} its values
+can fall within, and whether and how those values were \code{normalized}.
+These are shown as a one-line header when the object is printed.
+Where a measure offers a choice between several ways of counting the
+same thing, it also carries the \code{variant} it used.
+All can be retrieved with \code{attr()}.
 }
 \description{
 These functions offer methods for summarising the closure in configurations
@@ -41,9 +48,30 @@ For one-mode networks, shallow wrappers of igraph versions exist via
 For two-mode networks, \code{node_by_equivalency} calculates the proportion of three-paths in the network
 that are closed by fourth tie to establish a "shared four-cycle" structure.
 }
+\section{Node transitivity}{
+
+A node's transitivity is the proportion of its neighbours that are
+themselves connected, which is also known as the \emph{local clustering
+coefficient} of the node.
+}
+
 \examples{
-node_by_reciprocity(to_unweighted(ison_networkers))
+node_by_reciprocity(ison_networkers)
 node_by_transitivity(ison_adolescents)
+}
+\references{
+\subsection{On the local clustering coefficient}{
+
+Watts, Duncan J., and Steven H. Strogatz. 1998.
+"Collective dynamics of 'small-world' networks".
+\emph{Nature} 393(6684): 440-442.
+\doi{10.1038/30918}
+
+Holland, Paul W., and Samuel Leinhardt. 1971.
+"Transitivity in structural models of small groups".
+\emph{Comparative Group Studies} 2(2): 107-124.
+\doi{10.1177/104649647100200201}
+}
 }
 \seealso{
 Other measures:

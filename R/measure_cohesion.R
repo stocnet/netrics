@@ -28,12 +28,16 @@ NULL
 net_by_density <- function(.data) {
   .data <- manynet::expect_nodes(.data)
   if (manynet::is_twomode(.data)) {
-    mat <- manynet::as_matrix(.data)
+    # counting ties rather than summing weights, so that the two-mode branch
+    # stays a ratio of ties to possible ties, as the one-mode branch is
+    mat <- manynet::as_matrix(manynet::to_unweighted(.data))
     out <- sum(mat) / (nrow(mat) * ncol(mat))
   } else {
     out <- igraph::edge_density(manynet::as_igraph(.data))
   }
-  make_network_measure(out, .data, call = deparse(sys.call()))
+  make_network_measure(out, .data, call = deparse(sys.call()),
+                       measure = "density", range = c(0, 1),
+                       normalization = "normalized")
 }
 
 #' @rdname measure_cohesion
@@ -82,7 +86,9 @@ net_by_compactness <- function(.data) {
   recip[!is.finite(recip)] <- 0 # unreachable pairs contribute nothing
   n <- manynet::net_nodes(.data)
   out <- if(n < 2) NaN else sum(recip)/(n*(n-1))
-  make_network_measure(out, .data, call = deparse(sys.call()))
+  make_network_measure(out, .data, call = deparse(sys.call()),
+                       measure = "compactness", range = c(0, 1),
+                       normalization = "normalized")
 }
 
 #' @rdname measure_cohesion
@@ -98,7 +104,9 @@ net_by_components <- function(.data){
   .data <- manynet::expect_nodes(.data)
   object <- manynet::as_igraph(.data)
   make_network_measure(igraph::components(object, mode = "strong")$no,
-                       object, call = deparse(sys.call()))
+                       object, call = deparse(sys.call()),
+                       measure = "number of components", range = c(1, Inf),
+                       normalization = "none")
 }
 
 #' @rdname measure_cohesion 
@@ -113,7 +121,9 @@ net_by_independence <- function(.data){
   } else {
     out <- igraph::ivs_size(manynet::to_undirected(manynet::as_igraph(.data)))
   }
-  make_network_measure(out, .data, call = deparse(sys.call()))
+  make_network_measure(out, .data, call = deparse(sys.call()),
+                       measure = "independence number", range = c(1, Inf),
+                       normalization = "none")
 }
 
 # Breadth ####
@@ -140,9 +150,11 @@ NULL
 net_by_diameter <- function(.data){
   .data <- manynet::expect_nodes(.data)
   object <- manynet::as_igraph(.data)
-  make_network_measure(igraph::diameter(object, 
+  make_network_measure(igraph::diameter(object,
                                         directed = manynet::is_directed(object)),
-                       object, call = deparse(sys.call()))
+                       object, call = deparse(sys.call()),
+                       measure = "diameter", range = c(0, Inf),
+                       normalization = "none")
 }
 
 #' @rdname measure_breadth 
@@ -156,7 +168,9 @@ net_by_length <- function(.data){
   object <- manynet::as_igraph(.data)
   make_network_measure(igraph::mean_distance(object,
                                              directed = manynet::is_directed(object)),
-                       object, call = deparse(sys.call()))
+                       object, call = deparse(sys.call()),
+                       measure = "average path length", range = c(0, Inf),
+                       normalization = "none")
 }
 
 # Fragmentation ####
@@ -195,8 +209,10 @@ NULL
 #' @export
 net_by_cohesion <- function(.data){
   .data <- manynet::expect_nodes(.data)
-  make_network_measure(igraph::cohesion(manynet::as_igraph(.data)), 
-                       .data, call = deparse(sys.call()))
+  make_network_measure(igraph::cohesion(manynet::as_igraph(.data)),
+                       .data, call = deparse(sys.call()),
+                       measure = "node connectivity", range = c(0, Inf),
+                       normalization = "none")
 }
 
 #' @rdname measure_fragmentation 
@@ -207,8 +223,10 @@ net_by_cohesion <- function(.data){
 #' @export
 net_by_adhesion <- function(.data){
   .data <- manynet::expect_nodes(.data)
-  make_network_measure(igraph::adhesion(manynet::as_igraph(.data)), 
-                       .data, call = deparse(sys.call()))
+  make_network_measure(igraph::adhesion(manynet::as_igraph(.data)),
+                       .data, call = deparse(sys.call()),
+                       measure = "tie connectivity", range = c(0, Inf),
+                       normalization = "none")
 }
 
 #' @rdname measure_fragmentation 
@@ -221,11 +239,13 @@ net_by_strength <- function(.data){
   seties <- unlist(lapply(1:n, utils::combn, x = 1:n, simplify = FALSE), recursive = FALSE)
   out <- vapply(seties, function(x) length(x)/net_by_components(manynet::delete_ties(.data, x)), 
                 FUN.VALUE = numeric(1))
-  make_network_measure(min(out), .data, call = deparse(sys.call()))
+  make_network_measure(min(out), .data, call = deparse(sys.call()),
+                       measure = "strength", range = c(0, Inf),
+                       normalization = "none")
 }
 
-#' @rdname measure_fragmentation 
-#' @examples 
+#' @rdname measure_fragmentation
+#' @examples
 #' net_by_toughness(ison_adolescents)
 #' @export
 net_by_toughness <- function(.data){
@@ -234,6 +254,8 @@ net_by_toughness <- function(.data){
   seties <- unlist(lapply(1:n, utils::combn, x = 1:n, simplify = FALSE), recursive = FALSE)
   out <- vapply(seties, function(x) length(x)/net_by_components(manynet::delete_nodes(.data, x)), 
                 FUN.VALUE = numeric(1))
-  make_network_measure(min(out), .data, call = deparse(sys.call()))
+  make_network_measure(min(out), .data, call = deparse(sys.call()),
+                       measure = "toughness", range = c(0, Inf),
+                       normalization = "none")
 }
 

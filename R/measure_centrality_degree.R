@@ -47,9 +47,15 @@
 #'   the higher score.
 #'   This argument is ignored except in the case of a weighted network.
 #' @importFrom igraph graph_from_incidence_matrix is_bipartite degree V
-#' @references 
+#' @references
+#' ## On degree centrality
+#' Freeman, Linton C. 1978.
+#' "Centrality in social networks: Conceptual clarification".
+#' _Social Networks_ 1(3): 215-239.
+#' \doi{10.1016/0378-8733(78)90021-7}
+#'
 #' ## On multimodal centrality
-#' Faust, Katherine. 1997. 
+#' Faust, Katherine. 1997.
 #' "Centrality in affiliation networks." 
 #' _Social Networks_ 19(2): 157-191.
 #' \doi{10.1016/S0378-8733(96)00300-0}
@@ -84,9 +90,15 @@ NULL
 #'   The total degree of a network is the sum of all degrees, \eqn{\sum_v d(v)}.
 #'   The degree sequence is the set of all nodes' degrees,
 #'   ordered from largest to smallest.
-#'   Directed networks discriminate between 
+#'   Directed networks discriminate between
 #'   outdegree (degree of outgoing ties) and
 #'   indegree (degree of incoming ties).
+#' @section Strength centrality:
+#'   Given a weighted network, `node_by_degree()` sums tie weights rather than
+#'   counting ties, which is also known as _strength centrality_ or _weighted
+#'   degree centrality_. The `alpha` argument tunes between the two, following
+#'   Opsahl et al. (2010), and the measure reports itself as
+#'   "strength centrality" whenever `alpha` is not zero.
 #' @importFrom manynet as_igraph is_weighted tie_weights is_twomode is_complex
 #' @export
 node_by_degree <- function (.data, normalized = TRUE, alpha = 0,
@@ -169,12 +181,25 @@ node_by_indegree <- function (.data, normalized = TRUE, alpha = 0){
 node_by_multidegree <- function (.data, tie1, tie2){
   .data <- manynet::expect_nodes(.data)
   stopifnot(manynet::is_multiplex(.data))
-  out <- node_by_degree(manynet::to_uniplex(.data, tie1)) -
-    node_by_degree(manynet::to_uniplex(.data, tie2))
+  out <- uniplex_degree(.data, tie1) - uniplex_degree(.data, tie2)
   # Bounded by construction rather than divided by a maximum: the difference
   # of two normalised degrees.
   make_node_measure(out, .data, measure = "multidegree centrality",
                     range = c(-1, 1), normalization = "none")
+}
+
+# Degree in one layer of a multiplex network, kept at the length of the
+# whole nodeset. `to_uniplex()` drops nodes that hold none of the retained
+# ties (e.g. a whole mode of a twomode layer), so the two layers' degrees
+# would otherwise be of different lengths and get recycled.
+uniplex_degree <- function(.data, tie) {
+  layer <- manynet::to_uniplex(.data, tie)
+  deg <- as.numeric(node_by_degree(layer))
+  if (length(deg) == manynet::net_nodes(.data)) return(deg)
+  out <- stats::setNames(rep(0, manynet::net_nodes(.data)),
+                         manynet::node_names(.data))
+  out[manynet::node_names(layer)] <- deg
+  unname(out)
 }
 
 #' @rdname measure_central_degree
@@ -225,7 +250,7 @@ NULL
 #' @export
 tie_by_degree <- function(.data, normalized = TRUE){
   .data <- manynet::expect_ties(.data)
-  edge_adj <- manynet::to_ties(.data)
+  edge_adj <- manynet::to_linegraph(.data)
   out <- node_by_degree(edge_adj, normalized = normalized)
   class(out) <- "numeric"
   make_tie_measure(out, .data, measure = "degree centrality",
@@ -271,6 +296,13 @@ tie_by_degree <- function(.data, normalized = TRUE){
 #' @family degree
 #' @family centrality
 #' @references
+#' ## On centralisation
+#'   Freeman, Linton C. 1978.
+#'   "Centrality in social networks: Conceptual clarification".
+#'   _Social Networks_ 1(3): 215-239.
+#'   \doi{10.1016/0378-8733(78)90021-7}
+#'
+#' ## On two-mode centralisation
 #'   Borgatti, Stephen P., and Martin G. Everett. 1997.
 #'   "Network analysis of 2-mode data."
 #'   _Social Networks_ 19(3): 243-269.

@@ -35,6 +35,13 @@ A \code{node_measure} numeric vector the length of the nodes in the network,
 providing the scores for each node.
 If the network is labelled,
 then the scores will be labelled with the nodes' names.
+
+The object also carries the \code{measure} it computed, the \code{range} its values
+can fall within, and whether and how those values were \code{normalized}.
+These are shown as a one-line header when the object is printed.
+Where a measure offers a choice between several ways of counting the
+same thing, it also carries the \code{variant} it used.
+All can be retrieved with \code{attr()}.
 }
 \description{
 These function provide different measures of the degree to which nodes
@@ -67,6 +74,15 @@ where \eqn{t} is the sum of ties and \eqn{n} the sum of nodes in each node's nei
 and effective size is calculated as \eqn{n - \frac{2t}{n}}.
 Node efficiency is the node's effective size divided by its degree.
 }
+\section{Constraint}{
+
+Constraint has a natural floor at 0, for a node whose contacts are wholly
+unconnected to one another, but no clean ceiling: the standard result is
+that it can reach around 1.125 for one-mode networks, and the two-mode
+form is a different summation again. Its declared range is therefore left
+open above rather than asserting a bound the measure can exceed.
+}
+
 \examples{
 node_by_bridges(ison_adolescents)
 node_by_bridges(ison_southern_women)

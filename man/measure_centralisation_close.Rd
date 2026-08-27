@@ -42,11 +42,13 @@ node's local neighbourhood.
 Where a measure is defined over all paths by default,
 a negative value or \code{NULL} imposes no limit.}
 
-\item{decay}{A proportion between 0 and 1 indicating how quickly
-the contribution of more distant nodes decays.
-By default 0.5, so that each additional step halves a node's contribution.
-As \code{decay} approaches 0 this approaches degree centrality,
-and as it approaches 1 this approaches the size of the node's component.}
+\item{decay}{A proportion between 0 and 1 giving how much of a contribution
+survives each additional step of distance or walk length.
+Lower values discount more steeply, so that only nearby others count;
+higher values discount less, so that longer walks continue to contribute.
+The measures that take a \code{decay} differ in what they discount and in what
+value leaves the measure in its most familiar form,
+so each documents its own default.}
 }
 \value{
 \verb{net_by_*()} functions return a \code{network_measure} scalar;

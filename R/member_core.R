@@ -111,7 +111,8 @@ node_by_kcoreness <- function(.data){
   .data <- manynet::expect_nodes(.data)
   if(!manynet::is_graph(.data)) .data <- manynet::as_igraph(.data)
   out <- igraph::coreness(.data)
-  make_node_measure(out, .data)
+  make_node_measure(out, .data, measure = "k-coreness", range = c(0, Inf),
+                    normalization = "none")
 }
 
 #' @rdname measure_core
@@ -132,7 +133,8 @@ node_by_coreness <- function(.data) {
   init <- rep(0.5, n)
   result <- stats::optim(init, obj_fun, method = "L-BFGS-B", 
                          lower = 0, upper = 1)
-  make_node_measure(result$par, .data)
+  make_node_measure(result$par, .data, measure = "coreness", range = c(0, 1),
+                    normalization = "none")
 }
 
 # Membering core ####

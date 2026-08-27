@@ -35,10 +35,16 @@ NULL
 #' @examples
 #' net_by_reciprocity(ison_southern_women)
 #' @export
-net_by_reciprocity <- function(.data, method = "default") {
+net_by_reciprocity <- function(.data, method = c("default", "ratio")) {
   .data <- manynet::expect_nodes(.data)
-  make_network_measure(igraph::reciprocity(manynet::as_igraph(.data), mode = method), 
-                       .data, call = deparse(sys.call()))
+  method <- match.arg(method)
+  # Both methods return a proportion in [0,1], but of different things: the
+  # default is the share of ties that are reciprocated, the ratio the share of
+  # dyads that are mutual rather than asymmetric. The variant says which.
+  make_network_measure(igraph::reciprocity(manynet::as_igraph(.data), mode = method),
+                       .data, call = deparse(sys.call()),
+                       measure = "reciprocity", range = c(0, 1),
+                       normalization = "normalized", variant = method)
 }
 
 #' @rdname measure_closure 
@@ -48,8 +54,10 @@ net_by_reciprocity <- function(.data, method = "default") {
 #' @export
 net_by_transitivity <- function(.data) {
   .data <- manynet::expect_nodes(.data)
-  make_network_measure(igraph::transitivity(manynet::as_igraph(.data)), 
-                       .data, call = deparse(sys.call()))
+  make_network_measure(igraph::transitivity(manynet::as_igraph(.data)),
+                       .data, call = deparse(sys.call()),
+                       measure = "transitivity", range = c(0, 1),
+                       normalization = "normalized")
 }
 
 #' @rdname measure_closure
@@ -83,14 +91,17 @@ net_by_cyclicality <- function(.data) {
   denom <- sum(twopaths)
   # closed cyclically where a tie runs back from k to i
   out <- if(denom == 0) NaN else sum(twopaths * t(mat))/denom
-  make_network_measure(out, .data, call = deparse(sys.call()))
+  make_network_measure(out, .data, call = deparse(sys.call()),
+                       measure = "cyclicality", range = c(0, 1),
+                       normalization = "normalized")
 }
 
 #' @rdname measure_closure
 #' @section Equivalency:
-#'   The `net_by_equivalency()` function calculates the Robins and Alexander (2004) 
+#'   The `net_by_equivalency()` function calculates the Robins and Alexander (2004)
 #'   clustering coefficient for two-mode networks.
-#'   Note that for weighted two-mode networks, the result is divided by the average tie weight.
+#'   The coefficient is a proportion of three-paths, and so is defined on
+#'   binary data; weighted networks are dichotomised before it is calculated.
 #' @references 
 #' ## On equivalency or four-cycles
 #' Robins, Garry L, and Malcolm Alexander. 2004. 
@@ -102,8 +113,10 @@ net_by_cyclicality <- function(.data) {
 #' @export
 net_by_equivalency <- function(.data) {
   .data <- manynet::expect_nodes(.data)
+  if(manynet::is_weighted(.data))
+    manynet::snet_info("Using the unweighted form of the network.")
   if(manynet::is_twomode(.data)){
-    mat <- manynet::as_matrix(.data)
+    mat <- manynet::as_matrix(manynet::to_unweighted(.data))
     c <- ncol(mat)
     indegrees <- colSums(mat)
     twopaths <- crossprod(mat)
@@ -113,7 +126,6 @@ net_by_equivalency <- function(.data) {
          sum(twopaths *
                (matrix(indegrees, c, c) - twopaths)))
     if (is.nan(out)) out <- 1
-    if(manynet::is_weighted(.data)) out <- out / mean(mat[mat>0])
   } else {
     out <- rowSums(vapply(manynet::snet_progress_nodes(.data), function(i){
       threepaths <- igraph::all_simple_paths(.data, i, cutoff = 3,
@@ -127,7 +139,9 @@ net_by_equivalency <- function(.data) {
     }, FUN.VALUE = numeric(2)))
     out <- out[1]/out[2]
   }
-  make_network_measure(out, .data, call = deparse(sys.call()))
+  make_network_measure(out, .data, call = deparse(sys.call()),
+                       measure = "equivalency", range = c(0, 1),
+                       normalization = "normalized")
 }
 
 #' @rdname measure_closure 
@@ -164,7 +178,9 @@ net_by_congruency <- function(.data, object2){
        sum(twopaths *
              (matrix(degrees, connects, connects) - twopaths)))
   if (is.nan(output)) output <- 1
-  make_network_measure(output, .data, call = deparse(sys.call()))
+  make_network_measure(output, .data, call = deparse(sys.call()),
+                       measure = "congruency", range = c(0, 1),
+                       normalization = "normalized")
 }
 
 # Nodal closure ####
@@ -192,33 +208,54 @@ NULL
 
 #' @rdname measure_closure_node 
 #' @examples
-#' node_by_reciprocity(to_unweighted(ison_networkers))
+#' node_by_reciprocity(ison_networkers)
 #' @export
 node_by_reciprocity <- function(.data) {
   .data <- manynet::expect_nodes(.data)
-  out <- manynet::as_matrix(.data)
-  make_node_measure(rowSums(out * t(out))/rowSums(out), 
-                    .data)
+  if(manynet::is_weighted(.data))
+    manynet::snet_info("Using the unweighted form of the network.")
+  # A proportion of a node's ties that are returned, so counts of ties rather
+  # than sums of weights: otherwise a reciprocated tie of weight 3 scores 3.
+  out <- manynet::as_matrix(manynet::to_unweighted(.data))
+  make_node_measure(rowSums(out * t(out))/rowSums(out),
+                    .data, measure = "reciprocity", range = c(0, 1),
+                    normalization = "normalized")
 }
 
-#' @rdname measure_closure_node 
+#' @rdname measure_closure_node
+#' @section Node transitivity:
+#'   A node's transitivity is the proportion of its neighbours that are
+#'   themselves connected, which is also known as the _local clustering
+#'   coefficient_ of the node.
+#' @references
+#' ## On the local clustering coefficient
+#' Watts, Duncan J., and Steven H. Strogatz. 1998.
+#' "Collective dynamics of 'small-world' networks".
+#' _Nature_ 393(6684): 440-442.
+#' \doi{10.1038/30918}
+#'
+#' Holland, Paul W., and Samuel Leinhardt. 1971.
+#' "Transitivity in structural models of small groups".
+#' _Comparative Group Studies_ 2(2): 107-124.
+#' \doi{10.1177/104649647100200201}
 #' @examples
 #' node_by_transitivity(ison_adolescents)
 #' @export
 node_by_transitivity <- function(.data) {
   .data <- manynet::expect_nodes(.data)
   make_node_measure(igraph::transitivity(manynet::as_igraph(.data), 
-                                         type = "local"), 
-                    .data)
+                                         type = "local"),
+                    .data, measure = "transitivity", range = c(0, 1),
+                    normalization = "normalized")
 }
 
 #' @rdname measure_closure_node
 #' @export
 node_by_equivalency <- function(.data) {
   .data <- manynet::expect_nodes(.data)
-  # if(is_weighted(.data))
-  #   snet_info("Using unweighted form of the network.")
-  out <- vapply(manynet::snet_progress_seq(.data), function(i){
+  if(manynet::is_weighted(.data))
+    manynet::snet_info("Using the unweighted form of the network.")
+  out <- vapply(manynet::snet_progress_nodes(.data), function(i){
     threepaths <- igraph::all_simple_paths(.data, i, cutoff = 3,
                                           mode = "all")
     onepaths <- threepaths[vapply(threepaths, length, 
@@ -228,6 +265,7 @@ node_by_equivalency <- function(.data) {
     mean(sapply(threepaths,"[[",4) %in% sapply(onepaths,"[[",2))
   }, FUN.VALUE = numeric(1))
   if (any(is.nan(out))) out[is.nan(out)] <- 0
-  make_node_measure(out, .data)
+  make_node_measure(out, .data, measure = "equivalency", range = c(0, 1),
+                    normalization = "normalized")
 }
 
