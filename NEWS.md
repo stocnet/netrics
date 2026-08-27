@@ -82,6 +82,7 @@
 - Fixed `node_by_diversity()` reporting an undefined object in its message about substituting an inapplicable index
 - Corrected `net_by_transmissibility()` to no longer declare itself a proportion
   - At-risk denominator recorded at the end of each period rather than the start, so can exceed 1
+- Fixed `net_by_balance()` erroring on networks that hold signs as negative weights, which is how 'stocnet' objects keep them
 - Added family-wide contract test sweeping every measure for declared ranges, normalisation, and argument effects
 
 ## Memberships

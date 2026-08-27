@@ -271,15 +271,24 @@ net_by_bipartivity <- function(.data) {
 net_by_balance <- function(.data) {
   
   .data <- manynet::expect_nodes(.data)
+  # A sign is held either as a "sign" tie attribute or as the sign of a
+  # negative weight, which is how 'stocnet' objects keep it.
+  .tie_signs <- function(g){
+    if ("sign" %in% igraph::edge_attr_names(g))
+      igraph::edge_attr(g, "sign")
+    else if ("weight" %in% igraph::edge_attr_names(g))
+      sign(igraph::edge_attr(g, "weight"))
+    else NULL
+  }
   .count_signed_triangles <- function(.data){
     g <- manynet::as_igraph(.data)
-    if (!"sign" %in% igraph::edge_attr_names(g)) {
-      manynet::snet_abort("network does not have a sign edge attribute")
-    }
     if (igraph::is_directed(g)) {
       manynet::snet_abort("g must be undirected")
     }
-    eattrV <- igraph::edge_attr(g, "sign")
+    eattrV <- .tie_signs(g)
+    if (is.null(eattrV)) {
+      manynet::snet_abort("network does not have a sign edge attribute")
+    }
     if (!all(eattrV %in% c(-1, 1))) {
       manynet::snet_abort("sign may only contain -1 and 1")
     }
@@ -321,7 +330,7 @@ net_by_balance <- function(.data) {
     manynet::snet_abort("object must be undirected")
   }
   g <- manynet::as_igraph(.data)
-  eattrV <- igraph::edge_attr(g, "sign")
+  eattrV <- .tie_signs(g)
   if (!all(eattrV %in% c(-1, 1))) {
     manynet::snet_abort("sign may only contain -1 and 1")
   }
