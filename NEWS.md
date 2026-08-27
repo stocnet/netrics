@@ -39,6 +39,7 @@
 - Improved `node_by_closeness()` to validate `direction` via `match.arg()`
 - Removed `direction` from `net_by_betweenness()` which never used it
 - Moved `node_by_posneg()` to the eigenvector doc group as a Katz matrix-inversion walk-based measure for signed networks
+- Added `net_by_bipartivity()` for how close a network is to being bipartite
 
 ## Memberships
 

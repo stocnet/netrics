@@ -197,7 +197,46 @@ net_by_scalefree <- function(.data){
   make_network_measure(out$alpha, .data, 
                        call = deparse(sys.call()))
 }
-#' @rdname measure_features 
+#' @rdname measure_features
+#' @section Bipartivity:
+#'   A network is bipartite when its nodes divide into two sets with ties only
+#'   running between them and never within, which is exactly the condition that
+#'   it contains no closed walk of odd length.
+#'   Bipartivity therefore measures how close a network comes to that condition,
+#'   as the share of its closed walks that are of even length:
+#'   \deqn{b(G) = \frac{\sum_i C_{even}(i)}{\sum_i C_{all}(i)}}
+#'   A genuinely two-mode network scores exactly 1,
+#'   and the more odd-length structure a network carries — triangles above all —
+#'   the further it falls below 1.
+#'   Note that this asks whether a network _could_ be split in two,
+#'   not whether it has been: it is defined on a one-mode network,
+#'   whereas [manynet::is_twomode()] reports whether nodes are already
+#'   partitioned into two modes.
+#'   The node-level counterpart is [node_by_subgraph()] with
+#'   `method = "odd"` or `"even"`.
+#' @references
+#' ## On bipartivity
+#' Estrada, Ernesto, and Juan A. Rodríguez-Velázquez. 2005.
+#' "Spectral measures of bipartivity in complex networks".
+#' _Physical Review E_ 72(4): 046105.
+#' \doi{10.1103/PhysRevE.72.046105}
+#' @examples
+#' # A two-mode network is bipartite by construction
+#' net_by_bipartivity(ison_southern_women)
+#' net_by_bipartivity(ison_adolescents)
+#' @export
+net_by_bipartivity <- function(.data) {
+  .data <- manynet::expect_nodes(.data)
+  # Even-length closed walks as a share of all of them. Both counts are
+  # strictly positive, since the length-zero walk at each node is even.
+  out <- sum(.closed_walks(.data, method = "even")) /
+    sum(.closed_walks(.data, method = "all"))
+  make_network_measure(out, .data, call = deparse(sys.call()),
+                       measure = "bipartivity", range = c(0, 1),
+                       normalization = "normalized")
+}
+
+#' @rdname measure_features
 #' @source `{signnet}` by David Schoch
 #' @references
 #' ## On balance theory
