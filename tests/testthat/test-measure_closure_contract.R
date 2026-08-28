@@ -26,15 +26,15 @@ test_that("reciprocity records which of its two methods ran", {
   # so the variant is what distinguishes the results rather than the range.
   nw <- manynet::ison_networkers
   expect_equal(attr(net_by_reciprocity(nw), "variant"), "default")
-  expect_equal(attr(net_by_reciprocity(nw, method = "ratio"), "variant"), "ratio")
-  expect_equal(attr(net_by_reciprocity(nw, method = "ratio"), "normalization"),
+  expect_equal(attr(net_by_reciprocity(nw, variant = "ratio"), "variant"), "ratio")
+  expect_equal(attr(net_by_reciprocity(nw, variant = "ratio"), "normalization"),
                "normalized")
   # A variant that says nothing about the values would be decorative; these
   # two genuinely differ.
   expect_false(isTRUE(all.equal(as.numeric(net_by_reciprocity(nw)),
-                                as.numeric(net_by_reciprocity(nw, method = "ratio")))))
+                                as.numeric(net_by_reciprocity(nw, variant = "ratio")))))
   # Unrecognised methods are now caught here rather than passed to igraph.
-  expect_error(net_by_reciprocity(nw, method = "nonsense"))
+  expect_error(net_by_reciprocity(nw, variant = "nonsense"))
 })
 
 test_that("congruency meets the measure contract", {

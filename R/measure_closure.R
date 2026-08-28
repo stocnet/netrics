@@ -23,11 +23,16 @@
 #' For three-mode networks, `net_congruency` calculates the proportion of three-paths 
 #' spanning two two-mode networks that are closed by a fourth tie to establish a 
 #' "congruent four-cycle" structure.
+#' 
+#' `net_by_reciprocity()` takes a `variant`: either `"default"`, the share of
+#' ties that are reciprocated, or `"ratio"`, the share of dyads that are mutual
+#' rather than asymmetric. See `?igraph::reciprocity`.
 #' @template param_data
 #' @template net_measure
 #' @param object2 Optionally, a second (two-mode) matrix, igraph, or tidygraph
-#' @param method For reciprocity, either `default` or `ratio`.
-#'   See `?igraph::reciprocity`
+#' @template param_variant
+#' @param method Deprecated. The former spelling of `variant`.
+#'   Still accepted, but warns; please use `variant` instead.
 NULL
 
 #' @rdname measure_closure 
@@ -35,16 +40,19 @@ NULL
 #' @examples
 #' net_by_reciprocity(ison_southern_women)
 #' @export
-net_by_reciprocity <- function(.data, method = c("default", "ratio")) {
+net_by_reciprocity <- function(.data, variant = c("default", "ratio"),
+                               method = NULL) {
+  variant <- resolve_method(variant, method, "variant")
   .data <- manynet::expect_nodes(.data)
-  method <- match.arg(method)
+  variant <- match.arg(variant, c("default", "ratio"))
   # Both methods return a proportion in [0,1], but of different things: the
   # default is the share of ties that are reciprocated, the ratio the share of
   # dyads that are mutual rather than asymmetric. The variant says which.
-  make_network_measure(igraph::reciprocity(manynet::as_igraph(.data), mode = method),
+  make_network_measure(igraph::reciprocity(manynet::as_igraph(.data),
+                                           mode = variant),
                        .data, call = deparse(sys.call()),
                        measure = "reciprocity", range = c(0, 1),
-                       normalization = "normalized", variant = method)
+                       normalization = "normalized", variant = variant)
 }
 
 #' @rdname measure_closure 

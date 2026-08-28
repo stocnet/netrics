@@ -128,11 +128,11 @@ strict_memb <- function(.data){
 # Resolves `k` for one algorithm.
 # `at_k(no)` returns a membership vector with `no` groups,
 # and `default()` returns the algorithm's own partition.
-apply_k <- function(k, Kmax, .data, at_k, default){
+apply_k <- function(k, max_k, .data, at_k, default){
   n <- manynet::net_nodes(.data)
   memb <- if(is.null(k)) default() else
     if(identical(k, "strict")) strict_memb(.data) else
-      if(is.character(k)) select_k(lapply(2:min(Kmax, n), at_k), .data, k) else
+      if(is.character(k)) select_k(lapply(2:min(max_k, n), at_k), .data, k) else
         at_k(k)
   report_k(memb, k)
 }
@@ -188,9 +188,9 @@ poss_algs <- function(k, .data){
 # Runs one algorithm by name.
 # Where `k` was requested the algorithm warns when it cannot reach it, which
 # the caller reports once instead.
-run_alg <- function(alg, .data, k, Kmax){
+run_alg <- function(alg, .data, k, max_k){
   if(is.null(k)) get(alg)(.data) else
-    suppressWarnings(get(alg)(.data, k = k, Kmax = Kmax))
+    suppressWarnings(get(alg)(.data, k = k, max_k = max_k))
 }
 
 # The algorithms that return a different partition on a second run.
@@ -208,7 +208,7 @@ coassociation <- function(parts, n){
 # Combines many partitions into one, after Lancichinetti and Fortunato (2012).
 # The algorithms are rerun on the co-association matrix until every pair either
 # always or never shares a group, at which point the groups are its components.
-consensus_memb <- function(.data, k, Kmax, times, threshold = 0.5, iter = 10){
+consensus_memb <- function(.data, k, max_k, times, threshold = 0.5, iter = 10){
   n <- manynet::net_nodes(.data)
   gr <- .data
   cons <- NULL
@@ -216,7 +216,7 @@ consensus_memb <- function(.data, k, Kmax, times, threshold = 0.5, iter = 10){
     algs <- poss_algs(k, gr)
     parts <- unlist(lapply(algs, function(alg){
       reps <- if(alg %in% STOCHASTIC_ALGS) times else 1L
-      lapply(seq_len(reps), function(r) run_alg(alg, gr, k, Kmax))
+      lapply(seq_len(reps), function(r) run_alg(alg, gr, k, max_k))
     }), recursive = FALSE)
     cons <- coassociation(parts, n)
     cons[cons < threshold] <- 0
@@ -282,8 +282,9 @@ NULL
 #' @examples
 #' node_in_community(ison_adolescents)
 #' @export
-node_in_community <- function(.data, k = NULL, Kmax = 8L,
-                              consensus = FALSE, times = 20){
+node_in_community <- function(.data, k = NULL, max_k = 8L,
+                              consensus = FALSE, times = 20, Kmax = NULL){
+  max_k <- resolve_max_k(max_k, Kmax)
   .data <- manynet::expect_nodes(.data)
   k <- check_k(k, .data)
   if(is.null(k) && manynet::net_nodes(.data)<100){
@@ -299,7 +300,7 @@ node_in_community <- function(.data, k = NULL, Kmax = 8L,
     # consensus for every candidate number of groups. The constituent
     # algorithms are given `k` instead, and the result merged only if it
     # overshoots.
-    memb <- consensus_memb(.data, k, Kmax, times)
+    memb <- consensus_memb(.data, k, max_k, times)
     if(is.numeric(k) && length(unique(memb)) > k)
       memb <- merge_to_k(.data, memb, k)
     make_node_member(report_k(memb, k), .data)
@@ -311,7 +312,7 @@ node_in_community <- function(.data, k = NULL, Kmax = 8L,
     idx <- manynet::snet_progress_along(poss)
     if(length(idx) != length(poss)) idx <- seq_along(poss)
     candidates <- lapply(idx, function(comm){
-      memb <- run_alg(poss[comm], .data, k, Kmax)
+      memb <- run_alg(poss[comm], .data, k, max_k)
       mod <- net_by_modularity(.data, memb)
       list(memb, mod)
     })
@@ -407,13 +408,14 @@ node_in_optimal <- function(.data){
 #' node_in_partition(ison_adolescents)
 #' node_in_partition(ison_southern_women)
 #' @export
-node_in_partition <- function(.data, k = 2L, Kmax = 8L){
+node_in_partition <- function(.data, k = 2L, max_k = 8L, Kmax = NULL){
+  max_k <- resolve_max_k(max_k, Kmax)
   .data <- manynet::expect_nodes(.data)
   k <- check_k(k, .data)
   n <- manynet::net_nodes(.data)
   g <- manynet::as_matrix(manynet::to_multilevel(.data))
   at_k <- function(no) kl_partition(g, n, no)
-  memb <- apply_k(k, Kmax, .data, at_k = at_k, default = function() at_k(2L))
+  memb <- apply_k(k, max_k, .data, at_k = at_k, default = function() at_k(2L))
   make_node_member(memb, .data)
 }
 
@@ -492,13 +494,14 @@ node_in_infomap <- function(.data, times = 50){
 }
 
 #' @rdname member_community_non 
-#' @param max_k Integer constant, the number of spins to use as an upper limit
-#'   of communities to be found. Some sets can be empty at the end.
 #' @param resolution The Reichardt-Bornholdt “gamma” resolution parameter for modularity.
 #'   By default 1, making existing and non-existing ties equally important.
 #'   Smaller values make existing ties more important,
 #'   and larger values make missing ties more important.
 #' @section Spin-glass:
+#'   Here `max_k` is the number of spins, an upper limit on the communities
+#'   found rather than a bound on a search, so some can end up empty.
+#'   
 #'   This is motivated by analogy to the Potts model in statistical physics.
 #'   Each node can be in one of _k_ "spin states",
 #'   and ties (particle interactions) provide information about which pairs of nodes 
@@ -555,7 +558,8 @@ node_in_spinglass <- function(.data, max_k = 200, resolution = 1){
 #' @examples
 #' node_in_fluid(ison_adolescents)
 #' @export
-node_in_fluid <- function(.data, k = NULL, Kmax = 8L) {
+node_in_fluid <- function(.data, k = NULL, max_k = 8L, Kmax = NULL) {
+  max_k <- resolve_max_k(max_k, Kmax)
   .data <- manynet::expect_nodes(.data)
   k <- check_k(k, .data)
   .data <- manynet::as_igraph(.data)
@@ -578,7 +582,7 @@ node_in_fluid <- function(.data, k = NULL, Kmax = 8L) {
     }
     at_k <- function(no) igraph::membership(
       igraph::cluster_fluid_communities(.data, no.of.communities = no))
-    memb <- apply_k(k, Kmax, .data, at_k = at_k, default = function(){
+    memb <- apply_k(k, max_k, .data, at_k = at_k, default = function(){
       mods <- vapply(seq_nodes(.data), function(x)
         igraph::modularity(.data, membership = igraph::membership(
           igraph::cluster_fluid_communities(.data, x))),
@@ -607,7 +611,8 @@ node_in_fluid <- function(.data, k = NULL, Kmax = 8L) {
 #' @examples
 #' node_in_louvain(ison_adolescents)
 #' @export
-node_in_louvain <- function(.data, k = NULL, Kmax = 8L, resolution = 1){
+node_in_louvain <- function(.data, k = NULL, max_k = 8L, resolution = 1, Kmax = NULL){
+  max_k <- resolve_max_k(max_k, Kmax)
   .data <- manynet::expect_nodes(.data)
   k <- check_k(k, .data)
   if(manynet::is_directed(.data)){
@@ -616,7 +621,7 @@ node_in_louvain <- function(.data, k = NULL, Kmax = 8L, resolution = 1){
     .data <- manynet::to_undirected(.data)
   }
   gr <- manynet::as_igraph(.data)
-  memb <- apply_k(k, Kmax, .data,
+  memb <- apply_k(k, max_k, .data,
                   at_k = function(no) cut_res(igraph::cluster_louvain, gr, no),
                   default = function()
                     igraph::cluster_louvain(gr, resolution = resolution)$membership)
@@ -651,7 +656,8 @@ node_in_louvain <- function(.data, k = NULL, Kmax = 8L, resolution = 1){
 #' @examples
 #' node_in_leiden(ison_adolescents)
 #' @export
-node_in_leiden <- function(.data, k = NULL, Kmax = 8L, resolution = 1){
+node_in_leiden <- function(.data, k = NULL, max_k = 8L, resolution = 1, Kmax = NULL){
+  max_k <- resolve_max_k(max_k, Kmax)
   .data <- manynet::expect_nodes(.data)
   k <- check_k(k, .data)
   if(manynet::is_directed(.data)){
@@ -664,7 +670,7 @@ node_in_leiden <- function(.data, k = NULL, Kmax = 8L, resolution = 1){
     resolution <- sum(manynet::tie_weights(.data))/(n*(n - 1)/2)
   }
   gr <- manynet::as_igraph(.data)
-  memb <- apply_k(k, Kmax, .data,
+  memb <- apply_k(k, max_k, .data,
                   at_k = function(no) cut_res(igraph::cluster_leiden, gr, no),
                   default = function()
                     igraph::cluster_leiden(gr, resolution = resolution)$membership)
@@ -705,7 +711,8 @@ node_in_leiden <- function(.data, k = NULL, Kmax = 8L, resolution = 1){
 #' @examples
 #' node_in_labels(ison_adolescents)
 #' @export
-node_in_labels <- function(.data, k = NULL, Kmax = 8L){
+node_in_labels <- function(.data, k = NULL, max_k = 8L, Kmax = NULL){
+  max_k <- resolve_max_k(max_k, Kmax)
   .data <- manynet::expect_nodes(.data)
   k <- check_k(k, .data)
   if(manynet::is_directed(.data)){
@@ -727,7 +734,7 @@ node_in_labels <- function(.data, k = NULL, Kmax = 8L){
       gr, initial = init, fixed = fixed)$membership)
     merge_to_k(.data, memb, no)
   }
-  memb <- apply_k(k, Kmax, .data, at_k = at_k,
+  memb <- apply_k(k, max_k, .data, at_k = at_k,
                   default = function() igraph::cluster_label_prop(gr)$membership)
   make_node_member(memb, .data)
 }
@@ -778,7 +785,8 @@ NULL
 #' @examples
 #' node_in_betweenness(ison_adolescents)
 #' @export
-node_in_betweenness <- function(.data, k = NULL, Kmax = 8L){
+node_in_betweenness <- function(.data, k = NULL, max_k = 8L, Kmax = NULL){
+  max_k <- resolve_max_k(max_k, Kmax)
   .data <- manynet::expect_nodes(.data)
   k <- check_k(k, .data)
   if(manynet::net_nodes(.data)>100) 
@@ -786,7 +794,7 @@ node_in_betweenness <- function(.data, k = NULL, Kmax = 8L){
                                 "or even run out of memory on such a large network.")
   clust <- suppressWarnings(igraph::cluster_edge_betweenness(
     manynet::as_igraph(.data)))
-  memb <- apply_k(k, Kmax, .data,
+  memb <- apply_k(k, max_k, .data,
                   at_k = function(no) cut_tree(clust, no),
                   default = function() clust$membership)
   out <- make_node_member(memb, .data)
@@ -814,11 +822,12 @@ node_in_betweenness <- function(.data, k = NULL, Kmax = 8L){
 #' @examples
 #' node_in_greedy(ison_adolescents)
 #' @export
-node_in_greedy <- function(.data, k = NULL, Kmax = 8L){
+node_in_greedy <- function(.data, k = NULL, max_k = 8L, Kmax = NULL){
+  max_k <- resolve_max_k(max_k, Kmax)
   .data <- manynet::expect_nodes(.data)
   k <- check_k(k, .data)
   clust <- igraph::cluster_fast_greedy(manynet::to_undirected(manynet::as_igraph(.data)))
-  memb <- apply_k(k, Kmax, .data,
+  memb <- apply_k(k, max_k, .data,
                   at_k = function(no) cut_tree(clust, no),
                   default = function() clust$membership)
   out <- make_node_member(memb, .data)
@@ -845,7 +854,8 @@ node_in_greedy <- function(.data, k = NULL, Kmax = 8L){
 #' @examples
 #' node_in_eigen(ison_adolescents)
 #' @export
-node_in_eigen <- function(.data, k = NULL, Kmax = 8L){
+node_in_eigen <- function(.data, k = NULL, max_k = 8L, Kmax = NULL){
+  max_k <- resolve_max_k(max_k, Kmax)
   .data <- manynet::expect_nodes(.data)
   k <- check_k(k, .data)
   if(manynet::is_directed(.data)){
@@ -854,7 +864,7 @@ node_in_eigen <- function(.data, k = NULL, Kmax = 8L){
     .data <- manynet::to_undirected(.data)
   }
   clust <- igraph::cluster_leading_eigen(manynet::as_igraph(.data))
-  memb <- apply_k(k, Kmax, .data,
+  memb <- apply_k(k, max_k, .data,
                   at_k = function(no) cut_tree(clust, no),
                   default = function() clust$membership)
   out <- make_node_member(memb, .data)
@@ -881,11 +891,12 @@ node_in_eigen <- function(.data, k = NULL, Kmax = 8L){
 #' @examples
 #' node_in_walktrap(ison_adolescents)
 #' @export
-node_in_walktrap <- function(.data, k = NULL, Kmax = 8L, steps = 4){
+node_in_walktrap <- function(.data, k = NULL, max_k = 8L, steps = 4, Kmax = NULL){
+  max_k <- resolve_max_k(max_k, Kmax)
   .data <- manynet::expect_nodes(.data)
   k <- check_k(k, .data)
   clust <- igraph::cluster_walktrap(manynet::as_igraph(.data), steps = steps)
-  memb <- apply_k(k, Kmax, .data,
+  memb <- apply_k(k, max_k, .data,
                   at_k = function(no) cut_tree(clust, no),
                   default = function() clust$membership)
   out <- make_node_member(memb, .data)

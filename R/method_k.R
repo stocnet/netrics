@@ -64,7 +64,7 @@ k_strict <- function(hc, .data){
 
 #' @rdname method_kselect 
 #' @param motif A motif census object.
-#' @param Kmax An integer indicating the maximum number of options to consider.
+#' @param max_k An integer indicating the maximum number of options to consider.
 #'   The minimum of this and the number of nodes in the network is used.
 #' @section Elbow method:
 #'   The elbow method is a heuristic used in cluster analysis to determine the optimal number of clusters.
@@ -89,7 +89,7 @@ k_strict <- function(hc, .data){
 #'    _Psychometrika_, 18(4): 267–76. 
 #'    \doi{10.1007/BF02289263}.
 #' @export
-k_elbow <- function(hc, .data, motif, Kmax){
+k_elbow <- function(hc, .data, motif, max_k){
   
   thisRequires("sna")
   
@@ -115,7 +115,7 @@ k_elbow <- function(hc, .data, motif, Kmax){
   
   resultlist <- list()
   correlations <- vector()
-  for (i in 2:min(Kmax, vertices)) {
+  for (i in 2:min(max_k, vertices)) {
     cluster_result <- list(label = NA, clusters = NA, correlation = NA)
     cluster_result$label <- paste("number of clusters: ", 
                                   i)
@@ -129,7 +129,7 @@ k_elbow <- function(hc, .data, motif, Kmax){
   }
   
   resultlist$correlations <- c(correlations)
-  dafr <- data.frame(clusters = 2:min(Kmax, vertices), 
+  dafr <- data.frame(clusters = 2:min(max_k, vertices), 
                      correlations = c(correlations))
   correct <- NULL # to satisfy the error god
   
@@ -163,10 +163,10 @@ k_elbow <- function(hc, .data, motif, Kmax){
 #'   _Journal of Computational and Applied Mathematics_, 20: 53–65. 
 #'   \doi{10.1016/0377-0427(87)90125-7}.
 #' @export
-k_silhouette <- function(hc, .data, Kmax){
-  if(missing(Kmax)) Kmax <- length(hc$order) else
-    Kmax <- min(Kmax, length(hc$order))
-  kcs <- 2:min(Kmax, manynet::net_nodes(.data))
+k_silhouette <- function(hc, .data, max_k){
+  if(missing(max_k)) max_k <- length(hc$order) else
+    max_k <- min(max_k, length(hc$order))
+  kcs <- 2:min(max_k, manynet::net_nodes(.data))
   ns <- seq_len(manynet::net_nodes(.data))
   distances <- hc$distances
   ks <- vector()
@@ -197,10 +197,10 @@ k_silhouette <- function(hc, .data, Kmax){
 #' @param sims Integer of how many simulations should be generated as a
 #'   reference distribution.
 #' @export
-k_gap <- function(hc, motif, Kmax, sims = 100) {
+k_gap <- function(hc, motif, max_k, sims = 100) {
   
-  if(missing(Kmax)) Kmax <- length(hc$order) else
-    Kmax <- min(Kmax, length(hc$order))
+  if(missing(max_k)) max_k <- length(hc$order) else
+    max_k <- min(max_k, length(hc$order))
   
   # --- helper: within-cluster dispersion Wk ---
   within_disp <- function(motif, clusters) {
@@ -220,11 +220,11 @@ k_gap <- function(hc, motif, Kmax, sims = 100) {
   maxs <- apply(motif, 2, max)
   
   # storage
-  logW <- numeric(Kmax)
-  logW_ref <- matrix(0, nrow = sims, ncol = Kmax)
+  logW <- numeric(max_k)
+  logW_ref <- matrix(0, nrow = sims, ncol = max_k)
   
   # --- real data W_k ---
-  for (k in 1:Kmax) {
+  for (k in 1:max_k) {
     cl <- cutree(hc, k)
     logW[k] <- log(within_disp(motif, cl))
   }
@@ -235,7 +235,7 @@ k_gap <- function(hc, motif, Kmax, sims = 100) {
     d_ref <- stats::dist(ref)
     hc_ref <- hclust(d_ref, method = hc$method)
     
-    for (k in 1:Kmax) {
+    for (k in 1:max_k) {
       cl_ref <- cutree(hc_ref, k)
       logW_ref[b, k] <- log(within_disp(ref, cl_ref))
     }
@@ -246,7 +246,7 @@ k_gap <- function(hc, motif, Kmax, sims = 100) {
   se  <- sqrt(1 + 1/B) * apply(logW_ref, 2, stats::sd)
   
   # --- Tibshirani 1-SE rule ---
-  k <- which(gap[-Kmax] >= gap[-1] - se[-1])[1]
+  k <- which(gap[-max_k] >= gap[-1] - se[-1])[1]
   k
 }
 

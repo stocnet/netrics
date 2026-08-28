@@ -4,10 +4,16 @@
 
 - Removed CRAN version check from `.onAttach()` making `library(netrics)` faster to attach
 - Fixed release workflow doubling `actions/actions/checkout` path segment
-- Added `param_cutoff` roxygen template, correctly documenting geodesic cutoff for six functions
-- Added `param_decay` roxygen template, correctly documenting decay parameter
 - Updated GitHub Actions workflows to latest major action versions
 - Updated CONTRIBUTING to be clearer about documentation, website and NEWS conventions
+- Added roxygen templates to standardise argument vocabulary
+  - `param_cutoff`
+  - `param_decay`
+  - `param_times`
+  - `param_variant`
+  - `param_standardized`
+- Updated the website function overview to use the `NEWS.md` family headings
+- Updated the README to recommend installing the whole family via `{migraph}`
 
 ## Measures
 
@@ -60,7 +66,7 @@
 - Moved `node_by_posneg()` to the eigenvector doc group
 - Improved `node_by_subgraph()`
   - Now honours tie weights
-  - Added `method=` to choose which closed walks to count: `"odd"`, `"even"`, or`"all"` (default, both)
+  - Added `walks=` to choose which closed walks to count: `"odd"`, `"even"` or `"all"`
 - Updated references in centrality documentation
   - Corrected `node_by_eigenvector()` to cite Bonacich (1972), not only (1991)
   - Added Freeman (1978) to `node_by_degree()` and the centralisation functions
@@ -118,11 +124,15 @@
     - `"Sender"` for core out-ties and periphery in-ties
     - `"Receiver"` for core in-ties and periphery out-ties
   - Fixed sorting numbered middle labels alphabetically or from arbitrary cluster numbers
+- Improved `node_in_equivalence()` to announce the `cluster_*()` and `k_*()` used
 - Added `node_in_block()` for direct blockmodelling for partitions that minimise `net_by_inconsistency()`
 - Fixed `node_in_regular()` to compute regular equivalence correctly
   - Choose between `regularity = "rolesim"` (default) and `"rege"` for recursive similarity
   - Note existing scripts calling `node_in_regular()` will now return more correct results
   - Moved former similarity of local embedding to `node_in_motif()`
+- Renamed `Kmax=` to `max_k=` in the community and equivalence functions
+- Renamed `num_groups=` to `groups=` in `node_in_roulette()`
+- Renamed `cluster_by=` to `split=` in `node_in_core()`
 
 ## Motifs
 

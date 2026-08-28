@@ -117,11 +117,11 @@ test_that("subgraph centrality splits its walks as documented", {
   # so replacing that call with an eigendecomposition changed no results.
   expect_equal(all, as.numeric(igraph::subgraph_centrality(manynet::as_igraph(g))))
   # Odd- and even-length closed walks partition the whole count.
-  expect_equal(as.numeric(node_by_subgraph(g, method = "odd")) +
-                 as.numeric(node_by_subgraph(g, method = "even")), all)
+  expect_equal(as.numeric(node_by_subgraph(g, walks = "odd")) +
+                 as.numeric(node_by_subgraph(g, walks = "even")), all)
   # Each variant says which one it is.
-  expect_equal(attr(node_by_subgraph(g, method = "odd"), "variant"), "odd")
-  expect_equal(attr(node_by_subgraph(g, method = "odd"), "measure"),
+  expect_equal(attr(node_by_subgraph(g, walks = "odd"), "variant"), "odd")
+  expect_equal(attr(node_by_subgraph(g, walks = "odd"), "measure"),
                "odd subgraph centrality")
   # Discounting longer walks changes the scores but not their positivity.
   expect_false(isTRUE(all.equal(as.numeric(node_by_subgraph(g, decay = 0.5)), all)))
@@ -136,7 +136,7 @@ test_that("bipartivity recognises a two-mode network", {
   expect_true(bip > 0 && bip < 1)
   # Bipartivity is the network-level share of what node_by_subgraph() splits.
   expect_equal(bip,
-               sum(node_by_subgraph(manynet::ison_adolescents, method = "even")) /
+               sum(node_by_subgraph(manynet::ison_adolescents, walks = "even")) /
                  sum(node_by_subgraph(manynet::ison_adolescents)))
 })
 

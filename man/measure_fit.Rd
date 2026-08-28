@@ -11,9 +11,10 @@
 net_by_core(
   .data,
   mark = NULL,
-  method = c("correlation", "ident", "ndiff", "diff"),
+  variant = c("correlation", "ident", "ndiff", "diff"),
   coreness = NULL,
-  direction = c("all", "out", "in")
+  direction = c("all", "out", "in"),
+  method = NULL
 )
 
 net_by_factions(.data, membership = NULL)
@@ -29,16 +30,9 @@ For more information on possible coercions, see e.g. \code{\link[manynet:as_stoc
 
 \item{mark}{A logical vector indicating which nodes belong to the core.}
 
-\item{method}{Which method of the following to use to calculate the fit of
-the core assignment to a core-periphery model.
-"correlation" calculates the correlation between the empirical network and
-an ideal typical network, and "ident" calculates the Euclidean distances
-between the same.
-"ndiff", however, calculates how distinct the core and periphery groups are
-based on the difference in coreness scores between the least core-like
-member of the core and the most core-like member of the periphery.
-"diff" is similar to "ndiff", but multiplies the raw "ndiff" score by the
-square root of the size of the core, thus penalising large cores.}
+\item{variant}{Character string naming which variant of the measure to
+compute, where more than one definition of the same quantity is in use.
+The variant chosen is reported when the result is printed.}
 
 \item{coreness}{Which method to use to calculate nodes' coreness.
 One of "correlation", "rich", "transition", or "hub";
@@ -51,6 +45,9 @@ directly, and "correlation" otherwise.}
 For a directed network, "out" scores nodes on the ties they send and
 "in" on the ties they receive.
 Ignored for undirected and two-mode networks.}
+
+\item{method}{Deprecated. The former spelling of \code{variant}.
+Still accepted, but warns; please use \code{variant} instead.}
 
 \item{membership}{A character string naming an existing node attribute in
 the network, or a categorical vector of the same length as the number of
@@ -112,6 +109,20 @@ direction, so they are not interchangeable:\tabular{llll}{
 
 Compare partitions using one measure at a time.
 }
+\section{Core-periphery fit variants}{
+
+For \code{net_by_core()}, which of the following to use to calculate the fit of
+the core assignment to a core-periphery model.
+"correlation" calculates the correlation between the empirical network and
+an ideal typical network, and "ident" calculates the Euclidean distances
+between the same.
+"ndiff", however, calculates how distinct the core and periphery groups are
+based on the difference in coreness scores between the least core-like
+member of the core and the most core-like member of the periphery.
+"diff" is similar to "ndiff", but multiplies the raw "ndiff" score by the
+square root of the size of the core, thus penalising large cores.
+}
+
 \section{Core-Periphery}{
 
 \code{net_by_core()} calculates the Pearson correlation between the given

@@ -10,9 +10,7 @@
 #' @template param_memb
 #' @family brokerage
 #' @template node_motif
-#' @param standardized Whether the score should be standardized
-#'   into a _z_-score indicating how many standard deviations above
-#'   or below the average the score lies.
+#' @template param_standardized
 NULL
 
 #' @rdname motif_brokerage_node 
@@ -61,9 +59,7 @@ node_x_brokerage <- function(.data, membership, standardized = FALSE){
 #' @template param_memb
 #' @family brokerage
 #' @template net_motif
-#' @param standardized Whether the score should be standardized
-#'   into a _z_-score indicating how many standard deviations above
-#'   or below the average the score lies.
+#' @template param_standardized
 NULL
 
 #' @rdname motif_brokerage_net 

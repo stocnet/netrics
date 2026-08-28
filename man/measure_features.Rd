@@ -14,7 +14,12 @@
 \usage{
 net_by_richclub(.data)
 
-net_by_smallworld(.data, method = c("omega", "sigma", "SWI"), times = 100)
+net_by_smallworld(
+  .data,
+  variant = c("omega", "sigma", "SWI"),
+  times = 100,
+  method = NULL
+)
 
 net_by_scalefree(.data)
 
@@ -27,32 +32,14 @@ net_by_balance(.data)
 Internally any of these will be coerced to an efficient implementation.
 For more information on possible coercions, see e.g. \code{\link[manynet:as_stocnet]{manynet::as_stocnet()}}.}
 
-\item{method}{There are three small-world measures implemented:
-\itemize{
-\item "sigma" is the original equation from Watts and Strogatz (1998),
-\deqn{\frac{\frac{C}{C_r}}{\frac{L}{L_r}}},
-where \eqn{C} and \eqn{L} are the observed
-clustering coefficient and path length, respectively,
-and \eqn{C_r} and \eqn{L_r} are the averages obtained from
-random networks of the same dimensions and density.
-A \eqn{\sigma > 1} is considered to be small-world,
-but this measure is highly sensitive to network size.
-\item "omega" (the default) is an update from Telesford et al. (2011),
-\deqn{\frac{L_r}{L} - \frac{C}{C_l}},
-where \eqn{C_l} is the clustering coefficient for a lattice graph
-with the same dimensions.
-\eqn{\omega} ranges between -1 and 1, where values close to 0 are
-as close to a small-world as possible; negative values indicate a
-lattice-like network, and positive values a more random one.
-\item "SWI" is an alternative proposed by Neal (2017),
-\deqn{\frac{L - L_l}{L_r - L_l} \times \frac{C - C_r}{C_l - C_r}},
-where \eqn{L_l} is the average path length for a lattice graph
-with the same dimensions.
-\eqn{SWI} ranges between 0 and 1, where 1 is as close to a small-world
-as possible, though there may not be a network for which \eqn{SWI = 1}.
-}}
+\item{variant}{Character string naming which variant of the measure to
+compute, where more than one definition of the same quantity is in use.
+The variant chosen is reported when the result is printed.}
 
 \item{times}{Integer of number of simulations.}
+
+\item{method}{Deprecated. The former spelling of \code{variant}.
+Still accepted, but warns; please use \code{variant} instead.}
 }
 \value{
 A \code{network_measure} numeric score.
@@ -84,6 +71,35 @@ ranging between \code{0} if all triangles are imbalanced and
 bipartite, that is, to dividing into two sets with ties only between them.
 }
 }
+\section{Small-world variants}{
+
+For \code{net_by_smallworld()} there are three small-world measures
+implemented:
+\itemize{
+\item "sigma" is the original equation from Watts and Strogatz (1998),
+\deqn{\frac{\frac{C}{C_r}}{\frac{L}{L_r}}},
+where \eqn{C} and \eqn{L} are the observed
+clustering coefficient and path length, respectively,
+and \eqn{C_r} and \eqn{L_r} are the averages obtained from
+random networks of the same dimensions and density.
+A \eqn{\sigma > 1} is considered to be small-world,
+but this measure is highly sensitive to network size.
+\item "omega" (the default) is an update from Telesford et al. (2011),
+\deqn{\frac{L_r}{L} - \frac{C}{C_l}},
+where \eqn{C_l} is the clustering coefficient for a lattice graph
+with the same dimensions.
+\eqn{\omega} ranges between -1 and 1, where values close to 0 are
+as close to a small-world as possible; negative values indicate a
+lattice-like network, and positive values a more random one.
+\item "SWI" is an alternative proposed by Neal (2017),
+\deqn{\frac{L - L_l}{L_r - L_l} \times \frac{C - C_r}{C_l - C_r}},
+where \eqn{L_l} is the average path length for a lattice graph
+with the same dimensions.
+\eqn{SWI} ranges between 0 and 1, where 1 is as close to a small-world
+as possible, though there may not be a network for which \eqn{SWI = 1}.
+}
+}
+
 \section{Bipartivity}{
 
 A network is bipartite when its nodes divide into two sets with ties only
@@ -100,7 +116,7 @@ not whether it has been: it is defined on a one-mode network,
 whereas \code{\link[manynet:is_twomode]{manynet::is_twomode()}} reports whether nodes are already
 partitioned into two modes.
 The node-level counterpart is \code{\link[=node_by_subgraph]{node_by_subgraph()}} with
-\code{method = "odd"} or \code{"even"}.
+\code{walks = "odd"} or \code{"even"}.
 }
 
 \examples{

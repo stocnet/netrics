@@ -10,9 +10,11 @@
 #'   coverage curve has no clear elbow.
 #'   If the algorithm cannot return exactly the number of communities
 #'   requested, a warning is given and the nearest number is returned.
-#' @param Kmax Integer indicating the maximum number of communities to
+#' @param max_k Integer indicating the maximum number of communities to
 #'   evaluate for `"silhouette"` and `"elbow"`. By default `8`.
 #'   Otherwise ignored.
 #'   Note that for `node_in_louvain()` and `node_in_leiden()` each candidate
 #'   requires its own search over the resolution parameter,
-#'   so a large `Kmax` is costly on large networks.
+#'   so a large `max_k` is costly on large networks.
+#' @param Kmax Deprecated. The former spelling of `max_k`.
+#'   Still accepted, but warns; please use `max_k` instead.

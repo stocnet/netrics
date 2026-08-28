@@ -5,14 +5,14 @@
 \alias{node_in_roulette}
 \title{Memberships in maximally diverse cliques}
 \usage{
-node_in_roulette(.data, num_groups, group_size, times = NULL)
+node_in_roulette(.data, groups, group_size, times = NULL, num_groups = NULL)
 }
 \arguments{
 \item{.data}{A network object of class \code{stocnet}, \code{igraph}, \code{tbl_graph}, \code{network}, or similar.
 Internally any of these will be coerced to an efficient implementation.
 For more information on possible coercions, see e.g. \code{\link[manynet:as_stocnet]{manynet::as_stocnet()}}.}
 
-\item{num_groups}{An integer indicating the number of groups desired.}
+\item{groups}{An integer indicating the number of groups desired.}
 
 \item{group_size}{An integer indicating the desired size of most of the groups.
 Note that if the number of nodes is not divisible into groups of equal size,
@@ -24,6 +24,9 @@ and the best or the most frequent result is kept.
 Where the algorithm searches, this is how many steps the search takes.
 More repetitions give a more reliable result and take longer,
 so each function documents its own default.}
+
+\item{num_groups}{Deprecated. The former spelling of \code{groups}.
+Still accepted, but warns; please use \code{groups} instead.}
 }
 \value{
 A \code{node_member} character vector the length of the nodes in the network,
@@ -72,7 +75,7 @@ The user is referred to Lai and Hao (2016) and Lai et al (2021) for more details
 }
 
 \examples{
-node_in_roulette(ison_adolescents, num_groups = 3)
+node_in_roulette(ison_adolescents, groups = 3)
 }
 \references{
 \subsection{On the maximally diverse grouping problem}{

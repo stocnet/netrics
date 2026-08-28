@@ -19,9 +19,13 @@ the corresponding node.
 While this may often be a vector created using \verb{node_in_*()} functions,
 it can be any character vector that assigns nodes to groups or categories.}
 
-\item{standardized}{Whether the score should be standardized
-into a \emph{z}-score indicating how many standard deviations above
-or below the average the score lies.}
+\item{standardized}{Logical scalar. Where \code{TRUE}, the counts are returned
+as z-scores against a null model rather than as raw counts.
+This is a different quantity from \code{normalized}, which divides by a
+theoretical maximum, and from \code{scaled}, which divides by the observed
+maximum: a z-score says how far the count departs from what the null
+model expects, so it can be negative and has no fixed range.
+By default \code{FALSE}.}
 }
 \value{
 A \code{network_motif} named numeric vector or sometimes a data frame with

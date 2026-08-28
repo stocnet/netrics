@@ -30,7 +30,12 @@ node_by_authority(.data, scaled = TRUE)
 
 node_by_hub(.data, scaled = TRUE)
 
-node_by_subgraph(.data, decay = 1, method = c("all", "odd", "even"))
+node_by_subgraph(
+  .data,
+  decay = 1,
+  walks = c("all", "odd", "even"),
+  method = NULL
+)
 
 node_by_posneg(.data)
 }
@@ -65,13 +70,16 @@ so each documents its own default.}
 
 \item{alpha}{Deprecated; use \code{decay} instead.}
 
-\item{method}{Character string indicating which closed walks to count.
+\item{walks}{Character string indicating which closed walks to count.
 By default \code{"all"}, which is subgraph centrality as usually defined.
 \code{"odd"} counts only walks of odd length and \code{"even"} only those of even
 length; the two sum to \code{"all"}.
 Odd closed walks cannot occur within a bipartite structure, so a node
 scoring near zero on \code{"odd"} sits in a locally two-mode-like neighbourhood.
 See \code{\link[=net_by_bipartivity]{net_by_bipartivity()}} for the network-level counterpart.}
+
+\item{method}{Deprecated. The former spelling of \code{walks}.
+Still accepted, but warns; please use \code{walks} instead.}
 }
 \value{
 A \code{node_measure} numeric vector the length of the nodes in the network,

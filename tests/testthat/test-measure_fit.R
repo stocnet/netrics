@@ -7,8 +7,8 @@ test_that("net_modularity works for two mode networks", {
 test_that("net_core works", {
   out <- net_by_core(ison_adolescents)
   expect_values(out, -0.133)
-  expect_values(net_by_core(ison_adolescents, method = "ident"), 6.481)
-  expect_values(net_by_core(ison_adolescents, method = "diff"), 5.619)
+  expect_values(net_by_core(ison_adolescents, variant = "ident"), 6.481)
+  expect_values(net_by_core(ison_adolescents, variant = "diff"), 5.619)
 })
 
 test_that("net_by_inconsistency scores a partition against ideal blocks", {

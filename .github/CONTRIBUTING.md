@@ -185,12 +185,29 @@ Before adding an argument, look for the name the package already uses for that i
 |---|---|
 | `normalized` | divide by a theoretical maximum, so scores compare across networks |
 | `scaled` | divide by the observed maximum, so the highest-scoring node takes 1 |
+| `standardized` | a z-score against a null model, so it can be negative and has no fixed range |
 | `decay` | any per-step discount, always a proportion on `[0,1]` where higher values discount less |
 | `alpha` | only Opsahl et al.'s trade-off between degree and strength in `node_by_degree()` |
 | `direction` | `"all"`, `"in"` or `"out"`, validated with `match.arg()` |
 | `cutoff` | a geodesic distance bound |
 | `k` | a target number of groups, or the name of a `k_*` selection method |
-| `cluster`, `coreness`, `regularity` | select a method helper, as above |
+| `groups` | a fixed number of groups, where no `k_*` method can apply |
+| `max_k` | the upper bound on the number of groups evaluated |
+| `times` | how many times an algorithm repeats its work |
+| `variant` | which definition of the same quantity to compute, reported back as the result's `variant` |
+| `walks` | which closed walks to count: `"all"`, `"odd"` or `"even"` |
+| `attribute` | the node or tie attribute a measure reads |
+| `resolution` | the Reichardt-Bornholdt gamma of a modularity-based algorithm |
+| `steps` | the length of one random walk |
+| `select`, `ranks` | how many nodes or ties a mark selects |
+| `cluster`, `coreness`, `regularity`, `split` | select a method helper, as above |
+
+`k` and `groups` are not the same argument, and the difference is worth keeping.
+Every `k_*` helper takes an `hclust` object as its first argument, so only a
+function that builds a dendrogram can be handed a selection method by name.
+`node_in_core()` splits one continuous score and `node_in_roulette()` searches
+group assignments directly, so both take `groups` rather than `k`.
+Naming them `k` would advertise a `k = "silhouette"` that cannot work.
 
 Four points follow from this:
 

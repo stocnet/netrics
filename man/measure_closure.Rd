@@ -9,7 +9,7 @@
 \alias{net_by_congruency}
 \title{Measuring network closure}
 \usage{
-net_by_reciprocity(.data, method = c("default", "ratio"))
+net_by_reciprocity(.data, variant = c("default", "ratio"), method = NULL)
 
 net_by_transitivity(.data)
 
@@ -24,8 +24,12 @@ net_by_congruency(.data, object2)
 Internally any of these will be coerced to an efficient implementation.
 For more information on possible coercions, see e.g. \code{\link[manynet:as_stocnet]{manynet::as_stocnet()}}.}
 
-\item{method}{For reciprocity, either \code{default} or \code{ratio}.
-See \code{?igraph::reciprocity}}
+\item{variant}{Character string naming which variant of the measure to
+compute, where more than one definition of the same quantity is in use.
+The variant chosen is reported when the result is printed.}
+
+\item{method}{Deprecated. The former spelling of \code{variant}.
+Still accepted, but warns; please use \code{variant} instead.}
 
 \item{object2}{Optionally, a second (two-mode) matrix, igraph, or tidygraph}
 }
@@ -61,6 +65,10 @@ that are closed by fourth tie to establish a "shared four-cycle" structure.
 For three-mode networks, \code{net_congruency} calculates the proportion of three-paths
 spanning two two-mode networks that are closed by a fourth tie to establish a
 "congruent four-cycle" structure.
+
+\code{net_by_reciprocity()} takes a \code{variant}: either \code{"default"}, the share of
+ties that are reciprocated, or \code{"ratio"}, the share of dyads that are mutual
+rather than asymmetric. See \code{?igraph::reciprocity}.
 }
 \section{Cyclicality}{
 

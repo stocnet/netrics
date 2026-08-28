@@ -19,7 +19,8 @@ node_in_equivalence(
   k = c("silhouette", "elbow", "strict"),
   cluster = c("hierarchical", "concor", "cosine"),
   distance = c("euclidean", "maximum", "manhattan", "canberra", "binary", "minkowski"),
-  Kmax = 8L
+  max_k = 8L,
+  Kmax = NULL
 )
 
 node_in_structural(
@@ -27,7 +28,8 @@ node_in_structural(
   k = c("silhouette", "elbow", "strict"),
   cluster = c("hierarchical", "concor", "cosine"),
   distance = c("euclidean", "maximum", "manhattan", "canberra", "binary", "minkowski"),
-  Kmax = 8L
+  max_k = 8L,
+  Kmax = NULL
 )
 
 node_in_regular(
@@ -35,10 +37,11 @@ node_in_regular(
   k = c("silhouette", "elbow", "strict"),
   cluster = c("hierarchical", "concor", "cosine"),
   distance = c("euclidean", "maximum", "manhattan", "canberra", "binary", "minkowski"),
-  Kmax = 8L,
+  max_k = 8L,
   regularity = c("rolesim", "rege"),
   decay = 0.15,
-  beta = NULL
+  beta = NULL,
+  Kmax = NULL
 )
 
 node_in_motif(
@@ -46,7 +49,8 @@ node_in_motif(
   k = c("silhouette", "elbow", "strict"),
   cluster = c("hierarchical", "concor", "cosine"),
   distance = c("euclidean", "maximum", "manhattan", "canberra", "binary", "minkowski"),
-  Kmax = 8L
+  max_k = 8L,
+  Kmax = NULL
 )
 
 node_in_automorphic(
@@ -54,7 +58,8 @@ node_in_automorphic(
   k = c("silhouette", "elbow", "strict"),
   cluster = c("hierarchical", "concor", "cosine"),
   distance = c("euclidean", "maximum", "manhattan", "canberra", "binary", "minkowski"),
-  Kmax = 8L
+  max_k = 8L,
+  Kmax = NULL
 )
 
 node_in_block(.data, k = 2L, blocks = c("nul", "com"), times = NULL)
@@ -87,9 +92,12 @@ By default \code{"euclidean"}, but other options include
 \code{"maximum"}, \code{"manhattan"}, \code{"canberra"}, \code{"binary"}, and \code{"minkowski"}.
 Fewer, identifiable letters, e.g. \code{"e"} for Euclidean, is sufficient.}
 
-\item{Kmax}{Integer indicating the maximum number of (k) clusters
+\item{max_k}{Integer indicating the maximum number of (k) clusters
 to evaluate.
 Ignored when \code{k = "strict"} or a discrete number is given for \code{k}.}
+
+\item{Kmax}{Deprecated. The former spelling of \code{max_k}.
+Still accepted, but warns; please use \code{max_k} instead.}
 
 \item{regularity}{Character string indicating which algorithm should be
 used to calculate how regularly equivalent nodes are.

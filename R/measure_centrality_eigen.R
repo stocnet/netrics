@@ -307,13 +307,15 @@ node_by_hub <- function(.data, scaled = TRUE){
 
 #' @rdname measure_central_eigen
 #' @template param_decay
-#' @param method Character string indicating which closed walks to count.
+#' @param walks Character string indicating which closed walks to count.
 #'   By default `"all"`, which is subgraph centrality as usually defined.
 #'   `"odd"` counts only walks of odd length and `"even"` only those of even
 #'   length; the two sum to `"all"`.
 #'   Odd closed walks cannot occur within a bipartite structure, so a node
 #'   scoring near zero on `"odd"` sits in a locally two-mode-like neighbourhood.
 #'   See [net_by_bipartivity()] for the network-level counterpart.
+#' @param method Deprecated. The former spelling of `walks`.
+#'   Still accepted, but warns; please use `walks` instead.
 #' @section Subgraph centrality:
 #'   Subgraph centrality measures the participation of a node in all subgraphs
 #'   in the network, giving higher weight to smaller subgraphs.
@@ -351,22 +353,24 @@ node_by_hub <- function(.data, scaled = TRUE){
 #'   \doi{10.1103/PhysRevE.72.046105}
 #' @export
 node_by_subgraph <- function(.data, decay = 1,
-                             method = c("all", "odd", "even")){
+                             walks = c("all", "odd", "even"),
+                             method = NULL){
+  walks <- resolve_method(walks, method, "walks")
   .data <- manynet::expect_nodes(.data)
-  method <- match.arg(method)
+  walks <- match.arg(walks, c("all", "odd", "even"))
   decay <- check_decay(decay)
-  out <- .closed_walks(.data, decay, method)
+  out <- .closed_walks(.data, decay, walks)
   # Subgraph centrality grows exponentially in the number of closed walks and
   # has no theoretical maximum, so no normalisation is offered.
   # Every node has one closed walk of length zero, itself, which the "odd"
   # count alone excludes.
   make_node_measure(out, .data,
-                    measure = switch(method,
+                    measure = switch(walks,
                                      all = "subgraph centrality",
                                      odd = "odd subgraph centrality",
                                      even = "even subgraph centrality"),
-                    range = `if`(method == "odd", c(0, Inf), c(1, Inf)),
-                    normalization = "none", variant = method)
+                    range = `if`(walks == "odd", c(0, Inf), c(1, Inf)),
+                    normalization = "none", variant = walks)
 }
 
 # Counts each node's closed walks, weighting a walk of length k by
@@ -376,15 +380,15 @@ node_by_subgraph <- function(.data, decay = 1,
 # Shared by `node_by_subgraph()` and `net_by_bipartivity()`.
 # Unlike `igraph::subgraph_centrality()` this honours tie weights, which are
 # carried by the adjacency matrix itself.
-.closed_walks <- function(.data, decay = 1, method = c("all", "odd", "even")) {
-  method <- match.arg(method)
+.closed_walks <- function(.data, decay = 1, walks = c("all", "odd", "even")) {
+  walks <- match.arg(walks)
   mat <- manynet::as_matrix(manynet::to_multilevel(.data))
   if(!isSymmetric(unname(mat))) {
     manynet::snet_info("Counting closed walks on the undirected form of this network, since the decomposition requires a symmetric matrix.")
     mat <- (mat + t(mat))/2
   }
   eig <- eigen(mat, symmetric = TRUE)
-  weights <- switch(method,
+  weights <- switch(walks,
                     all = exp(decay * eig$values),
                     odd = sinh(decay * eig$values),
                     even = cosh(decay * eig$values))

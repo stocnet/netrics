@@ -81,7 +81,12 @@ net_by_richclub <- function(.data){
 }
 #' @rdname measure_features 
 #' @param times Integer of number of simulations.
-#' @param method There are three small-world measures implemented:
+#' @template param_variant
+#' @param method Deprecated. The former spelling of `variant`.
+#'   Still accepted, but warns; please use `variant` instead.
+#' @section Small-world variants:
+#'   For `net_by_smallworld()` there are three small-world measures
+#'   implemented:
 #'   - "sigma" is the original equation from Watts and Strogatz (1998),
 #'     \deqn{\frac{\frac{C}{C_r}}{\frac{L}{L_r}}}, 
 #'     where \eqn{C} and \eqn{L} are the observed 
@@ -126,18 +131,18 @@ net_by_richclub <- function(.data){
 #' net_by_smallworld(ison_southern_women)
 #' @export
 net_by_smallworld <- function(.data, 
-                               method = c("omega", "sigma", "SWI"),
-                               times = 100) {
-  
+                               variant = c("omega", "sigma", "SWI"),
+                               times = 100, method = NULL) {
+  variant <- resolve_method(variant, method, "variant")
   .data <- manynet::expect_nodes(.data)
-  method <- match.arg(method)
+  variant <- match.arg(variant, c("omega", "sigma", "SWI"))
   
   if(manynet::is_twomode(.data)){
     co <- net_by_equivalency(.data)
     cr <- mean(vapply(1:times, 
                       function(x) net_by_equivalency(manynet::generate_random(.data)),
                       FUN.VALUE = numeric(1)))
-    if(method %in% c("omega", "SWI")){
+    if(variant %in% c("omega", "SWI")){
       cl <- net_by_equivalency(manynet::create_ring(.data))
     }
   } else {
@@ -145,7 +150,7 @@ net_by_smallworld <- function(.data,
     cr <- mean(vapply(1:times, 
                             function(x) net_by_transitivity(manynet::generate_random(.data)),
                             FUN.VALUE = numeric(1)))
-    if(method %in% c("omega", "SWI")){
+    if(variant %in% c("omega", "SWI")){
       cl <- net_by_transitivity(manynet::create_lattice(.data))
     }
   }
@@ -154,25 +159,25 @@ net_by_smallworld <- function(.data,
   lr <- mean(vapply(1:times, 
                          function(x) net_by_length(manynet::generate_random(.data)),
                          FUN.VALUE = numeric(1)))
-  if(method == "SWI"){
+  if(variant == "SWI"){
     ll <- net_by_length(manynet::create_ring(.data))
   }
   
-  out <- switch(method,
+  out <- switch(variant,
                 "omega" = (lr/lo - co/cl),
                 "sigma" = (co/cr)/(lo/lr),
                 "SWI" = ((lo - ll)/(lr - ll))*((co - cr)/(cl - cr)))
   make_network_measure(out,
                        .data, call = deparse(sys.call()),
                        measure = "small-world coefficient",
-                       range = switch(method,
+                       range = switch(variant,
                                       omega = c(-1, 1),
                                       sigma = c(0, Inf),
                                       SWI = c(0, 1)),
                        # Only SWI is a proportion of a theoretical maximum;
                        # omega is signed and sigma is an unbounded ratio.
-                       normalization = `if`(method == "SWI", "normalized", "none"),
-                       variant = method)
+                       normalization = `if`(variant == "SWI", "normalized", "none"),
+                       variant = variant)
 }
 #' @rdname measure_features 
 #' @importFrom igraph fit_power_law
@@ -229,7 +234,7 @@ net_by_scalefree <- function(.data){
 #'   whereas [manynet::is_twomode()] reports whether nodes are already
 #'   partitioned into two modes.
 #'   The node-level counterpart is [node_by_subgraph()] with
-#'   `method = "odd"` or `"even"`.
+#'   `walks = "odd"` or `"even"`.
 #' @references
 #' ## On bipartivity
 #' Estrada, Ernesto, and Juan A. Rodríguez-Velázquez. 2005.
@@ -245,8 +250,8 @@ net_by_bipartivity <- function(.data) {
   .data <- manynet::expect_nodes(.data)
   # Even-length closed walks as a share of all of them. Both counts are
   # strictly positive, since the length-zero walk at each node is even.
-  out <- sum(.closed_walks(.data, method = "even")) /
-    sum(.closed_walks(.data, method = "all"))
+  out <- sum(.closed_walks(.data, walks = "even")) /
+    sum(.closed_walks(.data, walks = "all"))
   make_network_measure(out, .data, call = deparse(sys.call()),
                        measure = "bipartivity", range = c(0, 1),
                        normalization = "normalized")
@@ -387,7 +392,11 @@ NULL
 
 #' @rdname measure_fit
 #' @param mark A logical vector indicating which nodes belong to the core.
-#' @param method Which method of the following to use to calculate the fit of
+#' @template param_variant
+#' @param method Deprecated. The former spelling of `variant`.
+#'   Still accepted, but warns; please use `variant` instead.
+#' @section Core-periphery fit variants:
+#'   For `net_by_core()`, which of the following to use to calculate the fit of
 #'   the core assignment to a core-periphery model.
 #'   "correlation" calculates the correlation between the empirical network and
 #'   an ideal typical network, and "ident" calculates the Euclidean distances
@@ -420,15 +429,17 @@ NULL
 #' @export
 net_by_core <- function(.data,
                         mark = NULL,
-                        method = c("correlation","ident","ndiff", "diff"),
+                        variant = c("correlation","ident","ndiff", "diff"),
                         coreness = NULL,
-                        direction = c("all","out","in")){
+                        direction = c("all","out","in"),
+                        method = NULL){
+  variant <- resolve_method(variant, method, "variant")
   .data <- manynet::expect_nodes(.data)
   direction <- match.arg(direction)
   if(is.null(mark)) mark <- node_is_core(.data, coreness = coreness,
                                          direction = direction)
   
-  method <- match.arg(method)
+  variant <- match.arg(variant, c("correlation","ident","ndiff", "diff"))
   # `manynet::create_core()` returns an upper-triangular matrix for a directed
   # network rather than a directed core-periphery ideal, so comparing a
   # directed network against it would compare unlike with unlike. Both sides
@@ -443,11 +454,11 @@ net_by_core <- function(.data,
     obs <- pmax(obs, t(obs))
     ideal <- pmax(ideal, t(ideal))
   }
-  if(method == "correlation"){
+  if(variant == "correlation"){
     out <- stats::cor(c(obs), c(ideal))
-  } else if(method == "ident"){
+  } else if(variant == "ident"){
     out <- sqrt(sum((obs - ideal)^2))
-  } else if(method %in% c("ndiff","diff")){
+  } else if(variant %in% c("ndiff","diff")){
     # Sort nodes by coreness
     c_scores <- node_by_core(.data, coreness = coreness,
                                  direction = direction)
@@ -460,25 +471,25 @@ net_by_core <- function(.data,
     diff1 <- sum(min_core - periphery)
     diff2 <- sum(core - max_periphery)
     
-    if(method == "ndiff"){
+    if(variant == "ndiff"){
       out <- (diff1 + diff2) / length(c_scores)  # Normalize
-    } else if(method == "diff"){
+    } else if(variant == "diff"){
       out <- (diff1 + diff2) * sqrt(sum(mark))
     } 
-  } else manynet::snet_unavailable(method)
+  } else manynet::snet_unavailable(variant)
   # The methods are on genuinely different scales: a correlation, a Euclidean
   # distance, and two signed differences in coreness, so each declares its own.
   make_network_measure(out, .data, call = deparse(sys.call()),
-                       measure = switch(method,
+                       measure = switch(variant,
                                         correlation = "core-periphery correlation",
                                         ident = "core-periphery distance",
                                         ndiff = "normalised core-periphery difference",
                                         diff = "core-periphery difference"),
-                       range = switch(method,
+                       range = switch(variant,
                                       correlation = c(-1, 1),
                                       ident = c(0, Inf),
                                       ndiff = , diff = c(-Inf, Inf)),
-                       normalization = "none", variant = method)
+                       normalization = "none", variant = variant)
 }
 
 #' @rdname measure_fit 

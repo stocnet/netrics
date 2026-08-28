@@ -71,6 +71,48 @@ resolve_scaled <- function(scaled, scale = NULL) {
   scaled
 }
 
+# `Kmax` was the original spelling of the upper bound on the number of groups,
+# but it was the one camel-case argument in an otherwise lowercase API, and
+# `node_in_spinglass()` already spelled the same idea `max_k`. The `max_*`
+# prefix also leaves room for other bounds later. Accepts the old spelling
+# and warns, as `resolve_scaled()` does.
+resolve_max_k <- function(max_k, Kmax = NULL) {
+  if(!is.null(Kmax)) {
+    warning("The `Kmax` argument has been renamed `max_k`, ",
+            "for consistency with the rest of the package. ",
+            "Please use `max_k` instead.", call. = FALSE)
+    max_k <- Kmax
+  }
+  max_k
+}
+
+# `num_groups` was the one place a fixed number of groups was not called
+# `groups`, as `node_in_core()` calls it. Accepts the old spelling and warns.
+resolve_groups <- function(groups, num_groups = NULL) {
+  if(!is.null(num_groups)) {
+    warning("The `num_groups` argument has been renamed `groups`, ",
+            "the name this package uses for a fixed number of groups. ",
+            "Please use `groups` instead.", call. = FALSE)
+    groups <- num_groups
+  }
+  groups
+}
+
+# `method` named four unrelated things: which definition of reciprocity, of
+# small-worldness and of core-periphery fit to compute, and which closed walks
+# to count. One word cannot carry all four, so the first three became
+# `variant`, the choice of definition the result then reports, and the fourth
+# became `walks`. Accepts the old spelling and warns.
+resolve_method <- function(new, method = NULL, new_name) {
+  if(!is.null(method)) {
+    warning("The `method` argument has been renamed `", new_name, "`, ",
+            "since `method` named several different things in this package. ",
+            "Please use `", new_name, "` instead.", call. = FALSE)
+    new <- method
+  }
+  new
+}
+
 # Several measures discount a contribution once per step of distance or walk
 # length. The literature names that discount differently in each case —
 # Bonacich and Lloyd's alpha, RoleSim's beta, PageRank's damping factor,

@@ -340,16 +340,17 @@ check_measure_contract <- function(roster, .data,
         note_gap(fn, "accepts a `decay` above 1")
     }
 
-    # Every choice of `method` should run, and should say which one ran, so
-    # that a result carrying no `variant` cannot be traced back to its method.
-    if ("method" %in% names(fargs)) {
-      for (m in eval(fargs$method)) {
-        alt <- try(call_measure(fn, c(roster[[fn]], list(method = m)), .data),
-                   silent = TRUE)
+    # Every choice a measure offers should run, and should say which one ran,
+    # so that a result carrying no `variant` cannot be traced back to its
+    # choice. `method` was split into these narrower names, so both are swept.
+    for (arg in intersect(c("variant", "walks"), names(fargs))) {
+      for (m in eval(fargs[[arg]])) {
+        alt <- try(call_measure(fn, c(roster[[fn]], stats::setNames(list(m), arg)),
+                                .data), silent = TRUE)
         if (inherits(alt, "try-error")) {
-          note_gap(fn, sprintf("errors when `method = \"%s\"`", m))
+          note_gap(fn, sprintf("errors when `%s = \"%s\"`", arg, m))
         } else if (is.null(attr(alt, "variant"))) {
-          note_gap(fn, sprintf("declares no `variant` for `method = \"%s\"`", m))
+          note_gap(fn, sprintf("declares no `variant` for `%s = \"%s\"`", arg, m))
         }
       }
     }

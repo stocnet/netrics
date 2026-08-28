@@ -14,19 +14,19 @@
 \usage{
 node_in_optimal(.data)
 
-node_in_partition(.data, k = 2L, Kmax = 8L)
+node_in_partition(.data, k = 2L, max_k = 8L, Kmax = NULL)
 
 node_in_infomap(.data, times = 50)
 
 node_in_spinglass(.data, max_k = 200, resolution = 1)
 
-node_in_fluid(.data, k = NULL, Kmax = 8L)
+node_in_fluid(.data, k = NULL, max_k = 8L, Kmax = NULL)
 
-node_in_louvain(.data, k = NULL, Kmax = 8L, resolution = 1)
+node_in_louvain(.data, k = NULL, max_k = 8L, resolution = 1, Kmax = NULL)
 
-node_in_leiden(.data, k = NULL, Kmax = 8L, resolution = 1)
+node_in_leiden(.data, k = NULL, max_k = 8L, resolution = 1, Kmax = NULL)
 
-node_in_labels(.data, k = NULL, Kmax = 8L)
+node_in_labels(.data, k = NULL, max_k = 8L, Kmax = NULL)
 }
 \arguments{
 \item{.data}{A network object of class \code{stocnet}, \code{igraph}, \code{tbl_graph}, \code{network}, or similar.
@@ -46,12 +46,15 @@ coverage curve has no clear elbow.
 If the algorithm cannot return exactly the number of communities
 requested, a warning is given and the nearest number is returned.}
 
-\item{Kmax}{Integer indicating the maximum number of communities to
+\item{max_k}{Integer indicating the maximum number of communities to
 evaluate for \code{"silhouette"} and \code{"elbow"}. By default \code{8}.
 Otherwise ignored.
 Note that for \code{node_in_louvain()} and \code{node_in_leiden()} each candidate
 requires its own search over the resolution parameter,
-so a large \code{Kmax} is costly on large networks.}
+so a large \code{max_k} is costly on large networks.}
+
+\item{Kmax}{Deprecated. The former spelling of \code{max_k}.
+Still accepted, but warns; please use \code{max_k} instead.}
 
 \item{times}{Integer scalar, how many times the algorithm repeats its work.
 Where the algorithm is stochastic, this is how many times it runs,
@@ -59,9 +62,6 @@ and the best or the most frequent result is kept.
 Where the algorithm searches, this is how many steps the search takes.
 More repetitions give a more reliable result and take longer,
 so each function documents its own default.}
-
-\item{max_k}{Integer constant, the number of spins to use as an upper limit
-of communities to be found. Some sets can be empty at the end.}
 
 \item{resolution}{The Reichardt-Bornholdt “gamma” resolution parameter for modularity.
 By default 1, making existing and non-existing ties equally important.
@@ -131,6 +131,9 @@ per node required to encode the path.
 }
 
 \section{Spin-glass}{
+
+Here \code{max_k} is the number of spins, an upper limit on the communities
+found rather than a bound on a search, so some can end up empty.
 
 This is motivated by analogy to the Potts model in statistical physics.
 Each node can be in one of \emph{k} "spin states",

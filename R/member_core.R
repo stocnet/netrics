@@ -148,9 +148,12 @@ NULL
 #' @rdname member_core
 #' @param groups Number of categories to create. Must be at least 2 and at most
 #'   the number of nodes in the network. Default is 3.
-#' @param cluster_by Method to use to create the categories.
-#'   One of "bins" (equal-width bins), "quantiles" (quantile-based bins),
-#'   or "kmeans" (k-means clustering). Default is "bins".
+#' @param split Which method to use to split the coreness scores into the
+#'   categories. One of "bins" (equal-width bins), "quantiles"
+#'   (quantile-based bins), or "kmeans" (k-means clustering);
+#'   see [method_split] for what each does. Default is "bins".
+#' @param cluster_by Deprecated. The former spelling of `split`.
+#'   Still accepted, but warns; please use `split` instead.
 #' @param coreness Which method to use to calculate nodes' coreness.
 #'   One of "correlation", "rich", "transition", or "hub";
 #'   see [method_coreness] for what each does.
@@ -179,7 +182,7 @@ NULL
 #'   - "Receiver" for nodes in the in-core only,
 #'   - "Periphery" for nodes in neither.
 #'
-#'   This uses [coreness_hub()], so `groups` and `cluster_by` do not apply.
+#'   This uses [coreness_hub()], so `groups` and `split` do not apply.
 #' @references
 #' ## On core-periphery categorization
 #' Wallerstein, Immanuel. 1974.
@@ -198,9 +201,11 @@ NULL
 #' node_in_core(ison_networkers, direction = "both")
 #' @export
 node_in_core <- function(.data, groups = 3,
-                         cluster_by = c("bins","quantiles","kmeans"),
+                         split = c("bins","quantiles","kmeans"),
                          coreness = NULL,
-                         direction = c("all","out","in","both")) {
+                         direction = c("all","out","in","both"),
+                         cluster_by = NULL) {
+  split <- resolve_split(split, cluster_by)
   .data <- manynet::expect_nodes(.data)
   direction <- match.arg(direction)
   if(direction == "both") return(.core_four_sets(.data))
@@ -209,21 +214,12 @@ node_in_core <- function(.data, groups = 3,
     manynet::snet_abort("{.arg groups} cannot exceed the number of nodes.")
   contin <- as.numeric(node_by_core(.data, coreness = coreness,
                                         direction = direction))
-  cluster_by <- match.arg(cluster_by)
-  out <- switch(cluster_by,
-                bins = cut(contin, breaks = groups, labels = FALSE),
-                quantiles = as.numeric(cut(contin,
-                                           breaks = stats::quantile(contin,
-                                                                    probs = seq(0, 1, length.out = groups + 1)),
-                                           include.lowest = TRUE, labels = FALSE)),
-                # k-means numbers its clusters in whatever order it finds
-                # them, so the numbers must be put back in coreness order
-                # before they can index the labels.
-                kmeans = {
-                  km <- stats::kmeans(contin, centers = groups)
-                  order(order(km$centers))[km$cluster]
-                }
-  )
+  split <- match.arg(split, c("bins","quantiles","kmeans"))
+  manynet::snet_info("Splitting the coreness scores using {.fn split_{split}}.")
+  out <- switch(split,
+                bins = split_bins(contin, groups),
+                quantiles = split_quantiles(contin, groups),
+                kmeans = split_kmeans(contin, groups))
   out <- rev(core_labels(groups))[out]
   make_node_member(out, .data)
 }

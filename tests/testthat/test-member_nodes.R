@@ -9,7 +9,7 @@ for(fn in names(node_membs)) {
                 !igraph::is_connected(manynet::as_igraph(data_objs[[ob]])))
       if(grepl("roulette", fn)){
         if(ob != "twomode")
-          expect_s3_class(node_membs[[fn]](data_objs[[ob]], num_groups = 3), 
+          expect_s3_class(node_membs[[fn]](data_objs[[ob]], groups = 3), 
                           "node_member") else
                             succeed("Roulette doesn't work on two-mode objects")
       } else if(grepl("adopter", fn)){

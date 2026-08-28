@@ -8,13 +8,13 @@
 \alias{node_in_walktrap}
 \title{Memberships in hierarchical communities}
 \usage{
-node_in_betweenness(.data, k = NULL, Kmax = 8L)
+node_in_betweenness(.data, k = NULL, max_k = 8L, Kmax = NULL)
 
-node_in_greedy(.data, k = NULL, Kmax = 8L)
+node_in_greedy(.data, k = NULL, max_k = 8L, Kmax = NULL)
 
-node_in_eigen(.data, k = NULL, Kmax = 8L)
+node_in_eigen(.data, k = NULL, max_k = 8L, Kmax = NULL)
 
-node_in_walktrap(.data, k = NULL, Kmax = 8L, steps = 4)
+node_in_walktrap(.data, k = NULL, max_k = 8L, steps = 4, Kmax = NULL)
 }
 \arguments{
 \item{.data}{A network object of class \code{stocnet}, \code{igraph}, \code{tbl_graph}, \code{network}, or similar.
@@ -34,12 +34,15 @@ coverage curve has no clear elbow.
 If the algorithm cannot return exactly the number of communities
 requested, a warning is given and the nearest number is returned.}
 
-\item{Kmax}{Integer indicating the maximum number of communities to
+\item{max_k}{Integer indicating the maximum number of communities to
 evaluate for \code{"silhouette"} and \code{"elbow"}. By default \code{8}.
 Otherwise ignored.
 Note that for \code{node_in_louvain()} and \code{node_in_leiden()} each candidate
 requires its own search over the resolution parameter,
-so a large \code{Kmax} is costly on large networks.}
+so a large \code{max_k} is costly on large networks.}
+
+\item{Kmax}{Deprecated. The former spelling of \code{max_k}.
+Still accepted, but warns; please use \code{max_k} instead.}
 
 \item{steps}{Integer indicating the length of the random walks.
 By default \code{steps = 4}, as in \code{{igraph}}.

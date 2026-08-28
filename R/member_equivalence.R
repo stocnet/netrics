@@ -41,9 +41,11 @@
 #'   By default `"euclidean"`, but other options include
 #'   `"maximum"`, `"manhattan"`, `"canberra"`, `"binary"`, and `"minkowski"`.
 #'   Fewer, identifiable letters, e.g. `"e"` for Euclidean, is sufficient.
-#' @param Kmax Integer indicating the maximum number of (k) clusters
+#' @param max_k Integer indicating the maximum number of (k) clusters
 #'   to evaluate.
 #'   Ignored when `k = "strict"` or a discrete number is given for `k`.
+#' @param Kmax Deprecated. The former spelling of `max_k`.
+#'   Still accepted, but warns; please use `max_k` instead.
 #' @importFrom stats as.dist hclust cutree coef cor median
 #' @source \url{https://github.com/aslez/concoR}
 NULL
@@ -55,7 +57,8 @@ node_in_equivalence <- function(.data, motif,
                                 cluster = c("hierarchical", "concor", "cosine"),
                                 distance = c("euclidean", "maximum", "manhattan", 
                                              "canberra", "binary", "minkowski"),
-                                Kmax = 8L){
+                                max_k = 8L, Kmax = NULL){
+  max_k <- resolve_max_k(max_k, Kmax)
   .data <- manynet::expect_nodes(.data)
   cluster <- match.arg(cluster)
   manynet::snet_info("Clustering using {.fn cluster_{cluster}}.")
@@ -71,8 +74,8 @@ node_in_equivalence <- function(.data, motif,
     manynet::snet_info("Selecting the number of clusters using {.fn k_{k}}.")
     k <- switch(k,
                 strict = k_strict(hc, .data),
-                elbow = k_elbow(hc, .data, motif, Kmax),
-                silhouette = k_silhouette(hc, .data, Kmax))
+                elbow = k_elbow(hc, .data, motif, max_k),
+                silhouette = k_silhouette(hc, .data, max_k))
   }
   if(length(k)==0) k <- 1 # in the case of all nodes being in the same cluster
   
@@ -91,7 +94,8 @@ node_in_structural <- function(.data,
                                cluster = c("hierarchical", "concor","cosine"),
                                distance = c("euclidean", "maximum", "manhattan", 
                                             "canberra", "binary", "minkowski"),
-                               Kmax = 8L){
+                               max_k = 8L, Kmax = NULL){
+  max_k <- resolve_max_k(max_k, Kmax)
   .data <- manynet::expect_nodes(.data)
   mat <- node_x_tie(.data)
   if(any(colSums(t(mat))==0)){
@@ -99,7 +103,7 @@ node_in_structural <- function(.data,
   } 
   node_in_equivalence(.data, mat, 
                       k = k, cluster = cluster, distance = distance, 
-                      Kmax = Kmax)
+                      max_k = max_k)
 }
 
 #' @rdname member_equivalence
@@ -136,9 +140,10 @@ node_in_regular <- function(.data,
                             cluster = c("hierarchical", "concor","cosine"),
                             distance = c("euclidean", "maximum", "manhattan",
                                          "canberra", "binary", "minkowski"),
-                            Kmax = 8L,
+                            max_k = 8L,
                             regularity = c("rolesim", "rege"),
-                            decay = 0.15, beta = NULL){
+                            decay = 0.15, beta = NULL, Kmax = NULL){
+  max_k <- resolve_max_k(max_k, Kmax)
   .data <- manynet::expect_nodes(.data)
   regularity <- match.arg(regularity)
   decay <- resolve_decay(decay, beta, "beta")
@@ -148,7 +153,7 @@ node_in_regular <- function(.data,
                 rolesim = regularity_rolesim(.data, decay = decay),
                 rege = regularity_rege(.data))
   node_in_equivalence(.data, mat,
-                   k = k, cluster = cluster, distance = distance, Kmax = Kmax)
+                   k = k, cluster = cluster, distance = distance, max_k = max_k)
 }
 
 #' @rdname member_equivalence
@@ -172,7 +177,8 @@ node_in_motif <- function(.data,
                           cluster = c("hierarchical", "concor","cosine"),
                           distance = c("euclidean", "maximum", "manhattan",
                                        "canberra", "binary", "minkowski"),
-                          Kmax = 8L){
+                          max_k = 8L, Kmax = NULL){
+  max_k <- resolve_max_k(max_k, Kmax)
   .data <- manynet::expect_nodes(.data)
   if(manynet::is_twomode(.data)){
     manynet::snet_info("Since this is a two-mode network,",
@@ -187,7 +193,7 @@ node_in_motif <- function(.data,
   }
   if(any(colSums(mat) == 0)) mat <- mat[,-which(colSums(mat) == 0)]
   node_in_equivalence(.data, mat,
-                   k = k, cluster = cluster, distance = distance, Kmax = Kmax)
+                   k = k, cluster = cluster, distance = distance, max_k = max_k)
 }
 
 #' @rdname member_equivalence
@@ -202,11 +208,12 @@ node_in_automorphic <- function(.data,
                                 cluster = c("hierarchical", "concor","cosine"),
                                 distance = c("euclidean", "maximum", "manhattan", 
                                              "canberra", "binary", "minkowski"),
-                                Kmax = 8L){
+                                max_k = 8L, Kmax = NULL){
+  max_k <- resolve_max_k(max_k, Kmax)
   .data <- manynet::expect_nodes(.data)
   mat <- node_x_path(.data)
   node_in_equivalence(.data, mat, 
-                   k = k, cluster = cluster, distance = distance, Kmax = Kmax)
+                   k = k, cluster = cluster, distance = distance, max_k = max_k)
 }
 
 #' @rdname member_equivalence
