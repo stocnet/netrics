@@ -127,6 +127,9 @@
 - Added `node_x_clique()`, returning which maximal cliques each node belongs to
   - It branches on two-mode networks to find bicliques (closes #8, thanks @noortjemay)
   - Note that it considers only positive ties, since a clique is a cohesive subgroup
+- Improved `node_x_tie()`
+  - Fixed erroring on diffusion models, which downstream affected `node_in_equivalence()` and `node_in_structural()`
+  - Fixed erroring on any multiplex network not multiplexed on a `type` tie attribute
 - Added `node_x_ties()`, describing the distribution of each node's tie values
   - In a multiplex network it describes their spread across layers
 - Added `node_x_alters()` and `node_x_similarity()`, describing the composition of each node's alters and their similarity to it

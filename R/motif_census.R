@@ -27,9 +27,24 @@ node_x_tie <- function(.data){
   object <- manynet::as_igraph(.data)
   # Only tie-level waves split the census; a diffusion model's ties do not change
   waved <- "wave" %in% manynet::net_tie_attributes(object)
+  if (manynet::is_multiplex(.data)) {
+    # The layers are stacked into one census, which needs them to share a
+    # node set. `to_uniplex()` drops the nodes a layer does not tie, so a
+    # network mixing a one-mode and a two-mode layer has nothing to stack.
+    sizes <- vapply(manynet::layer_names(object),
+                    function(l) manynet::net_nodes(manynet::to_uniplex(object, l)),
+                    FUN.VALUE = numeric(1))
+    if (length(unique(sizes)) > 1)
+      manynet::snet_unavailable(
+        "A tie census over layers that do not share a node set",
+        "is not yet available.",
+        "Here the {.val {names(sizes)}} layers hold {sizes} nodes.",
+        "Please use {.fn to_uniplex} to census a single layer,",
+        "or {.fn net_x_triad}, which does span a one-mode and a two-mode layer.")
+  }
   if (manynet::is_directed(object)) {
     if (manynet::is_multiplex(.data)) {
-      mat <- do.call(rbind, lapply(unique(manynet::tie_attribute(object, "type")), 
+      mat <- do.call(rbind, lapply(manynet::layer_names(object), 
                                    function(x){
                                      rc <- manynet::as_matrix(manynet::to_uniplex(object, x))
                                      rbind(rc, t(rc))
@@ -47,7 +62,7 @@ node_x_tie <- function(.data){
     }
   } else {
     if (manynet::is_multiplex(.data)) {
-      mat <- do.call(rbind, lapply(unique(manynet::tie_attribute(object, "type")), 
+      mat <- do.call(rbind, lapply(manynet::layer_names(object), 
                                    function(x){
                                      manynet::as_matrix(manynet::to_uniplex(object, x))
                                    }))
@@ -66,7 +81,7 @@ node_x_tie <- function(.data){
     if(manynet::is_multiplex(.data)){
       rownames(mat) <- apply(expand.grid(c(paste0("from", manynet::node_names(object)),
                                            paste0("to", manynet::node_names(object))),
-                                         unique(manynet::tie_attribute(object, "type"))), 
+                                         manynet::layer_names(object)), 
                              1, paste, collapse = "_")
     } else if (waved){
       rownames(mat) <- apply(expand.grid(c(paste0("from", manynet::node_names(object)),

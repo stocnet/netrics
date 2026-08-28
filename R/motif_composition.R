@@ -59,15 +59,20 @@ NULL
 #' @examples
 #' node_x_ties(ison_networkers)
 #' node_x_ties(ison_algebra)
+#' node_x_ties(fict_marvel)
 #' @export
 node_x_ties <- function(.data, direction = c("all", "out", "in")){
   .data <- manynet::expect_nodes(.data)
   direction <- match.arg(direction)
   if(manynet::is_multiplex(.data)){
-    layers <- unique(manynet::tie_attribute(.data, "type"))
+    # `layer_names()` rather than the "type" tie attribute, since a network
+    # multiplexed on any other attribute would otherwise return no layers at
+    # all and only the Diversity column
+    layers <- manynet::layer_names(.data)
+    # `uniplex_degree()` keeps each layer at the length of the whole nodeset,
+    # which `to_uniplex()` does not
     out <- vapply(layers, function(l)
-      as.numeric(node_by_degree(manynet::to_uniplex(.data, l),
-                                normalized = FALSE, direction = direction)),
+      uniplex_degree(.data, l, normalized = FALSE, direction = direction),
       FUN.VALUE = numeric(manynet::net_nodes(.data)))
     out <- cbind(out, Diversity = .iqv(out))
   } else if(manynet::is_weighted(.data)){

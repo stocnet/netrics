@@ -119,3 +119,27 @@ test_that("attribute resolution accepts names and vectors alike", {
   expect_error(node_x_alters(ison_networkers, "nonexistent"))
   expect_error(node_x_alters(ison_networkers, c(1, 2, 3)))
 })
+
+test_that("node_x_ties finds layers whatever the tie attribute is called", {
+  # `ison_algebra` multiplexes on a "type" attribute, the others on "layer".
+  # Reading "type" alone returned no layers at all and only a Diversity
+  # column of NAs, without erroring.
+  alg <- node_x_ties(ison_algebra)
+  expect_s3_class(alg, "node_motif")
+  expect_equal(colnames(alg), c("social", "tasks", "friends", "Diversity"))
+  monks <- node_x_ties(ison_monks)
+  expect_equal(colnames(monks),
+               c("like", "esteem", "influence", "praise", "Diversity"))
+  expect_false(all(is.na(monks[, "Diversity"])))
+  expect_true(all(monks[, "like"] >= 0))
+})
+
+test_that("node_x_ties keeps every node where a layer drops some", {
+  # `to_uniplex()` reduces fict_marvel's relationship layer to 53 of its 194
+  # nodes, so the layers must be padded back to the whole nodeset
+  res <- node_x_ties(fict_marvel)
+  expect_s3_class(res, "node_motif")
+  expect_equal(nrow(res), manynet::net_nodes(fict_marvel))
+  expect_equal(colnames(res), c("relationship", "affiliation", "Diversity"))
+  expect_false(all(is.na(res[, "Diversity"])))
+})
