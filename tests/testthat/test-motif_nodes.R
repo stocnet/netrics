@@ -105,13 +105,14 @@ test_that("node_x_tie finds layers whatever the tie attribute is called", {
   # ison_monks multiplexes on "layer", so reading "type" gave it no layers
   res <- node_x_tie(ison_monks)
   expect_s3_class(res, "node_motif")
-  expect_equal(nrow(res), manynet::net_nodes(ison_monks))
+  expect_equal(nrow(res), as.integer(manynet::net_nodes(ison_monks)))
   expect_s3_class(node_x_tie(ison_algebra), "node_motif")
 })
 
 test_that("node_x_tie reports layers that cannot be stacked", {
   # fict_marvel's layers hold different node sets, so no one census spans them
-  withr::local_options(snet_verbosity = "verbose")
+  old <- options(snet_verbosity = "verbose")
+  on.exit(options(old))
   expect_error(node_x_tie(fict_marvel), "node set")
 })
 

@@ -139,7 +139,7 @@ net_by_independence <- function(.data){
   # independence number of the whole network is already the quantity wanted.
   # The two-mode branch exists because no two nodes of one mode are ever tied
   # there, which would make the answer trivially the size of the larger mode.
-  if(manynet::is_twomode(.data) && !manynet::is_multilevel(.data)){
+  if(manynet::is_twomode(.data) && !.is_multilevel(.data)){
     out <- igraph::ivs_size(manynet::to_mode1(manynet::as_igraph(.data)))
   } else {
     out <- igraph::ivs_size(manynet::to_undirected(manynet::as_igraph(.data)))

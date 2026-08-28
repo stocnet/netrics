@@ -121,3 +121,23 @@ seq_nodes <- function(.data){
     manynet::to_unsigned(.data, keep = "positive")
   } else .data
 }
+
+# `manynet::is_multilevel()` is not exported by every 'manynet' version that
+# this package supports, so the test is kept here. A multilevel network reports
+# itself as two-mode, but interlocks its levels: it has ties both within and
+# between the modes. A network whose ties all run between the modes, as
+# `ison_southern_women`'s do, is a plain two-mode network. A network whose ties
+# all fall within the modes is two networks and not two levels of one.
+.is_multilevel <- function(.data){
+  .data <- manynet::as_igraph(.data)
+  # `to_multilevel()` records levels in a 'lvl' attribute and deletes 'type',
+  # so a network that is already converted has to be recognised by its levels.
+  if("lvl" %in% igraph::vertex_attr_names(.data))
+    return(length(unique(igraph::vertex_attr(.data, "lvl"))) > 1)
+  if(!manynet::is_twomode(.data)) return(FALSE)
+  if(igraph::ecount(.data) == 0) return(FALSE)
+  type <- igraph::vertex_attr(.data, "type")
+  ends <- igraph::ends(.data, igraph::E(.data), names = FALSE)
+  between <- type[ends[,1]] != type[ends[,2]]
+  any(between) && any(!between)
+}

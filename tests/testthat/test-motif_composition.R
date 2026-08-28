@@ -139,7 +139,7 @@ test_that("node_x_ties keeps every node where a layer drops some", {
   # nodes, so the layers must be padded back to the whole nodeset
   res <- node_x_ties(fict_marvel)
   expect_s3_class(res, "node_motif")
-  expect_equal(nrow(res), manynet::net_nodes(fict_marvel))
+  expect_equal(nrow(res), as.integer(manynet::net_nodes(fict_marvel)))
   expect_equal(colnames(res), c("relationship", "affiliation", "Diversity"))
   expect_false(all(is.na(res[, "Diversity"])))
 })
