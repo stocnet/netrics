@@ -83,7 +83,11 @@ test_that("path measures work on a network holding signs as negative weights", {
   # weight: a network keeping all 1241 ties but forgetting their signs gives a
   # different answer from the 960 positive ties alone
   expect_lt(manynet::net_ties(positive), manynet::net_ties(fict_marvel))
-  signless <- igraph::delete_edge_attr(manynet::as_igraph(fict_marvel), "weight")
+  # manynet 2.2.3 carries the sign in a 'sign' attribute; 2.3.0 carries it as a
+  # negative 'weight'. Drop whichever this version uses.
+  signless <- manynet::as_igraph(fict_marvel)
+  for (a in intersect(c("weight", "sign"), igraph::edge_attr_names(signless)))
+    signless <- igraph::delete_edge_attr(signless, a)
   expect_false(isTRUE(all.equal(as.numeric(net_by_length(fict_marvel)),
                                 igraph::mean_distance(signless))))
 })
