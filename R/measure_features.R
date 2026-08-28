@@ -294,7 +294,8 @@ net_by_balance <- function(.data) {
     }
     tmat <- t(matrix(igraph::triangles(g), nrow = 3))
     if (nrow(tmat) == 0) {
-      warning("g does not contain any triangles")
+      manynet::snet_warn("The network contains no triangles,",
+                         "so every signed triad count is 0.")
       return(c(`+++` = 0, `++-` = 0, `+--` = 0, `---` = 0))
     }
     emat <- t(apply(tmat, 1, function(x) c(igraph::get_edge_ids(g, 

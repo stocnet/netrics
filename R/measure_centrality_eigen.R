@@ -428,7 +428,7 @@ node_by_posneg <- function(.data){
 # Eigenvector-like centralities ####
 
 #' Measuring ties eigenvector-like centrality
-#' @name measure_centralities_eigen
+#' @name measure_central_tie_eigen
 #' @description
 #'   `tie_by_eigenvector()` measures the eigenvector centrality of ties in a 
 #'   network.
@@ -446,7 +446,7 @@ node_by_posneg <- function(.data){
 #' @template tie_measure
 NULL
 
-#' @rdname measure_centralities_eigen
+#' @rdname measure_central_tie_eigen
 #' @examples 
 #' tie_by_eigenvector(ison_adolescents)
 #' @export

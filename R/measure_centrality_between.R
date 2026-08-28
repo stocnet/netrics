@@ -205,7 +205,7 @@ node_by_stress <- function(.data, normalized = TRUE){
 # Tie betweenness centrality ####
 
 #' Measuring ties betweenness-like centrality
-#' @name measure_centralities_between
+#' @name measure_central_tie_between
 #' @description
 #'   `tie_by_betweenness()` measures the number of shortest paths going through a tie.
 #'   
@@ -222,7 +222,7 @@ node_by_stress <- function(.data, normalized = TRUE){
 #' @template tie_measure
 NULL
 
-#' @rdname measure_centralities_between
+#' @rdname measure_central_tie_between
 #' @section Edge betweenness centrality:
 #'   The betweenness centrality of a tie, also known as _edge betweenness_,
 #'   counts the shortest paths between other nodes that run along it.

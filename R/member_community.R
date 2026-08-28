@@ -259,9 +259,10 @@ consensus_memb <- function(.data, k, Kmax, times, threshold = 0.5, iter = 10){
 #'   This argument is ignored on a network small enough for
 #'   `node_in_optimal()`, which already returns the maximum modularity
 #'   partition.
-#' @param times An integer of how many times each stochastic algorithm is run
-#'   when `consensus = TRUE`. By default 20. Deterministic algorithms are run
-#'   once however this is set.
+#' @template param_times
+#' @details
+#'   `times` applies only when `consensus = TRUE`, and is 20 by default.
+#'   Deterministic algorithms are run once however it is set.
 #' @family community
 #' @template node_member
 #' @references
@@ -467,8 +468,7 @@ kl_partition <- function(g, n, k, rounds = 50){
 #'   a grouping that provides the shortest description length for a random walk,
 #'   where the description length is measured by the expected number of bits 
 #'   per node required to encode the path.
-#' @param times Integer indicating number of simulations/walks used.
-#'   By default, `times=50`.
+#' @template param_times
 #' @references
 #' ## On infomap community detection
 #' Rosvall, M, and C. T. Bergstrom. 2008.

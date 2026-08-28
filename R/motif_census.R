@@ -12,6 +12,11 @@
 #'   - `node_x_path()` returns the shortest path lengths
 #'   of each node to every other node in the network.
 #'   
+#' @section Multiplex networks:
+#'   `node_x_tie()` binds the layers together, giving one block of columns
+#'   per layer, whatever attribute the network is multiplexed on.
+#'   Each block stays the length of the whole nodeset.
+#'   To census one layer alone, take it first with [manynet::to_uniplex()].
 #' @template param_data
 #' @template node_motif
 #' @importFrom igraph vcount make_ego_graph delete_vertices triad_census
@@ -332,6 +337,11 @@ node_x_tetrad <- function(.data){
 #'   
 #'   See also \href{https://www.graphclasses.org/smallgraphs.html}{graph classes}.
 #'   
+#' @section Multiplex networks:
+#'   `net_x_triad()` takes the mixed census on a multiplex network,
+#'   splitting it into layers by mode rather than by position.
+#'   To census one layer alone, take it first with [manynet::to_uniplex()].
+#'   `net_x_dyad()` and `net_x_tetrad()` count every tie whatever its layer.
 #' @template param_data
 #' @family cohesion
 #' @template net_motif

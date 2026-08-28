@@ -181,7 +181,7 @@ node_by_brokering_exclusivity <- function(.data, membership){
 #' Memberships in brokerage positions
 #' 
 #' @description
-#'   `node_in_brokerage()` returns nodes membership as a powerhouse,
+#'   `node_in_brokering()` returns nodes membership as a powerhouse,
 #'   connector, linchpin, or sideliner according to Hamilton et al. (2020).
 #'   
 #' @name member_brokerage
@@ -199,6 +199,8 @@ node_by_brokering_exclusivity <- function(.data, membership){
 NULL
 
 #' @rdname member_brokerage 
+#' @examples
+#' node_in_brokering(ison_networkers, "Discipline")
 #' @export
 node_in_brokering <- function(.data, membership){
   .data <- manynet::expect_nodes(.data)

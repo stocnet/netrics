@@ -57,18 +57,23 @@ node_in_equivalence <- function(.data, motif,
                                              "canberra", "binary", "minkowski"),
                                 Kmax = 8L){
   .data <- manynet::expect_nodes(.data)
-  hc <- switch(match.arg(cluster),
+  cluster <- match.arg(cluster)
+  manynet::snet_info("Clustering using {.fn cluster_{cluster}}.")
+  hc <- switch(cluster,
                hierarchical = cluster_hierarchical(motif,
                                                    match.arg(distance)),
                concor = cluster_concor(.data, motif),
                cosine = cluster_cosine(motif, 
                                        match.arg(distance)))
   
-  if(!is.numeric(k))
-    k <- switch(match.arg(k),
+  if(!is.numeric(k)){
+    k <- match.arg(k)
+    manynet::snet_info("Selecting the number of clusters using {.fn k_{k}}.")
+    k <- switch(k,
                 strict = k_strict(hc, .data),
                 elbow = k_elbow(hc, .data, motif, Kmax),
                 silhouette = k_silhouette(hc, .data, Kmax))
+  }
   if(length(k)==0) k <- 1 # in the case of all nodes being in the same cluster
   
   out <- make_node_member(stats::cutree(hc, k), .data)

@@ -28,6 +28,13 @@
 #'   `node_by_multidegree()` is the one measure here that is not reached by
 #'   dispatch: a multiplex network does not itself say _which_ two types of
 #'   tie to contrast, so `tie1` and `tie2` must be named.
+#' @section Multiplex networks:
+#'   `node_by_degree()` counts every tie a node holds, whatever its layer,
+#'   so a node tied twice to the same alter on two layers scores 2.
+#'   To score one layer at a time, take it first with
+#'   [manynet::to_uniplex()], or use `node_by_multidegree()` to contrast two.
+#'   Note that `to_uniplex()` drops the nodes that hold none of the retained
+#'   ties, so scores from two layers are of different lengths.
 #' @template param_data
 #' @template param_norm
 #' @template param_dir
@@ -230,7 +237,7 @@ node_by_leverage <- function(.data){
 # Degree-like centralities ####
 
 #' Measuring ties degree-like centrality
-#' @name measure_centralities_degree
+#' @name measure_central_tie_degree
 #' @description
 #'   `tie_by_degree()` measures the degree centrality of ties in a network
 #'   
@@ -247,7 +254,7 @@ node_by_leverage <- function(.data){
 #' @template tie_measure
 NULL
 
-#' @rdname measure_centralities_degree
+#' @rdname measure_central_tie_degree
 #' @examples 
 #' tie_by_degree(ison_adolescents)
 #' @export

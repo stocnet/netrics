@@ -57,10 +57,10 @@ Other tie:
 \code{\link{mark_ties}},
 \code{\link{mark_triangles}},
 \code{\link{measure_broker_tie}},
-\code{\link{measure_centralities_between}},
-\code{\link{measure_centralities_close}},
-\code{\link{measure_centralities_degree}},
-\code{\link{measure_centralities_eigen}}
+\code{\link{measure_central_tie_between}},
+\code{\link{measure_central_tie_close}},
+\code{\link{measure_central_tie_degree}},
+\code{\link{measure_central_tie_eigen}}
 
 Other selection:
 \code{\link{mark_select_node}}

@@ -180,21 +180,21 @@ Shimbel, A. 1953.
 }
 \seealso{
 Other betweenness:
-\code{\link{measure_centralisation_between}},
-\code{\link{measure_centralities_between}}
+\code{\link{measure_central_tie_between}},
+\code{\link{measure_centralisation_between}}
 
 Other centrality:
 \code{\link{measure_central_close}},
 \code{\link{measure_central_degree}},
 \code{\link{measure_central_eigen}},
+\code{\link{measure_central_tie_between}},
+\code{\link{measure_central_tie_close}},
+\code{\link{measure_central_tie_degree}},
+\code{\link{measure_central_tie_eigen}},
 \code{\link{measure_centralisation_between}},
 \code{\link{measure_centralisation_close}},
 \code{\link{measure_centralisation_degree}},
-\code{\link{measure_centralisation_eigen}},
-\code{\link{measure_centralities_between}},
-\code{\link{measure_centralities_close}},
-\code{\link{measure_centralities_degree}},
-\code{\link{measure_centralities_eigen}}
+\code{\link{measure_centralisation_eigen}}
 
 Other measures:
 \code{\link{measure_assort_net}},
@@ -206,10 +206,10 @@ Other measures:
 \code{\link{measure_central_close}},
 \code{\link{measure_central_degree}},
 \code{\link{measure_central_eigen}},
-\code{\link{measure_centralities_between}},
-\code{\link{measure_centralities_close}},
-\code{\link{measure_centralities_degree}},
-\code{\link{measure_centralities_eigen}},
+\code{\link{measure_central_tie_between}},
+\code{\link{measure_central_tie_close}},
+\code{\link{measure_central_tie_degree}},
+\code{\link{measure_central_tie_eigen}},
 \code{\link{measure_closure}},
 \code{\link{measure_closure_node}},
 \code{\link{measure_cohesion}},

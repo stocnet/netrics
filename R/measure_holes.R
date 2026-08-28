@@ -259,6 +259,8 @@ node_by_neighbours_degree <- function(.data){
 NULL
 
 #' @rdname measure_broker_tie 
+#' @examples
+#' tie_by_cohesion(ison_adolescents)
 #' @export
 tie_by_cohesion <- function(.data){
   .data <- manynet::expect_ties(.data)

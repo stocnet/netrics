@@ -52,6 +52,16 @@ Each branches internally on the type of network or attribute given,
 so the same function serves weighted, multiplex, and two-mode networks,
 and categorical as well as continuous attributes.
 }
+\section{Multiplex networks}{
+
+\code{node_x_ties()} returns one column per layer, plus a Diversity column,
+rather than the distribution of tie values it returns otherwise.
+Layers are taken by name, so a network multiplexed on any attribute is
+covered, not only one multiplexed on \code{type}.
+Every column stays the length of the whole nodeset,
+so a node holding no tie in a layer scores 0 there rather than dropping out.
+}
+
 \section{Tie composition}{
 
 For a weighted network this returns the distribution of each node's tie

@@ -42,6 +42,14 @@ in a network:
 
 See also \href{https://www.graphclasses.org/smallgraphs.html}{graph classes}.
 }
+\section{Multiplex networks}{
+
+\code{net_x_triad()} takes the mixed census on a multiplex network,
+splitting it into layers by mode rather than by position.
+To census one layer alone, take it first with \code{\link[manynet:to_uniplex]{manynet::to_uniplex()}}.
+\code{net_x_dyad()} and \code{net_x_tetrad()} count every tie whatever its layer.
+}
+
 \section{Dyad census}{
 
 The dyad census counts the number of mutual, asymmetric, and null dyads

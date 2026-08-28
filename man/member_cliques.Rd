@@ -18,13 +18,12 @@ For more information on possible coercions, see e.g. \code{\link[manynet:as_stoc
 Note that if the number of nodes is not divisible into groups of equal size,
 there may be some larger or smaller groups.}
 
-\item{times}{An integer of the number of search iterations the algorithm should complete.
-By default this is the number of nodes in the network multiplied by the number of groups.
-This heuristic may be insufficient for small networks and numbers of groups,
-and burdensome for large networks and numbers of groups, but can be overwritten.
-At every 10th iteration, a stronger perturbation of a number of successive changes,
-approximately the number of nodes divided by the number of groups,
-will take place irrespective of whether it improves the objective function.}
+\item{times}{Integer scalar, how many times the algorithm repeats its work.
+Where the algorithm is stochastic, this is how many times it runs,
+and the best or the most frequent result is kept.
+Where the algorithm searches, this is how many steps the search takes.
+More repetitions give a more reliable result and take longer,
+so each function documents its own default.}
 }
 \value{
 A \code{node_member} character vector the length of the nodes in the network,
@@ -38,6 +37,14 @@ cliques:
 \itemize{
 \item \code{node_in_roulette()} assigns nodes to maximally diverse groups.
 }
+}
+\details{
+\code{times} defaults to the number of nodes multiplied by the number of groups.
+This heuristic may be insufficient for small networks and numbers of groups,
+and burdensome for large ones, but can be overwritten.
+At every 10th iteration, a stronger perturbation of a number of successive
+changes, approximately the number of nodes divided by the number of groups,
+takes place whether or not it improves the objective function.
 }
 \section{Maximally diverse grouping problem}{
 
@@ -64,6 +71,9 @@ to ensure that a robust solution from the broader state space is identified.
 The user is referred to Lai and Hao (2016) and Lai et al (2021) for more details.
 }
 
+\examples{
+node_in_roulette(ison_adolescents, num_groups = 3)
+}
 \references{
 \subsection{On the maximally diverse grouping problem}{
 

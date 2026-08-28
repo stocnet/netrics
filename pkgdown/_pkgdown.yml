@@ -70,7 +70,7 @@ articles:
       - "`articles/position`"
       - "`articles/topology`"
 reference:
-  - title: "Marking"
+  - title: "Marks"
     desc: |
       Functions for identifying properties of nodes or ties,
       all returning logical scalars or vectors.
@@ -87,7 +87,7 @@ reference:
     contents:
       - starts_with("tie_is_")
     
-  - title: "Measuring"
+  - title: "Measures"
     desc: |
       Functions for measuring networks and returning a numeric vector or value.
       `net_` measures return one or, in some cases of two-mode measures,
@@ -125,18 +125,19 @@ reference:
     
   - title: "Memberships"
     desc: |
-      Motifs are functions for calculating network subgraphs,
-      always return a matrix or table of nodes as rows and motif or other property as columns,
-      and can be recognised by the `_by_` in the function name.
-      Memberships are functions for identifying community, cluster, or class memberships,
-      always return a string vector the length of the nodes in the network,
-      and can be recognised by the `_in_` in the function name.
-  - subtitle: "Motifs"
-    contents:
-      - contains("_x_")
-  - subtitle: "Members"
+      Functions for identifying nodes' community, cluster, or class membership,
+      recognisable by the `_in_` in the function name.
+      They return a character vector the length of the nodes in the network.
     contents:
       - contains("_in_")
+
+  - title: "Motifs"
+    desc: |
+      Functions for tabulating the subgraphs that nodes or networks participate in,
+      recognisable by the `_x_` in the function name.
+      They return a matrix or table, with the motif or other property as columns.
+    contents:
+      - contains("_x_")
       
   - title: "Methods"
     desc: "Methods used in other functions but documented here:"

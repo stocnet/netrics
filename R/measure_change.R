@@ -11,6 +11,8 @@
 NULL
 
 #' @rdname measure_periods 
+#' @examples
+#' net_by_waves(ison_classmates)
 #' @export
 net_by_waves <- function(.data){
   .data <- manynet::expect_nodes(.data)
@@ -45,6 +47,8 @@ NULL
 
 #' @rdname motif_periods 
 #' @param object2 A network object.
+#' @examples
+#' net_x_change(ison_monks)
 #' @export
 net_x_change <- function(.data, object2){
   net <- manynet::expect_nodes(.data)

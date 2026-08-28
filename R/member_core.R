@@ -204,8 +204,9 @@ node_in_core <- function(.data, groups = 3,
   .data <- manynet::expect_nodes(.data)
   direction <- match.arg(direction)
   if(direction == "both") return(.core_four_sets(.data))
-  if (groups < 2) manynet::snet_abort("Number of categories must be at least 2")
-  if (groups > manynet::net_nodes(.data)) manynet::snet_abort("There cannot be more categories than nodes.")
+  if (groups < 2) manynet::snet_abort("{.arg groups} must be at least 2.")
+  if (groups > manynet::net_nodes(.data))
+    manynet::snet_abort("{.arg groups} cannot exceed the number of nodes.")
   contin <- as.numeric(node_by_core(.data, coreness = coreness,
                                         direction = direction))
   cluster_by <- match.arg(cluster_by)

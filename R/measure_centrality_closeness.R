@@ -546,7 +546,7 @@ node_by_randomwalk <- function(.data, normalized = TRUE){
 # Tie closeness centrality ####
 
 #' Measuring ties closeness-like centrality
-#' @name measure_centralities_close
+#' @name measure_central_tie_close
 #' @description
 #'   `tie_by_closeness()` measures the closeness of each tie to other ties 
 #'   in the network.
@@ -564,7 +564,7 @@ node_by_randomwalk <- function(.data, normalized = TRUE){
 #' @template tie_measure
 NULL
 
-#' @rdname measure_centralities_close 
+#' @rdname measure_central_tie_close 
 #' @examples
 #' (ec <- tie_by_closeness(ison_adolescents))
 #' ison_adolescents |> mutate_ties(weight = ec)

@@ -26,8 +26,11 @@ If the network is labelled,
 then the assignments will be labelled with the nodes' names.
 }
 \description{
-\code{node_in_brokerage()} returns nodes membership as a powerhouse,
+\code{node_in_brokering()} returns nodes membership as a powerhouse,
 connector, linchpin, or sideliner according to Hamilton et al. (2020).
+}
+\examples{
+node_in_brokering(ison_networkers, "Discipline")
 }
 \references{
 \subsection{On brokerage activity and exclusivity}{

@@ -38,7 +38,7 @@ drawing, see [`{autograph}`](https://stocnet.github.io/autograph/), and
 for further testing and modelling capabilities see
 [`{migraph}`](https://stocnet.github.io/migraph/).
 
-- [Marking](#marking)
+- [Marks](#marks)
 - [Measures](#measures)
 - [Memberships](#memberships)
 - [Motifs](#motifs)
@@ -49,12 +49,13 @@ for further testing and modelling capabilities see
 - [Relationship to other packages](#relationship-to-other-packages)
 - [Funding details](#funding-details)
 
-## Marking
+## Marks
 
 `{netrics}` includes four special groups of functions, each with their
-own pretty `print()` and `plot()` methods: marks, measures, motifs, and
-memberships. Marks are logical scalars or vectors, measures are numeric,
-memberships categorical, and motifs result in tabular outputs.
+own pretty `print()` method: marks, measures, motifs, and memberships.
+(`plot()` methods for these results live in `{autograph}`.) Marks are
+logical scalars or vectors, measures are numeric, memberships
+categorical, and motifs result in tabular outputs.
 
 `{netrics}`’s `node_is_*()` and `tie_is_*()` functions offer fast
 logical tests of node- and tie-level properties. `node_is_*()` returns a
@@ -152,9 +153,11 @@ member of group “A”, the second in group “B”, etc.
   `node_in_spinglass()`, `node_in_strong()`, `node_in_structural()`,
   `node_in_walktrap()`, `node_in_weak()`
 
-For example `node_in_brokering()` returns the frequency of nodes’
-participation in Gould-Fernandez brokerage roles for a one-mode network,
-and the Jasny-Lubell brokerage roles for a two-mode network.
+For example `node_in_brokering()` labels each node a powerhouse, a
+connector, a linchpin, or a sideliner, according to its brokerage
+activity and exclusivity (Hamilton et al. 2020). For counts of the
+Gould-Fernandez brokerage roles instead, see the motif
+`node_x_brokerage()`.
 
 These can be analysed alone, or used as a profile for establishing
 equivalence. `{netrics}` offers both HCA and CONCOR algorithms, as well
@@ -173,11 +176,11 @@ frequency in various motifs. These include:
 
 - `net_x_brokerage()`, `net_x_change()`, `net_x_correlation()`,
   `net_x_dyad()`, `net_x_hazard()`, `net_x_hierarchy()`,
-  `net_x_homophily()`, `net_x_mixed()`, `net_x_stability()`,
-  `net_x_tetrad()`, `net_x_triad()`, `node_x_alters()`,
-  `node_x_brokerage()`, `node_x_clique()`, `node_x_dyad()`,
-  `node_x_exposure()`, `node_x_path()`, `node_x_similarity()`,
-  `node_x_tetrad()`, `node_x_tie()`, `node_x_ties()`, `node_x_triad()`
+  `net_x_homophily()`, `net_x_stability()`, `net_x_tetrad()`,
+  `net_x_triad()`, `node_x_alters()`, `node_x_brokerage()`,
+  `node_x_clique()`, `node_x_dyad()`, `node_x_exposure()`,
+  `node_x_path()`, `node_x_similarity()`, `node_x_tetrad()`,
+  `node_x_tie()`, `node_x_ties()`, `node_x_triad()`
 
 ## Analysis
 
@@ -229,8 +232,13 @@ about:
 
 ### Stable
 
-The easiest way to install the latest stable version of `{netrics}` is
-via CRAN. Simply open the R console and enter:
+The easiest way to get `{netrics}` is to install the whole `stocnet`
+family from CRAN. Open the R console and enter:
+
+`install.packages('migraph')`
+
+This brings `{manynet}`, `{netrics}`, `{autograph}` and `{migraph}`
+together. To install `{netrics}` alone, enter:
 
 `install.packages('netrics')`
 

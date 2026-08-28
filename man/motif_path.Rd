@@ -34,6 +34,14 @@ For multiplex networks, the various types of ties are bound together.
 of each node to every other node in the network.
 }
 }
+\section{Multiplex networks}{
+
+\code{node_x_tie()} binds the layers together, giving one block of columns
+per layer, whatever attribute the network is multiplexed on.
+Each block stays the length of the whole nodeset.
+To census one layer alone, take it first with \code{\link[manynet:to_uniplex]{manynet::to_uniplex()}}.
+}
+
 \examples{
 task_eg <- to_named(to_uniplex(ison_algebra, "tasks"))
 (tie_cen <- node_x_tie(task_eg))

@@ -39,9 +39,12 @@ This argument is ignored on a network small enough for
 \code{node_in_optimal()}, which already returns the maximum modularity
 partition.}
 
-\item{times}{An integer of how many times each stochastic algorithm is run
-when \code{consensus = TRUE}. By default 20. Deterministic algorithms are run
-once however this is set.}
+\item{times}{Integer scalar, how many times the algorithm repeats its work.
+Where the algorithm is stochastic, this is how many times it runs,
+and the best or the most frequent result is kept.
+Where the algorithm searches, this is how many steps the search takes.
+More repetitions give a more reliable result and take longer,
+so each function documents its own default.}
 }
 \value{
 A \code{node_member} character vector the length of the nodes in the network,
@@ -67,6 +70,10 @@ and the algorithms are then rerun on how often each pair of nodes
 is placed together until they agree.
 This costs considerably more time than selection,
 but does not rest the answer on a single run of a single algorithm.
+}
+\details{
+\code{times} applies only when \code{consensus = TRUE}, and is 20 by default.
+Deterministic algorithms are run once however it is set.
 }
 \examples{
 node_in_community(ison_adolescents)

@@ -53,8 +53,8 @@ node_is_universal(create_star(11))
 \seealso{
 Other degree:
 \code{\link{measure_central_degree}},
-\code{\link{measure_centralisation_degree}},
-\code{\link{measure_centralities_degree}}
+\code{\link{measure_central_tie_degree}},
+\code{\link{measure_centralisation_degree}}
 
 Other marks:
 \code{\link{mark_core}},

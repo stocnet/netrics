@@ -101,6 +101,16 @@ with those of another.
 dispatch: a multiplex network does not itself say \emph{which} two types of
 tie to contrast, so \code{tie1} and \code{tie2} must be named.
 }
+\section{Multiplex networks}{
+
+\code{node_by_degree()} counts every tie a node holds, whatever its layer,
+so a node tied twice to the same alter on two layers scores 2.
+To score one layer at a time, take it first with
+\code{\link[manynet:to_uniplex]{manynet::to_uniplex()}}, or use \code{node_by_multidegree()} to contrast two.
+Note that \code{to_uniplex()} drops the nodes that hold none of the retained
+ties, so scores from two layers are of different lengths.
+}
+
 \section{Degree centrality}{
 
 The degree of a node is the number of connections it has.
@@ -182,21 +192,21 @@ Joyce, Karen E., Paul J. Laurienti, Jonathan H. Burdette, and Satoru Hayasaka. 2
 \seealso{
 Other degree:
 \code{\link{mark_degree}},
-\code{\link{measure_centralisation_degree}},
-\code{\link{measure_centralities_degree}}
+\code{\link{measure_central_tie_degree}},
+\code{\link{measure_centralisation_degree}}
 
 Other centrality:
 \code{\link{measure_central_between}},
 \code{\link{measure_central_close}},
 \code{\link{measure_central_eigen}},
+\code{\link{measure_central_tie_between}},
+\code{\link{measure_central_tie_close}},
+\code{\link{measure_central_tie_degree}},
+\code{\link{measure_central_tie_eigen}},
 \code{\link{measure_centralisation_between}},
 \code{\link{measure_centralisation_close}},
 \code{\link{measure_centralisation_degree}},
-\code{\link{measure_centralisation_eigen}},
-\code{\link{measure_centralities_between}},
-\code{\link{measure_centralities_close}},
-\code{\link{measure_centralities_degree}},
-\code{\link{measure_centralities_eigen}}
+\code{\link{measure_centralisation_eigen}}
 
 Other measures:
 \code{\link{measure_assort_net}},
@@ -208,10 +218,10 @@ Other measures:
 \code{\link{measure_central_between}},
 \code{\link{measure_central_close}},
 \code{\link{measure_central_eigen}},
-\code{\link{measure_centralities_between}},
-\code{\link{measure_centralities_close}},
-\code{\link{measure_centralities_degree}},
-\code{\link{measure_centralities_eigen}},
+\code{\link{measure_central_tie_between}},
+\code{\link{measure_central_tie_close}},
+\code{\link{measure_central_tie_degree}},
+\code{\link{measure_central_tie_eigen}},
 \code{\link{measure_closure}},
 \code{\link{measure_closure_node}},
 \code{\link{measure_cohesion}},

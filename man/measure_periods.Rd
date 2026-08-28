@@ -25,6 +25,9 @@ All can be retrieved with \code{attr()}.
 \description{
 \code{net_by_waves()} measures the number of waves in longitudinal network data.
 }
+\examples{
+net_by_waves(ison_classmates)
+}
 \seealso{
 Other change:
 \code{\link{motif_periods}}
@@ -40,10 +43,10 @@ Other measures:
 \code{\link{measure_central_close}},
 \code{\link{measure_central_degree}},
 \code{\link{measure_central_eigen}},
-\code{\link{measure_centralities_between}},
-\code{\link{measure_centralities_close}},
-\code{\link{measure_centralities_degree}},
-\code{\link{measure_centralities_eigen}},
+\code{\link{measure_central_tie_between}},
+\code{\link{measure_central_tie_close}},
+\code{\link{measure_central_tie_degree}},
+\code{\link{measure_central_tie_eigen}},
 \code{\link{measure_closure}},
 \code{\link{measure_closure_node}},
 \code{\link{measure_cohesion}},

@@ -37,13 +37,14 @@ NULL
 #' @param group_size An integer indicating the desired size of most of the groups.
 #'   Note that if the number of nodes is not divisible into groups of equal size,
 #'   there may be some larger or smaller groups.
-#' @param times An integer of the number of search iterations the algorithm should complete.
-#'   By default this is the number of nodes in the network multiplied by the number of groups.
+#' @template param_times
+#' @details
+#'   `times` defaults to the number of nodes multiplied by the number of groups.
 #'   This heuristic may be insufficient for small networks and numbers of groups,
-#'   and burdensome for large networks and numbers of groups, but can be overwritten.
-#'   At every 10th iteration, a stronger perturbation of a number of successive changes,
-#'   approximately the number of nodes divided by the number of groups,
-#'   will take place irrespective of whether it improves the objective function.
+#'   and burdensome for large ones, but can be overwritten.
+#'   At every 10th iteration, a stronger perturbation of a number of successive
+#'   changes, approximately the number of nodes divided by the number of groups,
+#'   takes place whether or not it improves the objective function.
 #' @references
 #' ## On the maximally diverse grouping problem
 #' Lai, Xiangjing, and Jin-Kao Hao. 2016. 
@@ -55,6 +56,8 @@ NULL
 #' “Neighborhood Decomposition Based Variable Neighborhood Search and Tabu Search for Maximally Diverse Grouping.” 
 #' _European Journal of Operational Research_ 289(3):1067–86. 
 #' \doi{10.1016/j.ejor.2020.07.048}.
+#' @examples
+#' node_in_roulette(ison_adolescents, num_groups = 3)
 #' @export
 node_in_roulette <- function(.data, num_groups, group_size, times = NULL){
   .data <- manynet::expect_nodes(.data)

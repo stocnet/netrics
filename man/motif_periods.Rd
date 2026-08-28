@@ -37,6 +37,9 @@ These functions measure certain topological features of networks:
 These \verb{net_*()} functions return a numeric vector the length of the number
 of networks minus one. E.g., the periods between waves.
 }
+\examples{
+net_x_change(ison_monks)
+}
 \seealso{
 Other change:
 \code{\link{measure_periods}}
