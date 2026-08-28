@@ -24,13 +24,13 @@ test_that("node_walktrap algorithm works", {
 })
 
 test_that("node_in_community uses node_in_optimal on small networks", {
-  skip_if(format(Sys.time(), "%H") >= "09")
-  options(manynet_verbosity = "verbose")
-  options(snet_verbosity = "verbose")
-  expect_message(node_in_community(manynet::create_ring(10)), "optimal")
-  expect_message(node_in_community(manynet::create_ring(200)), "xcluding")
-  options(manynet_verbosity = "quiet")
-  options(snet_verbosity = "quiet")
+  local_verbose()
+  # `capture_messages()` takes every message, so none reaches the console.
+  # `expect_message()` takes only the first, and lets the rest print.
+  expect_match(capture_messages(node_in_community(manynet::create_ring(10))),
+               "optimal", all = FALSE)
+  expect_match(capture_messages(node_in_community(manynet::create_ring(200))),
+               "xcluding", all = FALSE)
 })
 test_that("label propagation membership works", {
   # stochastic, so assert on structure rather than exact labels
@@ -95,13 +95,13 @@ test_that("k accepts the selection methods", {
 })
 
 test_that("an unreachable k warns and returns the nearest", {
-  options(snet_verbosity = "verbose")
+  local_verbose()
   # two components cannot be merged into one community
   unconn <- manynet::create_components(8, membership = c(1,1,1,1,2,2,2,2))
   # snet_warn() signals a cli message, not an R warning condition
-  expect_message(node_in_betweenness(unconn, k = 1), "communities")
-  expect_equal(length(unique(node_in_betweenness(unconn, k = 1))), 2)
-  options(snet_verbosity = "quiet")
+  expect_match(capture_messages(node_in_betweenness(unconn, k = 1)),
+               "communities", all = FALSE)
+  expect_equal(length(unique(suppressMessages(node_in_betweenness(unconn, k = 1)))), 2)
 })
 
 test_that("node_in_partition preserves its two-group result", {
@@ -144,11 +144,11 @@ test_that("node_in_community consensus accepts k", {
 })
 
 test_that("node_in_community ignores consensus where optimal is available", {
-  options(snet_verbosity = "verbose")
+  local_verbose()
   small <- manynet::create_ring(10)
   # snet_info() signals a cli message, not an R condition
-  expect_message(node_in_community(small, consensus = TRUE), "Ignoring")
-  expect_equal(as.character(node_in_community(small, consensus = TRUE)),
-               as.character(node_in_optimal(small)))
-  options(snet_verbosity = "quiet")
+  expect_match(capture_messages(node_in_community(small, consensus = TRUE)),
+               "Ignoring", all = FALSE)
+  expect_equal(as.character(suppressMessages(node_in_community(small, consensus = TRUE))),
+               as.character(suppressMessages(node_in_optimal(small))))
 })

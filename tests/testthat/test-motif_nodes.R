@@ -111,9 +111,9 @@ test_that("node_x_tie finds layers whatever the tie attribute is called", {
 
 test_that("node_x_tie reports layers that cannot be stacked", {
   # fict_marvel's layers hold different node sets, so no one census spans them
-  old <- options(snet_verbosity = "verbose")
-  on.exit(options(old))
-  expect_error(node_x_tie(fict_marvel), "node set")
+  local_verbose()
+  # the call also reports its coercion, so the messages are taken as well
+  expect_error(suppressMessages(node_x_tie(fict_marvel)), "node set")
 })
 
 test_that("node_x_triad reaches the mixed census through net_x_triad", {

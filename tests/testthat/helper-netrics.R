@@ -1,6 +1,19 @@
 options(manynet_verbosity = "quiet")
 options(snet_verbosity = "quiet")
 
+# The suite runs quiet, so a test that asserts on a message has to turn the
+# messages on. `local_verbose()` does that for one test alone, and puts the
+# options back when that test ends, whether it passes or fails. A test that
+# sets the option itself leaves it set on a failure, and every later test then
+# prints its messages to the console.
+local_verbose <- function(env = parent.frame()){
+  old <- options(manynet_verbosity = "verbose", snet_verbosity = "verbose")
+  do.call(base::on.exit,
+          list(substitute(options(OLD), list(OLD = old)), add = TRUE),
+          envir = env)
+  invisible(old)
+}
+
 expect_values <- function(object, ref, toler = 3) {
   # 1. Capture object and label
   # act <- quasi_label(rlang::enquo(object), arg = "object")
@@ -149,6 +162,15 @@ check_tute_functions <- function(path, skip = "ergm\\("){
   exprs <- parse(text = extract_rmd_code(path))
   env <- new.env(parent = globalenv())
 
+  # A tutorial may call `?fn`. `help()` prints through a pager that writes
+  # straight to the terminal, which `capture.output()` cannot take. A pager
+  # that does nothing keeps that page off the console.
+  op <- options(pager = function(files, header, title, delete.file){
+    if(delete.file) unlink(files)
+    invisible(NULL)
+  })
+  on.exit(options(op), add = TRUE)
+
   is_skipped_call <- function(expr) {
     any(grepl(skip, deparse(expr)))
   }
@@ -166,7 +188,9 @@ check_tute_functions <- function(path, skip = "ergm\\("){
     e <- NULL
     m <- NULL
     
-    not_out <- withCallingHandlers(
+    # A tutorial chunk may print a result. `capture.output()` keeps that off
+    # the console, so a test run reports expectations and nothing else.
+    not_out <- utils::capture.output(withCallingHandlers(
       tryCatch(
         eval(exprs[[i]], envir = env),
         error = function(err) {
@@ -182,7 +206,7 @@ check_tute_functions <- function(path, skip = "ergm\\("){
         m <<- c(m, conditionMessage(msg))
         invokeRestart("muffleMessage")
       }
-    )
+    ))
     
     # If there *was* a warning, check if it's a deprecated/defunct one
     if (!is.null(w)) {
