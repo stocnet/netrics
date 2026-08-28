@@ -113,6 +113,20 @@ resolve_method <- function(new, method = NULL, new_name) {
   new
 }
 
+# `cluster_by` selected a method by `switch()` but named no helper, and read
+# as a variant of `cluster=`, which selects the `cluster_*()` hclust helpers
+# and is a different thing. The methods are now `split_*()`, named for what
+# they return. Accepts the old spelling and warns.
+resolve_split <- function(split, cluster_by = NULL) {
+  if(!is.null(cluster_by)) {
+    warning("The `cluster_by` argument has been renamed `split`, ",
+            "which names the `split_*()` methods it chooses between. ",
+            "Please use `split` instead.", call. = FALSE)
+    split <- cluster_by
+  }
+  split
+}
+
 # Several measures discount a contribution once per step of distance or walk
 # length. The literature names that discount differently in each case —
 # Bonacich and Lloyd's alpha, RoleSim's beta, PageRank's damping factor,

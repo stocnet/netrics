@@ -162,6 +162,8 @@
   - `coreness_rich()` is Ma and Mondragon's rich-core for directed and two-mode networks
   - `coreness_hub()` is Elliott and colleagues' more granualr directed core-periphery
   - `coreness_transition()` is Rombach and colleagues' core score over boundary sharpness and core size
+- Added `split_bins()`, `split_quantiles()` and `split_kmeans()`
+  - Each splits a continuous score into an ordered set of groups
 
 ## Tutorials
 

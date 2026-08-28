@@ -8,9 +8,10 @@
 node_in_core(
   .data,
   groups = 3,
-  cluster_by = c("bins", "quantiles", "kmeans"),
+  split = c("bins", "quantiles", "kmeans"),
   coreness = NULL,
-  direction = c("all", "out", "in", "both")
+  direction = c("all", "out", "in", "both"),
+  cluster_by = NULL
 )
 }
 \arguments{
@@ -21,9 +22,10 @@ For more information on possible coercions, see e.g. \code{\link[manynet:as_stoc
 \item{groups}{Number of categories to create. Must be at least 2 and at most
 the number of nodes in the network. Default is 3.}
 
-\item{cluster_by}{Method to use to create the categories.
-One of "bins" (equal-width bins), "quantiles" (quantile-based bins),
-or "kmeans" (k-means clustering). Default is "bins".}
+\item{split}{Which method to use to split the coreness scores into the
+categories. One of "bins" (equal-width bins), "quantiles"
+(quantile-based bins), or "kmeans" (k-means clustering);
+see \link{method_split} for what each does. Default is "bins".}
 
 \item{coreness}{Which method to use to calculate nodes' coreness.
 One of "correlation", "rich", "transition", or "hub";
@@ -36,6 +38,9 @@ directly, and "correlation" otherwise.}
 For a directed network, "out" scores nodes on the ties they send and
 "in" on the ties they receive, while "both" returns the four categories
 described below. Ignored for undirected and two-mode networks.}
+
+\item{cluster_by}{Deprecated. The former spelling of \code{split}.
+Still accepted, but warns; please use \code{split} instead.}
 }
 \value{
 A \code{node_member} character vector the length of the nodes in the network,
@@ -70,7 +75,7 @@ Elliott and colleagues distinguish:
 \item "Periphery" for nodes in neither.
 }
 
-This uses \code{\link[=coreness_hub]{coreness_hub()}}, so \code{groups} and \code{cluster_by} do not apply.
+This uses \code{\link[=coreness_hub]{coreness_hub()}}, so \code{groups} and \code{split} do not apply.
 }
 
 \examples{

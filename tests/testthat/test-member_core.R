@@ -17,7 +17,7 @@ test_that("node_in_core labels the most and least core node correctly", {
   # the wrong nodes entirely.
   cn <- as.numeric(node_by_core(ison_adolescents))
   for (cb in c("bins", "quantiles", "kmeans")) {
-    lab <- as.character(node_in_core(ison_adolescents, cluster_by = cb))
+    lab <- as.character(node_in_core(ison_adolescents, split = cb))
     expect_equal(lab[which.max(cn)], "Core", info = cb)
     expect_equal(lab[which.min(cn)], "Periphery", info = cb)
   }

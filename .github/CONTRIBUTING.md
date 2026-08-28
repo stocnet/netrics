@@ -151,6 +151,7 @@ Users can therefore find the implementation, and its documentation, from the arg
 | `method_cluster` | an `hclust` clustering object | `cluster_*` | `cluster =` |
 | `method_regularity` | a node-by-node similarity matrix | `regularity_*` | `regularity =` |
 | `method_coreness` | a continuous coreness score plus a core/periphery split | `coreness_*` | `coreness =` |
+| `method_split` | an ordered split of a continuous score into groups | `split_*` | `split =` |
 
 Apply that test when naming a new family. For example, `equivalence_*` would be the wrong name for `regularity_*`, even though those methods are only ever called from `node_in_regular()`: they return a *similarity*, which `cluster_*()` only later partitions into an equivalence. Naming the step for the pipeline's eventual output rather than its own return value breaks the rule.
 
@@ -435,6 +436,12 @@ Run `devtools::document()` after changing any roxygen comment.
   examples are run by R CMD check, and they are also the fastest documentation for users.
   Prefer the bundled `ison_*`/`fict_*` networks over ad hoc constructions,
   unless they take too long to run.
+  Two exemptions, both deliberate:
+  the `method_*` topics that document `cluster_*()`, `k_*()` and `regularity_*()`
+  carry none, because users reach those through an argument rather than by
+  calling them; and where no fast example exists, the topic goes without one
+  rather than carrying a slow one, since a CRAN check that times out costs more
+  than the example gains. Do not reach for `\donttest{}` to keep a slow example.
 - Cite the source of a measure with `@references` in the ecosystem's format
   (authors, year, title, journal, and `\doi{}` where available),
   so that users can trace an implementation back to its definition.
