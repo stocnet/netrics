@@ -82,6 +82,7 @@
   - These measures now consider only the positive ties
 - Fixed `node_by_reciprocity()` to return 1 throughout for any undirected network
 - Fixed `node_by_information()` on rectangular incidence matrices by flattening with `manynet::to_multilevel()`
+- Fixed `net_by_independence()` erroring on multilevel networks by measuring whole
 
 ## Memberships
 

@@ -24,6 +24,15 @@
 #'   Use [manynet::to_unsigned()] first to control this yourself.
 #'   The other measures in this topic do not depend on distance,
 #'   and so use every tie whatever its sign.
+#' @section Multilevel networks:
+#'   A multilevel network reports itself as two-mode,
+#'   but holds ties within a mode as well as between them,
+#'   so it cannot be projected onto one mode.
+#'   `net_by_independence()` therefore measures a multilevel network whole,
+#'   which is the quantity wanted in any case.
+#'   The projection remains for genuine two-mode networks,
+#'   where no two nodes of one mode are ever tied
+#'   and the unprojected answer would be trivially the larger mode.
 NULL
 
 #' @rdname measure_cohesion
@@ -121,10 +130,16 @@ net_by_components <- function(.data){
 #' @importFrom igraph ivs_size
 #' @examples 
 #' net_by_independence(ison_adolescents)
+#' net_by_independence(fict_actually)
 #' @export
 net_by_independence <- function(.data){
   .data <- manynet::expect_nodes(.data)
-  if(manynet::is_twomode(.data)){
+  # A multilevel network reports itself as two-mode, but has ties within a
+  # mode, so it cannot be projected. It needs no projection either: the
+  # independence number of the whole network is already the quantity wanted.
+  # The two-mode branch exists because no two nodes of one mode are ever tied
+  # there, which would make the answer trivially the size of the larger mode.
+  if(manynet::is_twomode(.data) && !manynet::is_multilevel(.data)){
     out <- igraph::ivs_size(manynet::to_mode1(manynet::as_igraph(.data)))
   } else {
     out <- igraph::ivs_size(manynet::to_undirected(manynet::as_igraph(.data)))

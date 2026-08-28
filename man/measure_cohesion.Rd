@@ -54,6 +54,18 @@ The other measures in this topic do not depend on distance,
 and so use every tie whatever its sign.
 }
 
+\section{Multilevel networks}{
+
+A multilevel network reports itself as two-mode,
+but holds ties within a mode as well as between them,
+so it cannot be projected onto one mode.
+\code{net_by_independence()} therefore measures a multilevel network whole,
+which is the quantity wanted in any case.
+The projection remains for genuine two-mode networks,
+where no two nodes of one mode are ever tied
+and the unprojected answer would be trivially the larger mode.
+}
+
 \section{Compactness}{
 
 Compactness is the average of the reciprocal distances between all pairs
@@ -91,6 +103,7 @@ net_by_compactness(ison_southern_women)
 net_by_components(fict_thrones)
 net_by_components(to_undirected(fict_thrones))
 net_by_independence(ison_adolescents)
+net_by_independence(fict_actually)
 }
 \references{
 \subsection{On compactness}{

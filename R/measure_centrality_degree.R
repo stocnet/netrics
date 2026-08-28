@@ -192,9 +192,12 @@ node_by_multidegree <- function (.data, tie1, tie2){
 # whole nodeset. `to_uniplex()` drops nodes that hold none of the retained
 # ties (e.g. a whole mode of a twomode layer), so the two layers' degrees
 # would otherwise be of different lengths and get recycled.
-uniplex_degree <- function(.data, tie) {
+# `node_x_ties()` calls this too, which is why the normalisation and the
+# direction are arguments. Their defaults are `node_by_degree()`'s own.
+uniplex_degree <- function(.data, tie, normalized = TRUE, direction = "all") {
   layer <- manynet::to_uniplex(.data, tie)
-  deg <- as.numeric(node_by_degree(layer))
+  deg <- as.numeric(node_by_degree(layer, normalized = normalized,
+                                   direction = direction))
   if (length(deg) == manynet::net_nodes(.data)) return(deg)
   out <- stats::setNames(rep(0, manynet::net_nodes(.data)),
                          manynet::node_names(.data))

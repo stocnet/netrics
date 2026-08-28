@@ -97,3 +97,15 @@ test_that("an unsigned network is untouched by the sign handling", {
   expect_values(net_by_length(ison_adolescents), 2.071)
   expect_values(net_by_compactness(ison_adolescents), 0.616)
 })
+
+test_that("net_by_independence measures a multilevel network whole", {
+  # a multilevel network reports itself as two-mode but has ties within a
+  # mode, so the bipartite projection it used to attempt is invalid
+  expect_true(manynet::is_twomode(fict_actually))
+  expect_true(manynet::is_multilevel(fict_actually))
+  expect_values(net_by_independence(fict_actually), 76)
+  # a genuine two-mode network still gets the projection
+  expect_false(manynet::is_multilevel(ison_southern_women))
+  expect_values(net_by_independence(ison_southern_women), 2)
+  expect_values(net_by_independence(ison_adolescents), 4)
+})
