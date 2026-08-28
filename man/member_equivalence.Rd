@@ -5,7 +5,9 @@
 \alias{node_in_equivalence}
 \alias{node_in_structural}
 \alias{node_in_regular}
+\alias{node_in_motif}
 \alias{node_in_automorphic}
+\alias{node_in_block}
 \title{Memberships in equivalent classes}
 \source{
 \url{https://github.com/aslez/concoR}
@@ -17,7 +19,8 @@ node_in_equivalence(
   k = c("silhouette", "elbow", "strict"),
   cluster = c("hierarchical", "concor", "cosine"),
   distance = c("euclidean", "maximum", "manhattan", "canberra", "binary", "minkowski"),
-  Kmax = 8L
+  max_k = 8L,
+  Kmax = NULL
 )
 
 node_in_structural(
@@ -25,7 +28,8 @@ node_in_structural(
   k = c("silhouette", "elbow", "strict"),
   cluster = c("hierarchical", "concor", "cosine"),
   distance = c("euclidean", "maximum", "manhattan", "canberra", "binary", "minkowski"),
-  Kmax = 8L
+  max_k = 8L,
+  Kmax = NULL
 )
 
 node_in_regular(
@@ -33,7 +37,20 @@ node_in_regular(
   k = c("silhouette", "elbow", "strict"),
   cluster = c("hierarchical", "concor", "cosine"),
   distance = c("euclidean", "maximum", "manhattan", "canberra", "binary", "minkowski"),
-  Kmax = 8L
+  max_k = 8L,
+  regularity = c("rolesim", "rege"),
+  decay = 0.15,
+  beta = NULL,
+  Kmax = NULL
+)
+
+node_in_motif(
+  .data,
+  k = c("silhouette", "elbow", "strict"),
+  cluster = c("hierarchical", "concor", "cosine"),
+  distance = c("euclidean", "maximum", "manhattan", "canberra", "binary", "minkowski"),
+  max_k = 8L,
+  Kmax = NULL
 )
 
 node_in_automorphic(
@@ -41,13 +58,16 @@ node_in_automorphic(
   k = c("silhouette", "elbow", "strict"),
   cluster = c("hierarchical", "concor", "cosine"),
   distance = c("euclidean", "maximum", "manhattan", "canberra", "binary", "minkowski"),
-  Kmax = 8L
+  max_k = 8L,
+  Kmax = NULL
 )
+
+node_in_block(.data, k = 2L, blocks = c("nul", "com"), times = NULL)
 }
 \arguments{
-\item{.data}{A network object of class \code{mnet}, \code{igraph}, \code{tbl_graph}, \code{network}, or similar.
-For more information on the standard coercion possible,
-see \code{\link[manynet:as_tidygraph]{manynet::as_tidygraph()}}.}
+\item{.data}{A network object of class \code{stocnet}, \code{igraph}, \code{tbl_graph}, \code{network}, or similar.
+Internally any of these will be coerced to an efficient implementation.
+For more information on possible coercions, see e.g. \code{\link[manynet:as_stocnet]{manynet::as_stocnet()}}.}
 
 \item{motif}{A matrix returned by a \verb{node_x_*()} function.}
 
@@ -72,9 +92,35 @@ By default \code{"euclidean"}, but other options include
 \code{"maximum"}, \code{"manhattan"}, \code{"canberra"}, \code{"binary"}, and \code{"minkowski"}.
 Fewer, identifiable letters, e.g. \code{"e"} for Euclidean, is sufficient.}
 
-\item{Kmax}{Integer indicating the maximum number of (k) clusters
+\item{max_k}{Integer indicating the maximum number of (k) clusters
 to evaluate.
 Ignored when \code{k = "strict"} or a discrete number is given for \code{k}.}
+
+\item{Kmax}{Deprecated. The former spelling of \code{max_k}.
+Still accepted, but warns; please use \code{max_k} instead.}
+
+\item{regularity}{Character string indicating which algorithm should be
+used to calculate how regularly equivalent nodes are.
+By default \code{"rolesim"}; \code{"rege"} is also available.
+Fewer, identifiable letters, e.g. \code{"ro"} for RoleSim, is sufficient.
+See \code{\link[=regularity_rolesim]{regularity_rolesim()}} and \code{\link[=regularity_rege]{regularity_rege()}} for how they differ.}
+
+\item{decay}{A proportion between 0 and 1 giving how much of a contribution
+survives each additional step of distance or walk length.
+Lower values discount more steeply, so that only nearby others count;
+higher values discount less, so that longer walks continue to contribute.
+The measures that take a \code{decay} differ in what they discount and in what
+value leaves the measure in its most familiar form,
+so each documents its own default.}
+
+\item{beta}{Deprecated; use \code{decay} instead.}
+
+\item{blocks}{A character vector of permitted ideal block types,
+or a list-matrix giving the permitted types per block position.
+See \code{\link[=net_by_inconsistency]{net_by_inconsistency()}} for the available types.}
+
+\item{times}{Integer number of search iterations.
+By default the number of nodes times the number of positions.}
 }
 \value{
 A \code{node_member} character vector the length of the nodes in the network,
@@ -93,22 +139,117 @@ The following functions call this function, together with an appropriate motif.
 \item \code{node_in_structural()} assigns nodes membership based on their
 having equivalent ties to the same other nodes.
 \item \code{node_in_regular()} assigns nodes membership based on their
-having equivalent patterns of ties.
+having equivalent patterns of ties to equivalent others.
 \item \code{node_in_automorphic()} assigns nodes membership based on their
 having equivalent distances to other nodes.
+\item \code{node_in_motif()} assigns nodes membership based on their
+participating in local structures at similar rates.
 }
 
 A \code{plot()} method exists for investigating the dendrogram
 of the hierarchical cluster and showing the returned cluster
 assignment.
 }
+\section{Regular equivalence}{
+
+Two nodes are regularly equivalent if each has ties to the same \emph{kinds} of
+others, even where those others are not the same individuals and are not
+equally numerous. A manager with three subordinates and a manager with ten
+are regularly equivalent, because what makes them alike is that they both
+have subordinates, not how many or which.
+
+The definition is recursive: nodes are equivalent if their alters are
+equivalent, whose equivalence depends in turn on \emph{their} alters.
+\code{node_in_regular()} therefore computes a similarity matrix by iterating
+that definition to a fixed point, and then clusters it in the same way as
+the other functions here.
+
+Note that this differs from \code{node_in_motif()}, which compares nodes on how
+often they appear embedded in local structures.
+Two nodes can have very similar triad profiles without being regularly equivalent,
+and vice versa, since a motif census counts a node's local configurations
+while regular equivalence asks who its alters are.
+}
+
+\section{Motif equivalence}{
+
+Where the other functions here compare nodes on \emph{whom} they are tied to,
+\code{node_in_motif()} compares them on \emph{what kinds of local structure} they sit
+in, by clustering a census of the triads (or, for two-mode networks,
+tetrads) each node participates in.
+
+Note that the census counts the \emph{types} of motif a node takes part in,
+and not the position it holds within them.
+In the path \eqn{i \rightarrow k \rightarrow j}, for example,
+all three nodes return a profile of one 021C triad,
+although \eqn{i} sends, \eqn{k} mediates and \eqn{j} receives.
+This is therefore neither Burt's role equivalence,
+which distinguishes those positions,
+nor the orbit-aware census of Ortmann and Brandes,
+which netrics does not yet offer.
+
+What it captures is similarity of local embedding.
+It is well suited to distinguishing nodes that sit in dense,
+closed neighbourhoods from those that bridge open ones,
+but it is not regular equivalence: see \code{node_in_regular()} for that.
+
+This function was called \code{node_in_regular()} prior to version 1.0.0.
+}
+
+\section{Direct blockmodelling}{
+
+The other functions here are \emph{indirect}: they build a similarity between
+nodes, cluster it, and read a partition off the result.
+\code{node_in_block()} is \emph{direct}. It searches the space of partitions for
+the one that best fits an ideal block structure, scoring each candidate
+with \code{\link[=net_by_inconsistency]{net_by_inconsistency()}} and keeping whichever is most consistent.
+
+The advantage is that the criterion being optimised is the one you
+actually care about, rather than a similarity that stands in for it,
+and that ideal types other than "null and complete" become available —
+\code{blocks = c("nul", "reg")} searches directly for a regular-equivalence
+blockmodel.
+The cost is that the number of positions \code{k} must be chosen in advance,
+and that the search is stochastic: it explores by random restarts and
+perturbations, so repeated runs may return different partitions and a
+longer search is more likely to find a good one.
+Set a seed for reproducibility, and compare runs with \code{\link[=net_by_inconsistency]{net_by_inconsistency()}}.
+}
+
 \examples{
 (nse <- node_in_structural(ison_algebra))
-(nre <- node_in_regular(ison_southern_women,
-  cluster = "concor"))
+(nre <- node_in_regular(ison_southern_women))
+(nme <- node_in_motif(ison_southern_women, cluster = "concor"))
 if(require("sna", quietly = TRUE)){
 (nae <- node_in_automorphic(ison_southern_women,
   k = "elbow"))
+}
+(nbm <- node_in_block(ison_adolescents, k = 3))
+net_by_inconsistency(ison_adolescents, nbm)
+}
+\references{
+\subsection{On role equivalence}{
+
+Burt, Ronald S. 1990.
+"Detecting role equivalence".
+\emph{Social Networks} 12(1): 83-97.
+\doi{10.1016/0378-8733(90)90023-3}
+}
+
+\subsection{On the orbit-aware census}{
+
+Ortmann, Mark, and Ulrik Brandes. 2017.
+"Efficient orbit-aware triad and quad census in directed and undirected graphs".
+\emph{Applied Network Science} 2(1): 13.
+\doi{10.1007/s41109-017-0027-2}
+}
+
+\subsection{On direct blockmodelling}{
+
+Doreian, Patrick, Vladimir Batagelj, and Anuska Ferligoj. 2005.
+\emph{Generalized Blockmodeling}.
+Cambridge: Cambridge University Press.
+\doi{10.1017/CBO9780511584176}
 }
 }
 \seealso{
@@ -148,6 +289,8 @@ Other nodal:
 \code{\link{member_core}},
 \code{\link{member_diffusion}},
 \code{\link{motif_brokerage_node}},
+\code{\link{motif_clique}},
+\code{\link{motif_composition}},
 \code{\link{motif_exposure}},
 \code{\link{motif_node}},
 \code{\link{motif_path}}

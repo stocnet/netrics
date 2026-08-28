@@ -10,10 +10,12 @@
 #'   - `node_in_structural()` assigns nodes membership based on their
 #'   having equivalent ties to the same other nodes.
 #'   - `node_in_regular()` assigns nodes membership based on their
-#'   having equivalent patterns of ties.
+#'   having equivalent patterns of ties to equivalent others.
 #'   - `node_in_automorphic()` assigns nodes membership based on their
 #'   having equivalent distances to other nodes.
-#'   
+#'   - `node_in_motif()` assigns nodes membership based on their
+#'   participating in local structures at similar rates.
+#'
 #'   A `plot()` method exists for investigating the dendrogram
 #'   of the hierarchical cluster and showing the returned cluster
 #'   assignment.
@@ -39,9 +41,11 @@
 #'   By default `"euclidean"`, but other options include
 #'   `"maximum"`, `"manhattan"`, `"canberra"`, `"binary"`, and `"minkowski"`.
 #'   Fewer, identifiable letters, e.g. `"e"` for Euclidean, is sufficient.
-#' @param Kmax Integer indicating the maximum number of (k) clusters
+#' @param max_k Integer indicating the maximum number of (k) clusters
 #'   to evaluate.
 #'   Ignored when `k = "strict"` or a discrete number is given for `k`.
+#' @param Kmax Deprecated. The former spelling of `max_k`.
+#'   Still accepted, but warns; please use `max_k` instead.
 #' @importFrom stats as.dist hclust cutree coef cor median
 #' @source \url{https://github.com/aslez/concoR}
 NULL
@@ -53,20 +57,26 @@ node_in_equivalence <- function(.data, motif,
                                 cluster = c("hierarchical", "concor", "cosine"),
                                 distance = c("euclidean", "maximum", "manhattan", 
                                              "canberra", "binary", "minkowski"),
-                                Kmax = 8L){
+                                max_k = 8L, Kmax = NULL){
+  max_k <- resolve_max_k(max_k, Kmax)
   .data <- manynet::expect_nodes(.data)
-  hc <- switch(match.arg(cluster),
+  cluster <- match.arg(cluster)
+  manynet::snet_info("Clustering using {.fn cluster_{cluster}}.")
+  hc <- switch(cluster,
                hierarchical = cluster_hierarchical(motif,
                                                    match.arg(distance)),
                concor = cluster_concor(.data, motif),
                cosine = cluster_cosine(motif, 
                                        match.arg(distance)))
   
-  if(!is.numeric(k))
-    k <- switch(match.arg(k),
+  if(!is.numeric(k)){
+    k <- match.arg(k)
+    manynet::snet_info("Selecting the number of clusters using {.fn k_{k}}.")
+    k <- switch(k,
                 strict = k_strict(hc, .data),
-                elbow = k_elbow(hc, .data, motif, Kmax),
-                silhouette = k_silhouette(hc, .data, Kmax))
+                elbow = k_elbow(hc, .data, motif, max_k),
+                silhouette = k_silhouette(hc, .data, max_k))
+  }
   if(length(k)==0) k <- 1 # in the case of all nodes being in the same cluster
   
   out <- make_node_member(stats::cutree(hc, k), .data)
@@ -84,7 +94,8 @@ node_in_structural <- function(.data,
                                cluster = c("hierarchical", "concor","cosine"),
                                distance = c("euclidean", "maximum", "manhattan", 
                                             "canberra", "binary", "minkowski"),
-                               Kmax = 8L){
+                               max_k = 8L, Kmax = NULL){
+  max_k <- resolve_max_k(max_k, Kmax)
   .data <- manynet::expect_nodes(.data)
   mat <- node_x_tie(.data)
   if(any(colSums(t(mat))==0)){
@@ -92,35 +103,119 @@ node_in_structural <- function(.data,
   } 
   node_in_equivalence(.data, mat, 
                       k = k, cluster = cluster, distance = distance, 
-                      Kmax = Kmax)
+                      max_k = max_k)
 }
 
 #' @rdname member_equivalence
+#' @param regularity Character string indicating which algorithm should be
+#'   used to calculate how regularly equivalent nodes are.
+#'   By default `"rolesim"`; `"rege"` is also available.
+#'   Fewer, identifiable letters, e.g. `"ro"` for RoleSim, is sufficient.
+#'   See [regularity_rolesim()] and [regularity_rege()] for how they differ.
+#' @template param_decay
+#' @param beta Deprecated; use `decay` instead.
+#' @section Regular equivalence:
+#'   Two nodes are regularly equivalent if each has ties to the same _kinds_ of
+#'   others, even where those others are not the same individuals and are not
+#'   equally numerous. A manager with three subordinates and a manager with ten
+#'   are regularly equivalent, because what makes them alike is that they both
+#'   have subordinates, not how many or which.
+#'
+#'   The definition is recursive: nodes are equivalent if their alters are
+#'   equivalent, whose equivalence depends in turn on _their_ alters.
+#'   `node_in_regular()` therefore computes a similarity matrix by iterating
+#'   that definition to a fixed point, and then clusters it in the same way as
+#'   the other functions here.
+#'
+#'   Note that this differs from `node_in_motif()`, which compares nodes on how
+#'   often they appear embedded in local structures. 
+#'   Two nodes can have very similar triad profiles without being regularly equivalent, 
+#'   and vice versa, since a motif census counts a node's local configurations 
+#'   while regular equivalence asks who its alters are.
 #' @examples
-#' (nre <- node_in_regular(ison_southern_women,
-#'   cluster = "concor"))
+#' (nre <- node_in_regular(ison_southern_women))
 #' @export
-node_in_regular <- function(.data, 
+node_in_regular <- function(.data,
                             k = c("silhouette", "elbow", "strict"),
                             cluster = c("hierarchical", "concor","cosine"),
-                            distance = c("euclidean", "maximum", "manhattan", 
+                            distance = c("euclidean", "maximum", "manhattan",
                                          "canberra", "binary", "minkowski"),
-                            Kmax = 8L){
+                            max_k = 8L,
+                            regularity = c("rolesim", "rege"),
+                            decay = 0.15, beta = NULL, Kmax = NULL){
+  max_k <- resolve_max_k(max_k, Kmax)
+  .data <- manynet::expect_nodes(.data)
+  regularity <- match.arg(regularity)
+  decay <- resolve_decay(decay, beta, "beta")
+  manynet::snet_info("Calculating regular equivalence using",
+                     "{.fn regularity_{regularity}}.")
+  mat <- switch(regularity,
+                rolesim = regularity_rolesim(.data, decay = decay),
+                rege = regularity_rege(.data))
+  node_in_equivalence(.data, mat,
+                   k = k, cluster = cluster, distance = distance, max_k = max_k)
+}
+
+#' @rdname member_equivalence
+#' @section Motif equivalence:
+#'   Where the other functions here compare nodes on _whom_ they are tied to,
+#'   `node_in_motif()` compares them on _what kinds of local structure_ they sit
+#'   in, by clustering a census of the triads (or, for two-mode networks,
+#'   tetrads) each node participates in.
+#'
+#'   Note that the census counts the _types_ of motif a node takes part in,
+#'   and not the position it holds within them.
+#'   In the path \eqn{i \rightarrow k \rightarrow j}, for example,
+#'   all three nodes return a profile of one 021C triad,
+#'   although \eqn{i} sends, \eqn{k} mediates and \eqn{j} receives.
+#'   This is therefore neither Burt's role equivalence,
+#'   which distinguishes those positions,
+#'   nor the orbit-aware census of Ortmann and Brandes,
+#'   which netrics does not yet offer.
+#'
+#'   What it captures is similarity of local embedding.
+#'   It is well suited to distinguishing nodes that sit in dense,
+#'   closed neighbourhoods from those that bridge open ones,
+#'   but it is not regular equivalence: see `node_in_regular()` for that.
+#'
+#'   This function was called `node_in_regular()` prior to version 1.0.0.
+#' @references
+#' ## On role equivalence
+#' Burt, Ronald S. 1990.
+#' "Detecting role equivalence".
+#' _Social Networks_ 12(1): 83-97.
+#' \doi{10.1016/0378-8733(90)90023-3}
+#' 
+#' ## On the orbit-aware census
+#' Ortmann, Mark, and Ulrik Brandes. 2017.
+#' "Efficient orbit-aware triad and quad census in directed and undirected graphs".
+#' _Applied Network Science_ 2(1): 13.
+#' \doi{10.1007/s41109-017-0027-2}
+#' @examples
+#' (nme <- node_in_motif(ison_southern_women, cluster = "concor"))
+#' @export
+node_in_motif <- function(.data,
+                          k = c("silhouette", "elbow", "strict"),
+                          cluster = c("hierarchical", "concor","cosine"),
+                          distance = c("euclidean", "maximum", "manhattan",
+                                       "canberra", "binary", "minkowski"),
+                          max_k = 8L, Kmax = NULL){
+  max_k <- resolve_max_k(max_k, Kmax)
   .data <- manynet::expect_nodes(.data)
   if(manynet::is_twomode(.data)){
-    manynet::snet_info("Since this is a two-mode network,", 
-              "using {.fn node_x_tetrad} to", 
+    manynet::snet_info("Since this is a two-mode network,",
+              "using {.fn node_x_tetrad} to",
               "profile nodes' embedding in local structures.")
     mat <- as.matrix(node_x_tetrad(.data))
   } else {
-    manynet::snet_info("Since this is a one-mode network,", 
-              "using {.fn node_x_triad} to", 
+    manynet::snet_info("Since this is a one-mode network,",
+              "using {.fn node_x_triad} to",
               "profile nodes' embedding in local structures.")
     mat <- node_x_triad(.data)
   }
   if(any(colSums(mat) == 0)) mat <- mat[,-which(colSums(mat) == 0)]
-  node_in_equivalence(.data, mat, 
-                   k = k, cluster = cluster, distance = distance, Kmax = Kmax)
+  node_in_equivalence(.data, mat,
+                   k = k, cluster = cluster, distance = distance, max_k = max_k)
 }
 
 #' @rdname member_equivalence
@@ -135,9 +230,72 @@ node_in_automorphic <- function(.data,
                                 cluster = c("hierarchical", "concor","cosine"),
                                 distance = c("euclidean", "maximum", "manhattan", 
                                              "canberra", "binary", "minkowski"),
-                                Kmax = 8L){
+                                max_k = 8L, Kmax = NULL){
+  max_k <- resolve_max_k(max_k, Kmax)
   .data <- manynet::expect_nodes(.data)
   mat <- node_x_path(.data)
   node_in_equivalence(.data, mat, 
-                   k = k, cluster = cluster, distance = distance, Kmax = Kmax)
+                   k = k, cluster = cluster, distance = distance, max_k = max_k)
+}
+
+#' @rdname member_equivalence
+#' @param blocks A character vector of permitted ideal block types,
+#'   or a list-matrix giving the permitted types per block position.
+#'   See [net_by_inconsistency()] for the available types.
+#' @param times Integer number of search iterations.
+#'   By default the number of nodes times the number of positions.
+#' @section Direct blockmodelling:
+#'   The other functions here are _indirect_: they build a similarity between
+#'   nodes, cluster it, and read a partition off the result.
+#'   `node_in_block()` is _direct_. It searches the space of partitions for
+#'   the one that best fits an ideal block structure, scoring each candidate
+#'   with [net_by_inconsistency()] and keeping whichever is most consistent.
+#'
+#'   The advantage is that the criterion being optimised is the one you
+#'   actually care about, rather than a similarity that stands in for it,
+#'   and that ideal types other than "null and complete" become available —
+#'   `blocks = c("nul", "reg")` searches directly for a regular-equivalence
+#'   blockmodel.
+#'   The cost is that the number of positions `k` must be chosen in advance,
+#'   and that the search is stochastic: it explores by random restarts and
+#'   perturbations, so repeated runs may return different partitions and a
+#'   longer search is more likely to find a good one.
+#'   Set a seed for reproducibility, and compare runs with [net_by_inconsistency()].
+#' @references
+#' ## On direct blockmodelling
+#' Doreian, Patrick, Vladimir Batagelj, and Anuska Ferligoj. 2005.
+#' _Generalized Blockmodeling_.
+#' Cambridge: Cambridge University Press.
+#' \doi{10.1017/CBO9780511584176}
+#' @examples
+#' (nbm <- node_in_block(ison_adolescents, k = 3))
+#' net_by_inconsistency(ison_adolescents, nbm)
+#' @export
+node_in_block <- function(.data, k = 2L,
+                               blocks = c("nul", "com"),
+                               times = NULL){
+  .data <- manynet::expect_nodes(.data)
+  if(!is.numeric(k) || k < 2)
+    manynet::snet_abort("`k` must be the number of positions sought, at least 2.")
+  n <- manynet::net_nodes(.data)
+  if(k > n) manynet::snet_abort("`k` cannot exceed the number of nodes.")
+  if(is.null(times)) times <- n * k
+  fitness <- function(m) as.numeric(net_by_inconsistency(.data, m, blocks = blocks))
+  # begin from a random partition into k roughly equal positions
+  shuffled <- sample(seq.int(n))
+  out <- cut(seq_along(shuffled), k, labels = FALSE)[shuffled]
+  fit <- fitness(out)
+  soln <- out
+  for(t in seq.int(times)){
+    soln <- .weakPerturb(soln)
+    new_fit <- fitness(soln)
+    if(new_fit < fit){
+      out <- soln
+      fit <- new_fit
+    }
+    if(t %% 10 == 0) soln <- .strongPerturb(soln)
+  }
+  out <- make_node_member(out, .data)
+  attr(out, "k") <- k
+  out
 }

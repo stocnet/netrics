@@ -5,19 +5,42 @@
 \alias{node_in_core}
 \title{Memberships in core-periphery categories}
 \usage{
-node_in_core(.data, groups = 3, cluster_by = c("bins", "quantiles", "kmeans"))
+node_in_core(
+  .data,
+  groups = 3,
+  split = c("bins", "quantiles", "kmeans"),
+  coreness = NULL,
+  direction = c("all", "out", "in", "both"),
+  cluster_by = NULL
+)
 }
 \arguments{
-\item{.data}{A network object of class \code{mnet}, \code{igraph}, \code{tbl_graph}, \code{network}, or similar.
-For more information on the standard coercion possible,
-see \code{\link[manynet:as_tidygraph]{manynet::as_tidygraph()}}.}
+\item{.data}{A network object of class \code{stocnet}, \code{igraph}, \code{tbl_graph}, \code{network}, or similar.
+Internally any of these will be coerced to an efficient implementation.
+For more information on possible coercions, see e.g. \code{\link[manynet:as_stocnet]{manynet::as_stocnet()}}.}
 
 \item{groups}{Number of categories to create. Must be at least 2 and at most
 the number of nodes in the network. Default is 3.}
 
-\item{cluster_by}{Method to use to create the categories.
-One of "bins" (equal-width bins), "quantiles" (quantile-based bins),
-or "kmeans" (k-means clustering). Default is "bins".}
+\item{split}{Which method to use to split the coreness scores into the
+categories. One of "bins" (equal-width bins), "quantiles"
+(quantile-based bins), or "kmeans" (k-means clustering);
+see \link{method_split} for what each does. Default is "bins".}
+
+\item{coreness}{Which method to use to calculate nodes' coreness.
+One of "correlation", "rich", "transition", or "hub";
+see \link{method_coreness} for what each does.
+By default NULL, which uses "rich" for a weighted, directed, or
+two-mode network, since it is the only method that reads those properties
+directly, and "correlation" otherwise.}
+
+\item{direction}{One of "all" (the default), "out", "in", or "both".
+For a directed network, "out" scores nodes on the ties they send and
+"in" on the ties they receive, while "both" returns the four categories
+described below. Ignored for undirected and two-mode networks.}
+
+\item{cluster_by}{Deprecated. The former spelling of \code{split}.
+Still accepted, but warns; please use \code{split} instead.}
 }
 \value{
 A \code{node_member} character vector the length of the nodes in the network,
@@ -39,8 +62,25 @@ The categorization can be done using different methods: equal-width bins,
 quantile-based bins, or k-means clustering.
 }
 
+\section{Directed core-periphery}{
+
+In a directed network a node can be core in whom it reaches and
+peripheral in who reaches it, which one core and one periphery cannot
+express. \code{direction = "both"} therefore returns the four categories that
+Elliott and colleagues distinguish:
+\itemize{
+\item "Core" for nodes in both the out-core and the in-core,
+\item "Sender" for nodes in the out-core only,
+\item "Receiver" for nodes in the in-core only,
+\item "Periphery" for nodes in neither.
+}
+
+This uses \code{\link[=coreness_hub]{coreness_hub()}}, so \code{groups} and \code{split} do not apply.
+}
+
 \examples{
 node_in_core(ison_adolescents)
+node_in_core(ison_networkers, direction = "both")
 }
 \references{
 \subsection{On core-periphery categorization}{
@@ -48,7 +88,16 @@ node_in_core(ison_adolescents)
 Wallerstein, Immanuel. 1974.
 "Dependence in an Interdependent World: The Limited Possibilities of Transformation Within the Capitalist World Economy."
 \emph{African Studies Review}, 17(1), 1-26.
-\doi{https://doi.org/10.2307/523574}
+\doi{10.2307/523574}
+}
+
+\subsection{On directed core-periphery}{
+
+Elliott, Andrew, Angus Chiu, Marya Bazzi, Gesine Reinert,
+and Mihai Cucuringu. 2020.
+"Core-periphery structure in directed networks".
+\emph{Proceedings of the Royal Society A} 476(2241): 20190783.
+\doi{10.1098/rspa.2019.0783}
 }
 }
 \seealso{
@@ -92,6 +141,8 @@ Other nodal:
 \code{\link{member_diffusion}},
 \code{\link{member_equivalence}},
 \code{\link{motif_brokerage_node}},
+\code{\link{motif_clique}},
+\code{\link{motif_composition}},
 \code{\link{motif_exposure}},
 \code{\link{motif_node}},
 \code{\link{motif_path}}

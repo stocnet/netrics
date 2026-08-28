@@ -13,7 +13,15 @@
 #'   for disconnected networks.
 #'   - `node_by_reach()` measures nodes' reach centrality,
 #'   or how many nodes they can reach within _k_ steps.
-#'   - `node_by_information()` measures nodes' information centrality or 
+#'   - `node_by_decay()` measures nodes' decay centrality,
+#'   a distance-weighted generalisation of reach centrality.
+#'   - `node_by_integration()` measures nodes' integration or radiality,
+#'   which weights alters by how close they are rather than counting them;
+#'   `node_by_radiality()` returns the `direction = 'out'` results.
+#'   Note that on a connected network integration ranks nodes identically to
+#'   closeness centrality, of which it is an affine transformation;
+#'   it differs only in how it treats unreachable nodes.
+#'   - `node_by_information()` measures nodes' information centrality or
 #'   current-flow closeness centrality.
 #'   - `node_by_eccentricity()` measures nodes' eccentricity or maximum distance
 #'   from another node in the network.
@@ -22,51 +30,64 @@
 #'   - `node_by_vitality()` measures a network's closeness vitality centrality,
 #'   or the change in closeness centrality between networks with and without a
 #'   given node.
-#'   
+#'   - `node_by_randomwalk()` measures nodes' random walk closeness centrality,
+#'   or the inverse of the average time a random walk takes to reach them.
+#'
 #'   All measures attempt to use as much information as they are offered,
 #'   including whether the networks are directed, weighted, or multimodal.
-#'   If this would produce unintended results, 
+#'   If this would produce unintended results,
 #'   first transform the salient properties using e.g. [to_undirected()] functions.
-#'   All centrality and centralization measures return normalized measures by default,
-#'   including for two-mode networks.
+#'   All centrality and centralization measures return normalised or scaled
+#'   measures where available, reported when the measure is printed.
+#'   Most of these measures are _normalised_ against a theoretical maximum,
+#'   so that scores can be compared across networks;
+#'   `node_by_randomwalk()` and `node_by_distance()` have no such maximum and
+#'   are instead _scaled_ against the largest value observed in this network.
 #' @template param_data
 #' @template param_norm
 #' @template param_dir
+#' @template param_cutoff
 #' @family closeness
 #' @family centrality
 #' @template node_measure
 NULL
 
 #' @rdname measure_central_close
-#' @param cutoff Maximum path length to use during calculations.
-#' @section Closeness centrality: 
-#'   Closeness centrality, status centrality, or barycenter centrality is 
-#'   defined as the reciprocal of the farness or distance, \eqn{d}, 
+#' @section Closeness centrality:
+#'   Closeness centrality is also known as status centrality,
+#'   barycenter centrality, or the Sabidussi index.
+#'   It is defined as the reciprocal of the farness or distance, \eqn{d},
 #'   from a node to all other nodes in the network:
 #'   \deqn{C_C(i) = \frac{1}{\sum_j d(i,j)}}
 #'   When (more commonly) normalised, the numerator is instead \eqn{N-1}.
 #' @references
 #' ## On closeness centrality
-#' Bavelas, Alex. 1950. 
-#' "Communication Patterns in Task‐Oriented Groups". 
+#' Sabidussi, Gert. 1966.
+#' "The centrality index of a graph".
+#' _Psychometrika_, 31(4): 581–603.
+#' \doi{10.1007/BF02289527}
+#'
+#' Bavelas, Alex. 1950.
+#' "Communication Patterns in Task‐Oriented Groups".
 #' _The Journal of the Acoustical Society of America_, 22(6): 725–730.
 #' \doi{10.1121/1.1906679}
-#' 
-#' Harary, Frank. 1959. 
-#' "Status and Contrastatus". 
-#' _Sociometry_, 22(1): 23–43. 
+#'
+#' Harary, Frank. 1959.
+#' "Status and Contrastatus".
+#' _Sociometry_, 22(1): 23–43.
 #' \doi{10.2307/2785610}
 #' @examples
 #' node_by_closeness(ison_southern_women)
 #' @export
-node_by_closeness <- function(.data, normalized = TRUE, 
-                              direction = "out", cutoff = NULL){
-  
+node_by_closeness <- function(.data, normalized = TRUE,
+                              direction = c("out", "in", "all"), cutoff = NULL){
+
   .data <- manynet::expect_nodes(.data)
-  weights <- `if`(manynet::is_weighted(.data), 
+  direction <- match.arg(direction)
+  weights <- `if`(manynet::is_weighted(.data),
                   manynet::tie_weights(.data), NA)
   graph <- manynet::as_igraph(.data)
-  
+
   # Do the calculations
   if (manynet::is_twomode(graph) & normalized){
     # farness <- rowSums(igraph::distances(graph = graph))
@@ -76,12 +97,13 @@ node_by_closeness <- function(.data, normalized = TRUE,
     out <- closeness/(1/(other_set_size+2*set_size-2))
   } else {
     cutoff <- if (is.null(cutoff)) -1 else cutoff
-    out <- igraph::closeness(graph = graph, vids = igraph::V(graph), mode = direction, 
+    out <- igraph::closeness(graph = graph, vids = igraph::V(graph), mode = direction,
                              cutoff = cutoff, weights = weights, normalized = normalized)
   }
-  out <- make_node_measure(out, .data)
-  out
-} 
+  make_node_measure(out, .data, measure = "closeness centrality",
+                    range = `if`(normalized, c(0, 1), c(0, Inf)),
+                    normalization = `if`(normalized, "normalized", "none"))
+}
 
 #' @rdname measure_central_close 
 #' @section Harmonic centrality:
@@ -93,6 +115,13 @@ node_by_closeness <- function(.data, normalized = TRUE,
 #'   Since the harmonic mean performs better than the arithmetic mean on
 #'   unconnected networks, i.e. networks with infinite distances,
 #'   harmonic centrality is to be preferred in these cases.
+#'
+#'   Harmonic centrality sums a decreasing function of each distance,
+#'   \eqn{\sum_j f(d(i,j))}, and setting `decay` simply swaps in a different
+#'   such function, \eqn{\delta^d}, giving decay centrality (see below).
+#'   Note that `node_by_closeness()` cannot be reached this way: it sums the
+#'   distances and inverts once, \eqn{1/\sum_j d(i,j)}, which is a different
+#'   order of aggregation that no choice of decay function reproduces.
 #' @references
 #'   ## On harmonic centrality
 #'   Marchiori, Massimo, and Vito Latora. 2000. 
@@ -103,13 +132,37 @@ node_by_closeness <- function(.data, normalized = TRUE,
 #'   Dekker, Anthony. 2005.
 #'   "Conceptual distance in social network analysis".
 #'   _Journal of Social Structure_ 6(3).
+#'
+#'   Boldi, Paolo, and Sebastiano Vigna. 2014.
+#'   "Axioms for Centrality".
+#'   _Internet Mathematics_ 10(3-4): 222-262.
+#'   \doi{10.1080/15427951.2013.865686}
 #' @export
-node_by_harmonic <- function(.data, normalized = TRUE, cutoff = -1){
+node_by_harmonic <- function(.data, normalized = TRUE, cutoff = -1,
+                             decay = NULL, direction = c("out", "in")){
   .data <- manynet::expect_nodes(.data)
-  out <- igraph::harmonic_centrality(as_igraph(.data), # weighted if present
-                                     normalized = normalized, cutoff = cutoff)
-  out <- make_node_measure(out, .data)
-  out
+  direction <- match.arg(direction)
+  if(is.null(decay)){
+    out <- igraph::harmonic_centrality(as_igraph(.data), # weighted if present
+                                       mode = direction,
+                                       normalized = normalized, cutoff = cutoff)
+    meas <- "harmonic centrality"
+  } else {
+    check_decay(decay)
+    # note that igraph's default mode ignores direction, which would treat a
+    # directed network as though every tie ran both ways
+    dists <- igraph::distances(manynet::as_igraph(.data), mode = direction)
+    diag(dists) <- Inf # exclude self from own score
+    contribs <- decay^(dists-1)
+    # zero these out explicitly, since e.g. 1^Inf is 1 rather than 0
+    contribs[!is.finite(dists)] <- 0 # unreachable and self contribute 0
+    out <- rowSums(contribs, na.rm = TRUE)
+    if(normalized) out <- out/(manynet::net_nodes(.data)-1)
+    meas <- "decay centrality"
+  }
+  make_node_measure(out, .data, measure = meas,
+                    range = `if`(normalized, c(0, 1), c(0, Inf)),
+                    normalization = `if`(normalized, "normalized", "none"))
 }
 
 #' @rdname measure_central_close 
@@ -127,11 +180,20 @@ node_by_harmonic <- function(.data, normalized = TRUE, cutoff = -1){
 #'   but the normalised version, \eqn{\frac{C_R}{N-1}}, is more common.
 #'   Note that if \eqn{k = 1} (i.e. cutoff = 1), then this returns the node's degree.
 #'   At higher cutoff reach centrality returns the size of the node's component.
+#'   Counting the others reachable by a geodesic of length at most \eqn{k} is
+#'   also known as _geodesic \eqn{k}-path centrality_ (Borgatti and Everett, 2006);
+#'   note that it is not the same as the \eqn{k}-path indices that count paths
+#'   rather than nodes.
 #' @references
 #' ## On reach centrality
-#' Borgatti, Stephen P., Martin G. Everett, and J.C. Johnson. 2013. 
-#' _Analyzing social networks_. 
+#' Borgatti, Stephen P., Martin G. Everett, and J.C. Johnson. 2013.
+#' _Analyzing social networks_.
 #' London: SAGE Publications Limited.
+#'
+#' Borgatti, Stephen P., and Martin G. Everett. 2006.
+#' "A graph-theoretic perspective on centrality".
+#' _Social Networks_ 28(4): 466-484.
+#' \doi{10.1016/j.socnet.2005.11.005}
 #' @examples
 #' node_by_reach(ison_adolescents)
 #' @export
@@ -141,15 +203,104 @@ node_by_reach <- function(.data, normalized = TRUE, cutoff = 2){
     tore <- manynet::as_matrix(.data)/mean(manynet::as_matrix(.data))
     out <- 1/tore
   } else out <- igraph::distances(manynet::as_igraph(.data))
-  diag(out) <- 0
-  out <- rowSums(out <= cutoff)
+  diag(out) <- Inf # exclude self from own score
+  # test finiteness explicitly, since `Inf <= Inf` is TRUE and would otherwise
+  # count the node itself, and unreachable nodes, when `cutoff = Inf`
+  out <- rowSums(is.finite(out) & out <= cutoff)
   if(normalized) out <- out/(manynet::net_nodes(.data)-1)
-  out <- make_node_measure(out, .data)
-  out
+  make_node_measure(out, .data, measure = "reach centrality",
+                    range = `if`(normalized, c(0, 1), c(0, Inf)),
+                    normalization = `if`(normalized, "normalized", "none"))
 }
 
-#' @rdname measure_central_close 
-#' @section Information centrality: 
+#' @rdname measure_central_close
+#' @template param_decay
+#' @section Decay centrality:
+#'   Here `decay` defaults to 0.5, so that each additional step halves a node's
+#'   contribution. As it approaches 0 this approaches degree centrality,
+#'   and as it approaches 1 the size of the node's component.
+#'
+#'   Where reach centrality counts how many others are within a fixed number of
+#'   steps, decay centrality weights every reachable other by how far away they
+#'   are, so that nearer nodes count for more:
+#'   \deqn{C_D(i) = \sum_{j, j \neq i} \delta^{d(i,j)-1}}
+#'   where \eqn{\delta} is the decay parameter and unreachable nodes contribute
+#'   nothing. This avoids having to choose a single cutoff, since the
+#'   contribution of distant nodes tapers off smoothly rather than being
+#'   truncated. Normalization is by \eqn{N-1}, the score achieved when a node
+#'   is adjacent to all others.
+#' @references
+#' ## On decay centrality
+#' Jackson, Matthew O. 2008.
+#' _Social and Economic Networks_.
+#' Princeton: Princeton University Press.
+#' @examples
+#' node_by_decay(ison_adolescents)
+#' @export
+node_by_decay <- function(.data, normalized = TRUE, decay = 0.5,
+                          direction = c("out", "in")){
+  .data <- manynet::expect_nodes(.data)
+  node_by_harmonic(.data, normalized = normalized, decay = decay,
+                   direction = match.arg(direction))
+}
+
+#' @rdname measure_central_close
+#' @section Integration and radiality:
+#'   Integration centrality, also known as radiality, inverts the usual farness
+#'   logic: instead of summing distances, it sums how much _closer_ than the
+#'   network's diameter each other node is:
+#'   \deqn{C_I(i) = \sum_{j, j \neq i} (\Delta - d(i,j) + 1)}
+#'   where \eqn{\Delta} is the maximum finite distance in the network.
+#'   Nodes that are near to many others therefore score highly,
+#'   while unreachable pairs contribute nothing.
+#'   Normalization is by \eqn{(N-1)\Delta}.
+#'
+#'   Valente and Foreman distinguish the two directions:
+#'   _integration_ is calculated on incoming ties, capturing how well a node is
+#'   reached by others, whereas _radiality_ is calculated on outgoing ties,
+#'   capturing how well a node reaches others.
+#'   Use `direction` to choose; in undirected networks they coincide.
+#' @references
+#' ## On integration and radiality
+#' Valente, Thomas W., and Robert K. Foreman. 1998.
+#' "Integration and radiality: Measuring the extent of an individual's
+#' connectedness and reachability in a network".
+#' _Social Networks_ 20(1): 89-105.
+#' \doi{10.1016/S0378-8733(97)00007-5}
+#' @examples
+#' node_by_integration(ison_adolescents)
+#' @export
+node_by_integration <- function(.data, normalized = TRUE,
+                                direction = c("in", "out")){
+  .data <- manynet::expect_nodes(.data)
+  direction <- match.arg(direction)
+  dists <- igraph::distances(manynet::as_igraph(.data),
+                             mode = ifelse(direction == "in", "in", "out"))
+  diag(dists) <- NA # exclude self from own score
+  maxd <- suppressWarnings(max(dists[is.finite(dists)]))
+  if(!is.finite(maxd)) maxd <- 0 # empty network
+  contrib <- maxd - dists + 1
+  contrib[!is.finite(dists)] <- 0 # unreachable contribute nothing
+  out <- rowSums(contrib, na.rm = TRUE)
+  if(normalized && maxd > 0) out <- out/((manynet::net_nodes(.data)-1)*maxd)
+  make_node_measure(out, .data,
+                    measure = `if`(direction == "in", "integration centrality",
+                                   "radiality centrality"),
+                    range = `if`(normalized, c(0, 1), c(0, Inf)),
+                    normalization = `if`(normalized, "normalized", "none"))
+}
+
+#' @rdname measure_central_close
+#' @examples
+#' node_by_radiality(ison_adolescents)
+#' @export
+node_by_radiality <- function(.data, normalized = TRUE){
+  .data <- manynet::expect_nodes(.data)
+  node_by_integration(.data, normalized = normalized, direction = "out")
+}
+
+#' @rdname measure_central_close
+#' @section Information centrality:
 #'   Information centrality, also known as current-flow centrality, 
 #'   is a hybrid measure relating to both path-length and walk-based measures. 
 #'   The information centrality of a node is the harmonic average of the 
@@ -168,6 +319,10 @@ node_by_reach <- function(.data, normalized = TRUE, cutoff = 2){
 #'   Nodes with higher information centrality have a large number of short paths
 #'   to many others in the network, and are thus considered to have greater
 #'   control of the flow of information.
+#'
+#'   Information centrality is the closeness-like member of the current-flow
+#'   family; its betweenness-like counterpart is random walk (or current-flow)
+#'   betweenness centrality, which netrics does not yet offer.
 #' @references
 #' ## On information centrality
 #' Stephenson, Karen, and Marvin Zelen. 1989.
@@ -183,11 +338,19 @@ node_by_reach <- function(.data, normalized = TRUE, cutoff = 2){
 node_by_information <- function(.data, normalized = TRUE){
   .data <- manynet::expect_nodes(.data)
   thisRequires("sna")
-  out <- sna::infocent(manynet::as_network(.data),
+  # `sna` needs a square sociomatrix, but `as_network()` hands it the
+  # rectangular incidence matrix of a two-mode network. Flattening to a
+  # multilevel network first gives every node a row and a column, which is
+  # how the other path-based measures in this file handle two modes.
+  out <- sna::infocent(manynet::as_network(manynet::to_multilevel(.data)),
                        gmode = ifelse(manynet::is_directed(.data), "digraph", "graph"),
                        diag = manynet::is_complex(.data),
                        rescale = normalized)
-  make_node_measure(out, .data)
+  # `sna::infocent(rescale = TRUE)` divides by the sum of all scores,
+  # so the result is a set of shares rather than a [0,1] normalisation.
+  make_node_measure(out, .data, measure = "information centrality",
+                    range = `if`(normalized, c(0, 1), c(0, Inf)),
+                    normalization = `if`(normalized, "proportional", "none"))
 }
 
 #' @rdname measure_central_close
@@ -210,8 +373,12 @@ node_by_eccentricity <- function(.data, normalized = TRUE){
     manynet::snet_unavailable("Eccentricity centrality is only available for connected networks.")
   disties <- igraph::distances(as_igraph(.data))
   out <- apply(disties, 1, max)
+  # Inverting the maximum distance bounds the result by 1, achieved by a node
+  # adjacent to every other.
   if(normalized) out <- 1/out
-  make_node_measure(out, .data)
+  make_node_measure(out, .data, measure = "eccentricity centrality",
+                    range = `if`(normalized, c(0, 1), c(0, Inf)),
+                    normalization = `if`(normalized, "normalized", "none"))
 }
 
 #   - `node_eccentricity()` measures nodes' eccentricity or Koenig number,
@@ -227,28 +394,47 @@ node_by_eccentricity <- function(.data, normalized = TRUE){
 #  make_node_measure(out, .data)
 # }
 
-#' @rdname measure_central_close 
+#' @rdname measure_central_close
 #' @param from,to Index or name of a node to calculate distances from or to.
+#' @section Geodesic distance:
+#'   Unlike the other functions documented here, `node_by_distance()` is not a
+#'   centrality index but a distance query: it reports each node's geodesic
+#'   distance from (or to) one named node, rather than summarising its position
+#'   with respect to the network as a whole.
+#'   It is grouped here because the closeness-like centralities are all built
+#'   from the same geodesic distances.
 #' @export
 node_by_distance <- function(.data, from, to, normalized = TRUE){
   .data <- manynet::expect_nodes(.data)
   if(missing(from) && missing(to)) manynet::snet_abort("Either 'from' or 'to' must be specified.")
-  if(!missing(from)) out <- igraph::distances(manynet::as_igraph(.data), v = from) else 
+  if(!missing(from)) out <- igraph::distances(manynet::as_igraph(.data), v = from) else
     if(!missing(to)) out <- igraph::distances(manynet::as_igraph(.data), to = to)
-    if(normalized) out <- out/max(out)
-    make_node_measure(out, .data)
+  # Distances have no theoretical maximum, so this divides by the largest
+  # distance observed from (or to) the named node.
+  if(normalized) out <- out/max(out)
+  make_node_measure(out, .data, measure = "geodesic distance",
+                    range = `if`(normalized, c(0, 1), c(0, Inf)),
+                    normalization = `if`(normalized, "scaled", "none"))
 }
 
 #' @rdname measure_central_close 
 #' @section Closeness vitality centrality: 
 #'   The closeness vitality of a node is the change in the sum of all distances
 #'   in a network, also known as the Wiener Index, when that node is removed.
-#'   Note that the closeness vitality may be negative infinity if
-#'   removing that node would disconnect the network.
+#'   Since the Wiener Index of a disconnected network is infinite,
+#'   the unnormalised closeness vitality of a cut node — one whose removal
+#'   would disconnect the network — is negative infinity.
+#'   This is a property of the definition rather than a failure of it:
+#'   it picks out exactly the cut nodes.
+#'   Because that is awkward to work with, the normalised version rescales the
+#'   finite scores onto \eqn{[0,1]} and gives cut nodes a score of 0,
+#'   the endpoint that negative infinity occupies.
 #'   Formally:
 #'   \deqn{C_V(i) = \sum_{j,k} d(j,k) - \sum_{j,k} d(j,k,G\ i)}
 #'   where \eqn{d(j,k,G\ i)} is the distance between nodes \eqn{j} and \eqn{k}
 #'   in the network with node \eqn{i} removed.
+#'   This is the closeness instance of the _delta centrality_ framework;
+#'   for its betweenness instance see [node_by_induced()].
 #' @references
 #' ## On closeness vitality centrality
 #'   Koschuetzki, Dirk, Katharina Lehmann, Leon Peeters, Stefan Richter,
@@ -262,11 +448,26 @@ node_by_vitality <- function(.data, normalized = TRUE){
   .data <- manynet::expect_nodes(.data)
   .data <- manynet::as_igraph(.data)
   out <- vapply(manynet::snet_progress_nodes(.data), function(x){
-    sum(igraph::distances(.data)) - 
+    sum(igraph::distances(.data)) -
       sum(igraph::distances(manynet::delete_nodes(.data, x)))
   }, FUN.VALUE = numeric(1))
-  if(normalized) out <- out/max(out)
-  make_node_measure(out, .data)
+  cuts <- !is.finite(out)
+  if(any(cuts))
+    manynet::snet_info("Removing {sum(cuts)} node{?s} would disconnect this network, giving them infinite closeness vitality.")
+  if(normalized){
+    # Dividing by the maximum would not bound these scores, since they can be
+    # negative; a min-max rescaling of the finite scores does, leaving the
+    # cut nodes at 0, the endpoint negative infinity occupies.
+    if(any(!cuts)){
+      lims <- range(out[!cuts])
+      out[!cuts] <- `if`(diff(lims) > 0,
+                         (out[!cuts] - lims[1])/diff(lims), 1)
+    }
+    out[cuts] <- 0
+  }
+  make_node_measure(out, .data, measure = "closeness vitality centrality",
+                    range = `if`(normalized, c(0, 1), c(-Inf, Inf)),
+                    normalization = `if`(normalized, "normalized", "none"))
 }
 
 #' @rdname measure_central_close 
@@ -314,8 +515,13 @@ node_by_randomwalk <- function(.data, normalized = TRUE){
     avg_ht <- mean(hitting_times[-i])
     out[i] <- 1 / avg_ht
   }
-  
-  make_node_measure(out, .data)
+
+  # Inverse mean hitting time has no theoretical maximum, so `normalized`
+  # divides by the observed maximum: the result scales rather than normalises.
+  if(normalized) out <- out/max(out)
+  make_node_measure(out, .data, measure = "random walk closeness centrality",
+                    range = `if`(normalized, c(0, 1), c(0, Inf)),
+                    normalization = `if`(normalized, "scaled", "none"))
 }
 
 # This is a helper function to compute the Moore-Penrose generalized inverse
@@ -340,7 +546,7 @@ node_by_randomwalk <- function(.data, normalized = TRUE){
 # Tie closeness centrality ####
 
 #' Measuring ties closeness-like centrality
-#' @name measure_centralities_close
+#' @name measure_central_tie_close
 #' @description
 #'   `tie_by_closeness()` measures the closeness of each tie to other ties 
 #'   in the network.
@@ -358,17 +564,19 @@ node_by_randomwalk <- function(.data, normalized = TRUE){
 #' @template tie_measure
 NULL
 
-#' @rdname measure_centralities_close 
+#' @rdname measure_central_tie_close 
 #' @examples
 #' (ec <- tie_by_closeness(ison_adolescents))
 #' ison_adolescents |> mutate_ties(weight = ec)
 #' @export
 tie_by_closeness <- function(.data, normalized = TRUE){
   .data <- manynet::expect_ties(.data)
-  edge_adj <- manynet::to_ties(.data)
+  edge_adj <- .to_linegraph(.data)
   out <- node_by_closeness(edge_adj, normalized = normalized)
   class(out) <- "numeric"
-  make_tie_measure(out, .data)
+  make_tie_measure(out, .data, measure = "closeness centrality",
+                   range = `if`(normalized, c(0, 1), c(0, Inf)),
+                   normalization = `if`(normalized, "normalized", "none"))
 }
 
 # Closeness centralisation ####
@@ -382,7 +590,9 @@ tie_by_closeness <- function(.data, normalized = TRUE){
 #'   mode of a two-mode network, returning one score per mode
 #'   (following Borgatti and Everett, 1997).
 #'   - `net_by_reach()` measures a network's reach centralization.
+#'   - `net_by_decay()` measures a network's decay centralization.
 #'   - `net_by_harmonic()` measures a network's harmonic centralization.
+#'   - `net_by_integration()` measures a network's integration centralization.
 #'
 #'   All measures attempt to use as much information as they are offered,
 #'   including whether the networks are directed, weighted, or multimodal.
@@ -405,8 +615,7 @@ tie_by_closeness <- function(.data, normalized = TRUE){
 #'   "Network analysis of 2-mode data."
 #'   _Social Networks_ 19(3): 243-269.
 #'   \doi{10.1016/S0378-8733(96)00301-2}
-#' @param cutoff The maximum path length to consider when calculating betweenness.
-#'   If negative or NULL (the default), there's no limit to the path lengths considered.
+#' @template param_cutoff
 #' @returns
 #'   `net_by_*()` functions return a `network_measure` scalar;
 #'   `mode_by_closeness()` returns a `mode_measure` numeric vector of length two,
@@ -437,8 +646,10 @@ net_by_closeness <- function(.data, normalized = TRUE,
                              mode = direction,
                              normalized = normalized)$centralization
   }
-  out <- make_network_measure(out, .data, call = deparse(sys.call()))
-  out
+  make_network_measure(out, .data, call = deparse(sys.call()),
+                       measure = "closeness centralisation",
+                       range = `if`(normalized, c(0, 1), c(0, Inf)),
+                       normalization = `if`(normalized, "normalized", "none"))
 }
 
 #' @rdname measure_centralisation_close
@@ -501,8 +712,10 @@ mode_by_closeness <- function(.data, normalized = TRUE,
     }
     out <- c("Mode 1" = out$nodes1, "Mode 2" = out$nodes2)
   }
-  out <- make_mode_measure(out, .data, call = deparse(sys.call()))
-  out
+  make_mode_measure(out, .data, call = deparse(sys.call()),
+                    measure = "closeness centralisation",
+                    range = `if`(normalized, c(0, 1), c(0, Inf)),
+                    normalization = `if`(normalized, "normalized", "none"))
 }
 
 #' @rdname measure_centralisation_close
@@ -512,7 +725,54 @@ net_by_reach <- function(.data, normalized = TRUE, cutoff = 2){
   reaches <- node_by_reach(.data, normalized = FALSE, cutoff = cutoff)
   out <- sum(max(reaches) - reaches)
   if(normalized) out <- out / sum(manynet::net_nodes(.data) - reaches)
-  make_network_measure(out, .data, call = deparse(sys.call()))
+  make_network_measure(out, .data, call = deparse(sys.call()),
+                       measure = "reach centralisation",
+                       range = `if`(normalized, c(0, 1), c(0, Inf)),
+                       normalization = `if`(normalized, "normalized", "none"))
+}
+
+#' @rdname measure_centralisation_close
+#' @inheritParams measure_central_close
+#' @section Decay and integration centralization:
+#'   Unlike reach centrality, decay and integration scores are not bounded above
+#'   by \eqn{N-1}: integration scores scale with the network's diameter.
+#'   Freeman's index therefore cannot use the same denominator as
+#'   `net_by_reach()`, which would return negative values.
+#'   Instead these apply the general centralization index over the _normalized_
+#'   node scores, each of which lies in \eqn{[0,1]}, so the numerator's maximum
+#'   is \eqn{N-1} and the result is guaranteed to lie in \eqn{[0,1]}.
+#'   This is the same approach `net_by_closeness()` takes for two-mode networks.
+#' @examples
+#' net_by_decay(ison_adolescents)
+#' @export
+net_by_decay <- function(.data, normalized = TRUE, decay = 0.5,
+                         direction = c("out", "in")){
+  .data <- manynet::expect_nodes(.data)
+  decs <- node_by_decay(.data, normalized = normalized, decay = decay,
+                        direction = match.arg(direction))
+  out <- sum(max(decs) - decs)
+  if(normalized) out <- out / (length(decs) - 1)
+  make_network_measure(out, .data, call = deparse(sys.call()),
+                       measure = "decay centralisation",
+                       range = `if`(normalized, c(0, 1), c(0, Inf)),
+                       normalization = `if`(normalized, "normalized", "none"))
+}
+
+#' @rdname measure_centralisation_close
+#' @examples
+#' net_by_integration(ison_adolescents)
+#' @export
+net_by_integration <- function(.data, normalized = TRUE,
+                               direction = c("in", "out")){
+  .data <- manynet::expect_nodes(.data)
+  ints <- node_by_integration(.data, normalized = normalized,
+                              direction = match.arg(direction))
+  out <- sum(max(ints) - ints)
+  if(normalized) out <- out / (length(ints) - 1)
+  make_network_measure(out, .data, call = deparse(sys.call()),
+                       measure = "integration centralisation",
+                       range = `if`(normalized, c(0, 1), c(0, Inf)),
+                       normalization = `if`(normalized, "normalized", "none"))
 }
 
 #' @rdname measure_centralisation_close
@@ -522,6 +782,9 @@ net_by_harmonic <- function(.data, normalized = TRUE, cutoff = 2){
   harm <- node_by_harmonic(.data, normalized = FALSE, cutoff = cutoff)
   out <- sum(max(harm) - harm)
   if(normalized) out <- out / sum(manynet::net_nodes(.data) - harm)
-  make_network_measure(out, .data, call = deparse(sys.call()))
+  make_network_measure(out, .data, call = deparse(sys.call()),
+                       measure = "harmonic centralisation",
+                       range = `if`(normalized, c(0, 1), c(0, Inf)),
+                       normalization = `if`(normalized, "normalized", "none"))
 }
 

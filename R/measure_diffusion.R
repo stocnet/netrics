@@ -61,9 +61,15 @@ net_by_transmissibility <- function(.data){
   if(inherits(.data, "diff_model")) 
     net <- attr(.data, "network") else 
       net <- .data
+  # Read as a proportion, but the at-risk denominator `s` is recorded at the
+  # end of each period rather than the start, so a period in which more nodes
+  # were infected than were left at risk can push the ratio above 1. Declared
+  # open above rather than claiming a bound the values can break.
   make_network_measure(mean(out, na.rm = TRUE),
                        net,
-                       call = deparse(sys.call()))
+                       call = deparse(sys.call()),
+                       measure = "transmissibility", range = c(0, Inf),
+                       normalization = "none")
 }
 
 #' @rdname measure_diffusion_net 
@@ -92,7 +98,9 @@ net_by_recovery <- function(.data, censor = TRUE){
       net <- .data
   make_network_measure(mean(recovs, na.rm = TRUE),
                        net,
-                       call = deparse(sys.call()))
+                       call = deparse(sys.call()),
+                       measure = "recovery time", range = c(0, Inf),
+                       normalization = "none")
 }
 
 #' @rdname measure_diffusion_net 
@@ -140,7 +148,9 @@ net_by_reproduction <- function(.data){
       (1/net_by_recovery(.data))
     out <- min(out, mean(node_by_deg(net)))
   make_network_measure(out, net,
-                       call = deparse(sys.call()))
+                       call = deparse(sys.call()),
+                       measure = "reproduction number", range = c(0, Inf),
+                       normalization = "none")
 }
 
 #' @rdname measure_diffusion_net 
@@ -165,6 +175,11 @@ net_by_reproduction <- function(.data){
 #'   would need to be vaccinated or otherwise protected to achieve herd immunity.
 #'   To identify how many nodes this would be, multiply this proportion with the number
 #'   of nodes in the network.
+#'
+#'   Where \eqn{R < 1} the diffusion is already sub-critical and dies out of its
+#'   own accord, so no one needs protecting and the threshold is reported as 0.
+#'   The formula would otherwise return a negative proportion, which has no
+#'   interpretation.
 #' @references
 #' ## On herd immunity
 #' Garnett, G.P. 2005.
@@ -182,10 +197,15 @@ net_by_immunity <- function(.data, normalized = TRUE){
   if(inherits(.data, "diff_model")) 
     net <- attr(.data, "network") else 
       net <- .data
-  out <- 1 - 1/net_by_reproduction(.data)
+  # Below the epidemic threshold the formula turns negative; no one needs
+  # protecting from a diffusion that cannot sustain itself.
+  out <- max(1 - 1/net_by_reproduction(.data), 0)
   if(!normalized) out <- ceiling(out * manynet::net_nodes(net))
   make_network_measure(out, net,
-                       call = deparse(sys.call()))
+                       call = deparse(sys.call()),
+                       measure = "herd immunity threshold",
+                       range = `if`(normalized, c(0, 1), c(0, Inf)),
+                       normalization = `if`(normalized, "normalized", "none"))
 }
 
 # net_infection ####
@@ -226,25 +246,34 @@ net_by_infection_complete <- function(.data){
     net <- attr(.data, "network") else 
       net <- .data
   make_network_measure(out, net,
-                       call = deparse(sys.call()))
+                       call = deparse(sys.call()),
+                       measure = "time to complete infection",
+                       range = c(1, Inf), normalization = "none")
 }
 
-#' @rdname measure_diffusion_infection 
+#' @rdname measure_diffusion_infection
 #' @examples
 #'   net_by_infection_total(smeg_diff)
 #' @export
 net_by_infection_total <- function(.data, normalized = TRUE){
+  # Normalised against the number of nodes rather than a theoretical maximum:
+  # where reinfection is possible a node can be counted more than once, so the
+  # proportion is not capped at 1, and the declared range stays open above.
   if(inherits(.data, "diff_model")){
     diff_model <- manynet::as_diffusion(.data)
     out <- sum(diff_model$I_new)
     if(normalized) out <- out / diff_model$n[length(diff_model$n)]
     make_network_measure(out, attr(diff_model, "network"),
-                         call = deparse(sys.call()))
+                         call = deparse(sys.call()),
+                         measure = "total infections", range = c(0, Inf),
+                         normalization = `if`(normalized, "normalized", "none"))
   } else {
     out <- sum(manynet::as_changelist(.data)$value == "I")
     if(normalized) out <- out / manynet::net_nodes(.data)
     make_network_measure(out, .data,
-                         call = deparse(sys.call()))
+                         call = deparse(sys.call()),
+                         measure = "total infections", range = c(0, Inf),
+                         normalization = `if`(normalized, "normalized", "none"))
   }
 }
 
@@ -259,7 +288,9 @@ net_by_infection_peak <- function(.data){
       net <- .data
   out <- which(diff_model$I_new == max(diff_model$I_new))[1]
   make_network_measure(out, net,
-                       call = deparse(sys.call()))
+                       call = deparse(sys.call()),
+                       measure = "time to peak infection",
+                       range = c(1, Inf), normalization = "none")
 }
 
 # node_diffusion ####
@@ -341,7 +372,8 @@ node_by_adopt_time <- function(.data){
   }
       
   if(!manynet::is_labelled(net)) out <- unname(out)
-  make_node_measure(out, net)
+  make_node_measure(out, net, measure = "adoption time", range = c(0, Inf),
+                    normalization = "none")
 }
 
 #' @rdname measure_diffusion_node 
@@ -422,7 +454,9 @@ node_by_adopt_threshold <- function(.data, normalized = TRUE, lag = 1){
       out <- unname(out[order(as.numeric(names(out)))])
     }
   if(normalized) out <- out / node_by_deg(net)
-  make_node_measure(out, net)
+  make_node_measure(out, net, measure = "adoption threshold",
+                    range = `if`(normalized, c(0, 1), c(0, Inf)),
+                    normalization = `if`(normalized, "normalized", "none"))
 }
 
 #' @rdname measure_diffusion_node 
@@ -457,7 +491,8 @@ node_by_adopt_recovery <- function(.data){
                                      NA),
                   FUN.VALUE = numeric(1))
   }
-  make_node_measure(out, net)
+  make_node_measure(out, net, measure = "recovery time", range = c(0, Inf),
+                    normalization = "none")
 }
 
 #' @rdname measure_diffusion_node
@@ -522,7 +557,8 @@ node_by_adopt_exposure <- function(.data, mark, time = 0){
     out <- rep(0, manynet::net_nodes(.data))
     out[as.numeric(names(tabcontact))] <- unname(tabcontact)
   }
-  make_node_measure(out, .data)
+  make_node_measure(out, .data, measure = "exposure", range = c(0, Inf),
+                    normalization = "none")
 }
 
 # Diffusion membership ####

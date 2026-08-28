@@ -10,9 +10,7 @@
 #' @template param_memb
 #' @family brokerage
 #' @template node_motif
-#' @param standardized Whether the score should be standardized
-#'   into a _z_-score indicating how many standard deviations above
-#'   or below the average the score lies.
+#' @template param_standardized
 NULL
 
 #' @rdname motif_brokerage_node 
@@ -61,9 +59,7 @@ node_x_brokerage <- function(.data, membership, standardized = FALSE){
 #' @template param_memb
 #' @family brokerage
 #' @template net_motif
-#' @param standardized Whether the score should be standardized
-#'   into a _z_-score indicating how many standard deviations above
-#'   or below the average the score lies.
+#' @template param_standardized
 NULL
 
 #' @rdname motif_brokerage_net 
@@ -139,7 +135,8 @@ node_by_brokering_activity <- function(.data, membership){
   }
   # missings should be none
   out[is.na(out)] <- 0
-  make_node_measure(out, .data)
+  make_node_measure(out, .data, measure = "brokerage activity",
+                    range = c(0, Inf), normalization = "none")
 }
 
 #' @rdname measure_brokerage 
@@ -171,7 +168,8 @@ node_by_brokering_exclusivity <- function(.data, membership){
   }
   # missings should be none
   out[is.na(out)] <- 0
-  make_node_measure(out, .data)
+  make_node_measure(out, .data, measure = "brokerage exclusivity",
+                    range = c(0, Inf), normalization = "none")
 }
 
 # Memberships ####
@@ -179,7 +177,7 @@ node_by_brokering_exclusivity <- function(.data, membership){
 #' Memberships in brokerage positions
 #' 
 #' @description
-#'   `node_in_brokerage()` returns nodes membership as a powerhouse,
+#'   `node_in_brokering()` returns nodes membership as a powerhouse,
 #'   connector, linchpin, or sideliner according to Hamilton et al. (2020).
 #'   
 #' @name member_brokerage
@@ -197,6 +195,8 @@ node_by_brokering_exclusivity <- function(.data, membership){
 NULL
 
 #' @rdname member_brokerage 
+#' @examples
+#' node_in_brokering(ison_networkers, "Discipline")
 #' @export
 node_in_brokering <- function(.data, membership){
   .data <- manynet::expect_nodes(.data)

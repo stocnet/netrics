@@ -12,8 +12,14 @@ knitr::opts_chunk$set(
   out.width = "100%"
 )
 library(netrics)
+# Renamed functions are kept as warning wrappers for one release, but the
+# README lists the current API, so the wrappers in R/netrics-defunct.R are
+# dropped rather than advertised alongside their replacements. That file is
+# cleared at each minor release, so this list stays short.
+defunct_fns <- c("node_by_coreness", "net_x_mixed")
+netrics_fns <- setdiff(ls("package:netrics"), defunct_fns)
 list_functions <- function(string){
-  paste0("`", paste(paste0(ls("package:netrics")[grepl(string, ls("package:netrics"))], "()"), collapse = "`, `"), "`")
+  paste0("`", paste(paste0(netrics_fns[grepl(string, netrics_fns)], "()"), collapse = "`, `"), "`")
 }
 list_data <- function(string){
   paste0("`", paste(paste0(ls("package:netrics")[grepl(string, ls("package:netrics"))]), collapse = "`, `"), "`")
@@ -47,7 +53,7 @@ For graph drawing, see [`{autograph}`](https://stocnet.github.io/autograph/),
 and for further testing and modelling capabilities
 see [`{migraph}`](https://stocnet.github.io/migraph/).
 
-- [Marking](#marking)
+- [Marks](#marks)
 - [Measures](#measures)
 - [Memberships](#memberships)
 - [Motifs](#motifs)
@@ -58,11 +64,12 @@ see [`{migraph}`](https://stocnet.github.io/migraph/).
 - [Relationship to other packages](#relationship-to-other-packages)
 - [Funding details](#funding-details)
 
-## Marking
+## Marks
 
 `{netrics}` includes four special groups of functions, 
-each with their own pretty `print()` and `plot()` methods:
+each with their own pretty `print()` method:
 marks, measures, motifs, and memberships.
+(`plot()` methods for these results live in `{autograph}`.)
 Marks are logical scalars or vectors, measures are numeric, 
 memberships categorical, and motifs result in tabular outputs.
 
@@ -102,10 +109,11 @@ indicating e.g. that the first node is a member of group "A", the second in grou
 
 - `r list_functions("_in_")`
 
-For example `node_in_brokering()` returns 
-the frequency of nodes' participation in 
-Gould-Fernandez brokerage roles for a one-mode network,
-and the Jasny-Lubell brokerage roles for a two-mode network.
+For example `node_in_brokering()` labels each node a powerhouse, 
+a connector, a linchpin, or a sideliner, 
+according to its brokerage activity and exclusivity (Hamilton et al. 2020).
+For counts of the Gould-Fernandez brokerage roles instead, 
+see the motif `node_x_brokerage()`.
 
 These can be analysed alone, or used as a profile for establishing equivalence.
 `{netrics}` offers both HCA and CONCOR algorithms,
@@ -133,7 +141,7 @@ For example, you might want to know about:
 - _Cohesion_: `r list_functions("density|reciprocity|transitivity|equivalency|congruency")`
 - _Hierarchy_: `r list_functions("hierarchy|connectedness|upper|efficiency|reciprocity")`
 - _Topology_: `r list_functions("core|factions|modularity|smallworld|balance|richclub")`
-- _Resilience_: `r list_functions("cutpoint|bridge|hesion|articul")`
+- _Resilience_: `r list_functions("cutpoint|bridge|hesion")`
 - _Brokerage_: `r list_functions("broke|hole|redundancy|constraint|effsize")`
 - _Diversity_: `r list_functions("diversity|phily|richness|assort")`
 - _Diffusion_: `r list_functions("adopt|infect|expos")`
@@ -142,8 +150,13 @@ For example, you might want to know about:
 
 ### Stable
 
-The easiest way to install the latest stable version of `{netrics}` is via CRAN.
-Simply open the R console and enter:
+The easiest way to get `{netrics}` is to install the whole `stocnet` family
+from CRAN. Open the R console and enter:
+
+`install.packages('migraph')`
+
+This brings `{manynet}`, `{netrics}`, `{autograph}` and `{migraph}` together.
+To install `{netrics}` alone, enter:
 
 `install.packages('netrics')`
 

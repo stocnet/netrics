@@ -9,32 +9,59 @@
 \alias{node_in_fluid}
 \alias{node_in_louvain}
 \alias{node_in_leiden}
+\alias{node_in_labels}
 \title{Memberships in non-hierarchical communities}
 \usage{
 node_in_optimal(.data)
 
-node_in_partition(.data)
+node_in_partition(.data, k = 2L, max_k = 8L, Kmax = NULL)
 
 node_in_infomap(.data, times = 50)
 
 node_in_spinglass(.data, max_k = 200, resolution = 1)
 
-node_in_fluid(.data)
+node_in_fluid(.data, k = NULL, max_k = 8L, Kmax = NULL)
 
-node_in_louvain(.data, resolution = 1)
+node_in_louvain(.data, k = NULL, max_k = 8L, resolution = 1, Kmax = NULL)
 
-node_in_leiden(.data, resolution = 1)
+node_in_leiden(.data, k = NULL, max_k = 8L, resolution = 1, Kmax = NULL)
+
+node_in_labels(.data, k = NULL, max_k = 8L, Kmax = NULL)
 }
 \arguments{
-\item{.data}{A network object of class \code{mnet}, \code{igraph}, \code{tbl_graph}, \code{network}, or similar.
-For more information on the standard coercion possible,
-see \code{\link[manynet:as_tidygraph]{manynet::as_tidygraph()}}.}
+\item{.data}{A network object of class \code{stocnet}, \code{igraph}, \code{tbl_graph}, \code{network}, or similar.
+Internally any of these will be coerced to an efficient implementation.
+For more information on possible coercions, see e.g. \code{\link[manynet:as_stocnet]{manynet::as_stocnet()}}.}
 
-\item{times}{Integer indicating number of simulations/walks used.
-By default, \code{times=50}.}
+\item{k}{Integer indicating the target number of communities to return.
+By default \code{NULL}, in which case the algorithm returns the number of
+communities that it finds itself.
+Alternatively, a character string naming a selection method:
+\code{"silhouette"} selects the number that maximises the mean silhouette
+width over geodesic distances, \code{"elbow"} selects the number at the
+elbow of the coverage curve, and \code{"strict"} returns the partition in
+which no tie crosses a group, i.e. the components.
+Prefer \code{"silhouette"}; the elbow method is unreliable where the
+coverage curve has no clear elbow.
+If the algorithm cannot return exactly the number of communities
+requested, a warning is given and the nearest number is returned.}
 
-\item{max_k}{Integer constant, the number of spins to use as an upper limit
-of communities to be found. Some sets can be empty at the end.}
+\item{max_k}{Integer indicating the maximum number of communities to
+evaluate for \code{"silhouette"} and \code{"elbow"}. By default \code{8}.
+Otherwise ignored.
+Note that for \code{node_in_louvain()} and \code{node_in_leiden()} each candidate
+requires its own search over the resolution parameter,
+so a large \code{max_k} is costly on large networks.}
+
+\item{Kmax}{Deprecated. The former spelling of \code{max_k}.
+Still accepted, but warns; please use \code{max_k} instead.}
+
+\item{times}{Integer scalar, how many times the algorithm repeats its work.
+Where the algorithm is stochastic, this is how many times it runs,
+and the best or the most frequent result is kept.
+Where the algorithm searches, this is how many steps the search takes.
+More repetitions give a more reliable result and take longer,
+so each function documents its own default.}
 
 \item{resolution}{The Reichardt-Bornholdt “gamma” resolution parameter for modularity.
 By default 1, making existing and non-existing ties equally important.
@@ -64,6 +91,8 @@ based on analogy to model from fluid dynamics.
 modularity over all possible partitions.
 \item \code{node_in_leiden()} is an agglomerative multilevel algorithm that seeks to maximise
 the Constant Potts Model over all possible partitions.
+\item \code{node_in_labels()} is a fast, propagation-based algorithm in which nodes
+iteratively adopt whichever community label is most common among their neighbours.
 }
 
 The different algorithms offer various advantages in terms of computation time,
@@ -85,10 +114,12 @@ swap pairs of nodes (one from each group) that give a positive sum of net tie co
 where the net tie cost of a node is the difference between the sum
 of the weights of ties to nodes in the other group (external costs) and
 the sum of the weights of ties to nodes in the same group (internal costs).
+Where \code{k} is greater than two, the same swap pass is run for every pair of
+groups, and the rounds repeat until no swap improves the partition.
 This is a deterministic algorithm that will always return the same partition
 for a given network, but it is not guaranteed to maximise modularity.
 Note that this algorithm is only applicable to undirected, unipartite networks,
-and will always return two communities of equal size (or as close to equal as possible).
+and returns \code{k} communities of equal size (or as close to equal as possible).
 }
 
 \section{Infomap}{
@@ -100,6 +131,9 @@ per node required to encode the path.
 }
 
 \section{Spin-glass}{
+
+Here \code{max_k} is the number of spins, an upper limit on the communities
+found rather than a bound on a search, so some can end up empty.
 
 This is motivated by analogy to the Potts model in statistical physics.
 Each node can be in one of \emph{k} "spin states",
@@ -128,6 +162,8 @@ each node is moved to the community where it achieves the highest contribution t
 When no further modularity-increasing reassignments are possible,
 the resulting communities are considered nodes (like a reduced graph),
 and the process continues.
+Where \code{k} is given, the resolution parameter is searched for the value
+that returns that number of communities, and \code{resolution} is ignored.
 }
 
 \section{Leiden}{
@@ -147,6 +183,35 @@ and \eqn{\delta(\sigma_i, \sigma_j) = 1} if and only if
 \emph{i} and \emph{j} are in the same communities and 0 otherwise.
 Compared to the Louvain method, the Leiden algorithm additionally
 tries to avoid unconnected communities.
+Where \code{k} is given, the resolution parameter is searched for the value
+that returns that number of communities, and \code{resolution} is ignored.
+}
+
+\section{Label propagation}{
+
+Every node is initially given a unique label.
+Nodes are then visited in random order, each adopting whichever label is
+most frequent among its neighbours, until no node has a label that a
+majority of its neighbours does not share.
+Densely connected groups quickly converge on a common label,
+which is what makes the communities.
+
+This is the fastest of the algorithms here, running in near-linear time,
+which makes it useful on large networks where the others are infeasible.
+The trade-off is that it is stochastic: because both the visiting order and
+ties between equally frequent labels are broken at random, repeated runs on
+the same network can return different partitions,
+and on sparse networks it may return a single community.
+Set a seed for reproducibility, or use \code{node_in_community()} to select
+among algorithms by modularity.
+
+Where \code{k} is given, the algorithm becomes semi-supervised.
+The \code{k} nodes of highest degree are each given a distinct, fixed label,
+every other node starts with a label of its own,
+and propagation runs as normal.
+Seeding alone tends to leave more than \code{k} labels standing,
+so any surplus groups are then merged in the order that best preserves
+modularity, until exactly \code{k} communities remain.
 }
 
 \examples{
@@ -158,6 +223,7 @@ node_in_spinglass(ison_adolescents)
 node_in_fluid(ison_adolescents)
 node_in_louvain(ison_adolescents)
 node_in_leiden(ison_adolescents)
+node_in_labels(ison_adolescents)
 }
 \references{
 \subsection{On optimal community detection}{
@@ -224,6 +290,14 @@ Traag, Vincent A., Ludo Waltman, and Nees Jan van Eck. 2019.
 \emph{Scientific Reports}, 9(1):5233.
 \doi{10.1038/s41598-019-41695-z}
 }
+
+\subsection{On label propagation community detection}{
+
+Raghavan, Usha Nandini, Reka Albert, and Soundar Kumara. 2007.
+"Near linear time algorithm to detect community structures in large-scale networks",
+\emph{Physical Review E}, 76(3):036106.
+\doi{10.1103/PhysRevE.76.036106}
+}
 }
 \seealso{
 Other community:
@@ -266,6 +340,8 @@ Other nodal:
 \code{\link{member_diffusion}},
 \code{\link{member_equivalence}},
 \code{\link{motif_brokerage_node}},
+\code{\link{motif_clique}},
+\code{\link{motif_composition}},
 \code{\link{motif_exposure}},
 \code{\link{motif_node}},
 \code{\link{motif_path}}

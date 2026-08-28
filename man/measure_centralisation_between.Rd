@@ -6,18 +6,14 @@
 \alias{mode_by_betweenness}
 \title{Measuring networks betweenness-like centralisation}
 \usage{
-net_by_betweenness(.data, normalized = TRUE, direction = c("all", "out", "in"))
+net_by_betweenness(.data, normalized = TRUE)
 
-mode_by_betweenness(
-  .data,
-  normalized = TRUE,
-  direction = c("all", "out", "in")
-)
+mode_by_betweenness(.data, normalized = TRUE, direction = c("all", "in"))
 }
 \arguments{
-\item{.data}{A network object of class \code{mnet}, \code{igraph}, \code{tbl_graph}, \code{network}, or similar.
-For more information on the standard coercion possible,
-see \code{\link[manynet:as_tidygraph]{manynet::as_tidygraph()}}.}
+\item{.data}{A network object of class \code{stocnet}, \code{igraph}, \code{tbl_graph}, \code{network}, or similar.
+Internally any of these will be coerced to an efficient implementation.
+For more information on possible coercions, see e.g. \code{\link[manynet:as_stocnet]{manynet::as_stocnet()}}.}
 
 \item{normalized}{Logical scalar, whether scores are normalized.
 Different denominators may be used depending on the measure,
@@ -54,8 +50,19 @@ For two-mode networks the two modes have different theoretical maxima, so
 Freeman's general centralization index over the normalized node betweenness
 scores, whereas \code{mode_by_betweenness()} reports the per-mode scores directly.
 }
+\details{
+Betweenness centralisation has no directional variants:
+\code{igraph::centr_betw()} derives directedness from the network itself,
+so \code{net_by_betweenness()} takes no \code{direction} argument.
+For the per-mode scores, \code{direction} chooses the comparison set rather
+than a tie direction — \code{"all"} compares each mode's most central node
+against every node in the network, whereas \code{"in"} compares it only
+against the other nodes of its own mode. Since a two-mode incidence
+structure gives these no distinct "out" counterpart,
+\code{mode_by_betweenness()} accepts only \code{"all"} and \code{"in"}.
+}
 \examples{
-net_by_betweenness(ison_southern_women, direction = "in")
+net_by_betweenness(ison_southern_women)
 mode_by_betweenness(ison_southern_women, direction = "in")
 }
 \references{
@@ -67,20 +74,20 @@ Borgatti, Stephen P., and Martin G. Everett. 1997.
 \seealso{
 Other betweenness:
 \code{\link{measure_central_between}},
-\code{\link{measure_centralities_between}}
+\code{\link{measure_central_tie_between}}
 
 Other centrality:
 \code{\link{measure_central_between}},
 \code{\link{measure_central_close}},
 \code{\link{measure_central_degree}},
 \code{\link{measure_central_eigen}},
+\code{\link{measure_central_tie_between}},
+\code{\link{measure_central_tie_close}},
+\code{\link{measure_central_tie_degree}},
+\code{\link{measure_central_tie_eigen}},
 \code{\link{measure_centralisation_close}},
 \code{\link{measure_centralisation_degree}},
-\code{\link{measure_centralisation_eigen}},
-\code{\link{measure_centralities_between}},
-\code{\link{measure_centralities_close}},
-\code{\link{measure_centralities_degree}},
-\code{\link{measure_centralities_eigen}}
+\code{\link{measure_centralisation_eigen}}
 }
 \concept{betweenness}
 \concept{centrality}

@@ -40,6 +40,33 @@ seq_nodes <- function(.data){
   seq.int(manynet::net_nodes(.data))
 }
 
+# Compatibility shim: manynet renamed `to_ties()` to `to_linegraph()` in 2.3.0.
+# The name is resolved at call time, so this uses `to_linegraph()` where it is
+# available and never raises the deprecation warning that `to_ties()` gives
+# there. Remove this and call `manynet::to_linegraph()` directly once manynet
+# 2.3.x is on CRAN and the DESCRIPTION floor is raised again.
+.to_linegraph <- function(.data) {
+  ns <- asNamespace("manynet")
+  fn <- if (is.null(ns$to_linegraph)) ns$to_ties else ns$to_linegraph
+  fn(.data)
+}
+
+# Compatibility shim: `manynet::net_waves()` has existed since manynet 2.2.0,
+# but only learned to read a `time` tie attribute in 2.3.0, and every bundled
+# longitudinal network holds its waves there rather than under `wave`. At the
+# declared floor it therefore reports one wave for `ison_monks`, which
+# `manynet::net_waves()` on 2.3.1 reports as three. The count is taken here as
+# well, so the answer does not depend on which manynet is installed.
+# Remove this and call `manynet::net_waves()` directly once the DESCRIPTION
+# floor is raised past 2.3.0.
+.net_waves <- function(.data) {
+  attr_waves <- vapply(c("wave", "time"), function(a) {
+    vals <- manynet::tie_attribute(.data, a)
+    if(is.null(vals)) 1L else length(unique(vals))
+  }, FUN.VALUE = integer(1))
+  max(manynet::net_waves(.data), attr_waves)
+}
+
 # Resolve membership to a vector:
 # if a single character string naming a network attribute is provided,
 # retrieve that attribute as a vector; otherwise return the value as-is.
@@ -52,4 +79,81 @@ seq_nodes <- function(.data){
   }
 }
 
+
+# Local-search perturbations over a membership vector, shared by the
+# random-restart searches in `node_in_roulette()` and `node_in_block()`.
+# A weak perturbation makes one small move; a strong one makes enough moves
+# to escape a local optimum.
+.weakPerturb <- function(soln){
+  gsizes <- table(soln)
+  evens <- all(gsizes == max(gsizes))
+  if(evens){
+    soln <- .swapMove(soln)
+  } else {
+    if(stats::runif(1)<0.5) soln <- .swapMove(soln) else 
+      soln <- .oneMove(soln)
+  }
+  soln
+}
+
+.swapMove <- function(soln){
+  from <- sample(seq.int(length(soln)), 1)
+  to <- sample(which(soln != soln[from]), 1)
+  soln[c(to,from)] <- soln[c(from,to)]
+  soln
+}
+
+.oneMove <- function(soln){
+  gsizes <- table(soln)
+  maxg <- which(gsizes == max(gsizes))
+  from <- sample(which(soln %in% maxg), 1)
+  soln[from] <- sample(which(gsizes != max(gsizes)), 1)
+  soln
+}
+
+.strongPerturb <- function(soln, strength = 1){
+  times <- ceiling(strength * length(soln)/max(soln))
+  for (t in seq.int(times)){
+    soln <- .weakPerturb(soln)
+  }
+  soln
+}
+
 # nocov end
+
+# A 'stocnet' object holds a tie's sign as the sign of its weight, so a signed
+# network reaches igraph carrying a `weight` attribute of -1 and 1. igraph's
+# shortest path functions read any attribute of that name as a distance, and
+# either abort on the negative values or report a negative cycle.
+#
+# Dropping the attribute would keep the negative ties as paths of length one,
+# which is the wrong reading: a negative tie is hostility, not a channel along
+# which cohesion travels. Path-based measures therefore run over the positive
+# ties alone, as `node_x_clique()` does for the same reason.
+.to_positive <- function(.data){
+  if(manynet::is_signed(.data)){
+    manynet::snet_info("Using only the positive ties,",
+                       "since a negative tie does not carry cohesion.")
+    manynet::to_unsigned(.data, keep = "positive")
+  } else .data
+}
+
+# `manynet::is_multilevel()` is not exported by every 'manynet' version that
+# this package supports, so the test is kept here. A multilevel network reports
+# itself as two-mode, but interlocks its levels: it has ties both within and
+# between the modes. A network whose ties all run between the modes, as
+# `ison_southern_women`'s do, is a plain two-mode network. A network whose ties
+# all fall within the modes is two networks and not two levels of one.
+.is_multilevel <- function(.data){
+  .data <- manynet::as_igraph(.data)
+  # `to_multilevel()` records levels in a 'lvl' attribute and deletes 'type',
+  # so a network that is already converted has to be recognised by its levels.
+  if("lvl" %in% igraph::vertex_attr_names(.data))
+    return(length(unique(igraph::vertex_attr(.data, "lvl"))) > 1)
+  if(!manynet::is_twomode(.data)) return(FALSE)
+  if(igraph::ecount(.data) == 0) return(FALSE)
+  type <- igraph::vertex_attr(.data, "type")
+  ends <- igraph::ends(.data, igraph::E(.data), names = FALSE)
+  between <- type[ends[,1]] != type[ends[,2]]
+  any(between) && any(!between)
+}

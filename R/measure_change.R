@@ -11,16 +11,23 @@
 NULL
 
 #' @rdname measure_periods 
+#' @examples
+#' net_by_waves(ison_monks)
 #' @export
 net_by_waves <- function(.data){
   .data <- manynet::expect_nodes(.data)
-  tie_waves <- length(unique(manynet::tie_attribute(.data, "wave")))
+  # A longitudinal network holds its waves in a `wave` or a `time` tie
+  # attribute, so reading only `wave` reported one wave for e.g. `ison_monks`.
+  # `.net_waves()` covers both, and a changing network counts its changelist.
+  tie_waves <- .net_waves(.data)
   if(manynet::is_changing(.data)){
     chltime <- manynet::as_changelist(.data)$time
     chg_waves <- (max(chltime)+1) - max(min(chltime)-1, 0)
   } else chg_waves <- 1
   make_network_measure(max(tie_waves, chg_waves),
-                       .data, call = deparse(sys.call()))
+                       .data, call = deparse(sys.call()),
+                       measure = "waves", range = c(1, Inf),
+                       normalization = "none")
 }
 
 # Change motifs ####
@@ -43,6 +50,8 @@ NULL
 
 #' @rdname motif_periods 
 #' @param object2 A network object.
+#' @examples
+#' net_x_change(ison_monks)
 #' @export
 net_x_change <- function(.data, object2){
   net <- manynet::expect_nodes(.data)

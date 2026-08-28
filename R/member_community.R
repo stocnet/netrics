@@ -1,92 +1,331 @@
 # Community clustering ####
 
+# Helpers for targeting a number of communities ####
+
+# Validates `k`, returning NULL, a single integer, or a method name.
+check_k <- function(k, .data){
+  if(is.null(k)) return(NULL)
+  if(is.character(k)) return(match.arg(k, c("silhouette", "elbow", "strict")))
+  if(!is.numeric(k) || length(k) != 1 || k < 1 || k %% 1 != 0)
+    manynet::snet_abort("`k` must be a single positive integer,",
+                        "or one of {.val silhouette}, {.val elbow}, {.val strict}.")
+  if(k > manynet::net_nodes(.data))
+    manynet::snet_abort("`k` cannot exceed the number of nodes.")
+  as.integer(k)
+}
+
+# Geodesic distances, for scoring candidate partitions.
+node_dists <- function(.data){
+  d <- igraph::distances(manynet::as_igraph(.data))
+  d[is.infinite(d)] <- manynet::net_nodes(.data) # unconnected pairs
+  d
+}
+
+# Mean silhouette width of one membership vector.
+# Note this is the per-partition core of `k_silhouette()`, which cannot be
+# called here because it reads `hc$distances`, which only
+# `cluster_hierarchical()` attaches and community dendrograms lack.
+sil_score <- function(memb, d){
+  if(length(unique(memb)) < 2) return(NA_real_)
+  mean(vapply(seq_along(memb), function(i){
+    wig <- which(memb == memb[i])
+    wig <- wig[wig != i]
+    # a node alone in its group scores 0, per Rousseeuw
+    if(length(wig) == 0) return(0)
+    ai <- mean(d[i, wig])
+    wog <- which(memb != memb[i])
+    bi <- min(vapply(unique(memb[wog]),
+                     function(b) mean(d[i, wog[memb[wog] == b]]),
+                     FUN.VALUE = numeric(1)))
+    (bi - ai)/max(ai, bi)
+  }, FUN.VALUE = numeric(1)))
+}
+
+# Share of ties that fall inside a group.
+coverage <- function(.data, memb){
+  e <- igraph::as_edgelist(manynet::as_igraph(.data), names = FALSE)
+  if(nrow(e) == 0) return(0)
+  mean(memb[e[,1]] == memb[e[,2]])
+}
+
+# Selects among candidate partitions, given in increasing k.
+select_k <- function(parts, .data, method){
+  ks <- vapply(parts, function(p) length(unique(p)), FUN.VALUE = integer(1))
+  if(method == "silhouette"){
+    d <- node_dists(.data)
+    scores <- vapply(parts, sil_score, d = d, FUN.VALUE = numeric(1))
+    if(all(is.na(scores))) return(parts[[1]])
+    parts[[which.max(scores)]]
+  } else {
+    cvs <- vapply(parts, function(p) coverage(.data, p), FUN.VALUE = numeric(1))
+    parts[[which(ks == elbow_point(ks, cvs))[1]]]
+  }
+}
+
+# Greedily merges the pair of groups whose merge best preserves modularity.
+merge_to_k <- function(.data, memb, k){
+  gr <- manynet::as_igraph(.data)
+  while(length(unique(memb)) > k){
+    gs <- unique(memb)
+    best <- NULL
+    bestq <- -Inf
+    for(i in seq_along(gs)) for(j in seq_along(gs)) if(i < j){
+      cand <- memb
+      cand[cand == gs[j]] <- gs[i]
+      q <- igraph::modularity(gr, as.integer(factor(cand)))
+      if(q > bestq){ bestq <- q; best <- c(gs[i], gs[j]) }
+    }
+    memb[memb == best[2]] <- best[1]
+  }
+  as.integer(factor(memb))
+}
+
+# Bisects the resolution parameter of `fun` to reach k communities.
+# The number of communities rises with the resolution, but not strictly,
+# so the best result found is kept and the iteration cap stops the search.
+cut_res <- function(fun, gr, k, lower = 1e-6, upper = 100, iter = 40){
+  best <- NULL
+  bestk <- NA
+  for(i in seq_len(iter)){
+    mid <- (lower + upper)/2
+    memb <- fun(gr, resolution = mid)$membership
+    found <- length(unique(memb))
+    if(is.na(bestk) || abs(found - k) < abs(bestk - k)){
+      best <- memb
+      bestk <- found
+    }
+    if(found == k) return(memb)
+    if(found < k) lower <- mid else upper <- mid
+  }
+  best
+}
+
+# Cuts a hierarchical clustering at `no` groups.
+# The merge tree can be incomplete, on an unconnected network or where the
+# algorithm stopped splitting. igraph then warns and returns more groups than
+# asked, which `report_k()` reports in the package's own style.
+cut_tree <- function(clust, no){
+  tryCatch(suppressWarnings(igraph::cut_at(clust, no = no)),
+           error = function(e) clust$membership)
+}
+
+# Warns where the requested number of communities was not reached.
+report_k <- function(memb, k){
+  found <- length(unique(memb))
+  if(is.numeric(k) && found != k)
+    manynet::snet_warn("This algorithm returns {found} communities here,",
+                       "and not the {k} requested.")
+  memb
+}
+
+# The partition in which no tie crosses a group.
+strict_memb <- function(.data){
+  manynet::snet_info("Returning the components partition,",
+                     "in which no tie crosses a group.")
+  igraph::components(manynet::as_igraph(.data))$membership
+}
+
+# Resolves `k` for one algorithm.
+# `at_k(no)` returns a membership vector with `no` groups,
+# and `default()` returns the algorithm's own partition.
+apply_k <- function(k, max_k, .data, at_k, default){
+  n <- manynet::net_nodes(.data)
+  memb <- if(is.null(k)) default() else
+    if(identical(k, "strict")) strict_memb(.data) else
+      if(is.character(k)) select_k(lapply(2:min(max_k, n), at_k), .data, k) else
+        at_k(k)
+  report_k(memb, k)
+}
+
+# Helpers for combining algorithms ####
+
+# Assembles the algorithms applicable to this network.
+# Both the selection and the consensus route draw on this, so the eligibility
+# rules live in one place.
+poss_algs <- function(k, .data){
+  if(is.null(k)){
+    if(manynet::net_nodes(.data) >= 100)
+      manynet::snet_info("Excluding {.fn node_in_optimal} because network rather large.")
+    poss <- c("node_in_infomap",
+              "node_in_spinglass",
+              "node_in_fluid",
+              "node_in_louvain",
+              "node_in_leiden",
+              "node_in_greedy",
+              "node_in_eigen",
+              "node_in_walktrap")
+  } else {
+    manynet::snet_info("Considering only those algorithms that accept {.arg k}.")
+    poss <- c("node_in_fluid",
+              "node_in_louvain",
+              "node_in_leiden",
+              "node_in_labels",
+              "node_in_partition",
+              "node_in_greedy",
+              "node_in_eigen",
+              "node_in_walktrap",
+              "node_in_betweenness")
+  }
+  exclude <- function(poss, these, why){
+    hit <- intersect(poss, these)
+    if(length(hit)) manynet::snet_info("Excluding {.fn {hit}} because {why}.")
+    setdiff(poss, hit)
+  }
+  if(manynet::net_nodes(.data) >= 100)
+    poss <- exclude(poss, "node_in_betweenness", "network rather large")
+  if(!manynet::is_connected(.data))
+    poss <- exclude(poss, c("node_in_spinglass", "node_in_fluid"),
+                    "network unconnected")
+  if(manynet::is_directed(.data))
+    poss <- exclude(poss, c("node_in_louvain",
+                            "node_in_leiden",
+                            "node_in_labels",
+                            "node_in_partition",
+                            "node_in_eigen"), "network directed")
+  poss
+}
+
+# Runs one algorithm by name.
+# Where `k` was requested the algorithm warns when it cannot reach it, which
+# the caller reports once instead.
+run_alg <- function(alg, .data, k, max_k){
+  if(is.null(k)) get(alg)(.data) else
+    suppressWarnings(get(alg)(.data, k = k, max_k = max_k))
+}
+
+# The algorithms that return a different partition on a second run.
+STOCHASTIC_ALGS <- c("node_in_infomap", "node_in_spinglass", "node_in_fluid",
+                     "node_in_louvain", "node_in_leiden", "node_in_labels")
+
+# The proportion of the given partitions in which each pair of nodes falls in
+# the same group. `.to_cliques()` marks the pairs within one partition.
+coassociation <- function(parts, n){
+  out <- matrix(0, n, n)
+  for(p in parts) out <- out + .to_cliques(as.integer(factor(p)))
+  out/length(parts)
+}
+
+# Combines many partitions into one, after Lancichinetti and Fortunato (2012).
+# The algorithms are rerun on the co-association matrix until every pair either
+# always or never shares a group, at which point the groups are its components.
+consensus_memb <- function(.data, k, max_k, times, threshold = 0.5, iter = 10){
+  n <- manynet::net_nodes(.data)
+  gr <- .data
+  cons <- NULL
+  for(i in seq_len(iter)){
+    algs <- poss_algs(k, gr)
+    parts <- unlist(lapply(algs, function(alg){
+      reps <- if(alg %in% STOCHASTIC_ALGS) times else 1L
+      lapply(seq_len(reps), function(r) run_alg(alg, gr, k, max_k))
+    }), recursive = FALSE)
+    cons <- coassociation(parts, n)
+    cons[cons < threshold] <- 0
+    if(all(cons == 0 | cons == 1)) break
+    gr <- igraph::graph_from_adjacency_matrix(cons, mode = "undirected",
+                                              weighted = TRUE, diag = FALSE)
+  }
+  igraph::components(
+    igraph::graph_from_adjacency_matrix(cons >= threshold,
+                                        mode = "undirected",
+                                        diag = FALSE))$membership
+}
+
 #' Memberships in communities
 #' @name member_community
 #' @description
-#'   `node_in_community()` runs through all available community detection algorithms 
-#'   for a given network type, finds the algorithm that returns the
-#'   largest modularity score, and returns the corresponding membership
-#'   partition.
+#'   `node_in_community()` returns a single community partition of a network,
+#'   drawing on all the community detection algorithms available for that
+#'   type of network.
+#'   
+#'   By default it *selects* a partition.
 #'   Where feasible (a small enough network), the optimal problem solving
 #'   technique is used to ensure the maximal modularity partition.
-#'   For larger networks, it identifies the applicable algorithms and 
-#'   finds the algorithm that maximises modularity and 
-#'   returns that membership vector.
+#'   For larger networks, it identifies the applicable algorithms, 
+#'   runs each of them, and returns the partition with the largest
+#'   modularity score.
+#'   
+#'   Where `consensus = TRUE` it *combines* the partitions instead.
+#'   Each applicable algorithm is run, the stochastic ones repeatedly,
+#'   and the algorithms are then rerun on how often each pair of nodes
+#'   is placed together until they agree.
+#'   This costs considerably more time than selection,
+#'   but does not rest the answer on a single run of a single algorithm.
 #'   
 #' @template param_data
+#' @template param_k
+#' @param consensus Logical, whether to combine the partitions of all the
+#'   applicable algorithms instead of selecting the one with the highest
+#'   modularity. By default `FALSE`, since combining them costs more time.
+#'   This argument is ignored on a network small enough for
+#'   `node_in_optimal()`, which already returns the maximum modularity
+#'   partition.
+#' @template param_times
+#' @details
+#'   `times` applies only when `consensus = TRUE`, and is 20 by default.
+#'   Deterministic algorithms are run once however it is set.
 #' @family community
 #' @template node_member
+#' @references
+#' ## On consensus community detection
+#' Lancichinetti, Andrea, and Santo Fortunato. 2012.
+#' "Consensus clustering in complex networks".
+#' _Scientific Reports_ 2: 336.
+#' \doi{10.1038/srep00336}
+#' 
+#' Tagarelli, Andrea, Alessia Amelio, and Francesco Gullo. 2017.
+#' "Ensemble-based Community Detection in Multilayer Networks".
+#' _Data Mining and Knowledge Discovery_ 31: 1506-1543.
+#' \doi{10.1007/s10618-017-0528-8}
 NULL
 
 #' @rdname member_community
+#' @examples
+#' node_in_community(ison_adolescents)
 #' @export
-node_in_community <- function(.data){
+node_in_community <- function(.data, k = NULL, max_k = 8L,
+                              consensus = FALSE, times = 20, Kmax = NULL){
+  max_k <- resolve_max_k(max_k, Kmax)
   .data <- manynet::expect_nodes(.data)
-  if(manynet::net_nodes(.data)<100){
+  k <- check_k(k, .data)
+  if(is.null(k) && manynet::net_nodes(.data)<100){
     # don't use node_in_betweenness because slow and poorer quality to optimal
+    if(consensus)
+      manynet::snet_info("Ignoring {.arg consensus} because {.fn node_in_optimal}",
+                         "already returns the maximum modularity partition.")
     manynet::snet_success("{.fn node_in_optimal} available and", 
                           "will return the highest modularity partition.")
     netrics::node_in_optimal(.data)
+  } else if(consensus){
+    # `apply_k()` is not used here because its `at_k()` would rerun the whole
+    # consensus for every candidate number of groups. The constituent
+    # algorithms are given `k` instead, and the result merged only if it
+    # overshoots.
+    memb <- consensus_memb(.data, k, max_k, times)
+    if(is.numeric(k) && length(unique(memb)) > k)
+      memb <- merge_to_k(.data, memb, k)
+    make_node_member(report_k(memb, k), .data)
   } else {
-    manynet::snet_info("Excluding {.fn node_in_optimal} because network rather large.")
-    poss_algs <- c("node_in_infomap",
-                   "node_in_spinglass",
-                   "node_in_fluid",
-                   "node_in_louvain",
-                   "node_in_leiden",
-                   "node_in_greedy",
-                   "node_in_eigen",
-                   "node_in_walktrap")
-    if(!manynet::is_connected(.data)){
-      notforconnected <- c("node_in_spinglass", 
-                           "node_in_fluid")
-      manynet::snet_info("Excluding {.fn {notforconnected}} because network unconnected.")
-      poss_algs <- setdiff(poss_algs, notforconnected)
-    }
-    if(manynet::is_directed(.data)){
-      notfordirected <- c("node_in_louvain", 
-                          "node_in_leiden",
-                          "node_in_eigen")
-      manynet::snet_info("Excluding {.fn {notfordirected}} because network directed.")
-      poss_algs <- setdiff(poss_algs, notfordirected)
-    }
-    manynet::snet_info("Considering each of {.fn {poss_algs}}.")
-    candidates <- lapply(manynet::snet_progress_along(poss_algs), function(comm){
-      memb <- get(poss_algs[comm])(.data)
+    poss <- poss_algs(k, .data)
+    manynet::snet_info("Considering each of {.fn {poss}}.")
+    # `snet_progress_along()` returns nothing unless verbosity is "verbose",
+    # so fall back to a plain sequence to keep the loop running when quiet
+    idx <- manynet::snet_progress_along(poss)
+    if(length(idx) != length(poss)) idx <- seq_along(poss)
+    candidates <- lapply(idx, function(comm){
+      memb <- run_alg(poss[comm], .data, k, max_k)
       mod <- net_by_modularity(.data, memb)
       list(memb, mod)
     })
     mods <- unlist(sapply(candidates, "[", 2))
     maxmod <- which.max(mods)
-    manynet::snet_success("{.fn {poss_algs[maxmod]}} returns the highest modularity ({round(mods[maxmod],3)}).")
-    candidates[[maxmod]][[1]]
+    manynet::snet_success("{.fn {poss[maxmod]}} returns the highest modularity ({round(mods[maxmod],3)}).")
+    out <- candidates[[maxmod]][[1]]
+    if(is.numeric(k) && length(unique(out)) != k)
+      manynet::snet_warn("No available algorithm returns {k} communities here.",
+                         "Returning {length(unique(out))} instead.")
+    out
   }
 }
-
-# #' @rdname member_community_hier 
-# #' @section Ensemble:
-# #'   Ensemble-based community detection runs community detection
-# #'   algorithms over multilayer or multiplex networks.
-# #' @references
-# #' ## On ensemble-based community detection
-# #' Tagarelli, Andrea, Alessia Amelio, and Francesco Gullo. 2017.
-# #' "Ensemble-based Community Detection in Multilayer Networks".
-# #' _Data Mining and Knowledge Discovery_, 31: 1506-1543.
-# #' \doi{10.1007/s10618-017-0528-8}
-# #' @examples
-# #' node_in_ensemble(ison_adolescents)
-# #' @export
-# node_in_ensemble <- function(.data, linkage_constraint = TRUE){
-#   if(missing(.data)) {expect_nodes(); .data <- .G()}
-#   clust <- igraph::cluster_walktrap(manynet::as_igraph(.data))
-#   out <- clust$membership
-#   make_node_member(out, .data)
-#   out <- make_node_member(out, .data)
-#   attr(out, "hc") <- stats::as.hclust(clust, 
-#                                       use.modularity = igraph::is_connected(.data))
-#   attr(out, "k") <- max(clust$membership)
-#   out
-# }
 
 # Non-hierarchical community clustering ####
 
@@ -107,14 +346,17 @@ node_in_community <- function(.data){
 #'   based on analogy to model from fluid dynamics.
 #'   - `node_in_louvain()` is an agglomerative multilevel algorithm that seeks to maximise 
 #'   modularity over all possible partitions.
-#'   - `node_in_leiden()` is an agglomerative multilevel algorithm that seeks to maximise 
+#'   - `node_in_leiden()` is an agglomerative multilevel algorithm that seeks to maximise
 #'   the Constant Potts Model over all possible partitions.
-#'  
+#'   - `node_in_labels()` is a fast, propagation-based algorithm in which nodes
+#'   iteratively adopt whichever community label is most common among their neighbours.
+#'
 #'   The different algorithms offer various advantages in terms of computation time,
 #'   availability on different types of networks, ability to maximise modularity,
 #'   and their logic or domain of inspiration.
 #'   
 #' @template param_data
+#' @template param_k
 #' @family community
 #' @template node_member
 NULL
@@ -150,10 +392,12 @@ node_in_optimal <- function(.data){
 #'   where the net tie cost of a node is the difference between the sum 
 #'   of the weights of ties to nodes in the other group (external costs) and 
 #'   the sum of the weights of ties to nodes in the same group (internal costs).
+#'   Where `k` is greater than two, the same swap pass is run for every pair of
+#'   groups, and the rounds repeat until no swap improves the partition.
 #'   This is a deterministic algorithm that will always return the same partition 
 #'   for a given network, but it is not guaranteed to maximise modularity.
 #'   Note that this algorithm is only applicable to undirected, unipartite networks, 
-#'   and will always return two communities of equal size (or as close to equal as possible).
+#'   and returns `k` communities of equal size (or as close to equal as possible).
 #' @references
 #' ## On partitioning community detection
 #' Kernighan, Brian W., and Shen Lin. 1970.
@@ -164,50 +408,60 @@ node_in_optimal <- function(.data){
 #' node_in_partition(ison_adolescents)
 #' node_in_partition(ison_southern_women)
 #' @export
-node_in_partition <- function(.data){
+node_in_partition <- function(.data, k = 2L, max_k = 8L, Kmax = NULL){
+  max_k <- resolve_max_k(max_k, Kmax)
   .data <- manynet::expect_nodes(.data)
-  # assign groups arbitrarily
+  k <- check_k(k, .data)
   n <- manynet::net_nodes(.data)
-  group_size <- ifelse(n %% 2 == 0, n/2, (n+1)/2)
-  
-  # count internal and external costs of each node
   g <- manynet::as_matrix(manynet::to_multilevel(.data))
-  g1 <- g[1:group_size, 1:group_size]
-  g2 <- g[(group_size+1):n, (group_size+1):n]
-  intergroup <- g[1:group_size, (group_size+1):n]
-  
-  g2.intcosts <- rowSums(g2)
-  g2.extcosts <- colSums(intergroup)
-  
-  g1.intcosts <- rowSums(g1)
-  g1.extcosts <- rowSums(intergroup)
-  
-  # count edge costs of each nodes
-  g1.net <- g1.extcosts - g1.intcosts
-  g2.net <- g2.extcosts - g2.intcosts
-  
-  g1.net <- sort(g1.net, decreasing = TRUE)
-  g2.net <- sort(g2.net, decreasing = TRUE)
-  
-  # swap pairs of nodes (one from each group) that give a positive sum of net tie costs
-  if(length(g1.net)!=length(g2.net)) {
-    g2.net <- c(g2.net,0)
-  } else {g2.net}
-  
-  sums <- as.integer(unname(g1.net + g2.net))
-  # positions in sequence of names at which sum >= 0
-  index <- which(sums >= 0 %in% sums)
-  g1.newnames <- g1.names <- names(g1.net)
-  g2.newnames <- g2.names <- names(g2.net)
-  # make swaps based on positions in sequence
-  for (i in index) {
-    g1.newnames[i] <- g2.names[i]
-    g2.newnames[i] <- g1.names[i]
+  at_k <- function(no) kl_partition(g, n, no)
+  memb <- apply_k(k, max_k, .data, at_k = at_k, default = function() at_k(2L))
+  make_node_member(memb, .data)
+}
+
+# One pass of net-cost swaps between two groups.
+# The net cost of a node is the sum of the weights of its ties to the other
+# group (external) less the sum of the weights of its ties within its own
+# group (internal). Pairs whose net costs sum to zero or more are swapped.
+kl_swap <- function(g, a, b){
+  intergroup <- g[a, b, drop = FALSE]
+  a.net <- rowSums(intergroup) - rowSums(g[a, a, drop = FALSE])
+  b.net <- colSums(intergroup) - rowSums(g[b, b, drop = FALSE])
+  a.ord <- a[order(a.net, decreasing = TRUE)]
+  b.ord <- b[order(b.net, decreasing = TRUE)]
+  a.sort <- sort(a.net, decreasing = TRUE)
+  b.sort <- sort(b.net, decreasing = TRUE)
+  len <- min(length(a.sort), length(b.sort))
+  if(len == 0) return(list(a = a, b = b, swapped = FALSE))
+  index <- which(a.sort[seq_len(len)] + b.sort[seq_len(len)] >= 0)
+  if(length(index) == 0) return(list(a = a, b = b, swapped = FALSE))
+  a.new <- a.ord
+  b.new <- b.ord
+  a.new[index] <- b.ord[index]
+  b.new[index] <- a.ord[index]
+  list(a = a.new, b = b.new, swapped = TRUE)
+}
+
+# k-way Kernighan-Lin. Nodes start in k groups of near-equal size, in node
+# order, and every pair of groups is swept until no round makes a swap.
+kl_partition <- function(g, n, k, rounds = 50){
+  memb <- sort(rep(seq_len(k), length.out = n))
+  groups <- lapply(seq_len(k), function(i) which(memb == i))
+  for(r in seq_len(rounds)){
+    moved <- FALSE
+    for(i in seq_len(k)) for(j in seq_len(k)) if(i < j){
+      res <- kl_swap(g, groups[[i]], groups[[j]])
+      if(res$swapped){
+        groups[[i]] <- res$a
+        groups[[j]] <- res$b
+        moved <- TRUE
+      }
+    }
+    if(!moved) break
   }
-  
-  # extract names of vertices in each group after swaps
-  out <- ifelse(manynet::node_names(.data) %in% g1.newnames, 1, 2)
-  make_node_member(out, .data)
+  out <- integer(n)
+  for(i in seq_len(k)) out[groups[[i]]] <- i
+  out
 }
 
 #' @rdname member_community_non 
@@ -216,8 +470,7 @@ node_in_partition <- function(.data){
 #'   a grouping that provides the shortest description length for a random walk,
 #'   where the description length is measured by the expected number of bits 
 #'   per node required to encode the path.
-#' @param times Integer indicating number of simulations/walks used.
-#'   By default, `times=50`.
+#' @template param_times
 #' @references
 #' ## On infomap community detection
 #' Rosvall, M, and C. T. Bergstrom. 2008.
@@ -241,13 +494,14 @@ node_in_infomap <- function(.data, times = 50){
 }
 
 #' @rdname member_community_non 
-#' @param max_k Integer constant, the number of spins to use as an upper limit
-#'   of communities to be found. Some sets can be empty at the end.
 #' @param resolution The Reichardt-Bornholdt “gamma” resolution parameter for modularity.
 #'   By default 1, making existing and non-existing ties equally important.
 #'   Smaller values make existing ties more important,
 #'   and larger values make missing ties more important.
 #' @section Spin-glass:
+#'   Here `max_k` is the number of spins, an upper limit on the communities
+#'   found rather than a bound on a search, so some can end up empty.
+#'   
 #'   This is motivated by analogy to the Potts model in statistical physics.
 #'   Each node can be in one of _k_ "spin states",
 #'   and ties (particle interactions) provide information about which pairs of nodes 
@@ -272,16 +526,19 @@ node_in_infomap <- function(.data, times = 50){
 #' @export
 node_in_spinglass <- function(.data, max_k = 200, resolution = 1){
   .data <- manynet::expect_nodes(.data)
-  if(!igraph::is_connected(.data)) # note manynet::is_connected will return false
-    manynet::snet_unavailable("This algorithm only works for connected networks.",
-                     "We suggest using `to_giant()`", 
-                     "to select the largest component.") else {
-      out <- igraph::cluster_spinglass(manynet::as_igraph(.data), 
-                                       spins = max_k, gamma = resolution,
-                                       implementation = ifelse(manynet::is_signed(.data), "neg", "orig")
-      )$membership
-      make_node_member(out, .data)
-    }
+  # `snet_unavailable()` is silent unless verbosity is raised, so this was a
+  # branch that returned NULL rather than a membership. Note also that
+  # `manynet::is_connected()` returns FALSE for a two-mode network, so the
+  # test is made with igraph.
+  if(!igraph::is_connected(manynet::as_igraph(.data)))
+    manynet::snet_abort("This algorithm only works for connected networks.",
+                        "We suggest using {.fn to_giant}",
+                        "to select the largest component.")
+  out <- igraph::cluster_spinglass(manynet::as_igraph(.data), 
+                                   spins = max_k, gamma = resolution,
+                                   implementation = ifelse(manynet::is_signed(.data), "neg", "orig")
+  )$membership
+  make_node_member(out, .data)
 }
 
 #' @rdname member_community_non 
@@ -301,14 +558,18 @@ node_in_spinglass <- function(.data, max_k = 200, resolution = 1){
 #' @examples
 #' node_in_fluid(ison_adolescents)
 #' @export
-node_in_fluid <- function(.data) {
+node_in_fluid <- function(.data, k = NULL, max_k = 8L, Kmax = NULL) {
+  max_k <- resolve_max_k(max_k, Kmax)
   .data <- manynet::expect_nodes(.data)
+  k <- check_k(k, .data)
   .data <- manynet::as_igraph(.data)
+  # As in `node_in_spinglass()`: this must abort, or the function returns NULL.
   if (!igraph::is_connected(.data)) {
-    manynet::snet_unavailable("This algorithm only works for connected networks.",
-                     "We suggest using `to_giant()`", 
-                     "to select the largest component.")
-  } else {
+    manynet::snet_abort("This algorithm only works for connected networks.",
+                        "We suggest using {.fn to_giant}",
+                        "to select the largest component.")
+  }
+  {
     if(manynet::is_complex(.data)){
       manynet::snet_info("This algorithm only works for simple networks.", 
                       "Converting to simplex.")
@@ -319,13 +580,16 @@ node_in_fluid <- function(.data) {
                       "Converting to undirected")
       .data <- manynet::to_undirected(.data)
     }
-    mods <- vapply(seq_nodes(.data), function(x)
-      igraph::modularity(.data, membership = igraph::membership(
-        igraph::cluster_fluid_communities(.data, x))),
-      FUN.VALUE = numeric(1))
-    out <- igraph::membership(igraph::cluster_fluid_communities(
-      .data, no.of.communities = which.max(mods)))
-    make_node_member(out, .data)
+    at_k <- function(no) igraph::membership(
+      igraph::cluster_fluid_communities(.data, no.of.communities = no))
+    memb <- apply_k(k, max_k, .data, at_k = at_k, default = function(){
+      mods <- vapply(seq_nodes(.data), function(x)
+        igraph::modularity(.data, membership = igraph::membership(
+          igraph::cluster_fluid_communities(.data, x))),
+        FUN.VALUE = numeric(1))
+      at_k(which.max(mods))
+    })
+    make_node_member(memb, .data)
   }
 }
 
@@ -337,6 +601,8 @@ node_in_fluid <- function(.data) {
 #'   When no further modularity-increasing reassignments are possible, 
 #'   the resulting communities are considered nodes (like a reduced graph),
 #'   and the process continues.
+#'   Where `k` is given, the resolution parameter is searched for the value
+#'   that returns that number of communities, and `resolution` is ignored.
 #' @references
 #' ## On Louvain community detection
 #' Blondel, Vincent, Jean-Loup Guillaume, Renaud Lambiotte, Etienne Lefebvre. 2008.
@@ -345,17 +611,21 @@ node_in_fluid <- function(.data) {
 #' @examples
 #' node_in_louvain(ison_adolescents)
 #' @export
-node_in_louvain <- function(.data, resolution = 1){
+node_in_louvain <- function(.data, k = NULL, max_k = 8L, resolution = 1, Kmax = NULL){
+  max_k <- resolve_max_k(max_k, Kmax)
   .data <- manynet::expect_nodes(.data)
+  k <- check_k(k, .data)
   if(manynet::is_directed(.data)){
     manynet::snet_info("This algorithm only works for undirected networks.", 
               "Converting to undirected")
     .data <- manynet::to_undirected(.data)
   }
-  out <- igraph::cluster_louvain(manynet::as_igraph(.data), 
-                                resolution = resolution
-  )$membership
-  make_node_member(out, .data)
+  gr <- manynet::as_igraph(.data)
+  memb <- apply_k(k, max_k, .data,
+                  at_k = function(no) cut_res(igraph::cluster_louvain, gr, no),
+                  default = function()
+                    igraph::cluster_louvain(gr, resolution = resolution)$membership)
+  make_node_member(memb, .data)
 }
 
 #' @rdname member_community_non 
@@ -375,6 +645,8 @@ node_in_louvain <- function(.data, resolution = 1){
 #'   _i_ and _j_ are in the same communities and 0 otherwise.
 #'   Compared to the Louvain method, the Leiden algorithm additionally
 #'   tries to avoid unconnected communities.
+#'   Where `k` is given, the resolution parameter is searched for the value
+#'   that returns that number of communities, and `resolution` is ignored.
 #' @references
 #' ## On Leiden community detection
 #' Traag, Vincent A., Ludo Waltman, and Nees Jan van Eck. 2019. 
@@ -384,21 +656,87 @@ node_in_louvain <- function(.data, resolution = 1){
 #' @examples
 #' node_in_leiden(ison_adolescents)
 #' @export
-node_in_leiden <- function(.data, resolution = 1){
+node_in_leiden <- function(.data, k = NULL, max_k = 8L, resolution = 1, Kmax = NULL){
+  max_k <- resolve_max_k(max_k, Kmax)
   .data <- manynet::expect_nodes(.data)
+  k <- check_k(k, .data)
   if(manynet::is_directed(.data)){
     manynet::snet_info("This algorithm only works for undirected networks.", 
               "Converting to undirected")
     .data <- manynet::to_undirected(.data)
   }
-  if(manynet::is_weighted(.data)){ # Traag resolution default
+  if(is.null(k) && manynet::is_weighted(.data)){ # Traag resolution default
     n <- manynet::net_nodes(.data)
     resolution <- sum(manynet::tie_weights(.data))/(n*(n - 1)/2)
   }
-  out <- igraph::cluster_leiden(manynet::as_igraph(.data), 
-                                resolution = resolution
-  )$membership
-  make_node_member(out, .data)
+  gr <- manynet::as_igraph(.data)
+  memb <- apply_k(k, max_k, .data,
+                  at_k = function(no) cut_res(igraph::cluster_leiden, gr, no),
+                  default = function()
+                    igraph::cluster_leiden(gr, resolution = resolution)$membership)
+  make_node_member(memb, .data)
+}
+
+#' @rdname member_community_non
+#' @section Label propagation:
+#'   Every node is initially given a unique label.
+#'   Nodes are then visited in random order, each adopting whichever label is
+#'   most frequent among its neighbours, until no node has a label that a
+#'   majority of its neighbours does not share.
+#'   Densely connected groups quickly converge on a common label,
+#'   which is what makes the communities.
+#'
+#'   This is the fastest of the algorithms here, running in near-linear time,
+#'   which makes it useful on large networks where the others are infeasible.
+#'   The trade-off is that it is stochastic: because both the visiting order and
+#'   ties between equally frequent labels are broken at random, repeated runs on
+#'   the same network can return different partitions,
+#'   and on sparse networks it may return a single community.
+#'   Set a seed for reproducibility, or use `node_in_community()` to select
+#'   among algorithms by modularity.
+#'
+#'   Where `k` is given, the algorithm becomes semi-supervised.
+#'   The `k` nodes of highest degree are each given a distinct, fixed label,
+#'   every other node starts with a label of its own,
+#'   and propagation runs as normal.
+#'   Seeding alone tends to leave more than `k` labels standing,
+#'   so any surplus groups are then merged in the order that best preserves
+#'   modularity, until exactly `k` communities remain.
+#' @references
+#' ## On label propagation community detection
+#' Raghavan, Usha Nandini, Reka Albert, and Soundar Kumara. 2007.
+#' "Near linear time algorithm to detect community structures in large-scale networks",
+#' _Physical Review E_, 76(3):036106.
+#' \doi{10.1103/PhysRevE.76.036106}
+#' @examples
+#' node_in_labels(ison_adolescents)
+#' @export
+node_in_labels <- function(.data, k = NULL, max_k = 8L, Kmax = NULL){
+  max_k <- resolve_max_k(max_k, Kmax)
+  .data <- manynet::expect_nodes(.data)
+  k <- check_k(k, .data)
+  if(manynet::is_directed(.data)){
+    manynet::snet_info("This algorithm only works for undirected networks.",
+              "Converting to undirected")
+    .data <- manynet::to_undirected(.data)
+  }
+  gr <- manynet::as_igraph(.data)
+  n <- manynet::net_nodes(.data)
+  at_k <- function(no){
+    if(no >= n) return(seq_len(n))
+    seeds <- order(igraph::degree(gr), decreasing = TRUE)[seq_len(no)]
+    init <- seq_len(n)
+    init[seeds] <- seq_len(no)
+    init[-seeds] <- (no + 1):n
+    fixed <- rep(FALSE, n)
+    fixed[seeds] <- TRUE
+    memb <- suppressWarnings(igraph::cluster_label_prop(
+      gr, initial = init, fixed = fixed)$membership)
+    merge_to_k(.data, memb, no)
+  }
+  memb <- apply_k(k, max_k, .data, at_k = at_k,
+                  default = function() igraph::cluster_label_prop(gr)$membership)
+  make_node_member(memb, .data)
 }
 
 # Hierarchical community clustering ####
@@ -423,6 +761,7 @@ node_in_leiden <- function(.data, resolution = 1){
 #'   and their logic or domain of inspiration.
 #'   
 #' @template param_data
+#' @template param_k
 #' @template node_member
 #' @family community
 NULL
@@ -446,18 +785,22 @@ NULL
 #' @examples
 #' node_in_betweenness(ison_adolescents)
 #' @export
-node_in_betweenness <- function(.data){
+node_in_betweenness <- function(.data, k = NULL, max_k = 8L, Kmax = NULL){
+  max_k <- resolve_max_k(max_k, Kmax)
   .data <- manynet::expect_nodes(.data)
+  k <- check_k(k, .data)
   if(manynet::net_nodes(.data)>100) 
     manynet::snet_warn("This algorithm may take some time", 
                                 "or even run out of memory on such a large network.")
   clust <- suppressWarnings(igraph::cluster_edge_betweenness(
     manynet::as_igraph(.data)))
-  out <- clust$membership
-  out <- make_node_member(out, .data)
+  memb <- apply_k(k, max_k, .data,
+                  at_k = function(no) cut_tree(clust, no),
+                  default = function() clust$membership)
+  out <- make_node_member(memb, .data)
   attr(out, "hc") <- stats::as.hclust(clust, 
                                       use.modularity = igraph::is_connected(.data))
-  attr(out, "k") <- max(clust$membership)
+  attr(out, "k") <- length(unique(memb))
   out
 }
 
@@ -479,15 +822,18 @@ node_in_betweenness <- function(.data){
 #' @examples
 #' node_in_greedy(ison_adolescents)
 #' @export
-node_in_greedy <- function(.data){
+node_in_greedy <- function(.data, k = NULL, max_k = 8L, Kmax = NULL){
+  max_k <- resolve_max_k(max_k, Kmax)
   .data <- manynet::expect_nodes(.data)
+  k <- check_k(k, .data)
   clust <- igraph::cluster_fast_greedy(manynet::to_undirected(manynet::as_igraph(.data)))
-  out <- clust$membership
-  make_node_member(out, .data)
-  out <- make_node_member(out, .data)
+  memb <- apply_k(k, max_k, .data,
+                  at_k = function(no) cut_tree(clust, no),
+                  default = function() clust$membership)
+  out <- make_node_member(memb, .data)
   attr(out, "hc") <- stats::as.hclust(clust, 
                                       use.modularity = igraph::is_connected(.data))
-  attr(out, "k") <- max(clust$membership)
+  attr(out, "k") <- length(unique(memb))
   out
 }
 
@@ -508,19 +854,22 @@ node_in_greedy <- function(.data){
 #' @examples
 #' node_in_eigen(ison_adolescents)
 #' @export
-node_in_eigen <- function(.data){
+node_in_eigen <- function(.data, k = NULL, max_k = 8L, Kmax = NULL){
+  max_k <- resolve_max_k(max_k, Kmax)
   .data <- manynet::expect_nodes(.data)
+  k <- check_k(k, .data)
   if(manynet::is_directed(.data)){
     manynet::snet_info("This algorithm only works for undirected networks.", 
               "Converting to undirected")
     .data <- manynet::to_undirected(.data)
   }
-  clust <- igraph::cluster_leading_eigen(as_igraph(.data))
-  out <- clust$membership
-  make_node_member(out, .data)
-  out <- make_node_member(out, .data)
+  clust <- igraph::cluster_leading_eigen(manynet::as_igraph(.data))
+  memb <- apply_k(k, max_k, .data,
+                  at_k = function(no) cut_tree(clust, no),
+                  default = function() clust$membership)
+  out <- make_node_member(memb, .data)
   attr(out, "hc") <- stats::as.hclust(clust)
-  attr(out, "k") <- max(clust$membership)
+  attr(out, "k") <- length(unique(memb))
   out
 }
 
@@ -530,8 +879,9 @@ node_in_eigen <- function(.data){
 #'   within the same community because few edges lead outside a community.
 #'   By repeating random walks of 4 steps many times,
 #'   information about the hierarchical merging of communities is collected.
-#' @param times Integer indicating number of simulations/walks used.
-#'   By default, `times=50`.
+#' @param steps Integer indicating the length of the random walks.
+#'   By default `steps = 4`, as in `{igraph}`.
+#'   Longer walks reach further and tend to return fewer, larger communities.
 #' @references
 #' ## On walktrap community detection
 #' Pons, Pascal, and Matthieu Latapy. 2005.
@@ -541,15 +891,18 @@ node_in_eigen <- function(.data){
 #' @examples
 #' node_in_walktrap(ison_adolescents)
 #' @export
-node_in_walktrap <- function(.data, times = 50){
+node_in_walktrap <- function(.data, k = NULL, max_k = 8L, steps = 4, Kmax = NULL){
+  max_k <- resolve_max_k(max_k, Kmax)
   .data <- manynet::expect_nodes(.data)
-  clust <- igraph::cluster_walktrap(manynet::as_igraph(.data))
-  out <- clust$membership
-  make_node_member(out, .data)
-  out <- make_node_member(out, .data)
+  k <- check_k(k, .data)
+  clust <- igraph::cluster_walktrap(manynet::as_igraph(.data), steps = steps)
+  memb <- apply_k(k, max_k, .data,
+                  at_k = function(no) cut_tree(clust, no),
+                  default = function() clust$membership)
+  out <- make_node_member(memb, .data)
   attr(out, "hc") <- stats::as.hclust(clust, 
                                       use.modularity = igraph::is_connected(.data))
-  attr(out, "k") <- max(clust$membership)
+  attr(out, "k") <- length(unique(memb))
   out
 }
 

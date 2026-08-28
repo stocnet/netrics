@@ -26,15 +26,22 @@ node_by_hierarchy(.data)
 node_by_neighbours_degree(.data)
 }
 \arguments{
-\item{.data}{A network object of class \code{mnet}, \code{igraph}, \code{tbl_graph}, \code{network}, or similar.
-For more information on the standard coercion possible,
-see \code{\link[manynet:as_tidygraph]{manynet::as_tidygraph()}}.}
+\item{.data}{A network object of class \code{stocnet}, \code{igraph}, \code{tbl_graph}, \code{network}, or similar.
+Internally any of these will be coerced to an efficient implementation.
+For more information on possible coercions, see e.g. \code{\link[manynet:as_stocnet]{manynet::as_stocnet()}}.}
 }
 \value{
 A \code{node_measure} numeric vector the length of the nodes in the network,
 providing the scores for each node.
 If the network is labelled,
 then the scores will be labelled with the nodes' names.
+
+The object also carries the \code{measure} it computed, the \code{range} its values
+can fall within, and whether and how those values were \code{normalized}.
+These are shown as a one-line header when the object is printed.
+Where a measure offers a choice between several ways of counting the
+same thing, it also carries the \code{variant} it used.
+All can be retrieved with \code{attr()}.
 }
 \description{
 These function provide different measures of the degree to which nodes
@@ -67,6 +74,15 @@ where \eqn{t} is the sum of ties and \eqn{n} the sum of nodes in each node's nei
 and effective size is calculated as \eqn{n - \frac{2t}{n}}.
 Node efficiency is the node's effective size divided by its degree.
 }
+\section{Constraint}{
+
+Constraint has a natural floor at 0, for a node whose contacts are wholly
+unconnected to one another, but no clean ceiling: the standard result is
+that it can reach around 1.125 for one-mode networks, and the two-mode
+form is a different summation again. Its declared range is therefore left
+open above rather than asserting a bound the measure can exceed.
+}
+
 \examples{
 node_by_bridges(ison_adolescents)
 node_by_bridges(ison_southern_women)
@@ -127,10 +143,10 @@ Other measures:
 \code{\link{measure_central_close}},
 \code{\link{measure_central_degree}},
 \code{\link{measure_central_eigen}},
-\code{\link{measure_centralities_between}},
-\code{\link{measure_centralities_close}},
-\code{\link{measure_centralities_degree}},
-\code{\link{measure_centralities_eigen}},
+\code{\link{measure_central_tie_between}},
+\code{\link{measure_central_tie_close}},
+\code{\link{measure_central_tie_degree}},
+\code{\link{measure_central_tie_eigen}},
 \code{\link{measure_closure}},
 \code{\link{measure_closure_node}},
 \code{\link{measure_cohesion}},
@@ -141,6 +157,7 @@ Other measures:
 \code{\link{measure_diverse_net}},
 \code{\link{measure_diverse_node}},
 \code{\link{measure_features}},
+\code{\link{measure_fit}},
 \code{\link{measure_fragmentation}},
 \code{\link{measure_hierarchy}},
 \code{\link{measure_periods}}
@@ -171,6 +188,8 @@ Other nodal:
 \code{\link{member_diffusion}},
 \code{\link{member_equivalence}},
 \code{\link{motif_brokerage_node}},
+\code{\link{motif_clique}},
+\code{\link{motif_composition}},
 \code{\link{motif_exposure}},
 \code{\link{motif_node}},
 \code{\link{motif_path}}

@@ -2,6 +2,24 @@ test_that("network components works", {
   expect_equal(as.numeric(net_by_components(ison_adolescents)), 1)
 })
 
+test_that("net_by_components' connectivity argument works", {
+  # a directed acyclic network has one weak component but as many strong
+  # components as it has nodes, so the two connectivities must differ
+  dag <- manynet::create_tree(6, directed = TRUE)
+  expect_equal(as.numeric(net_by_components(dag, connectivity = "weak")), 1)
+  expect_equal(as.numeric(net_by_components(dag, connectivity = "strong")),
+               as.numeric(manynet::net_nodes(dag)))
+  # the no-argument call is unchanged, that is, strong
+  expect_equal(as.numeric(net_by_components(dag)),
+               as.numeric(net_by_components(dag, connectivity = "strong")))
+  # connectivity is ignored for undirected networks
+  expect_equal(as.numeric(net_by_components(ison_adolescents,
+                                            connectivity = "strong")),
+               as.numeric(net_by_components(ison_adolescents,
+                                            connectivity = "weak")))
+  expect_error(net_by_components(dag, connectivity = "loose"))
+})
+
 test_that("network cohesion works", {
   expect_equal(as.numeric(net_by_cohesion(ison_southern_women)), 2)
 })
@@ -29,4 +47,83 @@ test_that("net_strength works", {
 
 test_that("net_toughness works", {
   expect_values(net_by_toughness(ison_adolescents), 0.5)
+})
+test_that("network compactness works", {
+  expect_equal(as.numeric(net_by_compactness(create_filled(10))), 1)
+  expect_equal(as.numeric(net_by_compactness(create_empty(10))), 0)
+  # compactness discriminates where connectedness cannot:
+  # both are fully connected, but the star is more compact than the ring
+  expect_gt(as.numeric(net_by_compactness(create_star(10))),
+            as.numeric(net_by_compactness(create_ring(10))))
+  expect_equal(as.numeric(net_by_connectedness(create_star(10))),
+               as.numeric(net_by_connectedness(create_ring(10))))
+  expect_values(net_by_compactness(ison_adolescents), 0.616)
+  expect_values(net_by_compactness(ison_southern_women), 0.515)
+  # compactness is the network-level counterpart of harmonic centrality,
+  # and is the quantity known elsewhere as global efficiency
+  expect_equal(as.numeric(net_by_compactness(ison_adolescents)),
+               mean(as.numeric(node_by_harmonic(ison_adolescents,
+                                                normalized = TRUE,
+                                                cutoff = -1))))
+})
+
+test_that("net_by_compactness respects tie direction", {
+  # igraph's default distance mode ignores direction, which would treat a
+  # directed network as though every tie ran both ways
+  dir <- to_unweighted(ison_networkers)
+  expect_false(isTRUE(all.equal(
+    as.numeric(net_by_compactness(dir)),
+    as.numeric(net_by_compactness(to_undirected(dir))))))
+  # a one-way chain is less compact than the same chain reciprocated
+  chain <- matrix(0, 4, 4)
+  chain[cbind(1:3, 2:4)] <- 1
+  expect_lt(as.numeric(net_by_compactness(chain)),
+            as.numeric(net_by_compactness(chain + t(chain))))
+})
+
+test_that("path measures work on a network holding signs as negative weights", {
+  # `fict_marvel` is signed but not weighted, so its ties reach igraph as a
+  # `weight` attribute of -1 and 1, which igraph would read as a distance
+  expect_true(manynet::is_signed(fict_marvel))
+  expect_false(manynet::is_weighted(fict_marvel))
+  expect_s3_class(net_by_diameter(fict_marvel), "network_measure")
+  expect_s3_class(net_by_length(fict_marvel), "network_measure")
+  expect_s3_class(net_by_compactness(fict_marvel), "network_measure")
+  # each equals the same measure over the positive ties taken explicitly
+  positive <- manynet::to_unsigned(fict_marvel, keep = "positive")
+  expect_equal(as.numeric(net_by_diameter(fict_marvel)),
+               as.numeric(net_by_diameter(positive)))
+  expect_equal(as.numeric(net_by_length(fict_marvel)),
+               as.numeric(net_by_length(positive)))
+  expect_equal(as.numeric(net_by_compactness(fict_marvel)),
+               as.numeric(net_by_compactness(positive)))
+  # and the negative ties really were excluded, not merely stripped of their
+  # weight: a network keeping all 1241 ties but forgetting their signs gives a
+  # different answer from the 960 positive ties alone
+  expect_lt(manynet::net_ties(positive), manynet::net_ties(fict_marvel))
+  # manynet 2.2.3 carries the sign in a 'sign' attribute; 2.3.0 carries it as a
+  # negative 'weight'. Drop whichever this version uses.
+  signless <- manynet::as_igraph(fict_marvel)
+  for (a in intersect(c("weight", "sign"), igraph::edge_attr_names(signless)))
+    signless <- igraph::delete_edge_attr(signless, a)
+  expect_false(isTRUE(all.equal(as.numeric(net_by_length(fict_marvel)),
+                                igraph::mean_distance(signless))))
+})
+
+test_that("an unsigned network is untouched by the sign handling", {
+  expect_values(net_by_diameter(ison_adolescents), 4)
+  expect_values(net_by_length(ison_adolescents), 2.071)
+  expect_values(net_by_compactness(ison_adolescents), 0.616)
+})
+
+test_that("net_by_independence measures a multilevel network whole", {
+  # a multilevel network reports itself as two-mode but has ties within a
+  # mode, so the bipartite projection it used to attempt is invalid
+  expect_true(manynet::is_twomode(fict_actually))
+  expect_true(.is_multilevel(fict_actually))
+  expect_values(net_by_independence(fict_actually), 76)
+  # a genuine two-mode network still gets the projection
+  expect_false(.is_multilevel(ison_southern_women))
+  expect_values(net_by_independence(ison_southern_women), 2)
+  expect_values(net_by_independence(ison_adolescents), 4)
 })

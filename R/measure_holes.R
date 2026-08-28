@@ -52,7 +52,8 @@ node_by_bridges <- function(.data){
   out <- vapply(igraph::V(g), function(ego){
     length(igraph::E(g)[.inc(ego) & tie_is_bridge(g)==1])
   }, FUN.VALUE = numeric(1))
-  make_node_measure(out, .data)
+  make_node_measure(out, .data, measure = "bridges", range = c(0, Inf),
+                    normalization = "none")
 }
 
 #' @rdname measure_broker_node 
@@ -77,7 +78,8 @@ node_by_redundancy <- function(.data){
   } else {
     out <- .redund(manynet::as_matrix(.data))
   }
-  make_node_measure(out, .data)
+  make_node_measure(out, .data, measure = "redundancy", range = c(0, Inf),
+                    normalization = "none")
 }
 
 .redund <- function(.mat){
@@ -118,7 +120,8 @@ node_by_effsize <- function(.data){
     mat <- manynet::as_matrix(.data)
     out <- rowSums(mat>0) - .redund(mat)
   }
-  make_node_measure(out, .data)
+  make_node_measure(out, .data, measure = "effective size", range = c(0, Inf),
+                    normalization = "none")
 }
 
 .twopath_matrix <- function(.data){
@@ -137,7 +140,8 @@ node_by_effsize <- function(.data){
 node_by_efficiency <- function(.data){
   .data <- manynet::expect_nodes(.data)
   out <- node_by_effsize(.data) / node_by_degree(.data, normalized = FALSE)
-  make_node_measure(as.numeric(out), .data)
+  make_node_measure(as.numeric(out), .data, measure = "efficiency",
+                    range = c(0, 1), normalization = "normalized")
 }
 
 #' @rdname measure_broker_node 
@@ -148,6 +152,12 @@ node_by_efficiency <- function(.data){
 #' \doi{10.1007/s10784-019-09464-5}
 #' @examples
 #' node_by_constraint(ison_southern_women)
+#' @section Constraint:
+#'   Constraint has a natural floor at 0, for a node whose contacts are wholly
+#'   unconnected to one another, but no clean ceiling: the standard result is
+#'   that it can reach around 1.125 for one-mode networks, and the two-mode
+#'   form is a different summation again. Its declared range is therefore left
+#'   open above rather than asserting a bound the measure can exceed.
 #' @export 
 node_by_constraint <- function(.data) {
   .data <- manynet::expect_nodes(.data)
@@ -189,7 +199,8 @@ node_by_constraint <- function(.data) {
                               nodes = igraph::V(.data), 
                               weights = NULL)
   }
-  make_node_measure(res, .data)
+  make_node_measure(res, .data, measure = "constraint", range = c(0, Inf),
+                    normalization = "none")
 }
 
 #' @rdname measure_broker_node 
@@ -210,7 +221,8 @@ node_by_hierarchy <- function(.data){
     sum(rj*log(rj)) / (N * log(N))
   }, FUN.VALUE = numeric(1))
   out[is.nan(out)] <- 0
-  make_node_measure(out, .data)
+  make_node_measure(out, .data, measure = "hierarchy", range = c(0, 1),
+                    normalization = "normalized")
 }
 
 #' @rdname measure_broker_node 
@@ -225,7 +237,8 @@ node_by_neighbours_degree <- function(.data){
   .data <- manynet::expect_nodes(.data)
   out <- igraph::knn(manynet::as_igraph(.data),
                               mode = "out")$knn
-  make_node_measure(out, .data)
+  make_node_measure(out, .data, measure = "average neighbour degree",
+                    range = c(0, Inf), normalization = "none")
 }
 
 # Tie holes ####
@@ -236,6 +249,9 @@ node_by_neighbours_degree <- function(.data){
 #'   `tie_by_cohesion()` measures the ratio between common neighbors to ties'
 #'   adjacent nodes and the total number of adjacent nodes,
 #'   where high values indicate ties' embeddedness in dense local environments.
+#'
+#'   A tie whose two endpoints have no other neighbours has nothing to be
+#'   embedded in, and so returns `NaN` rather than 0.
 #'   
 #' @template param_data
 #' @family brokerage
@@ -243,6 +259,8 @@ node_by_neighbours_degree <- function(.data){
 NULL
 
 #' @rdname measure_broker_tie 
+#' @examples
+#' tie_by_cohesion(ison_adolescents)
 #' @export
 tie_by_cohesion <- function(.data){
   .data <- manynet::expect_ties(.data)
@@ -258,5 +276,6 @@ tie_by_cohesion <- function(.data){
           neigh_nodes <- length(unique(c(neigh1, neigh2)))-2
           shared_nodes / neigh_nodes
         } )
-  make_tie_measure(out, .data)
+  make_tie_measure(out, .data, measure = "cohesion", range = c(0, 1),
+                   normalization = "normalized")
 }

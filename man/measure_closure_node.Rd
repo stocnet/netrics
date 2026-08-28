@@ -14,15 +14,22 @@ node_by_transitivity(.data)
 node_by_equivalency(.data)
 }
 \arguments{
-\item{.data}{A network object of class \code{mnet}, \code{igraph}, \code{tbl_graph}, \code{network}, or similar.
-For more information on the standard coercion possible,
-see \code{\link[manynet:as_tidygraph]{manynet::as_tidygraph()}}.}
+\item{.data}{A network object of class \code{stocnet}, \code{igraph}, \code{tbl_graph}, \code{network}, or similar.
+Internally any of these will be coerced to an efficient implementation.
+For more information on possible coercions, see e.g. \code{\link[manynet:as_stocnet]{manynet::as_stocnet()}}.}
 }
 \value{
 A \code{node_measure} numeric vector the length of the nodes in the network,
 providing the scores for each node.
 If the network is labelled,
 then the scores will be labelled with the nodes' names.
+
+The object also carries the \code{measure} it computed, the \code{range} its values
+can fall within, and whether and how those values were \code{normalized}.
+These are shown as a one-line header when the object is printed.
+Where a measure offers a choice between several ways of counting the
+same thing, it also carries the \code{variant} it used.
+All can be retrieved with \code{attr()}.
 }
 \description{
 These functions offer methods for summarising the closure in configurations
@@ -41,9 +48,38 @@ For one-mode networks, shallow wrappers of igraph versions exist via
 For two-mode networks, \code{node_by_equivalency} calculates the proportion of three-paths in the network
 that are closed by fourth tie to establish a "shared four-cycle" structure.
 }
+\section{Node reciprocity}{
+
+A node's reciprocity is the proportion of its ties that are returned.
+Where a network is undirected, including where it is two-mode, there is
+no direction for a tie to be returned along, so every node scores 1.
+This is what \code{net_by_reciprocity()} reports for such a network too.
+}
+
+\section{Node transitivity}{
+
+A node's transitivity is the proportion of its neighbours that are
+themselves connected, which is also known as the \emph{local clustering
+coefficient} of the node.
+}
+
 \examples{
-node_by_reciprocity(to_unweighted(ison_networkers))
+node_by_reciprocity(ison_networkers)
 node_by_transitivity(ison_adolescents)
+}
+\references{
+\subsection{On the local clustering coefficient}{
+
+Watts, Duncan J., and Steven H. Strogatz. 1998.
+"Collective dynamics of 'small-world' networks".
+\emph{Nature} 393(6684): 440-442.
+\doi{10.1038/30918}
+
+Holland, Paul W., and Samuel Leinhardt. 1971.
+"Transitivity in structural models of small groups".
+\emph{Comparative Group Studies} 2(2): 107-124.
+\doi{10.1177/104649647100200201}
+}
 }
 \seealso{
 Other measures:
@@ -57,10 +93,10 @@ Other measures:
 \code{\link{measure_central_close}},
 \code{\link{measure_central_degree}},
 \code{\link{measure_central_eigen}},
-\code{\link{measure_centralities_between}},
-\code{\link{measure_centralities_close}},
-\code{\link{measure_centralities_degree}},
-\code{\link{measure_centralities_eigen}},
+\code{\link{measure_central_tie_between}},
+\code{\link{measure_central_tie_close}},
+\code{\link{measure_central_tie_degree}},
+\code{\link{measure_central_tie_eigen}},
 \code{\link{measure_closure}},
 \code{\link{measure_cohesion}},
 \code{\link{measure_core}},
@@ -70,6 +106,7 @@ Other measures:
 \code{\link{measure_diverse_net}},
 \code{\link{measure_diverse_node}},
 \code{\link{measure_features}},
+\code{\link{measure_fit}},
 \code{\link{measure_fragmentation}},
 \code{\link{measure_hierarchy}},
 \code{\link{measure_periods}}
@@ -100,6 +137,8 @@ Other nodal:
 \code{\link{member_diffusion}},
 \code{\link{member_equivalence}},
 \code{\link{motif_brokerage_node}},
+\code{\link{motif_clique}},
+\code{\link{motif_composition}},
 \code{\link{motif_exposure}},
 \code{\link{motif_node}},
 \code{\link{motif_path}}

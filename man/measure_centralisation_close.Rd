@@ -5,6 +5,8 @@
 \alias{net_by_closeness}
 \alias{mode_by_closeness}
 \alias{net_by_reach}
+\alias{net_by_decay}
+\alias{net_by_integration}
 \alias{net_by_harmonic}
 \title{Measuring networks closeness-like centralisation}
 \usage{
@@ -14,12 +16,16 @@ mode_by_closeness(.data, normalized = TRUE, direction = c("all", "out", "in"))
 
 net_by_reach(.data, normalized = TRUE, cutoff = 2)
 
+net_by_decay(.data, normalized = TRUE, decay = 0.5, direction = c("out", "in"))
+
+net_by_integration(.data, normalized = TRUE, direction = c("in", "out"))
+
 net_by_harmonic(.data, normalized = TRUE, cutoff = 2)
 }
 \arguments{
-\item{.data}{A network object of class \code{mnet}, \code{igraph}, \code{tbl_graph}, \code{network}, or similar.
-For more information on the standard coercion possible,
-see \code{\link[manynet:as_tidygraph]{manynet::as_tidygraph()}}.}
+\item{.data}{A network object of class \code{stocnet}, \code{igraph}, \code{tbl_graph}, \code{network}, or similar.
+Internally any of these will be coerced to an efficient implementation.
+For more information on possible coercions, see e.g. \code{\link[manynet:as_stocnet]{manynet::as_stocnet()}}.}
 
 \item{normalized}{Logical scalar, whether scores are normalized.
 Different denominators may be used depending on the measure,
@@ -30,8 +36,19 @@ By default TRUE.}
 “in” on incoming ties, and "all" on either/the sum of the two.
 By default "all".}
 
-\item{cutoff}{The maximum path length to consider when calculating betweenness.
-If negative or NULL (the default), there's no limit to the path lengths considered.}
+\item{cutoff}{Integer scalar, the maximum path length considered.
+Paths longer than this are ignored, which restricts the measure to a
+node's local neighbourhood.
+Where a measure is defined over all paths by default,
+a negative value or \code{NULL} imposes no limit.}
+
+\item{decay}{A proportion between 0 and 1 giving how much of a contribution
+survives each additional step of distance or walk length.
+Lower values discount more steeply, so that only nearby others count;
+higher values discount less, so that longer walks continue to contribute.
+The measures that take a \code{decay} differ in what they discount and in what
+value leaves the measure in its most familiar form,
+so each documents its own default.}
 }
 \value{
 \verb{net_by_*()} functions return a \code{network_measure} scalar;
@@ -46,7 +63,9 @@ single score.
 mode of a two-mode network, returning one score per mode
 (following Borgatti and Everett, 1997).
 \item \code{net_by_reach()} measures a network's reach centralization.
+\item \code{net_by_decay()} measures a network's decay centralization.
 \item \code{net_by_harmonic()} measures a network's harmonic centralization.
+\item \code{net_by_integration()} measures a network's integration centralization.
 }
 
 All measures attempt to use as much information as they are offered,
@@ -61,9 +80,23 @@ For two-mode networks the two modes have different theoretical maxima, so
 Freeman's general centralization index over the normalized node closeness
 scores, whereas \code{mode_by_closeness()} reports the per-mode scores directly.
 }
+\section{Decay and integration centralization}{
+
+Unlike reach centrality, decay and integration scores are not bounded above
+by \eqn{N-1}: integration scores scale with the network's diameter.
+Freeman's index therefore cannot use the same denominator as
+\code{net_by_reach()}, which would return negative values.
+Instead these apply the general centralization index over the \emph{normalized}
+node scores, each of which lies in \eqn{[0,1]}, so the numerator's maximum
+is \eqn{N-1} and the result is guaranteed to lie in \eqn{[0,1]}.
+This is the same approach \code{net_by_closeness()} takes for two-mode networks.
+}
+
 \examples{
 net_by_closeness(ison_southern_women, direction = "in")
 mode_by_closeness(ison_southern_women, direction = "in")
+net_by_decay(ison_adolescents)
+net_by_integration(ison_adolescents)
 }
 \references{
 Borgatti, Stephen P., and Martin G. Everett. 1997.
@@ -74,20 +107,20 @@ Borgatti, Stephen P., and Martin G. Everett. 1997.
 \seealso{
 Other closeness:
 \code{\link{measure_central_close}},
-\code{\link{measure_centralities_close}}
+\code{\link{measure_central_tie_close}}
 
 Other centrality:
 \code{\link{measure_central_between}},
 \code{\link{measure_central_close}},
 \code{\link{measure_central_degree}},
 \code{\link{measure_central_eigen}},
+\code{\link{measure_central_tie_between}},
+\code{\link{measure_central_tie_close}},
+\code{\link{measure_central_tie_degree}},
+\code{\link{measure_central_tie_eigen}},
 \code{\link{measure_centralisation_between}},
 \code{\link{measure_centralisation_degree}},
-\code{\link{measure_centralisation_eigen}},
-\code{\link{measure_centralities_between}},
-\code{\link{measure_centralities_close}},
-\code{\link{measure_centralities_degree}},
-\code{\link{measure_centralities_eigen}}
+\code{\link{measure_centralisation_eigen}}
 }
 \concept{centrality}
 \concept{closeness}

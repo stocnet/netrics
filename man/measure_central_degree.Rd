@@ -7,14 +7,13 @@
 \alias{node_by_outdegree}
 \alias{node_by_indegree}
 \alias{node_by_multidegree}
-\alias{node_by_posneg}
 \alias{node_by_leverage}
 \title{Measuring nodes degree-like centrality}
 \usage{
 node_by_degree(
   .data,
   normalized = TRUE,
-  alpha = 1,
+  alpha = 0,
   direction = c("all", "out", "in")
 )
 
@@ -26,14 +25,12 @@ node_by_indegree(.data, normalized = TRUE, alpha = 0)
 
 node_by_multidegree(.data, tie1, tie2)
 
-node_by_posneg(.data)
-
 node_by_leverage(.data)
 }
 \arguments{
-\item{.data}{A network object of class \code{mnet}, \code{igraph}, \code{tbl_graph}, \code{network}, or similar.
-For more information on the standard coercion possible,
-see \code{\link[manynet:as_tidygraph]{manynet::as_tidygraph()}}.}
+\item{.data}{A network object of class \code{stocnet}, \code{igraph}, \code{tbl_graph}, \code{network}, or similar.
+Internally any of these will be coerced to an efficient implementation.
+For more information on possible coercions, see e.g. \code{\link[manynet:as_stocnet]{manynet::as_stocnet()}}.}
 
 \item{normalized}{Logical scalar, whether scores are normalized.
 Different denominators may be used depending on the measure,
@@ -66,6 +63,13 @@ A \code{node_measure} numeric vector the length of the nodes in the network,
 providing the scores for each node.
 If the network is labelled,
 then the scores will be labelled with the nodes' names.
+
+The object also carries the \code{measure} it computed, the \code{range} its values
+can fall within, and whether and how those values were \code{normalized}.
+These are shown as a one-line header when the object is printed.
+Where a measure offers a choice between several ways of counting the
+same thing, it also carries the \code{variant} it used.
+All can be retrieved with \code{attr()}.
 }
 \description{
 These functions calculate common degree-related centrality measures for one- and two-mode networks:
@@ -79,7 +83,6 @@ there are several related shortcut functions:
 \item \code{node_by_outdegree()} returns the \code{direction = 'out'} results.
 }
 \item \code{node_by_multidegree()} measures the ratio between types of ties in a multiplex network.
-\item \code{node_by_posneg()} measures the PN (positive-negative) centrality of a signed network.
 \item \code{node_by_leverage()} measures the leverage centrality of nodes in a network.
 }
 
@@ -87,9 +90,27 @@ All measures attempt to use as much information as they are offered,
 including whether the networks are directed, weighted, or multimodal.
 If this would produce unintended results,
 first transform the salient properties using e.g. \code{\link[manynet:to_undirected]{manynet::to_undirected()}} functions.
-All centrality and centralization measures return normalized measures by default,
-including for two-mode networks.
+All centrality and centralization measures return normalised or scaled
+measures where available, reported when the measure is printed.
+Note that a weighted network has no theoretical maximum degree,
+so \code{node_by_degree()} there returns \emph{scaled} rather than normalised
+scores, which rank nodes within this network but are not comparable
+with those of another.
+
+\code{node_by_multidegree()} is the one measure here that is not reached by
+dispatch: a multiplex network does not itself say \emph{which} two types of
+tie to contrast, so \code{tie1} and \code{tie2} must be named.
 }
+\section{Multiplex networks}{
+
+\code{node_by_degree()} counts every tie a node holds, whatever its layer,
+so a node tied twice to the same alter on two layers scores 2.
+To score one layer at a time, take it first with
+\code{\link[manynet:to_uniplex]{manynet::to_uniplex()}}, or use \code{node_by_multidegree()} to contrast two.
+Note that \code{to_uniplex()} drops the nodes that hold none of the retained
+ties, so scores from two layers are of different lengths.
+}
+
 \section{Degree centrality}{
 
 The degree of a node is the number of connections it has.
@@ -104,6 +125,15 @@ outdegree (degree of outgoing ties) and
 indegree (degree of incoming ties).
 }
 
+\section{Strength centrality}{
+
+Given a weighted network, \code{node_by_degree()} sums tie weights rather than
+counting ties, which is also known as \emph{strength centrality} or \emph{weighted
+degree centrality}. The \code{alpha} argument tunes between the two, following
+Opsahl et al. (2010), and the measure reports itself as
+"strength centrality" whenever \code{alpha} is not zero.
+}
+
 \section{Leverage centrality}{
 
 Leverage centrality concerns the degree of a node compared with that of its
@@ -115,6 +145,14 @@ neighbours, \eqn{J}:
 node_by_degree(ison_southern_women)
 }
 \references{
+\subsection{On degree centrality}{
+
+Freeman, Linton C. 1978.
+"Centrality in social networks: Conceptual clarification".
+\emph{Social Networks} 1(3): 215-239.
+\doi{10.1016/0378-8733(78)90021-7}
+}
+
 \subsection{On multimodal centrality}{
 
 Faust, Katherine. 1997.
@@ -143,14 +181,6 @@ Opsahl, Tore, Filip Agneessens, and John Skvoretz. 2010.
 \doi{10.1016/j.socnet.2010.03.006}
 }
 
-\subsection{On signed centrality}{
-
-Everett, Martin G., and Stephen P. Borgatti. 2014.
-“Networks Containing Negative Ties.”
-\emph{Social Networks} 38:111–20.
-\doi{10.1016/j.socnet.2014.03.005}
-}
-
 \subsection{On leverage centrality}{
 
 Joyce, Karen E., Paul J. Laurienti, Jonathan H. Burdette, and Satoru Hayasaka. 2010.
@@ -162,21 +192,21 @@ Joyce, Karen E., Paul J. Laurienti, Jonathan H. Burdette, and Satoru Hayasaka. 2
 \seealso{
 Other degree:
 \code{\link{mark_degree}},
-\code{\link{measure_centralisation_degree}},
-\code{\link{measure_centralities_degree}}
+\code{\link{measure_central_tie_degree}},
+\code{\link{measure_centralisation_degree}}
 
 Other centrality:
 \code{\link{measure_central_between}},
 \code{\link{measure_central_close}},
 \code{\link{measure_central_eigen}},
+\code{\link{measure_central_tie_between}},
+\code{\link{measure_central_tie_close}},
+\code{\link{measure_central_tie_degree}},
+\code{\link{measure_central_tie_eigen}},
 \code{\link{measure_centralisation_between}},
 \code{\link{measure_centralisation_close}},
 \code{\link{measure_centralisation_degree}},
-\code{\link{measure_centralisation_eigen}},
-\code{\link{measure_centralities_between}},
-\code{\link{measure_centralities_close}},
-\code{\link{measure_centralities_degree}},
-\code{\link{measure_centralities_eigen}}
+\code{\link{measure_centralisation_eigen}}
 
 Other measures:
 \code{\link{measure_assort_net}},
@@ -188,10 +218,10 @@ Other measures:
 \code{\link{measure_central_between}},
 \code{\link{measure_central_close}},
 \code{\link{measure_central_eigen}},
-\code{\link{measure_centralities_between}},
-\code{\link{measure_centralities_close}},
-\code{\link{measure_centralities_degree}},
-\code{\link{measure_centralities_eigen}},
+\code{\link{measure_central_tie_between}},
+\code{\link{measure_central_tie_close}},
+\code{\link{measure_central_tie_degree}},
+\code{\link{measure_central_tie_eigen}},
 \code{\link{measure_closure}},
 \code{\link{measure_closure_node}},
 \code{\link{measure_cohesion}},
@@ -202,6 +232,7 @@ Other measures:
 \code{\link{measure_diverse_net}},
 \code{\link{measure_diverse_node}},
 \code{\link{measure_features}},
+\code{\link{measure_fit}},
 \code{\link{measure_fragmentation}},
 \code{\link{measure_hierarchy}},
 \code{\link{measure_periods}}
@@ -232,6 +263,8 @@ Other nodal:
 \code{\link{member_diffusion}},
 \code{\link{member_equivalence}},
 \code{\link{motif_brokerage_node}},
+\code{\link{motif_clique}},
+\code{\link{motif_composition}},
 \code{\link{motif_exposure}},
 \code{\link{motif_node}},
 \code{\link{motif_path}}

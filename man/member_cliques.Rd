@@ -5,26 +5,28 @@
 \alias{node_in_roulette}
 \title{Memberships in maximally diverse cliques}
 \usage{
-node_in_roulette(.data, num_groups, group_size, times = NULL)
+node_in_roulette(.data, groups, group_size, times = NULL, num_groups = NULL)
 }
 \arguments{
-\item{.data}{A network object of class \code{mnet}, \code{igraph}, \code{tbl_graph}, \code{network}, or similar.
-For more information on the standard coercion possible,
-see \code{\link[manynet:as_tidygraph]{manynet::as_tidygraph()}}.}
+\item{.data}{A network object of class \code{stocnet}, \code{igraph}, \code{tbl_graph}, \code{network}, or similar.
+Internally any of these will be coerced to an efficient implementation.
+For more information on possible coercions, see e.g. \code{\link[manynet:as_stocnet]{manynet::as_stocnet()}}.}
 
-\item{num_groups}{An integer indicating the number of groups desired.}
+\item{groups}{An integer indicating the number of groups desired.}
 
 \item{group_size}{An integer indicating the desired size of most of the groups.
 Note that if the number of nodes is not divisible into groups of equal size,
 there may be some larger or smaller groups.}
 
-\item{times}{An integer of the number of search iterations the algorithm should complete.
-By default this is the number of nodes in the network multiplied by the number of groups.
-This heuristic may be insufficient for small networks and numbers of groups,
-and burdensome for large networks and numbers of groups, but can be overwritten.
-At every 10th iteration, a stronger perturbation of a number of successive changes,
-approximately the number of nodes divided by the number of groups,
-will take place irrespective of whether it improves the objective function.}
+\item{times}{Integer scalar, how many times the algorithm repeats its work.
+Where the algorithm is stochastic, this is how many times it runs,
+and the best or the most frequent result is kept.
+Where the algorithm searches, this is how many steps the search takes.
+More repetitions give a more reliable result and take longer,
+so each function documents its own default.}
+
+\item{num_groups}{Deprecated. The former spelling of \code{groups}.
+Still accepted, but warns; please use \code{groups} instead.}
 }
 \value{
 A \code{node_member} character vector the length of the nodes in the network,
@@ -38,6 +40,14 @@ cliques:
 \itemize{
 \item \code{node_in_roulette()} assigns nodes to maximally diverse groups.
 }
+}
+\details{
+\code{times} defaults to the number of nodes multiplied by the number of groups.
+This heuristic may be insufficient for small networks and numbers of groups,
+and burdensome for large ones, but can be overwritten.
+At every 10th iteration, a stronger perturbation of a number of successive
+changes, approximately the number of nodes divided by the number of groups,
+takes place whether or not it improves the objective function.
 }
 \section{Maximally diverse grouping problem}{
 
@@ -64,6 +74,9 @@ to ensure that a robust solution from the broader state space is identified.
 The user is referred to Lai and Hao (2016) and Lai et al (2021) for more details.
 }
 
+\examples{
+node_in_roulette(ison_adolescents, groups = 3)
+}
 \references{
 \subsection{On the maximally diverse grouping problem}{
 
@@ -115,6 +128,8 @@ Other nodal:
 \code{\link{member_diffusion}},
 \code{\link{member_equivalence}},
 \code{\link{motif_brokerage_node}},
+\code{\link{motif_clique}},
+\code{\link{motif_composition}},
 \code{\link{motif_exposure}},
 \code{\link{motif_node}},
 \code{\link{motif_path}}

@@ -3,7 +3,7 @@ for(fn in names(node_motifs)) {
   for (ob in names(data_objs)) { 
     test_that(paste(fn, "works on", ob), {
       skip_if(grepl("triad|dyad", fn) && is_twomode(data_objs[[ob]]))
-      if(grepl("brokerage", fn)){
+      if(grepl("brokerage|alters|similarity", fn)){
         if(ob == "attribute")
           expect_s3_class(node_motifs[[fn]](data_objs[[ob]], "group"), "node_motif") else
             succeed("Only used for attribute objects")
@@ -71,15 +71,15 @@ test_that("node_x_tetrad census works", {
 
 test_that("net_mixed census works", {
   marvel_friends <- to_unsigned(to_uniplex(fict_marvel, "relationship"), "positive")
-  test <- net_x_mixed(marvel_friends, to_uniplex(fict_marvel, "affiliation"))
+  test <- net_x_triad(marvel_friends, to_uniplex(fict_marvel, "affiliation"))
   expect_equal(unname(test[1]), 1137)
   expect_equal(names(test[1]), "22")
   # Errors
-  expect_error(net_x_mixed(ison_southern_women,
+  expect_error(net_x_triad(ison_southern_women,
                             to_uniplex(fict_marvel, "affiliation")))
-  expect_error(net_x_mixed(to_uniplex(fict_marvel, "affiliation"),
+  expect_error(net_x_triad(to_uniplex(fict_marvel, "affiliation"),
                                     ison_southern_women))
-  expect_error(net_x_mixed(ison_karateka,
+  expect_error(net_x_triad(ison_karateka,
                             to_uniplex(fict_marvel, "affiliation")))
 })
 
@@ -99,4 +99,30 @@ test_that("node_x_brokerage works", {
 test_that("net_x_brokerage works", {
   test <- net_x_brokerage(ison_networkers, "Discipline")
   expect_equal(top3(names(test)), c("Coordinator","Itinerant","Gatekeeper"))
+})
+
+test_that("node_x_tie finds layers whatever the tie attribute is called", {
+  # ison_monks multiplexes on "layer", so reading "type" gave it no layers
+  res <- node_x_tie(ison_monks)
+  expect_s3_class(res, "node_motif")
+  expect_equal(nrow(res), as.integer(manynet::net_nodes(ison_monks)))
+  expect_s3_class(node_x_tie(ison_algebra), "node_motif")
+})
+
+test_that("node_x_tie reports layers that cannot be stacked", {
+  # fict_marvel's layers hold different node sets, so no one census spans them
+  local_verbose()
+  # the call also reports its coercion, so the messages are taken as well
+  expect_error(suppressMessages(node_x_tie(fict_marvel)), "node set")
+})
+
+test_that("node_x_triad reaches the mixed census through net_x_triad", {
+  skip_on_cran()
+  # node_x_triad() is a leave-one-out difference of net_x_triad(), so it gains
+  # the multilevel census without any code of its own
+  res <- node_x_triad(fict_marvel)
+  expect_s3_class(res, "node_motif")
+  expect_equal(dim(res), c(manynet::net_nodes(fict_marvel), 10L))
+  expect_equal(colnames(res),
+               c("22", "21", "20", "12", "11D", "11U", "10", "02", "01", "00"))
 })

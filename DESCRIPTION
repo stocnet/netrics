@@ -1,6 +1,6 @@
 Package: netrics
-Title: Many Ways to Measure and Classify Membership for Networks, Nodes, and Ties
-Version: 0.4.1
+Title: Many Marks, Measures, Memberships, and Motifs for Networks
+Version: 1.0.0
 Description: Many tools for calculating network, node, or tie
    marks, measures, motifs and memberships of many different types of networks.
    Marks identify structural positions, measures quantify network properties,
@@ -15,7 +15,7 @@ Encoding: UTF-8
 LazyData: true
 Depends: 
     R (>= 4.1.0),
-    manynet (>= 2.1.2)
+    manynet (>= 2.2.3)
 Imports:
     dplyr,
     igraph (>= 2.1.0)
@@ -44,4 +44,4 @@ Config/Needs/website:
 Config/testthat/parallel: true
 Config/testthat/edition: 3
 Config/testthat/start-first: tutorials_netrics, measure_net, member_nodes, measure_nodes
-Config/roxygen2/version: 8.0.0
+Config/roxygen2/version: 8.1.0

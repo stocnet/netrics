@@ -12,6 +12,11 @@
 #'   - `node_x_path()` returns the shortest path lengths
 #'   of each node to every other node in the network.
 #'   
+#' @section Multiplex networks:
+#'   `node_x_tie()` binds the layers together, giving one block of columns
+#'   per layer, whatever attribute the network is multiplexed on.
+#'   Each block stays the length of the whole nodeset.
+#'   To census one layer alone, take it first with [manynet::to_uniplex()].
 #' @template param_data
 #' @template node_motif
 #' @importFrom igraph vcount make_ego_graph delete_vertices triad_census
@@ -25,15 +30,31 @@ NULL
 node_x_tie <- function(.data){
   .data <- manynet::expect_nodes(.data)
   object <- manynet::as_igraph(.data)
-  # edge_names <- net_tie_attributes(object)
+  # Only tie-level waves split the census; a diffusion model's ties do not change
+  waved <- "wave" %in% manynet::net_tie_attributes(object)
+  if (manynet::is_multiplex(.data)) {
+    # The layers are stacked into one census, which needs them to share a
+    # node set. `to_uniplex()` drops the nodes a layer does not tie, so a
+    # network mixing a one-mode and a two-mode layer has nothing to stack.
+    sizes <- vapply(manynet::layer_names(object),
+                    function(l) manynet::net_nodes(manynet::to_uniplex(object, l)),
+                    FUN.VALUE = numeric(1))
+    if (length(unique(sizes)) > 1)
+      manynet::snet_unavailable(
+        "A tie census over layers that do not share a node set",
+        "is not yet available.",
+        "Here the {.val {names(sizes)}} layers hold {sizes} nodes.",
+        "Please use {.fn to_uniplex} to census a single layer,",
+        "or {.fn net_x_triad}, which does span a one-mode and a two-mode layer.")
+  }
   if (manynet::is_directed(object)) {
     if (manynet::is_multiplex(.data)) {
-      mat <- do.call(rbind, lapply(unique(manynet::tie_attribute(object, "type")), 
+      mat <- do.call(rbind, lapply(manynet::layer_names(object), 
                                    function(x){
                                      rc <- manynet::as_matrix(manynet::to_uniplex(object, x))
                                      rbind(rc, t(rc))
                                    }))
-    } else if (manynet::is_longitudinal(object)){
+    } else if (waved){
       mat <- do.call(rbind, lapply(unique(manynet::tie_attribute(object, "wave")), 
                                    function(x){
                                      rc <- manynet::as_matrix(manynet::to_waves(object)[[x]])
@@ -46,11 +67,11 @@ node_x_tie <- function(.data){
     }
   } else {
     if (manynet::is_multiplex(.data)) {
-      mat <- do.call(rbind, lapply(unique(manynet::tie_attribute(object, "type")), 
+      mat <- do.call(rbind, lapply(manynet::layer_names(object), 
                                    function(x){
                                      manynet::as_matrix(manynet::to_uniplex(object, x))
                                    }))
-    } else if (manynet::is_longitudinal(object)){
+    } else if (waved){
       mat <- do.call(rbind, lapply(unique(manynet::tie_attribute(object, "wave")), 
                                    function(x){
                                      manynet::as_matrix(manynet::to_waves(object)[[x]])
@@ -65,9 +86,9 @@ node_x_tie <- function(.data){
     if(manynet::is_multiplex(.data)){
       rownames(mat) <- apply(expand.grid(c(paste0("from", manynet::node_names(object)),
                                            paste0("to", manynet::node_names(object))),
-                                         unique(manynet::tie_attribute(object, "type"))), 
+                                         manynet::layer_names(object)), 
                              1, paste, collapse = "_")
-    } else if (manynet::is_longitudinal(object)){
+    } else if (waved){
       rownames(mat) <- apply(expand.grid(c(paste0("from", manynet::node_names(object)),
                                            paste0("to", manynet::node_names(object))),
                                          unique(manynet::tie_attribute(object, "wave"))), 
@@ -313,15 +334,20 @@ node_x_tetrad <- function(.data){
 #'   - `net_x_dyad()` returns a census of dyad motifs in a network.
 #'   - `net_x_triad()` returns a census of triad motifs in a network.
 #'   - `net_x_tetrad()` returns a census of tetrad motifs in a network.
-#'   - `net_x_mixed()` returns a census of triad motifs that span
-#'   a one-mode and a two-mode network.
 #'   
 #'   See also \href{https://www.graphclasses.org/smallgraphs.html}{graph classes}.
 #'   
+#' @section Multiplex networks:
+#'   `net_x_triad()` takes the mixed census on a multiplex network,
+#'   splitting it into layers by mode rather than by position.
+#'   To census one layer alone, take it first with [manynet::to_uniplex()].
+#'   `net_x_dyad()` and `net_x_tetrad()` count every tie whatever its layer.
 #' @template param_data
 #' @family cohesion
 #' @template net_motif
 #' @param object2 A second, two-mode network object.
+#'   Only `net_x_triad()` uses this, and only to take a multilevel census;
+#'   see its Mixed census section.
 NULL
 
 #' @rdname motif_net
@@ -391,15 +417,63 @@ net_x_dyad <- function(.data) {
 #'  
 #'  Note that for undirected and two-mode networks, only 003, 102, and 201 are possible,
 #'  as the other configurations rely on the concept of directionality.
+#' @section Mixed census:
+#'  Where a one-mode and a two-mode network are given together,
+#'  a multilevel census of the triads that span them is taken instead,
+#'  after Hollway et al. (2017).
+#'  Its ten motifs are labelled by how many ties join the pair of nodes at
+#'  each level, so that `"21"` counts triads whose two nodes are reciprocally
+#'  tied in the one-mode network and share a partner in the two-mode network.
+#'  
+#'  There are two ways to ask for it.
+#'  Supply the two networks as `.data` and `object2`,
+#'  the one-mode network first.
+#'  Or give a single multiplex network holding exactly one one-mode layer and
+#'  one two-mode layer, such as `fict_marvel`,
+#'  and the two layers are used in that order.
+#'  A two-mode network that carries no one-mode layer is not enough,
+#'  and remains unavailable.
+#'  
+#'  Since a census counts configurations, only the presence of a tie counts.
+#'  Weights and signs are set aside, as `igraph::triad_census()` also does.
+#'  
+#'  `node_x_triad()` reports the same ten motifs for each node.
 #' @references 
 #' ## On the triad census
 #' Davis, James A., and Samuel Leinhardt. 1967. 
 #' “\href{https://files.eric.ed.gov/fulltext/ED024086.pdf}{The Structure of Positive Interpersonal Relations in Small Groups}.” 55.
+#' 
+#' ## On the mixed census
+#' Hollway, James, Alessandro Lomi, Francesca Pallotti, and Christoph Stadtfeld. 2017.
+#' “Multilevel Social Spaces: The Network Dynamics of Organizational Fields.” 
+#' _Network Science_ 5(2): 187–212.
+#' \doi{10.1017/nws.2017.8}
+#' @source Mixed census adapted from Alejandro Espinosa 'netmem'
 #' @examples 
 #' net_x_triad(manynet::ison_adolescents)
+#' net_x_triad(fict_marvel)
 #' @export
-net_x_triad <- function(.data) {
+net_x_triad <- function(.data, object2 = NULL) {
   .data <- manynet::expect_nodes(.data)
+  if(!is.null(object2))
+    return(make_network_motif(.mixed_census(.data, object2), .data))
+  if(manynet::is_multiplex(.data)){
+    # a network carrying both a one-mode and a two-mode layer already holds
+    # everything the multilevel census needs, so use it rather than refuse
+    layers <- manynet::layer_names(.data)
+    parts <- lapply(layers, function(l) manynet::to_uniplex(.data, l))
+    twomode <- vapply(parts, manynet::is_twomode, FUN.VALUE = logical(1))
+    # the layers are told apart by their mode rather than by their order,
+    # since the census needs the one-mode network first
+    if(length(layers) == 2 && sum(twomode) == 1){
+      manynet::snet_info("Taking a mixed census over the",
+                         "{.val {layers[!twomode]}} and",
+                         "{.val {layers[twomode]}} layers.")
+      onemode <- parts[[which(!twomode)]]
+      return(make_network_motif(.mixed_census(onemode, parts[[which(twomode)]]),
+                                onemode))
+    }
+  }
   if (manynet::is_twomode(.data)) {
     manynet::snet_abort("A twomode or multilevel option for a triad census is not yet implemented.")
   } else {
@@ -492,31 +566,23 @@ net_x_tetrad <- function(.data){
   make_network_motif(out, .data)
 }
 
-#' @rdname motif_net 
-#' @source Alejandro Espinosa 'netmem'
-#' @references 
-#' ## On the mixed census
-#' Hollway, James, Alessandro Lomi, Francesca Pallotti, and Christoph Stadtfeld. 2017.
-#' “Multilevel Social Spaces: The Network Dynamics of Organizational Fields.” 
-#' _Network Science_ 5(2): 187–212.
-#' \doi{10.1017/nws.2017.8}
-#' @examples 
-#' net_x_mixed(fict_marvel)
-#' @export
-net_x_mixed <- function (.data, object2) {
-  .data <- manynet::expect_nodes(.data)
-  if(missing(object2) && manynet::is_multiplex(.data)) {
-    object2 <- manynet::to_uniplex(.data, unique(manynet::tie_attribute(.data, "type"))[2])
-    .data <- manynet::to_uniplex(.data, unique(manynet::tie_attribute(.data, "type"))[1])
-  }
+# The multilevel triad census of Hollway et al. (2017), over a one-mode
+# network and a two-mode network that share their first mode.
+# `net_x_triad()` wraps this, either over a supplied pair of networks or over
+# the two layers of a multiplex network.
+.mixed_census <- function (.data, object2) {
   if(manynet::is_twomode(.data))
     manynet::snet_abort("First object should be a one-mode network")
   if(!manynet::is_twomode(object2))
     manynet::snet_abort("Second object should be a two-mode network")
   if(manynet::net_dims(.data)[1] != manynet::net_dims(object2)[1])
     manynet::snet_abort("Non-conformable arrays")
-  m1 <- manynet::as_matrix(.data)
-  m2 <- manynet::as_matrix(object2)
+  # A census counts configurations, so only the presence of a tie matters.
+  # The matrices are made binary because the arithmetic below takes the
+  # complement of each, which a weight or a negative sign would corrupt:
+  # `igraph::triad_census()` ignores weights for the same reason.
+  m1 <- (manynet::as_matrix(.data) != 0) * 1
+  m2 <- (manynet::as_matrix(object2) != 0) * 1
   cp <- function(m) (-m + 1)
   onemode.reciprocal <- m1 * t(m1)
   onemode.forward <- m1 * cp(t(m1))
@@ -543,7 +609,7 @@ net_x_mixed <- function (.data, object2) {
            "02" = sum(onemode.reciprocal * bipartite.null) / 2,
            "01" = sum(onemode.forward * bipartite.null) / 2 + sum(onemode.backward * bipartite.null) / 2,
            "00" = sum(onemode.null * bipartite.null) / 2)  
-  make_network_motif(res, .data)
+  res
 }
 
 # Exposure ####

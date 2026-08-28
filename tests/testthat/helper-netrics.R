@@ -1,6 +1,19 @@
 options(manynet_verbosity = "quiet")
 options(snet_verbosity = "quiet")
 
+# The suite runs quiet, so a test that asserts on a message has to turn the
+# messages on. `local_verbose()` does that for one test alone, and puts the
+# options back when that test ends, whether it passes or fails. A test that
+# sets the option itself leaves it set on a failure, and every later test then
+# prints its messages to the console.
+local_verbose <- function(env = parent.frame()){
+  old <- options(manynet_verbosity = "verbose", snet_verbosity = "verbose")
+  do.call(base::on.exit,
+          list(substitute(options(OLD), list(OLD = old)), add = TRUE),
+          envir = env)
+  invisible(old)
+}
+
 expect_values <- function(object, ref, toler = 3) {
   # 1. Capture object and label
   # act <- quasi_label(rlang::enquo(object), arg = "object")
@@ -66,7 +79,12 @@ bot5 <- function(res, dec = 4){
 collect_functions <- function(pattern, package = "netrics"){
   getNamespaceExports(package)[grepl(pattern, getNamespaceExports(package))]
 }
-funs_objs <- mget(ls("package:netrics"), inherits = TRUE)
+# Renamed functions are kept as warning wrappers in R/netrics-defunct.R for one
+# release. They delegate to their replacement, so sweeping them only produces
+# deprecation warnings for a name on its way out.
+defunct_fns <- c("node_by_coreness", "net_x_mixed",
+                 "node_in_weak", "node_in_strong")
+funs_objs <- mget(setdiff(ls("package:netrics"), defunct_fns), inherits = TRUE)
 
 # data_objs <- mget(ls("package:manynet"), inherits = TRUE)
 # # Filter to relevant objects 
@@ -79,7 +97,12 @@ funs_objs <- mget(ls("package:netrics"), inherits = TRUE)
 
 set.seed(1234)
 data_objs <- list(directed = generate_random(12, directed = TRUE),
-                  twomode = generate_random(c(6,6)),
+                  # The two modes must differ in size. A square incidence
+                  # matrix passes silently through functions that assume a
+                  # square sociomatrix, which hid real bugs in
+                  # `node_by_core()`, `net_by_cyclicality()` and
+                  # `node_by_information()`.
+                  twomode = generate_random(c(6,8)),
                   labelled = to_signed(add_node_attribute(create_wheel(12), "name", 
                                                 LETTERS[1:12])),
                   attribute = add_node_attribute(create_ring(12), "group", 
@@ -89,6 +112,11 @@ data_objs <- list(directed = generate_random(12, directed = TRUE),
                   diffusion = play_diffusion(create_ring(12), seeds = 1, 
                                              steps = 5, latency = 0.75, 
                                              recovery = 0.25))
+
+# `net_by_congruency()` needs two two-mode networks that share a mode: the
+# second mode of the first must match the first mode of the second. The
+# sweeping fixture cannot be paired with itself once its modes differ in size.
+congruent_twomode <- generate_random(c(8,5))
 
 find_pkg_tutorial_paths <- function(pkg) {
   tute_folders <- list.dirs(system.file("tutorials", package = pkg),
@@ -135,6 +163,15 @@ check_tute_functions <- function(path, skip = "ergm\\("){
   exprs <- parse(text = extract_rmd_code(path))
   env <- new.env(parent = globalenv())
 
+  # A tutorial may call `?fn`. `help()` prints through a pager that writes
+  # straight to the terminal, which `capture.output()` cannot take. A pager
+  # that does nothing keeps that page off the console.
+  op <- options(pager = function(files, header, title, delete.file){
+    if(delete.file) unlink(files)
+    invisible(NULL)
+  })
+  on.exit(options(op), add = TRUE)
+
   is_skipped_call <- function(expr) {
     any(grepl(skip, deparse(expr)))
   }
@@ -152,7 +189,9 @@ check_tute_functions <- function(path, skip = "ergm\\("){
     e <- NULL
     m <- NULL
     
-    not_out <- withCallingHandlers(
+    # A tutorial chunk may print a result. `capture.output()` keeps that off
+    # the console, so a test run reports expectations and nothing else.
+    not_out <- utils::capture.output(withCallingHandlers(
       tryCatch(
         eval(exprs[[i]], envir = env),
         error = function(err) {
@@ -168,7 +207,7 @@ check_tute_functions <- function(path, skip = "ergm\\("){
         m <<- c(m, conditionMessage(msg))
         invokeRestart("muffleMessage")
       }
-    )
+    ))
     
     # If there *was* a warning, check if it's a deprecated/defunct one
     if (!is.null(w)) {

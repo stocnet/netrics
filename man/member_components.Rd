@@ -3,20 +3,22 @@
 \name{member_components}
 \alias{member_components}
 \alias{node_in_component}
-\alias{node_in_weak}
-\alias{node_in_strong}
 \title{Memberships in components}
 \usage{
-node_in_component(.data)
-
-node_in_weak(.data)
-
-node_in_strong(.data)
+node_in_component(.data, connectivity = c("strong", "weak"))
 }
 \arguments{
-\item{.data}{A network object of class \code{mnet}, \code{igraph}, \code{tbl_graph}, \code{network}, or similar.
-For more information on the standard coercion possible,
-see \code{\link[manynet:as_tidygraph]{manynet::as_tidygraph()}}.}
+\item{.data}{A network object of class \code{stocnet}, \code{igraph}, \code{tbl_graph}, \code{network}, or similar.
+Internally any of these will be coerced to an efficient implementation.
+For more information on possible coercions, see e.g. \code{\link[manynet:as_stocnet]{manynet::as_stocnet()}}.}
+
+\item{connectivity}{Character string, "weak" treats a directed network's
+components as if the network were undirected, and "strong" requires ties
+in both directions between members.
+This is ignored for undirected networks, where the two notions coincide.
+Note that the default differs by function: functions that assert or count
+connectedness default to "strong", while functions that scope or split a
+network into components default to "weak".}
 }
 \value{
 A \code{node_member} character vector the length of the nodes in the network,
@@ -27,12 +29,8 @@ then the assignments will be labelled with the nodes' names.
 \description{
 These functions create a vector of nodes' memberships in components:
 \itemize{
-\item \code{node_in_component()} assigns nodes' component membership
-using edge direction where available.
-\item \code{node_in_weak()} assigns nodes' component membership
-ignoring edge direction.
-\item \code{node_in_strong()} assigns nodes' component membership
-based on edge direction.
+\item \code{node_in_component()} assigns nodes' component membership,
+in either the strongly or the weakly connected components.
 }
 
 In graph theory, components, sometimes called connected components,
@@ -49,6 +47,8 @@ in either direction between member nodes.
 \examples{
 ison_monks |> to_uniplex("esteem") |>
   mutate_nodes(comp = node_in_component())
+ison_monks |> to_uniplex("esteem") |>
+  mutate_nodes(comp = node_in_component(connectivity = "weak"))
 }
 \seealso{
 Other memberships:
@@ -87,6 +87,8 @@ Other nodal:
 \code{\link{member_diffusion}},
 \code{\link{member_equivalence}},
 \code{\link{motif_brokerage_node}},
+\code{\link{motif_clique}},
+\code{\link{motif_composition}},
 \code{\link{motif_exposure}},
 \code{\link{motif_node}},
 \code{\link{motif_path}}

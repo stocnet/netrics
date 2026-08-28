@@ -8,9 +8,9 @@
 node_in_brokering(.data, membership)
 }
 \arguments{
-\item{.data}{A network object of class \code{mnet}, \code{igraph}, \code{tbl_graph}, \code{network}, or similar.
-For more information on the standard coercion possible,
-see \code{\link[manynet:as_tidygraph]{manynet::as_tidygraph()}}.}
+\item{.data}{A network object of class \code{stocnet}, \code{igraph}, \code{tbl_graph}, \code{network}, or similar.
+Internally any of these will be coerced to an efficient implementation.
+For more information on possible coercions, see e.g. \code{\link[manynet:as_stocnet]{manynet::as_stocnet()}}.}
 
 \item{membership}{A character string naming an existing node attribute in
 the network, or a categorical vector of the same length as the number of
@@ -26,8 +26,11 @@ If the network is labelled,
 then the assignments will be labelled with the nodes' names.
 }
 \description{
-\code{node_in_brokerage()} returns nodes membership as a powerhouse,
+\code{node_in_brokering()} returns nodes membership as a powerhouse,
 connector, linchpin, or sideliner according to Hamilton et al. (2020).
+}
+\examples{
+node_in_brokering(ison_networkers, "Discipline")
 }
 \references{
 \subsection{On brokerage activity and exclusivity}{
@@ -83,6 +86,8 @@ Other nodal:
 \code{\link{member_diffusion}},
 \code{\link{member_equivalence}},
 \code{\link{motif_brokerage_node}},
+\code{\link{motif_clique}},
+\code{\link{motif_composition}},
 \code{\link{motif_exposure}},
 \code{\link{motif_node}},
 \code{\link{motif_path}}

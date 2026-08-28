@@ -86,18 +86,39 @@ net_by_connectedness <- function(.data){
   .data <- manynet::expect_nodes(.data)
   dists <- igraph::distances(manynet::as_igraph(.data))
   make_network_measure(1 - sum(dists==Inf)/sum(dists!=0),
-                       .data, 
-                       call = deparse(sys.call()))
+                       .data,
+                       call = deparse(sys.call()),
+                       measure = "connectedness", range = c(0, 1),
+                       normalization = "normalized")
 }
 
-#' @rdname measure_hierarchy 
+#' @rdname measure_hierarchy
+#' @section Efficiency:
+#'   A perfect hierarchy is a tree: every node but the root has exactly one
+#'   superior, and there are no ties to spare. Krackhardt's efficiency asks how
+#'   close a network comes to that, by counting the ties it carries in excess of
+#'   the minimum needed to hold its components together, as a proportion of the
+#'   most excess ties it could possibly carry:
+#'   \deqn{E = 1 - \frac{|E| - \sum_i (N_i - 1)}{\sum_i \left(M_i - (N_i - 1)\right)}}
+#'   where \eqn{N_i} is the size of weak component \eqn{i} and \eqn{M_i} the
+#'   number of ties possible within it. A tree or forest scores 1, and a
+#'   complete network 0.
 #' @export
 net_by_efficiency <- function(.data) {
   .data <- manynet::expect_nodes(.data)
-  degs <- node_by_indegree(.data, normalized = FALSE)
-  out <- (manynet::net_nodes(.data)-1)/sum(degs)
-  make_network_measure(out, .data, 
-                       call = deparse(sys.call()))
+  object <- manynet::as_igraph(.data)
+  comps <- igraph::components(object, mode = "weak")
+  sizes <- comps$csize
+  # Every component needs N_i - 1 ties to hold together; anything beyond that
+  # is excess, and efficiency is the share of possible excess left unused.
+  spanning <- sum(sizes - 1)
+  possible <- if(manynet::is_directed(object)) sizes*(sizes-1) else sizes*(sizes-1)/2
+  headroom <- sum(possible - (sizes - 1))
+  out <- if(headroom == 0) 1 else 1 - (manynet::net_ties(object) - spanning)/headroom
+  make_network_measure(out, .data,
+                       call = deparse(sys.call()),
+                       measure = "efficiency", range = c(0, 1),
+                       normalization = "normalized")
 }
 
 #' @rdname measure_hierarchy 
@@ -117,6 +138,8 @@ net_by_upperbound <- function(.data) {
                  })
     out <- sum(out)/length(out)
   }
-  make_network_measure(out, .data, 
-                       call = deparse(sys.call()))
+  make_network_measure(out, .data,
+                       call = deparse(sys.call()),
+                       measure = "least upper boundedness", range = c(0, 1),
+                       normalization = "normalized")
 }

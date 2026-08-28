@@ -3,47 +3,123 @@
 \name{measure_cohesion}
 \alias{measure_cohesion}
 \alias{net_by_density}
+\alias{net_by_compactness}
 \alias{net_by_components}
 \alias{net_by_independence}
 \title{Measures of network cohesion}
 \usage{
 net_by_density(.data)
 
-net_by_components(.data)
+net_by_compactness(.data)
+
+net_by_components(.data, connectivity = c("strong", "weak"))
 
 net_by_independence(.data)
 }
 \arguments{
-\item{.data}{A network object of class \code{mnet}, \code{igraph}, \code{tbl_graph}, \code{network}, or similar.
-For more information on the standard coercion possible,
-see \code{\link[manynet:as_tidygraph]{manynet::as_tidygraph()}}.}
+\item{.data}{A network object of class \code{stocnet}, \code{igraph}, \code{tbl_graph}, \code{network}, or similar.
+Internally any of these will be coerced to an efficient implementation.
+For more information on possible coercions, see e.g. \code{\link[manynet:as_stocnet]{manynet::as_stocnet()}}.}
+
+\item{connectivity}{Character string, "weak" treats a directed network's
+components as if the network were undirected, and "strong" requires ties
+in both directions between members.
+This is ignored for undirected networks, where the two notions coincide.
+Note that the default differs by function: functions that assert or count
+connectedness default to "strong", while functions that scope or split a
+network into components default to "weak".}
 }
 \value{
 A \code{network_measure} numeric score.
+
+The object also carries the \code{measure} it computed, the \code{range} its values
+can fall within, and whether and how those values were \code{normalized}.
+These are shown as a one-line header when the object is printed.
+Where a measure offers a choice between several ways of counting the
+same thing, it also carries the \code{variant} it used.
+All can be retrieved with \code{attr()}.
 }
 \description{
 These functions return values or vectors relating to how cohesive a network is:
 \itemize{
 \item \code{net_by_density()} measures the ratio of ties to the number
 of possible ties.
-\item \code{net_by_components()} measures the number of (strong) components
-in the network.
+\item \code{net_by_compactness()} measures the average closeness of all pairs
+of nodes in the network.
+\item \code{net_by_components()} measures the number of components
+in the network, either strongly or weakly connected.
 \item \code{net_by_independence()} measures the independence number,
 or size of the largest independent set in the network.
 }
 }
-\section{Components}{
+\section{Signed networks}{
 
-To get the 'weak' components of a directed graph,
-please use \code{manynet::to_undirected()} first.
+\code{net_by_compactness()} measures distance, and a negative tie is hostility
+rather than a channel along which cohesion travels.
+Where the network is signed, it therefore considers only the positive ties.
+Use \code{\link[manynet:to_unsigned]{manynet::to_unsigned()}} first to control this yourself.
+The other measures in this topic do not depend on distance,
+and so use every tie whatever its sign.
+}
+
+\section{Multilevel networks}{
+
+A multilevel network reports itself as two-mode,
+but holds ties within a mode as well as between them,
+so it cannot be projected onto one mode.
+\code{net_by_independence()} therefore measures a multilevel network whole,
+which is the quantity wanted in any case.
+The projection remains for genuine two-mode networks,
+where no two nodes of one mode are ever tied
+and the unprojected answer would be trivially the larger mode.
+}
+
+\section{Compactness}{
+
+Compactness is the average of the reciprocal distances between all pairs
+of nodes:
+\deqn{C = \frac{\sum_{i \neq j} \frac{1}{d(i,j)}}{N(N-1)}}
+where unreachable pairs contribute \eqn{0}.
+Its complement, \eqn{1 - C}, is sometimes called breadth.
+
+Compactness is more discriminating than
+\code{\link[=net_by_connectedness]{net_by_connectedness()}}, which counts only whether pairs are reachable at
+all. Two networks in which every node can reach every other are equally
+connected, but the one in which they do so in fewer steps is more compact.
+A complete network scores 1, and an empty network 0.
+It is the network-level counterpart of \code{\link[=node_by_harmonic]{node_by_harmonic()}}, such that
+\code{net_by_compactness(ison_adolescents) == mean(node_by_harmonic(ison_adolescents, normalized = TRUE, cutoff = -1))}.
+
+Note that this quantity is known in the physics literature as the
+\emph{global efficiency} of a network (Latora and Marchiori 2001).
+It is named compactness here for the social network analytic tradition,
+partly to avoid confusion with the unrelated
+\code{\link[=net_by_efficiency]{net_by_efficiency()}} (Krackhardt) and \code{\link[=node_by_efficiency]{node_by_efficiency()}} (Burt).
 }
 
 \examples{
 net_by_density(ison_adolescents)
 net_by_density(ison_southern_women)
-  net_by_components(fict_thrones)
-  net_by_components(to_undirected(fict_thrones))
+net_by_compactness(ison_adolescents)
+net_by_compactness(ison_southern_women)
+net_by_components(fict_thrones)
+net_by_components(fict_thrones, connectivity = "weak")
 net_by_independence(ison_adolescents)
+net_by_independence(fict_actually)
+}
+\references{
+\subsection{On compactness}{
+
+Borgatti, Stephen P., Martin G. Everett, Jeffrey C. Johnson,
+and Filip Agneessens. 2022.
+\emph{Analyzing Social Networks Using R}, chapter 10.
+London: SAGE.
+
+Latora, Vito, and Massimo Marchiori. 2001.
+"Efficient Behavior of Small-World Networks".
+\emph{Physical Review Letters} 87(19): 198701.
+\doi{10.1103/PhysRevLett.87.198701}
+}
 }
 \seealso{
 Other cohesion:
@@ -64,10 +140,10 @@ Other measures:
 \code{\link{measure_central_close}},
 \code{\link{measure_central_degree}},
 \code{\link{measure_central_eigen}},
-\code{\link{measure_centralities_between}},
-\code{\link{measure_centralities_close}},
-\code{\link{measure_centralities_degree}},
-\code{\link{measure_centralities_eigen}},
+\code{\link{measure_central_tie_between}},
+\code{\link{measure_central_tie_close}},
+\code{\link{measure_central_tie_degree}},
+\code{\link{measure_central_tie_eigen}},
 \code{\link{measure_closure}},
 \code{\link{measure_closure_node}},
 \code{\link{measure_core}},
@@ -77,6 +153,7 @@ Other measures:
 \code{\link{measure_diverse_net}},
 \code{\link{measure_diverse_node}},
 \code{\link{measure_features}},
+\code{\link{measure_fit}},
 \code{\link{measure_fragmentation}},
 \code{\link{measure_hierarchy}},
 \code{\link{measure_periods}}

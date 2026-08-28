@@ -11,12 +11,19 @@ net_by_diameter(.data)
 net_by_length(.data)
 }
 \arguments{
-\item{.data}{A network object of class \code{mnet}, \code{igraph}, \code{tbl_graph}, \code{network}, or similar.
-For more information on the standard coercion possible,
-see \code{\link[manynet:as_tidygraph]{manynet::as_tidygraph()}}.}
+\item{.data}{A network object of class \code{stocnet}, \code{igraph}, \code{tbl_graph}, \code{network}, or similar.
+Internally any of these will be coerced to an efficient implementation.
+For more information on possible coercions, see e.g. \code{\link[manynet:as_stocnet]{manynet::as_stocnet()}}.}
 }
 \value{
 A \code{network_measure} numeric score.
+
+The object also carries the \code{measure} it computed, the \code{range} its values
+can fall within, and whether and how those values were \code{normalized}.
+These are shown as a one-line header when the object is printed.
+Where a measure offers a choice between several ways of counting the
+same thing, it also carries the \code{variant} it used.
+All can be retrieved with \code{attr()}.
 }
 \description{
 These functions return values or vectors relating to how broad a network is.
@@ -25,6 +32,17 @@ These functions return values or vectors relating to how broad a network is.
 \item \code{net_by_length()} measures the average path length in the network.
 }
 }
+\section{Signed networks}{
+
+Both measures count path lengths, and a negative tie is hostility rather
+than a channel along which cohesion travels.
+Where the network is signed, they therefore consider only the positive
+ties. Use \code{\link[manynet:to_unsigned]{manynet::to_unsigned()}} first to control this yourself.
+
+Note that dropping the negative ties can disconnect the network,
+in which case the measure covers the reachable pairs only.
+}
+
 \examples{
 net_by_diameter(fict_marvel)
 net_by_diameter(to_giant(fict_marvel))
@@ -49,10 +67,10 @@ Other measures:
 \code{\link{measure_central_close}},
 \code{\link{measure_central_degree}},
 \code{\link{measure_central_eigen}},
-\code{\link{measure_centralities_between}},
-\code{\link{measure_centralities_close}},
-\code{\link{measure_centralities_degree}},
-\code{\link{measure_centralities_eigen}},
+\code{\link{measure_central_tie_between}},
+\code{\link{measure_central_tie_close}},
+\code{\link{measure_central_tie_degree}},
+\code{\link{measure_central_tie_eigen}},
 \code{\link{measure_closure}},
 \code{\link{measure_closure_node}},
 \code{\link{measure_cohesion}},
@@ -63,6 +81,7 @@ Other measures:
 \code{\link{measure_diverse_net}},
 \code{\link{measure_diverse_node}},
 \code{\link{measure_features}},
+\code{\link{measure_fit}},
 \code{\link{measure_fragmentation}},
 \code{\link{measure_hierarchy}},
 \code{\link{measure_periods}}

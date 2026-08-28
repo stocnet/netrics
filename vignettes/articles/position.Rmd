@@ -13,6 +13,9 @@ description: >
 ```{r pkgs, include = FALSE, eval=TRUE}
 library(netrics)
 library(autograph)
+# Compatibility shim: manynet renamed `to_blocks()` to `to_blockmodel()` in
+# 2.3.0. Remove once manynet 2.3.x is on CRAN.
+if (!exists("to_blockmodel")) to_blockmodel <- manynet::to_blocks
 ```
 
 ```{r setup, include = FALSE, purl=FALSE, eval=TRUE}
@@ -149,7 +152,8 @@ By the end of this tutorial, you should be able to:
 - [ ] &nbsp; Distinguish structural, regular, and automorphic equivalence, and compute each with `node_in_structural()`, `node_in_regular()`, and `node_in_automorphic()`
 - [ ] &nbsp; Partition a network into equivalent classes, and understand the census, clustering, and _k_-selection choices behind it
 - [ ] &nbsp; Read a dendrogram and a blockmodel, and justify a choice of _k_
-- [ ] &nbsp; Contract a network into a reduced graph of positions with `to_blocks()`
+- [ ] &nbsp; Score how well a partition fits with `net_by_inconsistency()`, and search for one directly with `node_in_block()`
+- [ ] &nbsp; Contract a network into a reduced graph of positions with `to_blockmodel()`
 
 **Choose your own data**: The worked examples below use `ison_algebra`,
 a multiplex network of interactions in an algebra class
@@ -639,8 +643,6 @@ profile for the whole network. Both need a _directed_ network and a
 <span class="page-toc-link" onclick="document.getElementById('section-growing-a-tree-of-similarity').scrollIntoView({behavior:'auto',block:'start'});">Dendrograms</span> ·
 <span class="page-toc-link" onclick="document.getElementById('section-identifying-the-number-of-clusters').scrollIntoView({behavior:'auto',block:'start'});">Choosing k</span></span>
 
-<img src="https://i.giphy.com/media/v1.Y2lkPTc5MGI3NjExNGhvaTZ2Z3NxOW0yeTJ6ZjVoZ2ZqM2NqMjlxbXp1YnBmb2VtdTBldiZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/XcFqv8EzBiAlzeEID9/giphy.gif" alt="gif of rick multiplying"/>
-
 We now switch from asking about _individual_ positions (who is a broker?)
 to asking about _shared_ positions: which nodes play the same kind of role?
 Grouping nodes that occupy similar positions into classes is called finding
@@ -722,7 +724,7 @@ However, the more generic `node_in_equivalence()` is available and can be used
 with whichever census (`node_x_*()` output) is desired.
 Feel free to explore using some of the other censuses available in `{netrics}`,
 though some common ones are already used in the other equivalence convenience functions,
-e.g. `node_x_triad()` in `node_in_regular()`
+e.g. `node_x_triad()` in `node_in_motif()`
 and `node_x_path()` in `node_in_automorphic()` —
 functions we will actually use later in this tutorial.
 
@@ -921,8 +923,6 @@ and a cut-point choosing the number of clusters
 <span class="page-toc-link" onclick="document.getElementById('section-summarising-profiles').scrollIntoView({behavior:'auto',block:'start'});">Summarising profiles</span> ·
 <span class="page-toc-link" onclick="document.getElementById('section-plotting-blockmodels').scrollIntoView({behavior:'auto',block:'start'});">Plotting blockmodels</span></span>
 
-<img src="https://i.giphy.com/media/v1.Y2lkPTc5MGI3NjExeHVzdGlhOGkyOWg2Z3BnMmE2eDgxMnlhZHhwaWx0bGZ3dTNmZnYyaSZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/dsKkAGVnds7aXQKBI7/giphy.gif" alt="gif of mortys in a block parade"/>
-
 ### Summarising profiles {#summarising-profiles}
 
 Ok, so now we have a result from establishing nodes' membership in
@@ -945,8 +945,6 @@ classes relate, and more interested in how the different classes relate in aggre
 This aggregation of a network into the relationships _between_ classes is called
 `r gloss("blockmodelling","blockmodel")`, and it is the pay-off of all the
 equivalence work we just did.
-
-<img src="https://i.giphy.com/media/v1.Y2lkPTc5MGI3NjExdmRlczhzaDJzaTBma3Q0c3pydDJjZTFkY20yMmhzbW13YmU3cnl6ZSZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9dg/QIEol1DjEwSOc9PvLu/giphy.gif" alt="gif of mortys learning about roles"/>
 
 One option that can be useful for characterising what
 the profile of ties (partners) is for each position/equivalence class
@@ -1025,6 +1023,84 @@ the adjacency matrix sorted into blocks whose density (or emptiness)
 characterises how each class relates to each other class.
 :::
 
+### Evaluating a blockmodel {#evaluating-a-blockmodel}
+
+Reading a blockmodel tells you what a partition _says_.
+It does not tell you how _well_ it says it.
+Two different partitions of the same network will both produce a blockmodel
+you can describe in words, and you need some way to prefer one over the other.
+
+The idea is to ask how far each block departs from being _ideal_.
+The two ideal types you have implicitly been using are the null block,
+which should contain no ties at all, and the complete block,
+which should contain every possible tie.
+Counting the ties you would have to add or remove to make every block one or
+the other gives a single number: how much the partition has to lie about the
+network in order to describe it. `net_by_inconsistency()` reports exactly that,
+normalised by the number of cells, so **0 is a perfect fit**.
+Note that it therefore runs the opposite way to most measures —
+it is a distance from the ideal, so lower is better.
+
+**Compare the structural-equivalence partition of `alge` against a coarser one
+and against a random partition.**
+
+```{r blockfit}
+net_by_inconsistency(alge, node_in_structural(alge))
+
+# a coarser partition has to lump dissimilar nodes together
+net_by_inconsistency(alge, node_in_structural(alge, k = 2))
+
+# and an arbitrary partition should do worse than a fitted one
+net_by_inconsistency(alge, sample(rep(1:4, length.out = net_nodes(alge))))
+```
+
+Notice that finer partitions always fit at least as well as coarser ones,
+which is why the criterion cannot by itself choose _k_ for you —
+in the limit, giving every node its own class fits perfectly and explains
+nothing. It compares partitions _at a given k_.
+
+Ideal blocks other than null and complete are available through the `blocks`
+argument. A **regular** block, for instance, only asks that every row and
+every column contain at least one tie, rather than all of them —
+which is exactly the blockmodel counterpart of regular equivalence.
+
+```{r blockreg}
+# structural blockmodelling: blocks must be empty or full
+net_by_inconsistency(alge, node_in_structural(alge, k = 3))
+
+# regular blockmodelling: blocks must be empty or have every row and column
+# represented, which is a much easier standard to meet
+net_by_inconsistency(alge, node_in_structural(alge, k = 3), blocks = c("nul", "reg"))
+```
+
+Since permitting more ideal types can only lower the criterion,
+compare partitions only when you have given each the same vocabulary.
+
+Finally, once you can score a partition you can search for a good one directly,
+rather than clustering a similarity matrix and hoping the result fits.
+`node_in_block()` does this: it tries partitions, keeps whichever is most
+consistent, and returns it.
+
+**Search for a three-position blockmodel of `alge` and compare it to the
+structural-equivalence solution.**
+
+```{r blocksearch}
+set.seed(123)
+nbm <- node_in_block(alge, k = 3)
+net_by_inconsistency(alge, nbm)
+net_by_inconsistency(alge, node_in_structural(alge, k = 3))
+```
+
+Because the search is stochastic, running it again may give a different answer,
+so set a seed and compare runs with `net_by_inconsistency()`.
+
+::: {.callout}
+<span class="callout-label">**In brief**:</span> `net_by_inconsistency()` scores how far
+a partition's blocks are from ideal (0 is perfect, lower is better), with the
+ideal types set by `blocks`; `node_in_block()` searches directly for the
+partition that minimises it.
+:::
+
 ## Reduced graphs
 
 <span class="page-toc">On this page:
@@ -1045,7 +1121,7 @@ any within-class ties will end up becoming loops and thus the network will be co
 
 ### From blocks to ties {#from-blocks-to-ties}
 
-`to_blocks()` carries out this contraction:
+`to_blockmodel()` carries out this contraction:
 pass it the network and a membership vector,
 and it returns a matrix with one row and column per _class_,
 where each cell holds the average tie (weight) from one class to another.
@@ -1053,7 +1129,7 @@ where each cell holds the average tie (weight) from one class to another.
 **Contract the algebra network into its four structural-equivalence blocks.**
 
 ```{r structblock, warning=FALSE}
-(bm <- to_blocks(alge, node_in_structural(alge)))
+(bm <- to_blockmodel(alge, node_in_structural(alge)))
 ```
 
 Notice how this is just a compact, numerical version of the blockmodel plot
@@ -1087,7 +1163,7 @@ a network of sixteen individuals compressed into a comprehensible
 structure of four roles.
 
 ::: {.callout}
-<span class="callout-label">**In brief**:</span> `to_blocks()` contracts a network into its classes,
+<span class="callout-label">**In brief**:</span> `to_blockmodel()` contracts a network into its classes,
 yielding a `r gloss("reduced graph","reduced")` whose nodes are positions and
 whose ties (including loops) are the average ties within and between classes —
 a role-level summary of the whole network.
@@ -1127,9 +1203,21 @@ This is the most permissive of the three definitions,
 and usually the closest to the everyday idea of a social "role":
 all teachers relate to _some_ students, all students to _some_ teacher,
 regardless of which particular ones.
-Under the hood, `node_in_regular()` uses a triad census (`node_x_triad()`)
-rather than the tie census, because it cares about the shape of local
-neighbourhoods rather than their exact membership.
+Under the hood, `node_in_regular()` works differently from the census-based
+functions you have seen so far, because the definition is _recursive_:
+two nodes are equivalent if their alters are equivalent,
+whose equivalence depends in turn on _their_ alters.
+So instead of building a census once and clustering it,
+it starts by assuming every node is equivalent to every other and then
+repeatedly revises those similarities until they settle,
+by checking how well each node's alters can be paired up with the other's.
+The resulting similarity matrix is then clustered exactly as before.
+
+Two algorithms are available via the `regularity` argument:
+`"rolesim"` (the default) pairs each node's alters one-to-one,
+so that two nodes match only if their neighbourhoods line up as wholes;
+`"rege"` lets the same alter be matched more than once, which is more
+permissive, and is what UCINET computes.
 
 **Compute the regular-equivalence classes for `alge`, plot the dendrogram,
 and colour the graph by class.**
@@ -1214,7 +1302,7 @@ or "who is structurally interchangeable?" (automorphic).
 
 ::: {.callout}
 <span class="callout-label">**In brief**:</span> `node_in_structural()` (same partners, via a
-tie census), `node_in_regular()` (same pattern / role, via a triad census),
+tie census), `node_in_regular()` (same pattern / role, via a recursive similarity),
 and `node_in_automorphic()` (interchangeable, via a path census) are three
 lenses on position, from strictest to loosest in theory —
 though each chooses its own _k_, so their class counts won't nest neatly in
@@ -1263,12 +1351,16 @@ Along the way, you have learned to use these functions:
 | `node_is_min()` | flags the node(s) with the minimum score, for highlighting |
 | `node_in_structural()` | structurally equivalent classes (same tie partners; `cluster`, `distance`, `k`, `range` options) |
 | `node_in_regular()`, `node_in_automorphic()` | regularly and automorphically equivalent classes (same role; interchangeable) |
-| `node_x_tie()`, `node_x_triad()`, `node_x_path()` | the tie, triad, and path censuses behind the three equivalences |
+| `node_in_motif()` | classes of similar local embedding, from a triad or tetrad census |
+| `node_x_tie()`, `node_x_triad()`, `node_x_path()` | the tie, triad, and path censuses behind the census-based equivalences |
+| `regularity_rolesim()`, `regularity_rege()` | the recursive similarity matrices behind `node_in_regular()` |
 | `node_in_equivalence()` | generic equivalence classes from any `node_x_*()` census |
 | `plot()` on a membership vector | draws the dendrogram and its cut-point |
 | `plot(as_matrix(net), membership = )` | draws the blockmodel: the matrix sorted into blocks |
+| `net_by_inconsistency()` | scores how far a partition's blocks are from ideal (0 is perfect); `blocks` sets which ideals |
+| `node_in_block()` | searches directly for the partition that best fits an ideal block structure |
 | `summary(census, membership = )` | averages each class's census profile |
-| `to_blocks()` | contracts a network into a reduced graph of positions |
+| `to_blockmodel()` | contracts a network into a reduced graph of positions |
 | `graphr(..., node_color = , node_size = )` | maps memberships or measures onto the graph |
 
 When you are ready, continue with the other `{netrics}` tutorials —

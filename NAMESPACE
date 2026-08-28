@@ -3,6 +3,10 @@
 export(cluster_concor)
 export(cluster_cosine)
 export(cluster_hierarchical)
+export(coreness_correlation)
+export(coreness_hub)
+export(coreness_rich)
+export(coreness_transition)
 export(k_elbow)
 export(k_gap)
 export(k_silhouette)
@@ -17,12 +21,16 @@ export(net_by_adhesion)
 export(net_by_assortativity)
 export(net_by_balance)
 export(net_by_betweenness)
+export(net_by_bipartivity)
 export(net_by_closeness)
 export(net_by_cohesion)
+export(net_by_compactness)
 export(net_by_components)
 export(net_by_congruency)
 export(net_by_connectedness)
 export(net_by_core)
+export(net_by_cyclicality)
+export(net_by_decay)
 export(net_by_degree)
 export(net_by_density)
 export(net_by_diameter)
@@ -35,11 +43,13 @@ export(net_by_harmonic)
 export(net_by_heterophily)
 export(net_by_homophily)
 export(net_by_immunity)
+export(net_by_inconsistency)
 export(net_by_indegree)
 export(net_by_independence)
 export(net_by_infection_complete)
 export(net_by_infection_peak)
 export(net_by_infection_total)
+export(net_by_integration)
 export(net_by_length)
 export(net_by_modularity)
 export(net_by_outdegree)
@@ -64,6 +74,7 @@ export(net_x_correlation)
 export(net_x_dyad)
 export(net_x_hazard)
 export(net_x_hierarchy)
+export(net_x_homophily)
 export(net_x_mixed)
 export(net_x_stability)
 export(net_x_tetrad)
@@ -80,7 +91,9 @@ export(node_by_brokering_activity)
 export(node_by_brokering_exclusivity)
 export(node_by_closeness)
 export(node_by_constraint)
+export(node_by_core)
 export(node_by_coreness)
+export(node_by_decay)
 export(node_by_deg)
 export(node_by_degree)
 export(node_by_distance)
@@ -99,6 +112,7 @@ export(node_by_hub)
 export(node_by_indegree)
 export(node_by_induced)
 export(node_by_information)
+export(node_by_integration)
 export(node_by_kcoreness)
 export(node_by_leverage)
 export(node_by_multidegree)
@@ -107,6 +121,7 @@ export(node_by_outdegree)
 export(node_by_pagerank)
 export(node_by_posneg)
 export(node_by_power)
+export(node_by_radiality)
 export(node_by_randomwalk)
 export(node_by_reach)
 export(node_by_reciprocity)
@@ -119,6 +134,7 @@ export(node_by_vitality)
 export(node_in_adopter)
 export(node_in_automorphic)
 export(node_in_betweenness)
+export(node_in_block)
 export(node_in_brokering)
 export(node_in_community)
 export(node_in_component)
@@ -128,8 +144,10 @@ export(node_in_equivalence)
 export(node_in_fluid)
 export(node_in_greedy)
 export(node_in_infomap)
+export(node_in_labels)
 export(node_in_leiden)
 export(node_in_louvain)
+export(node_in_motif)
 export(node_in_optimal)
 export(node_in_partition)
 export(node_in_regular)
@@ -156,13 +174,22 @@ export(node_is_pendant)
 export(node_is_random)
 export(node_is_recovered)
 export(node_is_universal)
+export(node_x_alters)
 export(node_x_brokerage)
+export(node_x_clique)
 export(node_x_dyad)
 export(node_x_exposure)
 export(node_x_path)
+export(node_x_similarity)
 export(node_x_tetrad)
 export(node_x_tie)
+export(node_x_ties)
 export(node_x_triad)
+export(regularity_rege)
+export(regularity_rolesim)
+export(split_bins)
+export(split_kmeans)
+export(split_quantiles)
 export(tie_by_betweenness)
 export(tie_by_closeness)
 export(tie_by_cohesion)
@@ -183,53 +210,61 @@ export(tie_is_simmelian)
 export(tie_is_transitive)
 export(tie_is_triangular)
 export(tie_is_triplet)
-importFrom(dplyr,filter)
-importFrom(dplyr,group_by)
-importFrom(dplyr,mutate)
-importFrom(dplyr,select)
-importFrom(igraph,V)
-importFrom(igraph,adhesion)
-importFrom(igraph,all_shortest_paths)
-importFrom(igraph,alpha_centrality)
-importFrom(igraph,articulation_points)
-importFrom(igraph,assortativity_degree)
-importFrom(igraph,cohesion)
-importFrom(igraph,components)
-importFrom(igraph,decompose)
-importFrom(igraph,degree)
-importFrom(igraph,delete_edges)
-importFrom(igraph,delete_vertices)
-importFrom(igraph,diameter)
-importFrom(igraph,distances)
-importFrom(igraph,edge_betweenness)
-importFrom(igraph,edge_density)
-importFrom(igraph,feedback_arc_set)
-importFrom(igraph,fit_power_law)
-importFrom(igraph,graph_from_incidence_matrix)
-importFrom(igraph,is_bipartite)
-importFrom(igraph,ivs_size)
-importFrom(igraph,knn)
-importFrom(igraph,largest_ivs)
-importFrom(igraph,make_ego_graph)
-importFrom(igraph,mean_distance)
-importFrom(igraph,power_centrality)
-importFrom(igraph,reciprocity)
-importFrom(igraph,transitivity)
-importFrom(igraph,triad_census)
-importFrom(igraph,triangles)
-importFrom(igraph,vcount)
-importFrom(igraph,which_loop)
-importFrom(igraph,which_multiple)
-importFrom(igraph,which_mutual)
-importFrom(manynet,as_igraph)
-importFrom(manynet,is_complex)
-importFrom(manynet,is_twomode)
-importFrom(manynet,is_weighted)
-importFrom(manynet,tie_weights)
-importFrom(stats,as.dist)
-importFrom(stats,coef)
-importFrom(stats,complete.cases)
-importFrom(stats,cor)
-importFrom(stats,cutree)
-importFrom(stats,hclust)
-importFrom(stats,median)
+importFrom(dplyr,
+  filter,
+  group_by,
+  mutate,
+  select
+)
+importFrom(igraph,
+  V,
+  adhesion,
+  all_shortest_paths,
+  alpha_centrality,
+  articulation_points,
+  assortativity_degree,
+  cohesion,
+  components,
+  decompose,
+  degree,
+  delete_edges,
+  delete_vertices,
+  diameter,
+  distances,
+  edge_betweenness,
+  edge_density,
+  feedback_arc_set,
+  fit_power_law,
+  graph_from_incidence_matrix,
+  is_bipartite,
+  ivs_size,
+  knn,
+  largest_ivs,
+  make_ego_graph,
+  mean_distance,
+  power_centrality,
+  reciprocity,
+  transitivity,
+  triad_census,
+  triangles,
+  vcount,
+  which_loop,
+  which_multiple,
+  which_mutual
+)
+importFrom(manynet,
+  as_igraph,
+  is_complex,
+  is_twomode,
+  is_weighted,
+  tie_weights
+)
+importFrom(stats,
+  as.dist,
+  coef,
+  complete.cases,
+  cor,
+  cutree,
+  hclust,
+  median
+)

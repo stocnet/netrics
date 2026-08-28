@@ -39,7 +39,9 @@ NULL
 net_by_richness <- function(.data, attribute){
   .data <- manynet::expect_nodes(.data)
   make_network_measure(length(unique(manynet::node_attribute(.data, attribute))),
-                       .data, call = deparse(sys.call()))
+                       .data, call = deparse(sys.call()),
+                       measure = "richness", range = c(1, Inf),
+                       normalization = "none")
 }
 
 #' @rdname measure_diverse_net 
@@ -153,7 +155,11 @@ net_by_diversity <- function(.data, attribute,
                 teachman = teachman(attr),
                 variation = cv(attr),
                 gini = gini(attr))
-  make_network_measure(out, .data, call = deparse(sys.call()))
+  meta <- .diversity_metadata(diversity)
+  make_network_measure(out, .data, call = deparse(sys.call()),
+                       measure = meta$measure, range = meta$range,
+                       normalization = meta$normalization,
+                       variant = meta$variant)
 }
 
 # Nodal diversity ####
@@ -186,7 +192,10 @@ node_by_richness <- function(.data, attribute){
   out <- vapply(manynet::to_egos(.data, min_dist = 1), 
                 function(x) length(unique(manynet::node_attribute(x, attribute))),
                 FUN.VALUE = numeric(1))
-  make_node_measure(out, .data)
+  # An isolate is connected to no categories at all, so unlike the whole
+  # network's richness this can be 0.
+  make_node_measure(out, .data, measure = "richness", range = c(0, Inf),
+                    normalization = "none")
 }
 
 #' @rdname measure_diverse_node 
@@ -201,7 +210,7 @@ node_by_diversity <- function(.data, attribute,
   attr <- manynet::node_attribute(.data, attribute)
   diversity <- match.arg(diversity)
   if(is.numeric(attr) && diversity %in% c("blau","teachman")){
-    manynet::snet_info("{.val {method}} index is not appropriate for numeric attributes.")
+    manynet::snet_info("{.val {diversity}} index is not appropriate for numeric attributes.")
     manynet::snet_info("Using {.val variation} coefficient instead",
                        "({.val gini} coefficient also available).")
     diversity <- "variation"
@@ -217,7 +226,9 @@ node_by_diversity <- function(.data, attribute,
                   igraph::induced_subgraph(manynet::as_igraph(.data), x),
                   attribute, diversity = diversity),
                 FUN.VALUE = numeric(1))
-  make_node_measure(out, .data)
+  meta <- .diversity_metadata(diversity)
+  make_node_measure(out, .data, measure = meta$measure, range = meta$range,
+                    normalization = meta$normalization, variant = meta$variant)
 }
 
 # Network assortativity ####
@@ -322,7 +333,9 @@ net_by_heterophily <- function(.data, attribute){
   nInternal <- sum(m * same, na.rm = TRUE)
   nExternal <- sum(m, na.rm = TRUE) - nInternal
   ei <- (nExternal - nInternal) / sum(m, na.rm = TRUE)
-  make_network_measure(ei, .data, call = deparse(sys.call()))
+  make_network_measure(ei, .data, call = deparse(sys.call()),
+                       measure = "E-I index", range = c(-1, 1),
+                       normalization = "none")
 }
 
 #' @rdname measure_assort_net
@@ -410,7 +423,44 @@ net_by_homophily <- function(.data, attribute,
                 yule = yule(m, attribute),
                 geary = geary(m, attribute))
   
-  make_network_measure(res, .data, call = deparse(sys.call()))
+  meta <- .homophily_metadata(assortativity)
+  make_network_measure(res, .data, call = deparse(sys.call()),
+                       measure = meta$measure, range = meta$range,
+                       normalization = "none", variant = meta$variant)
+}
+
+# As with diversity, the index asked for may not be the index used, so the
+# metadata follows the resolved choice. Geary's C is centred on 1 rather than
+# 0, and runs the other way: below 1 is similarity, above 1 dissimilarity.
+# Both diversity functions may substitute a different index than the one asked
+# for, so the metadata is read off the index that actually ran. Blau's and
+# Gini's are bounded proportions; Teachman's entropy grows with the number of
+# categories, and the coefficient of variation is signed and unbounded.
+.diversity_metadata <- function(diversity){
+  list(measure = switch(diversity,
+                        blau = "Blau's index",
+                        teachman = "Teachman's index",
+                        variation = "coefficient of variation",
+                        gini = "Gini coefficient"),
+       range = switch(diversity,
+                      blau = , gini = c(0, 1),
+                      teachman = c(0, Inf),
+                      variation = c(-Inf, Inf)),
+       normalization = `if`(diversity %in% c("blau", "gini"),
+                            "normalized", "none"),
+       variant = diversity)
+}
+
+.homophily_metadata <- function(assortativity){
+  list(measure = switch(assortativity,
+                        ie = "IE index",
+                        ei = "E-I index",
+                        yule = "Yule's Q",
+                        geary = "Geary's C"),
+       range = switch(assortativity,
+                      ie = , ei = , yule = c(-1, 1),
+                      geary = c(0, 2)),
+       variant = assortativity)
 }
 
 
@@ -438,7 +488,9 @@ net_by_assortativity <- function(.data){
   .data <- manynet::expect_nodes(.data)
   make_network_measure(igraph::assortativity_degree(manynet::as_igraph(.data), 
                                                     directed = manynet::is_directed(.data)),
-                       .data, call = deparse(sys.call()))
+                       .data, call = deparse(sys.call()),
+                       measure = "degree assortativity", range = c(-1, 1),
+                       normalization = "none")
 }
 
 #' @rdname measure_assort_net
@@ -450,6 +502,14 @@ net_by_assortativity <- function(.data){
 #'   \doi{10.2307/2332142}
 #' @examples 
 #' net_by_spatial(ison_lawfirm, "age")
+#' @section Spatial autocorrelation:
+#'   Moran's I is conventionally read on \eqn{[-1, 1]}, where positive values
+#'   indicate that tied nodes hold similar values and negative values that they
+#'   hold dissimilar ones. Its actual bounds, however, are set by the
+#'   eigenvalues of the weight matrix, and on the unstandardised weights used
+#'   here it can fall outside that interval. Its range is therefore declared
+#'   open at both ends, and the conventional interval read as a guide rather
+#'   than a guarantee.
 #' @export
 net_by_spatial <- function(.data, attribute){
   .data <- manynet::expect_nodes(.data)
@@ -463,7 +523,9 @@ net_by_spatial <- function(.data, attribute){
     (sum(w * matrix(x - x_bar, N, N) * matrix(x - x_bar, N, N, byrow = TRUE)) / 
        sum((x - x_bar)^2))
   make_network_measure(I, .data, 
-                       call = deparse(sys.call()))
+                       call = deparse(sys.call()),
+                       measure = "Moran's I", range = c(-Inf, Inf),
+                       normalization = "none")
 }
 
 # Network assortativity ####
@@ -509,7 +571,8 @@ node_by_heterophily <- function(.data, attribute){
   nInternal[is.na(attribute)] <- NA
   nExternal <- rowSums(m, na.rm = TRUE) - nInternal
   ei <- (nExternal - nInternal) / rowSums(m, na.rm = TRUE)
-  make_node_measure(ei, .data)
+  make_node_measure(ei, .data, measure = "E-I index", range = c(-1, 1),
+                    normalization = "none")
 }
 
 #' @rdname measure_assort_node
@@ -541,6 +604,8 @@ node_by_homophily <- function(.data, attribute,
                     subattr, assortativity = assortativity)
                 },
                 FUN.VALUE = numeric(1))
-  make_node_measure(out, .data)
+  meta <- .homophily_metadata(assortativity)
+  make_node_measure(out, .data, measure = meta$measure, range = meta$range,
+                    normalization = "none", variant = meta$variant)
 }
 

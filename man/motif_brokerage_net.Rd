@@ -8,9 +8,9 @@
 net_x_brokerage(.data, membership, standardized = FALSE)
 }
 \arguments{
-\item{.data}{A network object of class \code{mnet}, \code{igraph}, \code{tbl_graph}, \code{network}, or similar.
-For more information on the standard coercion possible,
-see \code{\link[manynet:as_tidygraph]{manynet::as_tidygraph()}}.}
+\item{.data}{A network object of class \code{stocnet}, \code{igraph}, \code{tbl_graph}, \code{network}, or similar.
+Internally any of these will be coerced to an efficient implementation.
+For more information on possible coercions, see e.g. \code{\link[manynet:as_stocnet]{manynet::as_stocnet()}}.}
 
 \item{membership}{A character string naming an existing node attribute in
 the network, or a categorical vector of the same length as the number of
@@ -19,9 +19,13 @@ the corresponding node.
 While this may often be a vector created using \verb{node_in_*()} functions,
 it can be any character vector that assigns nodes to groups or categories.}
 
-\item{standardized}{Whether the score should be standardized
-into a \emph{z}-score indicating how many standard deviations above
-or below the average the score lies.}
+\item{standardized}{Logical scalar. Where \code{TRUE}, the counts are returned
+as z-scores against a null model rather than as raw counts.
+This is a different quantity from \code{normalized}, which divides by a
+theoretical maximum, and from \code{scaled}, which divides by the observed
+maximum: a z-score says how far the count departs from what the null
+model expects, so it can be negative and has no fixed range.
+By default \code{FALSE}.}
 }
 \value{
 A \code{network_motif} named numeric vector or sometimes a data frame with
@@ -46,9 +50,12 @@ Other brokerage:
 
 Other motifs:
 \code{\link{motif_brokerage_node}},
+\code{\link{motif_clique}},
+\code{\link{motif_composition}},
 \code{\link{motif_exposure}},
 \code{\link{motif_hazard}},
 \code{\link{motif_hierarchy}},
+\code{\link{motif_homophily}},
 \code{\link{motif_net}},
 \code{\link{motif_node}},
 \code{\link{motif_path}},

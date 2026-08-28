@@ -4,30 +4,44 @@
 \alias{measure_closure}
 \alias{net_by_reciprocity}
 \alias{net_by_transitivity}
+\alias{net_by_cyclicality}
 \alias{net_by_equivalency}
 \alias{net_by_congruency}
 \title{Measuring network closure}
 \usage{
-net_by_reciprocity(.data, method = "default")
+net_by_reciprocity(.data, variant = c("default", "ratio"), method = NULL)
 
 net_by_transitivity(.data)
+
+net_by_cyclicality(.data)
 
 net_by_equivalency(.data)
 
 net_by_congruency(.data, object2)
 }
 \arguments{
-\item{.data}{A network object of class \code{mnet}, \code{igraph}, \code{tbl_graph}, \code{network}, or similar.
-For more information on the standard coercion possible,
-see \code{\link[manynet:as_tidygraph]{manynet::as_tidygraph()}}.}
+\item{.data}{A network object of class \code{stocnet}, \code{igraph}, \code{tbl_graph}, \code{network}, or similar.
+Internally any of these will be coerced to an efficient implementation.
+For more information on possible coercions, see e.g. \code{\link[manynet:as_stocnet]{manynet::as_stocnet()}}.}
 
-\item{method}{For reciprocity, either \code{default} or \code{ratio}.
-See \code{?igraph::reciprocity}}
+\item{variant}{Character string naming which variant of the measure to
+compute, where more than one definition of the same quantity is in use.
+The variant chosen is reported when the result is printed.}
+
+\item{method}{Deprecated. The former spelling of \code{variant}.
+Still accepted, but warns; please use \code{variant} instead.}
 
 \item{object2}{Optionally, a second (two-mode) matrix, igraph, or tidygraph}
 }
 \value{
 A \code{network_measure} numeric score.
+
+The object also carries the \code{measure} it computed, the \code{range} its values
+can fall within, and whether and how those values were \code{normalized}.
+These are shown as a one-line header when the object is printed.
+Where a measure offers a choice between several ways of counting the
+same thing, it also carries the \code{variant} it used.
+All can be retrieved with \code{attr()}.
 }
 \description{
 These functions offer methods for summarising the closure in configurations
@@ -35,6 +49,7 @@ in one-, two-, and three-mode networks:
 \itemize{
 \item \code{net_by_reciprocity()} measures reciprocity in a (usually directed) network.
 \item \code{net_by_transitivity()} measures transitivity in a network.
+\item \code{net_by_cyclicality()} measures cyclicality in a (necessarily directed) network.
 \item \code{net_by_equivalency()} measures equivalence or reinforcement
 in a (usually two-mode) network.
 \item \code{net_by_congruency()} measures congruency across two two-mode networks.
@@ -50,20 +65,53 @@ that are closed by fourth tie to establish a "shared four-cycle" structure.
 For three-mode networks, \code{net_congruency} calculates the proportion of three-paths
 spanning two two-mode networks that are closed by a fourth tie to establish a
 "congruent four-cycle" structure.
+
+\code{net_by_reciprocity()} takes a \code{variant}: either \code{"default"}, the share of
+ties that are reciprocated, or \code{"ratio"}, the share of dyads that are mutual
+rather than asymmetric. See \code{?igraph::reciprocity}.
 }
+\section{Cyclicality}{
+
+Where transitivity asks how often a two-path \eqn{i \to j \to k} is closed
+by a tie \eqn{i \to k}, cyclicality asks how often it is closed in the
+other direction, by \eqn{k \to i}:
+\deqn{C = \frac{|\{i \to j \to k \to i\}|}{|\{i \to j \to k\}|}}
+The two capture different social logics. Transitivity is the signature of
+hierarchy and of "a friend of a friend is a friend", while cyclicality is
+the signature of generalised exchange, where resources circulate around a
+loop rather than flowing consistently in one direction.
+
+A two-mode network contains no cycle of odd length, so it scores 0 here,
+just as it does for transitivity. Use \code{net_by_equivalency()} for closure
+in a two-mode network, which counts four-cycles instead.
+
+In an undirected network every two-path closed in one direction is also
+closed in the other, so cyclicality and transitivity coincide.
+}
+
 \section{Equivalency}{
 
 The \code{net_by_equivalency()} function calculates the Robins and Alexander (2004)
 clustering coefficient for two-mode networks.
-Note that for weighted two-mode networks, the result is divided by the average tie weight.
+The coefficient is a proportion of three-paths, and so is defined on
+binary data; weighted networks are dichotomised before it is calculated.
 }
 
 \examples{
 net_by_reciprocity(ison_southern_women)
 net_by_transitivity(ison_adolescents)
+net_by_cyclicality(ison_networkers)
 net_by_equivalency(ison_southern_women)
 }
 \references{
+\subsection{On cyclicality and generalised exchange}{
+
+Bearman, Peter. 1997.
+"Generalized Exchange".
+\emph{American Journal of Sociology} 102(5): 1383-1415.
+\doi{10.1086/231087}
+}
+
 \subsection{On equivalency or four-cycles}{
 
 Robins, Garry L, and Malcolm Alexander. 2004.
@@ -92,10 +140,10 @@ Other measures:
 \code{\link{measure_central_close}},
 \code{\link{measure_central_degree}},
 \code{\link{measure_central_eigen}},
-\code{\link{measure_centralities_between}},
-\code{\link{measure_centralities_close}},
-\code{\link{measure_centralities_degree}},
-\code{\link{measure_centralities_eigen}},
+\code{\link{measure_central_tie_between}},
+\code{\link{measure_central_tie_close}},
+\code{\link{measure_central_tie_degree}},
+\code{\link{measure_central_tie_eigen}},
 \code{\link{measure_closure_node}},
 \code{\link{measure_cohesion}},
 \code{\link{measure_core}},
@@ -105,6 +153,7 @@ Other measures:
 \code{\link{measure_diverse_net}},
 \code{\link{measure_diverse_node}},
 \code{\link{measure_features}},
+\code{\link{measure_fit}},
 \code{\link{measure_fragmentation}},
 \code{\link{measure_hierarchy}},
 \code{\link{measure_periods}}

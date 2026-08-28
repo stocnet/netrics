@@ -11,14 +11,26 @@
 #'   which uses an electrical current model for information spreading 
 #'   in contrast to the shortest paths model used by normal betweenness centrality.
 #'   - `node_by_stress()` measures the stress centrality of nodes in a network.
-#'   - `tie_by_betweenness()` measures the number of shortest paths going through a tie.
-#'   
+#'
+#'   These four differ in what they count:
+#'   `node_by_betweenness()` sums the _proportion_ of shortest paths between
+#'   each pair that run through a node, so every pair of nodes contributes at
+#'   most one unit however many shortest paths connect it;
+#'   `node_by_stress()` instead sums the raw _count_ of those paths, so pairs
+#'   joined by many equally short routes count for more;
+#'   `node_by_flow()` abandons shortest paths altogether for maximum flow,
+#'   crediting nodes that carry traffic along longer routes as well;
+#'   and `node_by_induced()` asks a different question again — not how much
+#'   passes through a node, but how much total betweenness the network would
+#'   lose if it were removed.
+#'   For ties rather than nodes, see [tie_by_betweenness()].
+#'
 #'   All measures attempt to use as much information as they are offered,
 #'   including whether the networks are directed, weighted, or multimodal.
-#'   If this would produce unintended results, 
+#'   If this would produce unintended results,
 #'   first transform the salient properties using e.g. [to_undirected()] functions.
-#'   All centrality and centralization measures return normalized measures by default,
-#'   including for two-mode networks.
+#'   All centrality and centralization measures return normalised or scaled
+#'   measures where available, reported when the measure is printed.
 #' @template param_data
 #' @template param_norm
 #' @family betweenness
@@ -33,12 +45,29 @@ NULL
 #'   Betweenness centrality is based on the number of shortest paths between
 #'   other nodes that a node lies upon:
 #'   \deqn{C_B(i) = \sum_{j,k:j \neq k, j \neq i, k \neq i} \frac{g_{jik}}{g_{jk}}}
+#'
+#'   Setting `cutoff` counts only those shortest paths no longer than \eqn{k},
+#'   which elsewhere goes by _distance-bounded betweenness_ (Brandes, 2008) or
+#'   _range-limited betweenness_ (Ercsey-Ravasz et al., 2012).
+#'   Normalization still applies, so a bounded score remains comparable across
+#'   networks.
 #' @references
 #' ## On betweenness centrality
-#' Freeman, Linton. 1977. 
-#' "A set of measures of centrality based on betweenness". 
-#' _Sociometry_, 40(1): 35–41. 
+#' Freeman, Linton. 1977.
+#' "A set of measures of centrality based on betweenness".
+#' _Sociometry_, 40(1): 35–41.
 #' \doi{10.2307/3033543}
+#'
+#' ## On bounding path length
+#' Brandes, Ulrik. 2008.
+#' "On variants of shortest-path betweenness centrality and their generic computation".
+#' _Social Networks_ 30(2): 136-145.
+#' \doi{10.1016/j.socnet.2007.11.001}
+#'
+#' Ercsey-Ravasz, Maria, Ryan N. Lichtenwalter, Nitesh V. Chawla, and Zoltan Toroczkai. 2012.
+#' "Range-limited centrality measures in complex networks".
+#' _Physical Review E_ 85(6): 066103.
+#' \doi{10.1103/PhysRevE.85.066103}
 #' @examples
 #' node_by_betweenness(ison_southern_women)
 #' @export 
@@ -60,32 +89,40 @@ node_by_betweenness <- function(.data, normalized = TRUE,
                   betw_scores/(2*(set_size-1)*(other_set_size-1)), 
                   betw_scores/(1/2*other_set_size*(other_set_size-1)+1/2*(set_size-1)*(set_size-2)+(set_size-1)*(other_set_size-1)))
   } else {
-    if (is.null(cutoff)) {
-      out <- igraph::betweenness(graph = graph, v = igraph::V(graph), 
-                                 directed = manynet::is_directed(graph), weights = weights, 
-                                 normalized = normalized)
-    } else {
-      out <- igraph::betweenness(graph = graph, v = igraph::V(graph), 
-                                 directed = manynet::is_directed(graph), 
-                                 cutoff = cutoff, 
-                                 weights = weights)
-    }
+    # `igraph::betweenness()` accepts a cutoff and normalization together,
+    # so limiting path length does not preclude normalizing the result.
+    out <- igraph::betweenness(graph = graph, v = igraph::V(graph),
+                               directed = manynet::is_directed(graph),
+                               weights = weights,
+                               cutoff = `if`(is.null(cutoff), -1, cutoff),
+                               normalized = normalized)
   }
-  out <- make_node_measure(out, .data)
-  out
+  make_node_measure(out, .data, measure = "betweenness centrality",
+                    range = `if`(normalized, c(0, 1), c(0, Inf)),
+                    normalization = `if`(normalized, "normalized", "none"))
 }
 
 #' @rdname measure_central_between 
-#' @section Induced centrality: 
-#'   Induced centrality or vitality centrality concerns the change in 
-#'   total betweenness centrality between networks with and without a given node:
+#' @section Induced centrality:
+#'   Induced centrality concerns the change in total betweenness centrality
+#'   between networks with and without a given node:
 #'   \deqn{C_I(i) = C_B(G) - C_B(G\ i)}
+#'   This "remove the node and re-measure" logic is the general
+#'   _delta centrality_ framework of Latora and Marchiori (2007);
+#'   `node_by_induced()` is its betweenness instance, and
+#'   [node_by_vitality()] its closeness instance.
 #' @references
 #' ## On induced centrality
 #' Everett, Martin and Steve Borgatti. 2010.
 #' "Induced, endogenous and exogenous centrality"
 #' _Social Networks_, 32: 339-344.
 #' \doi{10.1016/j.socnet.2010.06.004}
+#'
+#' ## On delta centrality
+#' Latora, Vito, and Massimo Marchiori. 2007.
+#' "A measure of centrality based on network efficiency".
+#' _New Journal of Physics_ 9(6): 188.
+#' \doi{10.1088/1367-2630/9/6/188}
 #' @examples
 #' node_by_induced(ison_adolescents)
 #' @export 
@@ -100,7 +137,8 @@ node_by_induced <- function(.data, normalized = TRUE,
                                  na.rm = TRUE),
                  FUN.VALUE = numeric(1))
   out <- endog - exog
-  make_node_measure(out, .data)
+  make_node_measure(out, .data, measure = "induced centrality",
+                    range = c(-Inf, Inf), normalization = "none")
 }
 
 #' @rdname measure_central_between 
@@ -112,10 +150,11 @@ node_by_induced <- function(.data, normalized = TRUE,
 #'   sum of flows \eqn{f(i,j,G)}.
 #' @references
 #' ## On flow centrality
-#' Freeman, Lin, Stephen Borgatti, and Douglas White. 1991. 
-#' "Centrality in Valued Graphs: A Measure of Betweenness Based on Network Flow". 
+#' Freeman, Linton C., Stephen P. Borgatti, and Douglas R. White. 1991.
+#' "Centrality in Valued Graphs: A Measure of Betweenness Based on Network Flow".
 #' _Social Networks_, 13(2), 141-154.
-#' 
+#' \doi{10.1016/0378-8733(91)90017-N}
+#'
 #' Koschutzki, D., K.A. Lehmann, L. Peeters, S. Richter, D. Tenfelde-Podehl, and O. Zlotowski. 2005. 
 #' "Centrality Indices". 
 #' In U. Brandes and T. Erlebach (eds.), _Network Analysis: Methodological Foundations_. 
@@ -128,7 +167,11 @@ node_by_flow <- function(.data, normalized = TRUE){
                       gmode = ifelse(manynet::is_directed(.data), "digraph", "graph"),
                       diag = manynet::is_complex(.data),
                       cmode = ifelse(normalized, "normflow", "rawflow"))
-  make_node_measure(out, .data)
+  # `sna`'s "normflow" divides each node's mediated flow by the total flow,
+  # bounding the result by one.
+  make_node_measure(out, .data, measure = "flow betweenness centrality",
+                    range = `if`(normalized, c(0, 1), c(0, Inf)),
+                    normalization = `if`(normalized, "normalized", "none"))
 }
 
 #' @rdname measure_central_between 
@@ -152,13 +195,17 @@ node_by_stress <- function(.data, normalized = TRUE){
                          gmode = ifelse(manynet::is_directed(.data), "digraph", "graph"),
                          diag = manynet::is_complex(.data),
                          rescale = normalized)
-  make_node_measure(out, .data)
+  # `sna::stresscent(rescale = TRUE)` divides by the sum of all scores,
+  # so the result is a set of shares rather than a [0,1] normalisation.
+  make_node_measure(out, .data, measure = "stress centrality",
+                    range = `if`(normalized, c(0, 1), c(0, Inf)),
+                    normalization = `if`(normalized, "proportional", "none"))
 }
 
 # Tie betweenness centrality ####
 
 #' Measuring ties betweenness-like centrality
-#' @name measure_centralities_between
+#' @name measure_central_tie_between
 #' @description
 #'   `tie_by_betweenness()` measures the number of shortest paths going through a tie.
 #'   
@@ -175,7 +222,24 @@ node_by_stress <- function(.data, normalized = TRUE){
 #' @template tie_measure
 NULL
 
-#' @rdname measure_centralities_between
+#' @rdname measure_central_tie_between
+#' @section Edge betweenness centrality:
+#'   The betweenness centrality of a tie, also known as _edge betweenness_,
+#'   counts the shortest paths between other nodes that run along it.
+#'   It is best known as the quantity iteratively recomputed by the
+#'   Girvan-Newman community detection algorithm, where the ties with the
+#'   highest betweenness are removed first; see [node_in_betweenness()].
+#' @references
+#' ## On edge betweenness centrality
+#' Girvan, Michelle, and Mark E.J. Newman. 2002.
+#' "Community structure in social and biological networks".
+#' _Proceedings of the National Academy of Sciences_ 99(12): 7821-7826.
+#' \doi{10.1073/pnas.122653799}
+#'
+#' Brandes, Ulrik. 2001.
+#' "A faster algorithm for betweenness centrality".
+#' _Journal of Mathematical Sociology_ 25(2): 163-177.
+#' \doi{10.1080/0022250X.2001.9990249}
 #' @importFrom igraph edge_betweenness
 #' @examples
 #' (tb <- tie_by_betweenness(ison_adolescents))
@@ -187,8 +251,18 @@ tie_by_betweenness <- function(.data, normalized = TRUE){
   eddies <- manynet::as_edgelist(.data)
   eddies <- paste(eddies[["from"]], eddies[["to"]], sep = "-")
   out <- igraph::edge_betweenness(.data)
+  # `igraph::edge_betweenness()` offers no normalization of its own, so we
+  # divide by the number of node pairs whose shortest paths could run through
+  # a tie, which is the theoretical maximum.
+  if(normalized){
+    n <- manynet::net_nodes(.data)
+    pairs <- `if`(manynet::is_directed(.data), n*(n-1), n*(n-1)/2)
+    if(pairs > 0) out <- out/pairs
+  }
   names(out) <- eddies
-  make_tie_measure(out, .data)
+  make_tie_measure(out, .data, measure = "betweenness centrality",
+                   range = `if`(normalized, c(0, 1), c(0, Inf)),
+                   normalization = `if`(normalized, "normalized", "none"))
 }
 
 # Betweenness centralisation ####
@@ -227,16 +301,24 @@ tie_by_betweenness <- function(.data, normalized = TRUE){
 #'   `net_by_betweenness()` returns a `network_measure` scalar;
 #'   `mode_by_betweenness()` returns a `mode_measure` numeric vector of length two,
 #'   giving one centralization score per mode.
+#' @details
+#'   Betweenness centralisation has no directional variants:
+#'   `igraph::centr_betw()` derives directedness from the network itself,
+#'   so `net_by_betweenness()` takes no `direction` argument.
+#'   For the per-mode scores, `direction` chooses the comparison set rather
+#'   than a tie direction — `"all"` compares each mode's most central node
+#'   against every node in the network, whereas `"in"` compares it only
+#'   against the other nodes of its own mode. Since a two-mode incidence
+#'   structure gives these no distinct "out" counterpart,
+#'   `mode_by_betweenness()` accepts only `"all"` and `"in"`.
 NULL
 
 #' @rdname measure_centralisation_between
 #' @examples
-#' net_by_betweenness(ison_southern_women, direction = "in")
+#' net_by_betweenness(ison_southern_women)
 #' @export
-net_by_betweenness <- function(.data, normalized = TRUE,
-                               direction = c("all", "out", "in")) {
+net_by_betweenness <- function(.data, normalized = TRUE) {
   .data <- manynet::expect_nodes(.data)
-  direction <- match.arg(direction)
   graph <- manynet::as_igraph(.data)
 
   if (manynet::is_twomode(.data)) {
@@ -251,8 +333,10 @@ net_by_betweenness <- function(.data, normalized = TRUE,
     out <- igraph::centr_betw(graph = graph,
                               normalized = normalized)$centralization
   }
-  out <- make_network_measure(out, .data, call = deparse(sys.call()))
-  out
+  make_network_measure(out, .data, call = deparse(sys.call()),
+                       measure = "betweenness centralisation",
+                       range = `if`(normalized, c(0, 1), c(0, Inf)),
+                       normalization = `if`(normalized, "normalized", "none"))
 }
 
 #' @rdname measure_centralisation_between
@@ -260,7 +344,7 @@ net_by_betweenness <- function(.data, normalized = TRUE,
 #' mode_by_betweenness(ison_southern_women, direction = "in")
 #' @export
 mode_by_betweenness <- function(.data, normalized = TRUE,
-                                direction = c("all", "out", "in")) {
+                                direction = c("all", "in")) {
   .data <- manynet::expect_nodes(.data)
   direction <- match.arg(direction)
   graph <- manynet::as_igraph(.data)
@@ -308,7 +392,9 @@ mode_by_betweenness <- function(.data, normalized = TRUE,
     }
     out <- c("Mode 1" = out$nodes1, "Mode 2" = out$nodes2)
   }
-  out <- make_mode_measure(out, .data, call = deparse(sys.call()))
-  out
+  make_mode_measure(out, .data, call = deparse(sys.call()),
+                    measure = "betweenness centralisation",
+                    range = `if`(normalized, c(0, 1), c(0, Inf)),
+                    normalization = `if`(normalized, "normalized", "none"))
 }
 

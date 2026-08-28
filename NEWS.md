@@ -1,8 +1,189 @@
+# netrics 1.0.0
+
+## Package
+
+- Removed CRAN version check from `.onAttach()` making `library(netrics)` faster to attach
+- Fixed release workflow doubling `actions/actions/checkout` path segment
+- Updated GitHub Actions workflows to latest major action versions
+- Updated CONTRIBUTING to be clearer about documentation, website and NEWS conventions
+- Added roxygen templates to standardise argument vocabulary
+  - `param_cutoff`
+  - `param_decay`
+  - `param_times`
+  - `param_variant`
+  - `param_standardized`
+  - `param_connectivity`
+- Updated the website function overview to use the `NEWS.md` family headings
+- Updated the README to recommend installing the whole family via `{migraph}`
+
+## Measures
+
+- Improved `make_*_measure()` to record algorithm details so results can be read without the script/manual
+  - `measure` actually calculated, e.g. `node_by_degree()` is "strength centrality" on a weighted network
+  - `normalization`, one of `"normalized"`, `"scaled"`, `"proportional"` or `"none"`
+  - `range`, the theoretical range of the returned values
+  - `variant` computed where a measure offers a choice, e.g. `net_by_reciprocity()` reports "ratio" when asked
+  - Printing is a companion change in `{manynet}`, which defaults to previous behavior
+  - Added `measure`, `range`, `normalization`, and `variant` reporting to every measure where applicable
+- Updated documentation such that measures that functions and certain arguments produce are discoverable by name
+  - `node_by_betweenness(cutoff = k)` is distance-bounded or range-limited betweenness
+  - `node_by_reach(cutoff = k)` is geodesic k-path centrality
+  - `node_by_closeness()` as the Sabidussi index
+  - `node_by_degree()` on a weighted network as strength or weighted degree centrality
+  - `node_by_alpha()` as Katz status
+  - `node_by_hub()` and `node_by_authority()` as the two halves of Kleinberg's HITS
+  - `node_by_transitivity()` as the local clustering coefficient
+  - `tie_by_betweenness()` as edge betweenness
+  - `node_by_subgraph()` as a node's contribution to the Estrada index
+  - `node_by_induced()` and `node_by_vitality()` as delta centrality
+  - `node_by_information()` as the closeness member of the current-flow family
+  - Stopped `node_by_induced()` also calling itself "vitality centrality"
+- Improved specificity of arguments, separating normalising from scaling
+  - Renamed `scale` argument to `scaled`; old spelling still works but warns
+  - Corrected claim that all measures return normalized values by default
+- Improved consistency by consolidating every per-step discount as `decay`
+  - Always proportional [0,1] where higher values discount less
+  - Was `alpha` in `node_by_alpha()`, `beta` in `regularity_rolesim()`
+    - `alpha` now only refers to Opsahl et al.'s trade-off between degree and strength in `node_by_degree()`
+  - Added `decay` argument to `node_by_harmonic()`, and `node_by_decay()` as a shortcut for decay centrality
+  - Added `decay` to `node_by_pagerank()`, exposing the damping factor previously fixed at 0.85
+  - Added `decay` to `node_by_subgraph()`, weighting closed walks by length, which Estrada calls `t`
+  - Old spellings still work but warn, as `scale` does
+- Fixed `node_by_degree()` to default to `alpha = 0` to match documentation
+- Fixed `mode_by_betweenness()` to accept only `"all"` and `"in"`, as implemented
+- Fixed `node_by_reach()` counting the node itself so normalised scores could exceed 1
+- Fixed `node_by_eigenvector()` discarding tie weights it had computed
+- Fixed `tie_by_betweenness()` and `node_by_randomwalk()` accepting `normalized` and then ignoring it
+- Fixed `node_by_betweenness()` accepting `normalized` and then ignoring it when given a `cutoff`
+- Fixed how `node_by_vitality()` treats cut nodes
+  - Unnormalised returns `-Inf` for cut nodes as the Wiener index definition requires
+  - Normalised rescales finite scores onto `[0,1]` and places cut nodes at 0
+- Fixed `net_by_efficiency()` to implement Krackhardt's share of excess ties
+  - `net_x_hierarchy()` now compares four quantities already on `[0,1]`
+- Fixed `net_by_immunity()` returning a negative herd immunity threshold when \eqn{R < 1}
+- Fixed `net_by_density()`, `net_by_equivalency()` and `node_by_reciprocity()` summing tie weights
+- Improved `node_by_closeness()` to validate `direction` via `match.arg()`
+- Removed `direction` from `net_by_betweenness()` which never used it
+- Moved `node_by_posneg()` to the eigenvector doc group
+- Improved `node_by_subgraph()`
+  - Now honours tie weights
+  - Added `walks=` to choose which closed walks to count: `"odd"`, `"even"` or `"all"`
+- Updated references in centrality documentation
+  - Corrected `node_by_eigenvector()` to cite Bonacich (1972), not only (1991)
+  - Added Freeman (1978) to `node_by_degree()` and the centralisation functions
+  - Added Sabidussi (1966) to closeness
+  - Added Boldi and Vigna (2014) to harmonic
+  - Added Borgatti and Everett (2006) to reach
+  - Added Brandes (2008) and Ercsey-Ravasz et al. (2012) to betweenness
+  - Added Watts/Strogatz (1998) and Holland/Leinhardt (1971) to node transitivity
+  - Added Page et al. (1999) to pagerank
+- Added `net_by_bipartivity()` for how close a network is to being bipartite
+- Added `net_by_cyclicality()` for detecting generalised exchange
+- Added `net_by_compactness()` for the average closeness of all pairs of nodes
+- Added `node_by_integration()` and `net_by_integration()` for Valente and Foreman's integration and radiality
+- Added `node_by_radiality()` as a shortcut for `node_by_integration(direction = "out")`
+- Added `net_by_inconsistency()` for how far a partition's blocks depart from ideal types
+  - Ideal types are `nul`, `com`, `reg`, `rdo`, `cdo` and `dnc`
+  - Generalises `net_by_factions()` beyond structural equivalence
+- Fixed `node_by_equivalency()` erroring on any network, despite being documented for the two-mode case
+- Fixed `node_by_diversity()` reporting undefined objects when substituting an inapplicable index
+- Fixed `net_by_transmissibility()` declaring itself a proportion
+- Fixed `net_by_balance()` erroring on networks holding signs as negative weights
+- Fixed `net_by_diameter()`, `net_by_length()` and `net_by_compactness()` on signed networks
+  - Now consider only positive ties for distances
+- Fixed `node_by_reciprocity()` to return 1 throughout for any undirected network
+- Fixed `node_by_information()` on rectangular matrices by using `manynet::to_multilevel()`
+- Fixed `net_by_independence()` erroring on multilevel networks by measuring whole
+- Fixed `net_by_waves()` reporting one wave where waves are held as `time`
+- Added `connectivity=` to `net_by_components()` for counting weak as well as strong components
+  - Defaults to `"strong"`, so existing scripts are unaffected
+  - The connectivity counted is reported as the measure's `variant` when the result is printed
+
+## Memberships
+
+- Added `k=` to community detection functions to target a specific number of communities (thanks @tomasdiviak)
+  - Hierarchical algorithms cut their dendrograms at `k`
+  - `node_in_louvain()` and `node_in_leiden()` search the resolution parameter for the value that returns `k`
+  - `node_in_fluid()` passes `k` straight to the algorithm, which also makes it much faster
+  - `node_in_labels()` seeds `k` fixed labels and merges any surplus groups by modularity
+  - `node_in_partition()` is now a k-way Kernighan-Lin, and no longer returns only two groups
+  - `node_in_community()` considers only these algorithms when `k` is given
+  - `k` also accepts `"silhouette"`, `"elbow"`, and `"strict"`, as in `node_in_equivalence()`
+  - Note `k=` is now positioned second, so positional calls must name arguments
+- Fixed `node_in_fluid()` and `node_in_spinglass()` aborting silently on disconnected networks
+- Added `node_in_labels()` for label propagation community detection
+- Renamed `times=` in `node_in_walktrap()` to `steps=`
+- Added `consensus=` to `node_in_community()` for combining partitions of all applicable algorithms
+  - Runs each algorithm (stochastic ones `times`), then converges on common groupings
+  - `consensus = FALSE` default, and ignored where network small enough for `node_in_optimal()`
+  - Fixed returning nothing but an error whenever verbosity was not `"verbose"`
+- Renamed `node_by_coreness()` to `node_by_core()`
+  - Fixed search starting points rather than random
+  - Fixed it returning identical scores for a directed network and its reverse
+  - Fixed it erroring on two-mode networks whose modes are of unequal size
+- Improved `node_in_core()`
+  - Renamed `centrality=` to `coreness=`
+    - `"rich"` by default for weighted, directed or two-mode networks
+    - `"correlation"` otherwise
+  - Adds `direction=` for directed networks
+    - `"Sender"` for core out-ties and periphery in-ties
+    - `"Receiver"` for core in-ties and periphery out-ties
+  - Fixed sorting numbered middle labels alphabetically or from arbitrary cluster numbers
+- Improved `node_in_equivalence()` to announce the `cluster_*()` and `k_*()` used
+- Added `node_in_block()` for direct blockmodelling for partitions that minimise `net_by_inconsistency()`
+- Fixed `node_in_regular()` to compute regular equivalence correctly
+  - Choose between `regularity = "rolesim"` (default) and `"rege"` for recursive similarity
+  - Note existing scripts calling `node_in_regular()` will now return more correct results
+  - Moved counting of motif types to `node_in_motif()`,
+  though neither is Burt's equivalence or an orbit-aware census (thanks @Kaladani)
+- Renamed `Kmax=` to `max_k=` in the community and equivalence functions
+- Renamed `num_groups=` to `groups=` in `node_in_roulette()`
+- Renamed `cluster_by=` to `split=` in `node_in_core()`
+- Added `connectivity=` to `node_in_component()` for weak as well as strong component membership
+  - Defaults to `"strong"`, so existing scripts are unaffected
+  - Ignored for undirected networks, where the two notions coincide
+  - Deprecated `node_in_weak()` and `node_in_strong()`
+
+## Motifs
+
+- Improved `net_x_triad()`
+  - Added a mixed census for multiplex networks by folding in `net_x_mixed()`
+  - Will fire by default for multiplex networks, taking layers by mode rather than by position
+  - Deprecated `net_x_mixed()`
+- Added `node_x_clique()`, returning which maximal cliques each node belongs to
+  - It branches on two-mode networks to find bicliques (closes #8, thanks @noortjemay)
+  - Note that it considers only positive ties, since a clique is a cohesive subgroup
+- Improved `node_x_tie()`
+  - Fixed erroring on diffusion models which affected `node_in_equivalence()` and `node_in_structural()`
+  - Fixed erroring on any multiplex network not multiplexed on a `type` tie attribute
+- Added `node_x_ties()`, describing the distribution of each node's tie values
+  - In a multiplex network it describes their spread across layers
+- Added `node_x_alters()` for describing composition of each node's alters
+- Added `node_x_similarity()` for describing similarity of each node to its alters
+  - For two-mode networks, compares each node with those at distance two
+- Added `net_x_homophily()` for the table behind the EI index against expected baseline
+
+## Methods
+
+- Added `regularity_rolesim()` and `regularity_rege()`, recursive role similarity methods
+  - Note `regularity_rege()` is degenerate on unweighted connected networks, where it warns
+- Added coreness methods for core-periphery analysis, each returning mark, member, and measure
+  - `coreness_correlation()` is Borgatti and Everett's continuous model, fixed to exclude self-ties
+  - `coreness_rich()` is Ma and Mondragon's rich-core for directed and two-mode networks
+  - `coreness_hub()` is Elliott and colleagues' more granualr directed core-periphery
+  - `coreness_transition()` is Rombach and colleagues' core score over boundary sharpness and core size
+- Added `split_bins()`, `split_quantiles()` and `split_kmeans()`
+  - Each splits a continuous score into an ordered set of groups
+
+## Tutorials
+
+- Updated position tutorial to use `node_in_regular()` for regular equivalence rather than the triad census
+- Updated topology tutorial with weighted, directed, and continuous core-periphery
+
 # netrics 0.4.1
 
 ## Package
 
-- Updated actions/checkout@v2 to actions/checkout@v4
 - Fixed the website deploy job installing `Config/Needs/check` packages instead of `Config/Needs/website`, which meant `{learnr}` was never actually installed before the pkgdown deploy step
 
 ## Tutorials
@@ -89,7 +270,7 @@
 
 - Added network analysis tutorials from `{manynet}`
 
-## Members
+## Memberships
 
 - Added more explanation for `node_in_partition()`
 
@@ -104,7 +285,7 @@
   consistent function documentation.
 - Fixed startup messages.
 
-## Measuring
+## Measures
 
 - Renamed `node_adoption_time()` to `node_by_adopt_time()`
 - Renamed `node_thresholds()` to `node_by_adopt_threshold()`
@@ -116,7 +297,7 @@
 - Updated and separated brokerage, diversity/assortativity, cohesion, closure, 
   cliques, components, features, and hierarchy documentation by level.
 
-## Members
+## Memberships
 
 - Separated `node_in_community()` documentation from the hierarchical
   and non-hierarchical community-detection algorithms.

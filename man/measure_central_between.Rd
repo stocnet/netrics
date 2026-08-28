@@ -17,9 +17,9 @@ node_by_flow(.data, normalized = TRUE)
 node_by_stress(.data, normalized = TRUE)
 }
 \arguments{
-\item{.data}{A network object of class \code{mnet}, \code{igraph}, \code{tbl_graph}, \code{network}, or similar.
-For more information on the standard coercion possible,
-see \code{\link[manynet:as_tidygraph]{manynet::as_tidygraph()}}.}
+\item{.data}{A network object of class \code{stocnet}, \code{igraph}, \code{tbl_graph}, \code{network}, or similar.
+Internally any of these will be coerced to an efficient implementation.
+For more information on possible coercions, see e.g. \code{\link[manynet:as_stocnet]{manynet::as_stocnet()}}.}
 
 \item{normalized}{Logical scalar, whether scores are normalized.
 Different denominators may be used depending on the measure,
@@ -34,6 +34,13 @@ A \code{node_measure} numeric vector the length of the nodes in the network,
 providing the scores for each node.
 If the network is labelled,
 then the scores will be labelled with the nodes' names.
+
+The object also carries the \code{measure} it computed, the \code{range} its values
+can fall within, and whether and how those values were \code{normalized}.
+These are shown as a one-line header when the object is printed.
+Where a measure offers a choice between several ways of counting the
+same thing, it also carries the \code{variant} it used.
+All can be retrieved with \code{attr()}.
 }
 \description{
 These functions calculate common betweenness-related centrality measures for one- and two-mode networks:
@@ -44,28 +51,50 @@ These functions calculate common betweenness-related centrality measures for one
 which uses an electrical current model for information spreading
 in contrast to the shortest paths model used by normal betweenness centrality.
 \item \code{node_by_stress()} measures the stress centrality of nodes in a network.
-\item \code{tie_by_betweenness()} measures the number of shortest paths going through a tie.
 }
+
+These four differ in what they count:
+\code{node_by_betweenness()} sums the \emph{proportion} of shortest paths between
+each pair that run through a node, so every pair of nodes contributes at
+most one unit however many shortest paths connect it;
+\code{node_by_stress()} instead sums the raw \emph{count} of those paths, so pairs
+joined by many equally short routes count for more;
+\code{node_by_flow()} abandons shortest paths altogether for maximum flow,
+crediting nodes that carry traffic along longer routes as well;
+and \code{node_by_induced()} asks a different question again — not how much
+passes through a node, but how much total betweenness the network would
+lose if it were removed.
+For ties rather than nodes, see \code{\link[=tie_by_betweenness]{tie_by_betweenness()}}.
 
 All measures attempt to use as much information as they are offered,
 including whether the networks are directed, weighted, or multimodal.
 If this would produce unintended results,
 first transform the salient properties using e.g. \code{\link[manynet:to_undirected]{to_undirected()}} functions.
-All centrality and centralization measures return normalized measures by default,
-including for two-mode networks.
+All centrality and centralization measures return normalised or scaled
+measures where available, reported when the measure is printed.
 }
 \section{Betweenness centrality}{
 
 Betweenness centrality is based on the number of shortest paths between
 other nodes that a node lies upon:
 \deqn{C_B(i) = \sum_{j,k:j \neq k, j \neq i, k \neq i} \frac{g_{jik}}{g_{jk}}}
+
+Setting \code{cutoff} counts only those shortest paths no longer than \eqn{k},
+which elsewhere goes by \emph{distance-bounded betweenness} (Brandes, 2008) or
+\emph{range-limited betweenness} (Ercsey-Ravasz et al., 2012).
+Normalization still applies, so a bounded score remains comparable across
+networks.
 }
 
 \section{Induced centrality}{
 
-Induced centrality or vitality centrality concerns the change in
-total betweenness centrality between networks with and without a given node:
+Induced centrality concerns the change in total betweenness centrality
+between networks with and without a given node:
 \deqn{C_I(i) = C_B(G) - C_B(G\ i)}
+This "remove the node and re-measure" logic is the general
+\emph{delta centrality} framework of Latora and Marchiori (2007);
+\code{node_by_induced()} is its betweenness instance, and
+\code{\link[=node_by_vitality]{node_by_vitality()}} its closeness instance.
 }
 
 \section{Flow betweenness centrality}{
@@ -99,6 +128,19 @@ Freeman, Linton. 1977.
 \doi{10.2307/3033543}
 }
 
+\subsection{On bounding path length}{
+
+Brandes, Ulrik. 2008.
+"On variants of shortest-path betweenness centrality and their generic computation".
+\emph{Social Networks} 30(2): 136-145.
+\doi{10.1016/j.socnet.2007.11.001}
+
+Ercsey-Ravasz, Maria, Ryan N. Lichtenwalter, Nitesh V. Chawla, and Zoltan Toroczkai. 2012.
+"Range-limited centrality measures in complex networks".
+\emph{Physical Review E} 85(6): 066103.
+\doi{10.1103/PhysRevE.85.066103}
+}
+
 \subsection{On induced centrality}{
 
 Everett, Martin and Steve Borgatti. 2010.
@@ -107,11 +149,20 @@ Everett, Martin and Steve Borgatti. 2010.
 \doi{10.1016/j.socnet.2010.06.004}
 }
 
+\subsection{On delta centrality}{
+
+Latora, Vito, and Massimo Marchiori. 2007.
+"A measure of centrality based on network efficiency".
+\emph{New Journal of Physics} 9(6): 188.
+\doi{10.1088/1367-2630/9/6/188}
+}
+
 \subsection{On flow centrality}{
 
-Freeman, Lin, Stephen Borgatti, and Douglas White. 1991.
+Freeman, Linton C., Stephen P. Borgatti, and Douglas R. White. 1991.
 "Centrality in Valued Graphs: A Measure of Betweenness Based on Network Flow".
 \emph{Social Networks}, 13(2), 141-154.
+\doi{10.1016/0378-8733(91)90017-N}
 
 Koschutzki, D., K.A. Lehmann, L. Peeters, S. Richter, D. Tenfelde-Podehl, and O. Zlotowski. 2005.
 "Centrality Indices".
@@ -129,21 +180,21 @@ Shimbel, A. 1953.
 }
 \seealso{
 Other betweenness:
-\code{\link{measure_centralisation_between}},
-\code{\link{measure_centralities_between}}
+\code{\link{measure_central_tie_between}},
+\code{\link{measure_centralisation_between}}
 
 Other centrality:
 \code{\link{measure_central_close}},
 \code{\link{measure_central_degree}},
 \code{\link{measure_central_eigen}},
+\code{\link{measure_central_tie_between}},
+\code{\link{measure_central_tie_close}},
+\code{\link{measure_central_tie_degree}},
+\code{\link{measure_central_tie_eigen}},
 \code{\link{measure_centralisation_between}},
 \code{\link{measure_centralisation_close}},
 \code{\link{measure_centralisation_degree}},
-\code{\link{measure_centralisation_eigen}},
-\code{\link{measure_centralities_between}},
-\code{\link{measure_centralities_close}},
-\code{\link{measure_centralities_degree}},
-\code{\link{measure_centralities_eigen}}
+\code{\link{measure_centralisation_eigen}}
 
 Other measures:
 \code{\link{measure_assort_net}},
@@ -155,10 +206,10 @@ Other measures:
 \code{\link{measure_central_close}},
 \code{\link{measure_central_degree}},
 \code{\link{measure_central_eigen}},
-\code{\link{measure_centralities_between}},
-\code{\link{measure_centralities_close}},
-\code{\link{measure_centralities_degree}},
-\code{\link{measure_centralities_eigen}},
+\code{\link{measure_central_tie_between}},
+\code{\link{measure_central_tie_close}},
+\code{\link{measure_central_tie_degree}},
+\code{\link{measure_central_tie_eigen}},
 \code{\link{measure_closure}},
 \code{\link{measure_closure_node}},
 \code{\link{measure_cohesion}},
@@ -169,6 +220,7 @@ Other measures:
 \code{\link{measure_diverse_net}},
 \code{\link{measure_diverse_node}},
 \code{\link{measure_features}},
+\code{\link{measure_fit}},
 \code{\link{measure_fragmentation}},
 \code{\link{measure_hierarchy}},
 \code{\link{measure_periods}}
@@ -199,6 +251,8 @@ Other nodal:
 \code{\link{member_diffusion}},
 \code{\link{member_equivalence}},
 \code{\link{motif_brokerage_node}},
+\code{\link{motif_clique}},
+\code{\link{motif_composition}},
 \code{\link{motif_exposure}},
 \code{\link{motif_node}},
 \code{\link{motif_path}}

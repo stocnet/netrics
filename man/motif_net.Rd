@@ -5,26 +5,25 @@
 \alias{net_x_dyad}
 \alias{net_x_triad}
 \alias{net_x_tetrad}
-\alias{net_x_mixed}
 \title{Motifs of network cohesion}
 \source{
-Alejandro Espinosa 'netmem'
+Mixed census adapted from Alejandro Espinosa 'netmem'
 }
 \usage{
 net_x_dyad(.data)
 
-net_x_triad(.data)
+net_x_triad(.data, object2 = NULL)
 
 net_x_tetrad(.data)
-
-net_x_mixed(.data, object2)
 }
 \arguments{
-\item{.data}{A network object of class \code{mnet}, \code{igraph}, \code{tbl_graph}, \code{network}, or similar.
-For more information on the standard coercion possible,
-see \code{\link[manynet:as_tidygraph]{manynet::as_tidygraph()}}.}
+\item{.data}{A network object of class \code{stocnet}, \code{igraph}, \code{tbl_graph}, \code{network}, or similar.
+Internally any of these will be coerced to an efficient implementation.
+For more information on possible coercions, see e.g. \code{\link[manynet:as_stocnet]{manynet::as_stocnet()}}.}
 
-\item{object2}{A second, two-mode network object.}
+\item{object2}{A second, two-mode network object.
+Only \code{net_x_triad()} uses this, and only to take a multilevel census;
+see its Mixed census section.}
 }
 \value{
 A \code{network_motif} named numeric vector or sometimes a data frame with
@@ -39,12 +38,18 @@ in a network:
 \item \code{net_x_dyad()} returns a census of dyad motifs in a network.
 \item \code{net_x_triad()} returns a census of triad motifs in a network.
 \item \code{net_x_tetrad()} returns a census of tetrad motifs in a network.
-\item \code{net_x_mixed()} returns a census of triad motifs that span
-a one-mode and a two-mode network.
 }
 
 See also \href{https://www.graphclasses.org/smallgraphs.html}{graph classes}.
 }
+\section{Multiplex networks}{
+
+\code{net_x_triad()} takes the mixed census on a multiplex network,
+splitting it into layers by mode rather than by position.
+To census one layer alone, take it first with \code{\link[manynet:to_uniplex]{manynet::to_uniplex()}}.
+\code{net_x_dyad()} and \code{net_x_tetrad()} count every tie whatever its layer.
+}
+
 \section{Dyad census}{
 
 The dyad census counts the number of mutual, asymmetric, and null dyads
@@ -98,6 +103,30 @@ Note that for undirected and two-mode networks, only 003, 102, and 201 are possi
 as the other configurations rely on the concept of directionality.
 }
 
+\section{Mixed census}{
+
+Where a one-mode and a two-mode network are given together,
+a multilevel census of the triads that span them is taken instead,
+after Hollway et al. (2017).
+Its ten motifs are labelled by how many ties join the pair of nodes at
+each level, so that \code{"21"} counts triads whose two nodes are reciprocally
+tied in the one-mode network and share a partner in the two-mode network.
+
+There are two ways to ask for it.
+Supply the two networks as \code{.data} and \code{object2},
+the one-mode network first.
+Or give a single multiplex network holding exactly one one-mode layer and
+one two-mode layer, such as \code{fict_marvel},
+and the two layers are used in that order.
+A two-mode network that carries no one-mode layer is not enough,
+and remains unavailable.
+
+Since a census counts configurations, only the presence of a tie counts.
+Weights and signs are set aside, as \code{igraph::triad_census()} also does.
+
+\code{node_x_triad()} reports the same ten motifs for each node.
+}
+
 \section{Tetrad census}{
 
 The tetrad census counts the number of four-node configurations in the network.
@@ -128,8 +157,8 @@ Graphs of these motifs can be shown using
 \examples{
 net_x_dyad(manynet::ison_algebra)
 net_x_triad(manynet::ison_adolescents)
+net_x_triad(fict_marvel)
 net_x_tetrad(ison_southern_women)
-net_x_mixed(fict_marvel)
 }
 \references{
 \subsection{On the dyad census}{
@@ -150,6 +179,14 @@ Davis, James A., and Samuel Leinhardt. 1967.
 “\href{https://files.eric.ed.gov/fulltext/ED024086.pdf}{The Structure of Positive Interpersonal Relations in Small Groups}.” 55.
 }
 
+\subsection{On the mixed census}{
+
+Hollway, James, Alessandro Lomi, Francesca Pallotti, and Christoph Stadtfeld. 2017.
+“Multilevel Social Spaces: The Network Dynamics of Organizational Fields.”
+\emph{Network Science} 5(2): 187–212.
+\doi{10.1017/nws.2017.8}
+}
+
 \subsection{On the tetrad census}{
 
 Ortmann, Mark, and Ulrik Brandes. 2017.
@@ -161,14 +198,6 @@ McMillan, Cassie, and Diane Felmlee. 2020.
 "Beyond Dyads and Triads: A Comparison of Tetrads in Twenty Social Networks".
 \emph{Social Psychology Quarterly} 83(4): 383-404.
 \doi{10.1177/0190272520944151}
-}
-
-\subsection{On the mixed census}{
-
-Hollway, James, Alessandro Lomi, Francesca Pallotti, and Christoph Stadtfeld. 2017.
-“Multilevel Social Spaces: The Network Dynamics of Organizational Fields.”
-\emph{Network Science} 5(2): 187–212.
-\doi{10.1017/nws.2017.8}
 }
 }
 \seealso{
@@ -182,9 +211,12 @@ Other cohesion:
 Other motifs:
 \code{\link{motif_brokerage_net}},
 \code{\link{motif_brokerage_node}},
+\code{\link{motif_clique}},
+\code{\link{motif_composition}},
 \code{\link{motif_exposure}},
 \code{\link{motif_hazard}},
 \code{\link{motif_hierarchy}},
+\code{\link{motif_homophily}},
 \code{\link{motif_node}},
 \code{\link{motif_path}},
 \code{\link{motif_periods}}

@@ -14,9 +14,9 @@ node_x_triad(.data)
 node_x_tetrad(.data)
 }
 \arguments{
-\item{.data}{A network object of class \code{mnet}, \code{igraph}, \code{tbl_graph}, \code{network}, or similar.
-For more information on the standard coercion possible,
-see \code{\link[manynet:as_tidygraph]{manynet::as_tidygraph()}}.}
+\item{.data}{A network object of class \code{stocnet}, \code{igraph}, \code{tbl_graph}, \code{network}, or similar.
+Internally any of these will be coerced to an efficient implementation.
+For more information on possible coercions, see e.g. \code{\link[manynet:as_stocnet]{manynet::as_stocnet()}}.}
 }
 \value{
 A \code{node_motif} matrix with one row for each node in the network and
@@ -114,9 +114,12 @@ Other cohesion:
 Other motifs:
 \code{\link{motif_brokerage_net}},
 \code{\link{motif_brokerage_node}},
+\code{\link{motif_clique}},
+\code{\link{motif_composition}},
 \code{\link{motif_exposure}},
 \code{\link{motif_hazard}},
 \code{\link{motif_hierarchy}},
+\code{\link{motif_homophily}},
 \code{\link{motif_net}},
 \code{\link{motif_path}},
 \code{\link{motif_periods}}
@@ -148,6 +151,8 @@ Other nodal:
 \code{\link{member_diffusion}},
 \code{\link{member_equivalence}},
 \code{\link{motif_brokerage_node}},
+\code{\link{motif_clique}},
+\code{\link{motif_composition}},
 \code{\link{motif_exposure}},
 \code{\link{motif_path}}
 }

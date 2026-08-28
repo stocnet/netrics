@@ -10,22 +10,22 @@
 \usage{
 k_strict(hc, .data)
 
-k_elbow(hc, .data, motif, Kmax)
+k_elbow(hc, .data, motif, max_k)
 
-k_silhouette(hc, .data, Kmax)
+k_silhouette(hc, .data, max_k)
 
-k_gap(hc, motif, Kmax, sims = 100)
+k_gap(hc, motif, max_k, sims = 100)
 }
 \arguments{
 \item{hc}{A hierarchical clustering object.}
 
-\item{.data}{A network object of class \code{mnet}, \code{igraph}, \code{tbl_graph}, \code{network}, or similar.
-For more information on the standard coercion possible,
-see \code{\link[manynet:as_tidygraph]{manynet::as_tidygraph()}}.}
+\item{.data}{A network object of class \code{stocnet}, \code{igraph}, \code{tbl_graph}, \code{network}, or similar.
+Internally any of these will be coerced to an efficient implementation.
+For more information on possible coercions, see e.g. \code{\link[manynet:as_stocnet]{manynet::as_stocnet()}}.}
 
 \item{motif}{A motif census object.}
 
-\item{Kmax}{An integer indicating the maximum number of options to consider.
+\item{max_k}{An integer indicating the maximum number of options to consider.
 The minimum of this and the number of nodes in the network is used.}
 
 \item{sims}{Integer of how many simulations should be generated as a
@@ -72,6 +72,13 @@ correlation as the number of clusters increases.
 The point at which the elbow occurs is often considered a good choice for
 the number  of clusters, as it represents a balance between
 model complexity and fit to the data.
+
+The elbow is located geometrically.
+A straight line is drawn between the first and the last point of the curve.
+The perpendicular distance from each point to this line is measured,
+and the point at the greatest distance is the elbow.
+Note that where the curve is close to a straight line,
+no point stands out and the method returns one of the endpoints.
 }
 
 \section{Silhouette method}{

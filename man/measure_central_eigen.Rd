@@ -9,48 +9,90 @@
 \alias{node_by_authority}
 \alias{node_by_hub}
 \alias{node_by_subgraph}
+\alias{node_by_posneg}
 \title{Measuring nodes eigenvector-like centrality}
 \usage{
-node_by_eigenvector(.data, normalized = TRUE, scale = TRUE)
+node_by_eigenvector(.data, normalized = TRUE, scaled = TRUE, scale = NULL)
 
-node_by_power(.data, normalized = TRUE, scale = FALSE, exponent = 1)
+node_by_power(
+  .data,
+  normalized = TRUE,
+  scaled = FALSE,
+  scale = NULL,
+  exponent = 1
+)
 
-node_by_alpha(.data, alpha = 0.85)
+node_by_alpha(.data, decay = 0.85, alpha = NULL)
 
-node_by_pagerank(.data)
+node_by_pagerank(.data, decay = 0.85)
 
-node_by_authority(.data)
+node_by_authority(.data, scaled = TRUE)
 
-node_by_hub(.data)
+node_by_hub(.data, scaled = TRUE)
 
-node_by_subgraph(.data)
+node_by_subgraph(
+  .data,
+  decay = 1,
+  walks = c("all", "odd", "even"),
+  method = NULL
+)
+
+node_by_posneg(.data)
 }
 \arguments{
-\item{.data}{A network object of class \code{mnet}, \code{igraph}, \code{tbl_graph}, \code{network}, or similar.
-For more information on the standard coercion possible,
-see \code{\link[manynet:as_tidygraph]{manynet::as_tidygraph()}}.}
+\item{.data}{A network object of class \code{stocnet}, \code{igraph}, \code{tbl_graph}, \code{network}, or similar.
+Internally any of these will be coerced to an efficient implementation.
+For more information on possible coercions, see e.g. \code{\link[manynet:as_stocnet]{manynet::as_stocnet()}}.}
 
 \item{normalized}{Logical scalar, whether scores are normalized.
 Different denominators may be used depending on the measure,
 whether the object is one-mode or two-mode, and other arguments.
 By default TRUE.}
 
-\item{scale}{Logical scalar, whether to rescale the vector so the maximum score is 1.}
+\item{scaled}{Logical scalar, whether to divide the results by the maximum
+observed in this network, so that the highest-scoring node takes the value
+one. Note that, unlike normalisation against a theoretical maximum, scaled
+scores are not comparable across different networks.}
+
+\item{scale}{Deprecated; use \code{scaled} instead.}
 
 \item{exponent}{Decay rate or attentuation factor for
 the Bonacich power centrality score.
 Can be positive or negative.}
 
-\item{alpha}{A constant that trades off the importance of external influence against the importance of connection.
-When \eqn{\alpha = 0}, only the external influence matters.
-As \eqn{\alpha} gets larger, only the connectivity matters and we reduce to eigenvector centrality.
-By default \eqn{\alpha = 0.85}.}
+\item{decay}{A proportion between 0 and 1 giving how much of a contribution
+survives each additional step of distance or walk length.
+Lower values discount more steeply, so that only nearby others count;
+higher values discount less, so that longer walks continue to contribute.
+The measures that take a \code{decay} differ in what they discount and in what
+value leaves the measure in its most familiar form,
+so each documents its own default.}
+
+\item{alpha}{Deprecated; use \code{decay} instead.}
+
+\item{walks}{Character string indicating which closed walks to count.
+By default \code{"all"}, which is subgraph centrality as usually defined.
+\code{"odd"} counts only walks of odd length and \code{"even"} only those of even
+length; the two sum to \code{"all"}.
+Odd closed walks cannot occur within a bipartite structure, so a node
+scoring near zero on \code{"odd"} sits in a locally two-mode-like neighbourhood.
+See \code{\link[=net_by_bipartivity]{net_by_bipartivity()}} for the network-level counterpart.}
+
+\item{method}{Deprecated. The former spelling of \code{walks}.
+Still accepted, but warns; please use \code{walks} instead.}
 }
 \value{
 A \code{node_measure} numeric vector the length of the nodes in the network,
 providing the scores for each node.
 If the network is labelled,
 then the scores will be labelled with the nodes' names.
+
+The object also carries the \code{measure} it computed, the \code{range} its values
+can fall within, and whether and how those values were \code{normalized}.
+These are shown as a one-line header when the object is printed.
+Where a measure offers a choice between several ways of counting the
+same thing, it also carries the \code{variant} it used.
+All can be retrieved with \code{attr()}.
 }
 \description{
 These functions calculate common eigenvector-related centrality
@@ -67,14 +109,24 @@ network.
 to many authorities.
 \item \code{node_by_authority()} measures how well nodes in a network serve as
 authorities from many hubs.
+\item \code{node_by_subgraph()} measures nodes' participation in all closed walks
+in the network, weighting shorter walks more heavily.
+\item \code{node_by_posneg()} measures the PN (positive-negative) centrality of a
+signed network.
 }
 
 All measures attempt to use as much information as they are offered,
 including whether the networks are directed, weighted, or multimodal.
 If this would produce unintended results,
 first transform the salient properties using e.g. \code{\link[manynet:to_undirected]{to_undirected()}} functions.
-All centrality and centralization measures return normalized measures
-by default, including for two-mode networks.
+All centrality and centralization measures return normalised or scaled
+measures where available, reported when the measure is printed.
+
+Walk-based measures are mostly unbounded, so few of them can be
+\emph{normalised} against a theoretical maximum in the way that degree,
+closeness and betweenness can. Most are instead \emph{scaled} against the
+observed maximum, which ranks nodes within one network but does not
+give scores that are comparable between networks.
 }
 \details{
 We use \code{{igraph}} routines behind the scenes here for consistency and because they are often faster.
@@ -92,6 +144,9 @@ Rather than performing this iteration,
 most routines solve the eigenvector equation \eqn{Ax = \lambda x}.
 Note that since \code{{igraph}} v2.1.1,
 the values will always be rescaled so that the maximum is 1.
+This is not a limitation so much as a property of the measure:
+an eigenvector is defined only up to a scalar multiple,
+so its scores carry no absolute units to preserve.
 }
 
 \section{Power or beta (or Bonacich) centrality}{
@@ -111,7 +166,16 @@ the network size.
 
 \section{Alpha centrality}{
 
-Alpha or Katz (or Katz-Bonacich) centrality operates better than
+Alpha centrality is also known as Katz centrality, Katz-Bonacich
+centrality, or Katz status.
+The measure is named for the \eqn{\alpha} of Bonacich and Lloyd, which
+trades off the importance of external influence against the importance of
+connection: when \eqn{\alpha = 0} only the external influence matters, and
+as \eqn{\alpha} grows only the connectivity matters and we reduce to
+eigenvector centrality.
+Since \eqn{\alpha} is a per-step discount, netrics takes it as \code{decay},
+the name it uses for that parameter throughout; by default 0.85.
+It operates better than
 eigenvector centrality for directed networks because eigenvector centrality
 will return 0s for all nodes not in the main strongly-connected component.
 Each node's alpha centrality can be defined as:
@@ -131,17 +195,41 @@ Rather than performing this iteration though,
 most routines solve the equation \eqn{x = (I - \frac{1}{\lambda} A^T)^{-1} e}.
 }
 
+\section{Pagerank centrality}{
+
+Pagerank centrality, or the PageRank citation ranking, is the stationary
+distribution of a random walk that at each step either follows an outgoing
+tie or teleports to a node chosen at random.
+Scores are therefore already shares that sum to one.
+\code{decay} is the probability of following a tie rather than teleporting,
+elsewhere called the damping factor; by default 0.85.
+As it approaches 0 the walk teleports at every step and all nodes score
+alike; as it approaches 1 the walk never teleports.
+}
+
+\section{Hub and authority centrality}{
+
+Hub and authority centrality are the two halves of Kleinberg's HITS
+(Hyperlink-Induced Topic Search) algorithm, and are computed together:
+good authorities are pointed to by good hubs, and good hubs point to good
+authorities. \code{node_by_hub()} and \code{node_by_authority()} return one each.
+In an undirected network the two coincide.
+}
+
 \section{Subgraph centrality}{
 
 Subgraph centrality measures the participation of a node in all subgraphs
 in the network, giving higher weight to smaller subgraphs.
 It is defined as:
-\deqn{C_S(i) = \sum_{k=0}^{\infty} \frac{(A^k)_{ii}}{k!}}
+\deqn{C_S(i) = \sum_{k=0}^{\infty} \frac{\delta^k (A^k)_{ii}}{k!}}
 where \eqn{(A^k)_{ii}} is the \eqn{i}th diagonal element of the \eqn{k}th power
 of the adjacency matrix \eqn{A}, representing the number of closed walks
 of length \eqn{k} starting and ending at node \eqn{i}.
 Weighting by \eqn{\frac{1}{k!}} ensures that shorter walks contribute more
 to the centrality score than longer walks.
+The \code{decay} parameter \eqn{\delta} tunes that further, discounting each
+step by a further factor: at the default of 1 the measure takes its usual
+form, and lower values concentrate it on ever shorter walks.
 
 Subgraph centrality is a good choice of measure when the focus is on
 local connectivity and clustering around a node,
@@ -149,6 +237,21 @@ as it captures the extent to which a node is embedded in tightly-knit
 groups within the network.
 Note though that because of the way spectral decomposition is used to
 calculate this measure, this is not a good measure for very large graphs.
+
+Summing these scores over all nodes gives the network's \emph{Estrada index},
+so a node's subgraph centrality is its contribution to that index.
+}
+
+\section{PN (positive-negative) centrality}{
+
+PN centrality extends walk-based centrality to signed networks.
+Negative ties are weighted twice as heavily as positive ties,
+\eqn{P - 2N}, and the measure is then obtained in closed form by matrix
+inversion, so that — like alpha centrality, of which it is the signed
+analogue — it counts walks of all lengths with a length discount rather
+than counting only direct ties.
+Scores centre on 1: nodes above 1 are advantaged by their pattern of
+positive and negative ties, and those below 1 disadvantaged.
 }
 
 \examples{
@@ -157,6 +260,11 @@ node_by_power(ison_southern_women, exponent = 0.5)
 }
 \references{
 \subsection{On eigenvector centrality}{
+
+Bonacich, Phillip. 1972.
+“Factoring and Weighting Approaches to Status Scores and Clique Identification.”
+\emph{The Journal of Mathematical Sociology} 2(1): 113–120.
+\doi{10.1080/0022250X.1972.9989806}
 
 Bonacich, Phillip. 1991.
 “Simultaneous Group and Individual Centralities.”
@@ -188,6 +296,10 @@ Bonacich, P. and Lloyd, P. 2001.
 Brin, Sergey and Page, Larry. 1998.
 "The anatomy of a large-scale hypertextual web search engine".
 \emph{Proceedings of the 7th World-Wide Web Conference}. Brisbane, Australia.
+
+Page, Lawrence, Sergey Brin, Rajeev Motwani, and Terry Winograd. 1999.
+"The PageRank Citation Ranking: Bringing Order to the Web".
+\emph{Stanford InfoLab Technical Report} 1999-66.
 }
 
 \subsection{On hub and authority centrality}{
@@ -205,24 +317,40 @@ Estrada, Ernesto and Rodríguez-Velázquez, Juan A. 2005.
 \emph{Physical Review E} 71(5): 056103.
 \doi{10.1103/PhysRevE.71.056103}
 }
+
+\subsection{On odd and even closed walks}{
+
+Estrada, Ernesto and Rodríguez-Velázquez, Juan A. 2005.
+"Spectral measures of bipartivity in complex networks".
+\emph{Physical Review E} 72(4): 046105.
+\doi{10.1103/PhysRevE.72.046105}
+}
+
+\subsection{On signed centrality}{
+
+Everett, Martin G., and Stephen P. Borgatti. 2014.
+“Networks Containing Negative Ties.”
+\emph{Social Networks} 38:111–20.
+\doi{10.1016/j.socnet.2014.03.005}
+}
 }
 \seealso{
 Other eigenvector:
-\code{\link{measure_centralisation_eigen}},
-\code{\link{measure_centralities_eigen}}
+\code{\link{measure_central_tie_eigen}},
+\code{\link{measure_centralisation_eigen}}
 
 Other centrality:
 \code{\link{measure_central_between}},
 \code{\link{measure_central_close}},
 \code{\link{measure_central_degree}},
+\code{\link{measure_central_tie_between}},
+\code{\link{measure_central_tie_close}},
+\code{\link{measure_central_tie_degree}},
+\code{\link{measure_central_tie_eigen}},
 \code{\link{measure_centralisation_between}},
 \code{\link{measure_centralisation_close}},
 \code{\link{measure_centralisation_degree}},
-\code{\link{measure_centralisation_eigen}},
-\code{\link{measure_centralities_between}},
-\code{\link{measure_centralities_close}},
-\code{\link{measure_centralities_degree}},
-\code{\link{measure_centralities_eigen}}
+\code{\link{measure_centralisation_eigen}}
 
 Other measures:
 \code{\link{measure_assort_net}},
@@ -234,10 +362,10 @@ Other measures:
 \code{\link{measure_central_between}},
 \code{\link{measure_central_close}},
 \code{\link{measure_central_degree}},
-\code{\link{measure_centralities_between}},
-\code{\link{measure_centralities_close}},
-\code{\link{measure_centralities_degree}},
-\code{\link{measure_centralities_eigen}},
+\code{\link{measure_central_tie_between}},
+\code{\link{measure_central_tie_close}},
+\code{\link{measure_central_tie_degree}},
+\code{\link{measure_central_tie_eigen}},
 \code{\link{measure_closure}},
 \code{\link{measure_closure_node}},
 \code{\link{measure_cohesion}},
@@ -248,6 +376,7 @@ Other measures:
 \code{\link{measure_diverse_net}},
 \code{\link{measure_diverse_node}},
 \code{\link{measure_features}},
+\code{\link{measure_fit}},
 \code{\link{measure_fragmentation}},
 \code{\link{measure_hierarchy}},
 \code{\link{measure_periods}}
@@ -278,6 +407,8 @@ Other nodal:
 \code{\link{member_diffusion}},
 \code{\link{member_equivalence}},
 \code{\link{motif_brokerage_node}},
+\code{\link{motif_clique}},
+\code{\link{motif_composition}},
 \code{\link{motif_exposure}},
 \code{\link{motif_node}},
 \code{\link{motif_path}}

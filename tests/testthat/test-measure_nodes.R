@@ -10,7 +10,6 @@ for(fn in names(node_meas)) {
   for (ob in names(data_objs)) { 
     test_that(paste(fn, "works on", ob), {
       skip_if(grepl("multideg", fn))
-      skip_if(grepl("equivalency", fn) && ob == "labelled")
       if(grepl("diversity|richness|heterophily|homophily", fn)){
         if(ob == "attribute")
           expect_s3_class(node_meas[[fn]](data_objs[[ob]], "group"), "node_measure") else
