@@ -39,7 +39,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">netrics</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.4.1</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.0.0</span>
       </span>
     </div>
 
@@ -186,7 +186,6 @@ their
 distributions </dfn></abbr>, and summarise the whole network’s
 <abbr><dfn title="A measure of how unequal the centralities of the nodes in a network are.">
 centralisation </dfn></abbr>.</p>
-<p><img src="https://i.giphy.com/media/v1.Y2lkPTc5MGI3NjExbG5oYmVtYmcxMWs1d3MzOGh3Zng5dTZhc241ZHR2NTE0YThiZWp4NiZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/970Sr8vpwEbXG/giphy.gif" height="480px" alt="gif of a glowing circuit board captioned 'Central Processing Unit'"></p>
 <div class="callout">
 <p><span class="callout-label"><strong>Catching up</strong>:</span> This
 tutorial assumes you can already load or make a network in R, and draw
@@ -272,7 +271,6 @@ first names.</p>
 <p><span class="page-toc">On this page: <span class="page-toc-link" onclick="document.getElementById('section-counting-ties').scrollIntoView({behavior:'auto',block:'start'});">Counting
 ties</span> · <span class="page-toc-link" onclick="document.getElementById('section-degrees-of-direction').scrollIntoView({behavior:'auto',block:'start'});">Direction</span>
 · <span class="page-toc-link" onclick="document.getElementById('section-strength-of-ties').scrollIntoView({behavior:'auto',block:'start'});">Strength</span></span></p>
-<p><img src="https://i.giphy.com/media/v1.Y2lkPTc5MGI3NjExM3d6eGd2OHRxb2FvbHYzc2oyenFzOG5qcjhzMm82Mm1ncTVpOHhreiZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/uVd5gVHAq63SjtjAOe/giphy.gif" height="480px" alt="gif of a man saying 'I am a bit of a social butterfly'"></p>
 <div class="section level3">
 <h3 id="counting-ties">Counting ties<a class="anchor" aria-label="anchor" href="#counting-ties"></a>
 </h3>
@@ -377,11 +375,11 @@ that if you have measured weights, you probably care about them.</p>
 The degree family has several further members for special kinds of
 networks: <code><a href="../reference/measure_central_degree.html">node_by_multidegree()</a></code> compares tie types in a
 <abbr><dfn title="A network that includes multiple types of tie.">
-multiplex </dfn></abbr> network, <code><a href="../reference/measure_central_degree.html">node_by_posneg()</a></code> handles
+multiplex </dfn></abbr> network, <code><a href="../reference/measure_central_eigen.html">node_by_posneg()</a></code> handles
 <abbr><dfn title="A signed network is one where ties are marked as positive or negative, such as friendship and enmity or alliance and conflict.">
 signed </dfn></abbr> networks with positive and negative ties,
 <code><a href="../reference/measure_broker_node.html">node_by_neighbours_degree()</a></code> averages the degrees of each
-node’s neighbours, and <code><a href="../reference/measure_centralities_degree.html">tie_by_degree()</a></code> scores each
+node’s neighbours, and <code><a href="../reference/measure_central_tie_degree.html">tie_by_degree()</a></code> scores each
 <em>tie</em> by the degrees of its endpoints. See
 <code><a href="../reference/measure_central_degree.html">?measure_central_degree</a></code> for definitions and references.</p>
 </div>
@@ -432,7 +430,7 @@ This section includes an interactive quiz in the live tutorial — run
 <h3 id="ties-can-be-between-too">Ties can be between too<a class="anchor" aria-label="anchor" href="#ties-can-be-between-too"></a>
 </h3>
 <p>Nodes are not the only things that can lie between:
-<code><a href="../reference/measure_centralities_between.html">tie_by_betweenness()</a></code> counts the shortest paths that run
+<code><a href="../reference/measure_central_tie_between.html">tie_by_betweenness()</a></code> counts the shortest paths that run
 through each <em>tie</em>. Ties with high betweenness often act as
 <abbr><dfn title="A bridge or isthmus is a tie whose deletion increases the number of components.">
 bridges </dfn></abbr> between otherwise separate parts of the network —
@@ -442,7 +440,7 @@ indeed this score is the basis of a famous community-detection algorithm
 thoroughfares.</strong></p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">ison_brandes</span> <span class="op">%&gt;%</span></span>
-<span>  <span class="fu">mutate_ties</span><span class="op">(</span>bridgeness <span class="op">=</span> <span class="fu"><a href="../reference/measure_centralities_between.html">tie_by_betweenness</a></span><span class="op">(</span><span class="va">ison_brandes</span><span class="op">)</span><span class="op">)</span> <span class="op">%&gt;%</span></span>
+<span>  <span class="fu">mutate_ties</span><span class="op">(</span>bridgeness <span class="op">=</span> <span class="fu"><a href="../reference/measure_central_tie_between.html">tie_by_betweenness</a></span><span class="op">(</span><span class="va">ison_brandes</span><span class="op">)</span><span class="op">)</span> <span class="op">%&gt;%</span></span>
 <span>  <span class="fu">graphr</span><span class="op">(</span>edge_size <span class="op">=</span> <span class="st">"bridgeness"</span><span class="op">)</span></span></code></pre></div>
 <p>The widest ties are the ones the network can least afford to lose:
 cut one and many shortest paths between nodes lengthen — or
@@ -482,7 +480,7 @@ and references, see <code><a href="../reference/measure_central_between.html">?m
 <p><span class="callout-label"><strong>In brief</strong>:</span> The
 betweenness family measures control over flow:
 <code><a href="../reference/measure_central_between.html">node_by_betweenness()</a></code> via shortest paths,
-<code><a href="../reference/measure_centralities_between.html">tie_by_betweenness()</a></code> for ties rather than nodes,
+<code><a href="../reference/measure_central_tie_between.html">tie_by_betweenness()</a></code> for ties rather than nodes,
 <code><a href="../reference/measure_central_between.html">node_by_induced()</a></code> via a node’s contribution to total
 betweenness, <code><a href="../reference/measure_central_between.html">node_by_flow()</a></code> via current across all paths,
 and <code><a href="../reference/measure_central_between.html">node_by_stress()</a></code> via raw path counts.</p>
@@ -705,19 +703,44 @@ sending/receiving reputations.</p>
 for? Linton Freeman’s classic answer was that most of them boil down to
 just three ideas — degree, closeness, and betweenness — with everything
 else a variant; we add eigenvector as a fourth, giving the <strong>four
-families</strong> this tutorial is built around.</p>
-<p>Two questions organise the whole zoo, and locate each family within
-it. First: does the measure count what radiates <em>from</em> a node —
+families</strong> this tutorial is built around. Another way of thinking
+about each of the centrality measures included here is in terms of three
+questions.</p>
+<p>First: does the measure count what radiates <em>from</em> a node —
 its own ties, its distances, its walks — or what passes <em>through</em>
 it on the way between others? Borgatti and Everett (<a href="https://doi.org/10.1016/j.socnet.2005.11.005" class="external-link">2006</a>) call the
 first <strong>radial</strong> and the second <strong>medial</strong>:
-degree, closeness, and eigenvector are radial; betweenness is medial.
-Second: does it read only a node’s immediate neighbourhood
+degree, closeness, and eigenvector are radial; betweenness is
+medial.</p>
+<p>Second: does it read only a node’s immediate neighbourhood
 (<strong>local</strong>), or its place in the whole network
 (<strong>global</strong>)? Degree is local; the other three are global.
-The four families are simply the most useful corners of that space, and
-each variant you met earlier is a refinement or extension within its
-family.</p>
+There is no medial-local family, so the four families are the useful
+corners of that space rather than a full grid. Note too that this is a
+dial rather than a switch: <code><a href="../reference/measure_central_close.html">node_by_reach()</a></code> takes a
+<code>cutoff</code> that walks a measure from one end to the other, and
+at <code>cutoff = 1</code> reach centrality simply <em>is</em>
+degree.</p>
+<p>Third: what does the measure actually <strong>traverse</strong>?
+Closeness and eigenvector are both radial and both global, so the first
+two questions cannot tell them apart; what separates them is that
+closeness travels by shortest paths while eigenvector counts walks of
+every length. The possibilities are nested by how much repetition they
+allow:</p>
+<blockquote>
+<p><strong>walks</strong> (anything goes) ⊇ <strong>trails</strong> (no
+tie used twice) ⊇ <strong>paths</strong> (no node visited twice) ⊇
+<strong>geodesics</strong> (only the shortest paths)</p>
+</blockquote>
+<p>Two measures can traverse the same thing and still differ in how they
+<em>weight</em> what they find. Eigenvector, alpha and subgraph
+centrality count all walks deterministically, discounting the longer
+ones; <code><a href="../reference/measure_central_eigen.html">node_by_pagerank()</a></code> and
+<code><a href="../reference/measure_central_close.html">node_by_randomwalk()</a></code> traverse those same walks but weight
+them by the probability that a random walker would take them. A few
+measures — <code><a href="../reference/measure_central_close.html">node_by_information()</a></code> and
+<code><a href="../reference/measure_central_between.html">node_by_flow()</a></code> — sit outside this scheme altogether,
+modelling current or maximum flow rather than any single route.</p>
 <table class="table">
 <colgroup>
 <col width="20%">
@@ -729,7 +752,7 @@ family.</p>
 <thead><tr class="header">
 <th>Family</th>
 <th>Reads a node’s…</th>
-<th>Built on</th>
+<th>Traverses</th>
 <th>Answers the question</th>
 <th>Well-suited when</th>
 </tr></thead>
@@ -737,7 +760,7 @@ family.</p>
 <tr class="odd">
 <td><strong>Degree</strong></td>
 <td>activity (radial, local)</td>
-<td>direct ties</td>
+<td>direct ties only</td>
 <td>“Who is busiest, or most directly connected?”</td>
 <td>only immediate ties matter, or influence spreads one step at a time;
 also the cheapest to compute on very large networks; outdegree
@@ -747,7 +770,7 @@ sign versions exist too</td>
 <tr class="even">
 <td><strong>Closeness</strong></td>
 <td>reach (radial, global)</td>
-<td>shortest-path distances to all others</td>
+<td>geodesics — shortest paths to all others</td>
 <td>“Who can reach — or be reached by — everyone else in the fewest
 steps?”</td>
 <td>the network is connected and things travel by efficient routes; use
@@ -756,7 +779,7 @@ steps?”</td>
 <tr class="odd">
 <td><strong>Betweenness</strong></td>
 <td>brokerage (medial, global)</td>
-<td>shortest paths that pass through it</td>
+<td>geodesics — shortest paths passing through it</td>
 <td>“Who sits between others, brokering, bridging, or bottlenecking
 flow?”</td>
 <td>you care about gatekeeping, bridges between groups, or where flow is
@@ -765,7 +788,7 @@ vulnerable; costly on huge networks (use a <code>cutoff</code>)</td>
 <tr class="even">
 <td><strong>Eigenvector</strong></td>
 <td>standing (radial, global)</td>
-<td>walks of all lengths, weighted by neighbours’ scores</td>
+<td>walks of every length, weighted by neighbours’ scores</td>
 <td>“Who is connected to other important, well-connected nodes?”</td>
 <td>importance is recursive — prestige, status, influence; use
 <code><a href="../reference/measure_central_eigen.html">node_by_pagerank()</a></code> for directed or disconnected networks;
@@ -774,9 +797,36 @@ to poorly-connected nodes</td>
 </tr>
 </tbody>
 </table>
-<p>Reading across a row tells you what a family is <em>for</em>; reading
-down the last column tells you which <em>kind of network</em> each suits
-best.</p>
+<div class="section level3">
+<h3 id="reading-the-numbers-you-get-back">Reading the numbers you get back<a class="anchor" aria-label="anchor" href="#reading-the-numbers-you-get-back"></a>
+</h3>
+<p>Choosing a measure is half the job; knowing what its scores mean is
+the other half. Every measure here reports how it was rescaled, and
+there are three possibilities worth telling apart.</p>
+<p>A <strong>normalised</strong> score has been divided by a
+<em>theoretical</em> maximum — the largest value the measure could take
+on a network of this size and shape. Degree, closeness and betweenness
+all work this way, and because the yardstick does not depend on the
+particular network you measured, their scores can be compared
+<em>between</em> networks: a normalised degree of 0.6 means the same
+thing in either of two networks.</p>
+<p>A <strong>scaled</strong> score has been divided by the
+<em>observed</em> maximum, the largest value that actually turned up in
+this network. Eigenvector centrality works this way, because an
+eigenvector is only defined up to a scalar multiple and so has no
+absolute units to preserve. The consequence is easy to miss: the
+top-scoring node always gets exactly 1.0, in every network, however
+central it really is. Scaled scores rank nodes <em>within</em> one
+network; they say nothing across networks.</p>
+<p>A <strong>proportion</strong> — <code><a href="../reference/measure_central_eigen.html">node_by_pagerank()</a></code> is
+the example — divides each score by their total, so the values sum to
+one and can be read as shares.</p>
+<p>And some measures are rescaled by none of these, because no sensible
+maximum exists: <code><a href="../reference/measure_central_eigen.html">node_by_alpha()</a></code> can return negative values,
+and <code><a href="../reference/measure_central_eigen.html">node_by_subgraph()</a></code> grows exponentially. There is no
+normalised version of every centrality measure, and it is better to know
+that than to be handed a number between 0 and 1 that was never really
+bounded.</p>
 <div class="callout">
 <p><span class="callout-label"><strong>Try it yourself</strong>:</span>
 This section includes an interactive quiz in the live tutorial — run
@@ -789,6 +839,7 @@ centrality</a> and the <a href="https://github.com/schochastics/netrankr/" class
 compare nodes <em>without</em> committing to a single index.</p>
 </div>
 <p>Now let’s see how to spot the most central nodes at a glance.</p>
+</div>
 </div>
 <div class="section level2">
 <h2 id="plotting-centrality">Plotting centrality<a class="anchor" aria-label="anchor" href="#plotting-centrality"></a>
@@ -847,7 +898,6 @@ centralisation </dfn></abbr>, and the bridge to it runs through the
 <div class="section level3">
 <h3 id="reading-a-distribution">Reading a distribution<a class="anchor" aria-label="anchor" href="#reading-a-distribution"></a>
 </h3>
-<p><img src="https://i.giphy.com/media/v1.Y2lkPTc5MGI3NjExanZ4OWhwM2k0eWU1ancza3NtYXlpZDFkdTJub2RvMnFkYnlwbWZ4dCZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/3o7aTHbH39h8xYePza/giphy.gif" height="400px" alt="gif of a woman saying 'But I can't help it that I'm popular'"></p>
 <p>Rather than reduce a measure to a single summary number, we can look
 at its whole
 <abbr><dfn title="A degree distribution is the frequency distribution of the degrees of the nodes in a network.">
@@ -962,7 +1012,6 @@ other.</p>
 <div class="section level2">
 <h2 id="free-play">Free play<a class="anchor" aria-label="anchor" href="#free-play"></a>
 </h2>
-<p><img src="https://i.giphy.com/media/v1.Y2lkPTc5MGI3NjExejh4dXBha3JhNW0yenJwMDd5aGpwd3Brc201ZXoxZnY2aWFna3Z4cCZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/7ROgX60TtTVK0mZwkJ/giphy.gif" height="400px" alt="gif of a man saying 'I'm so tired of being so popular'"></p>
 <p>Choose another dataset included in <a href="https://stocnet.github.io/manynet/" class="external-link">manynet</a> (browse
 them with <code>table_data()</code>). Name a plausible research question
 you could ask of the dataset relating to each of the four main
@@ -1041,7 +1090,7 @@ returns the raw, unnormalised counts</td>
 <td>betweenness centrality (lying on others’ shortest paths)</td>
 </tr>
 <tr class="odd">
-<td><code><a href="../reference/measure_centralities_between.html">tie_by_betweenness()</a></code></td>
+<td><code><a href="../reference/measure_central_tie_between.html">tie_by_betweenness()</a></code></td>
 <td>shortest paths through each tie (bridges)</td>
 </tr>
 <tr class="even">

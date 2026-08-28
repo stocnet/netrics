@@ -18,7 +18,7 @@ nodes will adopt/become infected at that time."><meta property="og:image" conten
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">netrics</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.4.1</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.0.0</span>
       </span>
     </div>
 
@@ -108,9 +108,9 @@ nodes will adopt/become infected at that time.</p>
 
 
 <dl><dt id="arg--data">.data<a class="anchor" aria-label="anchor" href="#arg--data"></a></dt>
-<dd><p>A network object of class <code>mnet</code>, <code>igraph</code>, <code>tbl_graph</code>, <code>network</code>, or similar.
-For more information on the standard coercion possible,
-see <code><a href="https://stocnet.github.io/manynet/reference/coerce_graph.html" class="external-link">manynet::as_tidygraph()</a></code>.</p></dd>
+<dd><p>A network object of class <code>stocnet</code>, <code>igraph</code>, <code>tbl_graph</code>, <code>network</code>, or similar.
+Internally any of these will be coerced to an efficient implementation.
+For more information on possible coercions, see e.g. <code><a href="https://stocnet.github.io/manynet/reference/coerce_graph.html" class="external-link">manynet::as_stocnet()</a></code>.</p></dd>
 
 </dl></div>
     <div id="value">
@@ -180,8 +180,11 @@ Cambridge: MIT Press.</p>
 <p>Other motifs:
 <code><a href="motif_brokerage_net.html">motif_brokerage_net</a></code>,
 <code><a href="motif_brokerage_node.html">motif_brokerage_node</a></code>,
+<code><a href="motif_clique.html">motif_clique</a></code>,
+<code><a href="motif_composition.html">motif_composition</a></code>,
 <code><a href="motif_exposure.html">motif_exposure</a></code>,
 <code><a href="motif_hierarchy.html">motif_hierarchy</a></code>,
+<code><a href="motif_homophily.html">motif_homophily</a></code>,
 <code><a href="motif_net.html">motif_net</a></code>,
 <code><a href="motif_node.html">motif_node</a></code>,
 <code><a href="motif_path.html">motif_path</a></code>,
@@ -193,10 +196,11 @@ Cambridge: MIT Press.</p>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># To calculate the hazard rates at each time point</span></span></span>
 <span class="r-in"><span>  <span class="va">smeg</span> <span class="op">&lt;-</span> <span class="fu">generate_smallworld</span><span class="op">(</span><span class="fl">15</span>, <span class="fl">0.025</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu">net_x_hazard</span><span class="op">(</span><span class="fu">play_diffusion</span><span class="op">(</span><span class="va">smeg</span>, transmissibility <span class="op">=</span> <span class="fl">0.3</span><span class="op">)</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># A tibble: 1 × 11</span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>      t0    t1    t2     t3    t4    t5    t6    t7    t8    t9   t10</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>  <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">1</span>    <span style="color: #BB0000;">NA</span>     0 0.143 0.083<span style="text-decoration: underline;">3</span>     0 0.182 0.222     0 0.143 0.667   0.5</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># A tibble: 1 × 15</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>      t0    t1    t2    t3    t4    t5    t6    t7    t8    t9   t10   t11   t12</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">1</span>    <span style="color: #BB0000;">NA</span>     0     0 0.214 0.182     0     0     0 0.111 0.125 0.286     0   0.2</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># ℹ 2 more variables: t13 &lt;dbl&gt;, t14 &lt;dbl&gt;</span></span>
 </code></pre></div>
     </div>
   </div>

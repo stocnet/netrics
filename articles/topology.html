@@ -39,7 +39,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">netrics</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.4.1</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.0.0</span>
       </span>
     </div>
 
@@ -216,7 +216,7 @@ networks</label></li>
 small-world coefficient and power-law exponent</label></li>
 <li><label><input type="checkbox">  Partition a network into core and
 periphery with <code><a href="../reference/mark_core.html">node_is_core()</a></code>, and judge the fit with
-<code><a href="../reference/measure_features.html">net_by_core()</a></code></label></li>
+<code><a href="../reference/measure_fit.html">net_by_core()</a></code></label></li>
 <li><label><input type="checkbox">  Peel a network into
 <em>k</em>-cores with <code><a href="../reference/measure_core.html">node_by_kcoreness()</a></code></label></li>
 <li><label><input type="checkbox">  Measure how hierarchical a
@@ -247,7 +247,6 @@ realistic) — and that you can browse the full list with
 · <span class="page-toc-link" onclick="document.getElementById('section-trees').scrollIntoView({behavior:'auto',block:'start'});">Trees</span>
 · <span class="page-toc-link" onclick="document.getElementById('section-lattices').scrollIntoView({behavior:'auto',block:'start'});">Lattices</span>
 · <span class="page-toc-link" onclick="document.getElementById('section-rings').scrollIntoView({behavior:'auto',block:'start'});">Rings</span></span></p>
-<p><img src="https://media.tenor.com/images/e26e64a8cce94a6ee491f0ddeecc8b88/tenor.gif"></p>
 <p>In this practical, we’re going to create/generate a number of
 ideal-typical network topologies and plot them. We’ll first look at some
 deterministic algorithms for <em>creating</em> networks of different
@@ -387,9 +386,9 @@ away, on a “circle” layout</li>
 <li>the same as above, but on a “stress” layout</li>
 </ul>
 <p>The price a ring pays for its regularity is distance. The
-<abbr>&lt;dfn title=‘A network’s diameter is the maximum length of any
-shortest path.’&gt; diameter </abbr> of a network is the length of
-its longest shortest path
+<abbr><dfn title="The diameter of a network is the maximum length of any shortest path.">
+diameter </dfn></abbr> of a network is the length of its longest
+shortest path
 (<abbr><dfn title="A geodesic is a shortest path between two nodes.">
 geodesic </dfn></abbr>), and <code><a href="../reference/measure_breadth.html">net_by_length()</a></code> returns the
 <em>average</em> shortest path length. <strong>Check how far apart nodes
@@ -622,7 +621,7 @@ joined by a handful of lone bridging ties, and the citation network fans
 out as a directed, tree-like cascade from the earliest nodes. These are
 exactly the ideal patterns you have learned to <em>measure</em> in this
 tutorial — so you could, for instance, confirm the islands model with
-<code><a href="../reference/measure_features.html">net_by_modularity()</a></code> (from the community tutorial) or the
+<code><a href="../reference/measure_fit.html">net_by_modularity()</a></code> (from the community tutorial) or the
 citation model’s one-directional flow with
 <code><a href="../reference/measure_closure.html">net_by_reciprocity()</a></code>.</p>
 <div class="callout">
@@ -655,6 +654,8 @@ together, and whether like attaches to like.</p>
 </h2>
 <p><span class="page-toc">On this page: <span class="page-toc-link" onclick="document.getElementById('section-core-periphery-graphs').scrollIntoView({behavior:'auto',block:'start'});">Ideal
 graphs</span> · <span class="page-toc-link" onclick="document.getElementById('section-core-periphery-assignment').scrollIntoView({behavior:'auto',block:'start'});">Assignment</span>
+· <span class="page-toc-link" onclick="document.getElementById('section-weighted-cores').scrollIntoView({behavior:'auto',block:'start'});">Weighted</span>
+· <span class="page-toc-link" onclick="document.getElementById('section-directed-cores').scrollIntoView({behavior:'auto',block:'start'});">Directed</span>
 · <span class="page-toc-link" onclick="document.getElementById('section-coreness').scrollIntoView({behavior:'auto',block:'start'});">Coreness</span></span></p>
 <div class="section level3">
 <h3 id="core-periphery-graphs">Core-periphery graphs<a class="anchor" aria-label="anchor" href="#core-periphery-graphs"></a>
@@ -706,12 +707,12 @@ by it.</strong></p>
 even be two cores here, one on the left and one on the right.</p>
 <p>But is it really all that much of a core-periphery structure? We can
 establish how correlated our network is compared to a core-periphery
-model of the same dimension using <code><a href="../reference/measure_features.html">net_by_core()</a></code>. A value
+model of the same dimension using <code><a href="../reference/measure_fit.html">net_by_core()</a></code>. A value
 close to 1 would mean the observed ties line up almost perfectly with
 the ideal blockmodel — dense within the core, sparse within the
 periphery — while a value near 0 means the partition fits no better than
 chance. <strong>Measure how well a core-periphery model fits this
-network with <code><a href="../reference/measure_features.html">net_by_core()</a></code>.</strong></p>
+network with <code><a href="../reference/measure_fit.html">net_by_core()</a></code>.</strong></p>
 <div class="callout">
 <p><span class="callout-label"><strong>Try it yourself</strong>:</span>
 This section includes an interactive quiz in the live tutorial — run
@@ -749,27 +750,117 @@ This section includes an interactive quiz in the live tutorial — run
 </div>
 </div>
 <div class="section level3">
+<h3 id="weighted-cores">Weighted cores<a class="anchor" aria-label="anchor" href="#weighted-cores"></a>
+</h3>
+<p>So far we have treated every tie as the same. But in networks such as
+trade networks, airline networks, or communication networks, the ties
+can carry very different weights. Being part of the core is not just
+about having many ties, but about having many <em>strong</em> ties.</p>
+<p><code>ison_networkers</code> is a network of messages sent between
+researchers on an electronic information exchange system. It is both
+weighted, by the number of messages, and directed. <strong>Run the code
+to see how many messages the busiest ties carry.</strong></p>
+<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">netw</span> <span class="op">&lt;-</span> <span class="va">ison_networkers</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="fu">tie_weights</span><span class="op">(</span><span class="va">netw</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
+<p>For a weighted network, <a href="https://stocnet.github.io/netrics/">netrics</a> uses the
+<em>rich-core</em> method by default. It ranks the nodes by the total
+weight of their ties, not their count, and walks down that ranking,
+adding up the weight each node sends to the nodes ranked above it. Added
+nodes that are still strongly tied to those already in the core will
+increase that total; but a node that is not strongly tied to those
+already assigned to the core will not add much, and the peak of this
+total signals the boundary of the core. <strong>Assign core membership
+on the weighted network, then on the same network with its weights
+removed, and compare the two.</strong></p>
+<p>Note that the two do not agree. The weighted core assigns six
+researchers to the core, while the binary core assigns 15. That means
+nine researchers who have many correspondents nonetheless do not
+exchange enough messages with the busiest others to survive the weighted
+cut. Ignoring weights means the core is who exchange messages with the
+most others. Reading the weights means it is the set of researchers who
+exchange the most messages with each other. Neither answer is the right
+one in general – but you should know which one you asked for.</p>
+<div class="callout">
+<p><span class="callout-label"><strong>Try it yourself</strong>:</span>
+This section includes an interactive quiz in the live tutorial — run
+<code>run_tute()</code> at the R console to try it.</p>
+</div>
+<div class="callout">
+<p><span class="callout-label"><strong>In brief</strong>:</span> On a
+weighted network, <code><a href="../reference/mark_core.html">node_is_core()</a></code> and
+<code><a href="../reference/measure_core.html">node_by_core()</a></code> read the weights by default. To ask the
+binary question instead, drop the weights first with
+<code>to_unweighted()</code>.</p>
+</div>
+</div>
+<div class="section level3">
+<h3 id="directed-cores">Directed cores<a class="anchor" aria-label="anchor" href="#directed-cores"></a>
+</h3>
+<p>Notice that at the very start of this section we wrote
+<code>to_undirected()</code>, throwing away which partner named which.
+For a core-periphery question that may be a real loss, because tie
+direction can matter. Indeed, a node could be core in one direction and
+peripheral in the other. It might be core in <em>whom it reaches</em>
+yet peripheral in <em>who reaches it</em>. An influencer might be
+followed by everyone yet follow no one; an enthusiastic subscriber might
+follow everyone yet be followed by no one. Let us keep the direction
+this time. <strong>Extract the friendship network again, without
+dropping direction.</strong></p>
+<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">lawdir</span> <span class="op">&lt;-</span> <span class="va">ison_lawfirm</span> <span class="op">|&gt;</span> <span class="fu">to_uniplex</span><span class="op">(</span><span class="st">"friends"</span><span class="op">)</span></span>
+<span><span class="fu">is_directed</span><span class="op">(</span><span class="va">lawdir</span><span class="op">)</span></span></code></pre></div>
+<p><code><a href="../reference/measure_core.html">node_by_core()</a></code> takes a <code>direction</code> argument,
+exactly as <code><a href="../reference/measure_central_degree.html">node_by_degree()</a></code> does. <strong>Score the
+partners on the friendships they name, then on the friendships they are
+named in, and see how far the two agree.</strong></p>
+<p>The two correlate, but only moderately. Partners sitting off the
+diagonal are effectively core in one direction but peripheral in the
+other, meaning a single core-periphery split misdescribes their
+position. <code>node_in_core(direction = "both")</code> keeps both
+answers, returning the four categories that Elliott and colleagues
+distinguish: <strong>Core</strong> for partners in both the out-core and
+the in-core, <strong>Sender</strong> for partners in the out-core only,
+<strong>Receiver</strong> for partners in the in-core only, and
+<strong>Periphery</strong> for partners in neither. <strong>Assign the
+four categories and graph the network coloured by them.</strong></p>
+<p>Most partners are peripheral, but the remainder splits three ways
+rather than falling into one core. The Receivers are named as friends
+more than they name others, and the Senders the reverse.</p>
+<div class="callout">
+<p><span class="callout-label"><strong>Try it yourself</strong>:</span>
+This section includes an interactive quiz in the live tutorial — run
+<code>run_tute()</code> at the R console to try it.</p>
+</div>
+</div>
+<div class="section level3">
 <h3 id="coreness">Coreness<a class="anchor" aria-label="anchor" href="#coreness"></a>
 </h3>
-<p>An alternative route is to identify ‘core’ nodes depending on their
+<p><code><a href="../reference/mark_core.html">node_is_core()</a></code> classifies nodes binarily into core and
+periphery. Two other functions grade the question instead, but they
+grade different things.</p>
+<p>The first is <code><a href="../reference/measure_core.html">node_by_core()</a></code>, which returns the
+continuous score used by <code><a href="../reference/mark_core.html">node_is_core()</a></code>. It scores each
+node between 0 and 1 for how closely it resembles a typical core node.
+<strong>Score the law-firm network and compare the two.</strong></p>
+<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">lawfirm</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu">mutate_nodes</span><span class="op">(</span>cness <span class="op">=</span> <span class="fu"><a href="../reference/measure_core.html">node_by_core</a></span><span class="op">(</span><span class="op">)</span>, core <span class="op">=</span> <span class="fu"><a href="../reference/mark_core.html">node_is_core</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu">graphr</span><span class="op">(</span>node_size <span class="op">=</span> <span class="st">"cness"</span>, node_color <span class="op">=</span> <span class="st">"core"</span><span class="op">)</span></span></code></pre></div>
+<p>The second, <code><a href="../reference/measure_core.html">node_by_kcoreness()</a></code>, returns
 <abbr><dfn title="A k-core is the induced subgraph formed by removing all nodes of degree less than k following earlier removals.">
-k-coreness </dfn></abbr>. In <a href="https://stocnet.github.io/manynet/" class="external-link">manynet</a>, we can return nodes
-<em>k</em>-coreness with <code><a href="../reference/measure_core.html">node_by_kcoreness()</a></code> instead of the
-<code><a href="../reference/mark_core.html">node_is_core()</a></code> used for core-periphery. <strong>Run the
-code to colour the law-firm network by each node’s
+k-coreness </dfn></abbr>. This answers a different question: how deeply
+embedded does a node sit (in a network’s core)? <strong>Run the code to
+colour the law-firm network by each node’s
 <em>k</em>-coreness.</strong></p>
-<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">lawfirm</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu">mutate_nodes</span><span class="op">(</span>ncn <span class="op">=</span> <span class="fu"><a href="../reference/measure_core.html">node_by_kcoreness</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu">graphr</span><span class="op">(</span>node_color <span class="op">=</span> <span class="st">"ncn"</span><span class="op">)</span></span></code></pre></div>
-<p>Where <code><a href="../reference/mark_core.html">node_is_core()</a></code> forces a yes/no answer,
-<em>k</em>-coreness grades how deep each node sits in the network: a
-node with coreness <em>k</em> survives even after all nodes of degree
-less than <em>k</em> have been successively peeled away. High-coreness
-nodes are thus embedded in a densely interlocked middle, which matters
-for processes like diffusion — what starts in a high <em>k</em>-core is
-far more likely to spread widely than what starts among the peelable
-outer layers.</p>
+<p>A node with coreness <em>k</em> survives even after all nodes of
+degree less than <em>k</em> have been successively peeled away.
+High-coreness nodes are thus embedded in a densely interlocked middle,
+which matters for processes like diffusion.</p>
 <div class="callout">
 <p><span class="callout-label"><strong>Try it yourself</strong>:</span>
 This section includes an interactive quiz in the live tutorial — run
@@ -778,11 +869,20 @@ This section includes an interactive quiz in the live tutorial — run
 <div class="callout">
 <p><span class="callout-label"><strong>In brief</strong>:</span>
 <code>create_core()</code> draws the ideal core-periphery network;
-<code><a href="../reference/mark_core.html">node_is_core()</a></code> assigns each node to core or periphery, and
-<code><a href="../reference/measure_features.html">net_by_core()</a></code> reports how well that bipartition actually
-fits the network (1 = perfectly, ~0 = not at all).
-<code><a href="../reference/measure_core.html">node_by_kcoreness()</a></code> offers a graded alternative, peeling
-the network into successively deeper <em>k</em>-cores.</p>
+<code><a href="../reference/mark_core.html">node_is_core()</a></code> assigns each node to core or periphery,
+<code><a href="../reference/member_core.html">node_in_core()</a></code> assigns each node into potentially more
+refined categories, and <code><a href="../reference/measure_core.html">node_by_core()</a></code> returns the
+continuous score behind that assignment.
+<code><a href="../reference/measure_core.html">node_by_kcoreness()</a></code> peels the network into successively
+deeper <em>k</em>-cores. <code><a href="../reference/measure_fit.html">net_by_core()</a></code> reports how well a
+bipartition actually fits the network (1 = perfectly, ~0 = not at
+all).</p>
+<p>All of these take a <code>coreness</code> argument naming which
+method to use, and a <code>direction</code> argument saying which ties
+to read. By default the method follows the network: the rich-core method
+for a weighted, directed, or two-mode network, since it is the only one
+that reads those properties directly, and the correlation method
+otherwise.</p>
 </div>
 </div>
 </div>
@@ -818,7 +918,7 @@ of hierarchy in a given network. The classic example would be to look at
 a tree network, like the one constructed earlier. <strong>Run the code
 to try the function <code><a href="../reference/motif_hierarchy.html">net_x_hierarchy()</a></code> on a directed tree of
 11 nodes.</strong></p>
-<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">treeleven</span> <span class="op">&lt;-</span> <span class="fu">create_tree</span><span class="op">(</span><span class="fl">11</span>, directed <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
 <span><span class="fu"><a href="../reference/motif_hierarchy.html">net_x_hierarchy</a></span><span class="op">(</span><span class="va">treeleven</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/colSums.html" class="external-link">rowMeans</a></span><span class="op">(</span><span class="fu"><a href="../reference/motif_hierarchy.html">net_x_hierarchy</a></span><span class="op">(</span><span class="va">treeleven</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
@@ -863,7 +963,7 @@ exercise. Which one would you consider is more hierarchical:
 or <code>fict_thrones</code>, a directed network of kinship ties?
 <strong>Graph each network, then add a <code><a href="../reference/motif_hierarchy.html">net_x_hierarchy()</a></code>
 call for both and compare their profiles.</strong></p>
-<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu">graphr</span><span class="op">(</span><span class="va">ison_emotions</span><span class="op">)</span></span>
 <span><span class="fu">graphr</span><span class="op">(</span><span class="va">fict_thrones</span><span class="op">)</span></span></code></pre></div>
 <p>Actually, these two networks have the same average hierarchy score of
@@ -1143,13 +1243,36 @@ like</td>
 core/semi-periphery/periphery)</td>
 </tr>
 <tr class="even">
-<td><code><a href="../reference/measure_features.html">net_by_core()</a></code></td>
+<td><code>node_in_core(direction = "both")</code></td>
+<td>the four categories of a directed structure: Core, Sender, Receiver,
+Periphery</td>
+</tr>
+<tr class="odd">
+<td><code><a href="../reference/measure_core.html">node_by_core()</a></code></td>
+<td>continuous score, 0 to 1, for how core-like each node is</td>
+</tr>
+<tr class="even">
+<td><code><a href="../reference/measure_fit.html">net_by_core()</a></code></td>
 <td>correlation of the network with an ideal core-periphery model</td>
 </tr>
 <tr class="odd">
 <td><code><a href="../reference/measure_core.html">node_by_kcoreness()</a></code></td>
 <td>each node’s <em>k</em>-coreness (depth in the network’s successive
 cores)</td>
+</tr>
+<tr class="even">
+<td>
+<code><a href="../reference/method_coreness.html">coreness_rich()</a></code>,
+<code><a href="../reference/method_coreness.html">coreness_correlation()</a></code>
+</td>
+<td>the methods behind those functions; <code><a href="../reference/method_coreness.html">coreness_rich()</a></code>
+reads weights and direction</td>
+</tr>
+<tr class="odd">
+<td>
+<code>tie_weights()</code>, <code>to_unweighted()</code>
+</td>
+<td>read the tie weights, or drop them</td>
 </tr>
 <tr class="even">
 <td><code><a href="../reference/motif_hierarchy.html">net_x_hierarchy()</a></code></td>
@@ -1278,7 +1401,7 @@ present.
 Diameter
 </dt>
 <dd>
-A network’s diameter is the maximum length of any shortest path.
+The diameter of a network is the maximum length of any shortest path.
 </dd>
 <dt>
 Distribution

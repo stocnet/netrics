@@ -18,7 +18,7 @@ network, as opposed to the periphery."><meta property="og:image" content="https:
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">netrics</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.4.1</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.0.0</span>
       </span>
     </div>
 
@@ -96,7 +96,12 @@ network, as opposed to the periphery.</p>
     </div>
 
     <div id="ref-usage">
-    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">node_is_core</span><span class="op">(</span><span class="va">.data</span>, centrality <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"degree"</span>, <span class="st">"eigenvector"</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">node_is_core</span><span class="op">(</span></span>
+<span>  <span class="va">.data</span>,</span>
+<span>  coreness <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  direction <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"all"</span>, <span class="st">"out"</span>, <span class="st">"in"</span><span class="op">)</span>,</span>
+<span>  centrality <span class="op">=</span> <span class="cn">NULL</span></span>
+<span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div id="arguments">
@@ -104,18 +109,29 @@ network, as opposed to the periphery.</p>
 
 
 <dl><dt id="arg--data">.data<a class="anchor" aria-label="anchor" href="#arg--data"></a></dt>
-<dd><p>A network object of class <code>mnet</code>, <code>igraph</code>, <code>tbl_graph</code>, <code>network</code>, or similar.
-For more information on the standard coercion possible,
-see <code><a href="https://stocnet.github.io/manynet/reference/coerce_graph.html" class="external-link">manynet::as_tidygraph()</a></code>.</p></dd>
+<dd><p>A network object of class <code>stocnet</code>, <code>igraph</code>, <code>tbl_graph</code>, <code>network</code>, or similar.
+Internally any of these will be coerced to an efficient implementation.
+For more information on possible coercions, see e.g. <code><a href="https://stocnet.github.io/manynet/reference/coerce_graph.html" class="external-link">manynet::as_stocnet()</a></code>.</p></dd>
+
+
+<dt id="arg-coreness">coreness<a class="anchor" aria-label="anchor" href="#arg-coreness"></a></dt>
+<dd><p>Which method to use to calculate nodes' coreness.
+One of "correlation", "rich", "transition", or "hub";
+see <a href="method_coreness.html">method_coreness</a> for what each does.
+By default NULL, which uses "rich" for a weighted, directed, or
+two-mode network, since it is the only method that reads those properties
+directly, and "correlation" otherwise.</p></dd>
+
+
+<dt id="arg-direction">direction<a class="anchor" aria-label="anchor" href="#arg-direction"></a></dt>
+<dd><p>One of "all" (the default), "out", or "in".
+For a directed network, "out" scores nodes on the ties they send and
+"in" on the ties they receive.
+Ignored for undirected and two-mode networks.</p></dd>
 
 
 <dt id="arg-centrality">centrality<a class="anchor" aria-label="anchor" href="#arg-centrality"></a></dt>
-<dd><p>Which centrality measure to use to identify cores and periphery.
-By default this is "degree",
-which relies on the heuristic that high degree nodes are more likely to be in the core.
-An alternative is "eigenvector", which instead begins with high eigenvector nodes.
-Other methods, such as a genetic algorithm, CONCOR, and Rombach-Porter,
-can be added if there is interest.</p></dd>
+<dd><p>Deprecated; use <code>coreness</code> instead.</p></dd>
 
 </dl></div>
     <div id="value">
@@ -132,12 +148,14 @@ whether the condition is matched.</p>
 and which to the periphery.
 It seeks to minimize the following quantity:
 $$Z(S_1) = \sum_{(i&lt;j)\in S_1} \textbf{I}_{\{A_{ij}=0\}} + \sum_{(i&lt;j)\notin S_1} \textbf{I}_{\{A_{ij}=1\}}$$
-where nodes \(\{i,j,...,n\}\) are ordered in descending degree,
+where nodes \(\{i,j,...,n\}\) are ordered in descending coreness,
 \(A\) is the adjacency matrix,
 and the indicator function is 1 if the predicate is true or 0 otherwise.
 Note that minimising this quantity maximises density in the core block
 and minimises density in the periphery block;
 it ignores ties between these blocks.</p>
+<p>Which ordering the nodes are swept in depends on the method named by
+<code>coreness</code>, for which see <a href="method_coreness.html">method_coreness</a>.</p>
     </div>
     <div id="references">
     <h2>References</h2>
@@ -146,12 +164,12 @@ it ignores ties between these blocks.</p>
 <h3 id="on-core-periphery-partitioning">On core-periphery partitioning<a class="anchor" aria-label="anchor" href="#on-core-periphery-partitioning"></a></h3>
 
 
-<p>Borgatti, Stephen P., &amp; Everett, Martin G. 1999.
-"Models of core /periphery structures".
-<em>Social Networks</em>, 21, 375–395.
+<p>Borgatti, Stephen P., and Martin G. Everett. 2000.
+"Models of core/periphery structures".
+<em>Social Networks</em>, 21(4), 375-395.
 <a href="https://doi.org/10.1016/S0378-8733%2899%2900019-2" class="external-link">doi:10.1016/S0378-8733(99)00019-2</a></p>
 <p>Lip, Sean Z. W. 2011.
-“A Fast Algorithm for the Discrete Core/Periphery Bipartitioning Problem.”
+"A fast algorithm for the discrete core/periphery bipartitioning problem".
 <a href="https://doi.org/10.48550/arXiv.1102.5511" class="external-link">doi:10.48550/arXiv.1102.5511</a></p>
 </div>
 
@@ -196,6 +214,8 @@ it ignores ties between these blocks.</p>
 <code><a href="member_diffusion.html">member_diffusion</a></code>,
 <code><a href="member_equivalence.html">member_equivalence</a></code>,
 <code><a href="motif_brokerage_node.html">motif_brokerage_node</a></code>,
+<code><a href="motif_clique.html">motif_clique</a></code>,
+<code><a href="motif_composition.html">motif_composition</a></code>,
 <code><a href="motif_exposure.html">motif_exposure</a></code>,
 <code><a href="motif_node.html">motif_node</a></code>,
 <code><a href="motif_path.html">motif_path</a></code></p></div>

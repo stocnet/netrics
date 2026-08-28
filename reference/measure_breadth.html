@@ -21,7 +21,7 @@ net_by_length() measures the average path length in the network.
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">netrics</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.4.1</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.0.0</span>
       </span>
     </div>
 
@@ -109,14 +109,31 @@ net_by_length() measures the average path length in the network.
 
 
 <dl><dt id="arg--data">.data<a class="anchor" aria-label="anchor" href="#arg--data"></a></dt>
-<dd><p>A network object of class <code>mnet</code>, <code>igraph</code>, <code>tbl_graph</code>, <code>network</code>, or similar.
-For more information on the standard coercion possible,
-see <code><a href="https://stocnet.github.io/manynet/reference/coerce_graph.html" class="external-link">manynet::as_tidygraph()</a></code>.</p></dd>
+<dd><p>A network object of class <code>stocnet</code>, <code>igraph</code>, <code>tbl_graph</code>, <code>network</code>, or similar.
+Internally any of these will be coerced to an efficient implementation.
+For more information on possible coercions, see e.g. <code><a href="https://stocnet.github.io/manynet/reference/coerce_graph.html" class="external-link">manynet::as_stocnet()</a></code>.</p></dd>
 
 </dl></div>
     <div id="value">
     <h2>Value</h2>
     <p>A <code>network_measure</code> numeric score.</p>
+<p>The object also carries the <code>measure</code> it computed, the <code>range</code> its values
+can fall within, and whether and how those values were <code>normalized</code>.
+These are shown as a one-line header when the object is printed.
+Where a measure offers a choice between several ways of counting the
+same thing, it also carries the <code>variant</code> it used.
+All can be retrieved with <code><a href="https://rdrr.io/r/base/attr.html" class="external-link">attr()</a></code>.</p>
+    </div>
+    <div id="signed-networks">
+    <h2>Signed networks</h2>
+
+
+<p>Both measures count path lengths, and a negative tie is hostility rather
+than a channel along which cohesion travels.
+Where the network is signed, they therefore consider only the positive
+ties. Use <code><a href="https://stocnet.github.io/manynet/reference/modif_weight.html" class="external-link">manynet::to_unsigned()</a></code> first to control this yourself.</p>
+<p>Note that dropping the negative ties can disconnect the network,
+in which case the measure covers the reachable pairs only.</p>
     </div>
     <div id="see-also">
     <h2>See also</h2>
@@ -136,10 +153,10 @@ see <code><a href="https://stocnet.github.io/manynet/reference/coerce_graph.html
 <code><a href="measure_central_close.html">measure_central_close</a></code>,
 <code><a href="measure_central_degree.html">measure_central_degree</a></code>,
 <code><a href="measure_central_eigen.html">measure_central_eigen</a></code>,
-<code><a href="measure_centralities_between.html">measure_centralities_between</a></code>,
-<code><a href="measure_centralities_close.html">measure_centralities_close</a></code>,
-<code><a href="measure_centralities_degree.html">measure_centralities_degree</a></code>,
-<code><a href="measure_centralities_eigen.html">measure_centralities_eigen</a></code>,
+<code><a href="measure_central_tie_between.html">measure_central_tie_between</a></code>,
+<code><a href="measure_central_tie_close.html">measure_central_tie_close</a></code>,
+<code><a href="measure_central_tie_degree.html">measure_central_tie_degree</a></code>,
+<code><a href="measure_central_tie_eigen.html">measure_central_tie_eigen</a></code>,
 <code><a href="measure_closure.html">measure_closure</a></code>,
 <code><a href="measure_closure_node.html">measure_closure_node</a></code>,
 <code><a href="measure_cohesion.html">measure_cohesion</a></code>,
@@ -150,6 +167,7 @@ see <code><a href="https://stocnet.github.io/manynet/reference/coerce_graph.html
 <code><a href="measure_diverse_net.html">measure_diverse_net</a></code>,
 <code><a href="measure_diverse_node.html">measure_diverse_node</a></code>,
 <code><a href="measure_features.html">measure_features</a></code>,
+<code><a href="measure_fit.html">measure_fit</a></code>,
 <code><a href="measure_fragmentation.html">measure_fragmentation</a></code>,
 <code><a href="measure_hierarchy.html">measure_hierarchy</a></code>,
 <code><a href="measure_periods.html">measure_periods</a></code></p></div>
@@ -158,13 +176,13 @@ see <code><a href="https://stocnet.github.io/manynet/reference/coerce_graph.html
     <div id="ref-examples">
     <h2>Examples</h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="fu">net_by_diameter</span><span class="op">(</span><span class="va">fict_marvel</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 4</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 5</span>
 <span class="r-in"><span><span class="fu">net_by_diameter</span><span class="op">(</span><span class="fu">to_giant</span><span class="op">(</span><span class="va">fict_marvel</span><span class="op">)</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 4</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 5</span>
 <span class="r-in"><span><span class="fu">net_by_length</span><span class="op">(</span><span class="va">fict_marvel</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 2.41</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 2.55</span>
 <span class="r-in"><span><span class="fu">net_by_length</span><span class="op">(</span><span class="fu">to_giant</span><span class="op">(</span><span class="va">fict_marvel</span><span class="op">)</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 2.41</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 2.55</span>
 </code></pre></div>
     </div>
   </div>

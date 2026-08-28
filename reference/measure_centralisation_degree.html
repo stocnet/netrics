@@ -47,7 +47,7 @@ against only the centrality scores of the other nodes in that mode."><meta prope
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">netrics</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.4.1</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.0.0</span>
       </span>
     </div>
 
@@ -167,9 +167,9 @@ against only the centrality scores of the other nodes in that mode.</p>
 
 
 <dl><dt id="arg--data">.data<a class="anchor" aria-label="anchor" href="#arg--data"></a></dt>
-<dd><p>A network object of class <code>mnet</code>, <code>igraph</code>, <code>tbl_graph</code>, <code>network</code>, or similar.
-For more information on the standard coercion possible,
-see <code><a href="https://stocnet.github.io/manynet/reference/coerce_graph.html" class="external-link">manynet::as_tidygraph()</a></code>.</p></dd>
+<dd><p>A network object of class <code>stocnet</code>, <code>igraph</code>, <code>tbl_graph</code>, <code>network</code>, or similar.
+Internally any of these will be coerced to an efficient implementation.
+For more information on possible coercions, see e.g. <code><a href="https://stocnet.github.io/manynet/reference/coerce_graph.html" class="external-link">manynet::as_stocnet()</a></code>.</p></dd>
 
 
 <dt id="arg-normalized">normalized<a class="anchor" aria-label="anchor" href="#arg-normalized"></a></dt>
@@ -193,29 +193,46 @@ giving one centralization score per mode.</p>
     </div>
     <div id="references">
     <h2>References</h2>
-    <p>Borgatti, Stephen P., and Martin G. Everett. 1997.
+
+<div class="section">
+<h3 id="on-centralisation">On centralisation<a class="anchor" aria-label="anchor" href="#on-centralisation"></a></h3>
+
+
+<p>Freeman, Linton C. 1978.
+"Centrality in social networks: Conceptual clarification".
+<em>Social Networks</em> 1(3): 215-239.
+<a href="https://doi.org/10.1016/0378-8733%2878%2990021-7" class="external-link">doi:10.1016/0378-8733(78)90021-7</a></p>
+</div>
+
+<div class="section">
+<h3 id="on-two-mode-centralisation">On two-mode centralisation<a class="anchor" aria-label="anchor" href="#on-two-mode-centralisation"></a></h3>
+
+
+<p>Borgatti, Stephen P., and Martin G. Everett. 1997.
 "Network analysis of 2-mode data."
 <em>Social Networks</em> 19(3): 243-269.
 <a href="https://doi.org/10.1016/S0378-8733%2896%2900301-2" class="external-link">doi:10.1016/S0378-8733(96)00301-2</a></p>
+</div>
+
     </div>
     <div id="see-also">
     <h2>See also</h2>
     <div class="dont-index"><p>Other degree:
 <code><a href="mark_degree.html">mark_degree</a></code>,
 <code><a href="measure_central_degree.html">measure_central_degree</a></code>,
-<code><a href="measure_centralities_degree.html">measure_centralities_degree</a></code></p>
+<code><a href="measure_central_tie_degree.html">measure_central_tie_degree</a></code></p>
 <p>Other centrality:
 <code><a href="measure_central_between.html">measure_central_between</a></code>,
 <code><a href="measure_central_close.html">measure_central_close</a></code>,
 <code><a href="measure_central_degree.html">measure_central_degree</a></code>,
 <code><a href="measure_central_eigen.html">measure_central_eigen</a></code>,
+<code><a href="measure_central_tie_between.html">measure_central_tie_between</a></code>,
+<code><a href="measure_central_tie_close.html">measure_central_tie_close</a></code>,
+<code><a href="measure_central_tie_degree.html">measure_central_tie_degree</a></code>,
+<code><a href="measure_central_tie_eigen.html">measure_central_tie_eigen</a></code>,
 <code><a href="measure_centralisation_between.html">measure_centralisation_between</a></code>,
 <code><a href="measure_centralisation_close.html">measure_centralisation_close</a></code>,
-<code><a href="measure_centralisation_eigen.html">measure_centralisation_eigen</a></code>,
-<code><a href="measure_centralities_between.html">measure_centralities_between</a></code>,
-<code><a href="measure_centralities_close.html">measure_centralities_close</a></code>,
-<code><a href="measure_centralities_degree.html">measure_centralities_degree</a></code>,
-<code><a href="measure_centralities_eigen.html">measure_centralities_eigen</a></code></p></div>
+<code><a href="measure_centralisation_eigen.html">measure_centralisation_eigen</a></code></p></div>
     </div>
 
     <div id="ref-examples">

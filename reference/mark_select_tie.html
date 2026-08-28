@@ -24,7 +24,7 @@ are key because they minimise or, more often, maximise some measure.
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">netrics</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.4.1</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.0.0</span>
       </span>
     </div>
 
@@ -117,9 +117,9 @@ are key because they minimise or, more often, maximise some measure.</p></li>
 
 
 <dl><dt id="arg--data">.data<a class="anchor" aria-label="anchor" href="#arg--data"></a></dt>
-<dd><p>A network object of class <code>mnet</code>, <code>igraph</code>, <code>tbl_graph</code>, <code>network</code>, or similar.
-For more information on the standard coercion possible,
-see <code><a href="https://stocnet.github.io/manynet/reference/coerce_graph.html" class="external-link">manynet::as_tidygraph()</a></code>.</p></dd>
+<dd><p>A network object of class <code>stocnet</code>, <code>igraph</code>, <code>tbl_graph</code>, <code>network</code>, or similar.
+Internally any of these will be coerced to an efficient implementation.
+For more information on possible coercions, see e.g. <code><a href="https://stocnet.github.io/manynet/reference/coerce_graph.html" class="external-link">manynet::as_stocnet()</a></code>.</p></dd>
 
 
 <dt id="arg-select">select<a class="anchor" aria-label="anchor" href="#arg-select"></a></dt>
@@ -152,20 +152,20 @@ whether the condition is matched.</p>
 <code><a href="mark_ties.html">mark_ties</a></code>,
 <code><a href="mark_triangles.html">mark_triangles</a></code>,
 <code><a href="measure_broker_tie.html">measure_broker_tie</a></code>,
-<code><a href="measure_centralities_between.html">measure_centralities_between</a></code>,
-<code><a href="measure_centralities_close.html">measure_centralities_close</a></code>,
-<code><a href="measure_centralities_degree.html">measure_centralities_degree</a></code>,
-<code><a href="measure_centralities_eigen.html">measure_centralities_eigen</a></code></p>
+<code><a href="measure_central_tie_between.html">measure_central_tie_between</a></code>,
+<code><a href="measure_central_tie_close.html">measure_central_tie_close</a></code>,
+<code><a href="measure_central_tie_degree.html">measure_central_tie_degree</a></code>,
+<code><a href="measure_central_tie_eigen.html">measure_central_tie_eigen</a></code></p>
 <p>Other selection:
 <code><a href="mark_select_node.html">mark_select_node</a></code></p></div>
     </div>
 
     <div id="ref-examples">
     <h2>Examples</h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="fu">tie_is_max</span><span class="op">(</span><span class="fu"><a href="measure_centralities_between.html">tie_by_betweenness</a></span><span class="op">(</span><span class="va">ison_brandes</span><span class="op">)</span><span class="op">)</span></span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="fu">tie_is_max</span><span class="op">(</span><span class="fu"><a href="measure_central_tie_between.html">tie_by_betweenness</a></span><span class="op">(</span><span class="va">ison_brandes</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   V1    V2    V3    V4    V5    V6    V7    V8    V9    V10   V11   V12  </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">1</span> FALSE FALSE TRUE  FALSE FALSE FALSE FALSE FALSE FALSE FALSE FALSE FALSE</span>
-<span class="r-in"><span><span class="fu">tie_is_min</span><span class="op">(</span><span class="fu"><a href="measure_centralities_between.html">tie_by_betweenness</a></span><span class="op">(</span><span class="va">ison_brandes</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu">tie_is_min</span><span class="op">(</span><span class="fu"><a href="measure_central_tie_between.html">tie_by_betweenness</a></span><span class="op">(</span><span class="va">ison_brandes</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   V1    V2    V3    V4    V5    V6    V7    V8    V9    V10   V11   V12  </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">1</span> FALSE FALSE FALSE FALSE FALSE FALSE FALSE FALSE FALSE TRUE  FALSE FALSE</span>
 </code></pre></div>

@@ -23,7 +23,7 @@ wherever possible and update your scripts accordingly."><meta property="og:image
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">netrics</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.4.1</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.0.0</span>
       </span>
     </div>
 
@@ -105,12 +105,70 @@ and so you are strongly encouraged to use the new functions/names/syntax
 wherever possible and update your scripts accordingly.</p>
     </div>
 
+    <div id="ref-usage">
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">node_by_coreness</span><span class="op">(</span><span class="va">.data</span>, coreness <span class="op">=</span> <span class="cn">NULL</span>, direction <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"all"</span>, <span class="st">"out"</span>, <span class="st">"in"</span><span class="op">)</span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu">net_x_mixed</span><span class="op">(</span><span class="va">.data</span>, <span class="va">object2</span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu">node_in_weak</span><span class="op">(</span><span class="va">.data</span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu">node_in_strong</span><span class="op">(</span><span class="va">.data</span><span class="op">)</span></span></code></pre></div>
+    </div>
 
+    <div id="arguments">
+    <h2>Arguments</h2>
+
+
+<dl><dt id="arg--data">.data<a class="anchor" aria-label="anchor" href="#arg--data"></a></dt>
+<dd><p>A network object of class <code>stocnet</code>, <code>igraph</code>, <code>tbl_graph</code>, <code>network</code>, or similar.
+Internally any of these will be coerced to an efficient implementation.
+For more information on possible coercions, see e.g. <code><a href="https://stocnet.github.io/manynet/reference/coerce_graph.html" class="external-link">manynet::as_stocnet()</a></code>.</p></dd>
+
+
+<dt id="arg-coreness">coreness<a class="anchor" aria-label="anchor" href="#arg-coreness"></a></dt>
+<dd><p>Which method to use to calculate nodes' coreness.
+One of "correlation", "rich", "transition", or "hub";
+see <a href="method_coreness.html">method_coreness</a> for what each does.
+By default NULL, which uses "rich" for a weighted, directed, or
+two-mode network, since it is the only method that reads those properties
+directly, and "correlation" otherwise.</p></dd>
+
+
+<dt id="arg-direction">direction<a class="anchor" aria-label="anchor" href="#arg-direction"></a></dt>
+<dd><p>One of "all" (the default), "out", or "in".
+For a directed network, "out" scores nodes on the ties they send and
+"in" on the ties they receive.
+Ignored for undirected and two-mode networks.</p></dd>
+
+
+<dt id="arg-object-">object2<a class="anchor" aria-label="anchor" href="#arg-object-"></a></dt>
+<dd><p>A second, two-mode network object.</p></dd>
+
+</dl></div>
     <div id="value">
     <h2>Value</h2>
     <p>Results as expected
 along with a warning to use new function naming in the future.</p>
     </div>
+    <div id="functions">
+    <h2>Functions</h2>
+
+<ul><li><p><code>node_by_coreness()</code>: Deprecated on 2026-08-27.
+Renamed <code><a href="measure_core.html">node_by_core()</a></code>, for symmetry with <code><a href="mark_core.html">node_is_core()</a></code> and
+<code><a href="member_core.html">node_in_core()</a></code>, and so that "coreness" names only the peeling depth
+that <code><a href="measure_core.html">node_by_kcoreness()</a></code> returns.</p></li>
+<li><p><code>net_x_mixed()</code>: Deprecated on 2026-08-28.
+Folded into <code><a href="motif_net.html">net_x_triad()</a></code>, which now takes the multilevel census
+whenever it is given both a one-mode and a two-mode network, rather than
+reporting that no such option exists.</p></li>
+<li><p><code>node_in_weak()</code>: Deprecated on 2026-08-28.
+Folded into <code>node_in_component(connectivity = "weak")</code>, which now takes
+the connectivity wanted as an argument rather than splitting the same
+calculation across three function names.</p></li>
+<li><p><code>node_in_strong()</code>: Deprecated on 2026-08-28.
+Folded into <code>node_in_component(connectivity = "strong")</code>, which is also
+what <code><a href="member_components.html">node_in_component()</a></code> does by default.</p></li>
+</ul></div>
 
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">

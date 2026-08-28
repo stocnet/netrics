@@ -17,7 +17,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">netrics</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.4.1</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.0.0</span>
       </span>
     </div>
 
@@ -89,12 +89,278 @@
     </div>
 
     <div class="section level2">
+<h2 class="page-header" data-toc-text="1.0.0" id="netrics-100">netrics 1.0.0<a class="anchor" aria-label="anchor" href="#netrics-100"></a></h2>
+<div class="section level3">
+<h3 id="package-1-0-0">Package<a class="anchor" aria-label="anchor" href="#package-1-0-0"></a></h3>
+<ul><li>Removed CRAN version check from <code>.onAttach()</code> making <code><a href="https://stocnet.github.io/netrics/">library(netrics)</a></code> faster to attach</li>
+<li>Fixed release workflow doubling <code>actions/actions/checkout</code> path segment</li>
+<li>Updated GitHub Actions workflows to latest major action versions</li>
+<li>Updated CONTRIBUTING to be clearer about documentation, website and NEWS conventions</li>
+<li>Added roxygen templates to standardise argument vocabulary
+<ul><li><code>param_cutoff</code></li>
+<li><code>param_decay</code></li>
+<li><code>param_times</code></li>
+<li><code>param_variant</code></li>
+<li><code>param_standardized</code></li>
+<li><code>param_connectivity</code></li>
+</ul></li>
+<li>Updated the website function overview to use the <code>NEWS.md</code> family headings</li>
+<li>Updated the README to recommend installing the whole family via <a href="https://stocnet.github.io/migraph/" class="external-link">migraph</a>
+</li>
+</ul></div>
+<div class="section level3">
+<h3 id="measures-1-0-0">Measures<a class="anchor" aria-label="anchor" href="#measures-1-0-0"></a></h3>
+<ul><li>Improved <code>make_*_measure()</code> to record algorithm details so results can be read without the script/manual
+<ul><li>
+<code>measure</code> actually calculated, e.g. <code><a href="../reference/measure_central_degree.html">node_by_degree()</a></code> is “strength centrality” on a weighted network</li>
+<li>
+<code>normalization</code>, one of <code>"normalized"</code>, <code>"scaled"</code>, <code>"proportional"</code> or <code>"none"</code>
+</li>
+<li>
+<code>range</code>, the theoretical range of the returned values</li>
+<li>
+<code>variant</code> computed where a measure offers a choice, e.g. <code><a href="../reference/measure_closure.html">net_by_reciprocity()</a></code> reports “ratio” when asked</li>
+<li>Printing is a companion change in <a href="https://stocnet.github.io/manynet/" class="external-link">manynet</a>, which defaults to previous behavior</li>
+<li>Added <code>measure</code>, <code>range</code>, <code>normalization</code>, and <code>variant</code> reporting to every measure where applicable</li>
+</ul></li>
+<li>Updated documentation such that measures that functions and certain arguments produce are discoverable by name
+<ul><li>
+<code>node_by_betweenness(cutoff = k)</code> is distance-bounded or range-limited betweenness</li>
+<li>
+<code>node_by_reach(cutoff = k)</code> is geodesic k-path centrality</li>
+<li>
+<code><a href="../reference/measure_central_close.html">node_by_closeness()</a></code> as the Sabidussi index</li>
+<li>
+<code><a href="../reference/measure_central_degree.html">node_by_degree()</a></code> on a weighted network as strength or weighted degree centrality</li>
+<li>
+<code><a href="../reference/measure_central_eigen.html">node_by_alpha()</a></code> as Katz status</li>
+<li>
+<code><a href="../reference/measure_central_eigen.html">node_by_hub()</a></code> and <code><a href="../reference/measure_central_eigen.html">node_by_authority()</a></code> as the two halves of Kleinberg’s HITS</li>
+<li>
+<code><a href="../reference/measure_closure_node.html">node_by_transitivity()</a></code> as the local clustering coefficient</li>
+<li>
+<code><a href="../reference/measure_central_tie_between.html">tie_by_betweenness()</a></code> as edge betweenness</li>
+<li>
+<code><a href="../reference/measure_central_eigen.html">node_by_subgraph()</a></code> as a node’s contribution to the Estrada index</li>
+<li>
+<code><a href="../reference/measure_central_between.html">node_by_induced()</a></code> and <code><a href="../reference/measure_central_close.html">node_by_vitality()</a></code> as delta centrality</li>
+<li>
+<code><a href="../reference/measure_central_close.html">node_by_information()</a></code> as the closeness member of the current-flow family</li>
+<li>Stopped <code><a href="../reference/measure_central_between.html">node_by_induced()</a></code> also calling itself “vitality centrality”</li>
+</ul></li>
+<li>Improved specificity of arguments, separating normalising from scaling
+<ul><li>Renamed <code>scale</code> argument to <code>scaled</code>; old spelling still works but warns</li>
+<li>Corrected claim that all measures return normalized values by default</li>
+</ul></li>
+<li>Improved consistency by consolidating every per-step discount as <code>decay</code>
+<ul><li>Always proportional [0,1] where higher values discount less</li>
+<li>Was <code>alpha</code> in <code><a href="../reference/measure_central_eigen.html">node_by_alpha()</a></code>, <code>beta</code> in <code><a href="../reference/method_regularity.html">regularity_rolesim()</a></code>
+<ul><li>
+<code>alpha</code> now only refers to Opsahl et al.’s trade-off between degree and strength in <code><a href="../reference/measure_central_degree.html">node_by_degree()</a></code>
+</li>
+</ul></li>
+<li>Added <code>decay</code> argument to <code><a href="../reference/measure_central_close.html">node_by_harmonic()</a></code>, and <code><a href="../reference/measure_central_close.html">node_by_decay()</a></code> as a shortcut for decay centrality</li>
+<li>Added <code>decay</code> to <code><a href="../reference/measure_central_eigen.html">node_by_pagerank()</a></code>, exposing the damping factor previously fixed at 0.85</li>
+<li>Added <code>decay</code> to <code><a href="../reference/measure_central_eigen.html">node_by_subgraph()</a></code>, weighting closed walks by length, which Estrada calls <code>t</code>
+</li>
+<li>Old spellings still work but warn, as <code>scale</code> does</li>
+</ul></li>
+<li>Fixed <code><a href="../reference/measure_central_degree.html">node_by_degree()</a></code> to default to <code>alpha = 0</code> to match documentation</li>
+<li>Fixed <code><a href="../reference/measure_centralisation_between.html">mode_by_betweenness()</a></code> to accept only <code>"all"</code> and <code>"in"</code>, as implemented</li>
+<li>Fixed <code><a href="../reference/measure_central_close.html">node_by_reach()</a></code> counting the node itself so normalised scores could exceed 1</li>
+<li>Fixed <code><a href="../reference/measure_central_eigen.html">node_by_eigenvector()</a></code> discarding tie weights it had computed</li>
+<li>Fixed <code><a href="../reference/measure_central_tie_between.html">tie_by_betweenness()</a></code> and <code><a href="../reference/measure_central_close.html">node_by_randomwalk()</a></code> accepting <code>normalized</code> and then ignoring it</li>
+<li>Fixed <code><a href="../reference/measure_central_between.html">node_by_betweenness()</a></code> accepting <code>normalized</code> and then ignoring it when given a <code>cutoff</code>
+</li>
+<li>Fixed how <code><a href="../reference/measure_central_close.html">node_by_vitality()</a></code> treats cut nodes
+<ul><li>Unnormalised returns <code>-Inf</code> for cut nodes as the Wiener index definition requires</li>
+<li>Normalised rescales finite scores onto <code>[0,1]</code> and places cut nodes at 0</li>
+</ul></li>
+<li>Fixed <code><a href="../reference/measure_hierarchy.html">net_by_efficiency()</a></code> to implement Krackhardt’s share of excess ties
+<ul><li>
+<code><a href="../reference/motif_hierarchy.html">net_x_hierarchy()</a></code> now compares four quantities already on <code>[0,1]</code>
+</li>
+</ul></li>
+<li>Fixed <code><a href="../reference/measure_diffusion_net.html">net_by_immunity()</a></code> returning a negative herd immunity threshold when </li>
+<li>Fixed <code><a href="../reference/measure_cohesion.html">net_by_density()</a></code>, <code><a href="../reference/measure_closure.html">net_by_equivalency()</a></code> and <code><a href="../reference/measure_closure_node.html">node_by_reciprocity()</a></code> summing tie weights</li>
+<li>Improved <code><a href="../reference/measure_central_close.html">node_by_closeness()</a></code> to validate <code>direction</code> via <code><a href="https://rdrr.io/r/base/match.arg.html" class="external-link">match.arg()</a></code>
+</li>
+<li>Removed <code>direction</code> from <code><a href="../reference/measure_centralisation_between.html">net_by_betweenness()</a></code> which never used it</li>
+<li>Moved <code><a href="../reference/measure_central_eigen.html">node_by_posneg()</a></code> to the eigenvector doc group</li>
+<li>Improved <code><a href="../reference/measure_central_eigen.html">node_by_subgraph()</a></code>
+<ul><li>Now honours tie weights</li>
+<li>Added <code>walks=</code> to choose which closed walks to count: <code>"odd"</code>, <code>"even"</code> or <code>"all"</code>
+</li>
+</ul></li>
+<li>Updated references in centrality documentation
+<ul><li>Corrected <code><a href="../reference/measure_central_eigen.html">node_by_eigenvector()</a></code> to cite Bonacich (1972), not only (1991)</li>
+<li>Added Freeman (1978) to <code><a href="../reference/measure_central_degree.html">node_by_degree()</a></code> and the centralisation functions</li>
+<li>Added Sabidussi (1966) to closeness</li>
+<li>Added Boldi and Vigna (2014) to harmonic</li>
+<li>Added Borgatti and Everett (2006) to reach</li>
+<li>Added Brandes (2008) and Ercsey-Ravasz et al. (2012) to betweenness</li>
+<li>Added Watts/Strogatz (1998) and Holland/Leinhardt (1971) to node transitivity</li>
+<li>Added Page et al. (1999) to pagerank</li>
+</ul></li>
+<li>Added <code><a href="../reference/measure_features.html">net_by_bipartivity()</a></code> for how close a network is to being bipartite</li>
+<li>Added <code><a href="../reference/measure_closure.html">net_by_cyclicality()</a></code> for detecting generalised exchange</li>
+<li>Added <code><a href="../reference/measure_cohesion.html">net_by_compactness()</a></code> for the average closeness of all pairs of nodes</li>
+<li>Added <code><a href="../reference/measure_central_close.html">node_by_integration()</a></code> and <code><a href="../reference/measure_centralisation_close.html">net_by_integration()</a></code> for Valente and Foreman’s integration and radiality</li>
+<li>Added <code><a href="../reference/measure_central_close.html">node_by_radiality()</a></code> as a shortcut for <code>node_by_integration(direction = "out")</code>
+</li>
+<li>Added <code><a href="../reference/measure_fit.html">net_by_inconsistency()</a></code> for how far a partition’s blocks depart from ideal types
+<ul><li>Ideal types are <code>nul</code>, <code>com</code>, <code>reg</code>, <code>rdo</code>, <code>cdo</code> and <code>dnc</code>
+</li>
+<li>Generalises <code><a href="../reference/measure_fit.html">net_by_factions()</a></code> beyond structural equivalence</li>
+</ul></li>
+<li>Fixed <code><a href="../reference/measure_closure_node.html">node_by_equivalency()</a></code> erroring on any network, despite being documented for the two-mode case</li>
+<li>Fixed <code><a href="../reference/measure_diverse_node.html">node_by_diversity()</a></code> reporting undefined objects when substituting an inapplicable index</li>
+<li>Fixed <code><a href="../reference/measure_diffusion_net.html">net_by_transmissibility()</a></code> declaring itself a proportion</li>
+<li>Fixed <code><a href="../reference/measure_features.html">net_by_balance()</a></code> erroring on networks holding signs as negative weights</li>
+<li>Fixed <code><a href="../reference/measure_breadth.html">net_by_diameter()</a></code>, <code><a href="../reference/measure_breadth.html">net_by_length()</a></code> and <code><a href="../reference/measure_cohesion.html">net_by_compactness()</a></code> on signed networks
+<ul><li>Now consider only positive ties for distances</li>
+</ul></li>
+<li>Fixed <code><a href="../reference/measure_closure_node.html">node_by_reciprocity()</a></code> to return 1 throughout for any undirected network</li>
+<li>Fixed <code><a href="../reference/measure_central_close.html">node_by_information()</a></code> on rectangular matrices by using <code><a href="https://stocnet.github.io/manynet/reference/modif_levels.html" class="external-link">manynet::to_multilevel()</a></code>
+</li>
+<li>Fixed <code><a href="../reference/measure_cohesion.html">net_by_independence()</a></code> erroring on multilevel networks by measuring whole</li>
+<li>Fixed <code><a href="../reference/measure_periods.html">net_by_waves()</a></code> reporting one wave where waves are held as <code>time</code>
+</li>
+<li>Added <code>connectivity=</code> to <code><a href="../reference/measure_cohesion.html">net_by_components()</a></code> for counting weak as well as strong components
+<ul><li>Defaults to <code>"strong"</code>, so existing scripts are unaffected</li>
+<li>The connectivity counted is reported as the measure’s <code>variant</code> when the result is printed</li>
+</ul></li>
+</ul></div>
+<div class="section level3">
+<h3 id="memberships-1-0-0">Memberships<a class="anchor" aria-label="anchor" href="#memberships-1-0-0"></a></h3>
+<ul><li>Added <code>k=</code> to community detection functions to target a specific number of communities (thanks <a href="https://github.com/tomasdiviak" class="external-link">@tomasdiviak</a>)
+<ul><li>Hierarchical algorithms cut their dendrograms at <code>k</code>
+</li>
+<li>
+<code><a href="../reference/member_community_non.html">node_in_louvain()</a></code> and <code><a href="../reference/member_community_non.html">node_in_leiden()</a></code> search the resolution parameter for the value that returns <code>k</code>
+</li>
+<li>
+<code><a href="../reference/member_community_non.html">node_in_fluid()</a></code> passes <code>k</code> straight to the algorithm, which also makes it much faster</li>
+<li>
+<code><a href="../reference/member_community_non.html">node_in_labels()</a></code> seeds <code>k</code> fixed labels and merges any surplus groups by modularity</li>
+<li>
+<code><a href="../reference/member_community_non.html">node_in_partition()</a></code> is now a k-way Kernighan-Lin, and no longer returns only two groups</li>
+<li>
+<code><a href="../reference/member_community.html">node_in_community()</a></code> considers only these algorithms when <code>k</code> is given</li>
+<li>
+<code>k</code> also accepts <code>"silhouette"</code>, <code>"elbow"</code>, and <code>"strict"</code>, as in <code><a href="../reference/member_equivalence.html">node_in_equivalence()</a></code>
+</li>
+<li>Note <code>k=</code> is now positioned second, so positional calls must name arguments</li>
+</ul></li>
+<li>Fixed <code><a href="../reference/member_community_non.html">node_in_fluid()</a></code> and <code><a href="../reference/member_community_non.html">node_in_spinglass()</a></code> aborting silently on disconnected networks</li>
+<li>Added <code><a href="../reference/member_community_non.html">node_in_labels()</a></code> for label propagation community detection</li>
+<li>Renamed <code>times=</code> in <code><a href="../reference/member_community_hier.html">node_in_walktrap()</a></code> to <code>steps=</code>
+</li>
+<li>Added <code>consensus=</code> to <code><a href="../reference/member_community.html">node_in_community()</a></code> for combining partitions of all applicable algorithms
+<ul><li>Runs each algorithm (stochastic ones <code>times</code>), then converges on common groupings</li>
+<li>
+<code>consensus = FALSE</code> default, and ignored where network small enough for <code><a href="../reference/member_community_non.html">node_in_optimal()</a></code>
+</li>
+<li>Fixed returning nothing but an error whenever verbosity was not <code>"verbose"</code>
+</li>
+</ul></li>
+<li>Renamed <code><a href="../reference/defunct.html">node_by_coreness()</a></code> to <code><a href="../reference/measure_core.html">node_by_core()</a></code>
+<ul><li>Fixed search starting points rather than random</li>
+<li>Fixed it returning identical scores for a directed network and its reverse</li>
+<li>Fixed it erroring on two-mode networks whose modes are of unequal size</li>
+</ul></li>
+<li>Improved <code><a href="../reference/member_core.html">node_in_core()</a></code>
+<ul><li>Renamed <code>centrality=</code> to <code>coreness=</code>
+<ul><li>
+<code>"rich"</code> by default for weighted, directed or two-mode networks</li>
+<li>
+<code>"correlation"</code> otherwise</li>
+</ul></li>
+<li>Adds <code>direction=</code> for directed networks
+<ul><li>
+<code>"Sender"</code> for core out-ties and periphery in-ties</li>
+<li>
+<code>"Receiver"</code> for core in-ties and periphery out-ties</li>
+</ul></li>
+<li>Fixed sorting numbered middle labels alphabetically or from arbitrary cluster numbers</li>
+</ul></li>
+<li>Improved <code><a href="../reference/member_equivalence.html">node_in_equivalence()</a></code> to announce the <code>cluster_*()</code> and <code>k_*()</code> used</li>
+<li>Added <code><a href="../reference/member_equivalence.html">node_in_block()</a></code> for direct blockmodelling for partitions that minimise <code><a href="../reference/measure_fit.html">net_by_inconsistency()</a></code>
+</li>
+<li>Fixed <code><a href="../reference/member_equivalence.html">node_in_regular()</a></code> to compute regular equivalence correctly
+<ul><li>Choose between <code>regularity = "rolesim"</code> (default) and <code>"rege"</code> for recursive similarity</li>
+<li>Note existing scripts calling <code><a href="../reference/member_equivalence.html">node_in_regular()</a></code> will now return more correct results</li>
+<li>Moved counting of motif types to <code><a href="../reference/member_equivalence.html">node_in_motif()</a></code>, though neither is Burt’s equivalence or an orbit-aware census (thanks <a href="https://github.com/Kaladani" class="external-link">@Kaladani</a>)</li>
+</ul></li>
+<li>Renamed <code>Kmax=</code> to <code>max_k=</code> in the community and equivalence functions</li>
+<li>Renamed <code>num_groups=</code> to <code>groups=</code> in <code><a href="../reference/member_cliques.html">node_in_roulette()</a></code>
+</li>
+<li>Renamed <code>cluster_by=</code> to <code>split=</code> in <code><a href="../reference/member_core.html">node_in_core()</a></code>
+</li>
+<li>Added <code>connectivity=</code> to <code><a href="../reference/member_components.html">node_in_component()</a></code> for weak as well as strong component membership
+<ul><li>Defaults to <code>"strong"</code>, so existing scripts are unaffected</li>
+<li>Ignored for undirected networks, where the two notions coincide</li>
+<li>Deprecated <code><a href="../reference/defunct.html">node_in_weak()</a></code> and <code><a href="../reference/defunct.html">node_in_strong()</a></code>
+</li>
+</ul></li>
+</ul></div>
+<div class="section level3">
+<h3 id="motifs-1-0-0">Motifs<a class="anchor" aria-label="anchor" href="#motifs-1-0-0"></a></h3>
+<ul><li>Improved <code><a href="../reference/motif_net.html">net_x_triad()</a></code>
+<ul><li>Added a mixed census for multiplex networks by folding in <code><a href="../reference/defunct.html">net_x_mixed()</a></code>
+</li>
+<li>Will fire by default for multiplex networks, taking layers by mode rather than by position</li>
+<li>Deprecated <code><a href="../reference/defunct.html">net_x_mixed()</a></code>
+</li>
+</ul></li>
+<li>Added <code><a href="../reference/motif_clique.html">node_x_clique()</a></code>, returning which maximal cliques each node belongs to
+<ul><li>It branches on two-mode networks to find bicliques (closes <a href="https://github.com/stocnet/netrics/issues/8" class="external-link">#8</a>, thanks <a href="https://github.com/noortjemay" class="external-link">@noortjemay</a>)</li>
+<li>Note that it considers only positive ties, since a clique is a cohesive subgroup</li>
+</ul></li>
+<li>Improved <code><a href="../reference/motif_path.html">node_x_tie()</a></code>
+<ul><li>Fixed erroring on diffusion models which affected <code><a href="../reference/member_equivalence.html">node_in_equivalence()</a></code> and <code><a href="../reference/member_equivalence.html">node_in_structural()</a></code>
+</li>
+<li>Fixed erroring on any multiplex network not multiplexed on a <code>type</code> tie attribute</li>
+</ul></li>
+<li>Added <code><a href="../reference/motif_composition.html">node_x_ties()</a></code>, describing the distribution of each node’s tie values
+<ul><li>In a multiplex network it describes their spread across layers</li>
+</ul></li>
+<li>Added <code><a href="../reference/motif_composition.html">node_x_alters()</a></code> for describing composition of each node’s alters</li>
+<li>Added <code><a href="../reference/motif_composition.html">node_x_similarity()</a></code> for describing similarity of each node to its alters
+<ul><li>For two-mode networks, compares each node with those at distance two</li>
+</ul></li>
+<li>Added <code><a href="../reference/motif_homophily.html">net_x_homophily()</a></code> for the table behind the EI index against expected baseline</li>
+</ul></div>
+<div class="section level3">
+<h3 id="methods-1-0-0">Methods<a class="anchor" aria-label="anchor" href="#methods-1-0-0"></a></h3>
+<ul><li>Added <code><a href="../reference/method_regularity.html">regularity_rolesim()</a></code> and <code><a href="../reference/method_regularity.html">regularity_rege()</a></code>, recursive role similarity methods
+<ul><li>Note <code><a href="../reference/method_regularity.html">regularity_rege()</a></code> is degenerate on unweighted connected networks, where it warns</li>
+</ul></li>
+<li>Added coreness methods for core-periphery analysis, each returning mark, member, and measure
+<ul><li>
+<code><a href="../reference/method_coreness.html">coreness_correlation()</a></code> is Borgatti and Everett’s continuous model, fixed to exclude self-ties</li>
+<li>
+<code><a href="../reference/method_coreness.html">coreness_rich()</a></code> is Ma and Mondragon’s rich-core for directed and two-mode networks</li>
+<li>
+<code><a href="../reference/method_coreness.html">coreness_hub()</a></code> is Elliott and colleagues’ more granualr directed core-periphery</li>
+<li>
+<code><a href="../reference/method_coreness.html">coreness_transition()</a></code> is Rombach and colleagues’ core score over boundary sharpness and core size</li>
+</ul></li>
+<li>Added <code><a href="../reference/method_split.html">split_bins()</a></code>, <code><a href="../reference/method_split.html">split_quantiles()</a></code> and <code><a href="../reference/method_split.html">split_kmeans()</a></code>
+<ul><li>Each splits a continuous score into an ordered set of groups</li>
+</ul></li>
+</ul></div>
+<div class="section level3">
+<h3 id="tutorials-1-0-0">Tutorials<a class="anchor" aria-label="anchor" href="#tutorials-1-0-0"></a></h3>
+<ul><li>Updated position tutorial to use <code><a href="../reference/member_equivalence.html">node_in_regular()</a></code> for regular equivalence rather than the triad census</li>
+<li>Updated topology tutorial with weighted, directed, and continuous core-periphery</li>
+</ul></div>
+</div>
+    <div class="section level2">
 <h2 class="page-header" data-toc-text="0.4.1" id="netrics-041">netrics 0.4.1<a class="anchor" aria-label="anchor" href="#netrics-041"></a></h2>
 <div class="section level3">
 <h3 id="package-0-4-1">Package<a class="anchor" aria-label="anchor" href="#package-0-4-1"></a></h3>
-<ul><li>Updated <a href="mailto:actions/checkout@v2" class="email">actions/checkout@v2</a> to <a href="mailto:actions/checkout@v4" class="email">actions/checkout@v4</a>
-</li>
-<li>Fixed the website deploy job installing <code>Config/Needs/check</code> packages instead of <code>Config/Needs/website</code>, which meant <a href="https://rstudio.github.io/learnr/" class="external-link">learnr</a> was never actually installed before the pkgdown deploy step</li>
+<ul><li>Fixed the website deploy job installing <code>Config/Needs/check</code> packages instead of <code>Config/Needs/website</code>, which meant <a href="https://rstudio.github.io/learnr/" class="external-link">learnr</a> was never actually installed before the pkgdown deploy step</li>
 </ul></div>
 <div class="section level3">
 <h3 id="tutorials-0-4-1">Tutorials<a class="anchor" aria-label="anchor" href="#tutorials-0-4-1"></a></h3>
@@ -194,7 +460,7 @@
 </li>
 </ul></div>
 <div class="section level3">
-<h3 id="members-0-2-1">Members<a class="anchor" aria-label="anchor" href="#members-0-2-1"></a></h3>
+<h3 id="memberships-0-2-1">Memberships<a class="anchor" aria-label="anchor" href="#memberships-0-2-1"></a></h3>
 <ul><li>Added more explanation for <code><a href="../reference/member_community_non.html">node_in_partition()</a></code>
 </li>
 </ul></div>
@@ -207,7 +473,7 @@
 <li>Fixed startup messages.</li>
 </ul></div>
 <div class="section level3">
-<h3 id="measuring-0-2-0">Measuring<a class="anchor" aria-label="anchor" href="#measuring-0-2-0"></a></h3>
+<h3 id="measures-0-2-0">Measures<a class="anchor" aria-label="anchor" href="#measures-0-2-0"></a></h3>
 <ul><li>Renamed <code>node_adoption_time()</code> to <code><a href="../reference/measure_diffusion_node.html">node_by_adopt_time()</a></code>
 </li>
 <li>Renamed <code>node_thresholds()</code> to <code><a href="../reference/measure_diffusion_node.html">node_by_adopt_threshold()</a></code>
@@ -218,7 +484,7 @@
 <li>Updated and separated brokerage, diversity/assortativity, cohesion, closure, cliques, components, features, and hierarchy documentation by level.</li>
 </ul></div>
 <div class="section level3">
-<h3 id="members-0-2-0">Members<a class="anchor" aria-label="anchor" href="#members-0-2-0"></a></h3>
+<h3 id="memberships-0-2-0">Memberships<a class="anchor" aria-label="anchor" href="#memberships-0-2-0"></a></h3>
 <ul><li>Separated <code><a href="../reference/member_community.html">node_in_community()</a></code> documentation from the hierarchical and non-hierarchical community-detection algorithms.</li>
 <li>Core documentation split into separate mark, measure, and member pages.</li>
 <li>Improved various functions that rely on a membership argument to accept both a membership vector and a string identifier of a network attribute.</li>
@@ -267,17 +533,17 @@
 </ul></div>
 <div class="section level4">
 <h4 id="measures-0-1-0">Measures<a class="anchor" aria-label="anchor" href="#measures-0-1-0"></a></h4>
-<ul><li>Network-level: <code><a href="../reference/measure_fragmentation.html">net_by_adhesion()</a></code>, <code><a href="../reference/measure_assort_net.html">net_by_assortativity()</a></code>, <code><a href="../reference/measure_features.html">net_by_balance()</a></code>, <code><a href="../reference/measure_centralisation_between.html">net_by_betweenness()</a></code>, <code>net_by_change()</code>, <code><a href="../reference/measure_centralisation_close.html">net_by_closeness()</a></code>, <code><a href="../reference/measure_fragmentation.html">net_by_cohesion()</a></code>, <code><a href="../reference/measure_cohesion.html">net_by_components()</a></code>, <code><a href="../reference/measure_closure.html">net_by_congruency()</a></code>, <code><a href="../reference/measure_hierarchy.html">net_by_connectedness()</a></code>, <code><a href="../reference/measure_features.html">net_by_core()</a></code>, <code>net_by_correlation()</code>, <code><a href="../reference/measure_centralisation_degree.html">net_by_degree()</a></code>, <code><a href="../reference/measure_cohesion.html">net_by_density()</a></code>, <code><a href="../reference/measure_breadth.html">net_by_diameter()</a></code>, <code><a href="../reference/measure_diverse_net.html">net_by_diversity()</a></code>, <code><a href="../reference/measure_hierarchy.html">net_by_efficiency()</a></code>, <code><a href="../reference/measure_centralisation_eigen.html">net_by_eigenvector()</a></code>, <code><a href="../reference/measure_closure.html">net_by_equivalency()</a></code>, <code><a href="../reference/measure_features.html">net_by_factions()</a></code>, <code><a href="../reference/measure_centralisation_close.html">net_by_harmonic()</a></code>, <code><a href="../reference/measure_assort_net.html">net_by_heterophily()</a></code>, <code>net_by_hierarchy()</code>, <code><a href="../reference/measure_assort_net.html">net_by_homophily()</a></code>, <code><a href="../reference/measure_diffusion_net.html">net_by_immunity()</a></code>, <code><a href="../reference/measure_centralisation_degree.html">net_by_indegree()</a></code>, <code><a href="../reference/measure_cohesion.html">net_by_independence()</a></code>, <code><a href="../reference/measure_diffusion_infection.html">net_by_infection_complete()</a></code>, <code><a href="../reference/measure_diffusion_infection.html">net_by_infection_peak()</a></code>, <code><a href="../reference/measure_diffusion_infection.html">net_by_infection_total()</a></code>, <code><a href="../reference/measure_breadth.html">net_by_length()</a></code>, <code><a href="../reference/measure_features.html">net_by_modularity()</a></code>, <code><a href="../reference/measure_centralisation_degree.html">net_by_outdegree()</a></code>, <code><a href="../reference/measure_centralisation_close.html">net_by_reach()</a></code>, <code><a href="../reference/measure_closure.html">net_by_reciprocity()</a></code>, <code><a href="../reference/measure_diffusion_net.html">net_by_recovery()</a></code>, <code><a href="../reference/measure_diffusion_net.html">net_by_reproduction()</a></code>, <code><a href="../reference/measure_features.html">net_by_richclub()</a></code>, <code><a href="../reference/measure_diverse_net.html">net_by_richness()</a></code>, <code><a href="../reference/measure_features.html">net_by_scalefree()</a></code>, <code><a href="../reference/measure_features.html">net_by_smallworld()</a></code>, <code><a href="../reference/measure_assort_net.html">net_by_spatial()</a></code>, <code>net_by_stability()</code>, <code><a href="../reference/measure_fragmentation.html">net_by_strength()</a></code>, <code><a href="../reference/measure_fragmentation.html">net_by_toughness()</a></code>, <code><a href="../reference/measure_closure.html">net_by_transitivity()</a></code>, <code><a href="../reference/measure_diffusion_net.html">net_by_transmissibility()</a></code>, <code><a href="../reference/measure_hierarchy.html">net_by_upperbound()</a></code>, <code><a href="../reference/measure_periods.html">net_by_waves()</a></code>
+<ul><li>Network-level: <code><a href="../reference/measure_fragmentation.html">net_by_adhesion()</a></code>, <code><a href="../reference/measure_assort_net.html">net_by_assortativity()</a></code>, <code><a href="../reference/measure_features.html">net_by_balance()</a></code>, <code><a href="../reference/measure_centralisation_between.html">net_by_betweenness()</a></code>, <code>net_by_change()</code>, <code><a href="../reference/measure_centralisation_close.html">net_by_closeness()</a></code>, <code><a href="../reference/measure_fragmentation.html">net_by_cohesion()</a></code>, <code><a href="../reference/measure_cohesion.html">net_by_components()</a></code>, <code><a href="../reference/measure_closure.html">net_by_congruency()</a></code>, <code><a href="../reference/measure_hierarchy.html">net_by_connectedness()</a></code>, <code><a href="../reference/measure_fit.html">net_by_core()</a></code>, <code>net_by_correlation()</code>, <code><a href="../reference/measure_centralisation_degree.html">net_by_degree()</a></code>, <code><a href="../reference/measure_cohesion.html">net_by_density()</a></code>, <code><a href="../reference/measure_breadth.html">net_by_diameter()</a></code>, <code><a href="../reference/measure_diverse_net.html">net_by_diversity()</a></code>, <code><a href="../reference/measure_hierarchy.html">net_by_efficiency()</a></code>, <code><a href="../reference/measure_centralisation_eigen.html">net_by_eigenvector()</a></code>, <code><a href="../reference/measure_closure.html">net_by_equivalency()</a></code>, <code><a href="../reference/measure_fit.html">net_by_factions()</a></code>, <code><a href="../reference/measure_centralisation_close.html">net_by_harmonic()</a></code>, <code><a href="../reference/measure_assort_net.html">net_by_heterophily()</a></code>, <code>net_by_hierarchy()</code>, <code><a href="../reference/measure_assort_net.html">net_by_homophily()</a></code>, <code><a href="../reference/measure_diffusion_net.html">net_by_immunity()</a></code>, <code><a href="../reference/measure_centralisation_degree.html">net_by_indegree()</a></code>, <code><a href="../reference/measure_cohesion.html">net_by_independence()</a></code>, <code><a href="../reference/measure_diffusion_infection.html">net_by_infection_complete()</a></code>, <code><a href="../reference/measure_diffusion_infection.html">net_by_infection_peak()</a></code>, <code><a href="../reference/measure_diffusion_infection.html">net_by_infection_total()</a></code>, <code><a href="../reference/measure_breadth.html">net_by_length()</a></code>, <code><a href="../reference/measure_fit.html">net_by_modularity()</a></code>, <code><a href="../reference/measure_centralisation_degree.html">net_by_outdegree()</a></code>, <code><a href="../reference/measure_centralisation_close.html">net_by_reach()</a></code>, <code><a href="../reference/measure_closure.html">net_by_reciprocity()</a></code>, <code><a href="../reference/measure_diffusion_net.html">net_by_recovery()</a></code>, <code><a href="../reference/measure_diffusion_net.html">net_by_reproduction()</a></code>, <code><a href="../reference/measure_features.html">net_by_richclub()</a></code>, <code><a href="../reference/measure_diverse_net.html">net_by_richness()</a></code>, <code><a href="../reference/measure_features.html">net_by_scalefree()</a></code>, <code><a href="../reference/measure_features.html">net_by_smallworld()</a></code>, <code><a href="../reference/measure_assort_net.html">net_by_spatial()</a></code>, <code>net_by_stability()</code>, <code><a href="../reference/measure_fragmentation.html">net_by_strength()</a></code>, <code><a href="../reference/measure_fragmentation.html">net_by_toughness()</a></code>, <code><a href="../reference/measure_closure.html">net_by_transitivity()</a></code>, <code><a href="../reference/measure_diffusion_net.html">net_by_transmissibility()</a></code>, <code><a href="../reference/measure_hierarchy.html">net_by_upperbound()</a></code>, <code><a href="../reference/measure_periods.html">net_by_waves()</a></code>
 </li>
-<li>Node-level: <code>node_by_adoption_time()</code>, <code><a href="../reference/measure_central_eigen.html">node_by_alpha()</a></code>, <code><a href="../reference/measure_central_eigen.html">node_by_authority()</a></code>, <code><a href="../reference/measure_central_between.html">node_by_betweenness()</a></code>, <code><a href="../reference/measure_broker_node.html">node_by_bridges()</a></code>, <code><a href="../reference/measure_brokerage.html">node_by_brokering_activity()</a></code>, <code><a href="../reference/measure_brokerage.html">node_by_brokering_exclusivity()</a></code>, <code><a href="../reference/measure_central_close.html">node_by_closeness()</a></code>, <code><a href="../reference/measure_broker_node.html">node_by_constraint()</a></code>, <code><a href="../reference/measure_core.html">node_by_coreness()</a></code>, <code><a href="../reference/measure_central_degree.html">node_by_deg()</a></code>, <code><a href="../reference/measure_central_degree.html">node_by_degree()</a></code>, <code><a href="../reference/measure_central_close.html">node_by_distance()</a></code>, <code><a href="../reference/measure_diverse_node.html">node_by_diversity()</a></code>, <code><a href="../reference/measure_central_close.html">node_by_eccentricity()</a></code>, <code><a href="../reference/measure_broker_node.html">node_by_efficiency()</a></code>, <code><a href="../reference/measure_broker_node.html">node_by_effsize()</a></code>, <code><a href="../reference/measure_central_eigen.html">node_by_eigenvector()</a></code>, <code><a href="../reference/measure_closure_node.html">node_by_equivalency()</a></code>, <code>node_by_exposure()</code>, <code><a href="../reference/measure_central_between.html">node_by_flow()</a></code>, <code><a href="../reference/measure_central_close.html">node_by_harmonic()</a></code>, <code><a href="../reference/measure_assort_node.html">node_by_heterophily()</a></code>, <code><a href="../reference/measure_broker_node.html">node_by_hierarchy()</a></code>, <code><a href="../reference/measure_assort_node.html">node_by_homophily()</a></code>, <code><a href="../reference/measure_central_eigen.html">node_by_hub()</a></code>, <code><a href="../reference/measure_central_degree.html">node_by_indegree()</a></code>, <code><a href="../reference/measure_central_between.html">node_by_induced()</a></code>, <code><a href="../reference/measure_central_close.html">node_by_information()</a></code>, <code><a href="../reference/measure_core.html">node_by_kcoreness()</a></code>, <code><a href="../reference/measure_central_degree.html">node_by_leverage()</a></code>, <code><a href="../reference/measure_central_degree.html">node_by_multidegree()</a></code>, <code><a href="../reference/measure_broker_node.html">node_by_neighbours_degree()</a></code>, <code><a href="../reference/measure_central_degree.html">node_by_outdegree()</a></code>, <code><a href="../reference/measure_central_eigen.html">node_by_pagerank()</a></code>, <code><a href="../reference/measure_central_degree.html">node_by_posneg()</a></code>, <code><a href="../reference/measure_central_eigen.html">node_by_power()</a></code>, <code><a href="../reference/measure_central_close.html">node_by_randomwalk()</a></code>, <code><a href="../reference/measure_central_close.html">node_by_reach()</a></code>, <code><a href="../reference/measure_closure_node.html">node_by_reciprocity()</a></code>, <code>node_by_recovery()</code>, <code><a href="../reference/measure_broker_node.html">node_by_redundancy()</a></code>, <code><a href="../reference/measure_diverse_node.html">node_by_richness()</a></code>, <code><a href="../reference/measure_central_between.html">node_by_stress()</a></code>, <code><a href="../reference/measure_central_eigen.html">node_by_subgraph()</a></code>, <code>node_by_thresholds()</code>, <code><a href="../reference/measure_closure_node.html">node_by_transitivity()</a></code>, <code><a href="../reference/measure_central_close.html">node_by_vitality()</a></code>
+<li>Node-level: <code>node_by_adoption_time()</code>, <code><a href="../reference/measure_central_eigen.html">node_by_alpha()</a></code>, <code><a href="../reference/measure_central_eigen.html">node_by_authority()</a></code>, <code><a href="../reference/measure_central_between.html">node_by_betweenness()</a></code>, <code><a href="../reference/measure_broker_node.html">node_by_bridges()</a></code>, <code><a href="../reference/measure_brokerage.html">node_by_brokering_activity()</a></code>, <code><a href="../reference/measure_brokerage.html">node_by_brokering_exclusivity()</a></code>, <code><a href="../reference/measure_central_close.html">node_by_closeness()</a></code>, <code><a href="../reference/measure_broker_node.html">node_by_constraint()</a></code>, <code><a href="../reference/defunct.html">node_by_coreness()</a></code>, <code><a href="../reference/measure_central_degree.html">node_by_deg()</a></code>, <code><a href="../reference/measure_central_degree.html">node_by_degree()</a></code>, <code><a href="../reference/measure_central_close.html">node_by_distance()</a></code>, <code><a href="../reference/measure_diverse_node.html">node_by_diversity()</a></code>, <code><a href="../reference/measure_central_close.html">node_by_eccentricity()</a></code>, <code><a href="../reference/measure_broker_node.html">node_by_efficiency()</a></code>, <code><a href="../reference/measure_broker_node.html">node_by_effsize()</a></code>, <code><a href="../reference/measure_central_eigen.html">node_by_eigenvector()</a></code>, <code><a href="../reference/measure_closure_node.html">node_by_equivalency()</a></code>, <code>node_by_exposure()</code>, <code><a href="../reference/measure_central_between.html">node_by_flow()</a></code>, <code><a href="../reference/measure_central_close.html">node_by_harmonic()</a></code>, <code><a href="../reference/measure_assort_node.html">node_by_heterophily()</a></code>, <code><a href="../reference/measure_broker_node.html">node_by_hierarchy()</a></code>, <code><a href="../reference/measure_assort_node.html">node_by_homophily()</a></code>, <code><a href="../reference/measure_central_eigen.html">node_by_hub()</a></code>, <code><a href="../reference/measure_central_degree.html">node_by_indegree()</a></code>, <code><a href="../reference/measure_central_between.html">node_by_induced()</a></code>, <code><a href="../reference/measure_central_close.html">node_by_information()</a></code>, <code><a href="../reference/measure_core.html">node_by_kcoreness()</a></code>, <code><a href="../reference/measure_central_degree.html">node_by_leverage()</a></code>, <code><a href="../reference/measure_central_degree.html">node_by_multidegree()</a></code>, <code><a href="../reference/measure_broker_node.html">node_by_neighbours_degree()</a></code>, <code><a href="../reference/measure_central_degree.html">node_by_outdegree()</a></code>, <code><a href="../reference/measure_central_eigen.html">node_by_pagerank()</a></code>, <code><a href="../reference/measure_central_eigen.html">node_by_posneg()</a></code>, <code><a href="../reference/measure_central_eigen.html">node_by_power()</a></code>, <code><a href="../reference/measure_central_close.html">node_by_randomwalk()</a></code>, <code><a href="../reference/measure_central_close.html">node_by_reach()</a></code>, <code><a href="../reference/measure_closure_node.html">node_by_reciprocity()</a></code>, <code>node_by_recovery()</code>, <code><a href="../reference/measure_broker_node.html">node_by_redundancy()</a></code>, <code><a href="../reference/measure_diverse_node.html">node_by_richness()</a></code>, <code><a href="../reference/measure_central_between.html">node_by_stress()</a></code>, <code><a href="../reference/measure_central_eigen.html">node_by_subgraph()</a></code>, <code>node_by_thresholds()</code>, <code><a href="../reference/measure_closure_node.html">node_by_transitivity()</a></code>, <code><a href="../reference/measure_central_close.html">node_by_vitality()</a></code>
 </li>
-<li>Tie-level: <code><a href="../reference/measure_centralities_between.html">tie_by_betweenness()</a></code>, <code><a href="../reference/measure_centralities_close.html">tie_by_closeness()</a></code>, <code><a href="../reference/measure_broker_tie.html">tie_by_cohesion()</a></code>, <code><a href="../reference/measure_centralities_degree.html">tie_by_degree()</a></code>, <code><a href="../reference/measure_centralities_eigen.html">tie_by_eigenvector()</a></code>
+<li>Tie-level: <code><a href="../reference/measure_central_tie_between.html">tie_by_betweenness()</a></code>, <code><a href="../reference/measure_central_tie_close.html">tie_by_closeness()</a></code>, <code><a href="../reference/measure_broker_tie.html">tie_by_cohesion()</a></code>, <code><a href="../reference/measure_central_tie_degree.html">tie_by_degree()</a></code>, <code><a href="../reference/measure_central_tie_eigen.html">tie_by_eigenvector()</a></code>
 </li>
 </ul></div>
 <div class="section level4">
 <h4 id="motifs-0-1-0">Motifs<a class="anchor" aria-label="anchor" href="#motifs-0-1-0"></a></h4>
 <ul><li>
-<code><a href="../reference/motif_brokerage_net.html">net_x_brokerage()</a></code>, <code><a href="../reference/motif_net.html">net_x_dyad()</a></code>, <code><a href="../reference/motif_hazard.html">net_x_hazard()</a></code>, <code><a href="../reference/motif_net.html">net_x_mixed()</a></code>, <code><a href="../reference/motif_net.html">net_x_tetrad()</a></code>, <code><a href="../reference/motif_net.html">net_x_triad()</a></code>
+<code><a href="../reference/motif_brokerage_net.html">net_x_brokerage()</a></code>, <code><a href="../reference/motif_net.html">net_x_dyad()</a></code>, <code><a href="../reference/motif_hazard.html">net_x_hazard()</a></code>, <code><a href="../reference/defunct.html">net_x_mixed()</a></code>, <code><a href="../reference/motif_net.html">net_x_tetrad()</a></code>, <code><a href="../reference/motif_net.html">net_x_triad()</a></code>
 </li>
 <li>
 <code><a href="../reference/motif_brokerage_node.html">node_x_brokerage()</a></code>, <code><a href="../reference/motif_node.html">node_x_dyad()</a></code>, <code><a href="../reference/motif_exposure.html">node_x_exposure()</a></code>, <code><a href="../reference/motif_path.html">node_x_path()</a></code>, <code><a href="../reference/motif_node.html">node_x_tetrad()</a></code>, <code><a href="../reference/motif_path.html">node_x_tie()</a></code>, <code><a href="../reference/motif_node.html">node_x_triad()</a></code>
@@ -286,7 +552,7 @@
 <div class="section level4">
 <h4 id="memberships-0-1-0">Memberships<a class="anchor" aria-label="anchor" href="#memberships-0-1-0"></a></h4>
 <ul><li>
-<code><a href="../reference/member_diffusion.html">node_in_adopter()</a></code>, <code><a href="../reference/member_equivalence.html">node_in_automorphic()</a></code>, <code><a href="../reference/member_community_hier.html">node_in_betweenness()</a></code>, <code><a href="../reference/member_brokerage.html">node_in_brokering()</a></code>, <code><a href="../reference/member_community.html">node_in_community()</a></code>, <code><a href="../reference/member_components.html">node_in_component()</a></code>, <code><a href="../reference/member_core.html">node_in_core()</a></code>, <code><a href="../reference/member_community_hier.html">node_in_eigen()</a></code>, <code><a href="../reference/member_equivalence.html">node_in_equivalence()</a></code>, <code><a href="../reference/member_community_non.html">node_in_fluid()</a></code>, <code><a href="../reference/member_community_hier.html">node_in_greedy()</a></code>, <code><a href="../reference/member_community_non.html">node_in_infomap()</a></code>, <code><a href="../reference/member_community_non.html">node_in_leiden()</a></code>, <code><a href="../reference/member_community_non.html">node_in_louvain()</a></code>, <code><a href="../reference/member_community_non.html">node_in_optimal()</a></code>, <code><a href="../reference/member_community_non.html">node_in_partition()</a></code>, <code><a href="../reference/member_equivalence.html">node_in_regular()</a></code>, <code><a href="../reference/member_cliques.html">node_in_roulette()</a></code>, <code><a href="../reference/member_community_non.html">node_in_spinglass()</a></code>, <code><a href="../reference/member_components.html">node_in_strong()</a></code>, <code><a href="../reference/member_equivalence.html">node_in_structural()</a></code>, <code><a href="../reference/member_community_hier.html">node_in_walktrap()</a></code>, <code><a href="../reference/member_components.html">node_in_weak()</a></code>
+<code><a href="../reference/member_diffusion.html">node_in_adopter()</a></code>, <code><a href="../reference/member_equivalence.html">node_in_automorphic()</a></code>, <code><a href="../reference/member_community_hier.html">node_in_betweenness()</a></code>, <code><a href="../reference/member_brokerage.html">node_in_brokering()</a></code>, <code><a href="../reference/member_community.html">node_in_community()</a></code>, <code><a href="../reference/member_components.html">node_in_component()</a></code>, <code><a href="../reference/member_core.html">node_in_core()</a></code>, <code><a href="../reference/member_community_hier.html">node_in_eigen()</a></code>, <code><a href="../reference/member_equivalence.html">node_in_equivalence()</a></code>, <code><a href="../reference/member_community_non.html">node_in_fluid()</a></code>, <code><a href="../reference/member_community_hier.html">node_in_greedy()</a></code>, <code><a href="../reference/member_community_non.html">node_in_infomap()</a></code>, <code><a href="../reference/member_community_non.html">node_in_leiden()</a></code>, <code><a href="../reference/member_community_non.html">node_in_louvain()</a></code>, <code><a href="../reference/member_community_non.html">node_in_optimal()</a></code>, <code><a href="../reference/member_community_non.html">node_in_partition()</a></code>, <code><a href="../reference/member_equivalence.html">node_in_regular()</a></code>, <code><a href="../reference/member_cliques.html">node_in_roulette()</a></code>, <code><a href="../reference/member_community_non.html">node_in_spinglass()</a></code>, <code><a href="../reference/defunct.html">node_in_strong()</a></code>, <code><a href="../reference/member_equivalence.html">node_in_structural()</a></code>, <code><a href="../reference/member_community_hier.html">node_in_walktrap()</a></code>, <code><a href="../reference/defunct.html">node_in_weak()</a></code>
 </li>
 </ul></div>
 </div>

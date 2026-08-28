@@ -25,7 +25,7 @@ of each node to every other node in the network.
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">netrics</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.4.1</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.0.0</span>
       </span>
     </div>
 
@@ -117,9 +117,9 @@ of each node to every other node in the network.</p></li>
 
 
 <dl><dt id="arg--data">.data<a class="anchor" aria-label="anchor" href="#arg--data"></a></dt>
-<dd><p>A network object of class <code>mnet</code>, <code>igraph</code>, <code>tbl_graph</code>, <code>network</code>, or similar.
-For more information on the standard coercion possible,
-see <code><a href="https://stocnet.github.io/manynet/reference/coerce_graph.html" class="external-link">manynet::as_tidygraph()</a></code>.</p></dd>
+<dd><p>A network object of class <code>stocnet</code>, <code>igraph</code>, <code>tbl_graph</code>, <code>network</code>, or similar.
+Internally any of these will be coerced to an efficient implementation.
+For more information on possible coercions, see e.g. <code><a href="https://stocnet.github.io/manynet/reference/coerce_graph.html" class="external-link">manynet::as_stocnet()</a></code>.</p></dd>
 
 </dl></div>
     <div id="value">
@@ -130,6 +130,15 @@ giving the count of each motif in which each node participates.
 It is printed as a tibble, however, to avoid greedy printing.
 If the network is labelled,
 then the node names will be in a column named <code>names</code>.</p>
+    </div>
+    <div id="multiplex-networks">
+    <h2>Multiplex networks</h2>
+
+
+<p><code>node_x_tie()</code> binds the layers together, giving one block of columns
+per layer, whatever attribute the network is multiplexed on.
+Each block stays the length of the whole nodeset.
+To census one layer alone, take it first with <code><a href="https://stocnet.github.io/manynet/reference/modif_plexity.html" class="external-link">manynet::to_uniplex()</a></code>.</p>
     </div>
     <div id="references">
     <h2>References</h2>
@@ -156,9 +165,12 @@ then the node names will be in a column named <code>names</code>.</p>
     <div class="dont-index"><p>Other motifs:
 <code><a href="motif_brokerage_net.html">motif_brokerage_net</a></code>,
 <code><a href="motif_brokerage_node.html">motif_brokerage_node</a></code>,
+<code><a href="motif_clique.html">motif_clique</a></code>,
+<code><a href="motif_composition.html">motif_composition</a></code>,
 <code><a href="motif_exposure.html">motif_exposure</a></code>,
 <code><a href="motif_hazard.html">motif_hazard</a></code>,
 <code><a href="motif_hierarchy.html">motif_hierarchy</a></code>,
+<code><a href="motif_homophily.html">motif_homophily</a></code>,
 <code><a href="motif_net.html">motif_net</a></code>,
 <code><a href="motif_node.html">motif_node</a></code>,
 <code><a href="motif_periods.html">motif_periods</a></code></p>
@@ -189,6 +201,8 @@ then the node names will be in a column named <code>names</code>.</p>
 <code><a href="member_diffusion.html">member_diffusion</a></code>,
 <code><a href="member_equivalence.html">member_equivalence</a></code>,
 <code><a href="motif_brokerage_node.html">motif_brokerage_node</a></code>,
+<code><a href="motif_clique.html">motif_clique</a></code>,
+<code><a href="motif_composition.html">motif_composition</a></code>,
 <code><a href="motif_exposure.html">motif_exposure</a></code>,
 <code><a href="motif_node.html">motif_node</a></code></p></div>
     </div>
@@ -198,21 +212,21 @@ then the node names will be in a column named <code>names</code>.</p>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="va">task_eg</span> <span class="op">&lt;-</span> <span class="fu">to_named</span><span class="op">(</span><span class="fu">to_uniplex</span><span class="op">(</span><span class="va">ison_algebra</span>, <span class="st">"tasks"</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="op">(</span><span class="va">tie_cen</span> <span class="op">&lt;-</span> <span class="fu">node_x_tie</span><span class="op">(</span><span class="va">task_eg</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># A tibble: 16 × 33</span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   names    fromAllen fromBeatrice fromCynthia fromDalton fromEliana fromFern</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>        <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>        <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>       <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>      <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>      <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">1</span> Allen          0              0        0             0       0.3      0   </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">2</span> Beatrice       0              0        0             0       0        0   </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">3</span> Cynthia        0              0        0             0       0.15     0.75</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">4</span> Dalton         0              0        0             0       0        0   </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">5</span> Eliana         0.3            0        0.15          0       0        0.45</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">6</span> Fern           0              0        0.6           0       0.75     0   </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   names    fromAiden fromBelinda fromCourtney fromDestiny fromEunice fromFrancis</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>        <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>       <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>        <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>       <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>      <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>       <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">1</span> Aiden          0             0         0              0       0.3         0   </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">2</span> Belinda        0             0         0              0       0           0   </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">3</span> Courtney       0             0         0              0       0.15        0.75</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">4</span> Destiny        0             0         0              0       0           0   </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">5</span> Eunice         0.3           0         0.15           0       0           0.45</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">6</span> Francis        0             0         0.6            0       0.75        0   </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># ℹ 10 more rows</span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># ℹ 26 more variables: fromGraham &lt;dbl&gt;, fromHope &lt;dbl&gt;, fromIsabella &lt;dbl&gt;,</span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;">#   fromJerry &lt;dbl&gt;, fromKristopher &lt;dbl&gt;, fromLindsay &lt;dbl&gt;, fromMathew &lt;dbl&gt;,</span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;">#   fromNicolas &lt;dbl&gt;, fromOliver &lt;dbl&gt;, fromPatty &lt;dbl&gt;, toAllen &lt;dbl&gt;,</span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;">#   toBeatrice &lt;dbl&gt;, toCynthia &lt;dbl&gt;, toDalton &lt;dbl&gt;, toEliana &lt;dbl&gt;,</span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;">#   toFern &lt;dbl&gt;, toGraham &lt;dbl&gt;, toHope &lt;dbl&gt;, toIsabella &lt;dbl&gt;,</span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;">#   toJerry &lt;dbl&gt;, toKristopher &lt;dbl&gt;, toLindsay &lt;dbl&gt;, toMathew &lt;dbl&gt;, …</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># ℹ 26 more variables: fromGabriel &lt;dbl&gt;, fromHunter &lt;dbl&gt;, fromInez &lt;dbl&gt;,</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;">#   fromJonathan &lt;dbl&gt;, fromKristy &lt;dbl&gt;, fromLindsay &lt;dbl&gt;, fromMikayla &lt;dbl&gt;,</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;">#   fromNicholas &lt;dbl&gt;, fromOlga &lt;dbl&gt;, fromPenny &lt;dbl&gt;, toAiden &lt;dbl&gt;,</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;">#   toBelinda &lt;dbl&gt;, toCourtney &lt;dbl&gt;, toDestiny &lt;dbl&gt;, toEunice &lt;dbl&gt;,</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;">#   toFrancis &lt;dbl&gt;, toGabriel &lt;dbl&gt;, toHunter &lt;dbl&gt;, toInez &lt;dbl&gt;,</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;">#   toJonathan &lt;dbl&gt;, toKristy &lt;dbl&gt;, toLindsay &lt;dbl&gt;, toMikayla &lt;dbl&gt;, …</span></span>
 <span class="r-in"><span><span class="fu">node_x_path</span><span class="op">(</span><span class="va">ison_adolescents</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># A tibble: 8 × 9</span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   names Betty   Sue Alice  Jane  Dale   Pam Carol  Tina</span>

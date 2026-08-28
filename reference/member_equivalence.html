@@ -8,9 +8,11 @@ The following functions call this function, together with an appropriate motif.
 node_in_structural() assigns nodes membership based on their
 having equivalent ties to the same other nodes.
 node_in_regular() assigns nodes membership based on their
-having equivalent patterns of ties.
+having equivalent patterns of ties to equivalent others.
 node_in_automorphic() assigns nodes membership based on their
 having equivalent distances to other nodes.
+node_in_motif() assigns nodes membership based on their
+participating in local structures at similar rates.
 
 
 A plot() method exists for investigating the dendrogram
@@ -33,7 +35,7 @@ assignment."><meta property="og:image" content="https://stocnet.github.io/netric
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">netrics</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.4.1</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.0.0</span>
       </span>
     </div>
 
@@ -114,9 +116,11 @@ The following functions call this function, together with an appropriate motif.<
 <li><p><code>node_in_structural()</code> assigns nodes membership based on their
 having equivalent ties to the same other nodes.</p></li>
 <li><p><code>node_in_regular()</code> assigns nodes membership based on their
-having equivalent patterns of ties.</p></li>
+having equivalent patterns of ties to equivalent others.</p></li>
 <li><p><code>node_in_automorphic()</code> assigns nodes membership based on their
 having equivalent distances to other nodes.</p></li>
+<li><p><code>node_in_motif()</code> assigns nodes membership based on their
+participating in local structures at similar rates.</p></li>
 </ul><p>A <code><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot()</a></code> method exists for investigating the dendrogram
 of the hierarchical cluster and showing the returned cluster
 assignment.</p>
@@ -129,7 +133,8 @@ assignment.</p>
 <span>  k <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"silhouette"</span>, <span class="st">"elbow"</span>, <span class="st">"strict"</span><span class="op">)</span>,</span>
 <span>  cluster <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"hierarchical"</span>, <span class="st">"concor"</span>, <span class="st">"cosine"</span><span class="op">)</span>,</span>
 <span>  distance <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"euclidean"</span>, <span class="st">"maximum"</span>, <span class="st">"manhattan"</span>, <span class="st">"canberra"</span>, <span class="st">"binary"</span>, <span class="st">"minkowski"</span><span class="op">)</span>,</span>
-<span>  Kmax <span class="op">=</span> <span class="fl">8L</span></span>
+<span>  max_k <span class="op">=</span> <span class="fl">8L</span>,</span>
+<span>  Kmax <span class="op">=</span> <span class="cn">NULL</span></span>
 <span><span class="op">)</span></span>
 <span></span>
 <span><span class="fu">node_in_structural</span><span class="op">(</span></span>
@@ -137,7 +142,8 @@ assignment.</p>
 <span>  k <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"silhouette"</span>, <span class="st">"elbow"</span>, <span class="st">"strict"</span><span class="op">)</span>,</span>
 <span>  cluster <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"hierarchical"</span>, <span class="st">"concor"</span>, <span class="st">"cosine"</span><span class="op">)</span>,</span>
 <span>  distance <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"euclidean"</span>, <span class="st">"maximum"</span>, <span class="st">"manhattan"</span>, <span class="st">"canberra"</span>, <span class="st">"binary"</span>, <span class="st">"minkowski"</span><span class="op">)</span>,</span>
-<span>  Kmax <span class="op">=</span> <span class="fl">8L</span></span>
+<span>  max_k <span class="op">=</span> <span class="fl">8L</span>,</span>
+<span>  Kmax <span class="op">=</span> <span class="cn">NULL</span></span>
 <span><span class="op">)</span></span>
 <span></span>
 <span><span class="fu">node_in_regular</span><span class="op">(</span></span>
@@ -145,7 +151,20 @@ assignment.</p>
 <span>  k <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"silhouette"</span>, <span class="st">"elbow"</span>, <span class="st">"strict"</span><span class="op">)</span>,</span>
 <span>  cluster <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"hierarchical"</span>, <span class="st">"concor"</span>, <span class="st">"cosine"</span><span class="op">)</span>,</span>
 <span>  distance <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"euclidean"</span>, <span class="st">"maximum"</span>, <span class="st">"manhattan"</span>, <span class="st">"canberra"</span>, <span class="st">"binary"</span>, <span class="st">"minkowski"</span><span class="op">)</span>,</span>
-<span>  Kmax <span class="op">=</span> <span class="fl">8L</span></span>
+<span>  max_k <span class="op">=</span> <span class="fl">8L</span>,</span>
+<span>  regularity <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"rolesim"</span>, <span class="st">"rege"</span><span class="op">)</span>,</span>
+<span>  decay <span class="op">=</span> <span class="fl">0.15</span>,</span>
+<span>  beta <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  Kmax <span class="op">=</span> <span class="cn">NULL</span></span>
+<span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu">node_in_motif</span><span class="op">(</span></span>
+<span>  <span class="va">.data</span>,</span>
+<span>  k <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"silhouette"</span>, <span class="st">"elbow"</span>, <span class="st">"strict"</span><span class="op">)</span>,</span>
+<span>  cluster <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"hierarchical"</span>, <span class="st">"concor"</span>, <span class="st">"cosine"</span><span class="op">)</span>,</span>
+<span>  distance <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"euclidean"</span>, <span class="st">"maximum"</span>, <span class="st">"manhattan"</span>, <span class="st">"canberra"</span>, <span class="st">"binary"</span>, <span class="st">"minkowski"</span><span class="op">)</span>,</span>
+<span>  max_k <span class="op">=</span> <span class="fl">8L</span>,</span>
+<span>  Kmax <span class="op">=</span> <span class="cn">NULL</span></span>
 <span><span class="op">)</span></span>
 <span></span>
 <span><span class="fu">node_in_automorphic</span><span class="op">(</span></span>
@@ -153,8 +172,11 @@ assignment.</p>
 <span>  k <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"silhouette"</span>, <span class="st">"elbow"</span>, <span class="st">"strict"</span><span class="op">)</span>,</span>
 <span>  cluster <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"hierarchical"</span>, <span class="st">"concor"</span>, <span class="st">"cosine"</span><span class="op">)</span>,</span>
 <span>  distance <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"euclidean"</span>, <span class="st">"maximum"</span>, <span class="st">"manhattan"</span>, <span class="st">"canberra"</span>, <span class="st">"binary"</span>, <span class="st">"minkowski"</span><span class="op">)</span>,</span>
-<span>  Kmax <span class="op">=</span> <span class="fl">8L</span></span>
-<span><span class="op">)</span></span></code></pre></div>
+<span>  max_k <span class="op">=</span> <span class="fl">8L</span>,</span>
+<span>  Kmax <span class="op">=</span> <span class="cn">NULL</span></span>
+<span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu">node_in_block</span><span class="op">(</span><span class="va">.data</span>, k <span class="op">=</span> <span class="fl">2L</span>, blocks <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"nul"</span>, <span class="st">"com"</span><span class="op">)</span>, times <span class="op">=</span> <span class="cn">NULL</span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div id="source">
@@ -166,9 +188,9 @@ assignment.</p>
 
 
 <dl><dt id="arg--data">.data<a class="anchor" aria-label="anchor" href="#arg--data"></a></dt>
-<dd><p>A network object of class <code>mnet</code>, <code>igraph</code>, <code>tbl_graph</code>, <code>network</code>, or similar.
-For more information on the standard coercion possible,
-see <code><a href="https://stocnet.github.io/manynet/reference/coerce_graph.html" class="external-link">manynet::as_tidygraph()</a></code>.</p></dd>
+<dd><p>A network object of class <code>stocnet</code>, <code>igraph</code>, <code>tbl_graph</code>, <code>network</code>, or similar.
+Internally any of these will be coerced to an efficient implementation.
+For more information on possible coercions, see e.g. <code><a href="https://stocnet.github.io/manynet/reference/coerce_graph.html" class="external-link">manynet::as_stocnet()</a></code>.</p></dd>
 
 
 <dt id="arg-motif">motif<a class="anchor" aria-label="anchor" href="#arg-motif"></a></dt>
@@ -202,10 +224,48 @@ By default <code>"euclidean"</code>, but other options include
 Fewer, identifiable letters, e.g. <code>"e"</code> for Euclidean, is sufficient.</p></dd>
 
 
-<dt id="arg-kmax">Kmax<a class="anchor" aria-label="anchor" href="#arg-kmax"></a></dt>
+<dt id="arg-max-k">max_k<a class="anchor" aria-label="anchor" href="#arg-max-k"></a></dt>
 <dd><p>Integer indicating the maximum number of (k) clusters
 to evaluate.
 Ignored when <code>k = "strict"</code> or a discrete number is given for <code>k</code>.</p></dd>
+
+
+<dt id="arg-kmax">Kmax<a class="anchor" aria-label="anchor" href="#arg-kmax"></a></dt>
+<dd><p>Deprecated. The former spelling of <code>max_k</code>.
+Still accepted, but warns; please use <code>max_k</code> instead.</p></dd>
+
+
+<dt id="arg-regularity">regularity<a class="anchor" aria-label="anchor" href="#arg-regularity"></a></dt>
+<dd><p>Character string indicating which algorithm should be
+used to calculate how regularly equivalent nodes are.
+By default <code>"rolesim"</code>; <code>"rege"</code> is also available.
+Fewer, identifiable letters, e.g. <code>"ro"</code> for RoleSim, is sufficient.
+See <code><a href="method_regularity.html">regularity_rolesim()</a></code> and <code><a href="method_regularity.html">regularity_rege()</a></code> for how they differ.</p></dd>
+
+
+<dt id="arg-decay">decay<a class="anchor" aria-label="anchor" href="#arg-decay"></a></dt>
+<dd><p>A proportion between 0 and 1 giving how much of a contribution
+survives each additional step of distance or walk length.
+Lower values discount more steeply, so that only nearby others count;
+higher values discount less, so that longer walks continue to contribute.
+The measures that take a <code>decay</code> differ in what they discount and in what
+value leaves the measure in its most familiar form,
+so each documents its own default.</p></dd>
+
+
+<dt id="arg-beta">beta<a class="anchor" aria-label="anchor" href="#arg-beta"></a></dt>
+<dd><p>Deprecated; use <code>decay</code> instead.</p></dd>
+
+
+<dt id="arg-blocks">blocks<a class="anchor" aria-label="anchor" href="#arg-blocks"></a></dt>
+<dd><p>A character vector of permitted ideal block types,
+or a list-matrix giving the permitted types per block position.
+See <code><a href="measure_fit.html">net_by_inconsistency()</a></code> for the available types.</p></dd>
+
+
+<dt id="arg-times">times<a class="anchor" aria-label="anchor" href="#arg-times"></a></dt>
+<dd><p>Integer number of search iterations.
+By default the number of nodes times the number of positions.</p></dd>
 
 </dl></div>
     <div id="value">
@@ -214,6 +274,103 @@ Ignored when <code>k = "strict"</code> or a discrete number is given for <code>k
 of group memberships "A", "B", etc for each node.
 If the network is labelled,
 then the assignments will be labelled with the nodes' names.</p>
+    </div>
+    <div id="regular-equivalence">
+    <h2>Regular equivalence</h2>
+
+
+<p>Two nodes are regularly equivalent if each has ties to the same <em>kinds</em> of
+others, even where those others are not the same individuals and are not
+equally numerous. A manager with three subordinates and a manager with ten
+are regularly equivalent, because what makes them alike is that they both
+have subordinates, not how many or which.</p>
+<p>The definition is recursive: nodes are equivalent if their alters are
+equivalent, whose equivalence depends in turn on <em>their</em> alters.
+<code>node_in_regular()</code> therefore computes a similarity matrix by iterating
+that definition to a fixed point, and then clusters it in the same way as
+the other functions here.</p>
+<p>Note that this differs from <code>node_in_motif()</code>, which compares nodes on how
+often they appear embedded in local structures.
+Two nodes can have very similar triad profiles without being regularly equivalent,
+and vice versa, since a motif census counts a node's local configurations
+while regular equivalence asks who its alters are.</p>
+    </div>
+    <div id="motif-equivalence">
+    <h2>Motif equivalence</h2>
+
+
+<p>Where the other functions here compare nodes on <em>whom</em> they are tied to,
+<code>node_in_motif()</code> compares them on <em>what kinds of local structure</em> they sit
+in, by clustering a census of the triads (or, for two-mode networks,
+tetrads) each node participates in.</p>
+<p>Note that the census counts the <em>types</em> of motif a node takes part in,
+and not the position it holds within them.
+In the path \(i \rightarrow k \rightarrow j\), for example,
+all three nodes return a profile of one 021C triad,
+although \(i\) sends, \(k\) mediates and \(j\) receives.
+This is therefore neither Burt's role equivalence,
+which distinguishes those positions,
+nor the orbit-aware census of Ortmann and Brandes,
+which netrics does not yet offer.</p>
+<p>What it captures is similarity of local embedding.
+It is well suited to distinguishing nodes that sit in dense,
+closed neighbourhoods from those that bridge open ones,
+but it is not regular equivalence: see <code>node_in_regular()</code> for that.</p>
+<p>This function was called <code>node_in_regular()</code> prior to version 1.0.0.</p>
+    </div>
+    <div id="direct-blockmodelling">
+    <h2>Direct blockmodelling</h2>
+
+
+<p>The other functions here are <em>indirect</em>: they build a similarity between
+nodes, cluster it, and read a partition off the result.
+<code>node_in_block()</code> is <em>direct</em>. It searches the space of partitions for
+the one that best fits an ideal block structure, scoring each candidate
+with <code><a href="measure_fit.html">net_by_inconsistency()</a></code> and keeping whichever is most consistent.</p>
+<p>The advantage is that the criterion being optimised is the one you
+actually care about, rather than a similarity that stands in for it,
+and that ideal types other than "null and complete" become available —
+<code>blocks = c("nul", "reg")</code> searches directly for a regular-equivalence
+blockmodel.
+The cost is that the number of positions <code>k</code> must be chosen in advance,
+and that the search is stochastic: it explores by random restarts and
+perturbations, so repeated runs may return different partitions and a
+longer search is more likely to find a good one.
+Set a seed for reproducibility, and compare runs with <code><a href="measure_fit.html">net_by_inconsistency()</a></code>.</p>
+    </div>
+    <div id="references">
+    <h2>References</h2>
+
+<div class="section">
+<h3 id="on-role-equivalence">On role equivalence<a class="anchor" aria-label="anchor" href="#on-role-equivalence"></a></h3>
+
+
+<p>Burt, Ronald S. 1990.
+"Detecting role equivalence".
+<em>Social Networks</em> 12(1): 83-97.
+<a href="https://doi.org/10.1016/0378-8733%2890%2990023-3" class="external-link">doi:10.1016/0378-8733(90)90023-3</a></p>
+</div>
+
+<div class="section">
+<h3 id="on-the-orbit-aware-census">On the orbit-aware census<a class="anchor" aria-label="anchor" href="#on-the-orbit-aware-census"></a></h3>
+
+
+<p>Ortmann, Mark, and Ulrik Brandes. 2017.
+"Efficient orbit-aware triad and quad census in directed and undirected graphs".
+<em>Applied Network Science</em> 2(1): 13.
+<a href="https://doi.org/10.1007/s41109-017-0027-2" class="external-link">doi:10.1007/s41109-017-0027-2</a></p>
+</div>
+
+<div class="section">
+<h3 id="on-direct-blockmodelling">On direct blockmodelling<a class="anchor" aria-label="anchor" href="#on-direct-blockmodelling"></a></h3>
+
+
+<p>Doreian, Patrick, Vladimir Batagelj, and Anuska Ferligoj. 2005.
+<em>Generalized Blockmodeling</em>.
+Cambridge: Cambridge University Press.
+<a href="https://doi.org/10.1017/CBO9780511584176" class="external-link">doi:10.1017/CBO9780511584176</a></p>
+</div>
+
     </div>
     <div id="see-also">
     <h2>See also</h2>
@@ -252,6 +409,8 @@ then the assignments will be labelled with the nodes' names.</p>
 <code><a href="member_core.html">member_core</a></code>,
 <code><a href="member_diffusion.html">member_diffusion</a></code>,
 <code><a href="motif_brokerage_node.html">motif_brokerage_node</a></code>,
+<code><a href="motif_clique.html">motif_clique</a></code>,
+<code><a href="motif_composition.html">motif_composition</a></code>,
 <code><a href="motif_exposure.html">motif_exposure</a></code>,
 <code><a href="motif_node.html">motif_node</a></code>,
 <code><a href="motif_path.html">motif_path</a></code></p></div>
@@ -264,8 +423,15 @@ then the assignments will be labelled with the nodes' names.</p>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   V1    V2    V3    V4    V5    V6    V7    V8    V9    V10   V11   V12   V13  </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">1</span> A     B     C     A     C     C     B     B     A     A     C     A     B    </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># ... and 3 more values from this nodeset. Use `print_all(...)` to print all values.</span></span>
-<span class="r-in"><span><span class="op">(</span><span class="va">nre</span> <span class="op">&lt;-</span> <span class="fu">node_in_regular</span><span class="op">(</span><span class="va">ison_southern_women</span>,</span></span>
-<span class="r-in"><span>  cluster <span class="op">=</span> <span class="st">"concor"</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="op">(</span><span class="va">nre</span> <span class="op">&lt;-</span> <span class="fu">node_in_regular</span><span class="op">(</span><span class="va">ison_southern_women</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;">5 groups</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   Evelyn Laura Theresa Brenda Charlotte Frances Eleanor Pearl Ruth  Verne Myra </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">1</span> A      A     A       A      B         B       B       C     B     B     B    </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># ... and 7 more values from this nodeset. Use `print_all(...)` to print all values.</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   E1    E2    E3    E4    E5    E6    E7    E8    E9    E10   E11   E12   E13  </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">1</span> D     D     E     D     E     E     E     E     E     D     D     E     D    </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># ... and 1 more values from this nodeset. Use `print_all(...)` to print all values.</span></span>
+<span class="r-in"><span><span class="op">(</span><span class="va">nme</span> <span class="op">&lt;-</span> <span class="fu">node_in_motif</span><span class="op">(</span><span class="va">ison_southern_women</span>, cluster <span class="op">=</span> <span class="st">"concor"</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;">8 groups</span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   Evelyn Laura Theresa Brenda Charlotte Frances Eleanor Pearl Ruth  Verne Myra </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">1</span> A      B     A       B      C         C       D       D     D     D     C    </span>
@@ -299,6 +465,12 @@ then the assignments will be labelled with the nodes' names.</p>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   E1    E2    E3    E4    E5    E6    E7    E8    E9    E10   E11   E12   E13  </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">1</span> A     A     A     A     A     B     B     B     E     D     D     D     D    </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># ... and 1 more values from this nodeset. Use `print_all(...)` to print all values.</span></span>
+<span class="r-in"><span><span class="op">(</span><span class="va">nbm</span> <span class="op">&lt;-</span> <span class="fu">node_in_block</span><span class="op">(</span><span class="va">ison_adolescents</span>, k <span class="op">=</span> <span class="fl">3</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;">3 groups</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   Betty Sue   Alice Jane  Dale  Pam   Carol Tina </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">1</span> A     C     A     C     A     B     B     B    </span>
+<span class="r-in"><span><span class="fu"><a href="measure_fit.html">net_by_inconsistency</a></span><span class="op">(</span><span class="va">ison_adolescents</span>, <span class="va">nbm</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0.179</span>
 </code></pre></div>
     </div>
   </div>

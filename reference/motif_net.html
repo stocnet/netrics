@@ -4,8 +4,6 @@ in a network:
 net_x_dyad() returns a census of dyad motifs in a network.
 net_x_triad() returns a census of triad motifs in a network.
 net_x_tetrad() returns a census of tetrad motifs in a network.
-net_x_mixed() returns a census of triad motifs that span
-a one-mode and a two-mode network.
 
 
 See also graph classes."><meta property="og:image" content="https://stocnet.github.io/netrics/logo.png"><!-- mathjax --><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js" integrity="sha256-nvJJv9wWKEm88qvoQl9ekL2J+k/RWIsaSScxxlsrv8k=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/config/TeX-AMS-MML_HTMLorMML.js" integrity="sha256-84DKXVJXs0/F8OTMzX4UR909+jtl4G7SPypPavF+GfA=" crossorigin="anonymous"></script><!--[if lt IE 9]>
@@ -26,7 +24,7 @@ See also graph classes."><meta property="og:image" content="https://stocnet.gith
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">netrics</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.4.1</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.0.0</span>
       </span>
     </div>
 
@@ -103,37 +101,35 @@ See also graph classes."><meta property="og:image" content="https://stocnet.gith
 in a network:</p><ul><li><p><code>net_x_dyad()</code> returns a census of dyad motifs in a network.</p></li>
 <li><p><code>net_x_triad()</code> returns a census of triad motifs in a network.</p></li>
 <li><p><code>net_x_tetrad()</code> returns a census of tetrad motifs in a network.</p></li>
-<li><p><code>net_x_mixed()</code> returns a census of triad motifs that span
-a one-mode and a two-mode network.</p></li>
 </ul><p>See also <a href="https://www.graphclasses.org/smallgraphs.html" class="external-link">graph classes</a>.</p>
     </div>
 
     <div id="ref-usage">
     <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">net_x_dyad</span><span class="op">(</span><span class="va">.data</span><span class="op">)</span></span>
 <span></span>
-<span><span class="fu">net_x_triad</span><span class="op">(</span><span class="va">.data</span><span class="op">)</span></span>
+<span><span class="fu">net_x_triad</span><span class="op">(</span><span class="va">.data</span>, object2 <span class="op">=</span> <span class="cn">NULL</span><span class="op">)</span></span>
 <span></span>
-<span><span class="fu">net_x_tetrad</span><span class="op">(</span><span class="va">.data</span><span class="op">)</span></span>
-<span></span>
-<span><span class="fu">net_x_mixed</span><span class="op">(</span><span class="va">.data</span>, <span class="va">object2</span><span class="op">)</span></span></code></pre></div>
+<span><span class="fu">net_x_tetrad</span><span class="op">(</span><span class="va">.data</span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div id="source">
     <h2>Source</h2>
-    <p>Alejandro Espinosa 'netmem'</p>
+    <p>Mixed census adapted from Alejandro Espinosa 'netmem'</p>
     </div>
     <div id="arguments">
     <h2>Arguments</h2>
 
 
 <dl><dt id="arg--data">.data<a class="anchor" aria-label="anchor" href="#arg--data"></a></dt>
-<dd><p>A network object of class <code>mnet</code>, <code>igraph</code>, <code>tbl_graph</code>, <code>network</code>, or similar.
-For more information on the standard coercion possible,
-see <code><a href="https://stocnet.github.io/manynet/reference/coerce_graph.html" class="external-link">manynet::as_tidygraph()</a></code>.</p></dd>
+<dd><p>A network object of class <code>stocnet</code>, <code>igraph</code>, <code>tbl_graph</code>, <code>network</code>, or similar.
+Internally any of these will be coerced to an efficient implementation.
+For more information on possible coercions, see e.g. <code><a href="https://stocnet.github.io/manynet/reference/coerce_graph.html" class="external-link">manynet::as_stocnet()</a></code>.</p></dd>
 
 
 <dt id="arg-object-">object2<a class="anchor" aria-label="anchor" href="#arg-object-"></a></dt>
-<dd><p>A second, two-mode network object.</p></dd>
+<dd><p>A second, two-mode network object.
+Only <code>net_x_triad()</code> uses this, and only to take a multilevel census;
+see its Mixed census section.</p></dd>
 
 </dl></div>
     <div id="value">
@@ -142,6 +138,15 @@ see <code><a href="https://stocnet.github.io/manynet/reference/coerce_graph.html
 one row and a column for each motif type,
 giving the count of each motif in the network.
 This is printed as a tibble to avoid greedy printing of long vectors.</p>
+    </div>
+    <div id="multiplex-networks">
+    <h2>Multiplex networks</h2>
+
+
+<p><code>net_x_triad()</code> takes the mixed census on a multiplex network,
+splitting it into layers by mode rather than by position.
+To census one layer alone, take it first with <code><a href="https://stocnet.github.io/manynet/reference/modif_plexity.html" class="external-link">manynet::to_uniplex()</a></code>.
+<code>net_x_dyad()</code> and <code>net_x_tetrad()</code> count every tie whatever its layer.</p>
     </div>
     <div id="dyad-census">
     <h2>Dyad census</h2>
@@ -189,6 +194,28 @@ reciprocated, and the other is directed between the two non-reciprocated</p></li
 <li><p>300: This triad includes six ties, all of which are reciprocated</p></li>
 </ul><p>Note that for undirected and two-mode networks, only 003, 102, and 201 are possible,
 as the other configurations rely on the concept of directionality.</p>
+    </div>
+    <div id="mixed-census">
+    <h2>Mixed census</h2>
+
+
+<p>Where a one-mode and a two-mode network are given together,
+a multilevel census of the triads that span them is taken instead,
+after Hollway et al. (2017).
+Its ten motifs are labelled by how many ties join the pair of nodes at
+each level, so that <code>"21"</code> counts triads whose two nodes are reciprocally
+tied in the one-mode network and share a partner in the two-mode network.</p>
+<p>There are two ways to ask for it.
+Supply the two networks as <code>.data</code> and <code>object2</code>,
+the one-mode network first.
+Or give a single multiplex network holding exactly one one-mode layer and
+one two-mode layer, such as <code>fict_marvel</code>,
+and the two layers are used in that order.
+A two-mode network that carries no one-mode layer is not enough,
+and remains unavailable.</p>
+<p>Since a census counts configurations, only the presence of a tie counts.
+Weights and signs are set aside, as <code><a href="https://r.igraph.org/reference/triad_census.html" class="external-link">igraph::triad_census()</a></code> also does.</p>
+<p><code><a href="motif_node.html">node_x_triad()</a></code> reports the same ten motifs for each node.</p>
     </div>
     <div id="tetrad-census">
     <h2>Tetrad census</h2>
@@ -239,6 +266,16 @@ Cambridge: Cambridge University Press.</p>
 </div>
 
 <div class="section">
+<h3 id="on-the-mixed-census">On the mixed census<a class="anchor" aria-label="anchor" href="#on-the-mixed-census"></a></h3>
+
+
+<p>Hollway, James, Alessandro Lomi, Francesca Pallotti, and Christoph Stadtfeld. 2017.
+“Multilevel Social Spaces: The Network Dynamics of Organizational Fields.”
+<em>Network Science</em> 5(2): 187–212.
+<a href="https://doi.org/10.1017/nws.2017.8" class="external-link">doi:10.1017/nws.2017.8</a></p>
+</div>
+
+<div class="section">
 <h3 id="on-the-tetrad-census">On the tetrad census<a class="anchor" aria-label="anchor" href="#on-the-tetrad-census"></a></h3>
 
 
@@ -253,16 +290,6 @@ Cambridge: Cambridge University Press.</p>
 <a href="https://doi.org/10.1177/0190272520944151" class="external-link">doi:10.1177/0190272520944151</a></p>
 </div>
 
-<div class="section">
-<h3 id="on-the-mixed-census">On the mixed census<a class="anchor" aria-label="anchor" href="#on-the-mixed-census"></a></h3>
-
-
-<p>Hollway, James, Alessandro Lomi, Francesca Pallotti, and Christoph Stadtfeld. 2017.
-“Multilevel Social Spaces: The Network Dynamics of Organizational Fields.”
-<em>Network Science</em> 5(2): 187–212.
-<a href="https://doi.org/10.1017/nws.2017.8" class="external-link">doi:10.1017/nws.2017.8</a></p>
-</div>
-
     </div>
     <div id="see-also">
     <h2>See also</h2>
@@ -275,9 +302,12 @@ Cambridge: Cambridge University Press.</p>
 <p>Other motifs:
 <code><a href="motif_brokerage_net.html">motif_brokerage_net</a></code>,
 <code><a href="motif_brokerage_node.html">motif_brokerage_node</a></code>,
+<code><a href="motif_clique.html">motif_clique</a></code>,
+<code><a href="motif_composition.html">motif_composition</a></code>,
 <code><a href="motif_exposure.html">motif_exposure</a></code>,
 <code><a href="motif_hazard.html">motif_hazard</a></code>,
 <code><a href="motif_hierarchy.html">motif_hierarchy</a></code>,
+<code><a href="motif_homophily.html">motif_homophily</a></code>,
 <code><a href="motif_node.html">motif_node</a></code>,
 <code><a href="motif_path.html">motif_path</a></code>,
 <code><a href="motif_periods.html">motif_periods</a></code></p></div>
@@ -295,16 +325,16 @@ Cambridge: Cambridge University Press.</p>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   `003` `012` `102` `201` `210` `300`</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">1</span>    13     0    29    11     0     3</span>
+<span class="r-in"><span><span class="fu">net_x_triad</span><span class="op">(</span><span class="va">fict_marvel</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># A tibble: 1 × 10</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    `22`  `21`  `20`  `12` `11D` `11U`  `10`  `02`  `01`   `00`</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>  <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">1</span>  <span style="text-decoration: underline;">1</span>248     0  <span style="text-decoration: underline;">1</span>591 <span style="text-decoration: underline;">10</span>289     0     0 <span style="text-decoration: underline;">19</span>549 <span style="text-decoration: underline;">47</span>683     0 <span style="text-decoration: underline;">113</span>938</span>
 <span class="r-in"><span><span class="fu">net_x_tetrad</span><span class="op">(</span><span class="va">ison_southern_women</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># A tibble: 1 × 11</span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>      E4    I4    H4    L4    D4    U4    Y4    P4    C4    Z4    X4</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">1</span> <span style="text-decoration: underline;">12</span>388     0 <span style="text-decoration: underline;">11</span>869     0     0     0     0     0  <span style="text-decoration: underline;">7</span>458     0  <span style="text-decoration: underline;">2</span>758</span>
-<span class="r-in"><span><span class="fu">net_x_mixed</span><span class="op">(</span><span class="va">fict_marvel</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># A tibble: 1 × 10</span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>    `22`  `21`  `20`  `12`  `11D`  `11U`  `10`  `02`   `01`   `00`</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>  <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>  <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>  <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>  <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">1</span>  <span style="text-decoration: underline;">1</span>251 -<span style="color: #BB0000; text-decoration: underline;">1</span><span style="color: #BB0000;">684</span>  <span style="text-decoration: underline;">3</span>272 <span style="text-decoration: underline;">10</span>388 -<span style="color: #BB0000; text-decoration: underline;">10</span><span style="color: #BB0000;">006</span> -<span style="color: #BB0000; text-decoration: underline;">10</span><span style="color: #BB0000;">006</span> <span style="text-decoration: underline;">39</span>462 <span style="text-decoration: underline;">48</span>004 -<span style="color: #BB0000; text-decoration: underline;">98</span><span style="color: #BB0000;">436</span> <span style="text-decoration: underline;">212</span>053</span>
 </code></pre></div>
     </div>
   </div>

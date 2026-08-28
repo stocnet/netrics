@@ -35,7 +35,7 @@ scores, whereas mode_by_eigenvector() reports the per-mode scores directly."><me
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">netrics</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.4.1</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.0.0</span>
       </span>
     </div>
 
@@ -137,9 +137,9 @@ scores, whereas <code>mode_by_eigenvector()</code> reports the per-mode scores d
 
 
 <dl><dt id="arg--data">.data<a class="anchor" aria-label="anchor" href="#arg--data"></a></dt>
-<dd><p>A network object of class <code>mnet</code>, <code>igraph</code>, <code>tbl_graph</code>, <code>network</code>, or similar.
-For more information on the standard coercion possible,
-see <code><a href="https://stocnet.github.io/manynet/reference/coerce_graph.html" class="external-link">manynet::as_tidygraph()</a></code>.</p></dd>
+<dd><p>A network object of class <code>stocnet</code>, <code>igraph</code>, <code>tbl_graph</code>, <code>network</code>, or similar.
+Internally any of these will be coerced to an efficient implementation.
+For more information on possible coercions, see e.g. <code><a href="https://stocnet.github.io/manynet/reference/coerce_graph.html" class="external-link">manynet::as_stocnet()</a></code>.</p></dd>
 
 
 <dt id="arg-normalized">normalized<a class="anchor" aria-label="anchor" href="#arg-normalized"></a></dt>
@@ -166,19 +166,19 @@ giving one centralization score per mode.</p>
     <h2>See also</h2>
     <div class="dont-index"><p>Other eigenvector:
 <code><a href="measure_central_eigen.html">measure_central_eigen</a></code>,
-<code><a href="measure_centralities_eigen.html">measure_centralities_eigen</a></code></p>
+<code><a href="measure_central_tie_eigen.html">measure_central_tie_eigen</a></code></p>
 <p>Other centrality:
 <code><a href="measure_central_between.html">measure_central_between</a></code>,
 <code><a href="measure_central_close.html">measure_central_close</a></code>,
 <code><a href="measure_central_degree.html">measure_central_degree</a></code>,
 <code><a href="measure_central_eigen.html">measure_central_eigen</a></code>,
+<code><a href="measure_central_tie_between.html">measure_central_tie_between</a></code>,
+<code><a href="measure_central_tie_close.html">measure_central_tie_close</a></code>,
+<code><a href="measure_central_tie_degree.html">measure_central_tie_degree</a></code>,
+<code><a href="measure_central_tie_eigen.html">measure_central_tie_eigen</a></code>,
 <code><a href="measure_centralisation_between.html">measure_centralisation_between</a></code>,
 <code><a href="measure_centralisation_close.html">measure_centralisation_close</a></code>,
-<code><a href="measure_centralisation_degree.html">measure_centralisation_degree</a></code>,
-<code><a href="measure_centralities_between.html">measure_centralities_between</a></code>,
-<code><a href="measure_centralities_close.html">measure_centralities_close</a></code>,
-<code><a href="measure_centralities_degree.html">measure_centralities_degree</a></code>,
-<code><a href="measure_centralities_eigen.html">measure_centralities_eigen</a></code></p></div>
+<code><a href="measure_centralisation_degree.html">measure_centralisation_degree</a></code></p></div>
     </div>
 
     <div id="ref-examples">

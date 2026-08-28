@@ -17,7 +17,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="index.html">netrics</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.4.1</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.0.0</span>
       </span>
     </div>
 
@@ -90,30 +90,41 @@
 <div id="contributing" class="section level1">
 
 <p>Contributions to <code>netrics</code>, whether in the form of issue identification, bug fixes, new code or documentation are encouraged and welcome.</p>
-<div class="section level2">
-<h2 id="aims">Aims<a class="anchor" aria-label="anchor" href="#aims"></a></h2>
-<p>Here is some things that Guy Kawasaki, Silicon Valley venture capitalist, learned from Steve Jobs:</p>
-<ul><li>“Experts” are clueless. Especially self-declared ones.</li>
-<li>Customers cannot tell you what they need. They can help with evolution, but not revolution.</li>
-<li>Biggest challenges beget the best work.</li>
-<li>Design counts. Users will see the skin/UI of your product, not the great algorithms.</li>
-<li>Big graphics, big fonts.</li>
-<li>Jump curves—do things 10 times better, not 10 percent.</li>
-<li>All that truly matters is whether something works or doesn’t work. Open or close, iPhone or Android, car or train, doesn’t matter—make it work.</li>
-<li>“Value” is different from “price”. There is a class of people who do care about value. Ease of use -&gt; less support costs. You have to create a unique and valuable product as an engineer.</li>
-<li>Real CEOs can demo. If you can’t demo your own product, then quit.</li>
-<li>Real entrepreneurs ship, not slip.</li>
-<li>Some things need to be believed to be seen.</li>
-</ul></div>
+<p>Please note that the <code>netrics</code> project is released with a <a href="CODE_OF_CONDUCT.html">Contributor Code of Conduct</a>. By contributing to this project, you agree to abide by its terms.</p>
 <div class="section level2">
 <h2 id="git">Git<a class="anchor" aria-label="anchor" href="#git"></a></h2>
 <p><code>stocnet</code> projects are maintained using the git version control system. A plain-English introduction to git can be found <a href="https://blog.red-badger.com/2016/11/29/gitgithub-in-plain-english" class="external-link">here</a>. I recommend you read this before continuing. A more recent motivation can be found <a href="https://www.r-bloggers.com/2024/04/git-gud-version-control-best-practices/" class="external-link">here</a>. It will explain the basics of git version control, committing and repos, pulling and pushing, branching and merging.</p>
 <p>Using git from the command line on your lap- or desktop can be intimidating, but I recommend <a href="https://git-fork.com" class="external-link">Fork</a> software for Mac and Windows. This allows mostly visual management of commits, diffs, branches, etc. There are various other git software packages available, but this one is fairly fully featured.</p>
 <p>The GitHub page allows to access the issues assigned to you and check the commits. You can also access the documents in the repository, although this won’t be necessary after you have cloned it on your computer via Fork.</p>
+<div class="section level3">
+<h3 id="identifying-issues">Identifying issues<a class="anchor" aria-label="anchor" href="#identifying-issues"></a></h3>
+<p>Please use the issues tracker on GitHub to identify any function-related issues. You can use these issues to track progress on the issue and to comment or continue a conversation on that issue. The most useful issues are ones that precisely identify an error, or propose a test that should pass but instead fails. Examples for documentation are also most welcome.</p>
+</div>
+<div class="section level3">
+<h3 id="cloning">Cloning<a class="anchor" aria-label="anchor" href="#cloning"></a></h3>
+<p>Once you have downloaded Fork, the first thing you have to do is to clone the remote repository on your computer. Before cloning, you will be able to choose on which <code>branch</code> you want to work: develop or main.</p>
+</div>
+<div class="section level3">
+<h3 id="pull">Pull<a class="anchor" aria-label="anchor" href="#pull"></a></h3>
+<p>This command allows you to <code>pull</code> changes from the remote repository to your local repository on Sourcetree. Make sure you do that before starting working on your files so you have the newest versions. When pulling, make sure you choose master or develop, depending on the branch you decided to work with. Once you pulled, you have now all the new commits and files and you can start working on your assigned tasks. Note that you can access and open the files either from the Finder or from Fork. Some documents might be stored using Large File Storage (LFS) to save space on the repository.</p>
+</div>
+<div class="section level3">
+<h3 id="commit-and-push">Commit and Push<a class="anchor" aria-label="anchor" href="#commit-and-push"></a></h3>
+<p>Once you have made modifications on a file and saved them, it will appear in your <code>commit</code> window. Here you can control one last time your file, write the commit message with the issue reference (see below) and commit. Once your commit is ready, you can <code>push</code> them to the origin/main repository. Note that you can click the “push immediately” box in the commit window if you don’t want to do it in two steps. If you are working on a separate branch, it is important to select this branch when pushing to origin/main.</p>
+<p>Commits may reference an existing GitHub issue number. Where the issue number is preceded by <code>resolve</code>/<code>resolves</code>/<code>resolved</code>, <code>close</code>/<code>closes</code>/<code>closed</code>, or <code>fix</code>/<code>fixes</code>/<code>fixed</code> (capitalised or not), GitHub updates the status of the issue automatically.</p>
+</div>
+<div class="section level3">
+<h3 id="branching-and-ci">Branching and CI<a class="anchor" aria-label="anchor" href="#branching-and-ci"></a></h3>
+<ul><li>
+<code>main</code> is the release branch; <code>develop</code> is the working branch (clone/work on <code>develop</code>).</li>
+<li>PRs into <code>main</code> trigger <a href="workflows/prchecks.yml">prchecks.yml</a>: R CMD check (macOS/Windows/Linux), binary build, codecov, lintr, spell check, a check that the tutorial articles are in sync with the tutorials, and PR metadata checks (DESCRIPTION version bump, PR title/description conventions).</li>
+<li>Merges/pushes to <code>main</code> trigger <a href="workflows/pushrelease.yml">pushrelease.yml</a>: check, auto-bump version tag, GitHub release with binaries, then pkgdown site deploy.</li>
+<li>Commits should reference an existing GitHub issue number (<code>#123</code>), see below.</li>
+</ul></div>
 </div>
 <div class="section level2">
 <h2 id="style">Style<a class="anchor" aria-label="anchor" href="#style"></a></h2>
-<p>In terms of style, we are aiming for pleasant predictability in terms of user experience. To that end, we have a regular syntax that users can rely on producing expected effects.</p>
+<p>In terms of style, we are aiming for pleasant predictability in terms of user experience. To that end, we have a regular syntax that users can rely on producing expected effects. Functions in the same family (<code>node_by_*()</code>, <code>node_in_*()</code>, <code>node_x_*()</code>, etc.) should share argument order and naming, so that behaviour is guessable across the family.</p>
 </div>
 <div class="section level2">
 <h2 id="package-architecture">Package architecture<a class="anchor" aria-label="anchor" href="#package-architecture"></a></h2>
@@ -138,9 +149,15 @@
 </li>
 <li>Spell check: <code><a href="https://docs.ropensci.org/spelling//reference/spell_check_package.html" class="external-link">spelling::spell_check_package()</a></code>
 </li>
+<li>Code coverage: <code><a href="http://covr.r-lib.org/reference/package_coverage.html" class="external-link">covr::package_coverage()</a></code>
+</li>
+<li>Rebuild <code>README.md</code> from <code>README.Rmd</code>: <code><a href="https://devtools.r-lib.org/reference/build_readme.html" class="external-link">devtools::build_readme()</a></code>
+</li>
+<li>Check every topic is in the pkgdown index: <code><a href="https://pkgdown.r-lib.org/reference/check_pkgdown.html" class="external-link">pkgdown::check_pkgdown()</a></code>
+</li>
 <li>Build pkgdown site locally: <code><a href="https://pkgdown.r-lib.org/reference/build_site.html" class="external-link">pkgdown::build_site()</a></code>
 </li>
-</ul><p>There is no non-R build system — no package.json/Makefile.</p>
+</ul><p>There is no non-R build system — no package.json/Makefile. Roxygen is configured with <code>markdown = TRUE</code>; <code>NAMESPACE</code> and all <code>man/*.Rd</code> files are generated — never hand-edit them. Some other files are generated rather than edited directly — <code>README.md</code> and the tutorial articles in <code>vignettes/articles/</code>. See <a href="#readme-and-website">README and website</a> below for which source each is built from.</p>
 </div>
 <div class="section level3">
 <h3 id="function-family-naming-the-core-convention">Function family naming (the core convention)<a class="anchor" aria-label="anchor" href="#function-family-naming-the-core-convention"></a></h3>
@@ -183,12 +200,156 @@
 <code>make_network_motif()</code>, <code>make_node_motif()</code>
 </td>
 </tr></tbody></table><p>When adding a new analytic function, pick the family that matches its semantics and follow the existing naming scheme exactly. This predictability is a stated project goal.</p>
+<p>Where one concept appears in several families, give it one stem in each: <code><a href="reference/mark_core.html">node_is_core()</a></code>, <code><a href="reference/measure_core.html">node_by_core()</a></code> and <code><a href="reference/member_core.html">node_in_core()</a></code> are the mark, the measure and the membership of the same idea.</p>
 </div>
+<div class="section level3">
+<h3 id="method-helper-naming">Method helper naming<a class="anchor" aria-label="anchor" href="#method-helper-naming"></a></h3>
+<p>Besides the four analytic families, some functions take a <strong>character argument that selects a method</strong>. These are not S3 methods; dispatch is by <code><a href="https://rdrr.io/r/base/switch.html" class="external-link">switch()</a></code>. The rule is that the function called is named <strong><code>&lt;argument&gt;_&lt;value&gt;</code></strong>, so <code>k = "elbow"</code> calls <code><a href="reference/method_kselect.html">k_elbow()</a></code>, <code>cluster = "concor"</code> calls <code><a href="reference/method_cluster.html">cluster_concor()</a></code>, and <code>regularity = "rege"</code> calls <code><a href="reference/method_regularity.html">regularity_rege()</a></code>. Users can therefore find the implementation, and its documentation, from the argument alone.</p>
+<p><strong>Each family is named for what it returns</strong> — not for the concept it serves, and not for the function that calls it:</p>
+<table class="table"><colgroup><col width="25%"><col width="25%"><col width="25%"><col width="25%"></colgroup><thead><tr><th>Rd name</th>
+<th>Returns</th>
+<th>Functions</th>
+<th>Argument</th>
+</tr></thead><tbody><tr><td><code>method_kselect</code></td>
+<td>an integer, the number of clusters</td>
+<td><code>k_*</code></td>
+<td><code>k =</code></td>
+</tr><tr><td><code>method_cluster</code></td>
+<td>an <code>hclust</code> clustering object</td>
+<td><code>cluster_*</code></td>
+<td><code>cluster =</code></td>
+</tr><tr><td><code>method_regularity</code></td>
+<td>a node-by-node similarity matrix</td>
+<td><code>regularity_*</code></td>
+<td><code>regularity =</code></td>
+</tr><tr><td><code>method_coreness</code></td>
+<td>a continuous coreness score plus a core/periphery split</td>
+<td><code>coreness_*</code></td>
+<td><code>coreness =</code></td>
+</tr><tr><td><code>method_split</code></td>
+<td>an ordered split of a continuous score into groups</td>
+<td><code>split_*</code></td>
+<td><code>split =</code></td>
+</tr></tbody></table><p>Apply that test when naming a new family. For example, <code>equivalence_*</code> would be the wrong name for <code>regularity_*</code>, even though those methods are only ever called from <code><a href="reference/member_equivalence.html">node_in_regular()</a></code>: they return a <em>similarity</em>, which <code>cluster_*()</code> only later partitions into an equivalence. Naming the step for the pipeline’s eventual output rather than its own return value breaks the rule.</p>
+<p>Two further points of style:</p>
+<ul><li>Pick a word narrow enough to own the family. <code>regularity</code> is preferred over <code>similarity</code> because the latter is broad enough to be overrun later, and because generic similarities (<code>to_cosine()</code>, <code>to_correlation()</code>) belong to <a href="https://stocnet.github.io/manynet/" class="external-link">manynet</a> and are consumed here through <code>distance =</code> and <code>cluster_*()</code>, so they would never live in this family anyway.</li>
+<li>The dispatching function should name the method in its <code>snet_info()</code> message by interpolation, e.g. <code>manynet::snet_info("...using {.fn regularity_{regularity}}.")</code>. This surfaces the convention to users at run time, and makes it obvious if the argument and the prefix ever drift apart.</li>
+</ul><p>One known exception: <code><a href="reference/member_equivalence.html">node_in_equivalence()</a></code>’s <code>motif =</code> argument is fed by <code>node_x_*()</code> functions rather than <code>motif_*()</code> ones. Motifs are one of the four core families above and cannot be renamed to suit this rule, so leave that as it is.</p>
+</div>
+<div class="section level3">
+<h3 id="naming-within-the-membership-family">Naming within the membership family<a class="anchor" aria-label="anchor" href="#naming-within-the-membership-family"></a></h3>
+<p><code>node_in_*()</code> names divide into two kinds, and new functions should follow whichever fits:</p>
+<ul><li>
+<strong>Group-nouns</strong> name the grouping itself, and are the generic entry point where there is one: <code><a href="reference/member_community.html">node_in_community()</a></code> tries every applicable algorithm and returns the highest-modularity partition; <code><a href="reference/member_components.html">node_in_component()</a></code> sits above <code><a href="reference/defunct.html">node_in_strong()</a></code>/<code><a href="reference/defunct.html">node_in_weak()</a></code>. Also <code><a href="reference/member_core.html">node_in_core()</a></code>, <code><a href="reference/member_equivalence.html">node_in_block()</a></code>.</li>
+<li>
+<strong>Algorithm names</strong> name one specific method: <code><a href="reference/member_community_non.html">node_in_louvain()</a></code>, <code><a href="reference/member_community_non.html">node_in_leiden()</a></code>, <code><a href="reference/member_community_hier.html">node_in_walktrap()</a></code>, <code><a href="reference/member_community_non.html">node_in_infomap()</a></code>, <code><a href="reference/member_community_non.html">node_in_spinglass()</a></code>, <code><a href="reference/member_cliques.html">node_in_roulette()</a></code>, <code><a href="reference/member_community_non.html">node_in_partition()</a></code> (Kernighan–Lin).</li>
+</ul><p>Two rules about number:</p>
+<ul><li>
+<strong>Number follows level, not stem.</strong> <code>node_in_*()</code> is singular, because a node belongs to one group; <code>net_by_*()</code> takes the plural when the measure concerns all of them. Hence <code><a href="reference/member_components.html">node_in_component()</a></code> with <code><a href="reference/measure_cohesion.html">net_by_components()</a></code>. Do not “correct” one of a pair to match the other — the mismatch is the convention. (Note that <code>net_by_*</code> names ending in <em>s</em> are not all plurals: <code>betweenness</code>, <code>compactness</code>, <code>richness</code> and <code>toughness</code> are abstract nouns. The real plurals are <code>components</code>, <code>factions</code> and <code>waves</code>.)</li>
+<li>
+<strong>The rule is about number, not about the stem.</strong> It settles whether to write <code>component</code> or <code>components</code> at a given level; it does not establish that a stem is the right one. <code><a href="reference/measure_cohesion.html">net_by_components()</a></code> returns a count <em>of the components</em>, a fact about the things named — but a measure of, say, how far a partition departs from an ideal structure is not a fact about those groups in that way, and should be named for the quantity it returns instead. That is why the blockmodelling criterion is <code><a href="reference/measure_fit.html">net_by_inconsistency()</a></code> rather than <code>net_by_blocks()</code>, even though its partitions come from <code><a href="reference/member_equivalence.html">node_in_block()</a></code>.</li>
+<li>
+<strong>Never plural in <code>node_in_*()</code></strong>, both because of the rule above and because <code>to_*s()</code> already means “returns a list” in <a href="https://stocnet.github.io/manynet/" class="external-link">manynet</a> (<code>to_components()</code>, <code>to_egos()</code>).</li>
+</ul><p>Finally, avoid words that imply another stocnet package’s remit. <a href="https://stocnet.github.io/netrics/">netrics</a> is descriptive; statistical modelling and testing belong to <a href="https://stocnet.github.io/migraph/" class="external-link">migraph</a>. This is why the direct blockmodelling search is <code><a href="reference/member_equivalence.html">node_in_block()</a></code> rather than <code>node_in_blockmodel()</code>, even though “blockmodel” is the literature’s term — prose and <code>@section</code> headings should still say blockmodelling, since it is only the exported name that signals remit.</p>
+</div>
+<div class="section level3">
+<h3 id="argument-names-and-vocabulary">Argument names and vocabulary<a class="anchor" aria-label="anchor" href="#argument-names-and-vocabulary"></a></h3>
+<p>One word means one thing across the package, and one thing takes one word. Before adding an argument, look for the name the package already uses for that idea:</p>
+<table class="table"><colgroup><col width="50%"><col width="50%"></colgroup><thead><tr><th>Argument</th>
+<th>Means</th>
+</tr></thead><tbody><tr><td><code>normalized</code></td>
+<td>divide by a theoretical maximum, so scores compare across networks</td>
+</tr><tr><td><code>scaled</code></td>
+<td>divide by the observed maximum, so the highest-scoring node takes 1</td>
+</tr><tr><td><code>standardized</code></td>
+<td>a z-score against a null model, so it can be negative and has no fixed range</td>
+</tr><tr><td><code>decay</code></td>
+<td>any per-step discount, always a proportion on <code>[0,1]</code> where higher values discount less</td>
+</tr><tr><td><code>alpha</code></td>
+<td>only Opsahl et al.’s trade-off between degree and strength in <code><a href="reference/measure_central_degree.html">node_by_degree()</a></code>
+</td>
+</tr><tr><td><code>direction</code></td>
+<td>
+<code>"all"</code>, <code>"in"</code> or <code>"out"</code>, validated with <code><a href="https://rdrr.io/r/base/match.arg.html" class="external-link">match.arg()</a></code>
+</td>
+</tr><tr><td><code>cutoff</code></td>
+<td>a geodesic distance bound</td>
+</tr><tr><td><code>k</code></td>
+<td>a target number of groups, or the name of a <code>k_*</code> selection method</td>
+</tr><tr><td><code>groups</code></td>
+<td>a fixed number of groups, where no <code>k_*</code> method can apply</td>
+</tr><tr><td><code>max_k</code></td>
+<td>the upper bound on the number of groups evaluated</td>
+</tr><tr><td><code>times</code></td>
+<td>how many times an algorithm repeats its work</td>
+</tr><tr><td><code>variant</code></td>
+<td>which definition of the same quantity to compute, reported back as the result’s <code>variant</code>
+</td>
+</tr><tr><td><code>walks</code></td>
+<td>which closed walks to count: <code>"all"</code>, <code>"odd"</code> or <code>"even"</code>
+</td>
+</tr><tr><td><code>attribute</code></td>
+<td>the node or tie attribute a measure reads</td>
+</tr><tr><td><code>resolution</code></td>
+<td>the Reichardt-Bornholdt gamma of a modularity-based algorithm</td>
+</tr><tr><td><code>steps</code></td>
+<td>the length of one random walk</td>
+</tr><tr><td>
+<code>select</code>, <code>ranks</code>
+</td>
+<td>how many nodes or ties a mark selects</td>
+</tr><tr><td>
+<code>cluster</code>, <code>coreness</code>, <code>regularity</code>, <code>split</code>
+</td>
+<td>select a method helper, as above</td>
+</tr></tbody></table><p><code>k</code> and <code>groups</code> are not the same argument, and the difference is worth keeping. Every <code>k_*</code> helper takes an <code>hclust</code> object as its first argument, so only a function that builds a dendrogram can be handed a selection method by name. <code><a href="reference/member_core.html">node_in_core()</a></code> splits one continuous score and <code><a href="reference/member_cliques.html">node_in_roulette()</a></code> searches group assignments directly, so both take <code>groups</code> rather than <code>k</code>. Naming them <code>k</code> would advertise a <code>k = "silhouette"</code> that cannot work.</p>
+<p>Four points follow from this:</p>
+<ul><li>Prefer an existing argument to a new one. <code>decay</code> replaced four names for one parameter: <code>decay</code> in <code><a href="reference/measure_central_close.html">node_by_harmonic()</a></code>, <code>alpha</code> in <code><a href="reference/measure_central_eigen.html">node_by_alpha()</a></code>, <code>beta</code> in <code><a href="reference/method_regularity.html">regularity_rolesim()</a></code>, and PageRank’s damping factor, which was not exposed at all.</li>
+<li>Validate a shared argument in one helper, e.g. <code>check_decay()</code> (<a href="../R/class_metrics.R">R/class_metrics.R</a>), so that the bound and the message cannot drift apart between measures.</li>
+<li>Document it once as a <code>man-roxygen/param_*.R</code> template (<code>param_decay</code>, <code>param_cutoff</code>, <code>param_norm</code>), and <code>@template</code> it everywhere.</li>
+<li>Where a word cannot carry the same meaning everywhere, that is a sign it is the wrong word, not a licence to overload it. <code>node_by_power(exponent=)</code> is deliberately not a <code>decay</code>, because a negative exponent inverts the measure rather than discounting it.</li>
+</ul></div>
 <div class="section level3">
 <h3 id="function-body-convention">Function body convention<a class="anchor" aria-label="anchor" href="#function-body-convention"></a></h3>
 <p>Functions consistently: 1. Coerce/validate input via <code><a href="https://stocnet.github.io/manynet/reference/expect.html" class="external-link">manynet::expect_nodes()</a></code> / <code><a href="https://stocnet.github.io/manynet/reference/coerce_graph.html" class="external-link">manynet::as_igraph()</a></code> etc. 2. Branch on <code><a href="https://stocnet.github.io/manynet/reference/mark_format_node.html" class="external-link">manynet::is_twomode()</a></code>, <code>manynet::is_weighted()</code>, <code>manynet::is_directed()</code>, <code><a href="https://stocnet.github.io/manynet/reference/mark_format_tie.html" class="external-link">manynet::is_complex()</a></code> to handle one-mode/two-mode, weighted/unweighted, directed/undirected cases distinctly. 3. Compute the result (often via <a href="https://r.igraph.org/" class="external-link">igraph</a>, but use whichever is the fastest implementation). 4. Wrap the output with the matching <code>make_*()</code> constructor to attach the S3 class and labels (node/tie names via <code><a href="https://stocnet.github.io/manynet/reference/measure_attributes_nodes.html" class="external-link">manynet::node_names()</a></code>, mode attribute via <code><a href="https://stocnet.github.io/manynet/reference/measure_attributes_nodes.html" class="external-link">manynet::node_is_mode()</a></code>/<code><a href="https://stocnet.github.io/manynet/reference/measure_dims.html" class="external-link">manynet::net_dims()</a></code>).</p>
 <p>All <code>manynet</code>/<code>igraph</code> calls use explicit <code>::</code> namespacing rather than importing whole namespaces (<a href="https://stocnet.github.io/manynet/" class="external-link">manynet</a> and <a href="https://r.igraph.org/" class="external-link">igraph</a> are still listed in <code>@importFrom</code> roxygen tags per-file for NAMESPACE generation).</p>
+<p>Where the function is a measure, the <code>make_*_measure()</code> call also declares <code>measure</code>, <code>range</code>, <code>normalization</code> and <code>variant</code> (see <a href="#adding-a-measure">Adding a measure</a>).</p>
 </div>
+<div class="section level3">
+<h3 id="input-shapes">Input shapes<a class="anchor" aria-label="anchor" href="#input-shapes"></a></h3>
+<p>Most defects reported against this package are not wrong arithmetic. They are a network shape the function did not expect. Before finishing a function, run it on a signed, a weighted, a directed, a two-mode, a multiplex, a multilevel and a longitudinal network, and decide each case deliberately:</p>
+<ul><li>
+<strong>Signed.</strong> A <code>stocnet</code> object holds a tie’s sign as the sign of its weight, so a signed network reaches <a href="https://r.igraph.org/" class="external-link">igraph</a> carrying a <code>weight</code> attribute of -1 and 1. Shortest-path functions read any attribute of that name as a distance, and either abort on the negative values or report a negative cycle. Where the measure concerns cohesion or distance, call <code>.to_positive()</code> (<a href="../R/netrics-utils.R">R/netrics-utils.R</a>), which drops to the positive ties and says so. Do not simply drop the attribute: that reads a negative tie as a path of length one, when a negative tie is hostility rather than a channel along which cohesion travels.</li>
+<li>
+<strong>Multiplex.</strong> Take one layer at a time with <code><a href="https://stocnet.github.io/manynet/reference/modif_plexity.html" class="external-link">manynet::to_uniplex()</a></code>. That drops nodes holding none of the retained ties, so results of different lengths would otherwise be recycled against each other; <code>uniplex_degree()</code> (<a href="../R/measure_centrality_degree.R">R/measure_centrality_degree.R</a>) restores the whole nodeset, and is the pattern to follow.</li>
+<li>
+<strong>Multilevel.</strong> A multilevel network reports itself as two-mode, but holds ties within a mode as well as between them, so it cannot be projected. Measure it whole rather than projecting, as <code><a href="reference/measure_cohesion.html">net_by_independence()</a></code> now does.</li>
+<li>
+<strong>Longitudinal and diffusion.</strong> Nodes may change over waves while the ties do not, so do not assume a nodeset and a tieset of matching length or wave.</li>
+</ul><p>Document each decision in the roxygen block with an <code>@section</code> named for the shape, e.g. <code>@section Signed networks:</code> or <code>@section Multilevel networks:</code>. Say what the function does with such a network, and how the user can control it themselves, e.g. with <code><a href="https://stocnet.github.io/manynet/reference/modif_weight.html" class="external-link">manynet::to_unsigned()</a></code>.</p>
+</div>
+<div class="section level3">
+<h3 id="adding-a-measure">Adding a measure<a class="anchor" aria-label="anchor" href="#adding-a-measure"></a></h3>
+<ol style="list-style-type: decimal"><li>Name it for its family and level, and put it in the <code>R/measure_*.R</code> file of its topic, sharing a roxygen block with the functions it belongs with.</li>
+<li>Coerce, branch on the input shapes above, compute, then wrap the result with the matching <code>make_*_measure()</code>.</li>
+<li>Declare <code>measure</code>, <code>range</code>, <code>normalization</code> and <code>variant</code> in that call. These attributes are what lets a result be read without the manual, so a measure that resolves its method at run time declares the method it actually used, as <code><a href="reference/measure_diverse_net.html">net_by_diversity()</a></code> and <code><a href="reference/measure_fit.html">net_by_core()</a></code> do.</li>
+<li>Add it to the right roster in <a href="../tests/testthat/helper-contract.R">tests/testthat/helper-contract.R</a>, giving any arguments it needs to be applicable. <code>test-measure_registry_contract.R</code> compares the rosters against the namespace, so a measure in no roster fails the build rather than escaping the sweep. Where a measure cannot take the roster’s shape, add it to <code>uncontracted_measures</code> with a comment saying why, and cover it in its family’s contract file instead.</li>
+<li>Add assertions to the mirroring <code>test-measure_*.R</code>.</li>
+<li>Check the website still builds, and add one <code>NEWS.md</code> bullet.</li>
+</ol><p>An exemption is a declaration, not a gap: where an argument cannot have an effect, record it in the exemption list with the reason, as the eigenvector measures do.</p>
+</div>
+<div class="section level3">
+<h3 id="renaming-or-retiring-a-name">Renaming or retiring a name<a class="anchor" aria-label="anchor" href="#renaming-or-retiring-a-name"></a></h3>
+<p>A rename is cheap for us and expensive for users, so each one carries a shim:</p>
+<ul><li>
+<strong>A renamed function</strong> gets a forwarding shim in <a href="../R/netrics-defunct.R">R/netrics-defunct.R</a>, which calls <code><a href="https://rdrr.io/r/base/Deprecated.html" class="external-link">.Deprecated()</a></code> and is documented with <code>@describeIn defunct Deprecated on &lt;date&gt;.</code> plus one sentence on why the new name is better. These shims are cleared at each minor release.</li>
+<li>
+<strong>A renamed argument</strong> keeps the old spelling as an argument defaulting to <code>NULL</code>, resolved by a <code>resolve_*()</code> helper in <a href="../R/class_metrics.R">R/class_metrics.R</a> that warns and returns the new value. Use base <code><a href="https://rdrr.io/r/base/warning.html" class="external-link">warning()</a></code> there rather than <code><a href="https://stocnet.github.io/manynet/reference/interface.html" class="external-link">manynet::snet_warn()</a></code>: <code>snet_*()</code> output is quiet by default, and a renamed argument is something the user must act on.</li>
+<li>
+<strong>Fold rather than duplicate where the new name subsumes the old.</strong> <code><a href="reference/defunct.html">net_x_mixed()</a></code> became a case of <code><a href="reference/motif_net.html">net_x_triad()</a></code>, which now takes the multilevel census whenever it is given both a one-mode and a two-mode network.</li>
+<li>
+<strong>Update the prose too.</strong> The README, the tutorials and the vignettes advertise function names, so grep for the old name after every rename.</li>
+</ul></div>
 <div class="section level3">
 <h3 id="file-organization">File organization<a class="anchor" aria-label="anchor" href="#file-organization"></a></h3>
 <p><code>R/</code> files are organized by function family and topic, not one-file-per-function: e.g. <code>measure_centrality_degree.R</code>, <code>measure_cohesion.R</code>, <code>member_community.R</code>, <code>motif_brokerage.R</code>, <code>mark_nodes.R</code>/<code>mark_ties.R</code>. Related functions (e.g. <code><a href="reference/measure_central_degree.html">node_by_degree()</a></code> and its shortcuts <code><a href="reference/measure_central_degree.html">node_by_deg()</a></code>, <code><a href="reference/measure_central_degree.html">node_by_indegree()</a></code>, <code><a href="reference/measure_central_degree.html">node_by_outdegree()</a></code>) share one <code>@name</code>/roxygen block and file.</p>
@@ -196,50 +357,134 @@
 </div>
 <div class="section level3">
 <h3 id="tests">Tests<a class="anchor" aria-label="anchor" href="#tests"></a></h3>
-<p>Tests in <code>tests/testthat/</code> mirror the <code>R/</code> files (e.g. <code>test-measure_centrality.R</code>, <code>test-member_community.R</code>). <code>tests/testthat/helper-netrics.R</code> defines shared custom expectations/helpers used across tests: - <code>expect_values(object, ref)</code> — compares rounded numeric output against reference values. - <code>expect_mark(object, ref, top)</code> — compares character/label output. - <code>top3()</code>/<code>bot3()</code>/<code>top5()</code>/<code>bot5()</code> — pull top/bottom N values (rounded) from a result for use as terse reference vectors in assertions.</p>
-<p><code>testthat</code> edition 3 with parallel execution is configured in <code>DESCRIPTION</code> (<code>Config/testthat/parallel: true</code>). <code>Config/testthat/start-first</code> prioritizes <code>tutorials_netrics, measure_net, member_nodes, measure_nodes</code>.</p>
+<p>This package uses the <code>testthat</code> package for testing functions. Please see the <a href="https://testthat.r-lib.org" class="external-link">testthat website</a> for more details. <code>testthat</code> edition 3 with parallel execution is configured in <code>DESCRIPTION</code> (<code>Config/testthat/parallel: true</code>). <code>Config/testthat/start-first</code> should prioritise the test files that take longest to run.</p>
+<p>The main testing is <em>functional</em> (family-enumerating) testing. Rather than a test per function, each family sweeps its whole roster from <a href="../tests/testthat/helper-contract.R">tests/testthat/helper-contract.R</a> and checks the promises the documentation makes: that a measure returns the right shape, declares what it computed, stays inside the range it declares, performs the normalisation it declares, and that its arguments actually do something. Where a function does not yet meet the contract, the sweep records an audit message rather than failing, so the outstanding gaps are enumerated on every run instead of being either invisible or a red build. <code>report_contract_gaps()</code> prints that list, which is the remaining work, and the aim is for it to shrink to empty.</p>
+<p><code>test-tutorials_netrics.R</code> evaluates the code chunks of the tutorials in <code>inst/tutorials/</code>, so tutorial code that errors or raises a deprecation warning fails the suite.</p>
+<p>Any additional testing that is required for particular functions is covered in test files that mirror the <code>R/</code> files (e.g. <code>test-measure_centrality.R</code>, <code>test-member_community.R</code>). <code>tests/testthat/helper-netrics.R</code> defines shared custom expectations/helpers used across tests: - <code>expect_values(object, ref)</code> — compares rounded numeric output against reference values. - <code>expect_mark(object, ref, top)</code> — compares character/label output. - <code>top3()</code>/<code>bot3()</code>/<code>top5()</code>/<code>bot5()</code> — pull top/bottom N values (rounded) from a result for use as terse reference vectors in assertions. The aim is to work towards comprehensive coverage, so each change should be fully covered by tests. However, we also need to keep an eye on the clock: CRAN complains if tests take too long, so use small fixtures or skip taxing tests. <code># nocov start</code> and <code># nocov end</code> can be used to exclude lines or functions that are too difficult to cover.</p>
 </div>
 <div class="section level3">
-<h3 id="branching-and-ci">Branching and CI<a class="anchor" aria-label="anchor" href="#branching-and-ci"></a></h3>
-<ul><li>
-<code>main</code> is the release branch; <code>develop</code> is the working branch (clone/work on <code>develop</code>).</li>
-<li>PRs into <code>main</code> trigger <a href="workflows/prchecks.yml">prchecks.yml</a>: R CMD check (macOS/Windows/Linux), binary build, codecov, lintr, spell check, and PR metadata checks (DESCRIPTION version bump, PR title/description conventions).</li>
-<li>Merges/pushes to <code>main</code> trigger <a href="workflows/pushrelease.yml">pushrelease.yml</a>: check, auto-bump version tag, GitHub release with binaries, then pkgdown site deploy.</li>
-<li>Commits should reference an existing GitHub issue number (<code>#123</code>), see below.</li>
+<h3 id="dependencies">Dependencies<a class="anchor" aria-label="anchor" href="#dependencies"></a></h3>
+<p><code>netrics</code> <code>Depends</code> on <code>manynet</code> (network classes, coercion and logical tests), <code>Imports</code> <code>dplyr</code> and <code>igraph</code> (&gt;= 2.1.0), and lists <code>autograph</code>, <code>sna</code> and <code>testthat</code> under <code>Suggests</code>, so code paths depending on a suggested package must guard with <code><a href="https://rdrr.io/r/base/ns-load.html" class="external-link">requireNamespace()</a></code> or skip gracefully when it is unavailable.</p>
+<p>The declared minimum of each <code>stocnet</code> dependency is the version on CRAN, so that CI can install it. Where <code>netrics</code> needs something that only a newer, unreleased <code>manynet</code> has, reach it through a shim in <a href="../R/netrics-utils.R">R/netrics-utils.R</a> rather than by raising the minimum. Resolve the name at call time from the namespace, as <code>.to_linegraph()</code> does for <code>manynet::to_linegraph()</code>, which was <code>to_ties()</code> before manynet 2.3.0. Test for the function rather than for the version string, because a pre-release development build can carry the version without yet exporting the function. Delete each shim once the minimum is raised past the version that added the function.</p>
+</div>
+<div class="section level3">
+<h3 id="console-messaging">Console messaging<a class="anchor" aria-label="anchor" href="#console-messaging"></a></h3>
+<p>All user-facing messages go through the <code>snet_*()</code> wrappers exported by <a href="https://stocnet.github.io/manynet/" class="external-link">manynet</a>, rather than base <code><a href="https://rdrr.io/r/base/message.html" class="external-link">message()</a></code>/<code><a href="https://rdrr.io/r/base/stop.html" class="external-link">stop()</a></code>/<code><a href="https://rdrr.io/r/base/warning.html" class="external-link">warning()</a></code> or <a href="https://cli.r-lib.org" class="external-link">cli</a> calls directly:</p>
+<table class="table"><colgroup><col width="50%"><col width="50%"></colgroup><thead><tr><th>Wrapper</th>
+<th>Use for</th>
+</tr></thead><tbody><tr><td><code>snet_abort()</code></td>
+<td>errors: the function cannot proceed</td>
+</tr><tr><td><code>snet_warn()</code></td>
+<td>the function proceeds, but the user should know something</td>
+</tr><tr><td><code>snet_info()</code></td>
+<td>notable information about what was done, e.g. a defaulted argument or the method dispatched to</td>
+</tr><tr><td><code>snet_minor_info()</code></td>
+<td>incidental detail</td>
+</tr><tr><td><code>snet_success()</code></td>
+<td>confirmation that a requested operation completed</td>
+</tr><tr><td><code>snet_prompt()</code></td>
+<td>interactive questions to the user</td>
+</tr><tr><td><code>snet_unavailable()</code></td>
+<td>not-yet-implemented features</td>
+</tr><tr><td>
+<code>snet_progress_step()</code>, <code>snet_progress_along()</code>, <code>snet_progress_seq()</code>, <code>snet_progress_nodes()</code>
+</td>
+<td>progress reporting in longer-running loops</td>
+</tr></tbody></table><p>Every wrapper except <code>snet_abort()</code> (and <code>snet_prompt()</code>) is silenced by <code>options(snet_verbosity = "quiet")</code>, which is the <em>default</em> — so informational output must never be load-bearing, and errors must carry everything the user needs to act. Users opt in with e.g. <code>options(snet_verbosity = "verbose")</code>.</p>
+<p>These wrappers pass their input to <a href="https://cli.r-lib.org" class="external-link">cli</a>, so:</p>
+<ul><li>Braces interpolate, replacing <code><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste()</a></code>: <code>snet_abort("{.val {unknown}} is not a recognised method.")</code>.</li>
+<li>Use <a href="https://cli.r-lib.org" class="external-link">cli</a> inline classes to mark up what you refer to — <code>{.fn}</code> for functions, <code>{.arg}</code>/<code>{.var}</code> for arguments and variables, <code>{.val}</code> for values, <code>{.url}</code> for links — so that styling stays consistent across the ecosystem.</li>
+<li>Use <a href="https://cli.r-lib.org" class="external-link">cli</a>’s pluralisation rather than hand-written branches: <code>snet_warn("Node{?s} {.val {missing}} {?was/were} dropped.")</code>.</li>
+<li>Multiple strings can be passed as separate arguments for multiline messages.</li>
+</ul><p>Messages, warnings, and errors should be written in a way that is useful for new and advanced users alike. This might include listing likely causes, mentioning objects or variables explicitly, and indicating next actions clearly. Prefer “<code>{.arg alpha}</code> must be a single number between 0 and 1” over “invalid input”. Functions that dispatch on a character argument should name the method they chose, e.g. <code>manynet::snet_info("...using {.fn regularity_{regularity}}.")</code>, which surfaces the method-helper convention above at run time.</p>
+</div>
+<div class="section level3">
+<h3 id="documentation">Documentation<a class="anchor" aria-label="anchor" href="#documentation"></a></h3>
+<p>Roxygen is configured with <code>markdown = TRUE</code>; <code>NAMESPACE</code> and all <code>man/*.Rd</code> files are generated — never hand-edit them. Run <code><a href="https://devtools.r-lib.org/reference/document.html" class="external-link">devtools::document()</a></code> after changing any roxygen comment.</p>
+<ul><li>Reuse the shared <code>@template</code> fragments in <code>man-roxygen/</code> (e.g. <code>param_data.R</code>, <code>node_measure.R</code>, <code>param_norm.R</code>) instead of re-writing standard <code>@param</code>/<code>@returns</code> docs. If you find yourself writing the same <code>@param</code> twice, add a template. Indeed, prefer defining fewer arguments, so if alpha and beta are both decays, just use <code>decay=</code> as the argument.</li>
+<li>Related functions share one roxygen block via <code>@name</code>/<code>@rdname</code>, matching the file organisation above.</li>
+<li>Every exported function needs a runnable <code>@examples</code> block: examples are run by R CMD check, and they are also the fastest documentation for users. Prefer the bundled <code>ison_*</code>/<code>fict_*</code> networks over ad hoc constructions, unless they take too long to run. Two exemptions, both deliberate: the <code>method_*</code> topics that document <code>cluster_*()</code>, <code>k_*()</code> and <code>regularity_*()</code> carry none, because users reach those through an argument rather than by calling them; and where no fast example exists, the topic goes without one rather than carrying a slow one, since a CRAN check that times out costs more than the example gains. Do not reach for <code>\donttest{}</code> to keep a slow example.</li>
+<li>Cite the source of a measure with <code>@references</code> in the ecosystem’s format (authors, year, title, journal, and <code>\doi{}</code> where available), so that users can trace an implementation back to its definition.</li>
+<li>Documented behaviour and implemented behaviour must agree. Several past bugs were documentation claiming a default or a normalisation that the code did not apply, so when you change a default, search the roxygen and templates for it too.</li>
 </ul></div>
-</div>
-<div class="section level2">
-<h2 id="fork">Fork<a class="anchor" aria-label="anchor" href="#fork"></a></h2>
 <div class="section level3">
-<h3 id="cloning">Cloning<a class="anchor" aria-label="anchor" href="#cloning"></a></h3>
-<p>Once you have downloaded Fork, the first thing you have to do is to clone the remote repository on your computer. Before cloning, you will be able to choose on which <code>branch</code> you want to work: develop or main.</p>
+<h3 id="readme-and-website">README and website<a class="anchor" aria-label="anchor" href="#readme-and-website"></a></h3>
+<p>The README offers a landing page for new users, both on the GitHub repository as well as on the website. As such, it should make a compelling case for the value added of the package, and not drift out of date. Note that <code>README.md</code> is generated from <code>README.Rmd</code> — edit <code>README.Rmd</code> and re-knit (<code><a href="https://devtools.r-lib.org/reference/build_readme.html" class="external-link">devtools::build_readme()</a></code>), never edit <code>README.md</code> directly.</p>
+<p>The website is created by pkgdown from <a href="../pkgdown/_pkgdown.yml">pkgdown/_pkgdown.yml</a>, and is deployed automatically when changes reach <code>main</code>. Please make sure that the pkgdown website will build correctly before opening a PR:</p>
+<div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu">pkgdown</span><span class="fu">::</span><span class="fu"><a href="https://pkgdown.r-lib.org/reference/check_pkgdown.html" class="external-link">check_pkgdown</a></span><span class="op">(</span><span class="op">)</span>              <span class="co"># every topic is in the index</span></span>
+<span><span class="fu">pkgdown</span><span class="fu">::</span><span class="fu"><a href="https://pkgdown.r-lib.org/reference/build_site.html" class="external-link">build_site</a></span><span class="op">(</span>preview <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span>  <span class="co"># everything else</span></span></code></pre></div>
+<p>The most common failure is a new exported function that is not picked up under the function overview (the <code>reference:</code> section of <code>_pkgdown.yml</code>) — pkgdown requires <em>every</em> exported topic to appear there exactly once, or it will not build. Where possible, add functions to an existing subtitle’s <code>starts_with()</code>/<code>contains()</code> pattern (e.g. a new <code>node_is_*()</code> mark or <code>node_in_*()</code> membership needs no change), and only list the topic explicitly where it does not fit a pattern. A helper that users are not meant to call takes <code>@keywords internal</code> instead. These <code>reference:</code> titles are also the headings used in <code>NEWS.md</code> (see below), so keep the two in step.</p>
+<p>The <a href="https://rstudio.github.io/learnr/" class="external-link">learnr</a> tutorials in <code>inst/tutorials/</code> are the source. <code>vignettes/articles/*.Rmd</code> are their static pkgdown twins, and are <em>generated</em> from them by <a href="../data-raw/build_tutorial_articles.R">data-raw/build_tutorial_articles.R</a>. Never edit an article by hand: the next regeneration discards the edit, and <a href="workflows/prchecks.yml">prchecks.yml</a> fails the PR for drift meanwhile.</p>
+<p>After adding or changing functionality, ask whether a reader learning the package would meet it, and if so:</p>
+<ol style="list-style-type: decimal"><li>Edit the tutorial in <code>inst/tutorials/&lt;tute&gt;/*.Rmd</code>, adding the function to the topic it belongs to in an <code>exercise=TRUE</code> chunk, with a sentence saying what it is for.</li>
+<li>Re-run <code>Rscript data-raw/build_tutorial_articles.R</code>, and commit the regenerated article.</li>
+<li>Run <code>testthat::test_file("tests/testthat/test-tutorials_netrics.R")</code>, which evaluates every chunk, so new tutorial code is tested.</li>
+</ol><p>A tutorial is also where a renamed function shows up as stale, so check the tutorials whenever you rename one. New tutorials need an entry under <code>articles:</code> in <code>_pkgdown.yml</code>.</p>
 </div>
 <div class="section level3">
-<h3 id="pull">Pull<a class="anchor" aria-label="anchor" href="#pull"></a></h3>
-<p>This command allows you to <code>pull</code> changes from the remote repository to your local repository on Sourcetree. Make sure you do that before starting working on your files so you have the newest versions. When pulling, make sure you choose master or develop, depending on the branch you decided to work with. Once you pulled, you have now all the new commits and files and you can start working on your assigned tasks. Note that you can access and open the files either from the Finder or from Fork. Some documents might be stored using Large File Storage (LFS) to save space on the repository.</p>
+<h3 id="newsmd-conventions">
+<code>NEWS.md</code> conventions<a class="anchor" aria-label="anchor" href="#newsmd-conventions"></a></h3>
+<p><code>NEWS.md</code> groups each version’s changes under <code>##</code> headings that mirror the website function overview (<code>pkgdown/_pkgdown.yml</code> <code>reference:</code> titles). Lead with <code>## Package</code> (package-wide/website/infrastructure changes), then the function families in overview order: <code>## Marks</code>, <code>## Measures</code>, <code>## Memberships</code>, <code>## Motifs</code>, <code>## Methods</code>. Put <code>## Tutorials</code> and any <code>## Data</code> section at the end. Each heading appears at most once per version.</p>
+<p>Start each bullet with a verb matching the change type:</p>
+<ul><li>
+<code>Added ...</code> — new functionality</li>
+<li>
+<code>Fixed ...</code> — bug fixes; if it relates to a GitHub issue, suffix with <code>(closing #123)</code>
+</li>
+<li>
+<code>Renamed ... to ...</code> — function or data name migrations</li>
+<li>
+<code>Improved ...</code> — functional updates to existing behaviour</li>
+<li>
+<code>Updated ...</code> — documentation changes</li>
+</ul><p>Any of these verbs can also lead a sub-bullet, though <code>Improved ...</code> is perhaps most commonly used to cluster changes relating to a single function. If so, the function need only be named once, at the top; sub-bullets will obviously relate to that function.</p>
+<p>If a cited GitHub issue was <strong>not</strong> authored by @jhollway, thank the author with an <code>@</code>-tag in the bullet.</p>
+<div class="section level4">
+<h4 id="grouping">Grouping<a class="anchor" aria-label="anchor" href="#grouping"></a></h4>
+<p>Group first, and only then write the bullets. The more entries a version holds, the more this matters.</p>
+<ul><li>Cluster related changes as indented sub-bullets under a lead bullet.</li>
+<li>Where several changes concern one function, lead with an <code>Improved ...</code> bullet naming the function, and put the individual <code>Fixed ...</code>/<code>Added ...</code> points beneath it, so the cluster groups by function rather than by change type.</li>
+<li>Under such a lead bullet, do not name the function again in the sub-bullets, since the lead bullet already carries it.</li>
+<li>Where one decision runs across many functions, lead with the decision rather than with each function, as the <code>decay</code> and measure-attribute entries do.</li>
+<li>Sub-bullets indent by two spaces, and nest at most one level further (four spaces).</li>
+</ul></div>
+<div class="section level4">
+<h4 id="writing-the-bullets">Writing the bullets<a class="anchor" aria-label="anchor" href="#writing-the-bullets"></a></h4>
+<p><code>NEWS.md</code> is read by users scanning for what changed, not by reviewers reading prose, so each bullet is a headline rather than a sentence, so avoid over-punctuation or over-explanation. Details can be added to the function documentation, if necessary.</p>
+<ul><li>No full stop at the end of a bullet</li>
+<li>Keep every bullet to one line of fewer than 81 characters ideally (a few more or less is fine)
+<ul><li>If a bullet wraps, it holds too much: shorten it, or split it into a lead bullet and sub-bullets</li>
+</ul></li>
+<li>One clause where possible, and at most one comma
+<ul><li>Use a semicolon for a short second clause, e.g. “old spelling still works but warns”</li>
+<li>Use a sub-bullet where the second clause needs more room than that</li>
+</ul></li>
+<li>Name the function or object in backticks and say what changed to it, dropping scaffolding like “This change …”, “In order to …”, or “as part of an effort to”</li>
+<li>Keep the <em>what</em>, and add the <em>why</em> only where the behaviour would otherwise look arbitrary</li>
+<li>No trailing rationale, no restating the same change twice in different words, and no marketing adjectives such as “comprehensive” or “robust”</li>
+<li>A sub-bullet does not need a verb: it can state the consequence, the previous behaviour, or an example call</li>
+<li>Cut a sub-bullet that only restates what the lead bullet already implies</li>
+<li>Where several bullets describe parallel changes, reuse the sentence structure, so that a reader sees the parallelism at a glance</li>
+<li>Use one word for one thing throughout a version’s entries, rather than varying the wording for effect</li>
+</ul><p>For example, instead of:</p>
+<blockquote>
+<p>Fixed a bug where, in some cases, <code><a href="reference/measure_central_close.html">node_by_reach()</a></code> was counting the node itself, which meant that normalised scores could exceed 1.</p>
+</blockquote>
+<p>write:</p>
+<blockquote>
+<p>Fixed <code><a href="reference/measure_central_close.html">node_by_reach()</a></code> counting the node itself so normalised scores no longer exceed 1</p>
+</blockquote>
+<p>and instead of:</p>
+<blockquote>
+<p>Added a new function, <code><a href="reference/measure_cohesion.html">net_by_compactness()</a></code>, which is a useful measure that calculates the average closeness of all pairs of nodes in the network.</p>
+</blockquote>
+<p>write:</p>
+<blockquote>
+<p>Added <code><a href="reference/measure_cohesion.html">net_by_compactness()</a></code> for the average closeness of all pairs of nodes</p>
+</blockquote>
 </div>
-<div class="section level3">
-<h3 id="commit-and-push">Commit and Push<a class="anchor" aria-label="anchor" href="#commit-and-push"></a></h3>
-<p>Once you have made modifications on a file and saved them, it will appear in your <code>commit</code> window. Here you can control one last time your file, write the commit message with the issue reference (see below) and commit. Once your commit is ready, you can <code>push</code> them to the origin/main repository. Note that you can click the “push immediately” box in the commit window if you don’t want to do it in two steps. If you are working on a separate branch, it is important to select this branch when pushing to origin/main.</p>
 </div>
-</div>
-<div class="section level2">
-<h2 id="issues-and-tests">Issues and tests<a class="anchor" aria-label="anchor" href="#issues-and-tests"></a></h2>
-<p>Please use the issues tracker on GitHub to identify any function-related issues. You can use these issues to track progress on the issue and to comment or continue a conversation on that issue. Currently issue tracking is only open to those involved in the project.</p>
-<p>The most useful issues are ones that precisely identify an error, or propose a test that should pass but instead fails. This package uses the <code>testthat</code> package for testing functions. Please see the <a href="https://testthat.r-lib.org" class="external-link">testthat website</a> for more details.</p>
-</div>
-<div class="section level2">
-<h2 id="bug-fixing-or-adding-new-code">Bug fixing or adding new code<a class="anchor" aria-label="anchor" href="#bug-fixing-or-adding-new-code"></a></h2>
-<p>Independent or assigned code contributions are most welcome. When writing new code, please follow <a href="https://www.r-bloggers.com/%F0%9F%96%8A-r-coding-style-guide/" class="external-link">standard R guidelines</a>. It can help to use packages such as <code>lintr</code>, <code>goodpractice</code> and <code>formatR</code> to ensure these are followed.</p>
-<p>Currently, commits can only be pushed to GitHub where they reference an existing issue. If no issue exists for the code you have developed, please add an issue first before pushing. Once the issue exists, you will need to mention the issue number (preceded by a hash symbol: #) in the commit description:</p>
-<p><code>Resolved #31 by adding a new function that does things, also updated documentation</code></p>
-<p>Where the issue hash (i.e. #31) is preceded by <code>resolve</code>, <code>resolves</code>, <code>resolved</code>, <code>close</code>, <code>closes</code>, <code>closed</code>, <code>fix</code>, <code>fixes</code>, or <code>fixed</code> (capitalised or not), Github will automatically updated the status of the issue(s) mentioned.</p>
-<p>Our current syntactical standard is to mention the issue first and then provide a short description of what the committed changes do in relation to that issue. Any ancillary changes can be mentioned after a comma.</p>
-</div>
-<div class="section level2">
-<h2 id="documentation">Documentation<a class="anchor" aria-label="anchor" href="#documentation"></a></h2>
-<p>A final way of contributing to the package is in developing the vignettes/articles that illustrate the value added in the package. Please contact me with any proposals here.</p>
-<p>Please note that the <code>netrics</code> project is released with a <a href="CODE_OF_CONDUCT.html">Contributor Code of Conduct</a>. By contributing to this project, you agree to abide by its terms.</p>
 </div>
 </div>
 

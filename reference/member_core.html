@@ -18,7 +18,7 @@ categories based on their coreness."><meta property="og:image" content="https://
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">netrics</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.4.1</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.0.0</span>
       </span>
     </div>
 
@@ -96,7 +96,14 @@ categories based on their coreness.</p>
     </div>
 
     <div id="ref-usage">
-    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">node_in_core</span><span class="op">(</span><span class="va">.data</span>, groups <span class="op">=</span> <span class="fl">3</span>, cluster_by <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"bins"</span>, <span class="st">"quantiles"</span>, <span class="st">"kmeans"</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">node_in_core</span><span class="op">(</span></span>
+<span>  <span class="va">.data</span>,</span>
+<span>  groups <span class="op">=</span> <span class="fl">3</span>,</span>
+<span>  split <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"bins"</span>, <span class="st">"quantiles"</span>, <span class="st">"kmeans"</span><span class="op">)</span>,</span>
+<span>  coreness <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  direction <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"all"</span>, <span class="st">"out"</span>, <span class="st">"in"</span>, <span class="st">"both"</span><span class="op">)</span>,</span>
+<span>  cluster_by <span class="op">=</span> <span class="cn">NULL</span></span>
+<span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div id="arguments">
@@ -104,9 +111,9 @@ categories based on their coreness.</p>
 
 
 <dl><dt id="arg--data">.data<a class="anchor" aria-label="anchor" href="#arg--data"></a></dt>
-<dd><p>A network object of class <code>mnet</code>, <code>igraph</code>, <code>tbl_graph</code>, <code>network</code>, or similar.
-For more information on the standard coercion possible,
-see <code><a href="https://stocnet.github.io/manynet/reference/coerce_graph.html" class="external-link">manynet::as_tidygraph()</a></code>.</p></dd>
+<dd><p>A network object of class <code>stocnet</code>, <code>igraph</code>, <code>tbl_graph</code>, <code>network</code>, or similar.
+Internally any of these will be coerced to an efficient implementation.
+For more information on possible coercions, see e.g. <code><a href="https://stocnet.github.io/manynet/reference/coerce_graph.html" class="external-link">manynet::as_stocnet()</a></code>.</p></dd>
 
 
 <dt id="arg-groups">groups<a class="anchor" aria-label="anchor" href="#arg-groups"></a></dt>
@@ -114,10 +121,32 @@ see <code><a href="https://stocnet.github.io/manynet/reference/coerce_graph.html
 the number of nodes in the network. Default is 3.</p></dd>
 
 
+<dt id="arg-split">split<a class="anchor" aria-label="anchor" href="#arg-split"></a></dt>
+<dd><p>Which method to use to split the coreness scores into the
+categories. One of "bins" (equal-width bins), "quantiles"
+(quantile-based bins), or "kmeans" (k-means clustering);
+see <a href="method_split.html">method_split</a> for what each does. Default is "bins".</p></dd>
+
+
+<dt id="arg-coreness">coreness<a class="anchor" aria-label="anchor" href="#arg-coreness"></a></dt>
+<dd><p>Which method to use to calculate nodes' coreness.
+One of "correlation", "rich", "transition", or "hub";
+see <a href="method_coreness.html">method_coreness</a> for what each does.
+By default NULL, which uses "rich" for a weighted, directed, or
+two-mode network, since it is the only method that reads those properties
+directly, and "correlation" otherwise.</p></dd>
+
+
+<dt id="arg-direction">direction<a class="anchor" aria-label="anchor" href="#arg-direction"></a></dt>
+<dd><p>One of "all" (the default), "out", "in", or "both".
+For a directed network, "out" scores nodes on the ties they send and
+"in" on the ties they receive, while "both" returns the four categories
+described below. Ignored for undirected and two-mode networks.</p></dd>
+
+
 <dt id="arg-cluster-by">cluster_by<a class="anchor" aria-label="anchor" href="#arg-cluster-by"></a></dt>
-<dd><p>Method to use to create the categories.
-One of "bins" (equal-width bins), "quantiles" (quantile-based bins),
-or "kmeans" (k-means clustering). Default is "bins".</p></dd>
+<dd><p>Deprecated. The former spelling of <code>split</code>.
+Still accepted, but warns; please use <code>split</code> instead.</p></dd>
 
 </dl></div>
     <div id="value">
@@ -138,6 +167,19 @@ specified.
 The categorization can be done using different methods: equal-width bins,
 quantile-based bins, or k-means clustering.</p>
     </div>
+    <div id="directed-core-periphery">
+    <h2>Directed core-periphery</h2>
+
+
+<p>In a directed network a node can be core in whom it reaches and
+peripheral in who reaches it, which one core and one periphery cannot
+express. <code>direction = "both"</code> therefore returns the four categories that
+Elliott and colleagues distinguish:</p><ul><li><p>"Core" for nodes in both the out-core and the in-core,</p></li>
+<li><p>"Sender" for nodes in the out-core only,</p></li>
+<li><p>"Receiver" for nodes in the in-core only,</p></li>
+<li><p>"Periphery" for nodes in neither.</p></li>
+</ul><p>This uses <code><a href="method_coreness.html">coreness_hub()</a></code>, so <code>groups</code> and <code>split</code> do not apply.</p>
+    </div>
     <div id="references">
     <h2>References</h2>
 
@@ -149,6 +191,17 @@ quantile-based bins, or k-means clustering.</p>
 "Dependence in an Interdependent World: The Limited Possibilities of Transformation Within the Capitalist World Economy."
 <em>African Studies Review</em>, 17(1), 1-26.
 <a href="https://doi.org/10.2307/523574" class="external-link">doi:10.2307/523574</a></p>
+</div>
+
+<div class="section">
+<h3 id="on-directed-core-periphery">On directed core-periphery<a class="anchor" aria-label="anchor" href="#on-directed-core-periphery"></a></h3>
+
+
+<p>Elliott, Andrew, Angus Chiu, Marya Bazzi, Gesine Reinert,
+and Mihai Cucuringu. 2020.
+"Core-periphery structure in directed networks".
+<em>Proceedings of the Royal Society A</em> 476(2241): 20190783.
+<a href="https://doi.org/10.1098/rspa.2019.0783" class="external-link">doi:10.1098/rspa.2019.0783</a></p>
 </div>
 
     </div>
@@ -192,6 +245,8 @@ quantile-based bins, or k-means clustering.</p>
 <code><a href="member_diffusion.html">member_diffusion</a></code>,
 <code><a href="member_equivalence.html">member_equivalence</a></code>,
 <code><a href="motif_brokerage_node.html">motif_brokerage_node</a></code>,
+<code><a href="motif_clique.html">motif_clique</a></code>,
+<code><a href="motif_composition.html">motif_composition</a></code>,
 <code><a href="motif_exposure.html">motif_exposure</a></code>,
 <code><a href="motif_node.html">motif_node</a></code>,
 <code><a href="motif_path.html">motif_path</a></code></p></div>
@@ -201,8 +256,13 @@ quantile-based bins, or k-means clustering.</p>
     <h2>Examples</h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="fu">node_in_core</span><span class="op">(</span><span class="va">ison_adolescents</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;">3 groups</span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   Betty     Sue   Alice Jane           Dale  Pam            Carol     Tina     </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">1</span> Periphery Core  Core  Semi-periphery Core  Semi-periphery Periphery Periphery</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   Betty     Sue            Alice Jane           Dale           Pam   Carol Tina </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">1</span> Periphery Semi-periphery Core  Semi-periphery Semi-periphery Semi… Peri… Peri…</span>
+<span class="r-in"><span><span class="fu">node_in_core</span><span class="op">(</span><span class="va">ison_networkers</span>, direction <span class="op">=</span> <span class="st">"both"</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;">3 groups</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   `Lin Freeman` `Doug White` `Ev Rogers` `Richard Alba` `Phipps Arabie`</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">1</span> Core          Core         Core        Core           Core           </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># ... and 27 more values from this nodeset. Use `print_all(...)` to print all values.</span></span>
 </code></pre></div>
     </div>
   </div>

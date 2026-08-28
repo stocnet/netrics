@@ -14,6 +14,8 @@ node_in_louvain() is an agglomerative multilevel algorithm that seeks to maximis
 modularity over all possible partitions.
 node_in_leiden() is an agglomerative multilevel algorithm that seeks to maximise
 the Constant Potts Model over all possible partitions.
+node_in_labels() is a fast, propagation-based algorithm in which nodes
+iteratively adopt whichever community label is most common among their neighbours.
 
 
 The different algorithms offer various advantages in terms of computation time,
@@ -36,7 +38,7 @@ and their logic or domain of inspiration."><meta property="og:image" content="ht
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">netrics</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.4.1</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.0.0</span>
       </span>
     </div>
 
@@ -123,6 +125,8 @@ based on analogy to model from fluid dynamics.</p></li>
 modularity over all possible partitions.</p></li>
 <li><p><code>node_in_leiden()</code> is an agglomerative multilevel algorithm that seeks to maximise
 the Constant Potts Model over all possible partitions.</p></li>
+<li><p><code>node_in_labels()</code> is a fast, propagation-based algorithm in which nodes
+iteratively adopt whichever community label is most common among their neighbours.</p></li>
 </ul><p>The different algorithms offer various advantages in terms of computation time,
 availability on different types of networks, ability to maximise modularity,
 and their logic or domain of inspiration.</p>
@@ -131,17 +135,19 @@ and their logic or domain of inspiration.</p>
     <div id="ref-usage">
     <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">node_in_optimal</span><span class="op">(</span><span class="va">.data</span><span class="op">)</span></span>
 <span></span>
-<span><span class="fu">node_in_partition</span><span class="op">(</span><span class="va">.data</span><span class="op">)</span></span>
+<span><span class="fu">node_in_partition</span><span class="op">(</span><span class="va">.data</span>, k <span class="op">=</span> <span class="fl">2L</span>, max_k <span class="op">=</span> <span class="fl">8L</span>, Kmax <span class="op">=</span> <span class="cn">NULL</span><span class="op">)</span></span>
 <span></span>
 <span><span class="fu">node_in_infomap</span><span class="op">(</span><span class="va">.data</span>, times <span class="op">=</span> <span class="fl">50</span><span class="op">)</span></span>
 <span></span>
 <span><span class="fu">node_in_spinglass</span><span class="op">(</span><span class="va">.data</span>, max_k <span class="op">=</span> <span class="fl">200</span>, resolution <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span>
 <span></span>
-<span><span class="fu">node_in_fluid</span><span class="op">(</span><span class="va">.data</span><span class="op">)</span></span>
+<span><span class="fu">node_in_fluid</span><span class="op">(</span><span class="va">.data</span>, k <span class="op">=</span> <span class="cn">NULL</span>, max_k <span class="op">=</span> <span class="fl">8L</span>, Kmax <span class="op">=</span> <span class="cn">NULL</span><span class="op">)</span></span>
 <span></span>
-<span><span class="fu">node_in_louvain</span><span class="op">(</span><span class="va">.data</span>, resolution <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span>
+<span><span class="fu">node_in_louvain</span><span class="op">(</span><span class="va">.data</span>, k <span class="op">=</span> <span class="cn">NULL</span>, max_k <span class="op">=</span> <span class="fl">8L</span>, resolution <span class="op">=</span> <span class="fl">1</span>, Kmax <span class="op">=</span> <span class="cn">NULL</span><span class="op">)</span></span>
 <span></span>
-<span><span class="fu">node_in_leiden</span><span class="op">(</span><span class="va">.data</span>, resolution <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span></code></pre></div>
+<span><span class="fu">node_in_leiden</span><span class="op">(</span><span class="va">.data</span>, k <span class="op">=</span> <span class="cn">NULL</span>, max_k <span class="op">=</span> <span class="fl">8L</span>, resolution <span class="op">=</span> <span class="fl">1</span>, Kmax <span class="op">=</span> <span class="cn">NULL</span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu">node_in_labels</span><span class="op">(</span><span class="va">.data</span>, k <span class="op">=</span> <span class="cn">NULL</span>, max_k <span class="op">=</span> <span class="fl">8L</span>, Kmax <span class="op">=</span> <span class="cn">NULL</span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div id="arguments">
@@ -149,19 +155,47 @@ and their logic or domain of inspiration.</p>
 
 
 <dl><dt id="arg--data">.data<a class="anchor" aria-label="anchor" href="#arg--data"></a></dt>
-<dd><p>A network object of class <code>mnet</code>, <code>igraph</code>, <code>tbl_graph</code>, <code>network</code>, or similar.
-For more information on the standard coercion possible,
-see <code><a href="https://stocnet.github.io/manynet/reference/coerce_graph.html" class="external-link">manynet::as_tidygraph()</a></code>.</p></dd>
+<dd><p>A network object of class <code>stocnet</code>, <code>igraph</code>, <code>tbl_graph</code>, <code>network</code>, or similar.
+Internally any of these will be coerced to an efficient implementation.
+For more information on possible coercions, see e.g. <code><a href="https://stocnet.github.io/manynet/reference/coerce_graph.html" class="external-link">manynet::as_stocnet()</a></code>.</p></dd>
 
 
-<dt id="arg-times">times<a class="anchor" aria-label="anchor" href="#arg-times"></a></dt>
-<dd><p>Integer indicating number of simulations/walks used.
-By default, <code>times=50</code>.</p></dd>
+<dt id="arg-k">k<a class="anchor" aria-label="anchor" href="#arg-k"></a></dt>
+<dd><p>Integer indicating the target number of communities to return.
+By default <code>NULL</code>, in which case the algorithm returns the number of
+communities that it finds itself.
+Alternatively, a character string naming a selection method:
+<code>"silhouette"</code> selects the number that maximises the mean silhouette
+width over geodesic distances, <code>"elbow"</code> selects the number at the
+elbow of the coverage curve, and <code>"strict"</code> returns the partition in
+which no tie crosses a group, i.e. the components.
+Prefer <code>"silhouette"</code>; the elbow method is unreliable where the
+coverage curve has no clear elbow.
+If the algorithm cannot return exactly the number of communities
+requested, a warning is given and the nearest number is returned.</p></dd>
 
 
 <dt id="arg-max-k">max_k<a class="anchor" aria-label="anchor" href="#arg-max-k"></a></dt>
-<dd><p>Integer constant, the number of spins to use as an upper limit
-of communities to be found. Some sets can be empty at the end.</p></dd>
+<dd><p>Integer indicating the maximum number of communities to
+evaluate for <code>"silhouette"</code> and <code>"elbow"</code>. By default <code>8</code>.
+Otherwise ignored.
+Note that for <code>node_in_louvain()</code> and <code>node_in_leiden()</code> each candidate
+requires its own search over the resolution parameter,
+so a large <code>max_k</code> is costly on large networks.</p></dd>
+
+
+<dt id="arg-kmax">Kmax<a class="anchor" aria-label="anchor" href="#arg-kmax"></a></dt>
+<dd><p>Deprecated. The former spelling of <code>max_k</code>.
+Still accepted, but warns; please use <code>max_k</code> instead.</p></dd>
+
+
+<dt id="arg-times">times<a class="anchor" aria-label="anchor" href="#arg-times"></a></dt>
+<dd><p>Integer scalar, how many times the algorithm repeats its work.
+Where the algorithm is stochastic, this is how many times it runs,
+and the best or the most frequent result is kept.
+Where the algorithm searches, this is how many steps the search takes.
+More repetitions give a more reliable result and take longer,
+so each function documents its own default.</p></dd>
 
 
 <dt id="arg-resolution">resolution<a class="anchor" aria-label="anchor" href="#arg-resolution"></a></dt>
@@ -196,10 +230,12 @@ swap pairs of nodes (one from each group) that give a positive sum of net tie co
 where the net tie cost of a node is the difference between the sum
 of the weights of ties to nodes in the other group (external costs) and
 the sum of the weights of ties to nodes in the same group (internal costs).
+Where <code>k</code> is greater than two, the same swap pass is run for every pair of
+groups, and the rounds repeat until no swap improves the partition.
 This is a deterministic algorithm that will always return the same partition
 for a given network, but it is not guaranteed to maximise modularity.
 Note that this algorithm is only applicable to undirected, unipartite networks,
-and will always return two communities of equal size (or as close to equal as possible).</p>
+and returns <code>k</code> communities of equal size (or as close to equal as possible).</p>
     </div>
     <div id="infomap">
     <h2>Infomap</h2>
@@ -214,6 +250,8 @@ per node required to encode the path.</p>
     <h2>Spin-glass</h2>
 
 
+<p>Here <code>max_k</code> is the number of spins, an upper limit on the communities
+found rather than a bound on a search, so some can end up empty.</p>
 <p>This is motivated by analogy to the Potts model in statistical physics.
 Each node can be in one of <em>k</em> "spin states",
 and ties (particle interactions) provide information about which pairs of nodes
@@ -242,7 +280,9 @@ Nodes begin in their own communities and are re-assigned in a local, greedy way:
 each node is moved to the community where it achieves the highest contribution to modularity.
 When no further modularity-increasing reassignments are possible,
 the resulting communities are considered nodes (like a reduced graph),
-and the process continues.</p>
+and the process continues.
+Where <code>k</code> is given, the resolution parameter is searched for the value
+that returns that number of communities, and <code>resolution</code> is ignored.</p>
     </div>
     <div id="leiden">
     <h2>Leiden</h2>
@@ -260,7 +300,35 @@ the Constant Potts Model object function is:</p>
 and \(\delta(\sigma_i, \sigma_j) = 1\) if and only if
 <em>i</em> and <em>j</em> are in the same communities and 0 otherwise.
 Compared to the Louvain method, the Leiden algorithm additionally
-tries to avoid unconnected communities.</p>
+tries to avoid unconnected communities.
+Where <code>k</code> is given, the resolution parameter is searched for the value
+that returns that number of communities, and <code>resolution</code> is ignored.</p>
+    </div>
+    <div id="label-propagation">
+    <h2>Label propagation</h2>
+
+
+<p>Every node is initially given a unique label.
+Nodes are then visited in random order, each adopting whichever label is
+most frequent among its neighbours, until no node has a label that a
+majority of its neighbours does not share.
+Densely connected groups quickly converge on a common label,
+which is what makes the communities.</p>
+<p>This is the fastest of the algorithms here, running in near-linear time,
+which makes it useful on large networks where the others are infeasible.
+The trade-off is that it is stochastic: because both the visiting order and
+ties between equally frequent labels are broken at random, repeated runs on
+the same network can return different partitions,
+and on sparse networks it may return a single community.
+Set a seed for reproducibility, or use <code><a href="member_community.html">node_in_community()</a></code> to select
+among algorithms by modularity.</p>
+<p>Where <code>k</code> is given, the algorithm becomes semi-supervised.
+The <code>k</code> nodes of highest degree are each given a distinct, fixed label,
+every other node starts with a label of its own,
+and propagation runs as normal.
+Seeding alone tends to leave more than <code>k</code> labels standing,
+so any surplus groups are then merged in the order that best preserves
+modularity, until exactly <code>k</code> communities remain.</p>
     </div>
     <div id="references">
     <h2>References</h2>
@@ -342,6 +410,16 @@ Springer, 689: 229.
 <a href="https://doi.org/10.1038/s41598-019-41695-z" class="external-link">doi:10.1038/s41598-019-41695-z</a></p>
 </div>
 
+<div class="section">
+<h3 id="on-label-propagation-community-detection">On label propagation community detection<a class="anchor" aria-label="anchor" href="#on-label-propagation-community-detection"></a></h3>
+
+
+<p>Raghavan, Usha Nandini, Reka Albert, and Soundar Kumara. 2007.
+"Near linear time algorithm to detect community structures in large-scale networks",
+<em>Physical Review E</em>, 76(3):036106.
+<a href="https://doi.org/10.1103/PhysRevE.76.036106" class="external-link">doi:10.1103/PhysRevE.76.036106</a></p>
+</div>
+
     </div>
     <div id="see-also">
     <h2>See also</h2>
@@ -383,6 +461,8 @@ Springer, 689: 229.
 <code><a href="member_diffusion.html">member_diffusion</a></code>,
 <code><a href="member_equivalence.html">member_equivalence</a></code>,
 <code><a href="motif_brokerage_node.html">motif_brokerage_node</a></code>,
+<code><a href="motif_clique.html">motif_clique</a></code>,
+<code><a href="motif_composition.html">motif_composition</a></code>,
 <code><a href="motif_exposure.html">motif_exposure</a></code>,
 <code><a href="motif_node.html">motif_node</a></code>,
 <code><a href="motif_path.html">motif_path</a></code></p></div>
@@ -397,14 +477,14 @@ Springer, 689: 229.
 <span class="r-in"><span><span class="fu">node_in_partition</span><span class="op">(</span><span class="va">ison_adolescents</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;">2 groups</span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   Betty Sue   Alice Jane  Dale  Pam   Carol Tina </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">1</span> A     B     B     A     A     A     B     B    </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">1</span> B     A     A     A     B     B     A     B    </span>
 <span class="r-in"><span><span class="fu">node_in_partition</span><span class="op">(</span><span class="va">ison_southern_women</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;">2 groups</span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   Evelyn Laura Theresa Brenda Charlotte Frances Eleanor Pearl Ruth  Verne Myra </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">1</span> B      B     B       B      B         B       B       B     B     B     B    </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">1</span> A      A     A       A      A         A       A       A     A     A     A    </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># ... and 7 more values from this nodeset. Use `print_all(...)` to print all values.</span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   E1    E2    E3    E4    E5    E6    E7    E8    E9    E10   E11   E12   E13  </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">1</span> A     A     A     A     A     A     A     A     A     A     A     A     A    </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">1</span> B     B     B     B     B     B     B     B     B     B     B     B     B    </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># ... and 1 more values from this nodeset. Use `print_all(...)` to print all values.</span></span>
 <span class="r-in"><span><span class="fu">node_in_infomap</span><span class="op">(</span><span class="va">ison_adolescents</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;">1 groups</span></span>
@@ -413,11 +493,11 @@ Springer, 689: 229.
 <span class="r-in"><span><span class="fu">node_in_spinglass</span><span class="op">(</span><span class="va">ison_adolescents</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;">3 groups</span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   Betty Sue   Alice Jane  Dale  Pam   Carol Tina </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">1</span> B     B     A     A     A     C     C     C    </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">1</span> C     C     A     A     A     B     B     B    </span>
 <span class="r-in"><span><span class="fu">node_in_fluid</span><span class="op">(</span><span class="va">ison_adolescents</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;">2 groups</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;">3 groups</span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   Betty Sue   Alice Jane  Dale  Pam   Carol Tina </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">1</span> A     B     B     B     B     A     A     A    </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">1</span> B     B     A     A     A     A     C     C    </span>
 <span class="r-in"><span><span class="fu">node_in_louvain</span><span class="op">(</span><span class="va">ison_adolescents</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;">3 groups</span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   Betty Sue   Alice Jane  Dale  Pam   Carol Tina </span>
@@ -426,6 +506,10 @@ Springer, 689: 229.
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;">8 groups</span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   Betty Sue   Alice Jane  Dale  Pam   Carol Tina </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">1</span> A     B     C     D     E     F     G     H    </span>
+<span class="r-in"><span><span class="fu">node_in_labels</span><span class="op">(</span><span class="va">ison_adolescents</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;">2 groups</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   Betty Sue   Alice Jane  Dale  Pam   Carol Tina </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">1</span> A     A     A     A     A     A     B     B    </span>
 </code></pre></div>
     </div>
   </div>

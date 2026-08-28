@@ -21,7 +21,7 @@ node_in_roulette() assigns nodes to maximally diverse groups.
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">netrics</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.4.1</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.0.0</span>
       </span>
     </div>
 
@@ -99,7 +99,7 @@ cliques:</p><ul><li><p><code>node_in_roulette()</code> assigns nodes to maximall
 </ul></div>
 
     <div id="ref-usage">
-    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">node_in_roulette</span><span class="op">(</span><span class="va">.data</span>, <span class="va">num_groups</span>, <span class="va">group_size</span>, times <span class="op">=</span> <span class="cn">NULL</span><span class="op">)</span></span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">node_in_roulette</span><span class="op">(</span><span class="va">.data</span>, <span class="va">groups</span>, <span class="va">group_size</span>, times <span class="op">=</span> <span class="cn">NULL</span>, num_groups <span class="op">=</span> <span class="cn">NULL</span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div id="arguments">
@@ -107,12 +107,12 @@ cliques:</p><ul><li><p><code>node_in_roulette()</code> assigns nodes to maximall
 
 
 <dl><dt id="arg--data">.data<a class="anchor" aria-label="anchor" href="#arg--data"></a></dt>
-<dd><p>A network object of class <code>mnet</code>, <code>igraph</code>, <code>tbl_graph</code>, <code>network</code>, or similar.
-For more information on the standard coercion possible,
-see <code><a href="https://stocnet.github.io/manynet/reference/coerce_graph.html" class="external-link">manynet::as_tidygraph()</a></code>.</p></dd>
+<dd><p>A network object of class <code>stocnet</code>, <code>igraph</code>, <code>tbl_graph</code>, <code>network</code>, or similar.
+Internally any of these will be coerced to an efficient implementation.
+For more information on possible coercions, see e.g. <code><a href="https://stocnet.github.io/manynet/reference/coerce_graph.html" class="external-link">manynet::as_stocnet()</a></code>.</p></dd>
 
 
-<dt id="arg-num-groups">num_groups<a class="anchor" aria-label="anchor" href="#arg-num-groups"></a></dt>
+<dt id="arg-groups">groups<a class="anchor" aria-label="anchor" href="#arg-groups"></a></dt>
 <dd><p>An integer indicating the number of groups desired.</p></dd>
 
 
@@ -123,13 +123,17 @@ there may be some larger or smaller groups.</p></dd>
 
 
 <dt id="arg-times">times<a class="anchor" aria-label="anchor" href="#arg-times"></a></dt>
-<dd><p>An integer of the number of search iterations the algorithm should complete.
-By default this is the number of nodes in the network multiplied by the number of groups.
-This heuristic may be insufficient for small networks and numbers of groups,
-and burdensome for large networks and numbers of groups, but can be overwritten.
-At every 10th iteration, a stronger perturbation of a number of successive changes,
-approximately the number of nodes divided by the number of groups,
-will take place irrespective of whether it improves the objective function.</p></dd>
+<dd><p>Integer scalar, how many times the algorithm repeats its work.
+Where the algorithm is stochastic, this is how many times it runs,
+and the best or the most frequent result is kept.
+Where the algorithm searches, this is how many steps the search takes.
+More repetitions give a more reliable result and take longer,
+so each function documents its own default.</p></dd>
+
+
+<dt id="arg-num-groups">num_groups<a class="anchor" aria-label="anchor" href="#arg-num-groups"></a></dt>
+<dd><p>Deprecated. The former spelling of <code>groups</code>.
+Still accepted, but warns; please use <code>groups</code> instead.</p></dd>
 
 </dl></div>
     <div id="value">
@@ -138,6 +142,15 @@ will take place irrespective of whether it improves the objective function.</p><
 of group memberships "A", "B", etc for each node.
 If the network is labelled,
 then the assignments will be labelled with the nodes' names.</p>
+    </div>
+    <div id="details">
+    <h2>Details</h2>
+    <p><code>times</code> defaults to the number of nodes multiplied by the number of groups.
+This heuristic may be insufficient for small networks and numbers of groups,
+and burdensome for large ones, but can be overwritten.
+At every 10th iteration, a stronger perturbation of a number of successive
+changes, approximately the number of nodes divided by the number of groups,
+takes place whether or not it improves the objective function.</p>
     </div>
     <div id="maximally-diverse-grouping-problem">
     <h2>Maximally diverse grouping problem</h2>
@@ -218,11 +231,21 @@ The user is referred to Lai and Hao (2016) and Lai et al (2021) for more details
 <code><a href="member_diffusion.html">member_diffusion</a></code>,
 <code><a href="member_equivalence.html">member_equivalence</a></code>,
 <code><a href="motif_brokerage_node.html">motif_brokerage_node</a></code>,
+<code><a href="motif_clique.html">motif_clique</a></code>,
+<code><a href="motif_composition.html">motif_composition</a></code>,
 <code><a href="motif_exposure.html">motif_exposure</a></code>,
 <code><a href="motif_node.html">motif_node</a></code>,
 <code><a href="motif_path.html">motif_path</a></code></p></div>
     </div>
 
+    <div id="ref-examples">
+    <h2>Examples</h2>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="fu">node_in_roulette</span><span class="op">(</span><span class="va">ison_adolescents</span>, groups <span class="op">=</span> <span class="fl">3</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;">3 groups</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   Betty Sue   Alice Jane  Dale  Pam   Carol Tina </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">1</span> B     A     C     A     B     B     C     C    </span>
+</code></pre></div>
+    </div>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <nav id="toc" data-toggle="toc" class="sticky-top"><h2 data-toc-skip>Contents</h2>

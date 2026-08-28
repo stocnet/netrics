@@ -39,7 +39,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">netrics</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.4.1</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.0.0</span>
       </span>
     </div>
 
@@ -249,8 +249,11 @@ equivalent classes, and understand the census, clustering, and
 <em>k</em>-selection choices behind it</label></li>
 <li><label><input type="checkbox">  Read a dendrogram and a
 blockmodel, and justify a choice of <em>k</em></label></li>
+<li><label><input type="checkbox">  Score how well a partition fits
+with <code><a href="../reference/measure_fit.html">net_by_inconsistency()</a></code>, and search for one directly
+with <code><a href="../reference/member_equivalence.html">node_in_block()</a></code></label></li>
 <li><label><input type="checkbox">  Contract a network into a reduced
-graph of positions with <code>to_blocks()</code></label></li>
+graph of positions with <code>to_blockmodel()</code></label></li>
 </ul>
 <p><strong>Choose your own data</strong>: The worked examples below use
 <code>ison_algebra</code>, a multiplex network of interactions in an
@@ -748,7 +751,6 @@ classes</span> · <span class="page-toc-link" onclick="document.getElementById('
 · <span class="page-toc-link" onclick="document.getElementById('section-growing-a-tree-of-similarity').scrollIntoView({behavior:'auto',block:'start'});">Dendrograms</span>
 · <span class="page-toc-link" onclick="document.getElementById('section-identifying-the-number-of-clusters').scrollIntoView({behavior:'auto',block:'start'});">Choosing
 k</span></span></p>
-<p><img src="https://i.giphy.com/media/v1.Y2lkPTc5MGI3NjExNGhvaTZ2Z3NxOW0yeTJ6ZjVoZ2ZqM2NqMjlxbXp1YnBmb2VtdTBldiZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/XcFqv8EzBiAlzeEID9/giphy.gif" alt="gif of rick multiplying"></p>
 <p>We now switch from asking about <em>individual</em> positions (who is
 a broker?) to asking about <em>shared</em> positions: which nodes play
 the same kind of role? Grouping nodes that occupy similar positions into
@@ -835,7 +837,7 @@ be used with whichever census (<code>node_x_*()</code> output) is
 desired. Feel free to explore using some of the other censuses available
 in <a href="https://stocnet.github.io/netrics/">netrics</a>, though some common ones are already used in
 the other equivalence convenience functions,
-e.g. <code><a href="../reference/motif_node.html">node_x_triad()</a></code> in <code><a href="../reference/member_equivalence.html">node_in_regular()</a></code> and
+e.g. <code><a href="../reference/motif_node.html">node_x_triad()</a></code> in <code><a href="../reference/member_equivalence.html">node_in_motif()</a></code> and
 <code><a href="../reference/motif_path.html">node_x_path()</a></code> in <code><a href="../reference/member_equivalence.html">node_in_automorphic()</a></code> —
 functions we will actually use later in this tutorial.</p>
 </div>
@@ -1014,7 +1016,6 @@ integer, <code>"strict"</code>, <code>"elbow"</code>, or the default
 <p><span class="page-toc">On this page: <span class="page-toc-link" onclick="document.getElementById('section-summarising-profiles').scrollIntoView({behavior:'auto',block:'start'});">Summarising
 profiles</span> · <span class="page-toc-link" onclick="document.getElementById('section-plotting-blockmodels').scrollIntoView({behavior:'auto',block:'start'});">Plotting
 blockmodels</span></span></p>
-<p><img src="https://i.giphy.com/media/v1.Y2lkPTc5MGI3NjExeHVzdGlhOGkyOWg2Z3BnMmE2eDgxMnlhZHhwaWx0bGZ3dTNmZnYyaSZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/dsKkAGVnds7aXQKBI7/giphy.gif" alt="gif of mortys in a block parade"></p>
 <div class="section level3">
 <h3 id="summarising-profiles">Summarising profiles<a class="anchor" aria-label="anchor" href="#summarising-profiles"></a>
 </h3>
@@ -1037,7 +1038,6 @@ into the relationships <em>between</em> classes is called
 <abbr><dfn title="A blockmodel reduces a network to a smaller comprehensible structure of the roles positions take with respect to one another.">
 blockmodelling </dfn></abbr>, and it is the pay-off of all the
 equivalence work we just did.</p>
-<p><img src="https://i.giphy.com/media/v1.Y2lkPTc5MGI3NjExdmRlczhzaDJzaTBma3Q0c3pydDJjZTFkY20yMmhzbW13YmU3cnl6ZSZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9dg/QIEol1DjEwSOc9PvLu/giphy.gif" alt="gif of mortys learning about roles"></p>
 <p>One option that can be useful for characterising what the profile of
 ties (partners) is for each position/equivalence class is to use
 <code><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary()</a></code>. It summarises some census result by a partition
@@ -1117,6 +1117,75 @@ the adjacency matrix sorted into blocks whose density (or emptiness)
 characterises how each class relates to each other class.</p>
 </div>
 </div>
+<div class="section level3">
+<h3 id="evaluating-a-blockmodel">Evaluating a blockmodel<a class="anchor" aria-label="anchor" href="#evaluating-a-blockmodel"></a>
+</h3>
+<p>Reading a blockmodel tells you what a partition <em>says</em>. It
+does not tell you how <em>well</em> it says it. Two different partitions
+of the same network will both produce a blockmodel you can describe in
+words, and you need some way to prefer one over the other.</p>
+<p>The idea is to ask how far each block departs from being
+<em>ideal</em>. The two ideal types you have implicitly been using are
+the null block, which should contain no ties at all, and the complete
+block, which should contain every possible tie. Counting the ties you
+would have to add or remove to make every block one or the other gives a
+single number: how much the partition has to lie about the network in
+order to describe it. <code><a href="../reference/measure_fit.html">net_by_inconsistency()</a></code> reports
+exactly that, normalised by the number of cells, so <strong>0 is a
+perfect fit</strong>. Note that it therefore runs the opposite way to
+most measures — it is a distance from the ideal, so lower is better.</p>
+<p><strong>Compare the structural-equivalence partition of
+<code>alge</code> against a coarser one and against a random
+partition.</strong></p>
+<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/measure_fit.html">net_by_inconsistency</a></span><span class="op">(</span><span class="va">alge</span>, <span class="fu"><a href="../reference/member_equivalence.html">node_in_structural</a></span><span class="op">(</span><span class="va">alge</span><span class="op">)</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># a coarser partition has to lump dissimilar nodes together</span></span>
+<span><span class="fu"><a href="../reference/measure_fit.html">net_by_inconsistency</a></span><span class="op">(</span><span class="va">alge</span>, <span class="fu"><a href="../reference/member_equivalence.html">node_in_structural</a></span><span class="op">(</span><span class="va">alge</span>, k <span class="op">=</span> <span class="fl">2</span><span class="op">)</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># and an arbitrary partition should do worse than a fitted one</span></span>
+<span><span class="fu"><a href="../reference/measure_fit.html">net_by_inconsistency</a></span><span class="op">(</span><span class="va">alge</span>, <span class="fu"><a href="https://rdrr.io/r/base/sample.html" class="external-link">sample</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fl">1</span><span class="op">:</span><span class="fl">4</span>, length.out <span class="op">=</span> <span class="fu">net_nodes</span><span class="op">(</span><span class="va">alge</span><span class="op">)</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
+<p>Notice that finer partitions always fit at least as well as coarser
+ones, which is why the criterion cannot by itself choose <em>k</em> for
+you — in the limit, giving every node its own class fits perfectly and
+explains nothing. It compares partitions <em>at a given k</em>.</p>
+<p>Ideal blocks other than null and complete are available through the
+<code>blocks</code> argument. A <strong>regular</strong> block, for
+instance, only asks that every row and every column contain at least one
+tie, rather than all of them — which is exactly the blockmodel
+counterpart of regular equivalence.</p>
+<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># structural blockmodelling: blocks must be empty or full</span></span>
+<span><span class="fu"><a href="../reference/measure_fit.html">net_by_inconsistency</a></span><span class="op">(</span><span class="va">alge</span>, <span class="fu"><a href="../reference/member_equivalence.html">node_in_structural</a></span><span class="op">(</span><span class="va">alge</span>, k <span class="op">=</span> <span class="fl">3</span><span class="op">)</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># regular blockmodelling: blocks must be empty or have every row and column</span></span>
+<span><span class="co"># represented, which is a much easier standard to meet</span></span>
+<span><span class="fu"><a href="../reference/measure_fit.html">net_by_inconsistency</a></span><span class="op">(</span><span class="va">alge</span>, <span class="fu"><a href="../reference/member_equivalence.html">node_in_structural</a></span><span class="op">(</span><span class="va">alge</span>, k <span class="op">=</span> <span class="fl">3</span><span class="op">)</span>, blocks <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"nul"</span>, <span class="st">"reg"</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
+<p>Since permitting more ideal types can only lower the criterion,
+compare partitions only when you have given each the same
+vocabulary.</p>
+<p>Finally, once you can score a partition you can search for a good one
+directly, rather than clustering a similarity matrix and hoping the
+result fits. <code><a href="../reference/member_equivalence.html">node_in_block()</a></code> does this: it tries
+partitions, keeps whichever is most consistent, and returns it.</p>
+<p><strong>Search for a three-position blockmodel of <code>alge</code>
+and compare it to the structural-equivalence solution.</strong></p>
+<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">123</span><span class="op">)</span></span>
+<span><span class="va">nbm</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/member_equivalence.html">node_in_block</a></span><span class="op">(</span><span class="va">alge</span>, k <span class="op">=</span> <span class="fl">3</span><span class="op">)</span></span>
+<span><span class="fu"><a href="../reference/measure_fit.html">net_by_inconsistency</a></span><span class="op">(</span><span class="va">alge</span>, <span class="va">nbm</span><span class="op">)</span></span>
+<span><span class="fu"><a href="../reference/measure_fit.html">net_by_inconsistency</a></span><span class="op">(</span><span class="va">alge</span>, <span class="fu"><a href="../reference/member_equivalence.html">node_in_structural</a></span><span class="op">(</span><span class="va">alge</span>, k <span class="op">=</span> <span class="fl">3</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
+<p>Because the search is stochastic, running it again may give a
+different answer, so set a seed and compare runs with
+<code><a href="../reference/measure_fit.html">net_by_inconsistency()</a></code>.</p>
+<div class="callout">
+<p><span class="callout-label"><strong>In brief</strong>:</span>
+<code><a href="../reference/measure_fit.html">net_by_inconsistency()</a></code> scores how far a partition’s blocks
+are from ideal (0 is perfect, lower is better), with the ideal types set
+by <code>blocks</code>; <code><a href="../reference/member_equivalence.html">node_in_block()</a></code> searches directly
+for the partition that minimises it.</p>
+</div>
+</div>
 </div>
 <div class="section level2">
 <h2 id="reduced-graphs">Reduced graphs<a class="anchor" aria-label="anchor" href="#reduced-graphs"></a>
@@ -1142,14 +1211,14 @@ and thus the network will be complex.</p>
 <div class="section level3">
 <h3 id="from-blocks-to-ties">From blocks to ties<a class="anchor" aria-label="anchor" href="#from-blocks-to-ties"></a>
 </h3>
-<p><code>to_blocks()</code> carries out this contraction: pass it the
-network and a membership vector, and it returns a matrix with one row
-and column per <em>class</em>, where each cell holds the average tie
+<p><code>to_blockmodel()</code> carries out this contraction: pass it
+the network and a membership vector, and it returns a matrix with one
+row and column per <em>class</em>, where each cell holds the average tie
 (weight) from one class to another.</p>
 <p><strong>Contract the algebra network into its four
 structural-equivalence blocks.</strong></p>
-<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="op">(</span><span class="va">bm</span> <span class="op">&lt;-</span> <span class="fu">to_blocks</span><span class="op">(</span><span class="va">alge</span>, <span class="fu"><a href="../reference/member_equivalence.html">node_in_structural</a></span><span class="op">(</span><span class="va">alge</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
+<div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="op">(</span><span class="va">bm</span> <span class="op">&lt;-</span> <span class="fu">to_blockmodel</span><span class="op">(</span><span class="va">alge</span>, <span class="fu"><a href="../reference/member_equivalence.html">node_in_structural</a></span><span class="op">(</span><span class="va">alge</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 <p>Notice how this is just a compact, numerical version of the
 blockmodel plot from the previous page: each cell summarises a whole
 block of the sorted matrix, and the diagonal records the average tie
@@ -1163,7 +1232,7 @@ network.</p>
 it, name its (class-)nodes something more evocative, and graph it.</p>
 <p><strong>Turn the block matrix into a graph, give the four positions
 names, and plot it.</strong></p>
-<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">bm</span> <span class="op">&lt;-</span> <span class="va">bm</span> <span class="op">%&gt;%</span> <span class="va">as_tidygraph</span> <span class="op">%&gt;%</span></span>
 <span>  <span class="fu">mutate</span><span class="op">(</span>name <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Freaks"</span>, <span class="st">"Squares"</span>, <span class="st">"Nerds"</span>, <span class="st">"Geek"</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="fu">graphr</span><span class="op">(</span><span class="va">bm</span><span class="op">)</span></span></code></pre></div>
@@ -1177,8 +1246,8 @@ individuals compressed into a comprehensible structure of four
 roles.</p>
 <div class="callout">
 <p><span class="callout-label"><strong>In brief</strong>:</span>
-<code>to_blocks()</code> contracts a network into its classes, yielding
-a
+<code>to_blockmodel()</code> contracts a network into its classes,
+yielding a
 <abbr><dfn title="A reduced graph is a contraction of a network into the ties within and between blocks.">
 reduced graph </dfn></abbr> whose nodes are positions and whose ties
 (including loops) are the average ties within and between classes — a
@@ -1222,14 +1291,24 @@ not necessarily to the <em>same</em> others. This is the most permissive
 of the three definitions, and usually the closest to the everyday idea
 of a social “role”: all teachers relate to <em>some</em> students, all
 students to <em>some</em> teacher, regardless of which particular ones.
-Under the hood, <code><a href="../reference/member_equivalence.html">node_in_regular()</a></code> uses a triad census
-(<code><a href="../reference/motif_node.html">node_x_triad()</a></code>) rather than the tie census, because it
-cares about the shape of local neighbourhoods rather than their exact
-membership.</p>
+Under the hood, <code><a href="../reference/member_equivalence.html">node_in_regular()</a></code> works differently from
+the census-based functions you have seen so far, because the definition
+is <em>recursive</em>: two nodes are equivalent if their alters are
+equivalent, whose equivalence depends in turn on <em>their</em> alters.
+So instead of building a census once and clustering it, it starts by
+assuming every node is equivalent to every other and then repeatedly
+revises those similarities until they settle, by checking how well each
+node’s alters can be paired up with the other’s. The resulting
+similarity matrix is then clustered exactly as before.</p>
+<p>Two algorithms are available via the <code>regularity</code>
+argument: <code>"rolesim"</code> (the default) pairs each node’s alters
+one-to-one, so that two nodes match only if their neighbourhoods line up
+as wholes; <code>"rege"</code> lets the same alter be matched more than
+once, which is more permissive, and is what UCINET computes.</p>
 <p><strong>Compute the regular-equivalence classes for
 <code>alge</code>, plot the dendrogram, and colour the graph by
 class.</strong></p>
-<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/member_equivalence.html">node_in_regular</a></span><span class="op">(</span><span class="va">alge</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="fu"><a href="../reference/member_equivalence.html">node_in_regular</a></span><span class="op">(</span><span class="va">alge</span><span class="op">)</span><span class="op">)</span></span>
 <span></span>
@@ -1260,7 +1339,7 @@ by the distances to everyone else.</p>
 <p><strong>Compute the automorphic-equivalence classes for
 <code>alge</code>, plot the dendrogram, and colour the graph by
 class.</strong></p>
-<div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb18"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/member_equivalence.html">node_in_automorphic</a></span><span class="op">(</span><span class="va">alge</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="fu"><a href="../reference/member_equivalence.html">node_in_automorphic</a></span><span class="op">(</span><span class="va">alge</span><span class="op">)</span><span class="op">)</span></span>
 <span></span>
@@ -1282,7 +1361,7 @@ pair is also regularly equivalent — so structural is strictest, regular
 loosest.</p>
 <p><strong>Run all three side by side and compare how many classes each
 finds.</strong></p>
-<div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb19"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/member_equivalence.html">node_in_structural</a></span><span class="op">(</span><span class="va">alge</span><span class="op">)</span></span>
 <span><span class="fu"><a href="../reference/member_equivalence.html">node_in_regular</a></span><span class="op">(</span><span class="va">alge</span><span class="op">)</span></span>
 <span><span class="fu"><a href="../reference/member_equivalence.html">node_in_automorphic</a></span><span class="op">(</span><span class="va">alge</span><span class="op">)</span></span></code></pre></div>
@@ -1305,11 +1384,11 @@ This section includes an interactive quiz in the live tutorial — run
 <div class="callout">
 <p><span class="callout-label"><strong>In brief</strong>:</span>
 <code><a href="../reference/member_equivalence.html">node_in_structural()</a></code> (same partners, via a tie census),
-<code><a href="../reference/member_equivalence.html">node_in_regular()</a></code> (same pattern / role, via a triad
-census), and <code><a href="../reference/member_equivalence.html">node_in_automorphic()</a></code> (interchangeable, via a
-path census) are three lenses on position, from strictest to loosest in
-theory — though each chooses its own <em>k</em>, so their class counts
-won’t nest neatly in practice.</p>
+<code><a href="../reference/member_equivalence.html">node_in_regular()</a></code> (same pattern / role, via a recursive
+similarity), and <code><a href="../reference/member_equivalence.html">node_in_automorphic()</a></code> (interchangeable,
+via a path census) are three lenses on position, from strictest to
+loosest in theory — though each chooses its own <em>k</em>, so their
+class counts won’t nest neatly in practice.</p>
 </div>
 </div>
 </div>
@@ -1425,11 +1504,26 @@ whole network</td>
 interchangeable)</td>
 </tr>
 <tr class="even">
+<td><code><a href="../reference/member_equivalence.html">node_in_motif()</a></code></td>
+<td>classes of similar local embedding, from a triad or tetrad
+census</td>
+</tr>
+<tr class="odd">
 <td>
 <code><a href="../reference/motif_path.html">node_x_tie()</a></code>, <code><a href="../reference/motif_node.html">node_x_triad()</a></code>,
 <code><a href="../reference/motif_path.html">node_x_path()</a></code>
 </td>
-<td>the tie, triad, and path censuses behind the three equivalences</td>
+<td>the tie, triad, and path censuses behind the census-based
+equivalences</td>
+</tr>
+<tr class="even">
+<td>
+<code><a href="../reference/method_regularity.html">regularity_rolesim()</a></code>,
+<code><a href="../reference/method_regularity.html">regularity_rege()</a></code>
+</td>
+<td>the recursive similarity matrices behind
+<code><a href="../reference/member_equivalence.html">node_in_regular()</a></code>
+</td>
 </tr>
 <tr class="odd">
 <td><code><a href="../reference/member_equivalence.html">node_in_equivalence()</a></code></td>
@@ -1446,11 +1540,21 @@ census</td>
 <td>draws the blockmodel: the matrix sorted into blocks</td>
 </tr>
 <tr class="even">
+<td><code><a href="../reference/measure_fit.html">net_by_inconsistency()</a></code></td>
+<td>scores how far a partition’s blocks are from ideal (0 is perfect);
+<code>blocks</code> sets which ideals</td>
+</tr>
+<tr class="odd">
+<td><code><a href="../reference/member_equivalence.html">node_in_block()</a></code></td>
+<td>searches directly for the partition that best fits an ideal block
+structure</td>
+</tr>
+<tr class="even">
 <td><code>summary(census, membership = )</code></td>
 <td>averages each class’s census profile</td>
 </tr>
 <tr class="odd">
-<td><code>to_blocks()</code></td>
+<td><code>to_blockmodel()</code></td>
 <td>contracts a network into a reduced graph of positions</td>
 </tr>
 <tr class="even">

@@ -30,7 +30,7 @@ in e.g. the *_equivalence() functions."><meta property="og:image" content="https
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">netrics</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.4.1</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.0.0</span>
       </span>
     </div>
 
@@ -119,11 +119,11 @@ in e.g. the <code>*_equivalence()</code> functions.</p>
     <div id="ref-usage">
     <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">k_strict</span><span class="op">(</span><span class="va">hc</span>, <span class="va">.data</span><span class="op">)</span></span>
 <span></span>
-<span><span class="fu">k_elbow</span><span class="op">(</span><span class="va">hc</span>, <span class="va">.data</span>, <span class="va">motif</span>, <span class="va">Kmax</span><span class="op">)</span></span>
+<span><span class="fu">k_elbow</span><span class="op">(</span><span class="va">hc</span>, <span class="va">.data</span>, <span class="va">motif</span>, <span class="va">max_k</span><span class="op">)</span></span>
 <span></span>
-<span><span class="fu">k_silhouette</span><span class="op">(</span><span class="va">hc</span>, <span class="va">.data</span>, <span class="va">Kmax</span><span class="op">)</span></span>
+<span><span class="fu">k_silhouette</span><span class="op">(</span><span class="va">hc</span>, <span class="va">.data</span>, <span class="va">max_k</span><span class="op">)</span></span>
 <span></span>
-<span><span class="fu">k_gap</span><span class="op">(</span><span class="va">hc</span>, <span class="va">motif</span>, <span class="va">Kmax</span>, sims <span class="op">=</span> <span class="fl">100</span><span class="op">)</span></span></code></pre></div>
+<span><span class="fu">k_gap</span><span class="op">(</span><span class="va">hc</span>, <span class="va">motif</span>, <span class="va">max_k</span>, sims <span class="op">=</span> <span class="fl">100</span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div id="arguments">
@@ -135,16 +135,16 @@ in e.g. the <code>*_equivalence()</code> functions.</p>
 
 
 <dt id="arg--data">.data<a class="anchor" aria-label="anchor" href="#arg--data"></a></dt>
-<dd><p>A network object of class <code>mnet</code>, <code>igraph</code>, <code>tbl_graph</code>, <code>network</code>, or similar.
-For more information on the standard coercion possible,
-see <code><a href="https://stocnet.github.io/manynet/reference/coerce_graph.html" class="external-link">manynet::as_tidygraph()</a></code>.</p></dd>
+<dd><p>A network object of class <code>stocnet</code>, <code>igraph</code>, <code>tbl_graph</code>, <code>network</code>, or similar.
+Internally any of these will be coerced to an efficient implementation.
+For more information on possible coercions, see e.g. <code><a href="https://stocnet.github.io/manynet/reference/coerce_graph.html" class="external-link">manynet::as_stocnet()</a></code>.</p></dd>
 
 
 <dt id="arg-motif">motif<a class="anchor" aria-label="anchor" href="#arg-motif"></a></dt>
 <dd><p>A motif census object.</p></dd>
 
 
-<dt id="arg-kmax">Kmax<a class="anchor" aria-label="anchor" href="#arg-kmax"></a></dt>
+<dt id="arg-max-k">max_k<a class="anchor" aria-label="anchor" href="#arg-max-k"></a></dt>
 <dd><p>An integer indicating the maximum number of options to consider.
 The minimum of this and the number of nodes in the network is used.</p></dd>
 
@@ -182,6 +182,12 @@ correlation as the number of clusters increases.
 The point at which the elbow occurs is often considered a good choice for
 the number  of clusters, as it represents a balance between
 model complexity and fit to the data.</p>
+<p>The elbow is located geometrically.
+A straight line is drawn between the first and the last point of the curve.
+The perpendicular distance from each point to this line is measured,
+and the point at the greatest distance is the elbow.
+Note that where the curve is close to a straight line,
+no point stands out and the method returns one of the endpoints.</p>
     </div>
     <div id="silhouette-method">
     <h2>Silhouette method</h2>

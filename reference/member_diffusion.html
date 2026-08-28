@@ -33,7 +33,7 @@ i.e. never adopted
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">netrics</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.4.1</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.0.0</span>
       </span>
     </div>
 
@@ -131,9 +131,9 @@ i.e. never adopted</p></li>
 
 
 <dl><dt id="arg--data">.data<a class="anchor" aria-label="anchor" href="#arg--data"></a></dt>
-<dd><p>A network object of class <code>mnet</code>, <code>igraph</code>, <code>tbl_graph</code>, <code>network</code>, or similar.
-For more information on the standard coercion possible,
-see <code><a href="https://stocnet.github.io/manynet/reference/coerce_graph.html" class="external-link">manynet::as_tidygraph()</a></code>.</p></dd>
+<dd><p>A network object of class <code>stocnet</code>, <code>igraph</code>, <code>tbl_graph</code>, <code>network</code>, or similar.
+Internally any of these will be coerced to an efficient implementation.
+For more information on possible coercions, see e.g. <code><a href="https://stocnet.github.io/manynet/reference/coerce_graph.html" class="external-link">manynet::as_stocnet()</a></code>.</p></dd>
 
 </dl></div>
     <div id="value">
@@ -193,6 +193,8 @@ then the assignments will be labelled with the nodes' names.</p>
 <code><a href="member_core.html">member_core</a></code>,
 <code><a href="member_equivalence.html">member_equivalence</a></code>,
 <code><a href="motif_brokerage_node.html">motif_brokerage_node</a></code>,
+<code><a href="motif_clique.html">motif_clique</a></code>,
+<code><a href="motif_composition.html">motif_composition</a></code>,
 <code><a href="motif_exposure.html">motif_exposure</a></code>,
 <code><a href="motif_node.html">motif_node</a></code>,
 <code><a href="motif_path.html">motif_path</a></code></p>
@@ -213,13 +215,13 @@ then the assignments will be labelled with the nodes' names.</p>
 <span class="r-in"><span>  <span class="op">(</span><span class="va">adopts</span> <span class="op">&lt;-</span> <span class="fu">node_in_adopter</span><span class="op">(</span><span class="va">smeg_diff</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;">4 groups</span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   V1     V2    V3    V4    V5    V6    V7    V8    V9    V10   V11   V12   V13  </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">1</span> Early… Earl… Earl… Earl… Earl… Late… Late… Lagg… Late… Late… Earl… Late… Earl…</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">1</span> Early… Earl… Earl… Earl… Late… Earl… Late… Lagg… Lagg… Lagg… Late… Late… Earl…</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># ... and 2 more values from this nodeset. Use `print_all(...)` to print all values.</span></span>
 <span class="r-in"><span>  <span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">adopts</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;">Class Early Adopter:</span>  1, 2, 3, 15</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;">Class Early Majority:</span>  4, 5, 11, 13, 14</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;">Class Laggard:</span>  8</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;">Class Late Majority:</span>  6, 7, 9, 10, 12</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;">Class Early Adopter:</span>  1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;">Class Early Majority:</span>  2, 3, 4, 6, 13, 14, 15</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;">Class Laggard:</span>  8, 9, 10</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;">Class Late Majority:</span>  5, 7, 11, 12</span>
 </code></pre></div>
     </div>
   </div>

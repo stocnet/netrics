@@ -26,7 +26,7 @@ are particularly well- or poorly-connected."><meta property="og:image" content="
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">netrics</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.4.1</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.0.0</span>
       </span>
     </div>
 
@@ -123,9 +123,9 @@ are particularly well- or poorly-connected.</p>
 
 
 <dl><dt id="arg--data">.data<a class="anchor" aria-label="anchor" href="#arg--data"></a></dt>
-<dd><p>A network object of class <code>mnet</code>, <code>igraph</code>, <code>tbl_graph</code>, <code>network</code>, or similar.
-For more information on the standard coercion possible,
-see <code><a href="https://stocnet.github.io/manynet/reference/coerce_graph.html" class="external-link">manynet::as_tidygraph()</a></code>.</p></dd>
+<dd><p>A network object of class <code>stocnet</code>, <code>igraph</code>, <code>tbl_graph</code>, <code>network</code>, or similar.
+Internally any of these will be coerced to an efficient implementation.
+For more information on possible coercions, see e.g. <code><a href="https://stocnet.github.io/manynet/reference/coerce_graph.html" class="external-link">manynet::as_stocnet()</a></code>.</p></dd>
 
 
 <dt id="arg-from">from<a class="anchor" aria-label="anchor" href="#arg-from"></a></dt>
@@ -163,10 +163,10 @@ whether the condition is matched.</p>
 <code><a href="mark_select_tie.html">mark_select_tie</a></code>,
 <code><a href="mark_triangles.html">mark_triangles</a></code>,
 <code><a href="measure_broker_tie.html">measure_broker_tie</a></code>,
-<code><a href="measure_centralities_between.html">measure_centralities_between</a></code>,
-<code><a href="measure_centralities_close.html">measure_centralities_close</a></code>,
-<code><a href="measure_centralities_degree.html">measure_centralities_degree</a></code>,
-<code><a href="measure_centralities_eigen.html">measure_centralities_eigen</a></code></p></div>
+<code><a href="measure_central_tie_between.html">measure_central_tie_between</a></code>,
+<code><a href="measure_central_tie_close.html">measure_central_tie_close</a></code>,
+<code><a href="measure_central_tie_degree.html">measure_central_tie_degree</a></code>,
+<code><a href="measure_central_tie_eigen.html">measure_central_tie_eigen</a></code></p></div>
     </div>
 
     <div id="ref-examples">

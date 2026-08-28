@@ -3,6 +3,7 @@
 in one-, two-, and three-mode networks:
 net_by_reciprocity() measures reciprocity in a (usually directed) network.
 net_by_transitivity() measures transitivity in a network.
+net_by_cyclicality() measures cyclicality in a (necessarily directed) network.
 net_by_equivalency() measures equivalence or reinforcement
 in a (usually two-mode) network.
 net_by_congruency() measures congruency across two two-mode networks.
@@ -25,7 +26,7 @@ net_by_congruency() measures congruency across two two-mode networks.
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">netrics</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.4.1</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.0.0</span>
       </span>
     </div>
 
@@ -101,15 +102,18 @@ net_by_congruency() measures congruency across two two-mode networks.
     <p>These functions offer methods for summarising the closure in configurations
 in one-, two-, and three-mode networks:</p><ul><li><p><code>net_by_reciprocity()</code> measures reciprocity in a (usually directed) network.</p></li>
 <li><p><code>net_by_transitivity()</code> measures transitivity in a network.</p></li>
+<li><p><code>net_by_cyclicality()</code> measures cyclicality in a (necessarily directed) network.</p></li>
 <li><p><code>net_by_equivalency()</code> measures equivalence or reinforcement
 in a (usually two-mode) network.</p></li>
 <li><p><code>net_by_congruency()</code> measures congruency across two two-mode networks.</p></li>
 </ul></div>
 
     <div id="ref-usage">
-    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">net_by_reciprocity</span><span class="op">(</span><span class="va">.data</span>, method <span class="op">=</span> <span class="st">"default"</span><span class="op">)</span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">net_by_reciprocity</span><span class="op">(</span><span class="va">.data</span>, variant <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"default"</span>, <span class="st">"ratio"</span><span class="op">)</span>, method <span class="op">=</span> <span class="cn">NULL</span><span class="op">)</span></span>
 <span></span>
 <span><span class="fu">net_by_transitivity</span><span class="op">(</span><span class="va">.data</span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu">net_by_cyclicality</span><span class="op">(</span><span class="va">.data</span><span class="op">)</span></span>
 <span></span>
 <span><span class="fu">net_by_equivalency</span><span class="op">(</span><span class="va">.data</span><span class="op">)</span></span>
 <span></span>
@@ -121,14 +125,20 @@ in a (usually two-mode) network.</p></li>
 
 
 <dl><dt id="arg--data">.data<a class="anchor" aria-label="anchor" href="#arg--data"></a></dt>
-<dd><p>A network object of class <code>mnet</code>, <code>igraph</code>, <code>tbl_graph</code>, <code>network</code>, or similar.
-For more information on the standard coercion possible,
-see <code><a href="https://stocnet.github.io/manynet/reference/coerce_graph.html" class="external-link">manynet::as_tidygraph()</a></code>.</p></dd>
+<dd><p>A network object of class <code>stocnet</code>, <code>igraph</code>, <code>tbl_graph</code>, <code>network</code>, or similar.
+Internally any of these will be coerced to an efficient implementation.
+For more information on possible coercions, see e.g. <code><a href="https://stocnet.github.io/manynet/reference/coerce_graph.html" class="external-link">manynet::as_stocnet()</a></code>.</p></dd>
+
+
+<dt id="arg-variant">variant<a class="anchor" aria-label="anchor" href="#arg-variant"></a></dt>
+<dd><p>Character string naming which variant of the measure to
+compute, where more than one definition of the same quantity is in use.
+The variant chosen is reported when the result is printed.</p></dd>
 
 
 <dt id="arg-method">method<a class="anchor" aria-label="anchor" href="#arg-method"></a></dt>
-<dd><p>For reciprocity, either <code>default</code> or <code>ratio</code>.
-See <code><a href="https://r.igraph.org/reference/reciprocity.html" class="external-link">?igraph::reciprocity</a></code></p></dd>
+<dd><p>Deprecated. The former spelling of <code>variant</code>.
+Still accepted, but warns; please use <code>variant</code> instead.</p></dd>
 
 
 <dt id="arg-object-">object2<a class="anchor" aria-label="anchor" href="#arg-object-"></a></dt>
@@ -138,6 +148,12 @@ See <code><a href="https://r.igraph.org/reference/reciprocity.html" class="exter
     <div id="value">
     <h2>Value</h2>
     <p>A <code>network_measure</code> numeric score.</p>
+<p>The object also carries the <code>measure</code> it computed, the <code>range</code> its values
+can fall within, and whether and how those values were <code>normalized</code>.
+These are shown as a one-line header when the object is printed.
+Where a measure offers a choice between several ways of counting the
+same thing, it also carries the <code>variant</code> it used.
+All can be retrieved with <code><a href="https://rdrr.io/r/base/attr.html" class="external-link">attr()</a></code>.</p>
     </div>
     <div id="details">
     <h2>Details</h2>
@@ -148,6 +164,27 @@ that are closed by fourth tie to establish a "shared four-cycle" structure.</p>
 <p>For three-mode networks, <code>net_congruency</code> calculates the proportion of three-paths
 spanning two two-mode networks that are closed by a fourth tie to establish a
 "congruent four-cycle" structure.</p>
+<p><code>net_by_reciprocity()</code> takes a <code>variant</code>: either <code>"default"</code>, the share of
+ties that are reciprocated, or <code>"ratio"</code>, the share of dyads that are mutual
+rather than asymmetric. See <code><a href="https://r.igraph.org/reference/reciprocity.html" class="external-link">?igraph::reciprocity</a></code>.</p>
+    </div>
+    <div id="cyclicality">
+    <h2>Cyclicality</h2>
+
+
+<p>Where transitivity asks how often a two-path \(i \to j \to k\) is closed
+by a tie \(i \to k\), cyclicality asks how often it is closed in the
+other direction, by \(k \to i\):
+$$C = \frac{|\{i \to j \to k \to i\}|}{|\{i \to j \to k\}|}$$
+The two capture different social logics. Transitivity is the signature of
+hierarchy and of "a friend of a friend is a friend", while cyclicality is
+the signature of generalised exchange, where resources circulate around a
+loop rather than flowing consistently in one direction.</p>
+<p>A two-mode network contains no cycle of odd length, so it scores 0 here,
+just as it does for transitivity. Use <code>net_by_equivalency()</code> for closure
+in a two-mode network, which counts four-cycles instead.</p>
+<p>In an undirected network every two-path closed in one direction is also
+closed in the other, so cyclicality and transitivity coincide.</p>
     </div>
     <div id="equivalency">
     <h2>Equivalency</h2>
@@ -155,10 +192,21 @@ spanning two two-mode networks that are closed by a fourth tie to establish a
 
 <p>The <code>net_by_equivalency()</code> function calculates the Robins and Alexander (2004)
 clustering coefficient for two-mode networks.
-Note that for weighted two-mode networks, the result is divided by the average tie weight.</p>
+The coefficient is a proportion of three-paths, and so is defined on
+binary data; weighted networks are dichotomised before it is calculated.</p>
     </div>
     <div id="references">
     <h2>References</h2>
+
+<div class="section">
+<h3 id="on-cyclicality-and-generalised-exchange">On cyclicality and generalised exchange<a class="anchor" aria-label="anchor" href="#on-cyclicality-and-generalised-exchange"></a></h3>
+
+
+<p>Bearman, Peter. 1997.
+"Generalized Exchange".
+<em>American Journal of Sociology</em> 102(5): 1383-1415.
+<a href="https://doi.org/10.1086/231087" class="external-link">doi:10.1086/231087</a></p>
+</div>
 
 <div class="section">
 <h3 id="on-equivalency-or-four-cycles">On equivalency or four-cycles<a class="anchor" aria-label="anchor" href="#on-equivalency-or-four-cycles"></a></h3>
@@ -195,10 +243,10 @@ Cambridge University Press. Cambridge University Press.
 <code><a href="measure_central_close.html">measure_central_close</a></code>,
 <code><a href="measure_central_degree.html">measure_central_degree</a></code>,
 <code><a href="measure_central_eigen.html">measure_central_eigen</a></code>,
-<code><a href="measure_centralities_between.html">measure_centralities_between</a></code>,
-<code><a href="measure_centralities_close.html">measure_centralities_close</a></code>,
-<code><a href="measure_centralities_degree.html">measure_centralities_degree</a></code>,
-<code><a href="measure_centralities_eigen.html">measure_centralities_eigen</a></code>,
+<code><a href="measure_central_tie_between.html">measure_central_tie_between</a></code>,
+<code><a href="measure_central_tie_close.html">measure_central_tie_close</a></code>,
+<code><a href="measure_central_tie_degree.html">measure_central_tie_degree</a></code>,
+<code><a href="measure_central_tie_eigen.html">measure_central_tie_eigen</a></code>,
 <code><a href="measure_closure_node.html">measure_closure_node</a></code>,
 <code><a href="measure_cohesion.html">measure_cohesion</a></code>,
 <code><a href="measure_core.html">measure_core</a></code>,
@@ -208,6 +256,7 @@ Cambridge University Press. Cambridge University Press.
 <code><a href="measure_diverse_net.html">measure_diverse_net</a></code>,
 <code><a href="measure_diverse_node.html">measure_diverse_node</a></code>,
 <code><a href="measure_features.html">measure_features</a></code>,
+<code><a href="measure_fit.html">measure_fit</a></code>,
 <code><a href="measure_fragmentation.html">measure_fragmentation</a></code>,
 <code><a href="measure_hierarchy.html">measure_hierarchy</a></code>,
 <code><a href="measure_periods.html">measure_periods</a></code></p></div>
@@ -219,6 +268,8 @@ Cambridge University Press. Cambridge University Press.
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] 1</span>
 <span class="r-in"><span><span class="fu">net_by_transitivity</span><span class="op">(</span><span class="va">ison_adolescents</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0.45</span>
+<span class="r-in"><span><span class="fu">net_by_cyclicality</span><span class="op">(</span><span class="va">ison_networkers</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0.591</span>
 <span class="r-in"><span><span class="fu">net_by_equivalency</span><span class="op">(</span><span class="va">ison_southern_women</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0.468</span>
 </code></pre></div>

@@ -35,7 +35,7 @@ converting the network to a one-mode network."><meta property="og:image" content
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">netrics</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.4.1</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.0.0</span>
       </span>
     </div>
 
@@ -145,9 +145,9 @@ converting the network to a one-mode network.</p>
 
 
 <dl><dt id="arg--data">.data<a class="anchor" aria-label="anchor" href="#arg--data"></a></dt>
-<dd><p>A network object of class <code>mnet</code>, <code>igraph</code>, <code>tbl_graph</code>, <code>network</code>, or similar.
-For more information on the standard coercion possible,
-see <code><a href="https://stocnet.github.io/manynet/reference/coerce_graph.html" class="external-link">manynet::as_tidygraph()</a></code>.</p></dd>
+<dd><p>A network object of class <code>stocnet</code>, <code>igraph</code>, <code>tbl_graph</code>, <code>network</code>, or similar.
+Internally any of these will be coerced to an efficient implementation.
+For more information on possible coercions, see e.g. <code><a href="https://stocnet.github.io/manynet/reference/coerce_graph.html" class="external-link">manynet::as_stocnet()</a></code>.</p></dd>
 
 
 <dt id="arg-attribute">attribute<a class="anchor" aria-label="anchor" href="#arg-attribute"></a></dt>
@@ -192,6 +192,12 @@ a suitable alternative will be used instead with a message.</p></dd>
     <div id="value">
     <h2>Value</h2>
     <p>A <code>network_measure</code> numeric score.</p>
+<p>The object also carries the <code>measure</code> it computed, the <code>range</code> its values
+can fall within, and whether and how those values were <code>normalized</code>.
+These are shown as a one-line header when the object is printed.
+Where a measure offers a choice between several ways of counting the
+same thing, it also carries the <code>variant</code> it used.
+All can be retrieved with <code><a href="https://rdrr.io/r/base/attr.html" class="external-link">attr()</a></code>.</p>
     </div>
     <div id="heterophily">
     <h2>Heterophily</h2>
@@ -204,6 +210,18 @@ minus the number of ties within (or <em>internal</em>) these groups
 divided by the total number of ties.
 This value can range from 1 to -1,
 where 1 indicates ties only between categories/groups and -1 ties only within categories/groups.</p>
+    </div>
+    <div id="spatial-autocorrelation">
+    <h2>Spatial autocorrelation</h2>
+
+
+<p>Moran's I is conventionally read on \([-1, 1]\), where positive values
+indicate that tied nodes hold similar values and negative values that they
+hold dissimilar ones. Its actual bounds, however, are set by the
+eigenvalues of the weight matrix, and on the unstandardised weights used
+here it can fall outside that interval. Its range is therefore declared
+open at both ends, and the conventional interval read as a guide rather
+than a guarantee.</p>
     </div>
     <div id="references">
     <h2>References</h2>
@@ -248,7 +266,9 @@ Informal networks and organizational crises: an experimental simulation.
     <div class="dont-index"><p>Other diversity:
 <code><a href="measure_assort_node.html">measure_assort_node</a></code>,
 <code><a href="measure_diverse_net.html">measure_diverse_net</a></code>,
-<code><a href="measure_diverse_node.html">measure_diverse_node</a></code></p>
+<code><a href="measure_diverse_node.html">measure_diverse_node</a></code>,
+<code><a href="motif_composition.html">motif_composition</a></code>,
+<code><a href="motif_homophily.html">motif_homophily</a></code></p>
 <p>Other measures:
 <code><a href="measure_assort_node.html">measure_assort_node</a></code>,
 <code><a href="measure_breadth.html">measure_breadth</a></code>,
@@ -259,10 +279,10 @@ Informal networks and organizational crises: an experimental simulation.
 <code><a href="measure_central_close.html">measure_central_close</a></code>,
 <code><a href="measure_central_degree.html">measure_central_degree</a></code>,
 <code><a href="measure_central_eigen.html">measure_central_eigen</a></code>,
-<code><a href="measure_centralities_between.html">measure_centralities_between</a></code>,
-<code><a href="measure_centralities_close.html">measure_centralities_close</a></code>,
-<code><a href="measure_centralities_degree.html">measure_centralities_degree</a></code>,
-<code><a href="measure_centralities_eigen.html">measure_centralities_eigen</a></code>,
+<code><a href="measure_central_tie_between.html">measure_central_tie_between</a></code>,
+<code><a href="measure_central_tie_close.html">measure_central_tie_close</a></code>,
+<code><a href="measure_central_tie_degree.html">measure_central_tie_degree</a></code>,
+<code><a href="measure_central_tie_eigen.html">measure_central_tie_eigen</a></code>,
 <code><a href="measure_closure.html">measure_closure</a></code>,
 <code><a href="measure_closure_node.html">measure_closure_node</a></code>,
 <code><a href="measure_cohesion.html">measure_cohesion</a></code>,
@@ -273,6 +293,7 @@ Informal networks and organizational crises: an experimental simulation.
 <code><a href="measure_diverse_net.html">measure_diverse_net</a></code>,
 <code><a href="measure_diverse_node.html">measure_diverse_node</a></code>,
 <code><a href="measure_features.html">measure_features</a></code>,
+<code><a href="measure_fit.html">measure_fit</a></code>,
 <code><a href="measure_fragmentation.html">measure_fragmentation</a></code>,
 <code><a href="measure_hierarchy.html">measure_hierarchy</a></code>,
 <code><a href="measure_periods.html">measure_periods</a></code></p></div>

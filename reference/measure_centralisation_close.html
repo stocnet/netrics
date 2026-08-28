@@ -7,7 +7,9 @@ mode_by_closeness() measures closeness centralization separately for each
 mode of a two-mode network, returning one score per mode
 (following Borgatti and Everett, 1997).
 net_by_reach() measures a network's reach centralization.
+net_by_decay() measures a network's decay centralization.
 net_by_harmonic() measures a network's harmonic centralization.
+net_by_integration() measures a network's integration centralization.
 
 
 All measures attempt to use as much information as they are offered,
@@ -37,7 +39,7 @@ scores, whereas mode_by_closeness() reports the per-mode scores directly."><meta
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">netrics</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.4.1</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.0.0</span>
       </span>
     </div>
 
@@ -117,7 +119,9 @@ single score.</p></li>
 mode of a two-mode network, returning one score per mode
 (following Borgatti and Everett, 1997).</p></li>
 <li><p><code>net_by_reach()</code> measures a network's reach centralization.</p></li>
+<li><p><code>net_by_decay()</code> measures a network's decay centralization.</p></li>
 <li><p><code>net_by_harmonic()</code> measures a network's harmonic centralization.</p></li>
+<li><p><code>net_by_integration()</code> measures a network's integration centralization.</p></li>
 </ul><p>All measures attempt to use as much information as they are offered,
 including whether the networks are directed, weighted, or multimodal.
 If this would produce unintended results,
@@ -137,6 +141,10 @@ scores, whereas <code>mode_by_closeness()</code> reports the per-mode scores dir
 <span></span>
 <span><span class="fu">net_by_reach</span><span class="op">(</span><span class="va">.data</span>, normalized <span class="op">=</span> <span class="cn">TRUE</span>, cutoff <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span>
 <span></span>
+<span><span class="fu">net_by_decay</span><span class="op">(</span><span class="va">.data</span>, normalized <span class="op">=</span> <span class="cn">TRUE</span>, decay <span class="op">=</span> <span class="fl">0.5</span>, direction <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"out"</span>, <span class="st">"in"</span><span class="op">)</span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu">net_by_integration</span><span class="op">(</span><span class="va">.data</span>, normalized <span class="op">=</span> <span class="cn">TRUE</span>, direction <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"in"</span>, <span class="st">"out"</span><span class="op">)</span><span class="op">)</span></span>
+<span></span>
 <span><span class="fu">net_by_harmonic</span><span class="op">(</span><span class="va">.data</span>, normalized <span class="op">=</span> <span class="cn">TRUE</span>, cutoff <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span></code></pre></div>
     </div>
 
@@ -145,9 +153,9 @@ scores, whereas <code>mode_by_closeness()</code> reports the per-mode scores dir
 
 
 <dl><dt id="arg--data">.data<a class="anchor" aria-label="anchor" href="#arg--data"></a></dt>
-<dd><p>A network object of class <code>mnet</code>, <code>igraph</code>, <code>tbl_graph</code>, <code>network</code>, or similar.
-For more information on the standard coercion possible,
-see <code><a href="https://stocnet.github.io/manynet/reference/coerce_graph.html" class="external-link">manynet::as_tidygraph()</a></code>.</p></dd>
+<dd><p>A network object of class <code>stocnet</code>, <code>igraph</code>, <code>tbl_graph</code>, <code>network</code>, or similar.
+Internally any of these will be coerced to an efficient implementation.
+For more information on possible coercions, see e.g. <code><a href="https://stocnet.github.io/manynet/reference/coerce_graph.html" class="external-link">manynet::as_stocnet()</a></code>.</p></dd>
 
 
 <dt id="arg-normalized">normalized<a class="anchor" aria-label="anchor" href="#arg-normalized"></a></dt>
@@ -164,8 +172,21 @@ By default "all".</p></dd>
 
 
 <dt id="arg-cutoff">cutoff<a class="anchor" aria-label="anchor" href="#arg-cutoff"></a></dt>
-<dd><p>The maximum path length to consider when calculating betweenness.
-If negative or NULL (the default), there's no limit to the path lengths considered.</p></dd>
+<dd><p>Integer scalar, the maximum path length considered.
+Paths longer than this are ignored, which restricts the measure to a
+node's local neighbourhood.
+Where a measure is defined over all paths by default,
+a negative value or <code>NULL</code> imposes no limit.</p></dd>
+
+
+<dt id="arg-decay">decay<a class="anchor" aria-label="anchor" href="#arg-decay"></a></dt>
+<dd><p>A proportion between 0 and 1 giving how much of a contribution
+survives each additional step of distance or walk length.
+Lower values discount more steeply, so that only nearby others count;
+higher values discount less, so that longer walks continue to contribute.
+The measures that take a <code>decay</code> differ in what they discount and in what
+value leaves the measure in its most familiar form,
+so each documents its own default.</p></dd>
 
 </dl></div>
     <div id="value">
@@ -173,6 +194,19 @@ If negative or NULL (the default), there's no limit to the path lengths consider
     <p><code>net_by_*()</code> functions return a <code>network_measure</code> scalar;
 <code>mode_by_closeness()</code> returns a <code>mode_measure</code> numeric vector of length two,
 giving one centralization score per mode.</p>
+    </div>
+    <div id="decay-and-integration-centralization">
+    <h2>Decay and integration centralization</h2>
+
+
+<p>Unlike reach centrality, decay and integration scores are not bounded above
+by \(N-1\): integration scores scale with the network's diameter.
+Freeman's index therefore cannot use the same denominator as
+<code>net_by_reach()</code>, which would return negative values.
+Instead these apply the general centralization index over the <em>normalized</em>
+node scores, each of which lies in \([0,1]\), so the numerator's maximum
+is \(N-1\) and the result is guaranteed to lie in \([0,1]\).
+This is the same approach <code>net_by_closeness()</code> takes for two-mode networks.</p>
     </div>
     <div id="references">
     <h2>References</h2>
@@ -185,19 +219,19 @@ giving one centralization score per mode.</p>
     <h2>See also</h2>
     <div class="dont-index"><p>Other closeness:
 <code><a href="measure_central_close.html">measure_central_close</a></code>,
-<code><a href="measure_centralities_close.html">measure_centralities_close</a></code></p>
+<code><a href="measure_central_tie_close.html">measure_central_tie_close</a></code></p>
 <p>Other centrality:
 <code><a href="measure_central_between.html">measure_central_between</a></code>,
 <code><a href="measure_central_close.html">measure_central_close</a></code>,
 <code><a href="measure_central_degree.html">measure_central_degree</a></code>,
 <code><a href="measure_central_eigen.html">measure_central_eigen</a></code>,
+<code><a href="measure_central_tie_between.html">measure_central_tie_between</a></code>,
+<code><a href="measure_central_tie_close.html">measure_central_tie_close</a></code>,
+<code><a href="measure_central_tie_degree.html">measure_central_tie_degree</a></code>,
+<code><a href="measure_central_tie_eigen.html">measure_central_tie_eigen</a></code>,
 <code><a href="measure_centralisation_between.html">measure_centralisation_between</a></code>,
 <code><a href="measure_centralisation_degree.html">measure_centralisation_degree</a></code>,
-<code><a href="measure_centralisation_eigen.html">measure_centralisation_eigen</a></code>,
-<code><a href="measure_centralities_between.html">measure_centralities_between</a></code>,
-<code><a href="measure_centralities_close.html">measure_centralities_close</a></code>,
-<code><a href="measure_centralities_degree.html">measure_centralities_degree</a></code>,
-<code><a href="measure_centralities_eigen.html">measure_centralities_eigen</a></code></p></div>
+<code><a href="measure_centralisation_eigen.html">measure_centralisation_eigen</a></code></p></div>
     </div>
 
     <div id="ref-examples">
@@ -207,6 +241,10 @@ giving one centralization score per mode.</p>
 <span class="r-in"><span><span class="fu">mode_by_closeness</span><span class="op">(</span><span class="va">ison_southern_women</span>, direction <span class="op">=</span> <span class="st">"in"</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Mode 1 Mode 2 </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  0.224  0.537 </span>
+<span class="r-in"><span><span class="fu">net_by_decay</span><span class="op">(</span><span class="va">ison_adolescents</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0.189</span>
+<span class="r-in"><span><span class="fu">net_by_integration</span><span class="op">(</span><span class="va">ison_adolescents</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0.143</span>
 </code></pre></div>
     </div>
   </div>
