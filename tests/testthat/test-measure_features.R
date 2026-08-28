@@ -30,3 +30,12 @@ test_that("net_waves works", {
   # expect_equal(net_waves(ison_adolescents), 1)
   expect_values(net_by_waves(wavenet), 3)
 })
+
+test_that("net_by_waves counts waves held in a `time` attribute", {
+  # These hold their waves under `time` rather than `wave`, so reading only
+  # `wave` reported one wave for each of them.
+  expect_values(net_by_waves(ison_monks), 3)
+  expect_values(net_by_waves(ison_fraternity), 15)
+  expect_values(net_by_waves(ison_classmates), 4)
+  expect_values(net_by_waves(ison_adolescents), 1)
+})

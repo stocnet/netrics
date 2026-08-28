@@ -93,6 +93,7 @@
 - Fixed `node_by_reciprocity()` to return 1 throughout for any undirected network
 - Fixed `node_by_information()` on rectangular matrices by using `manynet::to_multilevel()`
 - Fixed `net_by_independence()` erroring on multilevel networks by measuring whole
+- Fixed `net_by_waves()` reporting one wave where waves are held as `time`
 
 ## Memberships
 
@@ -129,7 +130,8 @@
 - Fixed `node_in_regular()` to compute regular equivalence correctly
   - Choose between `regularity = "rolesim"` (default) and `"rege"` for recursive similarity
   - Note existing scripts calling `node_in_regular()` will now return more correct results
-  - Moved former similarity of local embedding to `node_in_motif()`
+  - Moved counting of motif types to `node_in_motif()`,
+  though neither is Burt's equivalence or an orbit-aware census (thanks @Kaladani)
 - Renamed `Kmax=` to `max_k=` in the community and equivalence functions
 - Renamed `num_groups=` to `groups=` in `node_in_roulette()`
 - Renamed `cluster_by=` to `split=` in `node_in_core()`

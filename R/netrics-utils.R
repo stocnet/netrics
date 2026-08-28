@@ -51,6 +51,22 @@ seq_nodes <- function(.data){
   fn(.data)
 }
 
+# Compatibility shim: `manynet::net_waves()` has existed since manynet 2.2.0,
+# but only learned to read a `time` tie attribute in 2.3.0, and every bundled
+# longitudinal network holds its waves there rather than under `wave`. At the
+# declared floor it therefore reports one wave for `ison_monks`, which
+# `manynet::net_waves()` on 2.3.1 reports as three. The count is taken here as
+# well, so the answer does not depend on which manynet is installed.
+# Remove this and call `manynet::net_waves()` directly once the DESCRIPTION
+# floor is raised past 2.3.0.
+.net_waves <- function(.data) {
+  attr_waves <- vapply(c("wave", "time"), function(a) {
+    vals <- manynet::tie_attribute(.data, a)
+    if(is.null(vals)) 1L else length(unique(vals))
+  }, FUN.VALUE = integer(1))
+  max(manynet::net_waves(.data), attr_waves)
+}
+
 # Resolve membership to a vector:
 # if a single character string naming a network attribute is provided,
 # retrieve that attribute as a vector; otherwise return the value as-is.

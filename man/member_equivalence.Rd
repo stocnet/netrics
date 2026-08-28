@@ -178,8 +178,18 @@ Where the other functions here compare nodes on \emph{whom} they are tied to,
 in, by clustering a census of the triads (or, for two-mode networks,
 tetrads) each node participates in.
 
-This captures similarity of local embedding rather than equivalence of
-role. It is well suited to distinguishing nodes that sit in dense,
+Note that the census counts the \emph{types} of motif a node takes part in,
+and not the position it holds within them.
+In the path \eqn{i \rightarrow k \rightarrow j}, for example,
+all three nodes return a profile of one 021C triad,
+although \eqn{i} sends, \eqn{k} mediates and \eqn{j} receives.
+This is therefore neither Burt's role equivalence,
+which distinguishes those positions,
+nor the orbit-aware census of Ortmann and Brandes,
+which netrics does not yet offer.
+
+What it captures is similarity of local embedding.
+It is well suited to distinguishing nodes that sit in dense,
 closed neighbourhoods from those that bridge open ones,
 but it is not regular equivalence: see \code{node_in_regular()} for that.
 
@@ -218,6 +228,22 @@ if(require("sna", quietly = TRUE)){
 net_by_inconsistency(ison_adolescents, nbm)
 }
 \references{
+\subsection{On role equivalence}{
+
+Burt, Ronald S. 1990.
+"Detecting role equivalence".
+\emph{Social Networks} 12(1): 83-97.
+\doi{10.1016/0378-8733(90)90023-3}
+}
+
+\subsection{On the orbit-aware census}{
+
+Ortmann, Mark, and Ulrik Brandes. 2017.
+"Efficient orbit-aware triad and quad census in directed and undirected graphs".
+\emph{Applied Network Science} 2(1): 13.
+\doi{10.1007/s41109-017-0027-2}
+}
+
 \subsection{On direct blockmodelling}{
 
 Doreian, Patrick, Vladimir Batagelj, and Anuska Ferligoj. 2005.
