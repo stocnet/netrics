@@ -26,6 +26,15 @@ The GitHub page allows to access the issues assigned to you and check the commit
 You can also access the documents in the repository, 
 although this won't be necessary after you have cloned it on your computer via Fork.
 
+### Identifying issues
+
+Please use the issues tracker on GitHub to identify any function-related issues.
+You can use these issues to track progress on the issue and
+to comment or continue a conversation on that issue.
+The most useful issues are ones that precisely identify an error,
+or propose a test that should pass but instead fails.
+Examples for documentation are also most welcome.
+
 ### Cloning
 
 Once you have downloaded Fork, the first thing you have to do is to 
@@ -55,6 +64,11 @@ if you don't want to do it in two steps.
 If you are working on a separate branch, 
 it is important to select this branch when pushing to origin/main.
 
+Commits may reference an existing GitHub issue number.
+Where the issue number is preceded by `resolve`/`resolves`/`resolved`,
+`close`/`closes`/`closed`, or `fix`/`fixes`/`fixed` (capitalised or not),
+GitHub updates the status of the issue automatically.
+
 ### Branching and CI
 
 - `main` is the release branch; `develop` is the working branch (clone/work on `develop`).
@@ -66,6 +80,9 @@ it is important to select this branch when pushing to origin/main.
 
 In terms of style, we are aiming for pleasant predictability in terms of user experience.
 To that end, we have a regular syntax that users can rely on producing expected effects.
+Functions in the same family (`node_by_*()`, `node_in_*()`, `node_x_*()`, etc.)
+should share argument order and naming,
+so that behaviour is guessable across the family.
 
 ## Package architecture
 
@@ -92,6 +109,7 @@ Run these from an R console with the working directory set to the package root (
 - Spell check: `spelling::spell_check_package()`
 - Code coverage: `covr::package_coverage()`
 - Rebuild `README.md` from `README.Rmd`: `devtools::build_readme()`
+- Check every topic is in the pkgdown index: `pkgdown::check_pkgdown()`
 - Build pkgdown site locally: `pkgdown::build_site()`
 
 There is no non-R build system — no package.json/Makefile.
@@ -115,6 +133,10 @@ Functions are grouped into four families by naming pattern, each with dedicated 
 When adding a new analytic function, pick the family that matches its semantics and follow the existing naming scheme exactly.
 This predictability is a stated project goal.
 
+Where one concept appears in several families, give it one stem in each:
+`node_is_core()`, `node_by_core()` and `node_in_core()` are the mark, the measure and
+the membership of the same idea.
+
 ### Method helper naming
 
 Besides the four analytic families, some functions take a **character argument that selects a method**.
@@ -128,6 +150,7 @@ Users can therefore find the implementation, and its documentation, from the arg
 | `method_kselect` | an integer, the number of clusters | `k_*` | `k =` |
 | `method_cluster` | an `hclust` clustering object | `cluster_*` | `cluster =` |
 | `method_regularity` | a node-by-node similarity matrix | `regularity_*` | `regularity =` |
+| `method_coreness` | a continuous coreness score plus a core/periphery split | `coreness_*` | `coreness =` |
 
 Apply that test when naming a new family. For example, `equivalence_*` would be the wrong name for `regularity_*`, even though those methods are only ever called from `node_in_regular()`: they return a *similarity*, which `cluster_*()` only later partitions into an equivalence. Naming the step for the pipeline's eventual output rather than its own return value breaks the rule.
 
@@ -153,6 +176,38 @@ Two rules about number:
 
 Finally, avoid words that imply another stocnet package's remit. `{netrics}` is descriptive; statistical modelling and testing belong to `{migraph}`. This is why the direct blockmodelling search is `node_in_block()` rather than `node_in_blockmodel()`, even though "blockmodel" is the literature's term — prose and `@section` headings should still say blockmodelling, since it is only the exported name that signals remit.
 
+### Argument names and vocabulary
+
+One word means one thing across the package, and one thing takes one word.
+Before adding an argument, look for the name the package already uses for that idea:
+
+| Argument | Means |
+|---|---|
+| `normalized` | divide by a theoretical maximum, so scores compare across networks |
+| `scaled` | divide by the observed maximum, so the highest-scoring node takes 1 |
+| `decay` | any per-step discount, always a proportion on `[0,1]` where higher values discount less |
+| `alpha` | only Opsahl et al.'s trade-off between degree and strength in `node_by_degree()` |
+| `direction` | `"all"`, `"in"` or `"out"`, validated with `match.arg()` |
+| `cutoff` | a geodesic distance bound |
+| `k` | a target number of groups, or the name of a `k_*` selection method |
+| `cluster`, `coreness`, `regularity` | select a method helper, as above |
+
+Four points follow from this:
+
+- Prefer an existing argument to a new one.
+  `decay` replaced four names for one parameter: `decay` in `node_by_harmonic()`,
+  `alpha` in `node_by_alpha()`, `beta` in `regularity_rolesim()`,
+  and PageRank's damping factor, which was not exposed at all.
+- Validate a shared argument in one helper, e.g. `check_decay()`
+  ([R/class_metrics.R](../R/class_metrics.R)),
+  so that the bound and the message cannot drift apart between measures.
+- Document it once as a `man-roxygen/param_*.R` template
+  (`param_decay`, `param_cutoff`, `param_norm`), and `@template` it everywhere.
+- Where a word cannot carry the same meaning everywhere, that is a sign it is the wrong word,
+  not a licence to overload it.
+  `node_by_power(exponent=)` is deliberately not a `decay`,
+  because a negative exponent inverts the measure rather than discounting it.
+
 ### Function body convention
 
 Functions consistently:
@@ -163,6 +218,85 @@ Functions consistently:
 
 All `manynet`/`igraph` calls use explicit `::` namespacing rather than importing whole namespaces (`{manynet}` and `{igraph}` are still listed in `@importFrom` roxygen tags per-file for NAMESPACE generation).
 
+Where the function is a measure, the `make_*_measure()` call also declares
+`measure`, `range`, `normalization` and `variant`
+(see [Adding a measure](#adding-a-measure)).
+
+### Input shapes
+
+Most defects reported against this package are not wrong arithmetic.
+They are a network shape the function did not expect.
+Before finishing a function, run it on a signed, a weighted, a directed, a two-mode,
+a multiplex, a multilevel and a longitudinal network, and decide each case deliberately:
+
+- **Signed.** A `stocnet` object holds a tie's sign as the sign of its weight,
+  so a signed network reaches `{igraph}` carrying a `weight` attribute of -1 and 1.
+  Shortest-path functions read any attribute of that name as a distance,
+  and either abort on the negative values or report a negative cycle.
+  Where the measure concerns cohesion or distance, call `.to_positive()`
+  ([R/netrics-utils.R](../R/netrics-utils.R)), which drops to the positive ties and says so.
+  Do not simply drop the attribute: that reads a negative tie as a path of length one,
+  when a negative tie is hostility rather than a channel along which cohesion travels.
+- **Multiplex.** Take one layer at a time with `manynet::to_uniplex()`.
+  That drops nodes holding none of the retained ties, so results of different lengths
+  would otherwise be recycled against each other; `uniplex_degree()`
+  ([R/measure_centrality_degree.R](../R/measure_centrality_degree.R))
+  restores the whole nodeset, and is the pattern to follow.
+- **Multilevel.** A multilevel network reports itself as two-mode,
+  but holds ties within a mode as well as between them, so it cannot be projected.
+  Measure it whole rather than projecting, as `net_by_independence()` now does.
+- **Longitudinal and diffusion.** Nodes may change over waves while the ties do not,
+  so do not assume a nodeset and a tieset of matching length or wave.
+
+Document each decision in the roxygen block with an `@section` named for the shape,
+e.g. `@section Signed networks:` or `@section Multilevel networks:`.
+Say what the function does with such a network,
+and how the user can control it themselves, e.g. with `manynet::to_unsigned()`.
+
+### Adding a measure
+
+1. Name it for its family and level, and put it in the `R/measure_*.R` file of its topic,
+   sharing a roxygen block with the functions it belongs with.
+2. Coerce, branch on the input shapes above, compute,
+   then wrap the result with the matching `make_*_measure()`.
+3. Declare `measure`, `range`, `normalization` and `variant` in that call.
+   These attributes are what lets a result be read without the manual,
+   so a measure that resolves its method at run time declares the method it actually used,
+   as `net_by_diversity()` and `net_by_core()` do.
+4. Add it to the right roster in
+   [tests/testthat/helper-contract.R](../tests/testthat/helper-contract.R),
+   giving any arguments it needs to be applicable.
+   `test-measure_registry_contract.R` compares the rosters against the namespace,
+   so a measure in no roster fails the build rather than escaping the sweep.
+   Where a measure cannot take the roster's shape, add it to `uncontracted_measures`
+   with a comment saying why, and cover it in its family's contract file instead.
+5. Add assertions to the mirroring `test-measure_*.R`.
+6. Check the website still builds, and add one `NEWS.md` bullet.
+
+An exemption is a declaration, not a gap: where an argument cannot have an effect,
+record it in the exemption list with the reason, as the eigenvector measures do.
+
+### Renaming or retiring a name
+
+A rename is cheap for us and expensive for users, so each one carries a shim:
+
+- **A renamed function** gets a forwarding shim in
+  [R/netrics-defunct.R](../R/netrics-defunct.R), which calls `.Deprecated()`
+  and is documented with `@describeIn defunct Deprecated on <date>.`
+  plus one sentence on why the new name is better.
+  These shims are cleared at each minor release.
+- **A renamed argument** keeps the old spelling as an argument defaulting to `NULL`,
+  resolved by a `resolve_*()` helper in [R/class_metrics.R](../R/class_metrics.R)
+  that warns and returns the new value.
+  Use base `warning()` there rather than `manynet::snet_warn()`:
+  `snet_*()` output is quiet by default, and a renamed argument is something
+  the user must act on.
+- **Fold rather than duplicate where the new name subsumes the old.**
+  `net_x_mixed()` became a case of `net_x_triad()`, which now takes the multilevel census
+  whenever it is given both a one-mode and a two-mode network.
+- **Update the prose too.** The README, the tutorials and the vignettes advertise
+  function names, so grep for the old name after every rename.
+
 ### File organization
 
 `R/` files are organized by function family and topic, not one-file-per-function: e.g. `measure_centrality_degree.R`, `measure_cohesion.R`, `member_community.R`, `motif_brokerage.R`, `mark_nodes.R`/`mark_ties.R`. Related functions (e.g. `node_by_degree()` and its shortcuts `node_by_deg()`, `node_by_indegree()`, `node_by_outdegree()`) share one `@name`/roxygen block and file.
@@ -171,14 +305,61 @@ Shared roxygen documentation blocks live in `man-roxygen/` as `@template` fragme
 
 ### Tests
 
-Tests in `tests/testthat/` mirror the `R/` files (e.g. `test-measure_centrality.R`, `test-member_community.R`). 
+This package uses the `testthat` package for testing functions.
+Please see the [testthat website](https://testthat.r-lib.org) for more details.
+`testthat` edition 3 with parallel execution is configured in `DESCRIPTION` (`Config/testthat/parallel: true`). 
+`Config/testthat/start-first` should prioritise the test files that take longest to run.
+
+The main testing is *functional* (family-enumerating) testing.
+Rather than a test per function, each family sweeps its whole roster from
+[tests/testthat/helper-contract.R](../tests/testthat/helper-contract.R)
+and checks the promises the documentation makes:
+that a measure returns the right shape, declares what it computed,
+stays inside the range it declares, performs the normalisation it declares,
+and that its arguments actually do something.
+Where a function does not yet meet the contract,
+the sweep records an audit message rather than failing,
+so the outstanding gaps are enumerated on every run instead of being
+either invisible or a red build.
+`report_contract_gaps()` prints that list, which is the remaining work,
+and the aim is for it to shrink to empty.
+
+`test-tutorials_netrics.R` evaluates the code chunks of the tutorials in `inst/tutorials/`,
+so tutorial code that errors or raises a deprecation warning fails the suite.
+
+Any additional testing that is required for particular functions is covered in
+test files that mirror the `R/` files (e.g. `test-measure_centrality.R`, `test-member_community.R`). 
 `tests/testthat/helper-netrics.R` defines shared custom expectations/helpers used across tests:
 - `expect_values(object, ref)` — compares rounded numeric output against reference values.
 - `expect_mark(object, ref, top)` — compares character/label output.
 - `top3()`/`bot3()`/`top5()`/`bot5()` — pull top/bottom N values (rounded) from a result for use as terse reference vectors in assertions.
+The aim is to work towards comprehensive coverage,
+so each change should be fully covered by tests.
+However, we also need to keep an eye on the clock:
+CRAN complains if tests take too long,
+so use small fixtures or skip taxing tests.
+`# nocov start` and `# nocov end` can be used to exclude lines or functions
+that are too difficult to cover.
 
-`testthat` edition 3 with parallel execution is configured in `DESCRIPTION` (`Config/testthat/parallel: true`). 
-`Config/testthat/start-first` prioritizes `tutorials_netrics, measure_net, member_nodes, measure_nodes`.
+### Dependencies
+
+`netrics` `Depends` on `manynet` (network classes, coercion and logical tests),
+`Imports` `dplyr` and `igraph` (>= 2.1.0),
+and lists `autograph`, `sna` and `testthat` under `Suggests`,
+so code paths depending on a suggested package must guard with `requireNamespace()`
+or skip gracefully when it is unavailable.
+
+The declared minimum of each `stocnet` dependency is the version on CRAN,
+so that CI can install it.
+Where `netrics` needs something that only a newer, unreleased `manynet` has,
+reach it through a shim in [R/netrics-utils.R](../R/netrics-utils.R)
+rather than by raising the minimum.
+Resolve the name at call time from the namespace, as `.to_linegraph()` does for
+`manynet::to_linegraph()`, which was `to_ties()` before manynet 2.3.0.
+Test for the function rather than for the version string,
+because a pre-release development build can carry the version
+without yet exporting the function.
+Delete each shim once the minimum is raised past the version that added the function.
 
 ### Console messaging
 
@@ -255,24 +436,44 @@ Note that `README.md` is generated from `README.Rmd` — edit `README.Rmd` and r
 
 The website is created by pkgdown from [pkgdown/_pkgdown.yml](../pkgdown/_pkgdown.yml),
 and is deployed automatically when changes reach `main`.
-Please make sure that the pkgdown website will build correctly:
-run `pkgdown::build_site()` locally before opening a PR.
+Please make sure that the pkgdown website will build correctly before opening a PR:
+
+```r
+pkgdown::check_pkgdown()              # every topic is in the index
+pkgdown::build_site(preview = FALSE)  # everything else
+```
+
 The most common failure is a new exported function that is not picked up under the
 function overview (the `reference:` section of `_pkgdown.yml`) —
 pkgdown requires *every* exported topic to appear there exactly once, or it will not build.
 Where possible, add functions to an existing subtitle's `starts_with()`/`contains()` pattern
 (e.g. a new `node_is_*()` mark or `node_in_*()` membership needs no change),
 and only list the topic explicitly where it does not fit a pattern.
+A helper that users are not meant to call takes `@keywords internal` instead.
 These `reference:` titles are also the headings used in `NEWS.md` (see below),
 so keep the two in step.
 
-The static pkgdown versions of the `{learnr}` tutorials, `vignettes/articles/*.Rmd`,
-are generated rather than edited directly:
-they are built from `inst/tutorials/*/*.Rmd` by
+The `{learnr}` tutorials in `inst/tutorials/` are the source.
+`vignettes/articles/*.Rmd` are their static pkgdown twins, and are *generated* from them by
 [data-raw/build_tutorial_articles.R](../data-raw/build_tutorial_articles.R).
-After editing a tutorial, re-run that script and commit the regenerated articles;
-CI checks that the two are in sync.
-New tutorials also need an entry under `articles:` in `_pkgdown.yml`.
+Never edit an article by hand:
+the next regeneration discards the edit,
+and [prchecks.yml](workflows/prchecks.yml) fails the PR for drift meanwhile.
+
+After adding or changing functionality,
+ask whether a reader learning the package would meet it, and if so:
+
+1. Edit the tutorial in `inst/tutorials/<tute>/*.Rmd`,
+   adding the function to the topic it belongs to in an `exercise=TRUE` chunk,
+   with a sentence saying what it is for.
+2. Re-run `Rscript data-raw/build_tutorial_articles.R`,
+   and commit the regenerated article.
+3. Run `testthat::test_file("tests/testthat/test-tutorials_netrics.R")`,
+   which evaluates every chunk, so new tutorial code is tested.
+
+A tutorial is also where a renamed function shows up as stale,
+so check the tutorials whenever you rename one.
+New tutorials need an entry under `articles:` in `_pkgdown.yml`.
 
 ### `NEWS.md` conventions
 
@@ -292,10 +493,29 @@ Start each bullet with a verb matching the change type:
 - `Improved ...` — functional updates to existing behaviour
 - `Updated ...` — documentation changes
 
+Any of these verbs can also lead a sub-bullet,
+though `Improved ...` is perhaps most commonly used to cluster changes 
+relating to a single function.
+If so, the function need only be named once, at the top;
+sub-bullets will obviously relate to that function.
+
 If a cited GitHub issue was **not** authored by @jhollway, thank the author with an
 `@`-tag in the bullet.
-Cluster related changes (e.g. several fixes to the same function, or sub-points of one
-feature) as indented sub-bullets under a lead bullet, to improve readability.
+
+#### Grouping
+
+Group first, and only then write the bullets.
+The more entries a version holds, the more this matters.
+
+- Cluster related changes as indented sub-bullets under a lead bullet.
+- Where several changes concern one function, lead with an `Improved ...` bullet naming
+  the function, and put the individual `Fixed ...`/`Added ...` points beneath it,
+  so the cluster groups by function rather than by change type.
+- Under such a lead bullet, do not name the function again in the sub-bullets,
+  since the lead bullet already carries it.
+- Where one decision runs across many functions, lead with the decision rather than
+  with each function, as the `decay` and measure-attribute entries do.
+- Sub-bullets indent by two spaces, and nest at most one level further (four spaces).
 
 #### Writing the bullets
 
@@ -305,13 +525,25 @@ so avoid over-punctuation or over-explanation.
 Details can be added to the function documentation, if necessary.
 
 - No full stop at the end of a bullet
+- Keep every bullet to one line of fewer than 81 characters ideally
+  (a few more or less is fine)
+  - If a bullet wraps, it holds too much: shorten it,
+    or split it into a lead bullet and sub-bullets
 - One clause where possible, and at most one comma
-  - If a bullet needs a second clause to be understood, use a sub-bullet
+  - Use a semicolon for a short second clause, e.g. "old spelling still works but warns"
+  - Use a sub-bullet where the second clause needs more room than that
 - Name the function or object in backticks and say what changed to it,
   dropping scaffolding like "This change ...", "In order to ...", or "as part of an effort to"
 - Keep the *what*, and add the *why* only where the behaviour would otherwise look arbitrary
 - No trailing rationale, no restating the same change twice in different words,
   and no marketing adjectives such as "comprehensive" or "robust"
+- A sub-bullet does not need a verb: it can state the consequence,
+  the previous behaviour, or an example call
+- Cut a sub-bullet that only restates what the lead bullet already implies
+- Where several bullets describe parallel changes, reuse the sentence structure,
+  so that a reader sees the parallelism at a glance
+- Use one word for one thing throughout a version's entries,
+  rather than varying the wording for effect
 
 For example, instead of:
 
