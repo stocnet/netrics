@@ -13,8 +13,10 @@ for(fn in names(net_meas)) {
           expect_s3_class(net_meas[[fn]](data_objs[[ob]]), "network_measure") else
             succeed("Only used for signed objects")
       } else if(grepl("congruency", fn)){
+        # paired with a network that shares a mode, since a two-mode network
+        # whose modes differ in size cannot be congruent with itself
         if(ob == "twomode")
-          expect_s3_class(net_meas[[fn]](data_objs[[ob]], data_objs[[ob]]), "network_measure") else
+          expect_s3_class(net_meas[[fn]](data_objs[[ob]], congruent_twomode), "network_measure") else
             succeed("Only used for multiple two-mode objects")
       } else if(grepl("strength|toughness", fn)){ # why is this so slow??
         if(ob == "weighted")

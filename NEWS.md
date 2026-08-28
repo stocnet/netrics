@@ -18,12 +18,22 @@
   - `variant`, which variant was computed where a measure offers a choice, e.g. `net_by_reciprocity()` reports "ratio" when asked for the ratio
   - Printing is a companion change in `{manynet}`, which defaults to previous behavior
   - Added `measure`, `range`, `normalization`, and `variant` reporting to every measure where applicable
-- Updated documentation such that the measures that certain arguments produce are discoverable by name
+- Updated documentation such that measures that functions and certain arguments produce are discoverable by name
   - `node_by_betweenness(cutoff = k)` is distance-bounded or range-limited betweenness
   - `node_by_reach(cutoff = k)` is geodesic k-path centrality
+  - `node_by_closeness()` as the Sabidussi index
+  - `node_by_degree()` on a weighted network as strength or weighted degree centrality
+  - `node_by_alpha()` as Katz status
+  - `node_by_hub()` and `node_by_authority()` as the two halves of Kleinberg's HITS
+  - `node_by_transitivity()` as the local clustering coefficient
+  - `tie_by_betweenness()` as edge betweenness
+  - `node_by_subgraph()` as a node's contribution to the Estrada index
+  - `node_by_induced()` and `node_by_vitality()` are the betweenness and closeness instances of Latora and Marchiori's delta centrality, and cross-referenced them to each other
+  - `node_by_information()` is the closeness member of the current-flow family, whose betweenness member netrics does not yet offer
+  - Stopped `node_by_induced()` also calling itself "vitality centrality", which collided with `node_by_vitality()`
 - Improved specificity of arguments, separating normalising from scaling
   - Renamed `scale` argument to `scaled`; old spelling still works but warns
-  - Corrected documentation claiming that all measures return normalized values by default
+  - Corrected claim that all measures return normalized values by default
 - Improved consistency by consolidating every per-step discount as `decay`
   - Always proportional [0,1] where higher values discount less
   - Was `alpha` in `node_by_alpha()`, `beta` in `regularity_rolesim()`
@@ -32,10 +42,6 @@
   - Added `decay` to `node_by_pagerank()`, exposing the damping factor previously fixed at 0.85
   - Added `decay` to `node_by_subgraph()`, weighting closed walks by length, which Estrada calls `t`
   - Old spellings still work but warn, as `scale` does
-- Added `net_by_cyclicality()` for detecting generalised exchange
-- Added `net_by_compactness()` for the average closeness of all pairs of nodes
-- Added `node_by_integration()` and `net_by_integration()` for Valente and Foreman's integration and radiality
-- Added `node_by_radiality()` as a shortcut for `node_by_integration(direction = "out")`
 - Fixed `node_by_degree()` to default to `alpha = 0` to match documentation
 - Fixed `mode_by_betweenness()` to accept only `"all"` and `"in"`, as implemented
 - Fixed `node_by_reach()` counting the node itself so normalised scores could exceed 1
@@ -55,34 +61,27 @@
 - Improved `node_by_subgraph()`
   - Now honours tie weights
   - Added `method=` to choose which closed walks to count: `"odd"`, `"even"`, or`"all"` (default, both)
-- Documented measure aliases
-  - `node_by_closeness()` as the Sabidussi index
-  - `node_by_degree()` on a weighted network as strength or weighted degree centrality
-  - `node_by_alpha()` as Katz status
-  - `node_by_hub()` and `node_by_authority()` as the two halves of Kleinberg's HITS
-  - `node_by_transitivity()` as the local clustering coefficient
-  - `tie_by_betweenness()` as edge betweenness
-  - `node_by_subgraph()` as a node's contribution to the Estrada index
-  - `node_by_induced()` and `node_by_vitality()` are the betweenness and closeness instances of Latora and Marchiori's delta centrality, and cross-referenced them to each other
-  - `node_by_information()` is the closeness member of the current-flow family, whose betweenness member netrics does not yet offer
-  - Stopped `node_by_induced()` also calling itself "vitality centrality", which collided with `node_by_vitality()`
 - Updated references in centrality documentation
   - Corrected `node_by_eigenvector()` to cite Bonacich (1972) as the origin of the measure, rather than only Bonacich (1991)
   - Added Freeman (1978) to `node_by_degree()` and the centralisation functions, the source of the centralisation index they apply
   - Added references to `tie_by_betweenness()`, which had none
   - Added Sabidussi (1966) to closeness, Boldi and Vigna (2014) to harmonic, Borgatti and Everett (2006) to reach, Brandes (2008) and Ercsey-Ravasz et al. (2012) to betweenness, Watts and Strogatz (1998) and Holland and Leinhardt (1971) to node transitivity, and Page et al. (1999) to pagerank
 - Added `net_by_bipartivity()` for how close a network is to being bipartite
+- Added `net_by_cyclicality()` for detecting generalised exchange
+- Added `net_by_compactness()` for the average closeness of all pairs of nodes
+- Added `node_by_integration()` and `net_by_integration()` for Valente and Foreman's integration and radiality
+- Added `node_by_radiality()` as a shortcut for `node_by_integration(direction = "out")`
 - Added `net_by_inconsistency()` for how far a partition's blocks depart from ideal types
   - Ideal types are `nul`, `com`, `reg`, `rdo`, `cdo` and `dnc`
   - Generalises `net_by_factions()` beyond structural equivalence
 - Fixed `node_by_equivalency()` erroring on any network, despite being documented for the two-mode case
 - Fixed `node_by_diversity()` reporting an undefined object in its message about substituting an inapplicable index
-- Corrected `net_by_transmissibility()` to no longer declare itself a proportion
-  - At-risk denominator recorded at the end of each period rather than the start, so can exceed 1
+- Fixed `net_by_transmissibility()` declaring itself a proportion
 - Fixed `net_by_balance()` erroring on networks that hold signs as negative weights, which is how 'stocnet' objects keep them
-- Added family-wide contract test sweeping every measure for declared ranges, normalisation, and argument effects
 - Fixed `net_by_diameter()`, `net_by_length()`, and `net_by_compactness()` erroring on networks holding signs as negative weights, which were read as a distance
   - These measures now consider only the positive ties
+- Fixed `node_by_reciprocity()` to return 1 throughout for any undirected network
+- Fixed `node_by_information()` on rectangular incidence matrices by flattening with `manynet::to_multilevel()`
 
 ## Memberships
 
@@ -95,9 +94,13 @@
   - `node_in_community()` considers only these algorithms when `k` is given
   - `k` also accepts `"silhouette"`, `"elbow"`, and `"strict"`, as in `node_in_equivalence()`
   - Note `k=` is now the second argument, so positional calls such as `node_in_louvain(x, 0.5)` must become `node_in_louvain(x, resolution = 0.5)`
+- Fixed `node_in_fluid()` and `node_in_spinglass()` returning nothing on a disconnected network, now abort loudly
+- Added `node_in_labels()` for label propagation community detection
+- Renamed `times=` in `node_in_walktrap()` to `steps=`, which is more descriptive and consistent with `{igraph}`
 - Added `consensus=` to `node_in_community()` for combining partitions of all applicable algorithms
   - Runs each algorithm (stochastic ones `times`), then converges on how often each pair of nodes is grouped together
   - `consensus = FALSE` default, and ignored where network small enough for `node_in_optimal()`
+  - Fixed returning nothing but an error whenever verbosity was not `"verbose"`
 - Renamed `node_by_coreness()` to `node_by_core()`
   - Fixed search starting points rather than random
   - Fixed it returning identical scores for a directed network and its reverse
@@ -108,9 +111,6 @@
   - Adds `direction=` for directed networks, adding `"Sender"` for core out-ties and periphery in-ties and 
   `"Receiver"` for core in-ties and periphery out-ties
   - Fixed sorting numbered middle labels alphabetically or from arbitrary cluster numbers
-- Added `node_in_labels()` for label propagation community detection
-- Fixed `node_in_community()` returning nothing but an error whenever verbosity was not `"verbose"`
-- Renamed `times=` in `node_in_walktrap()` to `steps=`, which is more descriptive and consistent with `{igraph}`
 - Added `node_in_block()` for direct blockmodelling, searching partitions for the one that minimises `net_by_inconsistency()`
 - Fixed `node_in_regular()` to compute regular equivalence using recursive similarity between nodes rather than a triad census
   - Choose between `regularity = "rolesim"` (default) and `"rege"`

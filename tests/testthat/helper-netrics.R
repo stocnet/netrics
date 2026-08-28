@@ -66,7 +66,11 @@ bot5 <- function(res, dec = 4){
 collect_functions <- function(pattern, package = "netrics"){
   getNamespaceExports(package)[grepl(pattern, getNamespaceExports(package))]
 }
-funs_objs <- mget(ls("package:netrics"), inherits = TRUE)
+# Renamed functions are kept as warning wrappers in R/netrics-defunct.R for one
+# release. They delegate to their replacement, so sweeping them only produces
+# deprecation warnings for a name on its way out.
+defunct_fns <- c("node_by_coreness")
+funs_objs <- mget(setdiff(ls("package:netrics"), defunct_fns), inherits = TRUE)
 
 # data_objs <- mget(ls("package:manynet"), inherits = TRUE)
 # # Filter to relevant objects 
@@ -79,7 +83,12 @@ funs_objs <- mget(ls("package:netrics"), inherits = TRUE)
 
 set.seed(1234)
 data_objs <- list(directed = generate_random(12, directed = TRUE),
-                  twomode = generate_random(c(6,6)),
+                  # The two modes must differ in size. A square incidence
+                  # matrix passes silently through functions that assume a
+                  # square sociomatrix, which hid real bugs in
+                  # `node_by_core()`, `net_by_cyclicality()` and
+                  # `node_by_information()`.
+                  twomode = generate_random(c(6,8)),
                   labelled = to_signed(add_node_attribute(create_wheel(12), "name", 
                                                 LETTERS[1:12])),
                   attribute = add_node_attribute(create_ring(12), "group", 
@@ -89,6 +98,11 @@ data_objs <- list(directed = generate_random(12, directed = TRUE),
                   diffusion = play_diffusion(create_ring(12), seeds = 1, 
                                              steps = 5, latency = 0.75, 
                                              recovery = 0.25))
+
+# `net_by_congruency()` needs two two-mode networks that share a mode: the
+# second mode of the first must match the first mode of the second. The
+# sweeping fixture cannot be paired with itself once its modes differ in size.
+congruent_twomode <- generate_random(c(8,5))
 
 find_pkg_tutorial_paths <- function(pkg) {
   tute_folders <- list.dirs(system.file("tutorials", package = pkg),

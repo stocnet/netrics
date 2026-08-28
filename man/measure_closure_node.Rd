@@ -48,6 +48,14 @@ For one-mode networks, shallow wrappers of igraph versions exist via
 For two-mode networks, \code{node_by_equivalency} calculates the proportion of three-paths in the network
 that are closed by fourth tie to establish a "shared four-cycle" structure.
 }
+\section{Node reciprocity}{
+
+A node's reciprocity is the proportion of its ties that are returned.
+Where a network is undirected, including where it is two-mode, there is
+no direction for a tie to be returned along, so every node scores 1.
+This is what \code{net_by_reciprocity()} reports for such a network too.
+}
+
 \section{Node transitivity}{
 
 A node's transitivity is the proportion of its neighbours that are

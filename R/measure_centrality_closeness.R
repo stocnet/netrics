@@ -338,7 +338,11 @@ node_by_radiality <- function(.data, normalized = TRUE){
 node_by_information <- function(.data, normalized = TRUE){
   .data <- manynet::expect_nodes(.data)
   thisRequires("sna")
-  out <- sna::infocent(manynet::as_network(.data),
+  # `sna` needs a square sociomatrix, but `as_network()` hands it the
+  # rectangular incidence matrix of a two-mode network. Flattening to a
+  # multilevel network first gives every node a row and a column, which is
+  # how the other path-based measures in this file handle two modes.
+  out <- sna::infocent(manynet::as_network(manynet::to_multilevel(.data)),
                        gmode = ifelse(manynet::is_directed(.data), "digraph", "graph"),
                        diag = manynet::is_complex(.data),
                        rescale = normalized)

@@ -71,6 +71,10 @@ net_by_transitivity <- function(.data) {
 #'   the signature of generalised exchange, where resources circulate around a
 #'   loop rather than flowing consistently in one direction.
 #'
+#'   A two-mode network contains no cycle of odd length, so it scores 0 here,
+#'   just as it does for transitivity. Use `net_by_equivalency()` for closure
+#'   in a two-mode network, which counts four-cycles instead.
+#'
 #'   In an undirected network every two-path closed in one direction is also
 #'   closed in the other, so cyclicality and transitivity coincide.
 #' @references
@@ -84,7 +88,13 @@ net_by_transitivity <- function(.data) {
 #' @export
 net_by_cyclicality <- function(.data) {
   .data <- manynet::expect_nodes(.data)
-  mat <- manynet::as_matrix(manynet::to_unweighted(.data))
+  # Flattening to a multilevel network gives every node a row and a column,
+  # so that a two-mode network can be squared at all. It then scores 0, since
+  # it contains no cycle of odd length, which is how `net_by_transitivity()`
+  # already treats two modes. Squaring the raw incidence matrix instead
+  # errored on uneven modes and returned a meaningless number on even ones.
+  mat <- manynet::as_matrix(
+    manynet::to_unweighted(manynet::to_multilevel(.data)))
   diag(mat) <- 0
   twopaths <- mat %*% mat
   diag(twopaths) <- 0 # i -> j -> i is not a two-path
@@ -207,6 +217,11 @@ net_by_congruency <- function(.data, object2){
 NULL
 
 #' @rdname measure_closure_node 
+#' @section Node reciprocity:
+#'   A node's reciprocity is the proportion of its ties that are returned.
+#'   Where a network is undirected, including where it is two-mode, there is
+#'   no direction for a tie to be returned along, so every node scores 1.
+#'   This is what `net_by_reciprocity()` reports for such a network too.
 #' @examples
 #' node_by_reciprocity(ison_networkers)
 #' @export
@@ -216,7 +231,14 @@ node_by_reciprocity <- function(.data) {
     manynet::snet_info("Using the unweighted form of the network.")
   # A proportion of a node's ties that are returned, so counts of ties rather
   # than sums of weights: otherwise a reciprocated tie of weight 3 scores 3.
-  out <- manynet::as_matrix(manynet::to_unweighted(.data))
+  # Flattening to a multilevel network squares the matrix, so a two-mode
+  # network scores 1 throughout: every tie is trivially returned when there is
+  # no direction to return along. That is what `net_by_reciprocity()` already
+  # reports for any undirected network. Multiplying the raw incidence matrix
+  # by its transpose instead errored on uneven modes and returned a
+  # meaningless number on even ones.
+  out <- manynet::as_matrix(
+    manynet::to_unweighted(manynet::to_multilevel(.data)))
   make_node_measure(rowSums(out * t(out))/rowSums(out),
                     .data, measure = "reciprocity", range = c(0, 1),
                     normalization = "normalized")

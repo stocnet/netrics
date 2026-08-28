@@ -523,16 +523,19 @@ node_in_infomap <- function(.data, times = 50){
 #' @export
 node_in_spinglass <- function(.data, max_k = 200, resolution = 1){
   .data <- manynet::expect_nodes(.data)
-  if(!igraph::is_connected(.data)) # note manynet::is_connected will return false
-    manynet::snet_unavailable("This algorithm only works for connected networks.",
-                     "We suggest using `to_giant()`", 
-                     "to select the largest component.") else {
-      out <- igraph::cluster_spinglass(manynet::as_igraph(.data), 
-                                       spins = max_k, gamma = resolution,
-                                       implementation = ifelse(manynet::is_signed(.data), "neg", "orig")
-      )$membership
-      make_node_member(out, .data)
-    }
+  # `snet_unavailable()` is silent unless verbosity is raised, so this was a
+  # branch that returned NULL rather than a membership. Note also that
+  # `manynet::is_connected()` returns FALSE for a two-mode network, so the
+  # test is made with igraph.
+  if(!igraph::is_connected(manynet::as_igraph(.data)))
+    manynet::snet_abort("This algorithm only works for connected networks.",
+                        "We suggest using {.fn to_giant}",
+                        "to select the largest component.")
+  out <- igraph::cluster_spinglass(manynet::as_igraph(.data), 
+                                   spins = max_k, gamma = resolution,
+                                   implementation = ifelse(manynet::is_signed(.data), "neg", "orig")
+  )$membership
+  make_node_member(out, .data)
 }
 
 #' @rdname member_community_non 
@@ -556,11 +559,13 @@ node_in_fluid <- function(.data, k = NULL, Kmax = 8L) {
   .data <- manynet::expect_nodes(.data)
   k <- check_k(k, .data)
   .data <- manynet::as_igraph(.data)
+  # As in `node_in_spinglass()`: this must abort, or the function returns NULL.
   if (!igraph::is_connected(.data)) {
-    manynet::snet_unavailable("This algorithm only works for connected networks.",
-                     "We suggest using `to_giant()`", 
-                     "to select the largest component.")
-  } else {
+    manynet::snet_abort("This algorithm only works for connected networks.",
+                        "We suggest using {.fn to_giant}",
+                        "to select the largest component.")
+  }
+  {
     if(manynet::is_complex(.data)){
       manynet::snet_info("This algorithm only works for simple networks.", 
                       "Converting to simplex.")

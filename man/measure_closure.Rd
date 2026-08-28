@@ -73,6 +73,10 @@ hierarchy and of "a friend of a friend is a friend", while cyclicality is
 the signature of generalised exchange, where resources circulate around a
 loop rather than flowing consistently in one direction.
 
+A two-mode network contains no cycle of odd length, so it scores 0 here,
+just as it does for transitivity. Use \code{net_by_equivalency()} for closure
+in a two-mode network, which counts four-cycles instead.
+
 In an undirected network every two-path closed in one direction is also
 closed in the other, so cyclicality and transitivity coincide.
 }
