@@ -150,6 +150,7 @@ the other mode's nodes take \code{NA}.
 \examples{
 node_x_ties(ison_networkers)
 node_x_ties(ison_algebra)
+node_x_ties(fict_marvel)
 node_x_alters(ison_networkers, "Discipline")
 node_x_alters(ison_networkers, "Citations")
 node_x_similarity(ison_networkers, "Discipline")

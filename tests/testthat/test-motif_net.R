@@ -21,3 +21,35 @@ for(fn in names(net_motifs)) {
   }
 }
 
+
+test_that("net_x_triad takes a mixed census over a multilevel network", {
+  # `net_x_triad()` used to refuse this as "not yet implemented", although
+  # `net_x_mixed()` implemented it in the same file
+  res <- net_x_triad(fict_marvel)
+  expect_s3_class(res, "network_motif")
+  expect_length(res, 10)
+  expect_equal(names(res),
+               c("22", "21", "20", "12", "11D", "11U", "10", "02", "01", "00"))
+  # a census counts configurations, so no count can be negative: the signs
+  # fict_marvel holds as negative weights must not reach the arithmetic
+  expect_true(all(as.numeric(res) >= 0))
+  # the same census, asked for by supplying the two networks directly
+  one <- manynet::to_uniplex(fict_marvel, "relationship")
+  two <- manynet::to_uniplex(fict_marvel, "affiliation")
+  expect_equal(as.numeric(net_x_triad(one, two)), as.numeric(res))
+})
+
+test_that("net_x_triad leaves the ordinary census alone", {
+  res <- net_x_triad(ison_adolescents)
+  expect_s3_class(res, "network_motif")
+  expect_equal(names(res), c("003", "012", "102", "201", "210", "300"))
+  # a multiplex network of one-mode layers only still gets the flat census
+  expect_length(net_x_triad(ison_algebra), 16)
+  # and a two-mode network with no one-mode layer remains unavailable
+  expect_error(net_x_triad(ison_southern_women), "not yet implemented")
+})
+
+test_that("net_x_mixed is deprecated in favour of net_x_triad", {
+  expect_warning(res <- net_x_mixed(fict_marvel), "deprecated")
+  expect_equal(as.numeric(res), as.numeric(net_x_triad(fict_marvel)))
+})

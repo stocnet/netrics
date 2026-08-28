@@ -120,6 +120,10 @@
 
 ## Motifs
 
+- Improved `net_x_triad()`
+  - Added a mixed census for multiplex networks by folding in `net_x_mixed()`
+  - Will fire by default for multiplex networks, taking layers by mode rather than by position
+  - Deprecated `net_x_mixed()`
 - Added `node_x_clique()`, returning which maximal cliques each node belongs to
   - It branches on two-mode networks to find bicliques (closes #8, thanks @noortjemay)
   - Note that it considers only positive ties, since a clique is a cohesive subgroup
@@ -129,8 +133,6 @@
   - Each branches on whether the attribute given is categorical or continuous
   - For two-mode networks, `node_x_similarity()` compares each node with those at distance two
     - These are the nodes it shares a node of the other mode with, following the tertius effect of `{migraph}` and `{goldfish}` (Haunss and Hollway 2023)
-- Fixed `node_x_tie()` erroring on diffusion models, where nodes change over waves but ties do not
-  - `node_in_equivalence()` and `node_in_structural()` also erred on such networks, since they call `node_x_tie()`
 - Added `net_x_homophily()`, returning the table behind the EI index together with an expected-EI baseline and Yule's Q
   - Note that on weighted networks this counts ties where `net_by_heterophily()` sums weights, so the two agree only when unweighted
 

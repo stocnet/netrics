@@ -314,8 +314,6 @@ node_x_tetrad <- function(.data){
 #'   - `net_x_dyad()` returns a census of dyad motifs in a network.
 #'   - `net_x_triad()` returns a census of triad motifs in a network.
 #'   - `net_x_tetrad()` returns a census of tetrad motifs in a network.
-#'   - `net_x_mixed()` returns a census of triad motifs that span
-#'   a one-mode and a two-mode network.
 #'   
 #'   See also \href{https://www.graphclasses.org/smallgraphs.html}{graph classes}.
 #'   
@@ -323,6 +321,8 @@ node_x_tetrad <- function(.data){
 #' @family cohesion
 #' @template net_motif
 #' @param object2 A second, two-mode network object.
+#'   Only `net_x_triad()` uses this, and only to take a multilevel census;
+#'   see its Mixed census section.
 NULL
 
 #' @rdname motif_net
@@ -392,15 +392,63 @@ net_x_dyad <- function(.data) {
 #'  
 #'  Note that for undirected and two-mode networks, only 003, 102, and 201 are possible,
 #'  as the other configurations rely on the concept of directionality.
+#' @section Mixed census:
+#'  Where a one-mode and a two-mode network are given together,
+#'  a multilevel census of the triads that span them is taken instead,
+#'  after Hollway et al. (2017).
+#'  Its ten motifs are labelled by how many ties join the pair of nodes at
+#'  each level, so that `"21"` counts triads whose two nodes are reciprocally
+#'  tied in the one-mode network and share a partner in the two-mode network.
+#'  
+#'  There are two ways to ask for it.
+#'  Supply the two networks as `.data` and `object2`,
+#'  the one-mode network first.
+#'  Or give a single multiplex network holding exactly one one-mode layer and
+#'  one two-mode layer, such as `fict_marvel`,
+#'  and the two layers are used in that order.
+#'  A two-mode network that carries no one-mode layer is not enough,
+#'  and remains unavailable.
+#'  
+#'  Since a census counts configurations, only the presence of a tie counts.
+#'  Weights and signs are set aside, as `igraph::triad_census()` also does.
+#'  
+#'  `node_x_triad()` reports the same ten motifs for each node.
 #' @references 
 #' ## On the triad census
 #' Davis, James A., and Samuel Leinhardt. 1967. 
 #' “\href{https://files.eric.ed.gov/fulltext/ED024086.pdf}{The Structure of Positive Interpersonal Relations in Small Groups}.” 55.
+#' 
+#' ## On the mixed census
+#' Hollway, James, Alessandro Lomi, Francesca Pallotti, and Christoph Stadtfeld. 2017.
+#' “Multilevel Social Spaces: The Network Dynamics of Organizational Fields.” 
+#' _Network Science_ 5(2): 187–212.
+#' \doi{10.1017/nws.2017.8}
+#' @source Mixed census adapted from Alejandro Espinosa 'netmem'
 #' @examples 
 #' net_x_triad(manynet::ison_adolescents)
+#' net_x_triad(fict_marvel)
 #' @export
-net_x_triad <- function(.data) {
+net_x_triad <- function(.data, object2 = NULL) {
   .data <- manynet::expect_nodes(.data)
+  if(!is.null(object2))
+    return(make_network_motif(.mixed_census(.data, object2), .data))
+  if(manynet::is_multiplex(.data)){
+    # a network carrying both a one-mode and a two-mode layer already holds
+    # everything the multilevel census needs, so use it rather than refuse
+    layers <- manynet::layer_names(.data)
+    parts <- lapply(layers, function(l) manynet::to_uniplex(.data, l))
+    twomode <- vapply(parts, manynet::is_twomode, FUN.VALUE = logical(1))
+    # the layers are told apart by their mode rather than by their order,
+    # since the census needs the one-mode network first
+    if(length(layers) == 2 && sum(twomode) == 1){
+      manynet::snet_info("Taking a mixed census over the",
+                         "{.val {layers[!twomode]}} and",
+                         "{.val {layers[twomode]}} layers.")
+      onemode <- parts[[which(!twomode)]]
+      return(make_network_motif(.mixed_census(onemode, parts[[which(twomode)]]),
+                                onemode))
+    }
+  }
   if (manynet::is_twomode(.data)) {
     manynet::snet_abort("A twomode or multilevel option for a triad census is not yet implemented.")
   } else {
@@ -493,31 +541,23 @@ net_x_tetrad <- function(.data){
   make_network_motif(out, .data)
 }
 
-#' @rdname motif_net 
-#' @source Alejandro Espinosa 'netmem'
-#' @references 
-#' ## On the mixed census
-#' Hollway, James, Alessandro Lomi, Francesca Pallotti, and Christoph Stadtfeld. 2017.
-#' “Multilevel Social Spaces: The Network Dynamics of Organizational Fields.” 
-#' _Network Science_ 5(2): 187–212.
-#' \doi{10.1017/nws.2017.8}
-#' @examples 
-#' net_x_mixed(fict_marvel)
-#' @export
-net_x_mixed <- function (.data, object2) {
-  .data <- manynet::expect_nodes(.data)
-  if(missing(object2) && manynet::is_multiplex(.data)) {
-    object2 <- manynet::to_uniplex(.data, unique(manynet::tie_attribute(.data, "type"))[2])
-    .data <- manynet::to_uniplex(.data, unique(manynet::tie_attribute(.data, "type"))[1])
-  }
+# The multilevel triad census of Hollway et al. (2017), over a one-mode
+# network and a two-mode network that share their first mode.
+# `net_x_triad()` wraps this, either over a supplied pair of networks or over
+# the two layers of a multiplex network.
+.mixed_census <- function (.data, object2) {
   if(manynet::is_twomode(.data))
     manynet::snet_abort("First object should be a one-mode network")
   if(!manynet::is_twomode(object2))
     manynet::snet_abort("Second object should be a two-mode network")
   if(manynet::net_dims(.data)[1] != manynet::net_dims(object2)[1])
     manynet::snet_abort("Non-conformable arrays")
-  m1 <- manynet::as_matrix(.data)
-  m2 <- manynet::as_matrix(object2)
+  # A census counts configurations, so only the presence of a tie matters.
+  # The matrices are made binary because the arithmetic below takes the
+  # complement of each, which a weight or a negative sign would corrupt:
+  # `igraph::triad_census()` ignores weights for the same reason.
+  m1 <- (manynet::as_matrix(.data) != 0) * 1
+  m2 <- (manynet::as_matrix(object2) != 0) * 1
   cp <- function(m) (-m + 1)
   onemode.reciprocal <- m1 * t(m1)
   onemode.forward <- m1 * cp(t(m1))
@@ -544,7 +584,7 @@ net_x_mixed <- function (.data, object2) {
            "02" = sum(onemode.reciprocal * bipartite.null) / 2,
            "01" = sum(onemode.forward * bipartite.null) / 2 + sum(onemode.backward * bipartite.null) / 2,
            "00" = sum(onemode.null * bipartite.null) / 2)  
-  make_network_motif(res, .data)
+  res
 }
 
 # Exposure ####

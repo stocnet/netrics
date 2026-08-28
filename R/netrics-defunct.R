@@ -28,4 +28,16 @@ node_by_coreness <- function(.data, coreness = NULL,
   node_by_core(.data, coreness = coreness, direction = direction)
 }
 
+#' @describeIn defunct Deprecated on 2026-08-28.
+#'   Folded into `net_x_triad()`, which now takes the multilevel census
+#'   whenever it is given both a one-mode and a two-mode network, rather than
+#'   reporting that no such option exists.
+#' @template param_data
+#' @param object2 A second, two-mode network object.
+#' @export
+net_x_mixed <- function(.data, object2) {
+  .Deprecated("net_x_triad", package = "netrics", old = "net_x_mixed")
+  if(missing(object2)) net_x_triad(.data) else net_x_triad(.data, object2)
+}
+
 # nocov end

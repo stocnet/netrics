@@ -3,9 +3,12 @@
 \name{defunct}
 \alias{defunct}
 \alias{node_by_coreness}
+\alias{net_x_mixed}
 \title{Functions that have been renamed, superseded, or are no longer working}
 \usage{
 node_by_coreness(.data, coreness = NULL, direction = c("all", "out", "in"))
+
+net_x_mixed(.data, object2)
 }
 \arguments{
 \item{.data}{A network object of class \code{stocnet}, \code{igraph}, \code{tbl_graph}, \code{network}, or similar.
@@ -23,6 +26,8 @@ directly, and "correlation" otherwise.}
 For a directed network, "out" scores nodes on the ties they send and
 "in" on the ties they receive.
 Ignored for undirected and two-mode networks.}
+
+\item{object2}{A second, two-mode network object.}
 }
 \value{
 Results as expected
@@ -43,6 +48,11 @@ wherever possible and update your scripts accordingly.
 Renamed \code{node_by_core()}, for symmetry with \code{node_is_core()} and
 \code{node_in_core()}, and so that "coreness" names only the peeling depth
 that \code{node_by_kcoreness()} returns.
+
+\item \code{net_x_mixed()}: Deprecated on 2026-08-28.
+Folded into \code{net_x_triad()}, which now takes the multilevel census
+whenever it is given both a one-mode and a two-mode network, rather than
+reporting that no such option exists.
 
 }}
 \keyword{internal}
