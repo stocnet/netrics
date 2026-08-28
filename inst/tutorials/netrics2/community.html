@@ -1516,11 +1516,12 @@ runs the algorithms again on that record until they agree. The answer no
 longer rests on a single run of a single algorithm. It costs
 considerably more time, which is why it is not the default, and it is
 ignored on a network small enough for <code>node_in_optimal()</code>,
-where the exact maximum is already available.</p>
+where the exact maximum is already available. On a network the size of
+<code>irps_books</code> this may take about twenty seconds.</p>
 <div class="tutorial-exercise" data-label="inconsensus"
 data-completion="1" data-diagnostics="1" data-startover="1"
 data-lines="0" data-pipe="|&gt;">
-<pre class="text"><code>node_in_community(irps_blogs, consensus = TRUE)</code></pre>
+<pre class="text"><code>node_in_community(irps_books, consensus = TRUE)</code></pre>
 <script type="application/json" data-ui-opts="1">{"engine":"r","has_checker":false,"caption":"<span data-i18n=\"text.enginecap\" data-i18n-opts=\"{&quot;engine&quot;:&quot;R&quot;}\">R Code<\/span>"}</script>
 </div>
 <div class="panel panel-default tutorial-question-container">
@@ -2183,15 +2184,15 @@ learnr:::store_exercise_cache(structure(list(label = "separatingnets", global_se
 
 <script type="application/shiny-prerendered" data-context="server">
 learnr:::question_prerendered_chunk(structure(list(type = "learnr_radio", label = "densq", question = structure("Which equation is used for measuring density for a directed network:", html = TRUE, class = c("html", 
-"character")), answers = list(structure(list(id = "lnr_ans_c0a9770", 
+"character")), answers = list(structure(list(id = "lnr_ans_2c84588", 
     option = "A", value = "A", label = structure("A", html = TRUE, class = c("html", 
     "character")), correct = TRUE, message = structure("<img src=\"https://i.giphy.com/media/v1.Y2lkPTc5MGI3NjExb2M5cTNmZm1kdmszdmR6Yzc3MnczcWxvb3MzdHRic2N0ZncwYml2MSZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/YcMs3OGd89Pxu/giphy.gif\" alt=\"gif of a thumbs up\"/>", html = TRUE, class = c("html", 
     "character")), type = "literal"), class = c("tutorial_question_answer", 
-"tutorial_quiz_answer")), structure(list(id = "lnr_ans_5c2ab1d", 
+"tutorial_quiz_answer")), structure(list(id = "lnr_ans_e6c5f54", 
     option = "B", value = "B", label = structure("B", html = TRUE, class = c("html", 
     "character")), correct = FALSE, message = structure("This is the equation for an undirected network.", html = TRUE, class = c("html", 
     "character")), type = "literal"), class = c("tutorial_question_answer", 
-"tutorial_quiz_answer")), structure(list(id = "lnr_ans_25b3a78", 
+"tutorial_quiz_answer")), structure(list(id = "lnr_ans_6c843aa", 
     option = "C", value = "C", label = structure("C", html = TRUE, class = c("html", 
     "character")), correct = FALSE, message = structure("This is the equation for a two-mode network.", html = TRUE, class = c("html", 
     "character")), type = "literal"), class = c("tutorial_question_answer", 
@@ -2202,7 +2203,7 @@ learnr:::question_prerendered_chunk(structure(list(type = "learnr_radio", label 
 "character")), incorrect = structure("Incorrect", html = TRUE, class = c("html", 
 "character")), message = NULL, post_message = NULL), ids = list(
     answer = "densq-answer", question = "densq"), loading = NULL, 
-    random_answer_order = FALSE, allow_retry = TRUE, seed = 926290802.568662, 
+    random_answer_order = FALSE, allow_retry = TRUE, seed = 825358053.115663, 
     options = list()), class = c("learnr_radio", "tutorial_question"
 )), session = session)
 </script>
@@ -2342,11 +2343,11 @@ learnr:::store_exercise_cache(structure(list(label = "dens", global_setup = stru
  
 <script type="application/shiny-prerendered" data-context="server">
 learnr:::question_prerendered_chunk(structure(list(type = "learnr_radio", label = "dens-qa", question = structure("Is this network’s density high or low in absolute terms?", html = TRUE, class = c("html", 
-"character")), answers = list(structure(list(id = "lnr_ans_1e3173b", 
+"character")), answers = list(structure(list(id = "lnr_ans_6fed580", 
     option = "High", value = "High", label = structure("High", html = TRUE, class = c("html", 
     "character")), correct = FALSE, message = structure("The closer the value is to 1, the more dense the network and the more cohesive the network is as a whole.", html = TRUE, class = c("html", 
     "character")), type = "literal"), class = c("tutorial_question_answer", 
-"tutorial_quiz_answer")), structure(list(id = "lnr_ans_d07d0b7", 
+"tutorial_quiz_answer")), structure(list(id = "lnr_ans_683c2ac", 
     option = "Low", value = "Low", label = structure("Low", html = TRUE, class = c("html", 
     "character")), correct = TRUE, message = structure("The closer the value is to 0, the sparser the network and the less cohesive the network is as a whole. But this is still quite typical density for a relatively small, social network like this one.  <br><br>    <img src=\"https://i.giphy.com/media/v1.Y2lkPTc5MGI3NjExOWs4Y292OXg5YmlvNTF3OWp4YWxmNjNpdm11c2kyMm55Z2U4eTJkeiZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/6agGMtS4rEVSo/giphy.gif\" alt=\"gif of i knew it\"/>", html = TRUE, class = c("html", 
     "character")), type = "literal"), class = c("tutorial_question_answer", 
@@ -2357,7 +2358,7 @@ learnr:::question_prerendered_chunk(structure(list(type = "learnr_radio", label 
 "character")), incorrect = structure("Incorrect", html = TRUE, class = c("html", 
 "character")), message = NULL, post_message = NULL), ids = list(
     answer = "dens-qa-answer", question = "dens-qa"), loading = NULL, 
-    random_answer_order = FALSE, allow_retry = TRUE, seed = 1942038983.59567, 
+    random_answer_order = FALSE, allow_retry = TRUE, seed = 1310044319.88996, 
     options = list()), class = c("learnr_radio", "tutorial_question"
 )), session = session)
 </script>
@@ -2567,31 +2568,31 @@ learnr:::store_exercise_cache(structure(list(label = "trans", global_setup = str
 <script type="application/shiny-prerendered" data-context="server">
 learnr:::question_prerendered_chunk(structure(list(type = "learnr_checkbox", label = "trans-interp", 
     question = structure("What can we say about task closure in this network? Choose all that apply.", html = TRUE, class = c("html", 
-    "character")), answers = list(structure(list(id = "lnr_ans_b155b68", 
+    "character")), answers = list(structure(list(id = "lnr_ans_24d249b", 
         option = "Transitivity for the task network is 0.568", 
         value = "Transitivity for the task network is 0.568", 
         label = structure("Transitivity for the task network is 0.568", html = TRUE, class = c("html", 
         "character")), correct = TRUE, message = structure("<img src=\"https://i.giphy.com/media/v1.Y2lkPTc5MGI3NjExZXBpNDlsZzNraTJ1bHN6MW1scjA4aDVzdXo1NW11bGI5bWF0dzYxMyZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/Hg7gPa05K6bAc/giphy.gif\" alt=\"gif of cool cool cool\"/>", html = TRUE, class = c("html", 
         "character")), type = "literal"), class = c("tutorial_question_answer", 
-    "tutorial_quiz_answer")), structure(list(id = "lnr_ans_69286f8", 
+    "tutorial_quiz_answer")), structure(list(id = "lnr_ans_c2bf472", 
         option = "Transitivity for the task network is -0.568", 
         value = "Transitivity for the task network is -0.568", 
         label = structure("Transitivity for the task network is -0.568", html = TRUE, class = c("html", 
         "character")), correct = FALSE, message = structure("Transivitity must be between 0 and 1.", html = TRUE, class = c("html", 
         "character")), type = "literal"), class = c("tutorial_question_answer", 
-    "tutorial_quiz_answer")), structure(list(id = "lnr_ans_78022a1", 
+    "tutorial_quiz_answer")), structure(list(id = "lnr_ans_65cd055", 
         option = "Transitivity is quite low in this network", 
         value = "Transitivity is quite low in this network", 
         label = structure("Transitivity is quite low in this network", html = TRUE, class = c("html", 
         "character")), correct = FALSE, message = structure("Transitivity is often around 0.3 in most social networks.", html = TRUE, class = c("html", 
         "character")), type = "literal"), class = c("tutorial_question_answer", 
-    "tutorial_quiz_answer")), structure(list(id = "lnr_ans_9024a05", 
+    "tutorial_quiz_answer")), structure(list(id = "lnr_ans_cbda464", 
         option = "Transitivity is quite high in this network", 
         value = "Transitivity is quite high in this network", 
         label = structure("Transitivity is quite high in this network", html = TRUE, class = c("html", 
         "character")), correct = TRUE, message = structure("Yes – at 0.568 it is well above the ~0.3 typical of many social networks, so a lot of this network’s two-paths are closed into triangles.", html = TRUE, class = c("html", 
         "character")), type = "literal"), class = c("tutorial_question_answer", 
-    "tutorial_quiz_answer")), structure(list(id = "lnr_ans_5d5a465", 
+    "tutorial_quiz_answer")), structure(list(id = "lnr_ans_73770e5", 
         option = "Transitivity is likely higher in the task network than the friendship network", 
         value = "Transitivity is likely higher in the task network than the friendship network", 
         label = structure("Transitivity is likely higher in the task network than the friendship network", html = TRUE, class = c("html", 
@@ -2605,7 +2606,7 @@ learnr:::question_prerendered_chunk(structure(list(type = "learnr_checkbox", lab
     "character")), message = NULL, post_message = NULL), ids = list(
         answer = "trans-interp-answer", question = "trans-interp"), 
     loading = NULL, random_answer_order = TRUE, allow_retry = TRUE, 
-    seed = 138917482.435311, options = list()), class = c("learnr_checkbox", 
+    seed = 744953312.153104, options = list()), class = c("learnr_checkbox", 
 "tutorial_question")), session = session)
 </script>
  
@@ -2964,31 +2965,31 @@ learnr:::store_exercise_cache(structure(list(label = "twomode-cohesion", global_
 <script type="application/shiny-prerendered" data-context="server">
 learnr:::question_prerendered_chunk(structure(list(type = "learnr_checkbox", label = "equil-interp", 
     question = structure("What do we learn from this? Choose all that apply.", html = TRUE, class = c("html", 
-    "character")), answers = list(structure(list(id = "lnr_ans_fa09dc9", 
+    "character")), answers = list(structure(list(id = "lnr_ans_9707286", 
         option = "Transitivity in the women projection is very high.", 
         value = "Transitivity in the women projection is very high.", 
         label = structure("Transitivity in the women projection is very high.", html = TRUE, class = c("html", 
         "character")), correct = TRUE, message = structure("Yes – transitivity in the women projection is about 0.93, close to the maximum of 1.", html = TRUE, class = c("html", 
         "character")), type = "literal"), class = c("tutorial_question_answer", 
-    "tutorial_quiz_answer")), structure(list(id = "lnr_ans_99cf4ed", 
+    "tutorial_quiz_answer")), structure(list(id = "lnr_ans_7e35bf", 
         option = "Transitivity in the event projection is very high.", 
         value = "Transitivity in the event projection is very high.", 
         label = structure("Transitivity in the event projection is very high.", html = TRUE, class = c("html", 
         "character")), correct = TRUE, message = structure("Yes – transitivity in the event projection is about 0.83, also very high.", html = TRUE, class = c("html", 
         "character")), type = "literal"), class = c("tutorial_question_answer", 
-    "tutorial_quiz_answer")), structure(list(id = "lnr_ans_90f36d6", 
+    "tutorial_quiz_answer")), structure(list(id = "lnr_ans_960f337", 
         option = "Equivalence for the two-mode Southern Women dataset is moderate.", 
         value = "Equivalence for the two-mode Southern Women dataset is moderate.", 
         label = structure("Equivalence for the two-mode Southern Women dataset is moderate.", html = TRUE, class = c("html", 
         "character")), correct = TRUE, message = structure("<img src=\"https://i.giphy.com/media/v1.Y2lkPTc5MGI3NjExZmdqZHFraGR5Ym9udTBrYzA1ejhwd3ljOXdma3ppNWp2cXozMTh0bCZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/xqjZLKH1iTBe0/giphy.gif\" alt=\"gif of you just wrinkled my brain\"/>", html = TRUE, class = c("html", 
         "character")), type = "literal"), class = c("tutorial_question_answer", 
-    "tutorial_quiz_answer")), structure(list(id = "lnr_ans_c5d7d28", 
+    "tutorial_quiz_answer")), structure(list(id = "lnr_ans_c2fcbe4", 
         option = "Transitivity will often be very high in projected networks.", 
         value = "Transitivity will often be very high in projected networks.", 
         label = structure("Transitivity will often be very high in projected networks.", html = TRUE, class = c("html", 
         "character")), correct = TRUE, message = structure("Yes – projecting a two-mode network turns every event into a clique of its attendees, and cliques are perfectly transitive, so projections almost always inflate transitivity.", html = TRUE, class = c("html", 
         "character")), type = "literal"), class = c("tutorial_question_answer", 
-    "tutorial_quiz_answer")), structure(list(id = "lnr_ans_f355baf", 
+    "tutorial_quiz_answer")), structure(list(id = "lnr_ans_a96f252", 
         option = "Projection obscures which women are members of which events and vice versa.", 
         value = "Projection obscures which women are members of which events and vice versa.", 
         label = structure("Projection obscures which women are members of which events and vice versa.", html = TRUE, class = c("html", 
@@ -3002,7 +3003,7 @@ learnr:::question_prerendered_chunk(structure(list(type = "learnr_checkbox", lab
     "character")), message = NULL, post_message = NULL), ids = list(
         answer = "equil-interp-answer", question = "equil-interp"), 
     loading = NULL, random_answer_order = FALSE, allow_retry = TRUE, 
-    seed = 156646459.427056, options = list()), class = c("learnr_checkbox", 
+    seed = 1623387351.24405, options = list()), class = c("learnr_checkbox", 
 "tutorial_question")), session = session)
 </script>
 
@@ -3010,13 +3011,13 @@ learnr:::question_prerendered_chunk(structure(list(type = "learnr_checkbox", lab
 <script type="application/shiny-prerendered" data-context="server">
 learnr:::question_prerendered_chunk(structure(list(type = "learnr_radio", label = "weak-strong", 
     question = structure("Weak components…", html = TRUE, class = c("html", 
-    "character")), answers = list(structure(list(id = "lnr_ans_42711d2", 
+    "character")), answers = list(structure(list(id = "lnr_ans_f79ecf8", 
         option = "don't care about tie direction when establishing components.", 
         value = "don't care about tie direction when establishing components.", 
         label = structure("don’t care about tie direction when establishing components.", html = TRUE, class = c("html", 
         "character")), correct = TRUE, message = structure("That’s right – a weak component treats every tie as if it were undirected, so two nodes are in the same weak component if a path connects them ignoring arrow direction. <br><br> <img src=\"https://i.giphy.com/media/v1.Y2lkPTc5MGI3NjExZ29idmxwMGNpb3Z6YzV0NGdremNoZ3A3OXdjeHlsd3UwNDdwY3ZwOCZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/dxVdo4ca7FkME/giphy.gif\" alt=\"gif of ah ha gotcha\"/>", html = TRUE, class = c("html", 
         "character")), type = "literal"), class = c("tutorial_question_answer", 
-    "tutorial_quiz_answer")), structure(list(id = "lnr_ans_55de5b4", 
+    "tutorial_quiz_answer")), structure(list(id = "lnr_ans_f2b2381", 
         option = "care about tie direction when establishing components.", 
         value = "care about tie direction when establishing components.", 
         label = structure("care about tie direction when establishing components.", html = TRUE, class = c("html", 
@@ -3030,7 +3031,7 @@ learnr:::question_prerendered_chunk(structure(list(type = "learnr_radio", label 
     "character")), message = NULL, post_message = NULL), ids = list(
         answer = "weak-strong-answer", question = "weak-strong"), 
     loading = NULL, random_answer_order = FALSE, allow_retry = TRUE, 
-    seed = 521459410.757177, options = list()), class = c("learnr_radio", 
+    seed = 1306183242.89176, options = list()), class = c("learnr_radio", 
 "tutorial_question")), session = session)
 </script>
  
@@ -3105,19 +3106,19 @@ learnr:::store_exercise_cache(structure(list(label = "comp-no", global_setup = s
 <script type="application/shiny-prerendered" data-context="server">
 learnr:::question_prerendered_chunk(structure(list(type = "learnr_checkbox", label = "comp-interp", 
     question = structure("How many components are there?", html = TRUE, class = c("html", 
-    "character")), answers = list(structure(list(id = "lnr_ans_50096c0", 
+    "character")), answers = list(structure(list(id = "lnr_ans_8d6fec2", 
         option = "2", value = "2", label = structure("2", html = TRUE, class = c("html", 
         "character")), correct = FALSE, message = structure("There are more than 2 components.", html = TRUE, class = c("html", 
         "character")), type = "literal"), class = c("tutorial_question_answer", 
-    "tutorial_quiz_answer")), structure(list(id = "lnr_ans_ba8cca8", 
+    "tutorial_quiz_answer")), structure(list(id = "lnr_ans_9780e2b", 
         option = "3", value = "3", label = structure("3", html = TRUE, class = c("html", 
         "character")), correct = TRUE, message = structure("There are 3 <em>weak<\u002fem> components.", html = TRUE, class = c("html", 
         "character")), type = "literal"), class = c("tutorial_question_answer", 
-    "tutorial_quiz_answer")), structure(list(id = "lnr_ans_92ab38a", 
+    "tutorial_quiz_answer")), structure(list(id = "lnr_ans_ba8b6a3", 
         option = "4", value = "4", label = structure("4", html = TRUE, class = c("html", 
         "character")), correct = TRUE, message = structure("There are 4 <em>strong<\u002fem> components. <img src=\"https://i.giphy.com/media/v1.Y2lkPTc5MGI3NjExMDB5bzhjcGo3NHozZm5jdHcyMWk5emhnajNyZnFxc3Z2cmJnbGN0ZyZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/YpS0oFFC2VJ84/giphy.gif\" alt=\"gif of two thumbs up\"/>", html = TRUE, class = c("html", 
         "character")), type = "literal"), class = c("tutorial_question_answer", 
-    "tutorial_quiz_answer")), structure(list(id = "lnr_ans_71549c6", 
+    "tutorial_quiz_answer")), structure(list(id = "lnr_ans_f2b525e", 
         option = "5", value = "5", label = structure("5", html = TRUE, class = c("html", 
         "character")), correct = FALSE, message = structure("There are fewer than 5 components.", html = TRUE, class = c("html", 
         "character")), type = "literal"), class = c("tutorial_question_answer", 
@@ -3129,7 +3130,7 @@ learnr:::question_prerendered_chunk(structure(list(type = "learnr_checkbox", lab
     "character")), message = NULL, post_message = NULL), ids = list(
         answer = "comp-interp-answer", question = "comp-interp"), 
     loading = NULL, random_answer_order = FALSE, allow_retry = TRUE, 
-    seed = 1160947355.45939, options = list()), class = c("learnr_checkbox", 
+    seed = 1537057546.78425, options = list()), class = c("learnr_checkbox", 
 "tutorial_question")), session = session)
 </script>
 
@@ -3208,23 +3209,23 @@ learnr:::store_exercise_cache(structure(list(label = "comp-memb", global_setup =
 <script type="application/shiny-prerendered" data-context="server">
 learnr:::question_prerendered_chunk(structure(list(type = "learnr_checkbox", label = "node-comp-interp", 
     question = structure("Why is there a difference between the weak and strong components results?", html = TRUE, class = c("html", 
-    "character")), answers = list(structure(list(id = "lnr_ans_7d8956a", 
+    "character")), answers = list(structure(list(id = "lnr_ans_e4dd745", 
         option = "Because one node has only incoming ties.", 
         value = "Because one node has only incoming ties.", label = structure("Because one node has only incoming ties.", html = TRUE, class = c("html", 
         "character")), correct = TRUE, message = structure("Yes – a node that only receives ties can’t reach anyone by following arrows, so it is stranded as its own <em>strong<\u002fem> component; ignore direction and it re-joins whoever points at it, which is why there is one fewer weak component.", html = TRUE, class = c("html", 
         "character")), type = "literal"), class = c("tutorial_question_answer", 
-    "tutorial_quiz_answer")), structure(list(id = "lnr_ans_3b8fbf5", 
+    "tutorial_quiz_answer")), structure(list(id = "lnr_ans_430fee6", 
         option = "Because three nodes cannot reach any other nodes.", 
         value = "Because three nodes cannot reach any other nodes.", 
         label = structure("Because three nodes cannot reach any other nodes.", html = TRUE, class = c("html", 
         "character")), correct = TRUE, message = structure("Yes – three nodes have no outgoing ties, so in the directed (strong) view each is stranded on its own. Dropping direction lets the connectable one rejoin the graph.", html = TRUE, class = c("html", 
         "character")), type = "literal"), class = c("tutorial_question_answer", 
-    "tutorial_quiz_answer")), structure(list(id = "lnr_ans_14d5533", 
+    "tutorial_quiz_answer")), structure(list(id = "lnr_ans_a3c93c6", 
         option = "Because there is an extra isolate.", value = "Because there is an extra isolate.", 
         label = structure("Because there is an extra isolate.", html = TRUE, class = c("html", 
         "character")), correct = FALSE, message = structure("Not quite – the isolates are identical in both analyses, so they can’t account for the <em>difference<\u002fem> between the weak and strong counts.", html = TRUE, class = c("html", 
         "character")), type = "literal"), class = c("tutorial_question_answer", 
-    "tutorial_quiz_answer")), structure(list(id = "lnr_ans_5beb8a4", 
+    "tutorial_quiz_answer")), structure(list(id = "lnr_ans_9210d6e", 
         option = "Because the tie strength matters.", value = "Because the tie strength matters.", 
         label = structure("Because the tie strength matters.", html = TRUE, class = c("html", 
         "character")), correct = FALSE, message = structure("No – components depend only on whether a path exists, not on how strong the ties are. Tie weights play no role here.", html = TRUE, class = c("html", 
@@ -3237,7 +3238,7 @@ learnr:::question_prerendered_chunk(structure(list(type = "learnr_checkbox", lab
     "character")), message = NULL, post_message = NULL), ids = list(
         answer = "node-comp-interp-answer", question = "node-comp-interp"), 
     loading = NULL, random_answer_order = TRUE, allow_retry = TRUE, 
-    seed = 416957374.805839, options = list()), class = c("learnr_checkbox", 
+    seed = 1893797087.11813, options = list()), class = c("learnr_checkbox", 
 "tutorial_question")), session = session)
 </script>
  
@@ -3636,25 +3637,25 @@ learnr:::store_exercise_cache(structure(list(label = "blogmod", global_setup = s
  
 <script type="application/shiny-prerendered" data-context="server">
 learnr:::question_prerendered_chunk(structure(list(type = "learnr_checkbox", label = "blogQ", question = structure("Which statements about modularity are true?", html = TRUE, class = c("html", 
-"character")), answers = list(structure(list(id = "lnr_ans_e151449", 
+"character")), answers = list(structure(list(id = "lnr_ans_2a9182b", 
     option = "A community assignment with modularity > 0 means there are more ties within communities than between communities.", 
     value = "A community assignment with modularity > 0 means there are more ties within communities than between communities.", 
     label = structure("A community assignment with modularity &gt; 0 means there are more ties within communities than between communities.", html = TRUE, class = c("html", 
     "character")), correct = TRUE, message = structure("Yes – positive modularity means more ties fall within communities than we’d expect if ties were placed at random, i.e. more within than between.", html = TRUE, class = c("html", 
     "character")), type = "literal"), class = c("tutorial_question_answer", 
-"tutorial_quiz_answer")), structure(list(id = "lnr_ans_b87bae5", 
+"tutorial_quiz_answer")), structure(list(id = "lnr_ans_ef48be9", 
     option = "A community assignment with modularity = 0 means any tie is as likely to occur within a community as between assigned communities.", 
     value = "A community assignment with modularity = 0 means any tie is as likely to occur within a community as between assigned communities.", 
     label = structure("A community assignment with modularity = 0 means any tie is as likely to occur within a community as between assigned communities.", html = TRUE, class = c("html", 
     "character")), correct = TRUE, message = structure("Yes – modularity of 0 is exactly the chance baseline: the within-community tie share matches what the null model expects, so the partition captures no extra structure.", html = TRUE, class = c("html", 
     "character")), type = "literal"), class = c("tutorial_question_answer", 
-"tutorial_quiz_answer")), structure(list(id = "lnr_ans_e46b8e3", 
+"tutorial_quiz_answer")), structure(list(id = "lnr_ans_a6d9005", 
     option = "In a community assignment with modularity = 1, every community must have an internal density of 1 and an external density of 0.", 
     value = "In a community assignment with modularity = 1, every community must have an internal density of 1 and an external density of 0.", 
     label = structure("In a community assignment with modularity = 1, every community must have an internal density of 1 and an external density of 0.", html = TRUE, class = c("html", 
     "character")), correct = FALSE, message = structure("Not so – modularity is defined relative to a random null model, not by raw densities, and 1 is an upper bound that real partitions approach but never actually reach.", html = TRUE, class = c("html", 
     "character")), type = "literal"), class = c("tutorial_question_answer", 
-"tutorial_quiz_answer")), structure(list(id = "lnr_ans_11ee122", 
+"tutorial_quiz_answer")), structure(list(id = "lnr_ans_72f3985", 
     option = "A community assignment with modularity = -1 is impossible.", 
     value = "A community assignment with modularity = -1 is impossible.", 
     label = structure("A community assignment with modularity = -1 is impossible.", html = TRUE, class = c("html", 
@@ -3667,7 +3668,7 @@ learnr:::question_prerendered_chunk(structure(list(type = "learnr_checkbox", lab
 "character")), incorrect = structure("Incorrect", html = TRUE, class = c("html", 
 "character")), message = NULL, post_message = NULL), ids = list(
     answer = "blogQ-answer", question = "blogQ"), loading = NULL, 
-    random_answer_order = TRUE, allow_retry = TRUE, seed = 16474797.4923283, 
+    random_answer_order = TRUE, allow_retry = TRUE, seed = 23065207.9892594, 
     options = list()), class = c("learnr_checkbox", "tutorial_question"
 )), session = session)
 </script>
@@ -3744,15 +3745,15 @@ learnr:::store_exercise_cache(structure(list(label = "blogmodassign", global_set
 
 <script type="application/shiny-prerendered" data-context="server">
 learnr:::question_prerendered_chunk(structure(list(type = "learnr_radio", label = "leaningQ", question = structure("How does the modularity of the blogs’ declared leanings compare with that of the partition the algorithm found?", html = TRUE, class = c("html", 
-"character")), answers = list(structure(list(id = "lnr_ans_ceba789", 
+"character")), answers = list(structure(list(id = "lnr_ans_16c754d", 
     option = "It is higher", value = "It is higher", label = structure("It is higher", html = TRUE, class = c("html", 
     "character")), correct = TRUE, message = structure("Indeed – the empirical attribute describes the tie pattern <em>better<\u002fem> than the algorithm’s own bipartition. <br><br> <img src=\"https://i.giphy.com/media/v1.Y2lkPTc5MGI3NjExcXFwZWF2azV0YTlwdnM0bTZncXpuOTdxdHFyMjJqcXJod2V3b29vYiZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/PsBRTPKG71YVq/giphy.gif\" alt=\"gif of Chevy Chase saying plot twist\"/>", html = TRUE, class = c("html", 
     "character")), type = "literal"), class = c("tutorial_question_answer", 
-"tutorial_quiz_answer")), structure(list(id = "lnr_ans_8d96eef", 
+"tutorial_quiz_answer")), structure(list(id = "lnr_ans_8795aa4", 
     option = "It is lower", value = "It is lower", label = structure("It is lower", html = TRUE, class = c("html", 
     "character")), correct = FALSE, message = structure("Have another look at the two numbers – the leanings score the higher modularity here.", html = TRUE, class = c("html", 
     "character")), type = "literal"), class = c("tutorial_question_answer", 
-"tutorial_quiz_answer")), structure(list(id = "lnr_ans_a31f6e6", 
+"tutorial_quiz_answer")), structure(list(id = "lnr_ans_e79a076", 
     option = "It is the same", value = "It is the same", label = structure("It is the same", html = TRUE, class = c("html", 
     "character")), correct = FALSE, message = structure("Not quite – the two memberships give noticeably different scores.", html = TRUE, class = c("html", 
     "character")), type = "literal"), class = c("tutorial_question_answer", 
@@ -3763,7 +3764,7 @@ learnr:::question_prerendered_chunk(structure(list(type = "learnr_radio", label 
 "character")), incorrect = structure("Incorrect", html = TRUE, class = c("html", 
 "character")), message = NULL, post_message = NULL), ids = list(
     answer = "leaningQ-answer", question = "leaningQ"), loading = NULL, 
-    random_answer_order = FALSE, allow_retry = TRUE, seed = 2143204638.50199, 
+    random_answer_order = FALSE, allow_retry = TRUE, seed = 1544182719.28093, 
     options = list()), class = c("learnr_radio", "tutorial_question"
 )), session = session)
 </script>
@@ -4287,23 +4288,23 @@ learnr:::store_exercise_cache(structure(list(label = "louv", global_setup = stru
  
 <script type="application/shiny-prerendered" data-context="server">
 learnr:::question_prerendered_chunk(structure(list(type = "learnr_radio", label = "louv-q", question = structure("Why is the Louvain algorithm so much faster than edge betweenness on a large network?", html = TRUE, class = c("html", 
-"character")), answers = list(structure(list(id = "lnr_ans_8e9c0dc", 
+"character")), answers = list(structure(list(id = "lnr_ans_cc28a6e", 
     option = "It only looks at a sample of the nodes", value = "It only looks at a sample of the nodes", 
     label = structure("It only looks at a sample of the nodes", html = TRUE, class = c("html", 
     "character")), correct = FALSE, message = structure("No – Louvain visits every node. Its speed comes from shrinking the network, not from skipping parts of it.", html = TRUE, class = c("html", 
     "character")), type = "literal"), class = c("tutorial_question_answer", 
-"tutorial_quiz_answer")), structure(list(id = "lnr_ans_40fe0bb", 
+"tutorial_quiz_answer")), structure(list(id = "lnr_ans_1c688bb", 
     option = "It contracts each community into a single node and repeats on the smaller network", 
     value = "It contracts each community into a single node and repeats on the smaller network", 
     label = structure("It contracts each community into a single node and repeats on the smaller network", html = TRUE, class = c("html", 
     "character")), correct = TRUE, message = structure("That’s right – after the first pass the network is much smaller, so each further pass is much cheaper.", html = TRUE, class = c("html", 
     "character")), type = "literal"), class = c("tutorial_question_answer", 
-"tutorial_quiz_answer")), structure(list(id = "lnr_ans_64f2ffe", 
+"tutorial_quiz_answer")), structure(list(id = "lnr_ans_5cad4e8", 
     option = "It stops as soon as it finds any improvement", 
     value = "It stops as soon as it finds any improvement", label = structure("It stops as soon as it finds any improvement", html = TRUE, class = c("html", 
     "character")), correct = FALSE, message = structure("No – it keeps moving nodes until no single move improves modularity, and only then contracts.", html = TRUE, class = c("html", 
     "character")), type = "literal"), class = c("tutorial_question_answer", 
-"tutorial_quiz_answer")), structure(list(id = "lnr_ans_7539354", 
+"tutorial_quiz_answer")), structure(list(id = "lnr_ans_59daf1a", 
     option = "It does not calculate modularity at all", value = "It does not calculate modularity at all", 
     label = structure("It does not calculate modularity at all", html = TRUE, class = c("html", 
     "character")), correct = FALSE, message = structure("No – modularity is exactly what it maximises. Infomap is the one that optimises something else.", html = TRUE, class = c("html", 
@@ -4315,7 +4316,7 @@ learnr:::question_prerendered_chunk(structure(list(type = "learnr_radio", label 
 "character")), incorrect = structure("Incorrect", html = TRUE, class = c("html", 
 "character")), message = NULL, post_message = NULL), ids = list(
     answer = "louv-q-answer", question = "louv-q"), loading = NULL, 
-    random_answer_order = TRUE, allow_retry = TRUE, seed = 1821698365.15171, 
+    random_answer_order = TRUE, allow_retry = TRUE, seed = 1424849907.3365, 
     options = list()), class = c("learnr_radio", "tutorial_question"
 )), session = session)
 </script>
@@ -4323,18 +4324,18 @@ learnr:::question_prerendered_chunk(structure(list(type = "learnr_radio", label 
 
 <script type="application/shiny-prerendered" data-context="server">
 learnr:::question_prerendered_chunk(structure(list(type = "learnr_radio", label = "comm-comp", question = structure("What is the difference between communities and components?", html = TRUE, class = c("html", 
-"character")), answers = list(structure(list(id = "lnr_ans_e44618a", 
+"character")), answers = list(structure(list(id = "lnr_ans_f01f73a", 
     option = "Communities and components are just different terms for the same thing", 
     value = "Communities and components are just different terms for the same thing", 
     label = structure("Communities and components are just different terms for the same thing", html = TRUE, class = c("html", 
     "character")), correct = FALSE, message = structure("Not quite – they answer different questions. Components ask whether nodes are connected at all; communities ask how densely they are connected relative to the rest of the network.", html = TRUE, class = c("html", 
     "character")), type = "literal"), class = c("tutorial_question_answer", 
-"tutorial_quiz_answer")), structure(list(id = "lnr_ans_cf6d1b3", 
+"tutorial_quiz_answer")), structure(list(id = "lnr_ans_d2f46d9", 
     option = "Communities are a stricter form of component", 
     value = "Communities are a stricter form of component", label = structure("Communities are a stricter form of component", html = TRUE, class = c("html", 
     "character")), correct = FALSE, message = structure("Not exactly – a community need not be a component (it can have ties leaving it) and a component need not be a community, so one isn’t simply a stricter version of the other.", html = TRUE, class = c("html", 
     "character")), type = "literal"), class = c("tutorial_question_answer", 
-"tutorial_quiz_answer")), structure(list(id = "lnr_ans_16cdb8", 
+"tutorial_quiz_answer")), structure(list(id = "lnr_ans_58edc22", 
     option = "Components are about paths whereas communities are about the relationship between within-group and between-group ties", 
     value = "Components are about paths whereas communities are about the relationship between within-group and between-group ties", 
     label = structure("Components are about paths whereas communities are about the relationship between within-group and between-group ties", html = TRUE, class = c("html", 
@@ -4347,7 +4348,7 @@ learnr:::question_prerendered_chunk(structure(list(type = "learnr_radio", label 
 "character")), incorrect = structure("Incorrect", html = TRUE, class = c("html", 
 "character")), message = NULL, post_message = NULL), ids = list(
     answer = "comm-comp-answer", question = "comm-comp"), loading = NULL, 
-    random_answer_order = TRUE, allow_retry = TRUE, seed = 253405763.381999, 
+    random_answer_order = TRUE, allow_retry = TRUE, seed = 277884406.3706, 
     options = list()), class = c("learnr_radio", "tutorial_question"
 )), session = session)
 </script>
@@ -4464,18 +4465,18 @@ learnr:::store_exercise_cache(structure(list(label = "inconsensus", global_setup
         list(label = "manip-fri", code = "# to_giant() returns an object that includes only the main component without any smaller components or isolates\n(friends <- to_giant(friends))\n(friends <- to_undirected(friends))\ngraphr(friends)", 
             opts = list(label = "\"manip-fri\"", exercise = "TRUE", 
                 exercise.setup = "\"separatingnets\""), engine = "r"), 
-        list(label = "inconsensus", code = "node_in_community(irps_blogs, consensus = TRUE)", 
+        list(label = "inconsensus", code = "node_in_community(irps_books, consensus = TRUE)", 
             opts = list(label = "\"inconsensus\"", exercise = "TRUE", 
-                exercise.setup = "\"manip-fri\""), engine = "r")), 
-    code_check = NULL, error_check = NULL, check = NULL, solution = NULL, 
-    tests = NULL, options = list(eval = FALSE, echo = TRUE, results = "markup", 
-        tidy = FALSE, tidy.opts = NULL, collapse = FALSE, prompt = FALSE, 
-        comment = NA, highlight = FALSE, size = "normalsize", 
-        background = "#F7F7F7", strip.white = TRUE, cache = 0, 
-        cache.path = "community_cache/html/", cache.vars = NULL, 
-        cache.lazy = TRUE, dependson = NULL, autodep = FALSE, 
-        cache.rebuild = FALSE, fig.keep = "high", fig.show = "asis", 
-        fig.align = "default", fig.path = "community_files/figure-html/", 
+                exercise.setup = "\"manip-fri\"", purl = "FALSE"), 
+            engine = "r")), code_check = NULL, error_check = NULL, 
+    check = NULL, solution = NULL, tests = NULL, options = list(
+        eval = FALSE, echo = TRUE, results = "markup", tidy = FALSE, 
+        tidy.opts = NULL, collapse = FALSE, prompt = FALSE, comment = NA, 
+        highlight = FALSE, size = "normalsize", background = "#F7F7F7", 
+        strip.white = TRUE, cache = 0, cache.path = "community_cache/html/", 
+        cache.vars = NULL, cache.lazy = TRUE, dependson = NULL, 
+        autodep = FALSE, cache.rebuild = FALSE, fig.keep = "high", 
+        fig.show = "asis", fig.align = "default", fig.path = "community_files/figure-html/", 
         dev = "png", dev.args = NULL, dpi = 192, fig.ext = "png", 
         fig.width = 6.5, fig.height = 4, fig.env = "figure", 
         fig.cap = NULL, fig.scap = NULL, fig.lp = "fig:", fig.subcap = NULL, 
@@ -4483,10 +4484,10 @@ learnr:::store_exercise_cache(structure(list(label = "inconsensus", global_setup
         fig.retina = 2, external = TRUE, sanitize = FALSE, interval = 1, 
         aniopts = "controls,loop", warning = TRUE, error = FALSE, 
         message = TRUE, render = NULL, ref.label = NULL, child = NULL, 
-        engine = "r", split = FALSE, include = TRUE, purl = TRUE, 
+        engine = "r", split = FALSE, include = TRUE, purl = FALSE, 
         max.print = 1000, label = "inconsensus", exercise = TRUE, 
-        exercise.setup = "manip-fri", code = "node_in_community(irps_blogs, consensus = TRUE)", 
-        out.width.px = 624, out.height.px = 384, params.src = "inconsensus, exercise = TRUE, exercise.setup = \"manip-fri\"", 
+        exercise.setup = "manip-fri", code = "node_in_community(irps_books, consensus = TRUE)", 
+        out.width.px = 624, out.height.px = 384, params.src = "inconsensus, exercise = TRUE, exercise.setup = \"manip-fri\", purl = FALSE", 
         fig.num = 0, exercise.df_print = "paged", exercise.checker = "NULL"), 
     engine = "r", version = "4"), class = c("r", "tutorial_exercise"
 )))
@@ -4494,48 +4495,48 @@ learnr:::store_exercise_cache(structure(list(label = "inconsensus", global_setup
  
 <script type="application/shiny-prerendered" data-context="server">
 learnr:::question_prerendered_chunk(structure(list(type = "learnr_radio", label = "alg-comp", question = structure("Which algorithm provides the ‘best’ membership assignment here?", html = TRUE, class = c("html", 
-"character")), answers = list(structure(list(id = "lnr_ans_2f73a4", 
+"character")), answers = list(structure(list(id = "lnr_ans_5eba623", 
     option = "Walktrap", value = "Walktrap", label = structure("Walktrap", html = TRUE, class = c("html", 
     "character")), correct = FALSE, message = structure("Walktrap finds communities using short random walks. It’s a fast heuristic, but not guaranteed to reach the highest possible modularity.", html = TRUE, class = c("html", 
     "character")), type = "literal"), class = c("tutorial_question_answer", 
-"tutorial_quiz_answer")), structure(list(id = "lnr_ans_c01530f", 
+"tutorial_quiz_answer")), structure(list(id = "lnr_ans_3bb4e34", 
     option = "Edge betweenness", value = "Edge betweenness", 
     label = structure("Edge betweenness", html = TRUE, class = c("html", 
     "character")), correct = FALSE, message = structure("Edge betweenness (Girvan-Newman) removes high-betweenness ties one by one. It’s intuitive but slow and only approximate.", html = TRUE, class = c("html", 
     "character")), type = "literal"), class = c("tutorial_question_answer", 
-"tutorial_quiz_answer")), structure(list(id = "lnr_ans_28bf128", 
+"tutorial_quiz_answer")), structure(list(id = "lnr_ans_eb405b4", 
     option = "Leiden", value = "Leiden", label = structure("Leiden", html = TRUE, class = c("html", 
     "character")), correct = FALSE, message = structure("Leiden is a fast, high-quality heuristic, but on a small network it can still fall short of the exact maximum.", html = TRUE, class = c("html", 
     "character")), type = "literal"), class = c("tutorial_question_answer", 
-"tutorial_quiz_answer")), structure(list(id = "lnr_ans_bb6a216", 
+"tutorial_quiz_answer")), structure(list(id = "lnr_ans_b704876", 
     option = "Louvain", value = "Louvain", label = structure("Louvain", html = TRUE, class = c("html", 
     "character")), correct = FALSE, message = structure("Louvain is a popular fast greedy multi-level heuristic, but ‘fast’ comes at the cost of not being guaranteed optimal.", html = TRUE, class = c("html", 
     "character")), type = "literal"), class = c("tutorial_question_answer", 
-"tutorial_quiz_answer")), structure(list(id = "lnr_ans_940ed9b", 
+"tutorial_quiz_answer")), structure(list(id = "lnr_ans_cd82d77", 
     option = "Infomap", value = "Infomap", label = structure("Infomap", html = TRUE, class = c("html", 
     "character")), correct = FALSE, message = structure("Infomap optimises a description of information flow (the map equation) rather than modularity directly, so it isn’t the ‘best’ by this modularity yardstick.", html = TRUE, class = c("html", 
     "character")), type = "literal"), class = c("tutorial_question_answer", 
-"tutorial_quiz_answer")), structure(list(id = "lnr_ans_674a643", 
+"tutorial_quiz_answer")), structure(list(id = "lnr_ans_8f51912", 
     option = "Fluid", value = "Fluid", label = structure("Fluid", html = TRUE, class = c("html", 
     "character")), correct = FALSE, message = structure("Fluid communities is a heuristic that requires you to fix the number of communities in advance, so it’s approximate.", html = TRUE, class = c("html", 
     "character")), type = "literal"), class = c("tutorial_question_answer", 
-"tutorial_quiz_answer")), structure(list(id = "lnr_ans_fe12ce", 
+"tutorial_quiz_answer")), structure(list(id = "lnr_ans_40324e", 
     option = "Fast Greedy", value = "Fast Greedy", label = structure("Fast Greedy", html = TRUE, class = c("html", 
     "character")), correct = FALSE, message = structure("Fast greedy maximises modularity greedily – quick, but it can get stuck below the true maximum.", html = TRUE, class = c("html", 
     "character")), type = "literal"), class = c("tutorial_question_answer", 
-"tutorial_quiz_answer")), structure(list(id = "lnr_ans_d31f382", 
+"tutorial_quiz_answer")), structure(list(id = "lnr_ans_699f804", 
     option = "Eigenvector", value = "Eigenvector", label = structure("Eigenvector", html = TRUE, class = c("html", 
     "character")), correct = FALSE, message = structure("The leading-eigenvector method is a spectral heuristic, again only an approximation to the optimum.", html = TRUE, class = c("html", 
     "character")), type = "literal"), class = c("tutorial_question_answer", 
-"tutorial_quiz_answer")), structure(list(id = "lnr_ans_19174fc", 
+"tutorial_quiz_answer")), structure(list(id = "lnr_ans_7820ade", 
     option = "Spinglass", value = "Spinglass", label = structure("Spinglass", html = TRUE, class = c("html", 
     "character")), correct = FALSE, message = structure("Spinglass uses simulated annealing, so it’s stochastic and not guaranteed to land on the optimal assignment.", html = TRUE, class = c("html", 
     "character")), type = "literal"), class = c("tutorial_question_answer", 
-"tutorial_quiz_answer")), structure(list(id = "lnr_ans_26a1e31", 
+"tutorial_quiz_answer")), structure(list(id = "lnr_ans_1d6c662", 
     option = "Partition", value = "Partition", label = structure("Partition", html = TRUE, class = c("html", 
     "character")), correct = FALSE, message = structure("Partition splits the network structurally rather than maximising modularity, so it isn’t the ‘best’ modularity assignment.", html = TRUE, class = c("html", 
     "character")), type = "literal"), class = c("tutorial_question_answer", 
-"tutorial_quiz_answer")), structure(list(id = "lnr_ans_8b74c3", 
+"tutorial_quiz_answer")), structure(list(id = "lnr_ans_cd678cc", 
     option = "Optimal", value = "Optimal", label = structure("Optimal", html = TRUE, class = c("html", 
     "character")), correct = TRUE, message = structure("That’s right – <code>node_in_optimal()<\u002fcode> exhaustively maximises modularity, so on a network small enough for it to run it returns the highest possible modularity by definition. That’s exactly why <code>node_in_community()<\u002fcode> prefers it for smaller networks.", html = TRUE, class = c("html", 
     "character")), type = "literal"), class = c("tutorial_question_answer", 
@@ -4546,7 +4547,7 @@ learnr:::question_prerendered_chunk(structure(list(type = "learnr_radio", label 
 "character")), incorrect = structure("Incorrect", html = TRUE, class = c("html", 
 "character")), message = NULL, post_message = NULL), ids = list(
     answer = "alg-comp-answer", question = "alg-comp"), loading = NULL, 
-    random_answer_order = TRUE, allow_retry = TRUE, seed = 1536797904.28437, 
+    random_answer_order = TRUE, allow_retry = TRUE, seed = 1047560575.01219, 
     options = list()), class = c("learnr_radio", "tutorial_question"
 )), session = session)
 </script>
@@ -4619,7 +4620,7 @@ learnr:::store_exercise_cache(structure(list(label = "freeplay", global_setup = 
 <!--/html_preserve-->
 <!--html_preserve-->
 <script type="application/shiny-prerendered" data-context="execution_dependencies">
-{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["packages"]}},"value":[{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["packages","version"]},"class":{"type":"character","attributes":{},"value":["data.frame"]},"row.names":{"type":"integer","attributes":{},"value":[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,41,42,43,44,45,46,47,48,49,50,51,52,53,54,55,56,57,58,59,60,61,62,63,64,65,66,67,68,69,70,71,72,73,74,75,76,77,78,79,80,81,82,83,84,85,86,87,88,89,90,91,92,93,94,95,96,97,98,99,100,101,102,103,104,105,106,107,108,109,110,111,112,113,114,115,116]}},"value":[{"type":"character","attributes":{},"value":["askpass","autograph","backports","base","bslib","cachem","checkmate","cli","coda","codetools","commonmark","compiler","crayon","datasets","DEoptimR","digest","dplyr","ergm","evaluate","farver","fastmap","fontawesome","fs","furrr","future","generics","ggforce","ggplot2","ggraph","ggrepel","globals","glue","graphics","graphlayouts","grDevices","grid","gridExtra","gtable","htmltools","htmlwidgets","httpuv","igraph","jquerylib","jsonlite","knitr","later","lattice","learnr","lifecycle","listenv","litedown","lpSolveAPI","magrittr","manynet","manypkgs","markdown","MASS","Matrix","memoise","methods","migraph","mime","netrics","network","NLP","otel","parallel","parallelly","patchwork","pdftools","pillar","pkgconfig","polyclip","promises","purrr","qpdf","R6","rbibutils","RColorBrewer","Rcpp","Rdpack","remotes","rlang","rle","rmarkdown","robustbase","rprojroot","rstudioapi","S7","sass","scales","shiny","slam","statnet.common","stats","stringi","stringr","tibble","tidygraph","tidyr","tidyselect","tm","tools","trust","tweenr","usethis","utils","vctrs","viridis","viridisLite","whisker","withr","xfun","xml2","xtable","yaml"]},{"type":"character","attributes":{},"value":["1.2.1","1.2.0","1.5.1","4.6.1","0.12.0","1.1.0","2.3.4","3.6.6","0.19-4.1","0.2-20","2.0.0","4.6.1","1.5.3","4.6.1","1.2-1","0.6.39","1.2.1","4.12.0","1.0.5","2.1.2","1.2.0","0.5.3","2.1.0","0.4.0","1.75.0","0.1.4","0.5.0","4.0.3","2.2.2","0.9.8","0.19.1","1.8.1","4.6.1","1.2.5","4.6.1","4.6.1","2.3.1","0.3.6","0.5.9","1.6.4","1.6.17","2.3.3","0.1.4","2.0.0","1.51","1.4.8","0.23-1","0.11.6","1.0.5","1.0.0","0.10","5.5.2.0-17.15","2.0.5","2.3.1","0.3.1","2.0","7.3-66","1.7-6","2.0.1","4.6.1","1.7.0","0.13","1.0.0","1.20.0","0.3-3","0.2.0","4.6.1","1.48.0","1.3.2","3.9.0","1.11.1","2.0.3","1.10-7","1.5.0","1.2.2","1.4.1","2.6.1","2.4.1","1.1-3","1.1.2","2.6.6","2.5.0.9000","1.3.0","0.10.0","2.31","0.99-7","2.1.1","0.19.0","0.2.2","0.4.10","1.4.0","1.14.0","0.1-56","4.13.0","4.6.1","1.8.9","1.6.0","3.3.1","1.3.1","1.3.2","1.2.1","0.7-18","4.6.1","0.1-9","2.0.3","3.2.1","4.6.1","0.7.3","0.6.5","0.4.3","0.4.1","3.0.3","0.60","1.6.0","1.8-8","2.3.12"]}]}]}
+{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["packages"]}},"value":[{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["packages","version"]},"class":{"type":"character","attributes":{},"value":["data.frame"]},"row.names":{"type":"integer","attributes":{},"value":[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,41,42,43,44,45,46,47,48,49,50,51,52,53,54,55,56,57,58,59,60,61,62,63,64,65,66,67,68,69,70,71,72,73,74,75,76,77,78,79,80,81,82,83,84,85,86,87,88,89,90,91,92,93,94,95,96,97,98,99,100,101,102,103,104,105,106,107,108,109,110,111,112,113,114,115,116,117,118,119]}},"value":[{"type":"character","attributes":{},"value":["askpass","autograph","backports","base","bslib","cachem","checkmate","cli","coda","codetools","commonmark","compiler","crayon","datasets","DEoptimR","digest","dplyr","ergm","evaluate","farver","fastmap","fontawesome","fs","furrr","future","generics","ggforce","ggplot2","ggraph","ggrepel","globals","glue","graphics","graphlayouts","grDevices","grid","gridExtra","gtable","htmltools","htmlwidgets","httpuv","igraph","jquerylib","jsonlite","knitr","labeling","later","lattice","learnr","lifecycle","listenv","litedown","lpSolveAPI","magrittr","manynet","manypkgs","markdown","MASS","Matrix","memoise","methods","migraph","mime","netrics","network","NLP","otel","parallel","parallelly","patchwork","pdftools","pillar","pkgconfig","polyclip","promises","purrr","qpdf","R6","rbibutils","RColorBrewer","Rcpp","Rdpack","remotes","rlang","rle","rmarkdown","robustbase","rprojroot","rsconnect","rstudioapi","S7","sass","scales","shiny","slam","statnet.common","stats","stringi","stringr","tibble","tidygraph","tidyr","tidyselect","tm","tools","trust","tweenr","usethis","utf8","utils","vctrs","viridis","viridisLite","whisker","withr","xfun","xml2","xtable","yaml"]},{"type":"character","attributes":{},"value":["1.2.1","1.2.0","1.5.1","4.6.1","0.12.0","1.1.0","2.3.4","3.6.6","0.19-4.1","0.2-20","2.0.0","4.6.1","1.5.3","4.6.1","1.2-1","0.6.39","1.2.1","4.12.0","1.0.5","2.1.2","1.2.0","0.5.3","2.1.0","0.4.0","1.75.0","0.1.4","0.5.0","4.0.3","2.2.2","0.9.8","0.19.1","1.8.1","4.6.1","1.2.5","4.6.1","4.6.1","2.3.1","0.3.6","0.5.9","1.6.4","1.6.17","2.3.3","0.1.4","2.0.0","1.51","0.4.3","1.4.8","0.23-1","0.11.6","1.0.5","1.0.0","0.10","5.5.2.0-17.15","2.0.5","2.3.1","0.3.1","2.0","7.3-66","1.7-6","2.0.1","4.6.1","1.7.0","0.13","1.0.0","1.20.0","0.3-3","0.2.0","4.6.1","1.48.0","1.3.2","3.9.0","1.11.1","2.0.3","1.10-7","1.5.0","1.2.2","1.4.1","2.6.1","2.4.1","1.1-3","1.1.2","2.6.6","2.5.0.9000","1.3.0","0.10.0","2.31","0.99-7","2.1.1","1.11.0","0.19.0","0.2.2","0.4.10","1.4.0","1.14.0","0.1-56","4.13.0","4.6.1","1.8.9","1.6.0","3.3.1","1.3.1","1.3.2","1.2.1","0.7-18","4.6.1","0.1-9","2.0.3","3.2.1","1.2.6","4.6.1","0.7.3","0.6.5","0.4.3","0.4.1","3.0.3","0.60","1.6.0","1.8-8","2.3.12"]}]}]}
 </script>
 <!--/html_preserve-->
 </div>

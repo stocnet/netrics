@@ -1,7 +1,18 @@
 test_that("network closures meet the measure contract", {
-  check_measure_contract(measure_rosters$closure_net, manynet::ison_networkers,
-                         level = "net")
-  expect_declared(measure_rosters$closure_net, manynet::ison_networkers)
+  # `net_by_equivalency()` counts four-cycles, and where the network is
+  # one-mode it does so by enumerating every three-path from every node.
+  # That takes about fifteen seconds on `ison_networkers`, and the sweep runs
+  # each measure twice, so it dominated this package's test time. It is a
+  # two-mode measure, so it is swept on a two-mode network instead; its
+  # one-mode result is asserted in test-measure_closure.R.
+  onemode <- measure_rosters$closure_net[
+    setdiff(names(measure_rosters$closure_net), "net_by_equivalency")]
+  check_measure_contract(onemode, manynet::ison_networkers, level = "net")
+  expect_declared(onemode, manynet::ison_networkers)
+
+  twomode <- measure_rosters$closure_net["net_by_equivalency"]
+  check_measure_contract(twomode, manynet::ison_southern_women, level = "net")
+  expect_declared(twomode, manynet::ison_southern_women)
 })
 
 test_that("node closures meet the measure contract", {

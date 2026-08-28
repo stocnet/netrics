@@ -1434,9 +1434,10 @@ The answer no longer rests on a single run of a single algorithm.
 It costs considerably more time, which is why it is not the default,
 and it is ignored on a network small enough for `node_in_optimal()`,
 where the exact maximum is already available.
+On a network the size of `irps_books` this may take about twenty seconds.
 
-```{r inconsensus, exercise = TRUE, exercise.setup = "manip-fri"}
-node_in_community(irps_blogs, consensus = TRUE)
+```{r inconsensus, exercise = TRUE, exercise.setup = "manip-fri", purl = FALSE}
+node_in_community(irps_books, consensus = TRUE)
 ```
 
 ```{r alg-comp, echo=FALSE, purl = FALSE}
