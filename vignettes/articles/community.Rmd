@@ -482,8 +482,7 @@ We're interested here in how many
 there are.
 By default, the `net_by_components()` function will
 return the number of _strong_ components for directed networks.
-For _weak_ components, you will need to first make the network
-`r gloss("undirected")`.
+For _weak_ components, add `connectivity = "weak"`.
 Remember the difference between weak and strong components?
 
 ::: {.callout}
@@ -518,7 +517,7 @@ before we ask the subtler question of who clusters with whom.
 ::: {.callout}
 <span class="callout-label">**In brief**:</span> Components partition a network by
 `r gloss("reachability")`: `net_by_components()` counts them
-(strong by default for directed networks; wrap in `to_undirected()` for weak),
+(strong by default for directed networks; add `connectivity = "weak"` for weak),
 and `node_in_component()` returns each node's membership,
 ready to map onto `node_color` in `graphr()`.
 :::
@@ -564,7 +563,7 @@ even if we look at weak components and not just strong components.
 
 ```{r blogcomp}
 node_in_component(blogs)
-node_in_component(to_undirected(blogs))
+node_in_component(blogs, connectivity = "weak")
 ```
 
 ### The giant component {#the-giant-component}
@@ -1007,7 +1006,7 @@ Along the way, you have learned to use these functions:
 | `to_mode1()`, `to_mode2()` | projects a two-mode network onto its row or column nodes, with a `similarity` option |
 | `tie_weights()` | extracts the tie weights, e.g. of a projection |
 | `net_by_equivalency()` | equivalence/reinforcement measured on the two-mode network itself |
-| `net_by_components()` | number of (strong) components; wrap in `to_undirected()` for weak |
+| `net_by_components()` | number of components, strong by default, or `connectivity = "weak"` |
 | `node_in_component()` | each node's component membership |
 | `node_is_isolate()` | flags isolates (sum it to count them) |
 | `delete_nodes()` | removes chosen (e.g. sampled) nodes |

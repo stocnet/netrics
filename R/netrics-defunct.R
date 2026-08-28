@@ -40,4 +40,27 @@ net_x_mixed <- function(.data, object2) {
   if(missing(object2)) net_x_triad(.data) else net_x_triad(.data, object2)
 }
 
+#' @describeIn defunct Deprecated on 2026-08-28.
+#'   Folded into `node_in_component(connectivity = "weak")`, which now takes
+#'   the connectivity wanted as an argument rather than splitting the same
+#'   calculation across three function names.
+#' @template param_data
+#' @export
+node_in_weak <- function(.data) {
+  .Deprecated("node_in_component", package = "netrics",
+              old = "node_in_weak")
+  node_in_component(.data, connectivity = "weak")
+}
+
+#' @describeIn defunct Deprecated on 2026-08-28.
+#'   Folded into `node_in_component(connectivity = "strong")`, which is also
+#'   what `node_in_component()` does by default.
+#' @template param_data
+#' @export
+node_in_strong <- function(.data) {
+  .Deprecated("node_in_component", package = "netrics",
+              old = "node_in_strong")
+  node_in_component(.data, connectivity = "strong")
+}
+
 # nocov end

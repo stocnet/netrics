@@ -26,7 +26,7 @@ All can be retrieved with \code{attr()}.
 \code{net_by_waves()} measures the number of waves in longitudinal network data.
 }
 \examples{
-net_by_waves(ison_classmates)
+net_by_waves(ison_monks)
 }
 \seealso{
 Other change:

@@ -12,7 +12,7 @@ net_by_density(.data)
 
 net_by_compactness(.data)
 
-net_by_components(.data)
+net_by_components(.data, connectivity = c("strong", "weak"))
 
 net_by_independence(.data)
 }
@@ -20,6 +20,14 @@ net_by_independence(.data)
 \item{.data}{A network object of class \code{stocnet}, \code{igraph}, \code{tbl_graph}, \code{network}, or similar.
 Internally any of these will be coerced to an efficient implementation.
 For more information on possible coercions, see e.g. \code{\link[manynet:as_stocnet]{manynet::as_stocnet()}}.}
+
+\item{connectivity}{Character string, "weak" treats a directed network's
+components as if the network were undirected, and "strong" requires ties
+in both directions between members.
+This is ignored for undirected networks, where the two notions coincide.
+Note that the default differs by function: functions that assert or count
+connectedness default to "strong", while functions that scope or split a
+network into components default to "weak".}
 }
 \value{
 A \code{network_measure} numeric score.
@@ -38,8 +46,8 @@ These functions return values or vectors relating to how cohesive a network is:
 of possible ties.
 \item \code{net_by_compactness()} measures the average closeness of all pairs
 of nodes in the network.
-\item \code{net_by_components()} measures the number of (strong) components
-in the network.
+\item \code{net_by_components()} measures the number of components
+in the network, either strongly or weakly connected.
 \item \code{net_by_independence()} measures the independence number,
 or size of the largest independent set in the network.
 }
@@ -89,19 +97,13 @@ partly to avoid confusion with the unrelated
 \code{\link[=net_by_efficiency]{net_by_efficiency()}} (Krackhardt) and \code{\link[=node_by_efficiency]{node_by_efficiency()}} (Burt).
 }
 
-\section{Components}{
-
-To get the 'weak' components of a directed graph,
-please use \code{manynet::to_undirected()} first.
-}
-
 \examples{
 net_by_density(ison_adolescents)
 net_by_density(ison_southern_women)
 net_by_compactness(ison_adolescents)
 net_by_compactness(ison_southern_women)
 net_by_components(fict_thrones)
-net_by_components(to_undirected(fict_thrones))
+net_by_components(fict_thrones, connectivity = "weak")
 net_by_independence(ison_adolescents)
 net_by_independence(fict_actually)
 }

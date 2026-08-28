@@ -9,12 +9,13 @@
 #'   of possible ties.
 #'   - `net_by_compactness()` measures the average closeness of all pairs
 #'   of nodes in the network.
-#'   - `net_by_components()` measures the number of (strong) components
-#'   in the network.
+#'   - `net_by_components()` measures the number of components
+#'   in the network, either strongly or weakly connected.
 #'   - `net_by_independence()` measures the independence number, 
 #'   or size of the largest independent set in the network.
 #'   
 #' @template param_data
+#' @template param_connectivity
 #' @family cohesion
 #' @template net_measure
 #' @section Signed networks:
@@ -109,21 +110,19 @@ net_by_compactness <- function(.data) {
 }
 
 #' @rdname measure_cohesion
-#' @section Components:
-#'   To get the 'weak' components of a directed graph, 
-#'   please use `manynet::to_undirected()` first.
 #' @importFrom igraph components
 #' @examples
 #' net_by_components(fict_thrones)
-#' net_by_components(to_undirected(fict_thrones))
+#' net_by_components(fict_thrones, connectivity = "weak")
 #' @export
-net_by_components <- function(.data){
+net_by_components <- function(.data, connectivity = c("strong", "weak")){
+  connectivity <- match.arg(connectivity)
   .data <- manynet::expect_nodes(.data)
   object <- manynet::as_igraph(.data)
-  make_network_measure(igraph::components(object, mode = "strong")$no,
+  make_network_measure(igraph::components(object, mode = connectivity)$no,
                        object, call = deparse(sys.call()),
                        measure = "number of components", range = c(1, Inf),
-                       normalization = "none")
+                       normalization = "none", variant = connectivity)
 }
 
 #' @rdname measure_cohesion 

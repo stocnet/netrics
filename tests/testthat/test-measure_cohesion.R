@@ -2,6 +2,24 @@ test_that("network components works", {
   expect_equal(as.numeric(net_by_components(ison_adolescents)), 1)
 })
 
+test_that("net_by_components' connectivity argument works", {
+  # a directed acyclic network has one weak component but as many strong
+  # components as it has nodes, so the two connectivities must differ
+  dag <- manynet::create_tree(6, directed = TRUE)
+  expect_equal(as.numeric(net_by_components(dag, connectivity = "weak")), 1)
+  expect_equal(as.numeric(net_by_components(dag, connectivity = "strong")),
+               as.numeric(manynet::net_nodes(dag)))
+  # the no-argument call is unchanged, that is, strong
+  expect_equal(as.numeric(net_by_components(dag)),
+               as.numeric(net_by_components(dag, connectivity = "strong")))
+  # connectivity is ignored for undirected networks
+  expect_equal(as.numeric(net_by_components(ison_adolescents,
+                                            connectivity = "strong")),
+               as.numeric(net_by_components(ison_adolescents,
+                                            connectivity = "weak")))
+  expect_error(net_by_components(dag, connectivity = "loose"))
+})
+
 test_that("network cohesion works", {
   expect_equal(as.numeric(net_by_cohesion(ison_southern_women)), 2)
 })

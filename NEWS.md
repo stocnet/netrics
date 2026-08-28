@@ -12,6 +12,7 @@
   - `param_times`
   - `param_variant`
   - `param_standardized`
+  - `param_connectivity`
 - Updated the website function overview to use the `NEWS.md` family headings
 - Updated the README to recommend installing the whole family via `{migraph}`
 
@@ -94,6 +95,9 @@
 - Fixed `node_by_information()` on rectangular matrices by using `manynet::to_multilevel()`
 - Fixed `net_by_independence()` erroring on multilevel networks by measuring whole
 - Fixed `net_by_waves()` reporting one wave where waves are held as `time`
+- Added `connectivity=` to `net_by_components()` for counting weak as well as strong components
+  - Defaults to `"strong"`, so existing scripts are unaffected
+  - The connectivity counted is reported as the measure's `variant` when the result is printed
 
 ## Memberships
 
@@ -135,6 +139,10 @@
 - Renamed `Kmax=` to `max_k=` in the community and equivalence functions
 - Renamed `num_groups=` to `groups=` in `node_in_roulette()`
 - Renamed `cluster_by=` to `split=` in `node_in_core()`
+- Added `connectivity=` to `node_in_component()` for weak as well as strong component membership
+  - Defaults to `"strong"`, so existing scripts are unaffected
+  - Ignored for undirected networks, where the two notions coincide
+  - Deprecated `node_in_weak()` and `node_in_strong()`
 
 ## Motifs
 

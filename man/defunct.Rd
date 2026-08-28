@@ -4,11 +4,17 @@
 \alias{defunct}
 \alias{node_by_coreness}
 \alias{net_x_mixed}
+\alias{node_in_weak}
+\alias{node_in_strong}
 \title{Functions that have been renamed, superseded, or are no longer working}
 \usage{
 node_by_coreness(.data, coreness = NULL, direction = c("all", "out", "in"))
 
 net_x_mixed(.data, object2)
+
+node_in_weak(.data)
+
+node_in_strong(.data)
 }
 \arguments{
 \item{.data}{A network object of class \code{stocnet}, \code{igraph}, \code{tbl_graph}, \code{network}, or similar.
@@ -53,6 +59,15 @@ that \code{node_by_kcoreness()} returns.
 Folded into \code{net_x_triad()}, which now takes the multilevel census
 whenever it is given both a one-mode and a two-mode network, rather than
 reporting that no such option exists.
+
+\item \code{node_in_weak()}: Deprecated on 2026-08-28.
+Folded into \code{node_in_component(connectivity = "weak")}, which now takes
+the connectivity wanted as an argument rather than splitting the same
+calculation across three function names.
+
+\item \code{node_in_strong()}: Deprecated on 2026-08-28.
+Folded into \code{node_in_component(connectivity = "strong")}, which is also
+what \code{node_in_component()} does by default.
 
 }}
 \keyword{internal}

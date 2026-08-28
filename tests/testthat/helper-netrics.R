@@ -82,7 +82,8 @@ collect_functions <- function(pattern, package = "netrics"){
 # Renamed functions are kept as warning wrappers in R/netrics-defunct.R for one
 # release. They delegate to their replacement, so sweeping them only produces
 # deprecation warnings for a name on its way out.
-defunct_fns <- c("node_by_coreness", "net_x_mixed")
+defunct_fns <- c("node_by_coreness", "net_x_mixed",
+                 "node_in_weak", "node_in_strong")
 funs_objs <- mget(setdiff(ls("package:netrics"), defunct_fns), inherits = TRUE)
 
 # data_objs <- mget(ls("package:manynet"), inherits = TRUE)
