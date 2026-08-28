@@ -12,7 +12,7 @@ NULL
 
 #' @rdname measure_periods 
 #' @examples
-#' net_by_waves(ison_classmates)
+#' net_by_waves(ison_monks)
 #' @export
 net_by_waves <- function(.data){
   .data <- manynet::expect_nodes(.data)
