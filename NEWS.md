@@ -1,3 +1,9 @@
+# netrics 1.0.1
+
+## Methods
+
+- Fixed `cluster_cosine()` to cluster nodes and not census features (thanks @Kaladani)
+
 # netrics 1.0.0
 
 ## Package

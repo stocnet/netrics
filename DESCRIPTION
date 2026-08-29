@@ -1,6 +1,6 @@
 Package: netrics
 Title: Many Marks, Measures, Memberships, and Motifs for Networks
-Version: 1.0.0
+Version: 1.0.1
 Description: Many tools for calculating network, node, or tie
    marks, measures, motifs and memberships of many different types of networks.
    Marks identify structural positions, measures quantify network properties,
