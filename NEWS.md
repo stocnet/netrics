@@ -1,3 +1,9 @@
+# netrics 1.0.2
+
+## Package
+
+- Reduced run time of fragmentation examples by using `fict_greys` instead of `fict_marvel`
+
 # netrics 1.0.1
 
 ## Methods

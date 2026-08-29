@@ -46,10 +46,10 @@ removed from a network to increase its number of components.
 }
 }
 \examples{
-net_by_cohesion(fict_marvel)
-net_by_cohesion(to_giant(fict_marvel))
-net_by_adhesion(fict_marvel)
-net_by_adhesion(to_giant(fict_marvel))
+net_by_cohesion(fict_greys)
+net_by_cohesion(to_giant(fict_greys))
+net_by_adhesion(fict_greys)
+net_by_adhesion(to_giant(fict_greys))
 net_by_strength(ison_adolescents)
 net_by_toughness(ison_adolescents)
 }

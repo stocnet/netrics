@@ -234,8 +234,8 @@ NULL
 #' _Sociological Methodology_ 31(1): 305-59.
 #' \doi{10.1111/0081-1750.00098}
 #' @examples 
-#' net_by_cohesion(fict_marvel)
-#' net_by_cohesion(to_giant(fict_marvel))
+#' net_by_cohesion(fict_greys)
+#' net_by_cohesion(to_giant(fict_greys))
 #' @export
 net_by_cohesion <- function(.data){
   .data <- manynet::expect_nodes(.data)
@@ -248,8 +248,8 @@ net_by_cohesion <- function(.data){
 #' @rdname measure_fragmentation 
 #' @importFrom igraph adhesion
 #' @examples 
-#' net_by_adhesion(fict_marvel)
-#' net_by_adhesion(to_giant(fict_marvel))
+#' net_by_adhesion(fict_greys)
+#' net_by_adhesion(to_giant(fict_greys))
 #' @export
 net_by_adhesion <- function(.data){
   .data <- manynet::expect_nodes(.data)
