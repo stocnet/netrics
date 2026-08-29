@@ -51,7 +51,7 @@ cluster_hierarchical <- function(motif, distance){
 #'   and this is given to `stats::hclust` to enable dendrogram construction etc.
 #' @export
 cluster_cosine <- function(motif, distance){
-  cosines <- manynet::to_cosine(motif)
+  cosines <- manynet::to_cosine(t(motif))
   dissimilarity <- 1 - cosines
   distances <- stats::dist(dissimilarity, method = distance)
   hc <- stats::hclust(distances)
