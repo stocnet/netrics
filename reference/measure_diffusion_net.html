@@ -30,7 +30,7 @@ to be protected through vaccination, isolation, or recovery for herd immunity to
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">netrics</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.0.0</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.0.1</span>
       </span>
     </div>
 
@@ -323,18 +323,23 @@ interpretation.</p>
 <span class="r-plt img"><img src="measure_diffusion_net-1.png" alt="" width="700" height="433"></span>
 <span class="r-in"><span>  <span class="co"># To calculate the average transmissibility for a given diffusion model</span></span></span>
 <span class="r-in"><span>  <span class="fu">net_by_transmissibility</span><span class="op">(</span><span class="va">smeg_diff</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># Transmissibility [0, Inf)</span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0.967</span>
 <span class="r-in"><span>  <span class="co"># To calculate the average infection length for a given diffusion model</span></span></span>
 <span class="r-in"><span>  <span class="fu">net_by_recovery</span><span class="op">(</span><span class="va">smeg_diff</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># Recovery time [0, Inf)</span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] 4.6</span>
 <span class="r-in"><span>  <span class="co"># To calculate the reproduction number for a given diffusion model</span></span></span>
 <span class="r-in"><span>  <span class="fu">net_by_reproduction</span><span class="op">(</span><span class="va">smeg_diff</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># Reproduction number [0, Inf)</span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] 4</span>
 <span class="r-in"><span>  <span class="co"># Calculating the proportion required to achieve herd immunity</span></span></span>
 <span class="r-in"><span>  <span class="fu">net_by_immunity</span><span class="op">(</span><span class="va">smeg_diff</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># Herd immunity threshold, normalized [0, 1]</span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0.75</span>
 <span class="r-in"><span>  <span class="co"># To find the number of nodes to be vaccinated</span></span></span>
 <span class="r-in"><span>  <span class="fu">net_by_immunity</span><span class="op">(</span><span class="va">smeg_diff</span>, normalized <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># Herd immunity threshold [0, Inf)</span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] 12</span>
 </code></pre></div>
     </div>

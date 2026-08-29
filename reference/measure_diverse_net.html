@@ -24,7 +24,7 @@ net_by_diversity() measures the heterogeneity of ties across a network.
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">netrics</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.0.0</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.0.1</span>
       </span>
     </div>
 
@@ -281,11 +281,14 @@ Princeton: Princeton University Press.
     <div id="ref-examples">
     <h2>Examples</h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="fu">net_by_richness</span><span class="op">(</span><span class="va">ison_networkers</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># Richness [1, Inf)</span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] 3</span>
 <span class="r-in"><span><span class="va">marvel_friends</span> <span class="op">&lt;-</span> <span class="fu">to_unsigned</span><span class="op">(</span><span class="fu">to_uniplex</span><span class="op">(</span><span class="va">fict_marvel</span>, <span class="st">"relationship"</span><span class="op">)</span>, <span class="st">"positive"</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu">net_by_diversity</span><span class="op">(</span><span class="va">marvel_friends</span>, <span class="st">"Gender"</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># Blau's index, normalized [0, 1]</span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0.306</span>
 <span class="r-in"><span><span class="fu">net_by_diversity</span><span class="op">(</span><span class="va">marvel_friends</span>, <span class="st">"Appearances"</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># Coefficient of variation (-Inf, Inf)</span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0.802</span>
 </code></pre></div>
     </div>

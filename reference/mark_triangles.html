@@ -29,7 +29,7 @@ are cohesively connected."><meta property="og:image" content="https://stocnet.gi
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">netrics</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.0.0</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.0.1</span>
       </span>
     </div>
 
@@ -178,12 +178,13 @@ whether the condition is matched.</p>
 <span class="r-in"><span>  <span class="fu">mutate_ties</span><span class="op">(</span>tri <span class="op">=</span> <span class="fu">tie_is_triangular</span><span class="op">(</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">──</span> <span style="font-weight: bold;"># Sampson's Monks</span> <span style="color: #00BBBB;">───────────────────────────────────────────────────────────</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #5F87D7; font-style: italic;"># A longitudinal, labelled, multiplex, weighted, directed network of 18 nodes</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #5F87D7; font-style: italic;">and 168 like arcs over 3 waves</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #5F87D7; font-style: italic;"># A longitudinal, labelled, weighted, directed network of 18 nodes and 168 like</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #5F87D7; font-style: italic;">arcs over 3 waves</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #5F87D7; font-style: italic;"># Transformed by exclusion: layers other than 'like' (295 ties excluded)</span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> ── Nodes </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># A tibble: 18 × 3</span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   name        groups        left</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   label       groups        left</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>       <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>        <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">1</span> Romuald     Interstitial     3</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">2</span> Bonaventure Loyal            4</span>
@@ -195,7 +196,7 @@ whether the condition is matched.</p>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> ── Ties </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># A tibble: 168 × 5</span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>    from    to weight  wave tri       </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    from    to weight  time tri       </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;int&gt;</span> <span style="color: #949494; font-style: italic;">&lt;int&gt;</span>  <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;tie_mark&gt;</span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">1</span>     1     2      1     2 TRUE      </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">2</span>     1     2      1     3 TRUE      </span>
@@ -207,37 +208,39 @@ whether the condition is matched.</p>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-in"><span><span class="va">ison_adolescents</span> <span class="op">|&gt;</span> <span class="fu">to_directed</span><span class="op">(</span><span class="op">)</span> <span class="op">|&gt;</span> </span></span>
 <span class="r-in"><span>  <span class="fu">mutate_ties</span><span class="op">(</span>trans <span class="op">=</span> <span class="fu">tie_is_transitive</span><span class="op">(</span><span class="op">)</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> IGRAPH 4dbe3fb DN-- 8 10 -- The Adolescent Society</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> IGRAPH 6459a0b DN-- 8 10 -- The Adolescent Society</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> + attr: name (g/c), doi (g/c), year (g/n), vertex1 (g/c), vertex1.total</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> | (g/n), edge.pos (g/c), directed (g/l), name (v/c), trans (e/l)</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> + edges from 4dbe3fb (vertex names):</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> + edges from 6459a0b (vertex names):</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  [1] Betty-&gt;Sue   Sue  -&gt;Alice Alice-&gt;Jane  Sue  -&gt;Dale  Dale -&gt;Alice</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  [6] Dale -&gt;Jane  Sue  -&gt;Pam   Pam  -&gt;Alice Pam  -&gt;Carol Carol-&gt;Tina </span>
 <span class="r-in"><span><span class="va">ison_adolescents</span> <span class="op">|&gt;</span> <span class="fu">to_directed</span><span class="op">(</span><span class="op">)</span> <span class="op">|&gt;</span> </span></span>
 <span class="r-in"><span>  <span class="fu">mutate_ties</span><span class="op">(</span>trip <span class="op">=</span> <span class="fu">tie_is_triplet</span><span class="op">(</span><span class="op">)</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> IGRAPH beaa9f3 DN-- 8 10 -- The Adolescent Society</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> IGRAPH 3ec574f DN-- 8 10 -- The Adolescent Society</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> + attr: name (g/c), doi (g/c), year (g/n), vertex1 (g/c), vertex1.total</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> | (g/n), edge.pos (g/c), directed (g/l), name (v/c), trip (e/l)</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> + edges from beaa9f3 (vertex names):</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> + edges from 3ec574f (vertex names):</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  [1] Betty-&gt;Sue   Alice-&gt;Sue   Alice-&gt;Jane  Dale -&gt;Sue   Dale -&gt;Alice</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  [6] Jane -&gt;Dale  Pam  -&gt;Sue   Pam  -&gt;Alice Pam  -&gt;Carol Carol-&gt;Tina </span>
 <span class="r-in"><span><span class="va">ison_adolescents</span> <span class="op">|&gt;</span> <span class="fu">to_directed</span><span class="op">(</span><span class="op">)</span> <span class="op">|&gt;</span> </span></span>
 <span class="r-in"><span>  <span class="fu">mutate_ties</span><span class="op">(</span>cyc <span class="op">=</span> <span class="fu">tie_is_cyclical</span><span class="op">(</span><span class="op">)</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> IGRAPH a8ab567 DN-- 8 10 -- The Adolescent Society</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> IGRAPH f8c0c38 DN-- 8 10 -- The Adolescent Society</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> + attr: name (g/c), doi (g/c), year (g/n), vertex1 (g/c), vertex1.total</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> | (g/n), edge.pos (g/c), directed (g/l), name (v/c), cyc (e/l)</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> + edges from a8ab567 (vertex names):</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> + edges from f8c0c38 (vertex names):</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  [1] Betty-&gt;Sue   Sue  -&gt;Alice Alice-&gt;Jane  Dale -&gt;Sue   Dale -&gt;Alice</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  [6] Dale -&gt;Jane  Pam  -&gt;Sue   Pam  -&gt;Alice Pam  -&gt;Carol Carol-&gt;Tina </span>
 <span class="r-in"><span><span class="va">ison_monks</span> <span class="op">|&gt;</span> <span class="fu">to_uniplex</span><span class="op">(</span><span class="st">"like"</span><span class="op">)</span> <span class="op">|&gt;</span> </span></span>
 <span class="r-in"><span>  <span class="fu">mutate_ties</span><span class="op">(</span>simmel <span class="op">=</span> <span class="fu">tie_is_simmelian</span><span class="op">(</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">──</span> <span style="font-weight: bold;"># Sampson's Monks</span> <span style="color: #00BBBB;">───────────────────────────────────────────────────────────</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #5F87D7; font-style: italic;"># A longitudinal, labelled, multiplex, weighted, directed network of 18 nodes</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #5F87D7; font-style: italic;">and 168 like arcs over 3 waves</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #5F87D7; font-style: italic;"># A longitudinal, labelled, weighted, directed network of 18 nodes and 168 like</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #5F87D7; font-style: italic;">arcs over 3 waves</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #5F87D7; font-style: italic;"># Transformed by exclusion: layers other than 'like' (295 ties excluded)</span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> ── Nodes </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># A tibble: 18 × 3</span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   name        groups        left</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   label       groups        left</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>       <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>        <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">1</span> Romuald     Interstitial     3</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">2</span> Bonaventure Loyal            4</span>
@@ -249,7 +252,7 @@ whether the condition is matched.</p>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> ── Ties </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># A tibble: 168 × 5</span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>    from    to weight  wave simmel    </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    from    to weight  time simmel    </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;int&gt;</span> <span style="color: #949494; font-style: italic;">&lt;int&gt;</span>  <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;tie_mark&gt;</span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">1</span>     1     2      1     2 FALSE     </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">2</span>     1     2      1     3 FALSE     </span>

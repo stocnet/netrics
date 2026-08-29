@@ -22,7 +22,7 @@ node_by_kcoreness() assigns nodes to their level of k-coreness.
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">netrics</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.0.0</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.0.1</span>
       </span>
     </div>
 
@@ -262,14 +262,17 @@ continuous score here, and the peeling depth of <code>node_by_kcoreness()</code>
     <div id="ref-examples">
     <h2>Examples</h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="fu">node_by_kcoreness</span><span class="op">(</span><span class="va">ison_adolescents</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># K-coreness [0, Inf)</span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> ▃▁▁▁▅ </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   Betty   Sue Alice  Jane  Dale   Pam Carol  Tina</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">1</span>     1     2     2     2     2     2     1     1</span>
 <span class="r-in"><span><span class="fu">node_by_core</span><span class="op">(</span><span class="va">ison_adolescents</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># Coreness, scaled [0, 1]</span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> ▃▁▁▂▁ </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   Betty   Sue Alice  Jane  Dale   Pam Carol  Tina</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">1</span> 0.065 0.652     1 0.398 0.617 0.412     0     0</span>
 <span class="r-in"><span><span class="fu">node_by_core</span><span class="op">(</span><span class="va">ison_networkers</span>, direction <span class="op">=</span> <span class="st">"out"</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># Coreness, scaled [0, 1]</span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> ▆▂▁▁▁ </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   `Lin Freeman` `Doug White` `Ev Rogers` `Richard Alba` `Phipps Arabie`</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">1</span>             1        0.352       0.002          0.102           0.046</span>

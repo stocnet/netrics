@@ -26,7 +26,7 @@ net_by_congruency() measures congruency across two two-mode networks.
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">netrics</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.0.0</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.0.1</span>
       </span>
     </div>
 
@@ -265,12 +265,16 @@ Cambridge University Press. Cambridge University Press.
     <div id="ref-examples">
     <h2>Examples</h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="fu">net_by_reciprocity</span><span class="op">(</span><span class="va">ison_southern_women</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># Reciprocity, normalized [0, 1]</span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] 1</span>
 <span class="r-in"><span><span class="fu">net_by_transitivity</span><span class="op">(</span><span class="va">ison_adolescents</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># Transitivity, normalized [0, 1]</span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0.45</span>
 <span class="r-in"><span><span class="fu">net_by_cyclicality</span><span class="op">(</span><span class="va">ison_networkers</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># Cyclicality, normalized [0, 1]</span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0.591</span>
 <span class="r-in"><span><span class="fu">net_by_equivalency</span><span class="op">(</span><span class="va">ison_southern_women</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># Equivalency, normalized [0, 1]</span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0.468</span>
 </code></pre></div>
     </div>

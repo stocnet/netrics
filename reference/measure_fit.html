@@ -46,7 +46,7 @@ Compare partitions using one measure at a time."><meta property="og:image" conte
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">netrics</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.0.0</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.0.1</span>
       </span>
     </div>
 
@@ -419,22 +419,29 @@ Cambridge: Cambridge University Press.
     <div id="ref-examples">
     <h2>Examples</h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="fu">net_by_core</span><span class="op">(</span><span class="va">ison_adolescents</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># Core-periphery correlation [-1, 1]</span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] -0.133</span>
 <span class="r-in"><span><span class="fu">net_by_core</span><span class="op">(</span><span class="va">ison_southern_women</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># Core-periphery correlation [-1, 1]</span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] -0.274</span>
 <span class="r-in"><span>  <span class="fu">net_by_factions</span><span class="op">(</span><span class="va">ison_southern_women</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># Factional correlation [-1, 1]</span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] -0.156</span>
 <span class="r-in"><span><span class="fu">net_by_modularity</span><span class="op">(</span><span class="va">ison_adolescents</span>, </span></span>
 <span class="r-in"><span>  <span class="fu"><a href="member_community_non.html">node_in_partition</a></span><span class="op">(</span><span class="va">ison_adolescents</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># Modularity [-0.5, 1]</span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] -0.32</span>
 <span class="r-in"><span><span class="fu">net_by_modularity</span><span class="op">(</span><span class="va">ison_southern_women</span>, </span></span>
 <span class="r-in"><span>  <span class="fu"><a href="member_community_non.html">node_in_partition</a></span><span class="op">(</span><span class="va">ison_southern_women</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># Modularity [-0.5, 1]</span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] -0.456</span>
 <span class="r-in"><span><span class="fu">net_by_inconsistency</span><span class="op">(</span><span class="va">ison_hightech</span>, <span class="fu"><a href="member_equivalence.html">node_in_regular</a></span><span class="op">(</span><span class="va">ison_hightech</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># Blockmodel inconsistency [0, Inf)</span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0.326</span>
 <span class="r-in"><span><span class="co"># a regular-equivalence vocabulary instead of a structural one</span></span></span>
 <span class="r-in"><span><span class="fu">net_by_inconsistency</span><span class="op">(</span><span class="va">ison_hightech</span>, <span class="fu"><a href="member_equivalence.html">node_in_structural</a></span><span class="op">(</span><span class="va">ison_hightech</span><span class="op">)</span>, </span></span>
 <span class="r-in"><span>       blocks <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"nul"</span>, <span class="st">"reg"</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># Blockmodel inconsistency [0, Inf)</span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0</span>
 </code></pre></div>
     </div>

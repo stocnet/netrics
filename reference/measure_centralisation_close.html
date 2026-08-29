@@ -39,7 +39,7 @@ scores, whereas mode_by_closeness() reports the per-mode scores directly."><meta
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">netrics</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.0.0</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.0.1</span>
       </span>
     </div>
 
@@ -237,13 +237,17 @@ This is the same approach <code>net_by_closeness()</code> takes for two-mode net
     <div id="ref-examples">
     <h2>Examples</h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="fu">net_by_closeness</span><span class="op">(</span><span class="va">ison_southern_women</span>, direction <span class="op">=</span> <span class="st">"in"</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># Closeness centralisation, normalized [0, 1]</span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0.193</span>
 <span class="r-in"><span><span class="fu">mode_by_closeness</span><span class="op">(</span><span class="va">ison_southern_women</span>, direction <span class="op">=</span> <span class="st">"in"</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># Closeness centralisation, normalized [0, 1]</span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Mode 1 Mode 2 </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  0.224  0.537 </span>
 <span class="r-in"><span><span class="fu">net_by_decay</span><span class="op">(</span><span class="va">ison_adolescents</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># Decay centralisation, normalized [0, 1]</span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0.189</span>
 <span class="r-in"><span><span class="fu">net_by_integration</span><span class="op">(</span><span class="va">ison_adolescents</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># Integration centralisation, normalized [0, 1]</span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0.143</span>
 </code></pre></div>
     </div>

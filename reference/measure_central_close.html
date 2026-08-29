@@ -56,7 +56,7 @@ are instead scaled against the largest value observed in this network."><meta pr
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">netrics</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.0.0</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.0.1</span>
       </span>
     </div>
 
@@ -631,6 +631,7 @@ Springer: Berlin, pp. 16-61.</p>
     <div id="ref-examples">
     <h2>Examples</h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="fu">node_by_closeness</span><span class="op">(</span><span class="va">ison_southern_women</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># Closeness centrality, normalized [0, 1]</span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> ▂▂▁▂▂▂▁ </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   Evelyn Laura Theresa Brenda Charlotte Frances Eleanor Pearl  Ruth Verne  Myra</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">1</span>    0.8 0.727     0.8  0.727       0.6   0.667   0.667 0.667 0.706 0.706 0.686</span>
@@ -639,18 +640,22 @@ Springer: Berlin, pp. 16-61.</p>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">1</span> 0.524 0.524 0.564 0.537 0.595 0.688 0.733 0.846 0.786  0.55 0.537 0.564 0.524</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># ... and 1 more values from this nodeset. Use `print_all(...)` to print all values.</span></span>
 <span class="r-in"><span><span class="fu">node_by_reach</span><span class="op">(</span><span class="va">ison_adolescents</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># Reach centrality, normalized [0, 1]</span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> ▁▃▁▃ </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   Betty   Sue Alice  Jane  Dale   Pam Carol  Tina</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">1</span> 0.571 0.857 0.857 0.571 0.714     1 0.571 0.286</span>
 <span class="r-in"><span><span class="fu">node_by_decay</span><span class="op">(</span><span class="va">ison_adolescents</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># Decay centrality, normalized [0, 1]</span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> ▁▁▂▁▃ </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   Betty   Sue Alice  Jane  Dale   Pam Carol  Tina</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">1</span> 0.446  0.75  0.75 0.518 0.625 0.714 0.536 0.339</span>
 <span class="r-in"><span><span class="fu">node_by_integration</span><span class="op">(</span><span class="va">ison_adolescents</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># Integration centrality, normalized [0, 1]</span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> ▁▂▂▃ </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   Betty   Sue Alice  Jane  Dale   Pam Carol  Tina</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">1</span> 0.643 0.857 0.857 0.679  0.75 0.857 0.714   0.5</span>
 <span class="r-in"><span><span class="fu">node_by_radiality</span><span class="op">(</span><span class="va">ison_adolescents</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># Radiality centrality, normalized [0, 1]</span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> ▁▂▂▃ </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   Betty   Sue Alice  Jane  Dale   Pam Carol  Tina</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">1</span> 0.643 0.857 0.857 0.679  0.75 0.857 0.714   0.5</span>

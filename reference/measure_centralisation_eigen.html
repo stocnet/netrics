@@ -35,7 +35,7 @@ scores, whereas mode_by_eigenvector() reports the per-mode scores directly."><me
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">netrics</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.0.0</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.0.1</span>
       </span>
     </div>
 
@@ -184,8 +184,10 @@ giving one centralization score per mode.</p>
     <div id="ref-examples">
     <h2>Examples</h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="fu">net_by_eigenvector</span><span class="op">(</span><span class="va">ison_southern_women</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># Eigenvector centralisation, normalized [0, 1]</span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0.419</span>
 <span class="r-in"><span><span class="fu">mode_by_eigenvector</span><span class="op">(</span><span class="va">ison_southern_women</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># Eigenvector centralisation, normalized [0, 1]</span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Mode 1 Mode 2 </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 0.0849 0.2630 </span>
 </code></pre></div>

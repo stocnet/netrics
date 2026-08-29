@@ -17,7 +17,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="index.html">netrics</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.0.0</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.0.1</span>
       </span>
     </div>
 
@@ -365,7 +365,7 @@
 <div class="section level3">
 <h3 id="dependencies">Dependencies<a class="anchor" aria-label="anchor" href="#dependencies"></a></h3>
 <p><code>netrics</code> <code>Depends</code> on <code>manynet</code> (network classes, coercion and logical tests), <code>Imports</code> <code>dplyr</code> and <code>igraph</code> (&gt;= 2.1.0), and lists <code>autograph</code>, <code>sna</code> and <code>testthat</code> under <code>Suggests</code>, so code paths depending on a suggested package must guard with <code><a href="https://rdrr.io/r/base/ns-load.html" class="external-link">requireNamespace()</a></code> or skip gracefully when it is unavailable.</p>
-<p>The declared minimum of each <code>stocnet</code> dependency is the version on CRAN, so that CI can install it. Where <code>netrics</code> needs something that only a newer, unreleased <code>manynet</code> has, reach it through a shim in <a href="../R/netrics-utils.R">R/netrics-utils.R</a> rather than by raising the minimum. Resolve the name at call time from the namespace, as <code>.to_linegraph()</code> does for <code>manynet::to_linegraph()</code>, which was <code>to_ties()</code> before manynet 2.3.0. Test for the function rather than for the version string, because a pre-release development build can carry the version without yet exporting the function. Delete each shim once the minimum is raised past the version that added the function.</p>
+<p>The declared minimum of each <code>stocnet</code> dependency is the version on CRAN, so that CI can install it. Where <code>netrics</code> needs something that only a newer, unreleased <code>manynet</code> has, reach it through a shim in <a href="../R/netrics-utils.R">R/netrics-utils.R</a> rather than by raising the minimum. Resolve the name at call time from the namespace, as <code>.to_linegraph()</code> does for <code><a href="https://stocnet.github.io/manynet/reference/modif_project.html" class="external-link">manynet::to_linegraph()</a></code>, which was <code>to_ties()</code> before manynet 2.3.0. Test for the function rather than for the version string, because a pre-release development build can carry the version without yet exporting the function. Delete each shim once the minimum is raised past the version that added the function.</p>
 </div>
 <div class="section level3">
 <h3 id="console-messaging">Console messaging<a class="anchor" aria-label="anchor" href="#console-messaging"></a></h3>
