@@ -24,6 +24,12 @@ for(fn in names(node_meas)) {
             succeed("Only used for signed objects")
       } else if(grepl("distance",fn)){
           expect_s3_class(node_meas[[fn]](data_objs[[ob]], 1, 2), "node_measure")
+      } else if(grepl("eccentricity", fn) &&
+                !manynet::is_connected(data_objs[[ob]])){
+        # An eccentricity is the distance to the furthest node, which is not
+        # defined where some node cannot be reached at all. The guard says so,
+        # and aborts whatever the verbosity.
+        expect_error(node_meas[[fn]](data_objs[[ob]]), "connected")
       } else {
         expect_s3_class(node_meas[[fn]](data_objs[[ob]]), "node_measure")
       }

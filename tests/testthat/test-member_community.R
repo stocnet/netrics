@@ -95,13 +95,10 @@ test_that("k accepts the selection methods", {
 })
 
 test_that("an unreachable k warns and returns the nearest", {
-  local_verbose()
   # two components cannot be merged into one community
   unconn <- manynet::create_components(8, membership = c(1,1,1,1,2,2,2,2))
-  # snet_warn() signals a cli message, not an R warning condition
-  expect_match(capture_messages(node_in_betweenness(unconn, k = 1)),
-               "communities", all = FALSE)
-  expect_equal(length(unique(suppressMessages(node_in_betweenness(unconn, k = 1)))), 2)
+  expect_warning(node_in_betweenness(unconn, k = 1), "communities")
+  expect_equal(length(unique(suppressWarnings(node_in_betweenness(unconn, k = 1)))), 2)
 })
 
 test_that("node_in_partition preserves its two-group result", {

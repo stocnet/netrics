@@ -3,6 +3,7 @@
 ## Package
 
 - Reduced run time of fragmentation examples by using `fict_greys` instead of `fict_marvel`
+- Fixed some warning tests related to changes in snet output in manynet
 
 # netrics 1.0.1
 
