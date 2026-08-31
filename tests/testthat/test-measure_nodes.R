@@ -28,10 +28,16 @@ for(fn in names(node_meas)) {
                 !manynet::is_connected(data_objs[[ob]])){
         # An eccentricity is the distance to the furthest node, which is not
         # defined where some node cannot be reached at all. The guard says so,
-        # and aborts whatever the verbosity.
-        expect_error(node_meas[[fn]](data_objs[[ob]]), "connected")
+        # and aborts.
+        expect_snet_abort(node_meas[[fn]](data_objs[[ob]]), "connected")
       } else {
-        expect_s3_class(node_meas[[fn]](data_objs[[ob]]), "node_measure")
+        # An eigenvector score is zero for every node outside the main
+        # component, so the eigenvector measures warn on the unconnected
+        # fixtures. The sweep only checks the class, so that one warning is
+        # muffled here. Every other warning still reports.
+        expect_s3_class(without_snet_warn(node_meas[[fn]](data_objs[[ob]]),
+                                          "eigenvector scores"),
+                        "node_measure")
       }
     })
   }
