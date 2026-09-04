@@ -29,7 +29,7 @@ are cohesively connected."><meta property="og:image" content="https://stocnet.gi
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">netrics</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.0.1</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.0.2</span>
       </span>
     </div>
 
@@ -144,6 +144,15 @@ For more information on possible coercions, see e.g. <code><a href="https://stoc
 giving either TRUE or FALSE for each tie depending on
 whether the condition is matched.</p>
     </div>
+    <div id="signed-networks">
+    <h2>Signed networks</h2>
+
+
+<p>These marks ask only whether a two-path exists, as a census does, so a tie
+counts however it is signed. Where the network is signed, each tie is
+therefore read by its magnitude, and every tie keeps its place in the
+returned vector.</p>
+    </div>
     <div id="see-also">
     <h2>See also</h2>
     <div class="dont-index"><p>Other marks:
@@ -208,26 +217,26 @@ whether the condition is matched.</p>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-in"><span><span class="va">ison_adolescents</span> <span class="op">|&gt;</span> <span class="fu">to_directed</span><span class="op">(</span><span class="op">)</span> <span class="op">|&gt;</span> </span></span>
 <span class="r-in"><span>  <span class="fu">mutate_ties</span><span class="op">(</span>trans <span class="op">=</span> <span class="fu">tie_is_transitive</span><span class="op">(</span><span class="op">)</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> IGRAPH 6459a0b DN-- 8 10 -- The Adolescent Society</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> IGRAPH 51054ee DN-- 8 10 -- The Adolescent Society</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> + attr: name (g/c), doi (g/c), year (g/n), vertex1 (g/c), vertex1.total</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> | (g/n), edge.pos (g/c), directed (g/l), name (v/c), trans (e/l)</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> + edges from 6459a0b (vertex names):</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> + edges from 51054ee (vertex names):</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  [1] Betty-&gt;Sue   Sue  -&gt;Alice Alice-&gt;Jane  Sue  -&gt;Dale  Dale -&gt;Alice</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  [6] Dale -&gt;Jane  Sue  -&gt;Pam   Pam  -&gt;Alice Pam  -&gt;Carol Carol-&gt;Tina </span>
 <span class="r-in"><span><span class="va">ison_adolescents</span> <span class="op">|&gt;</span> <span class="fu">to_directed</span><span class="op">(</span><span class="op">)</span> <span class="op">|&gt;</span> </span></span>
 <span class="r-in"><span>  <span class="fu">mutate_ties</span><span class="op">(</span>trip <span class="op">=</span> <span class="fu">tie_is_triplet</span><span class="op">(</span><span class="op">)</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> IGRAPH 3ec574f DN-- 8 10 -- The Adolescent Society</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> IGRAPH 90c1d38 DN-- 8 10 -- The Adolescent Society</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> + attr: name (g/c), doi (g/c), year (g/n), vertex1 (g/c), vertex1.total</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> | (g/n), edge.pos (g/c), directed (g/l), name (v/c), trip (e/l)</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> + edges from 3ec574f (vertex names):</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> + edges from 90c1d38 (vertex names):</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  [1] Betty-&gt;Sue   Alice-&gt;Sue   Alice-&gt;Jane  Dale -&gt;Sue   Dale -&gt;Alice</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  [6] Jane -&gt;Dale  Pam  -&gt;Sue   Pam  -&gt;Alice Pam  -&gt;Carol Carol-&gt;Tina </span>
 <span class="r-in"><span><span class="va">ison_adolescents</span> <span class="op">|&gt;</span> <span class="fu">to_directed</span><span class="op">(</span><span class="op">)</span> <span class="op">|&gt;</span> </span></span>
 <span class="r-in"><span>  <span class="fu">mutate_ties</span><span class="op">(</span>cyc <span class="op">=</span> <span class="fu">tie_is_cyclical</span><span class="op">(</span><span class="op">)</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> IGRAPH f8c0c38 DN-- 8 10 -- The Adolescent Society</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> IGRAPH bc14986 DN-- 8 10 -- The Adolescent Society</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> + attr: name (g/c), doi (g/c), year (g/n), vertex1 (g/c), vertex1.total</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> | (g/n), edge.pos (g/c), directed (g/l), name (v/c), cyc (e/l)</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> + edges from f8c0c38 (vertex names):</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> + edges from bc14986 (vertex names):</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  [1] Betty-&gt;Sue   Sue  -&gt;Alice Alice-&gt;Jane  Dale -&gt;Sue   Dale -&gt;Alice</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  [6] Dale -&gt;Jane  Pam  -&gt;Sue   Pam  -&gt;Alice Pam  -&gt;Carol Carol-&gt;Tina </span>
 <span class="r-in"><span><span class="va">ison_monks</span> <span class="op">|&gt;</span> <span class="fu">to_uniplex</span><span class="op">(</span><span class="st">"like"</span><span class="op">)</span> <span class="op">|&gt;</span> </span></span>

@@ -31,7 +31,7 @@ but does not rest the answer on a single run of a single algorithm."><meta prope
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">netrics</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.0.1</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.0.2</span>
       </span>
     </div>
 
@@ -200,6 +200,17 @@ then the assignments will be labelled with the nodes' names.</p>
     <h2>Details</h2>
     <p><code>times</code> applies only when <code>consensus = TRUE</code>, and is 20 by default.
 Deterministic algorithms are run once however it is set.</p>
+    </div>
+    <div id="signed-networks">
+    <h2>Signed networks</h2>
+
+
+<p>Every algorithm but <code><a href="member_community_non.html">node_in_spinglass()</a></code> reads a negative weight as an
+error, and spinglass reads a sign as a sign (Traag and Bruggeman 2009).
+<code>node_in_community()</code> therefore considers only spinglass where the network
+is signed. Since spinglass needs a connected network and accepts no <code>k</code>,
+a signed network that is unconnected, or a <code>k</code> that is given, leaves no
+applicable algorithm and the function stops.</p>
     </div>
     <div id="references">
     <h2>References</h2>

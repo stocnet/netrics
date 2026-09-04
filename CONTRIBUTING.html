@@ -17,7 +17,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="index.html">netrics</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.0.1</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.0.2</span>
       </span>
     </div>
 
@@ -319,7 +319,7 @@
 <h3 id="input-shapes">Input shapes<a class="anchor" aria-label="anchor" href="#input-shapes"></a></h3>
 <p>Most defects reported against this package are not wrong arithmetic. They are a network shape the function did not expect. Before finishing a function, run it on a signed, a weighted, a directed, a two-mode, a multiplex, a multilevel and a longitudinal network, and decide each case deliberately:</p>
 <ul><li>
-<strong>Signed.</strong> A <code>stocnet</code> object holds a tie’s sign as the sign of its weight, so a signed network reaches <a href="https://r.igraph.org/" class="external-link">igraph</a> carrying a <code>weight</code> attribute of -1 and 1. Shortest-path functions read any attribute of that name as a distance, and either abort on the negative values or report a negative cycle. Where the measure concerns cohesion or distance, call <code>.to_positive()</code> (<a href="../R/netrics-utils.R">R/netrics-utils.R</a>), which drops to the positive ties and says so. Do not simply drop the attribute: that reads a negative tie as a path of length one, when a negative tie is hostility rather than a channel along which cohesion travels.</li>
+<strong>Signed.</strong> A <code>stocnet</code> object holds a tie’s sign as the sign of its weight, so a signed network reaches <a href="https://r.igraph.org/" class="external-link">igraph</a> carrying a <code>weight</code> attribute of -1 and 1. Shortest-path functions read any attribute of that name as a distance, and either abort on the negative values or report a negative cycle. Where the measure concerns cohesion or distance, call <code>.to_positive()</code> (<a href="../R/netrics-utils.R">R/netrics-utils.R</a>), which drops to the positive ties and says so. Do not simply drop the attribute: that reads a negative tie as a path of length one, when a negative tie is hostility rather than a channel along which cohesion travels. Where the measure instead counts a tie however it is signed, as a census does, call <code>.to_unsigned()</code> in the same file, which keeps every tie and reads each by its magnitude. A tie-level function takes this branch even where it measures distance, since <code>.to_positive()</code> drops ties and a tie measure must hold one value per tie; <code><a href="reference/measure_central_tie_between.html">tie_by_betweenness()</a></code> is the case, and says so in its <code>@section Signed networks:</code>.</li>
 <li>
 <strong>Multiplex.</strong> Take one layer at a time with <code><a href="https://stocnet.github.io/manynet/reference/modif_plexity.html" class="external-link">manynet::to_uniplex()</a></code>. That drops nodes holding none of the retained ties, so results of different lengths would otherwise be recycled against each other; <code>uniplex_degree()</code> (<a href="../R/measure_centrality_degree.R">R/measure_centrality_degree.R</a>) restores the whole nodeset, and is the pattern to follow.</li>
 <li>

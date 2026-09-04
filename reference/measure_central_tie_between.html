@@ -23,7 +23,7 @@ including for two-mode networks."><meta property="og:image" content="https://sto
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">netrics</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.0.1</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.0.2</span>
       </span>
     </div>
 
@@ -138,6 +138,17 @@ These are shown as a one-line header when the object is printed.
 Where a measure offers a choice between several ways of counting the
 same thing, it also carries the <code>variant</code> it used.
 All can be retrieved with <code><a href="https://rdrr.io/r/base/attr.html" class="external-link">attr()</a></code>.</p>
+    </div>
+    <div id="signed-networks">
+    <h2>Signed networks</h2>
+
+
+<p>A tie measure holds one value per tie, so <code>tie_by_betweenness()</code> cannot
+drop the negative ties as the distance measures at the node and network
+level do. It reads each tie by its magnitude instead, which is what
+<code><a href="measure_central_between.html">node_by_betweenness()</a></code> in effect does for a network whose ties are signed
+but not weighted. Use <code><a href="https://stocnet.github.io/manynet/reference/modif_weight.html" class="external-link">manynet::to_unsigned()</a></code> first to control this
+yourself.</p>
     </div>
     <div id="edge-betweenness-centrality">
     <h2>Edge betweenness centrality</h2>

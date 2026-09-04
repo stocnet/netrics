@@ -28,7 +28,7 @@ removed from a network to increase its number of components.
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">netrics</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.0.1</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.0.2</span>
       </span>
     </div>
 
@@ -117,9 +117,9 @@ removed from a network to increase its number of components.</p></li>
 <span></span>
 <span><span class="fu">net_by_adhesion</span><span class="op">(</span><span class="va">.data</span><span class="op">)</span></span>
 <span></span>
-<span><span class="fu">net_by_strength</span><span class="op">(</span><span class="va">.data</span><span class="op">)</span></span>
+<span><span class="fu">net_by_strength</span><span class="op">(</span><span class="va">.data</span>, limit <span class="op">=</span> <span class="fl">20</span><span class="op">)</span></span>
 <span></span>
-<span><span class="fu">net_by_toughness</span><span class="op">(</span><span class="va">.data</span><span class="op">)</span></span></code></pre></div>
+<span><span class="fu">net_by_toughness</span><span class="op">(</span><span class="va">.data</span>, limit <span class="op">=</span> <span class="fl">20</span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div id="arguments">
@@ -131,6 +131,13 @@ removed from a network to increase its number of components.</p></li>
 Internally any of these will be coerced to an efficient implementation.
 For more information on possible coercions, see e.g. <code><a href="https://stocnet.github.io/manynet/reference/coerce_graph.html" class="external-link">manynet::as_stocnet()</a></code>.</p></dd>
 
+
+<dt id="arg-limit">limit<a class="anchor" aria-label="anchor" href="#arg-limit"></a></dt>
+<dd><p>The largest network <code>net_by_strength()</code> and
+<code>net_by_toughness()</code> will enumerate: the number of ties for the first and
+of nodes for the second. By default 20. Above this each stops rather than
+running for hours. Raise it to measure a larger network anyway.</p></dd>
+
 </dl></div>
     <div id="value">
     <h2>Value</h2>
@@ -141,6 +148,18 @@ These are shown as a one-line header when the object is printed.
 Where a measure offers a choice between several ways of counting the
 same thing, it also carries the <code>variant</code> it used.
 All can be retrieved with <code><a href="https://rdrr.io/r/base/attr.html" class="external-link">attr()</a></code>.</p>
+    </div>
+    <div id="cost-of-the-enumerated-measures">
+    <h2>Cost of the enumerated measures</h2>
+
+
+<p><code>net_by_cohesion()</code> and <code>net_by_adhesion()</code> are connectivity problems that
+<code>{igraph}</code> solves directly, so they run on a network of any size.
+<code>net_by_strength()</code> and <code>net_by_toughness()</code> instead take a minimum over
+every subset of the tieset or the nodeset, which is \(2^n\) subsets.
+Their cost therefore quadruples for every two nodes added: a ring of 16
+nodes takes about 8 seconds, one of 20 over two minutes, and one of 30
+more than a day. <code>limit</code> stops each before it becomes a hang.</p>
     </div>
     <div id="references">
     <h2>References</h2>
@@ -196,18 +215,18 @@ All can be retrieved with <code><a href="https://rdrr.io/r/base/attr.html" class
 
     <div id="ref-examples">
     <h2>Examples</h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="fu">net_by_cohesion</span><span class="op">(</span><span class="va">fict_marvel</span><span class="op">)</span></span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="fu">net_by_cohesion</span><span class="op">(</span><span class="va">fict_greys</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># Node connectivity [0, Inf)</span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 2</span>
-<span class="r-in"><span><span class="fu">net_by_cohesion</span><span class="op">(</span><span class="fu">to_giant</span><span class="op">(</span><span class="va">fict_marvel</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0</span>
+<span class="r-in"><span><span class="fu">net_by_cohesion</span><span class="op">(</span><span class="fu">to_giant</span><span class="op">(</span><span class="va">fict_greys</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># Node connectivity [0, Inf)</span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 2</span>
-<span class="r-in"><span><span class="fu">net_by_adhesion</span><span class="op">(</span><span class="va">fict_marvel</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 1</span>
+<span class="r-in"><span><span class="fu">net_by_adhesion</span><span class="op">(</span><span class="va">fict_greys</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># Tie connectivity [0, Inf)</span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 2</span>
-<span class="r-in"><span><span class="fu">net_by_adhesion</span><span class="op">(</span><span class="fu">to_giant</span><span class="op">(</span><span class="va">fict_marvel</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0</span>
+<span class="r-in"><span><span class="fu">net_by_adhesion</span><span class="op">(</span><span class="fu">to_giant</span><span class="op">(</span><span class="va">fict_greys</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># Tie connectivity [0, Inf)</span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 2</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 1</span>
 <span class="r-in"><span><span class="fu">net_by_strength</span><span class="op">(</span><span class="va">ison_adolescents</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># Strength [0, Inf)</span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0.5</span>

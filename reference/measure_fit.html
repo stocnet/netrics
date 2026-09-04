@@ -46,7 +46,7 @@ Compare partitions using one measure at a time."><meta property="og:image" conte
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">netrics</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.0.1</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.0.2</span>
       </span>
     </div>
 
@@ -228,6 +228,24 @@ These are shown as a one-line header when the object is printed.
 Where a measure offers a choice between several ways of counting the
 same thing, it also carries the <code>variant</code> it used.
 All can be retrieved with <code><a href="https://rdrr.io/r/base/attr.html" class="external-link">attr()</a></code>.</p>
+    </div>
+    <div id="signed-networks">
+    <h2>Signed networks</h2>
+
+
+<p><code>net_by_modularity()</code> counts a tie however it is signed, as a census does,
+so where the network is signed each tie is read by its magnitude.</p>
+    </div>
+    <div id="multilevel-networks">
+    <h2>Multilevel networks</h2>
+
+
+<p><code>net_by_core()</code> and <code>net_by_factions()</code> fit the network to an ideal built
+by a <code>manynet::create_*()</code> function, and those build one layer at a time.
+A multilevel network holds two, so there is no single ideal to fit it to
+and both stop rather than compare unlike shapes.
+Take one layer first, e.g. with <code><a href="https://stocnet.github.io/manynet/reference/modif_project.html" class="external-link">manynet::to_mode1()</a></code> or
+<code><a href="https://stocnet.github.io/manynet/reference/modif_plexity.html" class="external-link">manynet::to_uniplex()</a></code>.</p>
     </div>
     <div id="core-periphery-fit-variants">
     <h2>Core-periphery fit variants</h2>

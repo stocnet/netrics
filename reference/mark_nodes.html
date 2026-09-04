@@ -28,7 +28,7 @@ node_is_neighbor() marks nodes that are neighbours of a given node.
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">netrics</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.0.1</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.0.2</span>
       </span>
     </div>
 
@@ -158,6 +158,23 @@ described in Valente and Davis (1999).</p></dd>
     <p>A <code>node_mark</code> logical vector the length of the nodes in the network,
 giving either TRUE or FALSE for each node depending on
 whether the condition is matched.</p>
+    </div>
+    <div id="signed-networks">
+    <h2>Signed networks</h2>
+
+
+<p><code>node_is_fold()</code> reads a tie as a distance, and a negative tie is
+hostility rather than a channel along which cohesion travels, so where the
+network is signed it considers only the positive ties.</p>
+    </div>
+    <div id="multilevel-networks">
+    <h2>Multilevel networks</h2>
+
+
+<p>A multilevel network reports itself as two-mode, but holds ties within a
+mode as well as between them, so it cannot be projected onto one mode.
+<code>node_is_independent()</code> therefore marks a multilevel network whole, as
+<code><a href="measure_cohesion.html">net_by_independence()</a></code> does.</p>
     </div>
     <div id="references">
     <h2>References</h2>

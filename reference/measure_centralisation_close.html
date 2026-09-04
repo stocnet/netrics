@@ -39,7 +39,7 @@ scores, whereas mode_by_closeness() reports the per-mode scores directly."><meta
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">netrics</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.0.1</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.0.2</span>
       </span>
     </div>
 
@@ -194,6 +194,16 @@ so each documents its own default.</p></dd>
     <p><code>net_by_*()</code> functions return a <code>network_measure</code> scalar;
 <code>mode_by_closeness()</code> returns a <code>mode_measure</code> numeric vector of length two,
 giving one centralization score per mode.</p>
+    </div>
+    <div id="signed-networks">
+    <h2>Signed networks</h2>
+
+
+<p>These measures read a tie as a distance, and a negative tie is hostility
+rather than a channel along which cohesion travels.
+Where the network is signed, they therefore consider only the positive
+ties, and say so.
+Use <code><a href="https://stocnet.github.io/manynet/reference/modif_weight.html" class="external-link">manynet::to_unsigned()</a></code> first to control this yourself.</p>
     </div>
     <div id="decay-and-integration-centralization">
     <h2>Decay and integration centralization</h2>

@@ -17,7 +17,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">netrics</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.0.1</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.0.2</span>
       </span>
     </div>
 
@@ -88,6 +88,54 @@
       <small>Source: <a href="https://github.com/stocnet/netrics/blob/main/NEWS.md" class="external-link"><code>NEWS.md</code></a></small>
     </div>
 
+    <div class="section level2">
+<h2 class="page-header" data-toc-text="1.0.2" id="netrics-102">netrics 1.0.2<a class="anchor" aria-label="anchor" href="#netrics-102"></a></h2>
+<div class="section level3">
+<h3 id="package-1-0-2">Package<a class="anchor" aria-label="anchor" href="#package-1-0-2"></a></h3>
+<ul><li>Fixed some warning tests related to changes in snet output in manynet</li>
+<li>Raised <a href="https://stocnet.github.io/manynet/" class="external-link">manynet</a> floor to 2.3.1, retiring <code>to_ties()</code> and <code>net_waves()</code> shims</li>
+</ul></div>
+<div class="section level3">
+<h3 id="marks-1-0-2">Marks<a class="anchor" aria-label="anchor" href="#marks-1-0-2"></a></h3>
+<ul><li>Fixed <code><a href="../reference/mark_nodes.html">node_is_fold()</a></code> erroring on signed networks (closes <a href="https://github.com/stocnet/netrics/issues/25" class="external-link">#25</a>)</li>
+<li>Fixed <code><a href="../reference/mark_nodes.html">node_is_independent()</a></code> and <code><a href="../reference/mark_core.html">node_is_core()</a></code> erroring on multilevel networks (closes <a href="https://github.com/stocnet/netrics/issues/26" class="external-link">#26</a>)</li>
+<li>Fixed <code><a href="../reference/mark_triangles.html">tie_is_transitive()</a></code>, <code><a href="../reference/mark_triangles.html">tie_is_triplet()</a></code> and <code><a href="../reference/mark_triangles.html">tie_is_cyclical()</a></code> erroring on signed networks (closes <a href="https://github.com/stocnet/netrics/issues/25" class="external-link">#25</a>)</li>
+<li>Fixed <code><a href="../reference/mark_select_tie.html">tie_is_max()</a></code> and <code><a href="../reference/mark_select_tie.html">tie_is_min()</a></code> to accept a numeric vector, and to name what they mark</li>
+<li>Fixed <code><a href="../reference/mark_ties.html">tie_is_path()</a></code> to name <code>from</code> and <code>to</code> where either is missing (closes <a href="https://github.com/stocnet/netrics/issues/26" class="external-link">#26</a>)</li>
+</ul></div>
+<div class="section level3">
+<h3 id="measures-1-0-2">Measures<a class="anchor" aria-label="anchor" href="#measures-1-0-2"></a></h3>
+<ul><li>Fixed distance measures erroring on signed networks to use only positive ties (closes <a href="https://github.com/stocnet/netrics/issues/25" class="external-link">#25</a>)
+<ul><li>
+<code><a href="../reference/measure_central_close.html">node_by_closeness()</a></code>, <code><a href="../reference/measure_central_close.html">node_by_harmonic()</a></code>, <code><a href="../reference/measure_central_close.html">node_by_reach()</a></code>, <code><a href="../reference/measure_central_close.html">node_by_decay()</a></code>, <code><a href="../reference/measure_central_close.html">node_by_integration()</a></code>, <code><a href="../reference/measure_central_close.html">node_by_radiality()</a></code>, <code><a href="../reference/measure_central_close.html">node_by_eccentricity()</a></code>, <code><a href="../reference/measure_central_close.html">node_by_vitality()</a></code>, <code><a href="../reference/measure_central_between.html">node_by_betweenness()</a></code>, <code><a href="../reference/measure_central_between.html">node_by_induced()</a></code>, <code><a href="../reference/motif_path.html">node_x_path()</a></code>
+</li>
+<li>
+<code><a href="../reference/measure_centralisation_close.html">net_by_closeness()</a></code>, <code><a href="../reference/measure_centralisation_between.html">net_by_betweenness()</a></code>, <code><a href="../reference/measure_hierarchy.html">net_by_connectedness()</a></code>, <code><a href="../reference/measure_centralisation_close.html">net_by_reach()</a></code>, <code><a href="../reference/measure_centralisation_close.html">net_by_harmonic()</a></code>, <code><a href="../reference/measure_centralisation_close.html">net_by_decay()</a></code>, <code><a href="../reference/measure_centralisation_close.html">net_by_integration()</a></code>
+</li>
+<li>
+<code><a href="../reference/measure_centralisation_close.html">mode_by_closeness()</a></code>, <code><a href="../reference/measure_centralisation_between.html">mode_by_betweenness()</a></code>
+</li>
+</ul></li>
+<li>Fixed eigenvector measures erroring or warning on signed networks, which now read each tie by its magnitude (closes <a href="https://github.com/stocnet/netrics/issues/25" class="external-link">#25</a>)</li>
+<li>Fixed <code><a href="../reference/measure_central_tie_between.html">tie_by_betweenness()</a></code> erroring on signed networks, which reads each tie by its magnitude so that every tie keeps a value (closes <a href="https://github.com/stocnet/netrics/issues/25" class="external-link">#25</a>)</li>
+<li>Fixed <code><a href="../reference/measure_fit.html">net_by_modularity()</a></code> erroring on signed networks (closes <a href="https://github.com/stocnet/netrics/issues/25" class="external-link">#25</a>)</li>
+<li>Fixed eigenvector and structural hole measures erroring on multilevel networks, which are now measured whole rather than projected (closes <a href="https://github.com/stocnet/netrics/issues/26" class="external-link">#26</a>)</li>
+<li>Fixed <code><a href="../reference/measure_fit.html">net_by_core()</a></code> and <code><a href="../reference/measure_fit.html">net_by_factions()</a></code> to stop with a clear message on a multilevel network, since a <code>create_*()</code> ideal covers one layer (closes <a href="https://github.com/stocnet/netrics/issues/26" class="external-link">#26</a>)</li>
+<li>Fixed <code><a href="../reference/measure_assort_net.html">net_by_spatial()</a></code> to name a non-numeric attribute (closes <a href="https://github.com/stocnet/netrics/issues/26" class="external-link">#26</a>)</li>
+<li>Added <code>limit=</code> to <code><a href="../reference/measure_fragmentation.html">net_by_strength()</a></code> and <code><a href="../reference/measure_fragmentation.html">net_by_toughness()</a></code>, which take a minimum over 2^n subsets and so hang above about twenty nodes or ties (closes <a href="https://github.com/stocnet/netrics/issues/34" class="external-link">#34</a>)</li>
+<li>Reduced run time of fragmentation examples by using <code>fict_greys</code> instead of <code>fict_marvel</code>
+</li>
+</ul></div>
+<div class="section level3">
+<h3 id="memberships-1-0-2">Memberships<a class="anchor" aria-label="anchor" href="#memberships-1-0-2"></a></h3>
+<ul><li>Fixed <code><a href="../reference/member_community.html">node_in_community()</a></code> erroring on signed networks, which now considers only <code><a href="../reference/member_community_non.html">node_in_spinglass()</a></code> (closes <a href="https://github.com/stocnet/netrics/issues/25" class="external-link">#25</a>)</li>
+<li>Fixed <code><a href="../reference/member_core.html">node_in_core()</a></code> and <code><a href="../reference/measure_core.html">node_by_core()</a></code> returning two values per node on multilevel networks (closes <a href="https://github.com/stocnet/netrics/issues/26" class="external-link">#26</a>)</li>
+</ul></div>
+<div class="section level3">
+<h3 id="methods-1-0-2">Methods<a class="anchor" aria-label="anchor" href="#methods-1-0-2"></a></h3>
+<ul><li>Fixed <code><a href="../reference/method_coreness.html">coreness_rich()</a></code> reading a multilevel network as a plain two-mode one (closes <a href="https://github.com/stocnet/netrics/issues/26" class="external-link">#26</a>)</li>
+</ul></div>
+</div>
     <div class="section level2">
 <h2 class="page-header" data-toc-text="1.0.1" id="netrics-101">netrics 1.0.1<a class="anchor" aria-label="anchor" href="#netrics-101"></a></h2>
 <div class="section level3">

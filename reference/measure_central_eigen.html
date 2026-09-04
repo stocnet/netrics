@@ -46,7 +46,7 @@ give scores that are comparable between networks."><meta property="og:image" con
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">netrics</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.0.1</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.0.2</span>
       </span>
     </div>
 
@@ -257,6 +257,25 @@ All can be retrieved with <code><a href="https://rdrr.io/r/base/attr.html" class
     <h2>Details</h2>
     <p>We use <code>{igraph}</code> routines behind the scenes here for consistency and because they are often faster.
 For example, <code>igraph::eigencentrality()</code> is approximately 25% faster than <code><a href="https://rdrr.io/pkg/sna/man/evcent.html" class="external-link">sna::evcent()</a></code>.</p>
+    </div>
+    <div id="signed-networks">
+    <h2>Signed networks</h2>
+
+
+<p>These measures do not read a tie as a distance, so where the network is
+signed each tie is read by its magnitude rather than the negative ties
+being dropped. Use <code><a href="https://stocnet.github.io/manynet/reference/modif_weight.html" class="external-link">manynet::to_unsigned()</a></code> first to control this
+yourself.</p>
+    </div>
+    <div id="multilevel-networks">
+    <h2>Multilevel networks</h2>
+
+
+<p>A multilevel network reports itself as two-mode, but holds ties within a
+mode as well as between them, so it cannot be projected onto one mode.
+These measures therefore score a multilevel network whole, as
+<code><a href="measure_cohesion.html">net_by_independence()</a></code> does. The projection remains for genuine two-mode
+networks, where no two nodes of one mode are ever tied.</p>
     </div>
     <div id="eigenvector-centrality">
     <h2>Eigenvector centrality</h2>

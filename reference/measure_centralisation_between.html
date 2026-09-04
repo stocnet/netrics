@@ -35,7 +35,7 @@ scores, whereas mode_by_betweenness() reports the per-mode scores directly."><me
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">netrics</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.0.1</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.0.2</span>
       </span>
     </div>
 
@@ -172,6 +172,16 @@ against every node in the network, whereas <code>"in"</code> compares it only
 against the other nodes of its own mode. Since a two-mode incidence
 structure gives these no distinct "out" counterpart,
 <code>mode_by_betweenness()</code> accepts only <code>"all"</code> and <code>"in"</code>.</p>
+    </div>
+    <div id="signed-networks">
+    <h2>Signed networks</h2>
+
+
+<p>These measures read a tie as a distance, and a negative tie is hostility
+rather than a channel along which cohesion travels.
+Where the network is signed, they therefore consider only the positive
+ties, and say so.
+Use <code><a href="https://stocnet.github.io/manynet/reference/modif_weight.html" class="external-link">manynet::to_unsigned()</a></code> first to control this yourself.</p>
     </div>
     <div id="references">
     <h2>References</h2>
