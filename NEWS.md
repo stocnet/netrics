@@ -5,6 +5,14 @@
 - Fixed some warning tests related to changes in snet output in manynet
 - Raised `{manynet}` floor to 2.3.1, retiring `to_ties()` and `net_waves()` shims
 
+## Marks
+
+- Fixed `node_is_fold()` erroring on signed networks (closes #25)
+- Fixed `node_is_independent()` and `node_is_core()` erroring on multilevel networks (closes #26)
+- Fixed `tie_is_transitive()`, `tie_is_triplet()` and `tie_is_cyclical()` erroring on signed networks (closes #25)
+- Fixed `tie_is_max()` and `tie_is_min()` to accept a numeric vector, and to name what they mark
+- Fixed `tie_is_path()` to name `from` and `to` where either is missing (closes #26)
+
 
 # netrics 1.0.1
 

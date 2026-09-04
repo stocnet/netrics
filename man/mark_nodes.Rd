@@ -59,6 +59,21 @@ triangles that are only connected by that node.
 \item \code{node_is_neighbor()} marks nodes that are neighbours of a given node.
 }
 }
+\section{Signed networks}{
+
+\code{node_is_fold()} reads a tie as a distance, and a negative tie is
+hostility rather than a channel along which cohesion travels, so where the
+network is signed it considers only the positive ties.
+}
+
+\section{Multilevel networks}{
+
+A multilevel network reports itself as two-mode, but holds ties within a
+mode as well as between them, so it cannot be projected onto one mode.
+\code{node_is_independent()} therefore marks a multilevel network whole, as
+\code{\link[=net_by_independence]{net_by_independence()}} does.
+}
+
 \examples{
 node_is_independent(ison_adolescents)
 node_is_cutpoint(ison_brandes)

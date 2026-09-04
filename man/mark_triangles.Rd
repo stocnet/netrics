@@ -48,6 +48,14 @@ and fully reciprocated.
 They are most useful in highlighting parts of the network that
 are cohesively connected.
 }
+\section{Signed networks}{
+
+These marks ask only whether a two-path exists, as a census does, so a tie
+counts however it is signed. Where the network is signed, each tie is
+therefore read by its magnitude, and every tie keeps its place in the
+returned vector.
+}
+
 \examples{
 ison_monks |> to_uniplex("like") |> 
   mutate_ties(tri = tie_is_triangular())

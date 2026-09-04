@@ -80,3 +80,22 @@ test_that("tie_is_feedback() mark functions work", {
                c("FALSE", "FALSE", "FALSE", "FALSE", "TRUE", "TRUE", "FALSE",
                  "TRUE", "FALSE", "FALSE"))
 })
+
+test_that("tie_is_max() and tie_is_min() accept a plain numeric vector", {
+  expect_equal(as.logical(tie_is_max(c(1, 3, 3, 2))),
+               c(FALSE, TRUE, TRUE, FALSE))
+  expect_equal(as.logical(tie_is_min(c(1, 3, 3, 2))),
+               c(TRUE, FALSE, FALSE, FALSE))
+})
+
+test_that("tie_is_max() and tie_is_min() name what they mark", {
+  # a network reaches `as.numeric()`, which reports a list rather than the
+  # argument that was wanted
+  expect_error(tie_is_max(ison_adolescents), "tie measure or a numeric vector")
+  expect_error(tie_is_min(ison_adolescents), "tie measure or a numeric vector")
+})
+
+test_that("tie_is_path() names the arguments it needs", {
+  expect_error(tie_is_path(ison_adolescents), "from")
+  expect_error(tie_is_path(ison_adolescents, from = 1), "to")
+})
