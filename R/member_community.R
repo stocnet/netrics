@@ -176,12 +176,28 @@ poss_algs <- function(k, .data){
   if(!manynet::is_connected(.data))
     poss <- exclude(poss, c("node_in_spinglass", "node_in_fluid"),
                     "network unconnected")
+  # Every algorithm but spinglass reads a negative weight as an error, and
+  # spinglass reads a sign as a sign, so a signed network leaves it alone.
+  if(manynet::is_signed(.data))
+    poss <- exclude(poss, setdiff(poss, "node_in_spinglass"),
+                    "network signed and only {.fn node_in_spinglass} reads signs")
   if(manynet::is_directed(.data))
     poss <- exclude(poss, c("node_in_louvain",
                             "node_in_leiden",
                             "node_in_labels",
                             "node_in_partition",
                             "node_in_eigen"), "network directed")
+  # The exclusions can empty the list: a signed network keeps only spinglass,
+  # which an unconnected network then drops, and the `k` list holds no
+  # spinglass at all.
+  if(length(poss) == 0)
+    manynet::snet_abort("No available algorithm can partition this network.",
+                        `if`(manynet::is_signed(.data),
+                             paste("Only {.fn node_in_spinglass} reads signs,",
+                                   "and it needs a connected network and no",
+                                   "{.arg k}. Try {.fn to_giant}, or",
+                                   "{.fn to_unsigned} to set the signs aside."),
+                             "Try {.fn to_giant}."))
   poss
 }
 
@@ -276,6 +292,13 @@ consensus_memb <- function(.data, k, max_k, times, threshold = 0.5, iter = 10){
 #' "Ensemble-based Community Detection in Multilayer Networks".
 #' _Data Mining and Knowledge Discovery_ 31: 1506-1543.
 #' \doi{10.1007/s10618-017-0528-8}
+#' @section Signed networks:
+#'   Every algorithm but [node_in_spinglass()] reads a negative weight as an
+#'   error, and spinglass reads a sign as a sign (Traag and Bruggeman 2009).
+#'   `node_in_community()` therefore considers only spinglass where the network
+#'   is signed. Since spinglass needs a connected network and accepts no `k`,
+#'   a signed network that is unconnected, or a `k` that is given, leaves no
+#'   applicable algorithm and the function stops.
 NULL
 
 #' @rdname member_community
@@ -287,7 +310,9 @@ node_in_community <- function(.data, k = NULL, max_k = 8L,
   max_k <- resolve_max_k(max_k, Kmax)
   .data <- manynet::expect_nodes(.data)
   k <- check_k(k, .data)
-  if(is.null(k) && manynet::net_nodes(.data)<100){
+  # `node_in_optimal()` aborts on a negative weight, as every algorithm but
+  # spinglass does, so a signed network never takes this short cut.
+  if(is.null(k) && manynet::net_nodes(.data)<100 && !manynet::is_signed(.data)){
     # don't use node_in_betweenness because slow and poorer quality to optimal
     if(consensus)
       manynet::snet_info("Ignoring {.arg consensus} because {.fn node_in_optimal}",

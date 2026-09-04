@@ -14,6 +14,12 @@
 - Fixed `tie_is_path()` to name `from` and `to` where either is missing (closes #26)
 
 
+## Memberships
+
+- Fixed `node_in_community()` erroring on signed networks, which now considers only `node_in_spinglass()` (closes #25)
+- Fixed `node_in_core()` and `node_by_core()` returning two values per node on multilevel networks (closes #26)
+
+
 # netrics 1.0.1
 
 ## Methods

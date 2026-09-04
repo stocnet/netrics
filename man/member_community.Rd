@@ -85,6 +85,16 @@ but does not rest the answer on a single run of a single algorithm.
 \code{times} applies only when \code{consensus = TRUE}, and is 20 by default.
 Deterministic algorithms are run once however it is set.
 }
+\section{Signed networks}{
+
+Every algorithm but \code{\link[=node_in_spinglass]{node_in_spinglass()}} reads a negative weight as an
+error, and spinglass reads a sign as a sign (Traag and Bruggeman 2009).
+\code{node_in_community()} therefore considers only spinglass where the network
+is signed. Since spinglass needs a connected network and accepts no \code{k},
+a signed network that is unconnected, or a \code{k} that is given, leaves no
+applicable algorithm and the function stops.
+}
+
 \examples{
 node_in_community(ison_adolescents)
 }
