@@ -14,6 +14,65 @@ local_verbose <- function(env = parent.frame()){
   invisible(old)
 }
 
+# manynet 2.3.2 changed how two of the `snet_*()` calls signal, so a test that
+# asserts on one has to accept either behaviour to pass on 2.3.1 as well.
+#
+# - `snet_warn()` now raises a warning condition. Before, it printed a cli
+#   message, and only where the verbosity was not 'quiet'.
+# - `snet_unavailable()` now aborts whatever the verbosity. Before, it aborted
+#   only where the verbosity was not 'quiet'.
+#
+# Both helpers raise the verbosity for the call alone, which is what 2.3.1
+# needs to speak at all, and which 2.3.2 ignores here.
+
+# Expects that `object` reports through `snet_warn()`, as either a warning
+# condition (manynet >= 2.3.2) or a message (manynet < 2.3.2), whose text
+# matches `regexp`. Returns the value of `object`, so that a test can go on to
+# assert on the result the warning came with.
+expect_snet_warn <- function(object, regexp) {
+  old <- options(manynet_verbosity = "verbose", snet_verbosity = "verbose")
+  on.exit(options(old), add = TRUE)
+  seen <- character()
+  val <- withCallingHandlers(
+    force(object),
+    warning = function(w) {
+      seen <<- c(seen, conditionMessage(w))
+      invokeRestart("muffleWarning")
+    },
+    message = function(m) {
+      seen <<- c(seen, conditionMessage(m))
+      invokeRestart("muffleMessage")
+    })
+  expect_match(paste(seen, collapse = "\n"), regexp, all = FALSE,
+               label = "the warnings and messages raised")
+  val
+}
+
+# Returns the value of `object` with any `snet_warn()` output matching
+# `regexp` muffled, as either a warning condition (manynet >= 2.3.2) or a
+# message (manynet < 2.3.2). A test that reaches a documented warning on its
+# way to something else uses this to keep the run's output clean. Only the
+# matching text is muffled, so any other warning still reports.
+without_snet_warn <- function(object, regexp) {
+  withCallingHandlers(
+    force(object),
+    warning = function(w) {
+      if(grepl(regexp, conditionMessage(w))) invokeRestart("muffleWarning")
+    },
+    message = function(m) {
+      if(grepl(regexp, conditionMessage(m))) invokeRestart("muffleMessage")
+    })
+}
+
+# Expects that `object` aborts through `snet_abort()` or `snet_unavailable()`
+# with a message matching `regexp`.
+expect_snet_abort <- function(object, regexp = NULL) {
+  lab <- deparse(substitute(object))
+  old <- options(manynet_verbosity = "verbose", snet_verbosity = "verbose")
+  on.exit(options(old), add = TRUE)
+  expect_error(object, regexp, label = lab)
+}
+
 expect_values <- function(object, ref, toler = 3) {
   # 1. Capture object and label
   # act <- quasi_label(rlang::enquo(object), arg = "object")

@@ -24,8 +24,21 @@ for(fn in names(node_meas)) {
             succeed("Only used for signed objects")
       } else if(grepl("distance",fn)){
           expect_s3_class(node_meas[[fn]](data_objs[[ob]], 1, 2), "node_measure")
+      } else if(grepl("eccentricity", fn) &&
+                !manynet::is_connected(.to_positive(data_objs[[ob]]))){
+        # An eccentricity is the distance to the furthest node, which is not
+        # defined where some node cannot be reached at all. The guard says so,
+        # and aborts. A signed network is measured on its positive ties alone,
+        # which can disconnect it even where the whole network is connected.
+        expect_snet_abort(node_meas[[fn]](data_objs[[ob]]), "connected")
       } else {
-        expect_s3_class(node_meas[[fn]](data_objs[[ob]]), "node_measure")
+        # An eigenvector score is zero for every node outside the main
+        # component, so the eigenvector measures warn on the unconnected
+        # fixtures. The sweep only checks the class, so that one warning is
+        # muffled here. Every other warning still reports.
+        expect_s3_class(without_snet_warn(node_meas[[fn]](data_objs[[ob]]),
+                                          "eigenvector scores"),
+                        "node_measure")
       }
     })
   }

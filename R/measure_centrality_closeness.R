@@ -50,6 +50,13 @@
 #' @family closeness
 #' @family centrality
 #' @template node_measure
+#' @section Signed networks:
+#'   These measures read a tie as a distance, and a negative tie is hostility
+#'   rather than a channel along which cohesion travels.
+#'   Where the network is signed, they therefore consider only the positive
+#'   ties, and say so.
+#'   Use [manynet::to_unsigned()] first to control this yourself.
+
 NULL
 
 #' @rdname measure_central_close
@@ -83,6 +90,8 @@ node_by_closeness <- function(.data, normalized = TRUE,
                               direction = c("out", "in", "all"), cutoff = NULL){
 
   .data <- manynet::expect_nodes(.data)
+
+  .data <- .to_positive(.data)
   direction <- match.arg(direction)
   weights <- `if`(manynet::is_weighted(.data),
                   manynet::tie_weights(.data), NA)
@@ -141,6 +150,7 @@ node_by_closeness <- function(.data, normalized = TRUE,
 node_by_harmonic <- function(.data, normalized = TRUE, cutoff = -1,
                              decay = NULL, direction = c("out", "in")){
   .data <- manynet::expect_nodes(.data)
+  .data <- .to_positive(.data)
   direction <- match.arg(direction)
   if(is.null(decay)){
     out <- igraph::harmonic_centrality(as_igraph(.data), # weighted if present
@@ -199,6 +209,7 @@ node_by_harmonic <- function(.data, normalized = TRUE, cutoff = -1,
 #' @export
 node_by_reach <- function(.data, normalized = TRUE, cutoff = 2){
   .data <- manynet::expect_nodes(.data)
+  .data <- .to_positive(.data)
   if(manynet::is_weighted(.data)){
     tore <- manynet::as_matrix(.data)/mean(manynet::as_matrix(.data))
     out <- 1/tore
@@ -273,6 +284,7 @@ node_by_decay <- function(.data, normalized = TRUE, decay = 0.5,
 node_by_integration <- function(.data, normalized = TRUE,
                                 direction = c("in", "out")){
   .data <- manynet::expect_nodes(.data)
+  .data <- .to_positive(.data)
   direction <- match.arg(direction)
   dists <- igraph::distances(manynet::as_igraph(.data),
                              mode = ifelse(direction == "in", "in", "out"))
@@ -369,6 +381,7 @@ node_by_information <- function(.data, normalized = TRUE){
 #' @export
 node_by_eccentricity <- function(.data, normalized = TRUE){
   .data <- manynet::expect_nodes(.data)
+  .data <- .to_positive(.data)
   if(!manynet::is_connected(.data)) 
     manynet::snet_unavailable("Eccentricity centrality is only available for connected networks.")
   disties <- igraph::distances(as_igraph(.data))
@@ -446,6 +459,7 @@ node_by_distance <- function(.data, from, to, normalized = TRUE){
 #' @export
 node_by_vitality <- function(.data, normalized = TRUE){
   .data <- manynet::expect_nodes(.data)
+  .data <- .to_positive(.data)
   .data <- manynet::as_igraph(.data)
   out <- vapply(manynet::snet_progress_nodes(.data), function(x){
     sum(igraph::distances(.data)) -
@@ -571,7 +585,7 @@ NULL
 #' @export
 tie_by_closeness <- function(.data, normalized = TRUE){
   .data <- manynet::expect_ties(.data)
-  edge_adj <- .to_linegraph(.data)
+  edge_adj <- manynet::to_linegraph(.data)
   out <- node_by_closeness(edge_adj, normalized = normalized)
   class(out) <- "numeric"
   make_tie_measure(out, .data, measure = "closeness centrality",
@@ -620,6 +634,13 @@ tie_by_closeness <- function(.data, normalized = TRUE){
 #'   `net_by_*()` functions return a `network_measure` scalar;
 #'   `mode_by_closeness()` returns a `mode_measure` numeric vector of length two,
 #'   giving one centralization score per mode.
+#' @section Signed networks:
+#'   These measures read a tie as a distance, and a negative tie is hostility
+#'   rather than a channel along which cohesion travels.
+#'   Where the network is signed, they therefore consider only the positive
+#'   ties, and say so.
+#'   Use [manynet::to_unsigned()] first to control this yourself.
+
 NULL
 
 #' @rdname measure_centralisation_close
@@ -630,6 +651,8 @@ net_by_closeness <- function(.data, normalized = TRUE,
                              direction = c("all", "out", "in")){
 
   .data <- manynet::expect_nodes(.data)
+
+  .data <- .to_positive(.data)
   direction <- match.arg(direction)
   graph <- manynet::as_igraph(.data)
 
@@ -660,6 +683,8 @@ mode_by_closeness <- function(.data, normalized = TRUE,
                               direction = c("all", "out", "in")){
 
   .data <- manynet::expect_nodes(.data)
+
+  .data <- .to_positive(.data)
   direction <- match.arg(direction)
   graph <- manynet::as_igraph(.data)
 

@@ -74,6 +74,15 @@ They differ in what they can use. \code{coreness_rich()} and
 against a symmetric ideal, so they symmetrise a directed network first
 and report that they have done so.
 }
+\section{Multilevel networks}{
+
+A multilevel network reports itself as two-mode, but holds ties within a
+mode as well as between them, so \code{manynet::as_matrix()} returns one square
+matrix over every node rather than a rectangular incidence matrix.
+These methods therefore read a multilevel network as a one-mode one, which
+is the shape its matrix already has.
+}
+
 \section{Correlation}{
 
 Borgatti and Everett's continuous model gives each node a coreness

@@ -73,6 +73,15 @@ first transform the salient properties using e.g. \code{\link[manynet:to_undirec
 All centrality and centralization measures return normalised or scaled
 measures where available, reported when the measure is printed.
 }
+\section{Signed networks}{
+
+These measures read a tie as a distance, and a negative tie is hostility
+rather than a channel along which cohesion travels.
+Where the network is signed, they therefore consider only the positive
+ties, and say so.
+Use \code{\link[manynet:to_unsigned]{manynet::to_unsigned()}} first to control this yourself.
+}
+
 \section{Betweenness centrality}{
 
 Betweenness centrality is based on the number of shortest paths between

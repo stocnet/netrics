@@ -42,6 +42,14 @@ Each block stays the length of the whole nodeset.
 To census one layer alone, take it first with \code{\link[manynet:to_uniplex]{manynet::to_uniplex()}}.
 }
 
+\section{Signed networks}{
+
+\code{node_x_path()} reads a tie as a distance, and a negative tie is
+hostility rather than a channel along which cohesion travels.
+Where the network is signed, it therefore considers only the positive
+ties. Use \code{\link[manynet:to_unsigned]{manynet::to_unsigned()}} first to control this yourself.
+}
+
 \examples{
 task_eg <- to_named(to_uniplex(ison_algebra, "tasks"))
 (tie_cen <- node_x_tie(task_eg))

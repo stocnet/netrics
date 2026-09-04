@@ -65,7 +65,8 @@ test_that("regularity_rege discriminates on valued networks", {
   expect_gt(diff(range(r[upper.tri(r)])), 0.1)
   # but is degenerate on unweighted connected networks: every node comes out
   # maximally regularly equivalent to every other
-  expect_true(all(regularity_rege(ison_adolescents) == 1))
+  expect_true(all(expect_snet_warn(regularity_rege(ison_adolescents),
+                                   "degenerate") == 1))
 })
 
 test_that("node_in_regular uses recursive similarity, not a census", {

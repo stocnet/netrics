@@ -109,6 +109,22 @@ direction, so they are not interchangeable:\tabular{llll}{
 
 Compare partitions using one measure at a time.
 }
+\section{Signed networks}{
+
+\code{net_by_modularity()} counts a tie however it is signed, as a census does,
+so where the network is signed each tie is read by its magnitude.
+}
+
+\section{Multilevel networks}{
+
+\code{net_by_core()} and \code{net_by_factions()} fit the network to an ideal built
+by a \verb{manynet::create_*()} function, and those build one layer at a time.
+A multilevel network holds two, so there is no single ideal to fit it to
+and both stop rather than compare unlike shapes.
+Take one layer first, e.g. with \code{\link[manynet:to_mode1]{manynet::to_mode1()}} or
+\code{\link[manynet:to_uniplex]{manynet::to_uniplex()}}.
+}
+
 \section{Core-periphery fit variants}{
 
 For \code{net_by_core()}, which of the following to use to calculate the fit of

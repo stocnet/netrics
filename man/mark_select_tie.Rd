@@ -20,7 +20,8 @@ For more information on possible coercions, see e.g. \code{\link[manynet:as_stoc
 
 \item{select}{Number of elements to select (as TRUE).}
 
-\item{tie_measure}{An object created by a \code{tie_} measure.}
+\item{tie_measure}{An object created by a \code{tie_} measure,
+or a plain numeric vector holding one value per tie.}
 }
 \value{
 A \code{tie_mark} logical vector the length of the ties in the network,

@@ -16,6 +16,15 @@
 #'   - `node_is_neighbor()` marks nodes that are neighbours of a given node.
 #' @template param_data
 #' @template node_mark
+#' @section Signed networks:
+#'   `node_is_fold()` reads a tie as a distance, and a negative tie is
+#'   hostility rather than a channel along which cohesion travels, so where the
+#'   network is signed it considers only the positive ties.
+#' @section Multilevel networks:
+#'   A multilevel network reports itself as two-mode, but holds ties within a
+#'   mode as well as between them, so it cannot be projected onto one mode.
+#'   `node_is_independent()` therefore marks a multilevel network whole, as
+#'   [net_by_independence()] does.
 NULL
 
 #' @rdname mark_nodes
@@ -31,7 +40,11 @@ NULL
 #' @export
 node_is_independent <- function(.data){
   .data <- manynet::expect_nodes(.data)
-  if(manynet::is_twomode(.data)){
+  # A multilevel network reports itself as two-mode, but holds ties within a
+  # mode as well as between them, so it cannot be projected. Its matrix is
+  # already square over every node, so it takes the one-mode branch, as
+  # `net_by_independence()` does.
+  if(manynet::is_twomode(.data) && !.is_multilevel(.data)){
     samp <- igraph::largest_ivs(manynet::to_mode1(.data))
     if(manynet::is_labelled(.data)){
       out <- manynet::node_names(.data) %in% 
@@ -94,6 +107,7 @@ node_is_cutpoint <- function(.data){
 #' @export
 node_is_fold <- function(.data){
   .data <- manynet::expect_nodes(.data)
+  .data <- .to_positive(.data)
   mult_tri <- igraph::count_triangles(.data)>1
   tris <- igraph::triangles(.data)
   tris <- matrix(tris, length(tris)/3, 3, byrow = TRUE)

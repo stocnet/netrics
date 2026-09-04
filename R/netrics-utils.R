@@ -40,33 +40,6 @@ seq_nodes <- function(.data){
   seq.int(manynet::net_nodes(.data))
 }
 
-# Compatibility shim: manynet renamed `to_ties()` to `to_linegraph()` in 2.3.0.
-# The name is resolved at call time, so this uses `to_linegraph()` where it is
-# available and never raises the deprecation warning that `to_ties()` gives
-# there. Remove this and call `manynet::to_linegraph()` directly once manynet
-# 2.3.x is on CRAN and the DESCRIPTION floor is raised again.
-.to_linegraph <- function(.data) {
-  ns <- asNamespace("manynet")
-  fn <- if (is.null(ns$to_linegraph)) ns$to_ties else ns$to_linegraph
-  fn(.data)
-}
-
-# Compatibility shim: `manynet::net_waves()` has existed since manynet 2.2.0,
-# but only learned to read a `time` tie attribute in 2.3.0, and every bundled
-# longitudinal network holds its waves there rather than under `wave`. At the
-# declared floor it therefore reports one wave for `ison_monks`, which
-# `manynet::net_waves()` on 2.3.1 reports as three. The count is taken here as
-# well, so the answer does not depend on which manynet is installed.
-# Remove this and call `manynet::net_waves()` directly once the DESCRIPTION
-# floor is raised past 2.3.0.
-.net_waves <- function(.data) {
-  attr_waves <- vapply(c("wave", "time"), function(a) {
-    vals <- manynet::tie_attribute(.data, a)
-    if(is.null(vals)) 1L else length(unique(vals))
-  }, FUN.VALUE = integer(1))
-  max(manynet::net_waves(.data), attr_waves)
-}
-
 # Resolve membership to a vector:
 # if a single character string naming a network attribute is provided,
 # retrieve that attribute as a vector; otherwise return the value as-is.
@@ -135,6 +108,40 @@ seq_nodes <- function(.data){
     manynet::snet_info("Using only the positive ties,",
                        "since a negative tie does not carry cohesion.")
     manynet::to_unsigned(.data, keep = "positive")
+  } else .data
+}
+
+# The other half of the signed treatment. Where a measure counts a tie however
+# it is signed, as a census does, every non-zero entry is a tie and the sign
+# carries nothing: `igraph::triad_census()` reads a signed network this way,
+# and `.mixed_census()` makes the same reading explicit. This keeps every tie,
+# so a tie-level result still holds one value per tie, which `.to_positive()`
+# would not.
+#
+# TODO: `keep = "both"` arrived in manynet 2.3.2, but the DESCRIPTION floor is
+# 2.3.1, which is what CRAN serves and what the CI checks run against. The
+# fallback takes each weight's magnitude instead, which is the same operation.
+# Remove the fallback and call `manynet::to_unsigned(keep = "both")` directly
+# once the floor is raised past 2.3.2.
+.to_unsigned <- function(.data){
+  if(manynet::is_signed(.data)){
+    manynet::snet_info("Reading each tie by its magnitude,",
+                       "since a tie counts here however it is signed.")
+    if("both" %in% eval(formals(manynet::to_unsigned)$keep))
+      manynet::to_unsigned(.data, keep = "both")
+    else {
+      # The fallback has to return the class it was given, as
+      # `manynet::to_unsigned()` does, since the measure that called this
+      # passes the result on to its `make_*()` constructor. A sign is held
+      # either in a `sign` attribute or as the sign of a weight, so both are
+      # covered.
+      out <- .data
+      if("sign" %in% manynet::net_tie_attributes(out))
+        out <- manynet::mutate_ties(out, sign = NULL)
+      if("weight" %in% manynet::net_tie_attributes(out))
+        out <- manynet::mutate_ties(out, weight = abs(weight))
+      out
+    }
   } else .data
 }
 

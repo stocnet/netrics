@@ -515,7 +515,12 @@ net_by_spatial <- function(.data, attribute){
   .data <- manynet::expect_nodes(.data)
   N <- manynet::net_nodes(.data)
   x <- manynet::node_attribute(.data, attribute)
-  stopifnot(is.numeric(x))
+  # Moran's I is the correlation of a value with itself across ties, so the
+  # attribute has to hold a quantity rather than a category
+  if(!is.numeric(x))
+    manynet::snet_abort("{.fn net_by_spatial} measures the autocorrelation of",
+                        "a numeric attribute, but {.val {attribute}} is",
+                        "{.cls {class(x)[1]}}.")
   x_bar <- mean(x, na.rm = TRUE)
   w <- manynet::as_matrix(.data)
   W <- sum(w, na.rm = TRUE)

@@ -223,6 +223,18 @@ net_by_length <- function(.data){
 #' @template param_data
 #' @family cohesion
 #' @template net_measure
+#' @param limit The largest network `net_by_strength()` and
+#'   `net_by_toughness()` will enumerate: the number of ties for the first and
+#'   of nodes for the second. By default 20. Above this each stops rather than
+#'   running for hours. Raise it to measure a larger network anyway.
+#' @section Cost of the enumerated measures:
+#'   `net_by_cohesion()` and `net_by_adhesion()` are connectivity problems that
+#'   `{igraph}` solves directly, so they run on a network of any size.
+#'   `net_by_strength()` and `net_by_toughness()` instead take a minimum over
+#'   every subset of the tieset or the nodeset, which is \eqn{2^n} subsets.
+#'   Their cost therefore quadruples for every two nodes added: a ring of 16
+#'   nodes takes about 8 seconds, one of 20 over two minutes, and one of 30
+#'   more than a day. `limit` stops each before it becomes a hang.
 NULL
 
 #' @rdname measure_fragmentation 
@@ -234,8 +246,8 @@ NULL
 #' _Sociological Methodology_ 31(1): 305-59.
 #' \doi{10.1111/0081-1750.00098}
 #' @examples 
-#' net_by_cohesion(fict_marvel)
-#' net_by_cohesion(to_giant(fict_marvel))
+#' net_by_cohesion(fict_greys)
+#' net_by_cohesion(to_giant(fict_greys))
 #' @export
 net_by_cohesion <- function(.data){
   .data <- manynet::expect_nodes(.data)
@@ -248,8 +260,8 @@ net_by_cohesion <- function(.data){
 #' @rdname measure_fragmentation 
 #' @importFrom igraph adhesion
 #' @examples 
-#' net_by_adhesion(fict_marvel)
-#' net_by_adhesion(to_giant(fict_marvel))
+#' net_by_adhesion(fict_greys)
+#' net_by_adhesion(to_giant(fict_greys))
 #' @export
 net_by_adhesion <- function(.data){
   .data <- manynet::expect_nodes(.data)
@@ -259,13 +271,31 @@ net_by_adhesion <- function(.data){
                        normalization = "none")
 }
 
+# Both of these take a minimum over every subset of the tieset or the nodeset,
+# which is 2^n subsets, each of which is then counted for components. The run
+# time quadruples for every two nodes added: a ring of 16 takes 8 seconds, one
+# of 20 takes over two minutes, and one of 30 would take more than a day, while
+# the subset list itself fails to allocate around 96. A user therefore meets a
+# hang long before an error, so the size is checked first and named.
+# See https://github.com/stocnet/netrics/issues/34.
+.check_enumerable <- function(n, limit, fun, unit){
+  if(n <= limit) return(invisible(n))
+  manynet::snet_abort("{.fn {fun}} takes a minimum over every subset of the",
+                      "{unit}, which doubles in cost with each one added.",
+                      "This network has {n} {unit}, above the {.arg limit} of",
+                      "{limit}, so the measure would not finish. Raise",
+                      "{.arg limit} to try anyway, or measure a smaller",
+                      "network, e.g. with {.fn to_giant} or {.fn to_ego}.")
+}
+
 #' @rdname measure_fragmentation 
 #' @examples 
 #' net_by_strength(ison_adolescents)
 #' @export
-net_by_strength <- function(.data){
+net_by_strength <- function(.data, limit = 20){
   .data <- manynet::expect_nodes(.data)
   n <- manynet::net_ties(.data)
+  .check_enumerable(n, limit, "net_by_strength", "ties")
   seties <- unlist(lapply(1:n, utils::combn, x = 1:n, simplify = FALSE), recursive = FALSE)
   out <- vapply(seties, function(x) length(x)/net_by_components(manynet::delete_ties(.data, x)), 
                 FUN.VALUE = numeric(1))
@@ -278,9 +308,10 @@ net_by_strength <- function(.data){
 #' @examples
 #' net_by_toughness(ison_adolescents)
 #' @export
-net_by_toughness <- function(.data){
+net_by_toughness <- function(.data, limit = 20){
   .data <- manynet::expect_nodes(.data)
   n <- manynet::net_nodes(.data)
+  .check_enumerable(n, limit, "net_by_toughness", "nodes")
   seties <- unlist(lapply(1:n, utils::combn, x = 1:n, simplify = FALSE), recursive = FALSE)
   out <- vapply(seties, function(x) length(x)/net_by_components(manynet::delete_nodes(.data, x)), 
                 FUN.VALUE = numeric(1))

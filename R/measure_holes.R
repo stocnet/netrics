@@ -38,6 +38,12 @@
 #' @template param_data
 #' @family brokerage
 #' @template node_measure
+#' @section Multilevel networks:
+#'   A multilevel network reports itself as two-mode, but holds ties within a
+#'   mode as well as between them, so it cannot be projected onto one mode.
+#'   `node_by_effsize()` and `node_by_efficiency()` therefore measure a
+#'   multilevel network whole, as [net_by_independence()] does. The projection
+#'   remains for genuine two-mode networks.
 NULL
 
 #' @rdname measure_broker_node 
@@ -112,7 +118,11 @@ node_by_redundancy <- function(.data){
 #' @export
 node_by_effsize <- function(.data){
   .data <- manynet::expect_nodes(.data)
-  if(manynet::is_twomode(.data)){
+  # A multilevel network reports itself as two-mode, but holds ties within a
+  # mode as well as between them, so it cannot be projected. Its matrix is
+  # already square over every node, so it takes the one-mode branch, as
+  # `net_by_independence()` does.
+  if(manynet::is_twomode(.data) && !.is_multilevel(.data)){
     mat <- manynet::as_matrix(.data)
     out <- c(rowSums(manynet::as_matrix(manynet::to_mode1(.data))>0), 
              rowSums(manynet::as_matrix(manynet::to_mode2(.data))>0)) - node_by_redundancy(.data)

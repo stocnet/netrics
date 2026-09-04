@@ -388,6 +388,16 @@ net_by_balance <- function(.data) {
 #' @template param_memb
 #' @family features
 #' @template net_measure
+#' @section Signed networks:
+#'   `net_by_modularity()` counts a tie however it is signed, as a census does,
+#'   so where the network is signed each tie is read by its magnitude.
+#' @section Multilevel networks:
+#'   `net_by_core()` and `net_by_factions()` fit the network to an ideal built
+#'   by a `manynet::create_*()` function, and those build one layer at a time.
+#'   A multilevel network holds two, so there is no single ideal to fit it to
+#'   and both stop rather than compare unlike shapes.
+#'   Take one layer first, e.g. with [manynet::to_mode1()] or
+#'   [manynet::to_uniplex()].
 NULL
 
 #' @rdname measure_fit
@@ -436,6 +446,15 @@ net_by_core <- function(.data,
   variant <- resolve_method(variant, method, "variant")
   .data <- manynet::expect_nodes(.data)
   direction <- match.arg(direction)
+  # `manynet::create_core()` builds one layer, so it reads a multilevel network
+  # as the two-mode network that network reports itself to be, and returns a
+  # rectangular ideal that the square observed matrix cannot be compared with.
+  # What ideal a multilevel network should be fitted to is an open question.
+  if(.is_multilevel(.data))
+    manynet::snet_abort("{.fn net_by_core} fits the network to a",
+                        "core-periphery ideal of one layer, and this network",
+                        "holds two. Take one layer first, e.g. with",
+                        "{.fn to_mode1} or {.fn to_uniplex}.")
   if(is.null(mark)) mark <- node_is_core(.data, coreness = coreness,
                                          direction = direction)
   
@@ -499,6 +518,12 @@ net_by_core <- function(.data,
 net_by_factions <- function(.data,
                             membership = NULL){
   .data <- manynet::expect_nodes(.data)
+  # `manynet::create_components()` builds one layer; see `net_by_core()`
+  if(.is_multilevel(.data))
+    manynet::snet_abort("{.fn net_by_factions} fits the network to a",
+                        "factional ideal of one layer, and this network holds",
+                        "two. Take one layer first, e.g. with",
+                        "{.fn to_mode1} or {.fn to_uniplex}.")
   membership <- .resolve_membership(.data, membership)
   if(is.null(membership)){
     manynet::snet_info("No membership vector assigned.",
@@ -561,6 +586,8 @@ net_by_modularity <- function(.data,
                               membership = NULL, 
                               resolution = 1){
   .data <- manynet::expect_nodes(.data)
+  # modularity counts a tie however it is signed, as a census does
+  .data <- .to_unsigned(.data)
   membership <- .resolve_membership(.data, membership)
   if(is.null(membership)){
     manynet::snet_info("Since no membership argument has been provided,",

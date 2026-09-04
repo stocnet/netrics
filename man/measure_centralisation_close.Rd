@@ -80,6 +80,15 @@ For two-mode networks the two modes have different theoretical maxima, so
 Freeman's general centralization index over the normalized node closeness
 scores, whereas \code{mode_by_closeness()} reports the per-mode scores directly.
 }
+\section{Signed networks}{
+
+These measures read a tie as a distance, and a negative tie is hostility
+rather than a channel along which cohesion travels.
+Where the network is signed, they therefore consider only the positive
+ties, and say so.
+Use \code{\link[manynet:to_unsigned]{manynet::to_unsigned()}} first to control this yourself.
+}
+
 \section{Decay and integration centralization}{
 
 Unlike reach centrality, decay and integration scores are not bounded above

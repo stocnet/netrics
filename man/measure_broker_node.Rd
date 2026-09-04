@@ -74,6 +74,15 @@ where \eqn{t} is the sum of ties and \eqn{n} the sum of nodes in each node's nei
 and effective size is calculated as \eqn{n - \frac{2t}{n}}.
 Node efficiency is the node's effective size divided by its degree.
 }
+\section{Multilevel networks}{
+
+A multilevel network reports itself as two-mode, but holds ties within a
+mode as well as between them, so it cannot be projected onto one mode.
+\code{node_by_effsize()} and \code{node_by_efficiency()} therefore measure a
+multilevel network whole, as \code{\link[=net_by_independence]{net_by_independence()}} does. The projection
+remains for genuine two-mode networks.
+}
+
 \section{Constraint}{
 
 Constraint has a natural floor at 0, for a node whose contacts are wholly

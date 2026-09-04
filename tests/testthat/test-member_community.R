@@ -59,9 +59,11 @@ test_that("every k-capable algorithm returns exactly k communities", {
     expect_length(res, net_nodes(ison_adolescents))
     expect_equal(length(unique(res)), k)
   }
-  # node_in_eigen stops splitting early on this network, so it cannot reach k
+  # node_in_eigen stops splitting early on this network, so it cannot reach k,
+  # and says so
   set.seed(1234)
-  expect_s3_class(node_in_eigen(ison_adolescents, k = 3), "node_member")
+  expect_s3_class(expect_snet_warn(node_in_eigen(ison_adolescents, k = 3),
+                                   "communities"), "node_member")
 })
 
 test_that("k is recorded in the k attribute of hierarchical memberships", {
@@ -95,13 +97,10 @@ test_that("k accepts the selection methods", {
 })
 
 test_that("an unreachable k warns and returns the nearest", {
-  local_verbose()
   # two components cannot be merged into one community
   unconn <- manynet::create_components(8, membership = c(1,1,1,1,2,2,2,2))
-  # snet_warn() signals a cli message, not an R warning condition
-  expect_match(capture_messages(node_in_betweenness(unconn, k = 1)),
-               "communities", all = FALSE)
-  expect_equal(length(unique(suppressMessages(node_in_betweenness(unconn, k = 1)))), 2)
+  expect_snet_warn(node_in_betweenness(unconn, k = 1), "communities")
+  expect_equal(length(unique(suppressWarnings(node_in_betweenness(unconn, k = 1)))), 2)
 })
 
 test_that("node_in_partition preserves its two-group result", {

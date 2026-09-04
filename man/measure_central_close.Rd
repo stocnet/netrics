@@ -139,6 +139,15 @@ so that scores can be compared across networks;
 \code{node_by_randomwalk()} and \code{node_by_distance()} have no such maximum and
 are instead \emph{scaled} against the largest value observed in this network.
 }
+\section{Signed networks}{
+
+These measures read a tie as a distance, and a negative tie is hostility
+rather than a channel along which cohesion travels.
+Where the network is signed, they therefore consider only the positive
+ties, and say so.
+Use \code{\link[manynet:to_unsigned]{manynet::to_unsigned()}} first to control this yourself.
+}
+
 \section{Closeness centrality}{
 
 Closeness centrality is also known as status centrality,

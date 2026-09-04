@@ -67,6 +67,11 @@ tie_is_bridge <- function(.data){
 #' @export
 tie_is_path <- function(.data, from, to, all_paths = FALSE){
   .data <- manynet::expect_ties(.data)  
+  # a path runs between two named nodes, so neither endpoint has a default
+  if(missing(from) || missing(to))
+    manynet::snet_abort("{.fn tie_is_path} needs both {.arg from} and",
+                        "{.arg to}, the nodes the path runs between,",
+                        "e.g. {.code tie_is_path(.data, from = 1, to = 7)}.")
   out <- igraph::all_shortest_paths(.data, from = from, to = to,
                                      mode = "out")$epath
   if(all_paths){
@@ -136,6 +141,11 @@ tie_is_reciprocated <- function(.data){
 #' @template tie_mark
 #' @family cohesion
 #' @name mark_triangles
+#' @section Signed networks:
+#'   These marks ask only whether a two-path exists, as a census does, so a tie
+#'   counts however it is signed. Where the network is signed, each tie is
+#'   therefore read by its magnitude, and every tie keeps its place in the
+#'   returned vector.
 NULL
 
 #' @rdname mark_triangles
@@ -166,6 +176,8 @@ tie_is_triangular <- function(.data){
 #' @export
 tie_is_transitive <- function(.data){
   .data <- manynet::expect_ties(.data)  
+  # once, outside the loop, since `.to_unsigned()` reports what it did
+  .data <- .to_unsigned(.data)
   nodes <- manynet::as_edgelist(manynet::to_unnamed(.data))
   out <- vapply(seq_len(manynet::net_ties(.data)), function(x){
     igraph::distances(manynet::delete_ties(.data, x), 
@@ -182,6 +194,7 @@ tie_is_transitive <- function(.data){
 #' @export
 tie_is_triplet <- function(.data){
   .data <- manynet::expect_ties(.data)  
+  .data <- .to_unsigned(.data)
   nodes <- manynet::as_edgelist(manynet::to_unnamed(.data))
   trans <- tie_is_transitive(.data)
   altpath <- unlist(lapply(which(trans), function(x){
@@ -203,6 +216,8 @@ tie_is_triplet <- function(.data){
 #' @export
 tie_is_cyclical <- function(.data){
   .data <- manynet::expect_ties(.data)  
+  # once, outside the loop, since `.to_unsigned()` reports what it did
+  .data <- .to_unsigned(.data)
   out <- vapply(seq_len(manynet::net_ties(.data)), function(x){
     nodes <- manynet::as_edgelist(manynet::to_unnamed(.data))[x,]
     igraph::distances(manynet::delete_ties(.data, x), 
@@ -349,12 +364,26 @@ tie_is_random <- function(.data, select = 1){
   make_tie_mark(out, .data)
 }
 
+# These two mark a vector of tie values, not a network. Passing a network
+# reaches `as.numeric()`, which reports a list that cannot be coerced rather
+# than the argument that was wanted.
+.check_tie_measure <- function(tie_measure, fun){
+  if(inherits(tie_measure, "tie_measure") || is.numeric(tie_measure))
+    return(tie_measure)
+  manynet::snet_abort("{.fn {fun}} marks a tie measure or a numeric vector,",
+                      "not a {.cls {class(tie_measure)[1]}}.",
+                      "Measure the ties first, e.g.",
+                      "{.code {fun}(tie_by_betweenness(.data))}.")
+}
+
 #' @rdname mark_select_tie
-#' @param tie_measure An object created by a `tie_` measure.
+#' @param tie_measure An object created by a `tie_` measure,
+#'   or a plain numeric vector holding one value per tie.
 #' @examples 
 #' tie_is_max(tie_by_betweenness(ison_brandes))
 #' @export
 tie_is_max <- function(tie_measure){
+  tie_measure <- .check_tie_measure(tie_measure, "tie_is_max")
   out <- as.numeric(tie_measure) == max(as.numeric(tie_measure))
   class(out) <- c("tie_mark", class(out))
   out
@@ -365,6 +394,7 @@ tie_is_max <- function(tie_measure){
 #' tie_is_min(tie_by_betweenness(ison_brandes))
 #' @export
 tie_is_min <- function(tie_measure){
+  tie_measure <- .check_tie_measure(tie_measure, "tie_is_min")
   out <- as.numeric(tie_measure) == min(as.numeric(tie_measure))
   class(out) <- c("tie_mark", class(out))
   out

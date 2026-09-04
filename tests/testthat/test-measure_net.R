@@ -27,7 +27,13 @@ for(fn in names(net_meas)) {
           expect_s3_class(net_meas[[fn]](data_objs[[ob]]), "network_measure") else
             succeed("Only used for diffusion objects")
       } else {
-        expect_s3_class(net_meas[[fn]](data_objs[[ob]]), "network_measure")
+        # An eigenvector score is zero for every node outside the main
+        # component, so the eigenvector measures warn on the unconnected
+        # fixtures. The sweep only checks the class, so that one warning is
+        # muffled here. Every other warning still reports.
+        expect_s3_class(without_snet_warn(net_meas[[fn]](data_objs[[ob]]),
+                                          "eigenvector scores"),
+                        "network_measure")
       }
     })
   }
