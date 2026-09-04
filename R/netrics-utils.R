@@ -119,8 +119,8 @@ seq_nodes <- function(.data){
 # would not.
 #
 # TODO: `keep = "both"` arrived in manynet 2.3.2, but the DESCRIPTION floor is
-# 2.3.1, which is what CRAN serves. The fallback drops the `weight` attribute
-# instead, which for a network holding nothing but signs gives the same answer.
+# 2.3.1, which is what CRAN serves and what the CI checks run against. The
+# fallback takes each weight's magnitude instead, which is the same operation.
 # Remove the fallback and call `manynet::to_unsigned(keep = "both")` directly
 # once the floor is raised past 2.3.2.
 .to_unsigned <- function(.data){
@@ -130,11 +130,16 @@ seq_nodes <- function(.data){
     if("both" %in% eval(formals(manynet::to_unsigned)$keep))
       manynet::to_unsigned(.data, keep = "both")
     else {
-      out <- manynet::as_igraph(.data)
-      if("sign" %in% igraph::edge_attr_names(out))
-        out <- igraph::delete_edge_attr(out, "sign")
-      if("weight" %in% igraph::edge_attr_names(out))
-        out <- igraph::delete_edge_attr(out, "weight")
+      # The fallback has to return the class it was given, as
+      # `manynet::to_unsigned()` does, since the measure that called this
+      # passes the result on to its `make_*()` constructor. A sign is held
+      # either in a `sign` attribute or as the sign of a weight, so both are
+      # covered.
+      out <- .data
+      if("sign" %in% manynet::net_tie_attributes(out))
+        out <- manynet::mutate_ties(out, sign = NULL)
+      if("weight" %in% manynet::net_tie_attributes(out))
+        out <- manynet::mutate_ties(out, weight = abs(weight))
       out
     }
   } else .data

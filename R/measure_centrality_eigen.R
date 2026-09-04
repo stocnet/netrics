@@ -532,7 +532,6 @@ NULL
 net_by_eigenvector <- function(.data, normalized = TRUE){
   .data <- manynet::expect_nodes(.data)
   .data <- .to_unsigned(.data)
-  .data <- .to_unsigned(.data)
   if (manynet::is_twomode(.data)) {
     # Two-mode eigenvector centralization is intrinsically per mode
     # (see `mode_by_eigenvector()`, following Borgatti and Everett, 1997).

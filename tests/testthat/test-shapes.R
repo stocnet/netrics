@@ -90,14 +90,38 @@ test_that("net_by_core() and net_by_factions() stop on a multilevel network", {
 test_that(".to_positive() and .to_unsigned() each keep every node", {
   pos <- .to_positive(signed_multilevel)
   uns <- .to_unsigned(signed_multilevel)
-  expect_equal(manynet::net_nodes(pos), manynet::net_nodes(signed_multilevel))
-  expect_lt(manynet::net_ties(pos), manynet::net_ties(signed_multilevel))
+  # `net_nodes()` and `net_ties()` carry attributes that differ with the class
+  # of the network they were given, so the counts are compared as numbers
+  n <- function(x) as.numeric(x)
+  expect_equal(n(manynet::net_nodes(pos)), n(manynet::net_nodes(signed_multilevel)))
+  expect_lt(n(manynet::net_ties(pos)), n(manynet::net_ties(signed_multilevel)))
   # every tie counts in a census, so none is dropped
-  expect_equal(manynet::net_ties(uns), manynet::net_ties(signed_multilevel))
+  expect_equal(n(manynet::net_ties(uns)), n(manynet::net_ties(signed_multilevel)))
   expect_false(manynet::is_signed(uns))
   # an unsigned network passes through both untouched
   expect_identical(.to_positive(manynet::ison_adolescents),
                    manynet::ison_adolescents)
   expect_identical(.to_unsigned(manynet::ison_adolescents),
                    manynet::ison_adolescents)
+})
+
+test_that(".to_unsigned() returns the class it was given", {
+  # The measure that calls this passes the result to its `make_*()`
+  # constructor, so a changed class changes the result's attributes. The
+  # helper takes `manynet::to_unsigned(keep = "both")` where manynet offers it
+  # and a fallback otherwise, and both branches have to hold this.
+  for(net in list(signed_multilevel,
+                  manynet::as_tidygraph(signed_multilevel),
+                  manynet::as_igraph(signed_multilevel))){
+    expect_identical(class(.to_unsigned(net)), class(net))
+  }
+  # a sign is held either as the sign of a weight or in a `sign` attribute
+  bysign <- manynet::add_tie_attribute(manynet::create_ring(6), "sign",
+                                       c(1, -1, 1, -1, 1, -1))
+  expect_true(manynet::is_signed(bysign))
+  out <- .to_unsigned(bysign)
+  expect_identical(class(out), class(bysign))
+  expect_false(manynet::is_signed(out))
+  expect_equal(as.numeric(manynet::net_ties(out)),
+               as.numeric(manynet::net_ties(bysign)))
 })
