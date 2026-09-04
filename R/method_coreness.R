@@ -64,7 +64,23 @@
 #' _Proceedings of the Royal Society A_ 476(2241): 20190783.
 #' \doi{10.1098/rspa.2019.0783}
 #' @family methods
+#' @section Multilevel networks:
+#'   A multilevel network reports itself as two-mode, but holds ties within a
+#'   mode as well as between them, so `manynet::as_matrix()` returns one square
+#'   matrix over every node rather than a rectangular incidence matrix.
+#'   These methods therefore read a multilevel network as a one-mode one, which
+#'   is the shape its matrix already has.
 NULL
+
+# A multilevel network reports itself as two-mode, but holds ties within a mode
+# as well as between them, so `manynet::as_matrix()` returns one square matrix
+# over every node rather than the rectangular incidence matrix of a plain
+# two-mode network. The methods below walk the two shapes differently, so they
+# test for a plain two-mode network rather than for a two-mode one, as
+# `net_by_independence()` does.
+.core_twomode <- function(.data){
+  manynet::is_twomode(.data) && !.is_multilevel(.data)
+}
 
 # Every method needs the network as a matrix, oriented by `direction`.
 # "out" leaves the matrix as it is, so rows are senders; "in" transposes it,
@@ -72,7 +88,7 @@ NULL
 # counts. A two-mode network has no direction to read, so it is left alone.
 .core_matrix <- function(.data, direction = "all"){
   mat <- manynet::as_matrix(.data)
-  if(manynet::is_twomode(.data) || !manynet::is_directed(.data)) return(mat)
+  if(.core_twomode(.data) || !manynet::is_directed(.data)) return(mat)
   switch(direction,
          out = mat,
          `in` = t(mat),
@@ -179,7 +195,7 @@ coreness_correlation <- function(.data, direction = c("all","out","in"),
                                  starts = 5L){
   .data <- manynet::expect_nodes(.data)
   direction <- match.arg(direction)
-  if(manynet::is_twomode(.data))
+  if(.core_twomode(.data))
     manynet::snet_abort("{.fn coreness_correlation} compares the network",
                         "against a square ideal, which a two-mode network is",
                         "not. Try {.fn coreness_rich} instead.")
@@ -242,7 +258,7 @@ coreness_correlation <- function(.data, direction = c("all","out","in"),
 coreness_rich <- function(.data, direction = c("all","out","in")){
   .data <- manynet::expect_nodes(.data)
   direction <- match.arg(direction)
-  twomode <- manynet::is_twomode(.data)
+  twomode <- .core_twomode(.data)
   mat <- .core_matrix(.data, direction)
   stren <- .core_strength(mat, twomode)
   n <- length(stren)
@@ -292,7 +308,7 @@ coreness_transition <- function(.data, direction = c("all","out","in"),
                                 beta = seq(0.2, 0.8, 0.2)){
   .data <- manynet::expect_nodes(.data)
   direction <- match.arg(direction)
-  if(manynet::is_twomode(.data))
+  if(.core_twomode(.data))
     manynet::snet_abort("{.fn coreness_transition} compares the network",
                         "against a square ideal, which a two-mode network is",
                         "not. Try {.fn coreness_rich} instead.")
