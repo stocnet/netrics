@@ -2,8 +2,9 @@
 
 ## Package
 
-- Reduced run time of fragmentation examples by using `fict_greys` instead of `fict_marvel`
 - Fixed some warning tests related to changes in snet output in manynet
+- Raised `{manynet}` floor to 2.3.1, retiring `to_ties()` and `net_waves()` shims
+
 
 # netrics 1.0.1
 

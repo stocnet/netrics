@@ -15,7 +15,7 @@ Encoding: UTF-8
 LazyData: true
 Depends: 
     R (>= 4.1.0),
-    manynet (>= 2.2.3)
+    manynet (>= 2.3.1)
 Imports:
     dplyr,
     igraph (>= 2.1.0)

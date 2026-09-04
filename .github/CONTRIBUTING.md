@@ -160,7 +160,8 @@ Two further points of style:
 - Pick a word narrow enough to own the family. `regularity` is preferred over `similarity` because the latter is broad enough to be overrun later, and because generic similarities (`to_cosine()`, `to_correlation()`) belong to `{manynet}` and are consumed here through `distance =` and `cluster_*()`, so they would never live in this family anyway.
 - The dispatching function should name the method in its `snet_info()` message by interpolation, e.g. `manynet::snet_info("...using {.fn regularity_{regularity}}.")`. This surfaces the convention to users at run time, and makes it obvious if the argument and the prefix ever drift apart.
 
-One known exception: `node_in_equivalence()`'s `motif =` argument is fed by `node_x_*()` functions rather than `motif_*()` ones. Motifs are one of the four core families above and cannot be renamed to suit this rule, so leave that as it is.
+One known exception: `node_in_equivalence()`'s `motif =` argument is fed by `node_x_*()` functions rather than `motif_*()` ones. 
+Motifs are one of the four core families above and cannot be renamed to suit this rule, so leave that as it is.
 
 ### Naming within the membership family
 
@@ -255,6 +256,12 @@ a multiplex, a multilevel and a longitudinal network, and decide each case delib
   ([R/netrics-utils.R](../R/netrics-utils.R)), which drops to the positive ties and says so.
   Do not simply drop the attribute: that reads a negative tie as a path of length one,
   when a negative tie is hostility rather than a channel along which cohesion travels.
+  Where the measure instead counts a tie however it is signed, as a census does,
+  call `.to_unsigned()` in the same file, which keeps every tie and reads each by
+  its magnitude. A tie-level function takes this branch even where it measures
+  distance, since `.to_positive()` drops ties and a tie measure must hold one
+  value per tie; `tie_by_betweenness()` is the case, and says so in its
+  `@section Signed networks:`.
 - **Multiplex.** Take one layer at a time with `manynet::to_uniplex()`.
   That drops nodes holding none of the retained ties, so results of different lengths
   would otherwise be recycled against each other; `uniplex_degree()`
