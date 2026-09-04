@@ -40,6 +40,16 @@ first transform the salient properties using e.g. \code{\link[manynet:to_undirec
 All centrality and centralization measures return normalized measures by default,
 including for two-mode networks.
 }
+\section{Signed networks}{
+
+A tie measure holds one value per tie, so \code{tie_by_betweenness()} cannot
+drop the negative ties as the distance measures at the node and network
+level do. It reads each tie by its magnitude instead, which is what
+\code{\link[=node_by_betweenness]{node_by_betweenness()}} in effect does for a network whose ties are signed
+but not weighted. Use \code{\link[manynet:to_unsigned]{manynet::to_unsigned()}} first to control this
+yourself.
+}
+
 \section{Edge betweenness centrality}{
 
 The betweenness centrality of a tie, also known as \emph{edge betweenness},

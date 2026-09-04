@@ -12,14 +12,19 @@ net_by_cohesion(.data)
 
 net_by_adhesion(.data)
 
-net_by_strength(.data)
+net_by_strength(.data, limit = 20)
 
-net_by_toughness(.data)
+net_by_toughness(.data, limit = 20)
 }
 \arguments{
 \item{.data}{A network object of class \code{stocnet}, \code{igraph}, \code{tbl_graph}, \code{network}, or similar.
 Internally any of these will be coerced to an efficient implementation.
 For more information on possible coercions, see e.g. \code{\link[manynet:as_stocnet]{manynet::as_stocnet()}}.}
+
+\item{limit}{The largest network \code{net_by_strength()} and
+\code{net_by_toughness()} will enumerate: the number of ties for the first and
+of nodes for the second. By default 20. Above this each stops rather than
+running for hours. Raise it to measure a larger network anyway.}
 }
 \value{
 A \code{network_measure} numeric score.
@@ -45,6 +50,17 @@ from the network needed to increase the number of components.
 removed from a network to increase its number of components.
 }
 }
+\section{Cost of the enumerated measures}{
+
+\code{net_by_cohesion()} and \code{net_by_adhesion()} are connectivity problems that
+\code{{igraph}} solves directly, so they run on a network of any size.
+\code{net_by_strength()} and \code{net_by_toughness()} instead take a minimum over
+every subset of the tieset or the nodeset, which is \eqn{2^n} subsets.
+Their cost therefore quadruples for every two nodes added: a ring of 16
+nodes takes about 8 seconds, one of 20 over two minutes, and one of 30
+more than a day. \code{limit} stops each before it becomes a hang.
+}
+
 \examples{
 net_by_cohesion(fict_greys)
 net_by_cohesion(to_giant(fict_greys))

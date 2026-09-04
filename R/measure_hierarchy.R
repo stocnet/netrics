@@ -78,12 +78,20 @@ net_x_hierarchy <- function(.data){
 #' 1 - net_by_reciprocity(ison_networkers)
 #' net_by_efficiency(ison_networkers)
 #' net_by_upperbound(ison_networkers)
+#' @section Signed networks:
+#'   These measures read a tie as a distance, and a negative tie is hostility
+#'   rather than a channel along which cohesion travels.
+#'   Where the network is signed, they therefore consider only the positive
+#'   ties, and say so.
+#'   Use [manynet::to_unsigned()] first to control this yourself.
+
 NULL
 
 #' @rdname measure_hierarchy 
 #' @export
 net_by_connectedness <- function(.data){
   .data <- manynet::expect_nodes(.data)
+  .data <- .to_positive(.data)
   dists <- igraph::distances(manynet::as_igraph(.data))
   make_network_measure(1 - sum(dists==Inf)/sum(dists!=0),
                        .data,

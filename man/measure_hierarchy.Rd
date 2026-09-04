@@ -39,6 +39,15 @@ or the degree to which network is a single component.
 \item \code{net_by_upperbound()} measures the Krackhardt (least) upper bound score.
 }
 }
+\section{Signed networks}{
+
+These measures read a tie as a distance, and a negative tie is hostility
+rather than a channel along which cohesion travels.
+Where the network is signed, they therefore consider only the positive
+ties, and say so.
+Use \code{\link[manynet:to_unsigned]{manynet::to_unsigned()}} first to control this yourself.
+}
+
 \section{Efficiency}{
 
 A perfect hierarchy is a tree: every node but the root has exactly one

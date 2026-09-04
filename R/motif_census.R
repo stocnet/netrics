@@ -20,6 +20,12 @@
 #' @template param_data
 #' @template node_motif
 #' @importFrom igraph vcount make_ego_graph delete_vertices triad_census
+#' @section Signed networks:
+#'   `node_x_path()` reads a tie as a distance, and a negative tie is
+#'   hostility rather than a channel along which cohesion travels.
+#'   Where the network is signed, it therefore considers only the positive
+#'   ties. Use [manynet::to_unsigned()] first to control this yourself.
+
 NULL
 
 #' @rdname motif_path 
@@ -119,6 +125,7 @@ node_x_tie <- function(.data){
 #' @export
 node_x_path <- function(.data){
   .data <- manynet::expect_nodes(.data)
+  .data <- .to_positive(.data)
   if(manynet::is_weighted(.data)){
     tore <- manynet::as_matrix(.data)/mean(manynet::as_matrix(.data))
     out <- 1/tore

@@ -44,6 +44,17 @@
 #' @family eigenvector
 #' @family centrality
 #' @template node_measure
+#' @section Signed networks:
+#'   These measures do not read a tie as a distance, so where the network is
+#'   signed each tie is read by its magnitude rather than the negative ties
+#'   being dropped. Use [manynet::to_unsigned()] first to control this
+#'   yourself.
+#' @section Multilevel networks:
+#'   A multilevel network reports itself as two-mode, but holds ties within a
+#'   mode as well as between them, so it cannot be projected onto one mode.
+#'   These measures therefore score a multilevel network whole, as
+#'   [net_by_independence()] does. The projection remains for genuine two-mode
+#'   networks, where no two nodes of one mode are ever tied.
 NULL
 
 #' @rdname measure_central_eigen
@@ -82,6 +93,8 @@ node_by_eigenvector <- function(.data, normalized = TRUE, scaled = TRUE,
                                 scale = NULL){
 
   .data <- manynet::expect_nodes(.data)
+
+  .data <- .to_unsigned(.data)
   scaled <- resolve_scaled(scaled, scale)
   weights <- `if`(manynet::is_weighted(.data),
                   manynet::tie_weights(.data), NULL)
@@ -97,8 +110,12 @@ node_by_eigenvector <- function(.data, normalized = TRUE, scaled = TRUE,
   if(!manynet::is_connected(.data))
     manynet::snet_warn("Unconnected networks will only allow nodes from one component to have non-zero eigenvector scores.")
 
-  # Do the calculations
-  if (!manynet::is_twomode(graph)){
+  # Do the calculations.
+  # A multilevel network reports itself as two-mode, but holds ties within a
+  # mode as well as between them, so it cannot be projected. It needs no
+  # projection either: its matrix is already square over every node, so it
+  # takes the one-mode branch, as `net_by_independence()` does.
+  if (!manynet::is_twomode(graph) || .is_multilevel(graph)){
     out <- igraph::eigen_centrality(graph = graph,
                                     directed = manynet::is_directed(graph),
                                     weights = weights,
@@ -150,6 +167,8 @@ node_by_power <- function(.data, normalized = TRUE, scaled = FALSE,
                           scale = NULL, exponent = 1){
 
   .data <- manynet::expect_nodes(.data)
+
+  .data <- .to_unsigned(.data)
   scaled <- resolve_scaled(scaled, scale)
   graph <- manynet::as_igraph(.data)
 
@@ -163,8 +182,9 @@ node_by_power <- function(.data, normalized = TRUE, scaled = FALSE,
     exponent <- 0
   }
   
-  # Do the calculations
-  if (!manynet::is_twomode(graph)){
+  # Do the calculations. A multilevel network takes the one-mode branch,
+  # since it cannot be projected; see `node_by_eigenvector()`.
+  if (!manynet::is_twomode(graph) || .is_multilevel(graph)){
     out <- igraph::power_centrality(graph = graph,
                                     exponent = exponent,
                                     rescale = scaled)
@@ -233,6 +253,7 @@ node_by_power <- function(.data, normalized = TRUE, scaled = FALSE,
 #' @export
 node_by_alpha <- function(.data, decay = 0.85, alpha = NULL){
   .data <- manynet::expect_nodes(.data)
+  .data <- .to_unsigned(.data)
   decay <- check_decay(resolve_decay(decay, alpha, "alpha"))
   # Alpha centrality is unbounded and can be negative, so there is no
   # theoretical maximum to normalise against.
@@ -264,6 +285,7 @@ node_by_alpha <- function(.data, decay = 0.85, alpha = NULL){
 #' @export
 node_by_pagerank <- function(.data, decay = 0.85){
   .data <- manynet::expect_nodes(.data)
+  .data <- .to_unsigned(.data)
   decay <- check_decay(decay)
   # PageRank is a stationary distribution over a random walk, so scores are
   # already shares summing to one and no further rescaling applies.
@@ -289,6 +311,7 @@ node_by_pagerank <- function(.data, decay = 0.85){
 #' @export
 node_by_authority <- function(.data, scaled = TRUE){
   .data <- manynet::expect_nodes(.data)
+  .data <- .to_unsigned(.data)
   out <- igraph::hits_scores(manynet::as_igraph(.data), scale = scaled)$authority
   make_node_measure(out, .data, measure = "authority centrality",
                     range = `if`(scaled, c(0, 1), c(0, Inf)),
@@ -299,6 +322,7 @@ node_by_authority <- function(.data, scaled = TRUE){
 #' @export
 node_by_hub <- function(.data, scaled = TRUE){
   .data <- manynet::expect_nodes(.data)
+  .data <- .to_unsigned(.data)
   out <- igraph::hits_scores(manynet::as_igraph(.data), scale = scaled)$hub
   make_node_measure(out, .data, measure = "hub centrality",
                     range = `if`(scaled, c(0, 1), c(0, Inf)),
@@ -357,6 +381,7 @@ node_by_subgraph <- function(.data, decay = 1,
                              method = NULL){
   walks <- resolve_method(walks, method, "walks")
   .data <- manynet::expect_nodes(.data)
+  .data <- .to_unsigned(.data)
   walks <- match.arg(walks, c("all", "odd", "even"))
   decay <- check_decay(decay)
   out <- .closed_walks(.data, decay, walks)
@@ -456,7 +481,7 @@ NULL
 #' @export
 tie_by_eigenvector <- function(.data, normalized = TRUE){
   .data <- manynet::expect_ties(.data)
-  edge_adj <- .to_linegraph(.data)
+  edge_adj <- manynet::to_linegraph(.data)
   out <- node_by_eigenvector(edge_adj, normalized = normalized)
   class(out) <- "numeric"
   make_tie_measure(out, .data, measure = "eigenvector centrality",
@@ -506,6 +531,8 @@ NULL
 #' @export
 net_by_eigenvector <- function(.data, normalized = TRUE){
   .data <- manynet::expect_nodes(.data)
+  .data <- .to_unsigned(.data)
+  .data <- .to_unsigned(.data)
   if (manynet::is_twomode(.data)) {
     # Two-mode eigenvector centralization is intrinsically per mode
     # (see `mode_by_eigenvector()`, following Borgatti and Everett, 1997).
@@ -530,6 +557,7 @@ net_by_eigenvector <- function(.data, normalized = TRUE){
 #' @export
 mode_by_eigenvector <- function(.data, normalized = TRUE){
   .data <- manynet::expect_nodes(.data)
+  .data <- .to_unsigned(.data)
   if (!manynet::is_twomode(.data))
     manynet::snet_abort("`mode_by_eigenvector()` is only defined for two-mode networks; use `net_by_eigenvector()` for one-mode networks.")
   out <- c("Mode 1" = igraph::centr_eigen(manynet::as_igraph(manynet::to_mode1(.data)),

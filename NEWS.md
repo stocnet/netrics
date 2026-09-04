@@ -13,6 +13,23 @@
 - Fixed `tie_is_max()` and `tie_is_min()` to accept a numeric vector, and to name what they mark
 - Fixed `tie_is_path()` to name `from` and `to` where either is missing (closes #26)
 
+## Measures
+
+- Fixed distance measures erroring on signed networks to use only positive ties (closes #25)
+  - `node_by_closeness()`, `node_by_harmonic()`, `node_by_reach()`, `node_by_decay()`,
+  `node_by_integration()`, `node_by_radiality()`, `node_by_eccentricity()`, `node_by_vitality()`,
+  `node_by_betweenness()`, `node_by_induced()`, `node_x_path()`
+  - `net_by_closeness()`, `net_by_betweenness()`, `net_by_connectedness()`, `net_by_reach()`,
+  `net_by_harmonic()`, `net_by_decay()`, `net_by_integration()`
+  - `mode_by_closeness()`, `mode_by_betweenness()`
+- Fixed eigenvector measures erroring or warning on signed networks, which now read each tie by its magnitude (closes #25)
+- Fixed `tie_by_betweenness()` erroring on signed networks, which reads each tie by its magnitude so that every tie keeps a value (closes #25)
+- Fixed `net_by_modularity()` erroring on signed networks (closes #25)
+- Fixed eigenvector and structural hole measures erroring on multilevel networks, which are now measured whole rather than projected (closes #26)
+- Fixed `net_by_core()` and `net_by_factions()` to stop with a clear message on a multilevel network, since a `create_*()` ideal covers one layer (closes #26)
+- Fixed `net_by_spatial()` to name a non-numeric attribute (closes #26)
+- Added `limit=` to `net_by_strength()` and `net_by_toughness()`, which take a minimum over 2^n subsets and so hang above about twenty nodes or ties (closes #34)
+- Reduced run time of fragmentation examples by using `fict_greys` instead of `fict_marvel`
 
 ## Memberships
 

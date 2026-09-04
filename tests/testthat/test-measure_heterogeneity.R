@@ -27,3 +27,8 @@ test_that("richness function works", {
 test_that("net_spatial works", {
   expect_values(net_by_spatial(ison_lawfirm, "age"), 0.126)
 })
+
+test_that("net_by_spatial() names a non-numeric attribute", {
+  # Moran's I correlates a quantity across ties, so a category cannot be read
+  expect_error(net_by_spatial(ison_lawfirm, "practice"), "numeric")
+})

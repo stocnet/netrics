@@ -61,6 +61,15 @@ against the other nodes of its own mode. Since a two-mode incidence
 structure gives these no distinct "out" counterpart,
 \code{mode_by_betweenness()} accepts only \code{"all"} and \code{"in"}.
 }
+\section{Signed networks}{
+
+These measures read a tie as a distance, and a negative tie is hostility
+rather than a channel along which cohesion travels.
+Where the network is signed, they therefore consider only the positive
+ties, and say so.
+Use \code{\link[manynet:to_unsigned]{manynet::to_unsigned()}} first to control this yourself.
+}
+
 \examples{
 net_by_betweenness(ison_southern_women)
 mode_by_betweenness(ison_southern_women, direction = "in")

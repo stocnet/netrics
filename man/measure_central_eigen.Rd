@@ -132,6 +132,23 @@ give scores that are comparable between networks.
 We use \code{{igraph}} routines behind the scenes here for consistency and because they are often faster.
 For example, \code{igraph::eigencentrality()} is approximately 25\% faster than \code{sna::evcent()}.
 }
+\section{Signed networks}{
+
+These measures do not read a tie as a distance, so where the network is
+signed each tie is read by its magnitude rather than the negative ties
+being dropped. Use \code{\link[manynet:to_unsigned]{manynet::to_unsigned()}} first to control this
+yourself.
+}
+
+\section{Multilevel networks}{
+
+A multilevel network reports itself as two-mode, but holds ties within a
+mode as well as between them, so it cannot be projected onto one mode.
+These measures therefore score a multilevel network whole, as
+\code{\link[=net_by_independence]{net_by_independence()}} does. The projection remains for genuine two-mode
+networks, where no two nodes of one mode are ever tied.
+}
+
 \section{Eigenvector centrality}{
 
 Eigenvector centrality operates as a measure of a node's influence in a network.

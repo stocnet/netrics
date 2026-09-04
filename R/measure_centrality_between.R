@@ -38,6 +38,13 @@
 #' @template node_measure
 #' @param cutoff The maximum path length to consider when calculating betweenness.
 #'   If negative or NULL (the default), there's no limit to the path lengths considered.
+#' @section Signed networks:
+#'   These measures read a tie as a distance, and a negative tie is hostility
+#'   rather than a channel along which cohesion travels.
+#'   Where the network is signed, they therefore consider only the positive
+#'   ties, and say so.
+#'   Use [manynet::to_unsigned()] first to control this yourself.
+
 NULL
 
 #' @rdname measure_central_between
@@ -75,6 +82,8 @@ node_by_betweenness <- function(.data, normalized = TRUE,
                                 cutoff = NULL){
   
   .data <- manynet::expect_nodes(.data)
+  
+  .data <- .to_positive(.data)
   weights <- `if`(manynet::is_weighted(.data), 
                   manynet::tie_weights(.data), NA)
   graph <- manynet::as_igraph(.data)
@@ -129,6 +138,7 @@ node_by_betweenness <- function(.data, normalized = TRUE,
 node_by_induced <- function(.data, normalized = TRUE, 
                             cutoff = NULL){
   .data <- manynet::expect_nodes(.data)
+  .data <- .to_positive(.data)
   endog <- sum(node_by_betweenness(.data, normalized = normalized, cutoff = cutoff),
                na.rm = TRUE)
   exog <- vapply(seq.int(manynet::net_nodes(.data)),
@@ -220,6 +230,13 @@ node_by_stress <- function(.data, normalized = TRUE){
 #' @family betweenness
 #' @family centrality
 #' @template tie_measure
+#' @section Signed networks:
+#'   A tie measure holds one value per tie, so `tie_by_betweenness()` cannot
+#'   drop the negative ties as the distance measures at the node and network
+#'   level do. It reads each tie by its magnitude instead, which is what
+#'   [node_by_betweenness()] in effect does for a network whose ties are signed
+#'   but not weighted. Use [manynet::to_unsigned()] first to control this
+#'   yourself.
 NULL
 
 #' @rdname measure_central_tie_between
@@ -247,6 +264,7 @@ NULL
 #' @export
 tie_by_betweenness <- function(.data, normalized = TRUE){
   .data <- manynet::expect_ties(.data)
+  .data <- .to_unsigned(.data)
   .data <- manynet::as_igraph(.data)
   eddies <- manynet::as_edgelist(.data)
   eddies <- paste(eddies[["from"]], eddies[["to"]], sep = "-")
@@ -311,6 +329,13 @@ tie_by_betweenness <- function(.data, normalized = TRUE){
 #'   against the other nodes of its own mode. Since a two-mode incidence
 #'   structure gives these no distinct "out" counterpart,
 #'   `mode_by_betweenness()` accepts only `"all"` and `"in"`.
+#' @section Signed networks:
+#'   These measures read a tie as a distance, and a negative tie is hostility
+#'   rather than a channel along which cohesion travels.
+#'   Where the network is signed, they therefore consider only the positive
+#'   ties, and say so.
+#'   Use [manynet::to_unsigned()] first to control this yourself.
+
 NULL
 
 #' @rdname measure_centralisation_between
@@ -319,6 +344,7 @@ NULL
 #' @export
 net_by_betweenness <- function(.data, normalized = TRUE) {
   .data <- manynet::expect_nodes(.data)
+  .data <- .to_positive(.data)
   graph <- manynet::as_igraph(.data)
 
   if (manynet::is_twomode(.data)) {
@@ -346,6 +372,7 @@ net_by_betweenness <- function(.data, normalized = TRUE) {
 mode_by_betweenness <- function(.data, normalized = TRUE,
                                 direction = c("all", "in")) {
   .data <- manynet::expect_nodes(.data)
+  .data <- .to_positive(.data)
   direction <- match.arg(direction)
   graph <- manynet::as_igraph(.data)
 

@@ -45,6 +45,15 @@ test_that("net_strength works", {
   expect_values(net_by_strength(ison_adolescents), 0.5)
 })
 
+test_that("net_by_strength() and net_by_toughness() guard their size", {
+  # Both take a minimum over 2^n subsets, so above `limit` they stop rather
+  # than run for hours. See #34.
+  expect_error(net_by_toughness(fict_actually), "would not finish")
+  expect_error(net_by_strength(fict_actually), "would not finish")
+  # a raised `limit` still measures
+  expect_values(net_by_toughness(create_ring(12), limit = 12), 1)
+})
+
 test_that("net_toughness works", {
   expect_values(net_by_toughness(ison_adolescents), 0.5)
 })
