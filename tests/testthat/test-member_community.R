@@ -151,3 +151,48 @@ test_that("node_in_community ignores consensus where optimal is available", {
   expect_equal(as.character(suppressMessages(node_in_community(small, consensus = TRUE))),
                as.character(suppressMessages(node_in_optimal(small))))
 })
+
+# Resolution and connectivity ####
+
+test_that("node_in_leiden resolution defaults to the density", {
+  # a fixed resolution of 1 gave every node its own community here
+  for(net in list(ison_adolescents, ison_southern_women)){
+    set.seed(1234)
+    res <- node_in_leiden(net)
+    expect_s3_class(res, "node_member")
+    expect_gte(length(unique(res)), 2)
+    expect_lt(length(unique(res)), net_nodes(net))
+  }
+  # a weighted network keeps the default it already had
+  set.seed(1234)
+  expect_lt(length(unique(node_in_leiden(ison_karateka))),
+            net_nodes(ison_karateka))
+})
+
+test_that("node_in_leiden respects a given resolution", {
+  set.seed(1234)
+  expect_equal(length(unique(node_in_leiden(ison_adolescents, resolution = 1))),
+               as.integer(net_nodes(ison_adolescents)))
+  set.seed(1234)
+  expect_equal(length(unique(node_in_leiden(ison_adolescents, resolution = 1e-6))), 1)
+})
+
+test_that("a weakly connected network is not treated as unconnected", {
+  # a directed tree is weakly but not strongly connected
+  tree <- manynet::create_tree(10, directed = TRUE)
+  expect_false(manynet::is_connected(tree))
+  expect_true(manynet::is_connected(tree, connectivity = "weak"))
+  set.seed(1234)
+  expect_s3_class(node_in_spinglass(tree), "node_member")
+  expect_s3_class(node_in_fluid(tree), "node_member")
+  expect_true(all(c("node_in_spinglass", "node_in_fluid") %in%
+                    poss_algs(NULL, tree)))
+})
+
+test_that("an unconnected network still drops the algorithms that need one", {
+  unconn <- manynet::create_components(8, membership = c(1,1,1,1,2,2,2,2))
+  expect_snet_abort(node_in_spinglass(unconn), "connected")
+  expect_snet_abort(node_in_fluid(unconn), "connected")
+  expect_false(any(c("node_in_spinglass", "node_in_fluid") %in%
+                     poss_algs(NULL, unconn)))
+})

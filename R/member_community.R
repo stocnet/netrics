@@ -173,7 +173,10 @@ poss_algs <- function(k, .data){
   }
   if(manynet::net_nodes(.data) >= 100)
     poss <- exclude(poss, "node_in_betweenness", "network rather large")
-  if(!manynet::is_connected(.data))
+  # Both algorithms read the network as undirected, so weak connectivity is
+  # what they need. The default test is for strong connectivity, which drops
+  # them from a directed network that they can in fact partition.
+  if(!manynet::is_connected(.data, connectivity = "weak"))
     poss <- exclude(poss, c("node_in_spinglass", "node_in_fluid"),
                     "network unconnected")
   # Every algorithm but spinglass reads a negative weight as an error, and
@@ -523,6 +526,9 @@ node_in_infomap <- function(.data, times = 50){
 #'   By default 1, making existing and non-existing ties equally important.
 #'   Smaller values make existing ties more important,
 #'   and larger values make missing ties more important.
+#'   `node_in_leiden()` takes `NULL` by default, and then uses the density of
+#'   the network, since the Constant Potts Model gives every node its own
+#'   community at any higher resolution.
 #' @section Spin-glass:
 #'   Here `max_k` is the number of spins, an upper limit on the communities
 #'   found rather than a bound on a search, so some can end up empty.
@@ -552,10 +558,10 @@ node_in_infomap <- function(.data, times = 50){
 node_in_spinglass <- function(.data, max_k = 200, resolution = 1){
   .data <- manynet::expect_nodes(.data)
   # `snet_unavailable()` is silent unless verbosity is raised, so this was a
-  # branch that returned NULL rather than a membership. Note also that
-  # `manynet::is_connected()` returns FALSE for a two-mode network, so the
-  # test is made with igraph.
-  if(!igraph::is_connected(manynet::as_igraph(.data)))
+  # branch that returned NULL rather than a membership. The algorithm reads the
+  # network as undirected, so the test is for weak connectivity, as in
+  # `poss_algs()`.
+  if(!manynet::is_connected(.data, connectivity = "weak"))
     manynet::snet_abort("This algorithm only works for connected networks.",
                         "We suggest using {.fn to_giant}",
                         "to select the largest component.")
@@ -589,7 +595,9 @@ node_in_fluid <- function(.data, k = NULL, max_k = 8L, Kmax = NULL) {
   k <- check_k(k, .data)
   .data <- manynet::as_igraph(.data)
   # As in `node_in_spinglass()`: this must abort, or the function returns NULL.
-  if (!igraph::is_connected(.data)) {
+  # The algorithm reads the network as undirected, so the test is for weak
+  # connectivity.
+  if (!manynet::is_connected(.data, connectivity = "weak")) {
     manynet::snet_abort("This algorithm only works for connected networks.",
                         "We suggest using {.fn to_giant}",
                         "to select the largest component.")
@@ -670,6 +678,10 @@ node_in_louvain <- function(.data, k = NULL, max_k = 8L, resolution = 1, Kmax = 
 #'   _i_ and _j_ are in the same communities and 0 otherwise.
 #'   Compared to the Louvain method, the Leiden algorithm additionally
 #'   tries to avoid unconnected communities.
+#'   The resolution is the density of the network by default, after Traag et al.,
+#'   since the Constant Potts Model gives every node its own community at any
+#'   higher resolution. This holds for an unweighted network too,
+#'   where each tie weighs 1.
 #'   Where `k` is given, the resolution parameter is searched for the value
 #'   that returns that number of communities, and `resolution` is ignored.
 #' @references
@@ -681,7 +693,7 @@ node_in_louvain <- function(.data, k = NULL, max_k = 8L, resolution = 1, Kmax = 
 #' @examples
 #' node_in_leiden(ison_adolescents)
 #' @export
-node_in_leiden <- function(.data, k = NULL, max_k = 8L, resolution = 1, Kmax = NULL){
+node_in_leiden <- function(.data, k = NULL, max_k = 8L, resolution = NULL, Kmax = NULL){
   max_k <- resolve_max_k(max_k, Kmax)
   .data <- manynet::expect_nodes(.data)
   k <- check_k(k, .data)
@@ -690,9 +702,15 @@ node_in_leiden <- function(.data, k = NULL, max_k = 8L, resolution = 1, Kmax = N
               "Converting to undirected")
     .data <- manynet::to_undirected(.data)
   }
-  if(is.null(k) && manynet::is_weighted(.data)){ # Traag resolution default
+  # The Constant Potts Model gives every node its own community at any
+  # resolution above the network density, so a fixed 1 returns singletons on
+  # every network that is not near complete. The density is the Traag default,
+  # and it holds for an unweighted network too, where each tie weighs 1.
+  if(is.null(resolution)){
     n <- manynet::net_nodes(.data)
-    resolution <- sum(manynet::tie_weights(.data))/(n*(n - 1)/2)
+    pairs <- n*(n - 1)/2
+    resolution <- if(pairs > 0)
+      sum(manynet::tie_weights(.data))/pairs else 1
   }
   gr <- manynet::as_igraph(.data)
   memb <- apply_k(k, max_k, .data,

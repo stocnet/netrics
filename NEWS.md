@@ -1,3 +1,12 @@
+# netrics 1.0.3
+
+## Memberships
+
+- Fixed `node_in_leiden()` returning a community for every node on an unweighted network
+- Fixed `node_in_leiden()` overriding a user's `resolution`
+- Fixed `node_in_community()`, `node_in_spinglass()` and `node_in_fluid()` treating a
+  weakly connected directed network as unconnected
+
 # netrics 1.0.2
 
 ## Package

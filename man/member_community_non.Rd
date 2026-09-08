@@ -24,7 +24,7 @@ node_in_fluid(.data, k = NULL, max_k = 8L, Kmax = NULL)
 
 node_in_louvain(.data, k = NULL, max_k = 8L, resolution = 1, Kmax = NULL)
 
-node_in_leiden(.data, k = NULL, max_k = 8L, resolution = 1, Kmax = NULL)
+node_in_leiden(.data, k = NULL, max_k = 8L, resolution = NULL, Kmax = NULL)
 
 node_in_labels(.data, k = NULL, max_k = 8L, Kmax = NULL)
 }
@@ -66,7 +66,10 @@ so each function documents its own default.}
 \item{resolution}{The Reichardt-Bornholdt “gamma” resolution parameter for modularity.
 By default 1, making existing and non-existing ties equally important.
 Smaller values make existing ties more important,
-and larger values make missing ties more important.}
+and larger values make missing ties more important.
+\code{node_in_leiden()} takes \code{NULL} by default, and then uses the density of
+the network, since the Constant Potts Model gives every node its own
+community at any higher resolution.}
 }
 \value{
 A \code{node_member} character vector the length of the nodes in the network,
@@ -183,6 +186,10 @@ and \eqn{\delta(\sigma_i, \sigma_j) = 1} if and only if
 \emph{i} and \emph{j} are in the same communities and 0 otherwise.
 Compared to the Louvain method, the Leiden algorithm additionally
 tries to avoid unconnected communities.
+The resolution is the density of the network by default, after Traag et al.,
+since the Constant Potts Model gives every node its own community at any
+higher resolution. This holds for an unweighted network too,
+where each tie weighs 1.
 Where \code{k} is given, the resolution parameter is searched for the value
 that returns that number of communities, and \code{resolution} is ignored.
 }
