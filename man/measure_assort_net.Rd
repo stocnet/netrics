@@ -59,6 +59,10 @@ This value can range from 0 to 2, where values less than 1
 indicate positive autocorrelation (similar values are more likely to be connected),
 values greater than 1 indicate negative autocorrelation (dissimilar values are more likely
 to be connected), and a value of 1 indicates no autocorrelation.
+The upper bound of 2 holds where every tie carries the same weight.
+Geary's C reads the weights where the network has them,
+and a heavy tie between dissimilar values can then carry the sum past 2,
+so a weighted network declares the upper end open.
 If an incompatible method is chosen for the attribute type,
 a suitable alternative will be used instead with a message.}
 }
@@ -107,13 +111,30 @@ where 1 indicates ties only between categories/groups and -1 ties only within ca
 
 \section{Spatial autocorrelation}{
 
-Moran's I is conventionally read on \eqn{[-1, 1]}, where positive values
-indicate that tied nodes hold similar values and negative values that they
-hold dissimilar ones. Its actual bounds, however, are set by the
-eigenvalues of the weight matrix, and on the unstandardised weights used
-here it can fall outside that interval. Its range is therefore declared
-open at both ends, and the conventional interval read as a guide rather
-than a guarantee.
+Moran's I is conventionally read on \eqn{[-1, 1]},
+where positive values indicate that tied nodes hold similar values
+and negative values that they hold dissimilar ones.
+Its actual bounds, however, are set by the eigenvalues of the weight matrix,
+and on the unstandardised weights used here it can fall outside that interval.
+Its range is therefore declared open at both ends,
+and the conventional interval read as a guide rather than a guarantee.
+
+A two-mode network has no ties within a mode,
+so where the attribute is present on one mode only,
+the network is first projected onto that mode.
+Two nodes are then neighbours where they are at distance 2,
+weighted by the number of nodes of the other mode that they share.
+Those counts make the weight matrix denser and \eqn{W} larger
+than in a one-mode network,
+so a projected value is read within a network rather than across networks.
+Where the attribute is present on both modes,
+the whole multilevel matrix is read instead,
+and every node and tie is retained.
+
+Nodes with a missing attribute value are dropped,
+along with their ties,
+and \eqn{N}, \eqn{W} and \eqn{\bar{x}} are recomputed on those that remain.
+A missing tie counts as no tie.
 }
 
 \examples{

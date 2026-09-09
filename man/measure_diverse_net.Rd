@@ -70,6 +70,16 @@ i.e. when all individuals are classified in the same category.
 The maximum value depends on the number of categories and
 whether nodes can be evenly distributed across categories.
 
+The Herfindahl-Hirschman index (HHI) is the complement of Blau's index,
+\eqn{\sum\limits_{i = 1}^k {p_i^2}},
+and so \code{1 - net_by_diversity(.data, attribute)} returns it.
+Where shares are stated as percentages rather than proportions,
+as in the \code{{hhi}} package,
+the index runs from 0 to 10000 and equals \code{(1 - blau) * 10000}.
+Both readings hold for a categorical attribute,
+where a share is the frequency of a category,
+which is why neither index is offered for a numeric one.
+
 Teachman's index (1980) is based on information theory
 and is calculated as:
 \deqn{- \sum\limits_{i = 1}^k {p_i \log(p_i)}}
@@ -141,6 +151,10 @@ Page, Scott E. 2010.
 \emph{Diversity and Complexity}.
 Princeton: Princeton University Press.
 \doi{10.1515/9781400835140}
+
+Hirschman, Albert O. 1964.
+"The paternity of an index".
+\emph{The American Economic Review}, 54(5): 761.
 }
 }
 \seealso{

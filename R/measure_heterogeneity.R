@@ -48,18 +48,28 @@ net_by_richness <- function(.data, attribute){
 #' @section Diversity:
 #'    Blau's index (1977) uses a formula known also in other disciplines
 #'    by other names 
-#'    (Gini-Simpson Index, Gini impurity, Gini's diversity index, 
-#'    Gibbs-Martin index, and probability of interspecific encounter (PIE)): 
-#'    \deqn{1 - \sum\limits_{i = 1}^k {p_i^2 }} 
-#'    where \eqn{p_i} is the proportion of group members in \eqn{i}th category 
-#'    and \eqn{k} is the number of categories for an attribute of interest. 
-#'    This index can be interpreted as the probability that two members 
-#'    randomly selected from a group would be from different categories. 
-#'    This index finds its minimum value (0) when there is no variety, 
-#'    i.e. when all individuals are classified in the same category. 
-#'    The maximum value depends on the number of categories and 
+#'    (Gini-Simpson Index, Gini impurity, Gini's diversity index,
+#'    Gibbs-Martin index, and probability of interspecific encounter (PIE)):
+#'    \deqn{1 - \sum\limits_{i = 1}^k {p_i^2 }}
+#'    where \eqn{p_i} is the proportion of group members in \eqn{i}th category
+#'    and \eqn{k} is the number of categories for an attribute of interest.
+#'    This index can be interpreted as the probability that two members
+#'    randomly selected from a group would be from different categories.
+#'    This index finds its minimum value (0) when there is no variety,
+#'    i.e. when all individuals are classified in the same category.
+#'    The maximum value depends on the number of categories and
 #'    whether nodes can be evenly distributed across categories.
-#'    
+#'
+#'    The Herfindahl-Hirschman index (HHI) is the complement of Blau's index,
+#'    \eqn{\sum\limits_{i = 1}^k {p_i^2}},
+#'    and so `1 - net_by_diversity(.data, attribute)` returns it.
+#'    Where shares are stated as percentages rather than proportions,
+#'    as in the `{hhi}` package,
+#'    the index runs from 0 to 10000 and equals `(1 - blau) * 10000`.
+#'    Both readings hold for a categorical attribute,
+#'    where a share is the frequency of a category,
+#'    which is why neither index is offered for a numeric one.
+#'
 #'    Teachman's index (1980) is based on information theory
 #'    and is calculated as:
 #'    \deqn{- \sum\limits_{i = 1}^k {p_i \log(p_i)}}
@@ -110,10 +120,14 @@ net_by_richness <- function(.data, attribute){
 #'   _Sociological Methods & Research_, 8:341-362.
 #'   \doi{10.1177/004912418000800305}
 #'   
-#'   Page, Scott E. 2010. 
-#'   _Diversity and Complexity_. 
-#'   Princeton: Princeton University Press. 
+#'   Page, Scott E. 2010.
+#'   _Diversity and Complexity_.
+#'   Princeton: Princeton University Press.
 #'   \doi{10.1515/9781400835140}
+#'
+#'   Hirschman, Albert O. 1964.
+#'   "The paternity of an index".
+#'   _The American Economic Review_, 54(5): 761.
 #' @examples
 #' marvel_friends <- to_unsigned(to_uniplex(fict_marvel, "relationship"), "positive")
 #' net_by_diversity(marvel_friends, "Gender")
@@ -143,7 +157,7 @@ net_by_diversity <- function(.data, attribute,
               "({.val gini} coefficient also available).")
     diversity <- "variation"
   }
-  if(is.character(attr) && diversity %in% c("variation","gini")){
+  if(!is.numeric(attr) && diversity %in% c("variation","gini")){
     manynet::snet_info("{.val {diversity}} coefficient is not appropriate for categorical attributes.")
     manynet::snet_info("Using {.val blau} index instead",
               "({.val teachman} index also available).")
@@ -215,7 +229,7 @@ node_by_diversity <- function(.data, attribute,
                        "({.val gini} coefficient also available).")
     diversity <- "variation"
   }
-  if(is.character(attr) && diversity %in% c("variation","gini")){
+  if(!is.numeric(attr) && diversity %in% c("variation","gini")){
     manynet::snet_info("{.val {diversity}} coefficient is not appropriate for categorical attributes.")
     manynet::snet_info("Using {.val blau} index instead",
                        "({.val teachman} index also available).")
@@ -289,6 +303,10 @@ node_by_diversity <- function(.data, attribute,
 #'   indicate positive autocorrelation (similar values are more likely to be connected),
 #'   values greater than 1 indicate negative autocorrelation (dissimilar values are more likely
 #'   to be connected), and a value of 1 indicates no autocorrelation.
+#'   The upper bound of 2 holds where every tie carries the same weight.
+#'   Geary's C reads the weights where the network has them,
+#'   and a heavy tie between dissimilar values can then carry the sum past 2,
+#'   so a weighted network declares the upper end open.
 #'   If an incompatible method is chosen for the attribute type,
 #'   a suitable alternative will be used instead with a message.
 #' @family diversity
@@ -375,7 +393,10 @@ net_by_homophily <- function(.data, attribute,
     assortativity <- "ie"
   }
   
-  m <- manynet::as_matrix(manynet::to_unweighted(.data))
+  # The E-I index and Yule's Q count ties and non-ties, so they read a binary
+  # matrix. Geary's C takes w_ij from the formula, so it keeps the weights.
+  m <- if(assortativity == "geary") manynet::as_matrix(.data) else
+    manynet::as_matrix(manynet::to_unweighted(.data))
   
   ei <- function(m, attribute){
     same <- outer(attribute, attribute, "==")
@@ -423,7 +444,7 @@ net_by_homophily <- function(.data, attribute,
                 yule = yule(m, attribute),
                 geary = geary(m, attribute))
   
-  meta <- .homophily_metadata(assortativity)
+  meta <- .homophily_metadata(assortativity, manynet::is_weighted(.data))
   make_network_measure(res, .data, call = deparse(sys.call()),
                        measure = meta$measure, range = meta$range,
                        normalization = "none", variant = meta$variant)
@@ -451,7 +472,10 @@ net_by_homophily <- function(.data, attribute,
        variant = diversity)
 }
 
-.homophily_metadata <- function(assortativity){
+# Geary's C reaches 2 only where every tie carries the same weight. Once the
+# weights differ, a heavy tie between dissimilar values can carry the sum past
+# that, so a weighted network declares the upper end open.
+.homophily_metadata <- function(assortativity, weighted = FALSE){
   list(measure = switch(assortativity,
                         ie = "IE index",
                         ei = "E-I index",
@@ -459,7 +483,7 @@ net_by_homophily <- function(.data, attribute,
                         geary = "Geary's C"),
        range = switch(assortativity,
                       ie = , ei = , yule = c(-1, 1),
-                      geary = c(0, 2)),
+                      geary = `if`(weighted, c(0, Inf), c(0, 2))),
        variant = assortativity)
 }
 
@@ -503,17 +527,33 @@ net_by_assortativity <- function(.data){
 #' @examples 
 #' net_by_spatial(ison_lawfirm, "age")
 #' @section Spatial autocorrelation:
-#'   Moran's I is conventionally read on \eqn{[-1, 1]}, where positive values
-#'   indicate that tied nodes hold similar values and negative values that they
-#'   hold dissimilar ones. Its actual bounds, however, are set by the
-#'   eigenvalues of the weight matrix, and on the unstandardised weights used
-#'   here it can fall outside that interval. Its range is therefore declared
-#'   open at both ends, and the conventional interval read as a guide rather
-#'   than a guarantee.
+#'   Moran's I is conventionally read on \eqn{[-1, 1]}, 
+#'   where positive values indicate that tied nodes hold similar values 
+#'   and negative values that they hold dissimilar ones. 
+#'   Its actual bounds, however, are set by the eigenvalues of the weight matrix, 
+#'   and on the unstandardised weights used here it can fall outside that interval. 
+#'   Its range is therefore declared open at both ends,
+#'   and the conventional interval read as a guide rather than a guarantee.
+#'
+#'   A two-mode network has no ties within a mode,
+#'   so where the attribute is present on one mode only,
+#'   the network is first projected onto that mode.
+#'   Two nodes are then neighbours where they are at distance 2,
+#'   weighted by the number of nodes of the other mode that they share.
+#'   Those counts make the weight matrix denser and \eqn{W} larger
+#'   than in a one-mode network,
+#'   so a projected value is read within a network rather than across networks.
+#'   Where the attribute is present on both modes,
+#'   the whole multilevel matrix is read instead,
+#'   and every node and tie is retained.
+#'
+#'   Nodes with a missing attribute value are dropped,
+#'   along with their ties,
+#'   and \eqn{N}, \eqn{W} and \eqn{\bar{x}} are recomputed on those that remain.
+#'   A missing tie counts as no tie.
 #' @export
 net_by_spatial <- function(.data, attribute){
   .data <- manynet::expect_nodes(.data)
-  N <- manynet::net_nodes(.data)
   x <- manynet::node_attribute(.data, attribute)
   # Moran's I is the correlation of a value with itself across ties, so the
   # attribute has to hold a quantity rather than a category
@@ -521,13 +561,41 @@ net_by_spatial <- function(.data, attribute){
     manynet::snet_abort("{.fn net_by_spatial} measures the autocorrelation of",
                         "a numeric attribute, but {.val {attribute}} is",
                         "{.cls {class(x)[1]}}.")
-  x_bar <- mean(x, na.rm = TRUE)
-  w <- manynet::as_matrix(.data)
+  net <- .data
+  if(manynet::is_twomode(net)){
+    # There are no within-mode ties to correlate across, so either the mode
+    # holding the attribute is projected onto itself, or, where both modes
+    # hold it, the cross-mode ties are read as the weight matrix.
+    mode <- attr_mode(net, attribute)
+    if(is.null(mode)){
+      manynet::snet_info("{.val {attribute}} is present on both modes.",
+                         "Measuring autocorrelation across the",
+                         "multilevel matrix.")
+      net <- manynet::to_multilevel(net)
+    } else {
+      manynet::snet_info("{.val {attribute}} is present on one mode only.",
+                         "Projecting onto that mode, so that nodes are",
+                         "weighted by the number of nodes of the other",
+                         "mode they share.")
+      net <- manynet::to_mode(net, mode = `if`(mode, 2, 1))
+    }
+    x <- manynet::node_attribute(net, attribute)
+  }
+  w <- manynet::as_matrix(net)
+  valid <- !is.na(x)
+  if(!all(valid)){
+    manynet::snet_info("Dropping {sum(!valid)} node{?s} with a missing",
+                       "{.val {attribute}}.")
+    x <- x[valid]
+    w <- w[valid, valid, drop = FALSE]
+  }
+  N <- length(x)
+  x_bar <- mean(x)
   W <- sum(w, na.rm = TRUE)
-  I <- (N/W) * 
-    (sum(w * matrix(x - x_bar, N, N) * matrix(x - x_bar, N, N, byrow = TRUE)) / 
-       sum((x - x_bar)^2))
-  make_network_measure(I, .data, 
+  den <- sum((x - x_bar)^2)
+  I <- if(N < 2 || W == 0 || den == 0) NA_real_ else
+    (N/W) * sum(w * outer(x - x_bar, x - x_bar), na.rm = TRUE) / den
+  make_network_measure(I, .data,
                        call = deparse(sys.call()),
                        measure = "Moran's I", range = c(-Inf, Inf),
                        normalization = "none")
@@ -585,9 +653,9 @@ node_by_heterophily <- function(.data, attribute){
 node_by_homophily <- function(.data, attribute,
                               assortativity = c("ie","ei","yule","geary")){
   .data <- manynet::expect_nodes(.data)
-  # if (length(attribute) == 1 && is.character(attribute)) {
-  #   attribute <- manynet::node_attribute(.data, attribute)
-  # }
+  if (length(attribute) == 1 && is.character(attribute)) {
+    attribute <- manynet::node_attribute(.data, attribute)
+  }
   assortativity <- match.arg(assortativity)
   if(is.numeric(attribute) && assortativity %in% c("ie","ei","yule")){
     manynet::snet_info("{.val {assortativity}} index is not appropriate for numeric attributes.")
@@ -600,16 +668,16 @@ node_by_homophily <- function(.data, attribute,
     assortativity <- "ie"
   }
   idat <- manynet::as_igraph(.data)
+  # The attribute is carried on the network rather than subset per ego, since
+  # igraph::ego() lists the ego first while igraph::induced_subgraph() keeps
+  # the original node order, so the two orders do not line up.
+  idat <- igraph::set_vertex_attr(idat, ".homophily", value = attribute)
   out <- vapply(igraph::ego(idat),
-                function(x) {
-                  subattr <- if (length(attribute) == 1 && is.character(attribute))
-                    attribute else attribute[as.integer(x)]
-                  net_by_homophily(
-                    igraph::induced_subgraph(idat, x),
-                    subattr, assortativity = assortativity)
-                },
+                function(x) net_by_homophily(igraph::induced_subgraph(idat, x),
+                                             ".homophily",
+                                             assortativity = assortativity),
                 FUN.VALUE = numeric(1))
-  meta <- .homophily_metadata(assortativity)
+  meta <- .homophily_metadata(assortativity, manynet::is_weighted(.data))
   make_node_measure(out, .data, measure = meta$measure, range = meta$range,
                     normalization = "none", variant = meta$variant)
 }

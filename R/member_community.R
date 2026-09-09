@@ -173,7 +173,10 @@ poss_algs <- function(k, .data){
   }
   if(manynet::net_nodes(.data) >= 100)
     poss <- exclude(poss, "node_in_betweenness", "network rather large")
-  if(!manynet::is_connected(.data))
+  # Both algorithms read the network as undirected, so weak connectivity is
+  # what they need. The default test is for strong connectivity, which drops
+  # them from a directed network that they can in fact partition.
+  if(!manynet::is_connected(.data, connectivity = "weak"))
     poss <- exclude(poss, c("node_in_spinglass", "node_in_fluid"),
                     "network unconnected")
   # Every algorithm but spinglass reads a negative weight as an error, and
@@ -417,12 +420,26 @@ node_in_optimal <- function(.data){
 #'   where the net tie cost of a node is the difference between the sum 
 #'   of the weights of ties to nodes in the other group (external costs) and 
 #'   the sum of the weights of ties to nodes in the same group (internal costs).
+#'   A pass exchanges the candidate pairs one at a time and keeps the prefix
+#'   that leaves the most weight inside the two groups, so a pass never returns
+#'   a worse split than it started from.
 #'   Where `k` is greater than two, the same swap pass is run for every pair of
-#'   groups, and the rounds repeat until no swap improves the partition.
-#'   This is a deterministic algorithm that will always return the same partition 
-#'   for a given network, but it is not guaranteed to maximise modularity.
+#'   groups, and the rounds repeat until no pass improves the partition.
+#'   Where `start = "order"`, the default, the nodes are dealt into the groups
+#'   in node order, and the algorithm is deterministic: one network returns one
+#'   partition. Where `start = "random"` they are dealt at random, which is the
+#'   textbook start, and repeated calls can then return different partitions.
+#'   The result is not guaranteed to maximise modularity either way, since the
+#'   algorithm reads the weight of the ties inside the groups and not the
+#'   modularity, and since it holds the groups at equal size.
 #'   Note that this algorithm is only applicable to undirected, unipartite networks, 
 #'   and returns `k` communities of equal size (or as close to equal as possible).
+#' @param start One of `"order"` (the default) or `"random"`,
+#'   naming how the nodes are dealt into the groups to begin with.
+#'   `"order"` deals them in node order, which makes the algorithm
+#'   deterministic. `"random"` deals them at random, as Kernighan and Lin do.
+#'   Since the algorithm is sensitive to where it starts, a random start can
+#'   reach a different partition; set a seed to repeat one.
 #' @references
 #' ## On partitioning community detection
 #' Kernighan, Brian W., and Shen Lin. 1970.
@@ -433,21 +450,30 @@ node_in_optimal <- function(.data){
 #' node_in_partition(ison_adolescents)
 #' node_in_partition(ison_southern_women)
 #' @export
-node_in_partition <- function(.data, k = 2L, max_k = 8L, Kmax = NULL){
+node_in_partition <- function(.data, k = 2L, max_k = 8L,
+                              start = c("order", "random"), Kmax = NULL){
   max_k <- resolve_max_k(max_k, Kmax)
+  start <- match.arg(start)
   .data <- manynet::expect_nodes(.data)
   k <- check_k(k, .data)
   n <- manynet::net_nodes(.data)
   g <- manynet::as_matrix(manynet::to_multilevel(.data))
-  at_k <- function(no) kl_partition(g, n, no)
+  at_k <- function(no) kl_partition(g, n, no, start = start)
   memb <- apply_k(k, max_k, .data, at_k = at_k, default = function() at_k(2L))
   make_node_member(memb, .data)
 }
 
+# The weight of the ties that fall inside a group.
+kl_internal <- function(g, a) sum(g[a, a, drop = FALSE])
+
 # One pass of net-cost swaps between two groups.
 # The net cost of a node is the sum of the weights of its ties to the other
 # group (external) less the sum of the weights of its ties within its own
-# group (internal). Pairs whose net costs sum to zero or more are swapped.
+# group (internal). The nodes of each group are ranked by that cost, and the
+# pairs whose costs sum to zero or more are the candidates to exchange.
+# The candidates are returned in rank order rather than applied, so that
+# `kl_partition()` can exchange them one at a time and keep the prefix that
+# leaves the most weight inside the groups, as Kernighan and Lin do.
 kl_swap <- function(g, a, b){
   intergroup <- g[a, b, drop = FALSE]
   a.net <- rowSums(intergroup) - rowSums(g[a, a, drop = FALSE])
@@ -457,28 +483,52 @@ kl_swap <- function(g, a, b){
   a.sort <- sort(a.net, decreasing = TRUE)
   b.sort <- sort(b.net, decreasing = TRUE)
   len <- min(length(a.sort), length(b.sort))
-  if(len == 0) return(list(a = a, b = b, swapped = FALSE))
+  if(len == 0) return(list(a = a.ord, b = b.ord, index = integer(0)))
   index <- which(a.sort[seq_len(len)] + b.sort[seq_len(len)] >= 0)
-  if(length(index) == 0) return(list(a = a, b = b, swapped = FALSE))
-  a.new <- a.ord
-  b.new <- b.ord
-  a.new[index] <- b.ord[index]
-  b.new[index] <- a.ord[index]
-  list(a = a.new, b = b.new, swapped = TRUE)
+  list(a = a.ord, b = b.ord, index = index)
 }
 
-# k-way Kernighan-Lin. Nodes start in k groups of near-equal size, in node
-# order, and every pair of groups is swept until no round makes a swap.
-kl_partition <- function(g, n, k, rounds = 50){
-  memb <- sort(rep(seq_len(k), length.out = n))
+# k-way Kernighan-Lin. Nodes start in k groups of near-equal size, and every
+# pair of groups is swept until no round improves the split.
+#
+# A pass exchanges the candidate pairs one at a time and keeps the prefix that
+# leaves the most weight inside the two groups. This is what Kernighan and Lin
+# do, and it is what makes the algorithm terminate. Taking every candidate
+# pair, as this function did before, takes exchanges that gain nothing, since
+# a pair of net costs that sums to exactly zero still qualifies. The split
+# could then cycle, and the run returned wherever the cap of `rounds` left it,
+# which could be worse than a split the same run had already reached. Keeping
+# the best prefix leaves the weight inside the groups strictly rising, so the
+# last split is the best split, and a round that finds no gain ends the run.
+kl_partition <- function(g, n, k, rounds = 50, start = "order"){
+  memb <- if(identical(start, "random"))
+    sample(sort(rep(seq_len(k), length.out = n))) else
+      sort(rep(seq_len(k), length.out = n))
   groups <- lapply(seq_len(k), function(i) which(memb == i))
   for(r in seq_len(rounds)){
     moved <- FALSE
     for(i in seq_len(k)) for(j in seq_len(k)) if(i < j){
       res <- kl_swap(g, groups[[i]], groups[[j]])
-      if(res$swapped){
-        groups[[i]] <- res$a
-        groups[[j]] <- res$b
+      if(length(res$index) == 0) next
+      a <- res$a
+      b <- res$b
+      best.a <- a
+      best.b <- b
+      best.w <- kl_internal(g, a) + kl_internal(g, b)
+      for(m in res$index){
+        swap <- a[m]
+        a[m] <- b[m]
+        b[m] <- swap
+        w <- kl_internal(g, a) + kl_internal(g, b)
+        if(w > best.w){
+          best.w <- w
+          best.a <- a
+          best.b <- b
+        }
+      }
+      if(!identical(sort(best.a), sort(groups[[i]]))){
+        groups[[i]] <- best.a
+        groups[[j]] <- best.b
         moved <- TRUE
       }
     }
@@ -523,6 +573,9 @@ node_in_infomap <- function(.data, times = 50){
 #'   By default 1, making existing and non-existing ties equally important.
 #'   Smaller values make existing ties more important,
 #'   and larger values make missing ties more important.
+#'   `node_in_leiden()` takes `NULL` by default, and then uses the density of
+#'   the network, since the Constant Potts Model gives every node its own
+#'   community at any higher resolution.
 #' @section Spin-glass:
 #'   Here `max_k` is the number of spins, an upper limit on the communities
 #'   found rather than a bound on a search, so some can end up empty.
@@ -552,10 +605,10 @@ node_in_infomap <- function(.data, times = 50){
 node_in_spinglass <- function(.data, max_k = 200, resolution = 1){
   .data <- manynet::expect_nodes(.data)
   # `snet_unavailable()` is silent unless verbosity is raised, so this was a
-  # branch that returned NULL rather than a membership. Note also that
-  # `manynet::is_connected()` returns FALSE for a two-mode network, so the
-  # test is made with igraph.
-  if(!igraph::is_connected(manynet::as_igraph(.data)))
+  # branch that returned NULL rather than a membership. The algorithm reads the
+  # network as undirected, so the test is for weak connectivity, as in
+  # `poss_algs()`.
+  if(!manynet::is_connected(.data, connectivity = "weak"))
     manynet::snet_abort("This algorithm only works for connected networks.",
                         "We suggest using {.fn to_giant}",
                         "to select the largest component.")
@@ -589,7 +642,9 @@ node_in_fluid <- function(.data, k = NULL, max_k = 8L, Kmax = NULL) {
   k <- check_k(k, .data)
   .data <- manynet::as_igraph(.data)
   # As in `node_in_spinglass()`: this must abort, or the function returns NULL.
-  if (!igraph::is_connected(.data)) {
+  # The algorithm reads the network as undirected, so the test is for weak
+  # connectivity.
+  if (!manynet::is_connected(.data, connectivity = "weak")) {
     manynet::snet_abort("This algorithm only works for connected networks.",
                         "We suggest using {.fn to_giant}",
                         "to select the largest component.")
@@ -670,6 +725,10 @@ node_in_louvain <- function(.data, k = NULL, max_k = 8L, resolution = 1, Kmax = 
 #'   _i_ and _j_ are in the same communities and 0 otherwise.
 #'   Compared to the Louvain method, the Leiden algorithm additionally
 #'   tries to avoid unconnected communities.
+#'   The resolution is the density of the network by default, after Traag et al.,
+#'   since the Constant Potts Model gives every node its own community at any
+#'   higher resolution. This holds for an unweighted network too,
+#'   where each tie weighs 1.
 #'   Where `k` is given, the resolution parameter is searched for the value
 #'   that returns that number of communities, and `resolution` is ignored.
 #' @references
@@ -681,7 +740,7 @@ node_in_louvain <- function(.data, k = NULL, max_k = 8L, resolution = 1, Kmax = 
 #' @examples
 #' node_in_leiden(ison_adolescents)
 #' @export
-node_in_leiden <- function(.data, k = NULL, max_k = 8L, resolution = 1, Kmax = NULL){
+node_in_leiden <- function(.data, k = NULL, max_k = 8L, resolution = NULL, Kmax = NULL){
   max_k <- resolve_max_k(max_k, Kmax)
   .data <- manynet::expect_nodes(.data)
   k <- check_k(k, .data)
@@ -690,9 +749,15 @@ node_in_leiden <- function(.data, k = NULL, max_k = 8L, resolution = 1, Kmax = N
               "Converting to undirected")
     .data <- manynet::to_undirected(.data)
   }
-  if(is.null(k) && manynet::is_weighted(.data)){ # Traag resolution default
+  # The Constant Potts Model gives every node its own community at any
+  # resolution above the network density, so a fixed 1 returns singletons on
+  # every network that is not near complete. The density is the Traag default,
+  # and it holds for an unweighted network too, where each tie weighs 1.
+  if(is.null(resolution)){
     n <- manynet::net_nodes(.data)
-    resolution <- sum(manynet::tie_weights(.data))/(n*(n - 1)/2)
+    pairs <- n*(n - 1)/2
+    resolution <- if(pairs > 0)
+      sum(manynet::tie_weights(.data))/pairs else 1
   }
   gr <- manynet::as_igraph(.data)
   memb <- apply_k(k, max_k, .data,

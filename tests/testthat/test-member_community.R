@@ -105,9 +105,32 @@ test_that("an unreachable k warns and returns the nearest", {
 
 test_that("node_in_partition preserves its two-group result", {
   expect_equal(unname(as.character(node_in_partition(ison_adolescents))),
-               c("B","A","A","A","B","B","A","B"))
+               c("B","A","A","A","A","B","B","B"))
   expect_equal(unname(as.character(node_in_partition(ison_adolescents, k = 2))),
-               c("B","A","A","A","B","B","A","B"))
+               c("B","A","A","A","A","B","B","B"))
+})
+
+test_that("node_in_partition keeps the best split a pass reaches", {
+  # Taking every candidate pair took exchanges that gained nothing, so the
+  # split could cycle and the round cap returned wherever it stopped. The
+  # weight inside the groups now rises with every pass.
+  g <- as_matrix(ison_adolescents)
+  memb <- as.character(node_in_partition(ison_adolescents))
+  within <- function(m) sum(g[which(m == "A"), which(m == "A")]) +
+    sum(g[which(m == "B"), which(m == "B")])
+  expect_gt(within(memb), within(c("B","A","A","A","B","B","A","B")))
+  expect_gt(net_by_modularity(ison_adolescents, memb), 0)
+})
+
+test_that("node_in_partition takes a random start", {
+  set.seed(1234)
+  res <- node_in_partition(ison_karateka, start = "random")
+  expect_s3_class(res, "node_member")
+  expect_equal(length(unique(res)), 2)
+  expect_equal(as.integer(table(as.character(res))), c(17L, 17L))
+  # the order start stays deterministic
+  expect_equal(as.character(node_in_partition(ison_karateka)),
+               as.character(node_in_partition(ison_karateka)))
 })
 
 test_that("node_in_community accepts k", {
@@ -150,4 +173,49 @@ test_that("node_in_community ignores consensus where optimal is available", {
                "Ignoring", all = FALSE)
   expect_equal(as.character(suppressMessages(node_in_community(small, consensus = TRUE))),
                as.character(suppressMessages(node_in_optimal(small))))
+})
+
+# Resolution and connectivity ####
+
+test_that("node_in_leiden resolution defaults to the density", {
+  # a fixed resolution of 1 gave every node its own community here
+  for(net in list(ison_adolescents, ison_southern_women)){
+    set.seed(1234)
+    res <- node_in_leiden(net)
+    expect_s3_class(res, "node_member")
+    expect_gte(length(unique(res)), 2)
+    expect_lt(length(unique(res)), net_nodes(net))
+  }
+  # a weighted network keeps the default it already had
+  set.seed(1234)
+  expect_lt(length(unique(node_in_leiden(ison_karateka))),
+            net_nodes(ison_karateka))
+})
+
+test_that("node_in_leiden respects a given resolution", {
+  set.seed(1234)
+  expect_equal(length(unique(node_in_leiden(ison_adolescents, resolution = 1))),
+               as.integer(net_nodes(ison_adolescents)))
+  set.seed(1234)
+  expect_equal(length(unique(node_in_leiden(ison_adolescents, resolution = 1e-6))), 1)
+})
+
+test_that("a weakly connected network is not treated as unconnected", {
+  # a directed tree is weakly but not strongly connected
+  tree <- manynet::create_tree(10, directed = TRUE)
+  expect_false(manynet::is_connected(tree))
+  expect_true(manynet::is_connected(tree, connectivity = "weak"))
+  set.seed(1234)
+  expect_s3_class(node_in_spinglass(tree), "node_member")
+  expect_s3_class(node_in_fluid(tree), "node_member")
+  expect_true(all(c("node_in_spinglass", "node_in_fluid") %in%
+                    poss_algs(NULL, tree)))
+})
+
+test_that("an unconnected network still drops the algorithms that need one", {
+  unconn <- manynet::create_components(8, membership = c(1,1,1,1,2,2,2,2))
+  expect_snet_abort(node_in_spinglass(unconn), "connected")
+  expect_snet_abort(node_in_fluid(unconn), "connected")
+  expect_false(any(c("node_in_spinglass", "node_in_fluid") %in%
+                     poss_algs(NULL, unconn)))
 })
