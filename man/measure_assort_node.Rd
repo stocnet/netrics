@@ -53,6 +53,10 @@ This value can range from 0 to 2, where values less than 1
 indicate positive autocorrelation (similar values are more likely to be connected),
 values greater than 1 indicate negative autocorrelation (dissimilar values are more likely
 to be connected), and a value of 1 indicates no autocorrelation.
+The upper bound of 2 holds where every tie carries the same weight.
+Geary's C reads the weights where the network has them,
+and a heavy tie between dissimilar values can then carry the sum past 2,
+so a weighted network declares the upper end open.
 If an incompatible method is chosen for the attribute type,
 a suitable alternative will be used instead with a message.}
 }

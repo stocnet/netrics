@@ -1,9 +1,23 @@
 # netrics 1.0.3
 
+## Measures
+
+- Fixed two `node_by_homophily()` issues
+  - It was reading a vector attribute against the wrong nodes
+  - It was reporting the E-I index where it computed Geary's C
+- Fixed `net_by_homophily()` discarding tie weights before Geary's C
+  - Geary's C now declares that on a weighted network, it can exceed 2
+- Fixed `net_by_spatial()` erroring on a two-mode network
+  - For one-mode attributes, projection is used
+  - For multimodal attributes, the multilevel matrix is read instead
+- Fixed `net_by_spatial()` propogating missing values
+- Fixed `net_by_diversity()` and `node_by_diversity()` erroring on a factor attribute
+
 ## Memberships
 
-- Fixed `node_in_leiden()` returning a community for every node on an unweighted network
-- Fixed `node_in_leiden()` overriding a user's `resolution`
+- Fixed two `node_in_leiden()` issues
+  - It was returning a community for every node on an unweighted network
+  - It was overriding a user's `resolution`
 - Fixed `node_in_community()`, `node_in_spinglass()` and `node_in_fluid()` 
   treating a weakly connected directed network as unconnected
 - Fixed `node_in_partition()` returning a split it had already improved upon
