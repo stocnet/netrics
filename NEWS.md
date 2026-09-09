@@ -10,7 +10,7 @@
 - Fixed `net_by_spatial()` erroring on a two-mode network
   - For one-mode attributes, projection is used
   - For multimodal attributes, the multilevel matrix is read instead
-- Fixed `net_by_spatial()` propogating missing values
+- Fixed `net_by_spatial()` propagating missing values
 - Fixed `net_by_diversity()` and `node_by_diversity()` erroring on a factor attribute
 
 ## Memberships
