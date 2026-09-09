@@ -38,7 +38,7 @@ and their logic or domain of inspiration."><meta property="og:image" content="ht
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">netrics</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.0.2</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.0.3</span>
       </span>
     </div>
 
@@ -135,7 +135,13 @@ and their logic or domain of inspiration.</p>
     <div id="ref-usage">
     <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">node_in_optimal</span><span class="op">(</span><span class="va">.data</span><span class="op">)</span></span>
 <span></span>
-<span><span class="fu">node_in_partition</span><span class="op">(</span><span class="va">.data</span>, k <span class="op">=</span> <span class="fl">2L</span>, max_k <span class="op">=</span> <span class="fl">8L</span>, Kmax <span class="op">=</span> <span class="cn">NULL</span><span class="op">)</span></span>
+<span><span class="fu">node_in_partition</span><span class="op">(</span></span>
+<span>  <span class="va">.data</span>,</span>
+<span>  k <span class="op">=</span> <span class="fl">2L</span>,</span>
+<span>  max_k <span class="op">=</span> <span class="fl">8L</span>,</span>
+<span>  start <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"order"</span>, <span class="st">"random"</span><span class="op">)</span>,</span>
+<span>  Kmax <span class="op">=</span> <span class="cn">NULL</span></span>
+<span><span class="op">)</span></span>
 <span></span>
 <span><span class="fu">node_in_infomap</span><span class="op">(</span><span class="va">.data</span>, times <span class="op">=</span> <span class="fl">50</span><span class="op">)</span></span>
 <span></span>
@@ -145,7 +151,7 @@ and their logic or domain of inspiration.</p>
 <span></span>
 <span><span class="fu">node_in_louvain</span><span class="op">(</span><span class="va">.data</span>, k <span class="op">=</span> <span class="cn">NULL</span>, max_k <span class="op">=</span> <span class="fl">8L</span>, resolution <span class="op">=</span> <span class="fl">1</span>, Kmax <span class="op">=</span> <span class="cn">NULL</span><span class="op">)</span></span>
 <span></span>
-<span><span class="fu">node_in_leiden</span><span class="op">(</span><span class="va">.data</span>, k <span class="op">=</span> <span class="cn">NULL</span>, max_k <span class="op">=</span> <span class="fl">8L</span>, resolution <span class="op">=</span> <span class="fl">1</span>, Kmax <span class="op">=</span> <span class="cn">NULL</span><span class="op">)</span></span>
+<span><span class="fu">node_in_leiden</span><span class="op">(</span><span class="va">.data</span>, k <span class="op">=</span> <span class="cn">NULL</span>, max_k <span class="op">=</span> <span class="fl">8L</span>, resolution <span class="op">=</span> <span class="cn">NULL</span>, Kmax <span class="op">=</span> <span class="cn">NULL</span><span class="op">)</span></span>
 <span></span>
 <span><span class="fu">node_in_labels</span><span class="op">(</span><span class="va">.data</span>, k <span class="op">=</span> <span class="cn">NULL</span>, max_k <span class="op">=</span> <span class="fl">8L</span>, Kmax <span class="op">=</span> <span class="cn">NULL</span><span class="op">)</span></span></code></pre></div>
     </div>
@@ -184,6 +190,15 @@ requires its own search over the resolution parameter,
 so a large <code>max_k</code> is costly on large networks.</p></dd>
 
 
+<dt id="arg-start">start<a class="anchor" aria-label="anchor" href="#arg-start"></a></dt>
+<dd><p>One of <code>"order"</code> (the default) or <code>"random"</code>,
+naming how the nodes are dealt into the groups to begin with.
+<code>"order"</code> deals them in node order, which makes the algorithm
+deterministic. <code>"random"</code> deals them at random, as Kernighan and Lin do.
+Since the algorithm is sensitive to where it starts, a random start can
+reach a different partition; set a seed to repeat one.</p></dd>
+
+
 <dt id="arg-kmax">Kmax<a class="anchor" aria-label="anchor" href="#arg-kmax"></a></dt>
 <dd><p>Deprecated. The former spelling of <code>max_k</code>.
 Still accepted, but warns; please use <code>max_k</code> instead.</p></dd>
@@ -202,7 +217,10 @@ so each function documents its own default.</p></dd>
 <dd><p>The Reichardt-Bornholdt “gamma” resolution parameter for modularity.
 By default 1, making existing and non-existing ties equally important.
 Smaller values make existing ties more important,
-and larger values make missing ties more important.</p></dd>
+and larger values make missing ties more important.
+<code>node_in_leiden()</code> takes <code>NULL</code> by default, and then uses the density of
+the network, since the Constant Potts Model gives every node its own
+community at any higher resolution.</p></dd>
 
 </dl></div>
     <div id="value">
@@ -230,10 +248,18 @@ swap pairs of nodes (one from each group) that give a positive sum of net tie co
 where the net tie cost of a node is the difference between the sum
 of the weights of ties to nodes in the other group (external costs) and
 the sum of the weights of ties to nodes in the same group (internal costs).
+A pass exchanges the candidate pairs one at a time and keeps the prefix
+that leaves the most weight inside the two groups, so a pass never returns
+a worse split than it started from.
 Where <code>k</code> is greater than two, the same swap pass is run for every pair of
-groups, and the rounds repeat until no swap improves the partition.
-This is a deterministic algorithm that will always return the same partition
-for a given network, but it is not guaranteed to maximise modularity.
+groups, and the rounds repeat until no pass improves the partition.
+Where <code>start = "order"</code>, the default, the nodes are dealt into the groups
+in node order, and the algorithm is deterministic: one network returns one
+partition. Where <code>start = "random"</code> they are dealt at random, which is the
+textbook start, and repeated calls can then return different partitions.
+The result is not guaranteed to maximise modularity either way, since the
+algorithm reads the weight of the ties inside the groups and not the
+modularity, and since it holds the groups at equal size.
 Note that this algorithm is only applicable to undirected, unipartite networks,
 and returns <code>k</code> communities of equal size (or as close to equal as possible).</p>
     </div>
@@ -301,6 +327,10 @@ and \(\delta(\sigma_i, \sigma_j) = 1\) if and only if
 <em>i</em> and <em>j</em> are in the same communities and 0 otherwise.
 Compared to the Louvain method, the Leiden algorithm additionally
 tries to avoid unconnected communities.
+The resolution is the density of the network by default, after Traag et al.,
+since the Constant Potts Model gives every node its own community at any
+higher resolution. This holds for an unweighted network too,
+where each tie weighs 1.
 Where <code>k</code> is given, the resolution parameter is searched for the value
 that returns that number of communities, and <code>resolution</code> is ignored.</p>
     </div>
@@ -477,14 +507,14 @@ Springer, 689: 229.
 <span class="r-in"><span><span class="fu">node_in_partition</span><span class="op">(</span><span class="va">ison_adolescents</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;">2 groups</span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   Betty Sue   Alice Jane  Dale  Pam   Carol Tina </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">1</span> B     A     A     A     B     B     A     B    </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">1</span> B     A     A     A     A     B     B     B    </span>
 <span class="r-in"><span><span class="fu">node_in_partition</span><span class="op">(</span><span class="va">ison_southern_women</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;">2 groups</span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   Evelyn Laura Theresa Brenda Charlotte Frances Eleanor Pearl Ruth  Verne Myra </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">1</span> A      A     A       A      A         A       A       A     A     A     A    </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">1</span> A      A     A       A      A         A       A       B     A     B     B    </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># ... and 7 more values from this nodeset. Use `print_all(...)` to print all values.</span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   E1    E2    E3    E4    E5    E6    E7    E8    E9    E10   E11   E12   E13  </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">1</span> B     B     B     B     B     B     B     B     B     B     B     B     B    </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">1</span> A     A     A     A     A     A     A     A     B     B     B     B     B    </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># ... and 1 more values from this nodeset. Use `print_all(...)` to print all values.</span></span>
 <span class="r-in"><span><span class="fu">node_in_infomap</span><span class="op">(</span><span class="va">ison_adolescents</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;">1 groups</span></span>
@@ -503,9 +533,9 @@ Springer, 689: 229.
 <span class="r-out co"><span class="r-pr">#&gt;</span>   Betty Sue   Alice Jane  Dale  Pam   Carol Tina </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">1</span> A     A     B     B     B     C     C     C    </span>
 <span class="r-in"><span><span class="fu">node_in_leiden</span><span class="op">(</span><span class="va">ison_adolescents</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;">8 groups</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;">3 groups</span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   Betty Sue   Alice Jane  Dale  Pam   Carol Tina </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">1</span> A     B     C     D     E     F     G     H    </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">1</span> A     B     B     B     B     B     C     C    </span>
 <span class="r-in"><span><span class="fu">node_in_labels</span><span class="op">(</span><span class="va">ison_adolescents</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;">2 groups</span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   Betty Sue   Alice Jane  Dale  Pam   Carol Tina </span>

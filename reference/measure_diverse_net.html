@@ -24,7 +24,7 @@ net_by_diversity() measures the heterogeneity of ties across a network.
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">netrics</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.0.2</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.0.3</span>
       </span>
     </div>
 
@@ -171,6 +171,15 @@ This index finds its minimum value (0) when there is no variety,
 i.e. when all individuals are classified in the same category.
 The maximum value depends on the number of categories and
 whether nodes can be evenly distributed across categories.</p>
+<p>The Herfindahl-Hirschman index (HHI) is the complement of Blau's index,
+\(\sum\limits_{i = 1}^k {p_i^2}\),
+and so <code>1 - net_by_diversity(.data, attribute)</code> returns it.
+Where shares are stated as percentages rather than proportions,
+as in the <code>{hhi}</code> package,
+the index runs from 0 to 10000 and equals <code>(1 - blau) * 10000</code>.
+Both readings hold for a categorical attribute,
+where a share is the frequency of a category,
+which is why neither index is offered for a numeric one.</p>
 <p>Teachman's index (1980) is based on information theory
 and is calculated as:
 $$- \sum\limits_{i = 1}^k {p_i \log(p_i)}$$
@@ -237,6 +246,9 @@ Analysis of population diversity: Measures of qualitative variation.
 <em>Diversity and Complexity</em>.
 Princeton: Princeton University Press.
 <a href="https://doi.org/10.1515/9781400835140" class="external-link">doi:10.1515/9781400835140</a></p>
+<p>Hirschman, Albert O. 1964.
+"The paternity of an index".
+<em>The American Economic Review</em>, 54(5): 761.</p>
 </div>
 
     </div>

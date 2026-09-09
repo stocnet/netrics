@@ -17,7 +17,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">netrics</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.0.2</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.0.3</span>
       </span>
     </div>
 
@@ -89,6 +89,37 @@
     </div>
 
     <div class="section level2">
+<h2 class="page-header" data-toc-text="1.0.3" id="netrics-103">netrics 1.0.3<a class="anchor" aria-label="anchor" href="#netrics-103"></a></h2>
+<div class="section level3">
+<h3 id="measures-1-0-3">Measures<a class="anchor" aria-label="anchor" href="#measures-1-0-3"></a></h3>
+<ul><li>Fixed two <code><a href="../reference/measure_assort_node.html">node_by_homophily()</a></code> issues
+<ul><li>It was reading a vector attribute against the wrong nodes</li>
+<li>It was reporting the E-I index where it computed Geary’s C</li>
+</ul></li>
+<li>Fixed <code><a href="../reference/measure_assort_net.html">net_by_homophily()</a></code> discarding tie weights before Geary’s C
+<ul><li>Geary’s C now declares that on a weighted network, it can exceed 2</li>
+</ul></li>
+<li>Fixed <code><a href="../reference/measure_assort_net.html">net_by_spatial()</a></code> erroring on a two-mode network
+<ul><li>For one-mode attributes, projection is used</li>
+<li>For multimodal attributes, the multilevel matrix is read instead</li>
+</ul></li>
+<li>Fixed <code><a href="../reference/measure_assort_net.html">net_by_spatial()</a></code> propagating missing values</li>
+<li>Fixed <code><a href="../reference/measure_diverse_net.html">net_by_diversity()</a></code> and <code><a href="../reference/measure_diverse_node.html">node_by_diversity()</a></code> erroring on a factor attribute</li>
+</ul></div>
+<div class="section level3">
+<h3 id="memberships-1-0-3">Memberships<a class="anchor" aria-label="anchor" href="#memberships-1-0-3"></a></h3>
+<ul><li>Fixed two <code><a href="../reference/member_community_non.html">node_in_leiden()</a></code> issues
+<ul><li>It was returning a community for every node on an unweighted network</li>
+<li>It was overriding a user’s <code>resolution</code>
+</li>
+</ul></li>
+<li>Fixed <code><a href="../reference/member_community.html">node_in_community()</a></code>, <code><a href="../reference/member_community_non.html">node_in_spinglass()</a></code> and <code><a href="../reference/member_community_non.html">node_in_fluid()</a></code> treating a weakly connected directed network as unconnected</li>
+<li>Fixed <code><a href="../reference/member_community_non.html">node_in_partition()</a></code> returning a split it had already improved upon
+<ul><li>Added <code>start=</code> for a random rather than a node-order initialisation</li>
+</ul></li>
+</ul></div>
+</div>
+    <div class="section level2">
 <h2 class="page-header" data-toc-text="1.0.2" id="netrics-102">netrics 1.0.2<a class="anchor" aria-label="anchor" href="#netrics-102"></a></h2>
 <div class="section level3">
 <h3 id="package-1-0-2">Package<a class="anchor" aria-label="anchor" href="#package-1-0-2"></a></h3>
@@ -137,7 +168,7 @@
 </ul></div>
 </div>
     <div class="section level2">
-<h2 class="page-header" data-toc-text="1.0.1" id="netrics-101">netrics 1.0.1<a class="anchor" aria-label="anchor" href="#netrics-101"></a></h2>
+<h2 class="page-header" data-toc-text="1.0.1" id="netrics-101">netrics 1.0.1<small>2026-08-31</small><a class="anchor" aria-label="anchor" href="#netrics-101"></a></h2>
 <div class="section level3">
 <h3 id="methods-1-0-1">Methods<a class="anchor" aria-label="anchor" href="#methods-1-0-1"></a></h3>
 <ul><li>Fixed <code><a href="../reference/method_cluster.html">cluster_cosine()</a></code> to cluster nodes and not census features (thanks <a href="https://github.com/Kaladani" class="external-link">@Kaladani</a>)</li>
