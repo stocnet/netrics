@@ -105,9 +105,32 @@ test_that("an unreachable k warns and returns the nearest", {
 
 test_that("node_in_partition preserves its two-group result", {
   expect_equal(unname(as.character(node_in_partition(ison_adolescents))),
-               c("B","A","A","A","B","B","A","B"))
+               c("B","A","A","A","A","B","B","B"))
   expect_equal(unname(as.character(node_in_partition(ison_adolescents, k = 2))),
-               c("B","A","A","A","B","B","A","B"))
+               c("B","A","A","A","A","B","B","B"))
+})
+
+test_that("node_in_partition keeps the best split a pass reaches", {
+  # Taking every candidate pair took exchanges that gained nothing, so the
+  # split could cycle and the round cap returned wherever it stopped. The
+  # weight inside the groups now rises with every pass.
+  g <- as_matrix(ison_adolescents)
+  memb <- as.character(node_in_partition(ison_adolescents))
+  within <- function(m) sum(g[which(m == "A"), which(m == "A")]) +
+    sum(g[which(m == "B"), which(m == "B")])
+  expect_gt(within(memb), within(c("B","A","A","A","B","B","A","B")))
+  expect_gt(net_by_modularity(ison_adolescents, memb), 0)
+})
+
+test_that("node_in_partition takes a random start", {
+  set.seed(1234)
+  res <- node_in_partition(ison_karateka, start = "random")
+  expect_s3_class(res, "node_member")
+  expect_equal(length(unique(res)), 2)
+  expect_equal(as.integer(table(as.character(res))), c(17L, 17L))
+  # the order start stays deterministic
+  expect_equal(as.character(node_in_partition(ison_karateka)),
+               as.character(node_in_partition(ison_karateka)))
 })
 
 test_that("node_in_community accepts k", {

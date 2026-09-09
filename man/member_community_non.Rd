@@ -14,7 +14,13 @@
 \usage{
 node_in_optimal(.data)
 
-node_in_partition(.data, k = 2L, max_k = 8L, Kmax = NULL)
+node_in_partition(
+  .data,
+  k = 2L,
+  max_k = 8L,
+  start = c("order", "random"),
+  Kmax = NULL
+)
 
 node_in_infomap(.data, times = 50)
 
@@ -52,6 +58,13 @@ Otherwise ignored.
 Note that for \code{node_in_louvain()} and \code{node_in_leiden()} each candidate
 requires its own search over the resolution parameter,
 so a large \code{max_k} is costly on large networks.}
+
+\item{start}{One of \code{"order"} (the default) or \code{"random"},
+naming how the nodes are dealt into the groups to begin with.
+\code{"order"} deals them in node order, which makes the algorithm
+deterministic. \code{"random"} deals them at random, as Kernighan and Lin do.
+Since the algorithm is sensitive to where it starts, a random start can
+reach a different partition; set a seed to repeat one.}
 
 \item{Kmax}{Deprecated. The former spelling of \code{max_k}.
 Still accepted, but warns; please use \code{max_k} instead.}
@@ -117,10 +130,18 @@ swap pairs of nodes (one from each group) that give a positive sum of net tie co
 where the net tie cost of a node is the difference between the sum
 of the weights of ties to nodes in the other group (external costs) and
 the sum of the weights of ties to nodes in the same group (internal costs).
+A pass exchanges the candidate pairs one at a time and keeps the prefix
+that leaves the most weight inside the two groups, so a pass never returns
+a worse split than it started from.
 Where \code{k} is greater than two, the same swap pass is run for every pair of
-groups, and the rounds repeat until no swap improves the partition.
-This is a deterministic algorithm that will always return the same partition
-for a given network, but it is not guaranteed to maximise modularity.
+groups, and the rounds repeat until no pass improves the partition.
+Where \code{start = "order"}, the default, the nodes are dealt into the groups
+in node order, and the algorithm is deterministic: one network returns one
+partition. Where \code{start = "random"} they are dealt at random, which is the
+textbook start, and repeated calls can then return different partitions.
+The result is not guaranteed to maximise modularity either way, since the
+algorithm reads the weight of the ties inside the groups and not the
+modularity, and since it holds the groups at equal size.
 Note that this algorithm is only applicable to undirected, unipartite networks,
 and returns \code{k} communities of equal size (or as close to equal as possible).
 }

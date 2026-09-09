@@ -4,8 +4,10 @@
 
 - Fixed `node_in_leiden()` returning a community for every node on an unweighted network
 - Fixed `node_in_leiden()` overriding a user's `resolution`
-- Fixed `node_in_community()`, `node_in_spinglass()` and `node_in_fluid()` treating a
-  weakly connected directed network as unconnected
+- Fixed `node_in_community()`, `node_in_spinglass()` and `node_in_fluid()` 
+  treating a weakly connected directed network as unconnected
+- Fixed `node_in_partition()` returning a split it had already improved upon
+  - Added `start=` for a random rather than a node-order initialisation
 
 # netrics 1.0.2
 
