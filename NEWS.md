@@ -9,6 +9,8 @@
 
 - Fixed `net_by_upperbound()`, `net_x_hierarchy()`, and `node_by_distance()` erroring on a signed 'stocnet'
   - These now consider only the positive ties, as the other distance-based measures do
+- Fixed `node_by_distance()` scaling every distance to 0 where some node cannot be reached
+  - The scaled distances now divide by the largest finite distance, and unreachable nodes stay infinite, with a message
 
 ## Memberships
 

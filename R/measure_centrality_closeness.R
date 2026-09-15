@@ -416,6 +416,9 @@ node_by_eccentricity <- function(.data, normalized = TRUE){
 #'   with respect to the network as a whole.
 #'   It is grouped here because the closeness-like centralities are all built
 #'   from the same geodesic distances.
+#'   A node that cannot be reached has an infinite distance, normalised or not.
+#'   The scaled distances divide by the largest finite distance, so that the
+#'   reachable nodes still fall within \eqn{[0,1]}.
 #' @export
 node_by_distance <- function(.data, from, to, normalized = TRUE){
   .data <- manynet::expect_nodes(.data)
@@ -423,9 +426,18 @@ node_by_distance <- function(.data, from, to, normalized = TRUE){
   .data <- .to_positive(.data)
   if(!missing(from)) out <- igraph::distances(manynet::as_igraph(.data), v = from) else
     if(!missing(to)) out <- igraph::distances(manynet::as_igraph(.data), to = to)
+  unreachable <- is.infinite(out)
+  if(any(unreachable))
+    manynet::snet_info("{sum(unreachable)} node{?s} cannot be reached,",
+                       "so {?its/their} distance is infinite.")
   # Distances have no theoretical maximum, so this divides by the largest
-  # distance observed from (or to) the named node.
-  if(normalized) out <- out/max(out)
+  # distance observed from (or to) the named node. An unreachable node's
+  # distance is infinite, which would make every finite distance 0, so only
+  # the finite distances set the scale and the infinite ones stay infinite.
+  if(normalized){
+    maxd <- suppressWarnings(max(out[!unreachable]))
+    if(is.finite(maxd) && maxd > 0) out <- out/maxd
+  }
   make_node_measure(out, .data, measure = "geodesic distance",
                     range = `if`(normalized, c(0, 1), c(0, Inf)),
                     normalization = `if`(normalized, "scaled", "none"))

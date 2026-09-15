@@ -207,3 +207,31 @@ test_that("node_by_decay respects tie direction", {
   expect_gt(out[1], out[4])
   expect_equal(out[4], 0)
 })
+
+test_that("node_by_distance scales by the largest finite distance", {
+  # a path of three nodes and an isolate that cannot be reached
+  mat <- matrix(0, 4, 4)
+  mat[1, 2] <- mat[2, 1] <- mat[2, 3] <- mat[3, 2] <- 1
+  expect_equal(as.numeric(node_by_distance(mat, from = 1, normalized = FALSE)),
+               c(0, 1, 2, Inf))
+  expect_equal(as.numeric(node_by_distance(mat, from = 1)),
+               c(0, 0.5, 1, Inf))
+  expect_equal(as.numeric(node_by_distance(mat, to = 3)),
+               c(1, 0.5, 0, Inf))
+  # a node with nothing to reach keeps its zero rather than dividing by it
+  expect_equal(as.numeric(node_by_distance(mat, from = 4)),
+               c(Inf, Inf, Inf, 0))
+  local_verbose()
+  expect_message(node_by_distance(mat, from = 1), "cannot be reached")
+})
+
+test_that("node_by_distance reads a signed network's positive ties", {
+  set.seed(1234)
+  s <- manynet::to_signed(manynet::add_node_attribute(create_wheel(12),
+                                                      "name", LETTERS[1:12]))
+  out <- as.numeric(node_by_distance(s, 1))
+  finite <- out[is.finite(out)]
+  expect_true(any(is.infinite(out)))
+  expect_false(anyNA(out))
+  expect_equal(max(finite), 1)
+})

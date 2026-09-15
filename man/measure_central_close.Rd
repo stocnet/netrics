@@ -276,6 +276,9 @@ distance from (or to) one named node, rather than summarising its position
 with respect to the network as a whole.
 It is grouped here because the closeness-like centralities are all built
 from the same geodesic distances.
+A node that cannot be reached has an infinite distance, normalised or not.
+The scaled distances divide by the largest finite distance, so that the
+reachable nodes still fall within \eqn{[0,1]}.
 }
 
 \section{Closeness vitality centrality}{
