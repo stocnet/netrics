@@ -5,8 +5,12 @@ for(fn in names(node_membs)) {
       # These two need a connected network, and now abort rather than
       # returning nothing when they do not get one. The restriction is about
       # connectivity, not about two modes.
-      skip_if(grepl("fluid|spinglass", fn) &&
+      skip_if(grepl("spinglass", fn) &&
                 !igraph::is_connected(manynet::as_igraph(data_objs[[ob]])))
+      # Fluid reads only the positive ties of a signed network, which can
+      # disconnect it even where the whole network is connected.
+      skip_if(grepl("fluid", fn) &&
+                !igraph::is_connected(manynet::as_igraph(.to_positive(data_objs[[ob]]))))
       if(grepl("roulette", fn)){
         if(ob != "twomode")
           expect_s3_class(node_membs[[fn]](data_objs[[ob]], groups = 3), 

@@ -420,6 +420,7 @@ node_by_eccentricity <- function(.data, normalized = TRUE){
 node_by_distance <- function(.data, from, to, normalized = TRUE){
   .data <- manynet::expect_nodes(.data)
   if(missing(from) && missing(to)) manynet::snet_abort("Either 'from' or 'to' must be specified.")
+  .data <- .to_positive(.data)
   if(!missing(from)) out <- igraph::distances(manynet::as_igraph(.data), v = from) else
     if(!missing(to)) out <- igraph::distances(manynet::as_igraph(.data), to = to)
   # Distances have no theoretical maximum, so this divides by the largest

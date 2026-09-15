@@ -72,6 +72,15 @@ The different algorithms offer various advantages in terms of computation time,
 availability on different types of networks, ability to maximise modularity,
 and their logic or domain of inspiration.
 }
+\section{Signed networks}{
+
+These algorithms read a tie's weight as the strength of a pull into the
+same community, and a negative tie is hostility rather than such a pull.
+Where the network is signed, they therefore consider only the positive
+ties, and say so. Only \code{\link[=node_in_spinglass]{node_in_spinglass()}} reads a sign as a sign.
+Use \code{\link[manynet:to_unsigned]{manynet::to_unsigned()}} first to control this yourself.
+}
+
 \section{Edge-betweenness}{
 
 This is motivated by the idea that edges connecting different groups

@@ -179,8 +179,8 @@ poss_algs <- function(k, .data){
   if(!manynet::is_connected(.data, connectivity = "weak"))
     poss <- exclude(poss, c("node_in_spinglass", "node_in_fluid"),
                     "network unconnected")
-  # Every algorithm but spinglass reads a negative weight as an error, and
-  # spinglass reads a sign as a sign, so a signed network leaves it alone.
+  # Every algorithm but spinglass sets the negative ties aside, and spinglass
+  # reads a sign as a sign, so a signed network leaves it alone.
   if(manynet::is_signed(.data))
     poss <- exclude(poss, setdiff(poss, "node_in_spinglass"),
                     "network signed and only {.fn node_in_spinglass} reads signs")
@@ -296,8 +296,8 @@ consensus_memb <- function(.data, k, max_k, times, threshold = 0.5, iter = 10){
 #' _Data Mining and Knowledge Discovery_ 31: 1506-1543.
 #' \doi{10.1007/s10618-017-0528-8}
 #' @section Signed networks:
-#'   Every algorithm but [node_in_spinglass()] reads a negative weight as an
-#'   error, and spinglass reads a sign as a sign (Traag and Bruggeman 2009).
+#'   Every algorithm but [node_in_spinglass()] sets the negative ties aside,
+#'   and spinglass reads a sign as a sign (Traag and Bruggeman 2009).
 #'   `node_in_community()` therefore considers only spinglass where the network
 #'   is signed. Since spinglass needs a connected network and accepts no `k`,
 #'   a signed network that is unconnected, or a `k` that is given, leaves no
@@ -359,6 +359,14 @@ node_in_community <- function(.data, k = NULL, max_k = 8L,
 
 #' Memberships in non-hierarchical communities
 #' @name member_community_non
+#' @section Signed networks:
+#'   [node_in_optimal()], [node_in_infomap()], [node_in_fluid()],
+#'   [node_in_louvain()], and [node_in_labels()] read a tie's weight as the
+#'   strength of a pull into the same community, and a negative tie is
+#'   hostility rather than such a pull.
+#'   Where the network is signed, they therefore consider only the positive
+#'   ties, and say so. [node_in_spinglass()] reads a sign as a sign.
+#'   Use [manynet::to_unsigned()] first to control this yourself.
 #' @description
 #'   These functions offer algorithms for partitioning
 #'   networks into sets of communities:
@@ -405,6 +413,7 @@ NULL
 #' @export
 node_in_optimal <- function(.data){
   .data <- manynet::expect_nodes(.data)
+  .data <- .to_positive(.data)
   if(manynet::net_nodes(.data)>100) 
     manynet::snet_warn("This algorithm may take some time", 
     "or even run out of memory on such a large network.")
@@ -562,6 +571,7 @@ kl_partition <- function(g, n, k, rounds = 50, start = "order"){
 #' @export
 node_in_infomap <- function(.data, times = 50){
   .data <- manynet::expect_nodes(.data)
+  .data <- .to_positive(.data)
   out <- igraph::cluster_infomap(manynet::as_igraph(.data), 
                                  nb.trials = times
   )$membership
@@ -639,6 +649,7 @@ node_in_spinglass <- function(.data, max_k = 200, resolution = 1){
 node_in_fluid <- function(.data, k = NULL, max_k = 8L, Kmax = NULL) {
   max_k <- resolve_max_k(max_k, Kmax)
   .data <- manynet::expect_nodes(.data)
+  .data <- .to_positive(.data)
   k <- check_k(k, .data)
   .data <- manynet::as_igraph(.data)
   # As in `node_in_spinglass()`: this must abort, or the function returns NULL.
@@ -694,6 +705,7 @@ node_in_fluid <- function(.data, k = NULL, max_k = 8L, Kmax = NULL) {
 node_in_louvain <- function(.data, k = NULL, max_k = 8L, resolution = 1, Kmax = NULL){
   max_k <- resolve_max_k(max_k, Kmax)
   .data <- manynet::expect_nodes(.data)
+  .data <- .to_positive(.data)
   k <- check_k(k, .data)
   if(manynet::is_directed(.data)){
     manynet::snet_info("This algorithm only works for undirected networks.", 
@@ -804,6 +816,7 @@ node_in_leiden <- function(.data, k = NULL, max_k = 8L, resolution = NULL, Kmax 
 node_in_labels <- function(.data, k = NULL, max_k = 8L, Kmax = NULL){
   max_k <- resolve_max_k(max_k, Kmax)
   .data <- manynet::expect_nodes(.data)
+  .data <- .to_positive(.data)
   k <- check_k(k, .data)
   if(manynet::is_directed(.data)){
     manynet::snet_info("This algorithm only works for undirected networks.",
@@ -833,6 +846,12 @@ node_in_labels <- function(.data, k = NULL, max_k = 8L, Kmax = NULL){
 
 #' Memberships in hierarchical communities
 #' @name member_community_hier
+#' @section Signed networks:
+#'   These algorithms read a tie's weight as the strength of a pull into the
+#'   same community, and a negative tie is hostility rather than such a pull.
+#'   Where the network is signed, they therefore consider only the positive
+#'   ties, and say so. Only [node_in_spinglass()] reads a sign as a sign.
+#'   Use [manynet::to_unsigned()] first to control this yourself.
 #' @description
 #'   These functions offer algorithms for hierarchically clustering
 #'   networks into communities. Since all of the following are hierarchical,
@@ -878,6 +897,7 @@ NULL
 node_in_betweenness <- function(.data, k = NULL, max_k = 8L, Kmax = NULL){
   max_k <- resolve_max_k(max_k, Kmax)
   .data <- manynet::expect_nodes(.data)
+  .data <- .to_positive(.data)
   k <- check_k(k, .data)
   if(manynet::net_nodes(.data)>100) 
     manynet::snet_warn("This algorithm may take some time", 
@@ -915,6 +935,7 @@ node_in_betweenness <- function(.data, k = NULL, max_k = 8L, Kmax = NULL){
 node_in_greedy <- function(.data, k = NULL, max_k = 8L, Kmax = NULL){
   max_k <- resolve_max_k(max_k, Kmax)
   .data <- manynet::expect_nodes(.data)
+  .data <- .to_positive(.data)
   k <- check_k(k, .data)
   clust <- igraph::cluster_fast_greedy(manynet::to_undirected(manynet::as_igraph(.data)))
   memb <- apply_k(k, max_k, .data,
@@ -947,6 +968,7 @@ node_in_greedy <- function(.data, k = NULL, max_k = 8L, Kmax = NULL){
 node_in_eigen <- function(.data, k = NULL, max_k = 8L, Kmax = NULL){
   max_k <- resolve_max_k(max_k, Kmax)
   .data <- manynet::expect_nodes(.data)
+  .data <- .to_positive(.data)
   k <- check_k(k, .data)
   if(manynet::is_directed(.data)){
     manynet::snet_info("This algorithm only works for undirected networks.", 
@@ -984,6 +1006,7 @@ node_in_eigen <- function(.data, k = NULL, max_k = 8L, Kmax = NULL){
 node_in_walktrap <- function(.data, k = NULL, max_k = 8L, steps = 4, Kmax = NULL){
   max_k <- resolve_max_k(max_k, Kmax)
   .data <- manynet::expect_nodes(.data)
+  .data <- .to_positive(.data)
   k <- check_k(k, .data)
   clust <- igraph::cluster_walktrap(manynet::as_igraph(.data), steps = steps)
   memb <- apply_k(k, max_k, .data,

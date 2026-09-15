@@ -72,11 +72,24 @@ tie_is_path <- function(.data, from, to, all_paths = FALSE){
     manynet::snet_abort("{.fn tie_is_path} needs both {.arg from} and",
                         "{.arg to}, the nodes the path runs between,",
                         "e.g. {.code tie_is_path(.data, from = 1, to = 7)}.")
-  out <- igraph::all_shortest_paths(.data, from = from, to = to,
+  # A path runs over the positive ties alone, as a distance does, but the mark
+  # still needs a place for every tie, so the path is traced on the positive
+  # ties and then read back onto the network as it was given.
+  graph <- manynet::as_igraph(.data)
+  keep <- which(as.numeric(manynet::tie_signs(graph)) >= 0)
+  if(length(keep) < igraph::ecount(graph))
+    manynet::snet_info("Using only the positive ties,",
+                       "since a negative tie does not carry cohesion.")
+  paths <- igraph::subgraph_from_edges(graph, keep, delete.vertices = FALSE)
+  # Where the weights only hold the signs, they are not distances.
+  if(manynet::is_signed(graph) && !manynet::is_weighted(graph) &&
+     "weight" %in% igraph::edge_attr_names(paths))
+    paths <- igraph::delete_edge_attr(paths, "weight")
+  out <- igraph::all_shortest_paths(paths, from = from, to = to,
                                      mode = "out")$epath
-  if(all_paths){
-    out <- igraph::E(.data) %in% unique(unlist(out))
-  } else out <- igraph::E(.data) %in% out[[sample(length(out),1)]]
+  on <- if(all_paths) unique(unlist(out)) else
+    as.numeric(out[[sample(length(out),1)]])
+  out <- seq_len(igraph::ecount(graph)) %in% keep[on]
   make_tie_mark(out, .data)
 }
 

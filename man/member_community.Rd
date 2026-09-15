@@ -87,8 +87,8 @@ Deterministic algorithms are run once however it is set.
 }
 \section{Signed networks}{
 
-Every algorithm but \code{\link[=node_in_spinglass]{node_in_spinglass()}} reads a negative weight as an
-error, and spinglass reads a sign as a sign (Traag and Bruggeman 2009).
+Every algorithm but \code{\link[=node_in_spinglass]{node_in_spinglass()}} sets the negative ties aside,
+and spinglass reads a sign as a sign (Traag and Bruggeman 2009).
 \code{node_in_community()} therefore considers only spinglass where the network
 is signed. Since spinglass needs a connected network and accepts no \code{k},
 a signed network that is unconnected, or a \code{k} that is given, leaves no

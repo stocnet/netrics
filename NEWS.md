@@ -1,3 +1,21 @@
+# netrics 1.0.4
+
+## Marks
+
+- Fixed `tie_is_path()` erroring on a signed 'stocnet', whose signs reach igraph as negative weights
+  - The path now runs over the positive ties alone, and every tie keeps its place in the mark
+
+## Measures
+
+- Fixed `net_by_upperbound()`, `net_x_hierarchy()`, and `node_by_distance()` erroring on a signed 'stocnet'
+  - These now consider only the positive ties, as the other distance-based measures do
+
+## Memberships
+
+- Fixed the single community algorithms erroring on a signed 'stocnet', whose signs reach igraph as negative weights
+  - `node_in_optimal()`, `node_in_infomap()`, `node_in_fluid()`, `node_in_louvain()`, `node_in_labels()`, `node_in_betweenness()`, `node_in_greedy()`, `node_in_eigen()`, and `node_in_walktrap()` now consider only the positive ties, and say so
+  - Before, a signed network's signs were ignored where held in a `sign` attribute, so negative ties were read as positive ones
+
 # netrics 1.0.3
 
 ## Measures

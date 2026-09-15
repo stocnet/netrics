@@ -133,7 +133,8 @@ net_by_efficiency <- function(.data) {
 #' @export
 net_by_upperbound <- function(.data) {
   .data <- manynet::expect_nodes(.data)
-  dists <- igraph::distances(.data, mode = "in")
+  .data <- .to_positive(.data)
+  dists <- igraph::distances(manynet::as_igraph(.data), mode = "in")
   dists[is.infinite(dists)] <- 0
   dists <- dists[order(rowSums(dists)), order(rowSums(dists))]
   if (max(colSums(dists > 0)) / (manynet::net_nodes(.data)-1) == 1){
