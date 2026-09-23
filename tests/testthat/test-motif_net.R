@@ -53,3 +53,23 @@ test_that("net_x_mixed is deprecated in favour of net_x_triad", {
   expect_warning(res <- net_x_mixed(fict_marvel), "deprecated")
   expect_equal(as.numeric(res), as.numeric(net_x_triad(fict_marvel)))
 })
+
+test_that("net_x_stability returns the Jaccard index of ties", {
+  # two ties shared of four in either
+  a <- manynet::create_explicit(A-B, B-C, C-D)
+  b <- manynet::create_explicit(A-B, B-C, A-D)
+  expect_equal(as.numeric(net_x_stability(a, b)), 0.5)
+  expect_equal(as.numeric(net_x_stability(a, a)), 1)
+  # a directed tie that is turned around is not the same tie
+  d1 <- manynet::create_explicit(A-+B, B-+C)
+  d2 <- manynet::create_explicit(B-+A, B-+C)
+  expect_equal(as.numeric(net_x_stability(d1, d2)), 1/3)
+  # a tie's weight does not count it more than once
+  w <- manynet::add_tie_attribute(a, "weight", c(5, 1, 1))
+  expect_equal(as.numeric(net_x_stability(w, b)), 0.5)
+  # two networks without any ties are identical
+  expect_equal(as.numeric(net_x_stability(manynet::create_empty(4),
+                                          manynet::create_empty(4))), 1)
+  out <- as.numeric(unlist(net_x_stability(ison_monks)))
+  expect_true(all(out >= 0 & out <= 1))
+})

@@ -37,6 +37,12 @@
   - Added `decay=` to discount ties from earlier waves or times, by default uniform
   - Now stops with a message on a two-mode network
 
+## Motifs
+
+- Fixed `net_x_stability()` miscounting the ties that changed between networks
+  - `==` bound after `*`, so it counted every absent tie, including self-ties, as changed
+  - Now also counts undirected and weighted ties only once
+
 # netrics 1.0.3
 
 ## Measures

@@ -176,3 +176,14 @@ seq_nodes <- function(.data){
   between <- type[ends[,1]] != type[ends[,2]]
   any(between) && any(!between)
 }
+
+# The cells of an adjacency matrix that are possible ties: a node cannot be tied
+# to itself unless the network is complex, and an undirected tie appears twice.
+.valid_cells <- function(.data, mat){
+  keep <- matrix(TRUE, nrow(mat), ncol(mat))
+  if(!manynet::is_twomode(.data)){
+    if(!manynet::is_complex(.data)) diag(keep) <- FALSE
+    if(!manynet::is_directed(.data)) keep[upper.tri(keep)] <- FALSE
+  }
+  keep
+}
