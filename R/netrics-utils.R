@@ -69,18 +69,30 @@ seq_nodes <- function(.data){
   soln
 }
 
+# `sample(x, 1)` draws from `1:x` where `x` is a single number, so a single
+# candidate node or group would be replaced by any smaller one.
+# This draws from the candidates themselves, however many there are.
+.sampleOne <- function(x) x[sample.int(length(x), 1)]
+
 .swapMove <- function(soln){
-  from <- sample(seq.int(length(soln)), 1)
-  to <- sample(which(soln != soln[from]), 1)
+  from <- sample.int(length(soln), 1)
+  others <- which(soln != soln[from])
+  if(!length(others)) return(soln)
+  to <- .sampleOne(others)
   soln[c(to,from)] <- soln[c(from,to)]
   soln
 }
 
+# Moves a node from a largest group to a smaller one. The groups are found by
+# their labels rather than by their positions in `table()`, so that the labels
+# need not be `1:k`, and a move cannot make a group larger than the largest.
 .oneMove <- function(soln){
-  gsizes <- table(soln)
-  maxg <- which(gsizes == max(gsizes))
-  from <- sample(which(soln %in% maxg), 1)
-  soln[from] <- sample(which(gsizes != max(gsizes)), 1)
+  groups <- sort(unique(soln))
+  gsizes <- tabulate(match(soln, groups), length(groups))
+  smaller <- groups[gsizes < max(gsizes)]
+  if(!length(smaller)) return(.swapMove(soln))
+  from <- .sampleOne(which(soln %in% groups[gsizes == max(gsizes)]))
+  soln[from] <- .sampleOne(smaller)
   soln
 }
 

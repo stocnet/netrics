@@ -20,6 +20,15 @@
 - Fixed the single community algorithms erroring on a signed 'stocnet', whose signs reach igraph as negative weights
   - `node_in_optimal()`, `node_in_infomap()`, `node_in_fluid()`, `node_in_louvain()`, `node_in_labels()`, `node_in_betweenness()`, `node_in_greedy()`, `node_in_eigen()`, and `node_in_walktrap()` now consider only the positive ties, and say so
   - Before, a signed network's signs were ignored where held in a `sign` attribute, so negative ties were read as positive ones
+- Improved `node_in_roulette()`, with some implications for `node_in_block()`
+  - Now uses an iterated local search to improve the partition, rather than a single pass of greedy moves
+    - Weak moves now kept only if they improve the partition
+    - Strong perturbation now restarts from the best partition
+  - Improved speed by several times 
+  - Improved `groups=` to accept a vector of group sizes
+  - Added `attribute=` and `balance=` to mix groups by a node attribute
+  - Added `decay=` to discount ties from earlier waves or times, by default uniform
+  - Now stops with a message on a two-mode network
 
 # netrics 1.0.3
 

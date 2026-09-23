@@ -285,15 +285,25 @@ node_in_block <- function(.data, k = 2L,
   shuffled <- sample(seq.int(n))
   out <- cut(seq_along(shuffled), k, labels = FALSE)[shuffled]
   fit <- fitness(out)
+  # An iterated local search: `soln` descends by weak moves that improve it,
+  # and every 10th iteration restarts from a strong perturbation of the best.
   soln <- out
+  soln_fit <- fit
   for(t in seq.int(times)){
-    soln <- .weakPerturb(soln)
-    new_fit <- fitness(soln)
-    if(new_fit < fit){
-      out <- soln
-      fit <- new_fit
+    cand <- .weakPerturb(soln)
+    cand_fit <- fitness(cand)
+    if(cand_fit < soln_fit){
+      soln <- cand
+      soln_fit <- cand_fit
     }
-    if(t %% 10 == 0) soln <- .strongPerturb(soln)
+    if(soln_fit < fit){
+      out <- soln
+      fit <- soln_fit
+    }
+    if(t %% 10 == 0){
+      soln <- .strongPerturb(out)
+      soln_fit <- fitness(soln)
+    }
   }
   out <- make_node_member(out, .data)
   attr(out, "k") <- k
