@@ -14,6 +14,9 @@
 - Fixed `node_by_diversity()` to not include ego when measuring alter diversity (closes #39)
   - Nodes without alters now return `NA`
 - Added `membership=` to `net_by_diversity()` for mean diversity by group weighted by size
+- Added `net_by_divergence()` for networks' Hamming, Jaccard, or portrait divergence
+  - `ideal=` takes a network or any `manynet::create_*()` or `manynet::generate_*()` function
+  - Falls back to portrait divergence where the networks' nodes differ
 
 ## Memberships
 

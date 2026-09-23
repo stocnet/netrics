@@ -364,6 +364,8 @@ net_by_balance <- function(.data) {
 #'   and a component model with the same dimensions.
 #'   - `net_by_modularity()` measures the modularity of a network
 #'   based on nodes' membership in defined clusters.
+#'   - `net_by_divergence()` measures how far a network is from an ideal
+#'   network, such as a core-periphery, complete, or star network.
 #'   - `net_by_inconsistency()` measures how far a partition's blocks depart from
 #'   ideal block types.
 #'
@@ -380,6 +382,7 @@ net_by_balance <- function(.data) {
 #'   | `net_by_core()` | a core-periphery model | -1 to 1 | higher |
 #'   | `net_by_factions()` | a components model | -1 to 1 | higher |
 #'   | `net_by_modularity()` | the partition's communities | -0.5 to 1 (at the default resolution) | higher |
+#'   | `net_by_divergence()` | an ideal network | 0 to 1 | **lower** |
 #'   | `net_by_inconsistency()` | ideal block types | 0 upwards | **lower** |
 #'
 #'   Compare partitions using one measure at a time.
@@ -614,6 +617,203 @@ net_by_modularity <- function(.data,
 }
 
 #' @rdname measure_fit
+#' @param ideal The ideal network to compare against. Either a network object,
+#'   or a function that builds one from the network, such as any of the
+#'   `manynet::create_*()` or `manynet::generate_*()` functions.
+#'   A function is called with the network as its first argument, and also
+#'   given `mark` or `membership` where it takes them.
+#'   By default [manynet::create_core()].
+#'   For other arguments, pass an anonymous function,
+#'   e.g. `\(x) manynet::create_lattice(x, width = 4)`.
+#' @section Divergence:
+#'   `net_by_divergence()` measures how far a network is from some ideal
+#'   network, from 0 where the network _is_ the ideal to 1.
+#'   There are three variants:
+#'
+#'   - `"hamming"` (the default) is the share of possible ties on which the
+#'   network and the ideal disagree. This is the graph edit distance, counting
+#'   only tie additions and deletions, normalised by the number of possible ties.
+#'   A missing tie that is also missing in the ideal counts as agreement.
+#'   - `"jaccard"` is one minus the share of ties in either network that are in
+#'   both. Unlike `"hamming"`, it ignores ties missing from both, so a sparse
+#'   network does not look close to a sparse ideal just because both are sparse.
+#'   For the same reason it is always 1 against an empty ideal,
+#'   so use `"hamming"` there.
+#'   - `"portrait"` is the portrait divergence of Bagrow and Bollt (2019): the
+#'   Jensen-Shannon divergence between the two networks' distributions of how
+#'   many nodes each node reaches at each distance.
+#'   It compares structure at all scales and needs no correspondence between
+#'   the two networks' nodes, so the ideal may even be of a different size.
+#'
+#'   `"hamming"` and `"jaccard"` compare the two networks tie by tie, and so
+#'   need the ideal's nodes to correspond to the network's.
+#'   This holds for an ideal network of the same dimensions and node names,
+#'   and for [manynet::create_core()], [manynet::create_components()],
+#'   [manynet::create_filled()], and [manynet::create_empty()], which are built
+#'   from the network's own `mark` or `membership`, or do not depend on the
+#'   order of nodes.
+#'   It does not hold for, e.g., [manynet::create_star()] or
+#'   [manynet::create_ring()], where which node is the hub or comes next is
+#'   arbitrary, nor for the random `manynet::generate_*()` functions.
+#'   There the portrait divergence is used instead, and the result reports
+#'   the variant used. Note that an ideal from a `manynet::generate_*()`
+#'   function is random, so it returns a different value on each call.
+#'
+#'   Where a directed network is compared tie by tie with
+#'   [manynet::create_core()] or [manynet::create_components()], which build
+#'   one direction only, both are first symmetrised, as in `net_by_core()`.
+#' @section Divergence and inconsistency:
+#'   `net_by_divergence()` and `net_by_inconsistency()` both return how far a
+#'   network is from an ideal, and both run lower-is-better,
+#'   but they differ in what that ideal is:
+#'
+#'   - `net_by_divergence()` compares against _one_ ideal network, and returns
+#'   a value between 0 and 1.
+#'   - `net_by_inconsistency()` compares against the best of a _set_ of ideals.
+#'   Each block may take whichever of the permitted types fits it best,
+#'   so the data choose the image. Some of those types, such as `reg`, are
+#'   satisfied by many different blocks rather than by one, so there is no
+#'   single network to compare against. Its value runs from 0 upwards.
+#'
+#'   Where every block of a `membership` is best fitted as complete on the
+#'   diagonal and null off it, `net_by_inconsistency(blocks = c("nul", "com"))`
+#'   equals the `"hamming"` divergence from
+#'   `manynet::create_components(membership = membership)`.
+#'   In short, use `net_by_divergence()` where you can name the ideal network,
+#'   and `net_by_inconsistency()` where you can only name the permitted
+#'   block types.
+#' @references
+#' ## On portrait divergence
+#' Bagrow, James P., and Erik M. Bollt. 2019.
+#' "An information-theoretic, all-scales approach to comparing networks".
+#' _Applied Network Science_ 4: 45.
+#' \doi{10.1007/s41109-019-0156-x}
+#' @examples
+#' net_by_divergence(ison_adolescents, manynet::create_filled)
+#' net_by_divergence(ison_adolescents, manynet::create_filled,
+#'                   variant = "jaccard")
+#' net_by_divergence(ison_adolescents, manynet::create_star)
+#' @export
+net_by_divergence <- function(.data, ideal = manynet::create_core,
+                              variant = c("hamming", "jaccard", "portrait"),
+                              mark = NULL, membership = NULL){
+  # the variant falls back to portrait silently only where the user left it
+  chosen <- !missing(variant)
+  variant <- match.arg(variant)
+  .data <- manynet::to_unweighted(.to_unsigned(manynet::expect_nodes(.data)))
+  symmetrise <- FALSE
+  if(is.function(ideal)){
+    # `manynet::create_*()` builds one layer; see `net_by_core()`
+    if(.is_multilevel(.data))
+      manynet::snet_abort("{.fn net_by_divergence} builds an ideal of one",
+                          "layer, and this network holds two. Take one layer",
+                          "first, e.g. with {.fn to_mode1} or {.fn to_uniplex},",
+                          "or pass an ideal network instead.")
+    fmls <- names(formals(ideal))
+    args <- list(.data)
+    if("mark" %in% fmls){
+      if(is.null(mark)) mark <- node_is_core(.data)
+      args$mark <- as.logical(mark)
+    }
+    if("membership" %in% fmls){
+      membership <- .resolve_membership(.data, membership)
+      if(is.null(membership)){
+        manynet::snet_info("No membership vector assigned.",
+                           "Partitioning the network using {.fn node_in_partition}.")
+        membership <- node_in_partition(.data)
+      }
+      args$membership <- membership
+    }
+    # These ideals are built from the network's own mark or membership, or do
+    # not depend on node order, so their nodes correspond to the network's.
+    aligned <- any(vapply(list(manynet::create_core, manynet::create_components,
+                               manynet::create_filled, manynet::create_empty),
+                          identical, logical(1), ideal))
+    # `manynet::create_core()` and `manynet::create_components()` return an
+    # upper-triangular matrix for a directed network; see `net_by_core()`
+    symmetrise <- manynet::is_directed(.data) &&
+      any(vapply(list(manynet::create_core, manynet::create_components),
+                 identical, logical(1), ideal))
+    ideal <- do.call(ideal, args)
+  } else {
+    ideal <- manynet::to_unweighted(.to_unsigned(manynet::expect_nodes(ideal)))
+    aligned <- identical(manynet::net_dims(ideal), manynet::net_dims(.data)) &&
+      identical(manynet::node_names(ideal), manynet::node_names(.data))
+  }
+  if(variant != "portrait" && !aligned){
+    if(chosen)
+      manynet::snet_info("{.fn net_by_divergence} compares tie by tie only where",
+                         "the ideal's nodes correspond to the network's, and",
+                         "here they do not. Using the portrait divergence",
+                         "instead, which needs no such correspondence.")
+    variant <- "portrait"
+  }
+  if(variant == "portrait"){
+    out <- .portrait_divergence(.net_portrait(.data), .net_portrait(ideal))
+  } else {
+    obs <- manynet::as_matrix(.data)
+    ide <- manynet::as_matrix(ideal)
+    if(symmetrise){
+      manynet::snet_info("{.fn net_by_divergence} compares the network against",
+                         "a symmetric ideal, so tie direction is not used here.")
+      obs <- pmax(obs, t(obs))
+      ide <- pmax(ide, t(ide))
+    }
+    keep <- .valid_cells(.data, obs)
+    obs <- obs[keep] != 0
+    ide <- ide[keep] != 0
+    if(variant == "hamming"){
+      out <- mean(obs != ide)
+    } else {
+      union <- sum(obs | ide)
+      # two networks without any ties are identical
+      out <- if(union == 0) 0 else 1 - sum(obs & ide)/union
+    }
+  }
+  make_network_measure(out, .data, call = deparse(sys.call()),
+                       measure = switch(variant,
+                                        hamming = "Hamming divergence",
+                                        jaccard = "Jaccard divergence",
+                                        portrait = "portrait divergence"),
+                       range = c(0, 1), normalization = "normalized",
+                       variant = variant)
+}
+
+# A network's portrait (Bagrow and Bollt 2019): the matrix whose entry in row
+# l+1 and column k+1 counts the nodes that reach exactly k nodes at distance l.
+.net_portrait <- function(.data){
+  g <- manynet::as_igraph(.data)
+  d <- igraph::distances(g, mode = "out", weights = NA)
+  d[is.infinite(d)] <- NA
+  n <- nrow(d)
+  maxl <- max(d, na.rm = TRUE)
+  out <- matrix(0, maxl + 1, n + 1)
+  for(l in 0:maxl)
+    out[l + 1, ] <- tabulate(rowSums(d == l, na.rm = TRUE) + 1, nbins = n + 1)
+  out
+}
+
+# The Jensen-Shannon divergence, in bits, between two portraits read as
+# distributions over pairs of nodes: the chance that a random pair is at
+# distance l and that its first node reaches k nodes at that distance.
+.portrait_divergence <- function(B1, B2){
+  L <- max(nrow(B1), nrow(B2))
+  K <- max(ncol(B1), ncol(B2))
+  k <- matrix(seq_len(K) - 1, L, K, byrow = TRUE)
+  .as_pairs <- function(B){
+    out <- matrix(0, L, K)
+    out[seq_len(nrow(B)), seq_len(ncol(B))] <- B
+    out <- out * k
+    out/sum(out)
+  }
+  P <- .as_pairs(B1)
+  Q <- .as_pairs(B2)
+  M <- (P + Q)/2
+  .kl <- function(a, b) sum(a[a > 0] * log2(a[a > 0]/b[a > 0]))
+  (.kl(P, M) + .kl(Q, M))/2
+}
+
+#' @rdname measure_fit
 #' @param blocks A character vector of permitted ideal block types,
 #'   or a list-matrix giving the permitted types for each block position.
 #'   By default `c("nul", "com")`, which is structural blockmodelling.
@@ -649,6 +849,8 @@ net_by_modularity <- function(.data,
 #'   `net_by_factions()` fixes the image — complete on the diagonal, null off it
 #'   — whereas `net_by_inconsistency(blocks = c("nul", "com"))` lets each block take
 #'   whichever of the two ideals fits it better, and so is more permissive.
+#'   For how it relates to `net_by_divergence()`, which also runs
+#'   lower-is-better, see the section on divergence and inconsistency.
 #'
 #'   The ideal types are:
 #'   \describe{
@@ -697,7 +899,7 @@ net_by_inconsistency <- function(.data, membership = NULL,
                        "Partitioning the network using {.fn node_in_partition}.")
     membership <- node_in_partition(.data)
   }
-  mat <- manynet::as_matrix(manynet::to_unweighted(manynet::to_multilevel(.data)))
+  mat <- manynet::as_matrix(manynet::to_unweighted(manynet::to_onemode(.data)))
   memb <- as.numeric(as.factor(membership))
   g <- max(memb)
   loops <- manynet::is_complex(.data)
