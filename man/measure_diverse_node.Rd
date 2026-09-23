@@ -49,7 +49,8 @@ across this attribute:
 \item \code{node_by_richness()} measures the number of unique categories
 of an attribute to which each node is connected.
 \item \code{node_by_diversity()} measures the heterogeneity of each node's
-local neighbourhood.
+alters, not including the node itself.
+Nodes without alters return \code{NA}.
 }
 }
 \examples{
