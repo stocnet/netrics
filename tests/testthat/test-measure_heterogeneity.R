@@ -63,7 +63,7 @@ test_that("net_by_spatial() reads the multilevel matrix where both modes hold th
   set.seed(2025)
   tm <- igraph::set_vertex_attr(as_igraph(ison_southern_women), "age",
                                 value = round(rnorm(32, 40, 8), 1))
-  w <- as_matrix(to_multilevel(tm))
+  w <- as_matrix(to_onemode(tm))
   x <- node_attribute(tm, "age")
   ref <- (32 / sum(w)) * sum(w * outer(x - mean(x), x - mean(x))) /
     sum((x - mean(x))^2)

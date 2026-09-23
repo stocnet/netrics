@@ -53,7 +53,7 @@ NULL
 regularity_rolesim <- function(.data, decay = 0.15, beta = NULL){
   .data <- manynet::expect_nodes(.data)
   decay <- check_decay(resolve_decay(decay, beta, "beta"))
-  mat <- manynet::as_matrix(manynet::to_unweighted(manynet::to_multilevel(.data)))
+  mat <- manynet::as_matrix(manynet::to_unweighted(manynet::to_onemode(.data)))
   n <- nrow(mat)
   nbrs <- .neighbourhoods(mat, manynet::is_directed(.data))
   sim <- matrix(1, n, n) # all nodes begin maximally similar
@@ -126,7 +126,7 @@ regularity_rolesim <- function(.data, decay = 0.15, beta = NULL){
 #' @export
 regularity_rege <- function(.data, iterations = 3){
   .data <- manynet::expect_nodes(.data)
-  mat <- manynet::as_matrix(manynet::to_multilevel(.data))
+  mat <- manynet::as_matrix(manynet::to_onemode(.data))
   if(!manynet::is_weighted(.data) && manynet::is_connected(.data))
     manynet::snet_warn("REGE is degenerate on unweighted connected networks,",
                        "where all nodes are maximally regularly equivalent.",

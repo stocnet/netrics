@@ -466,7 +466,7 @@ node_in_partition <- function(.data, k = 2L, max_k = 8L,
   .data <- manynet::expect_nodes(.data)
   k <- check_k(k, .data)
   n <- manynet::net_nodes(.data)
-  g <- manynet::as_matrix(manynet::to_multilevel(.data))
+  g <- manynet::as_matrix(manynet::to_onemode(.data))
   at_k <- function(no) kl_partition(g, n, no, start = start)
   memb <- apply_k(k, max_k, .data, at_k = at_k, default = function() at_k(2L))
   make_node_member(memb, .data)

@@ -407,7 +407,7 @@ node_by_subgraph <- function(.data, decay = 1,
 # carried by the adjacency matrix itself.
 .closed_walks <- function(.data, decay = 1, walks = c("all", "odd", "even")) {
   walks <- match.arg(walks)
-  mat <- manynet::as_matrix(manynet::to_multilevel(.data))
+  mat <- manynet::as_matrix(manynet::to_onemode(.data))
   if(!isSymmetric(unname(mat))) {
     manynet::snet_info("Counting closed walks on the undirected form of this network, since the decomposition requires a symmetric matrix.")
     mat <- (mat + t(mat))/2

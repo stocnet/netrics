@@ -142,6 +142,7 @@ measure_rosters <- list(
     net_by_core          = list(),
     net_by_factions      = list(),
     net_by_modularity    = list(),
+    net_by_divergence    = list(),
     net_by_inconsistency = list()
   ),
 

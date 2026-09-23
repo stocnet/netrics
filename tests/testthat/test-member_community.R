@@ -122,6 +122,15 @@ test_that("node_in_partition keeps the best split a pass reaches", {
   expect_gt(net_by_modularity(ison_adolescents, memb), 0)
 })
 
+test_that("node_in_partition partitions a two-mode network", {
+  # From manynet 2.4.0, `to_multilevel()` keeps a two-mode network two-mode,
+  # so its matrix stayed rectangular and was indexed out of bounds.
+  res <- node_in_partition(ison_southern_women)
+  expect_s3_class(res, "node_member")
+  expect_length(res, manynet::net_nodes(ison_southern_women))
+  expect_equal(as.numeric(table(res)), c(16, 16))
+})
+
 test_that("node_in_partition takes a random start", {
   set.seed(1234)
   res <- node_in_partition(ison_karateka, start = "random")

@@ -593,7 +593,7 @@ net_by_spatial <- function(.data, attribute){
       manynet::snet_info("{.val {attribute}} is present on both modes.",
                          "Measuring autocorrelation across the",
                          "multilevel matrix.")
-      net <- manynet::to_multilevel(net)
+      net <- manynet::to_onemode(net)
     } else {
       manynet::snet_info("{.val {attribute}} is present on one mode only.",
                          "Projecting onto that mode, so that nodes are",

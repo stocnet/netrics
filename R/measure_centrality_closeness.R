@@ -351,10 +351,10 @@ node_by_information <- function(.data, normalized = TRUE){
   .data <- manynet::expect_nodes(.data)
   thisRequires("sna")
   # `sna` needs a square sociomatrix, but `as_network()` hands it the
-  # rectangular incidence matrix of a two-mode network. Flattening to a
-  # multilevel network first gives every node a row and a column, which is
+  # rectangular incidence matrix of a two-mode network. Flattening to one
+  # mode first gives every node a row and a column, which is
   # how the other path-based measures in this file handle two modes.
-  out <- sna::infocent(manynet::as_network(manynet::to_multilevel(.data)),
+  out <- sna::infocent(manynet::as_network(manynet::to_onemode(.data)),
                        gmode = ifelse(manynet::is_directed(.data), "digraph", "graph"),
                        diag = manynet::is_complex(.data),
                        rescale = normalized)
@@ -517,7 +517,7 @@ node_by_vitality <- function(.data, normalized = TRUE){
 node_by_randomwalk <- function(.data, normalized = TRUE){
   .data <- manynet::expect_nodes(.data)
   # adjacency and degree matrices
-  A <- manynet::as_matrix(manynet::to_multilevel(.data))
+  A <- manynet::as_matrix(manynet::to_onemode(.data))
   degs <- node_by_deg(.data)
   D <- diag(degs)
   

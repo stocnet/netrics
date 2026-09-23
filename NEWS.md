@@ -13,6 +13,8 @@
   - The scaled distances now divide by the largest finite distance, and unreachable nodes stay infinite, with a message
 - Fixed `node_by_diversity()` to not include ego when measuring alter diversity (closes #39)
   - Nodes without alters now return `NA`
+- Fixed twomodes in `node_by_information()`, `net_by_spatial()` etc by 
+  replacing `to_multilevel()` with `manynet::to_onemode()` to create square matrices
 - Added `membership=` to `net_by_diversity()` for mean diversity by group weighted by size
 - Added `net_by_divergence()` for networks' Hamming, Jaccard, or portrait divergence
   - `ideal=` takes a network or any `manynet::create_*()` or `manynet::generate_*()` function
@@ -23,6 +25,8 @@
 - Fixed the single community algorithms erroring on a signed 'stocnet', whose signs reach igraph as negative weights
   - `node_in_optimal()`, `node_in_infomap()`, `node_in_fluid()`, `node_in_louvain()`, `node_in_labels()`, `node_in_betweenness()`, `node_in_greedy()`, `node_in_eigen()`, and `node_in_walktrap()` now consider only the positive ties, and say so
   - Before, a signed network's signs were ignored where held in a `sign` attribute, so negative ties were read as positive ones
+- Fixed twomodes in `node_in_partition()`, `node_in_regular()` etc by 
+  replacing `to_multilevel()` with `manynet::to_onemode()` to create square matrices
 - Improved `node_in_roulette()`, with some implications for `node_in_block()`
   - Now uses an iterated local search to improve the partition, rather than a single pass of greedy moves
     - Weak moves now kept only if they improve the partition

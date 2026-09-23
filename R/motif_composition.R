@@ -111,7 +111,7 @@ node_x_ties <- function(.data, direction = c("all", "out", "in")){
 # described by: its outgoing ties, its incoming ties, or both. For an
 # undirected network all three coincide.
 .directed_matrix <- function(.data, direction){
-  mat <- manynet::as_matrix(manynet::to_multilevel(.data))
+  mat <- manynet::as_matrix(manynet::to_onemode(.data))
   if(!manynet::is_directed(.data)) return(mat)
   switch(direction,
          out = mat,
@@ -157,7 +157,7 @@ node_x_ties <- function(.data, direction = c("all", "out", "in")){
 node_x_alters <- function(.data, attribute){
   .data <- manynet::expect_nodes(.data)
   attr <- .resolve_attribute(.data, attribute)
-  mat <- manynet::as_matrix(manynet::to_multilevel(.data))
+  mat <- manynet::as_matrix(manynet::to_onemode(.data))
   diag(mat) <- 0 # a node is not its own alter
   if(.is_categorical(attr)){
     attr <- as.factor(attr)
@@ -371,7 +371,7 @@ net_x_homophily <- function(.data, attribute){
 # non-alters, and so are held out rather than counted as absent ties.
 .comparable_matrix <- function(.data){
   mat <- manynet::as_matrix(
-    manynet::to_unweighted(manynet::to_multilevel(.data)))
+    manynet::to_unweighted(manynet::to_onemode(.data)))
   mat[mat != 0] <- 1
   if(manynet::is_twomode(.data)){
     mat <- (mat %*% mat > 0) * 1 # shares at least one node of the other mode

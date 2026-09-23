@@ -83,7 +83,7 @@ node_x_tie <- function(.data){
                                      manynet::as_matrix(manynet::to_waves(object)[[x]])
                                    }))
     } else if (manynet::is_twomode(.data)) {
-      mat <- manynet::as_matrix(manynet::to_multilevel(object))
+      mat <- manynet::as_matrix(manynet::to_onemode(object))
     } else {
       mat <- manynet::as_matrix(object)
     }

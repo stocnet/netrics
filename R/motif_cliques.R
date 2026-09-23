@@ -52,7 +52,7 @@ node_x_clique <- function(.data, min_clique_size = 3){
   if(manynet::is_signed(.data))
     .data <- manynet::to_unsigned(.data, keep = "positive")
   mat <- manynet::as_matrix(manynet::to_undirected(
-    manynet::to_unweighted(manynet::to_multilevel(.data))))
+    manynet::to_unweighted(manynet::to_onemode(.data))))
   if(twomode){
     # two nodes of a mode that share a partner are made adjacent, so that a
     # biclique becomes an ordinary clique of the combined node set
