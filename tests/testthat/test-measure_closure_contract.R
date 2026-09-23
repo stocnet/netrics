@@ -19,6 +19,11 @@ test_that("node closures meet the measure contract", {
   check_measure_contract(measure_rosters$closure_node,
                          manynet::ison_adolescents, level = "node")
   expect_declared(measure_rosters$closure_node, manynet::ison_adolescents)
+  # Transitivity's weighted variants only differ from one another where there
+  # are weights, so it is swept on a weighted network as well.
+  weighted <- measure_rosters$closure_node["node_by_transitivity"]
+  check_measure_contract(weighted, manynet::ison_networkers, level = "node")
+  expect_declared(weighted, manynet::ison_networkers)
 })
 
 test_that("closures stay bounded on two-mode and weighted networks", {

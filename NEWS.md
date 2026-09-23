@@ -16,6 +16,8 @@
 - Fixed twomodes in `node_by_information()`, `net_by_spatial()` etc by 
   replacing `to_multilevel()` with `manynet::to_onemode()` to create square matrices
 - Added `membership=` to `net_by_diversity()` for mean diversity by group weighted by size
+- Added `variant=` to `node_by_transitivity()` for Barrat, Onnela, or Zhang-Horvath weighted clustering
+  - Weighted networks now use Barrat's coefficient by default; `variant = "watts"` keeps the unweighted result
 - Added `net_by_divergence()` for networks' Hamming, Jaccard, or portrait divergence
   - `ideal=` takes a network or any `manynet::create_*()` or `manynet::generate_*()` function
   - Falls back to portrait divergence where the networks' nodes differ

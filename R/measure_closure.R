@@ -214,14 +214,16 @@ net_by_congruency <- function(.data, object2){
 #'   - `node_by_equivalency()` measures nodes' equivalence or reinforcement 
 #'   in a (usually two-mode) network.
 #'   
-#' @details 
-#' For one-mode networks, shallow wrappers of igraph versions exist via 
-#' `node_by_reciprocity` and `node_by_transitivity`.
-#' 
+#' @details
+#' For one-mode networks, `node_by_reciprocity` is a shallow wrapper of the
+#' igraph version, and `node_by_transitivity` offers the igraph version
+#' alongside three weighted clustering coefficients.
+#'
 #' For two-mode networks, `node_by_equivalency` calculates the proportion of three-paths in the network
 #' that are closed by fourth tie to establish a "shared four-cycle" structure.
 #' @template param_data
 #' @template node_measure
+#' @template param_variant
 NULL
 
 #' @rdname measure_closure_node 
@@ -257,6 +259,55 @@ node_by_reciprocity <- function(.data) {
 #'   A node's transitivity is the proportion of its neighbours that are
 #'   themselves connected, which is also known as the _local clustering
 #'   coefficient_ of the node.
+#'   Where \eqn{a_{ij}} indicates a tie and \eqn{k_i} is the node's degree,
+#'   the `"watts"` variant (Watts and Strogatz 1998) counts the node's
+#'   closed triangles:
+#'   \deqn{C_i = \frac{\sum_{j,h} a_{ij} a_{ih} a_{jh}}{k_i(k_i - 1)}}
+#'
+#'   The other variants weight each triangle by the ties' weights
+#'   \eqn{w_{ij}}, and differ in which weights count:
+#'
+#'   - `"barrat"` (Barrat et al. 2004) weights each triangle by the mean
+#'   weight of the node's own two ties in it, divided by the node's strength
+#'   \eqn{s_i}. Only whether the tie opposite the node is present counts:
+#'   \deqn{C_i = \frac{1}{s_i(k_i - 1)} \sum_{j,h} \frac{w_{ij} + w_{ih}}{2} a_{ij} a_{ih} a_{jh}}
+#'   - `"onnela"` (Onnela et al. 2005) weights each triangle by the geometric
+#'   mean of all three of its weights, each divided by the network's largest
+#'   weight, so that a triangle closed by a weak tie counts for less:
+#'   \deqn{C_i = \frac{1}{k_i(k_i - 1)} \sum_{j,h} (\hat{w}_{ij} \hat{w}_{ih} \hat{w}_{jh})^{1/3}}
+#'   - `"zhang"` (Zhang and Horvath 2005) divides the product of the three
+#'   weights by the most that the node's own weights allow:
+#'   \deqn{C_i = \frac{\sum_{j,h} \hat{w}_{ij} \hat{w}_{ih} \hat{w}_{jh}}{(\sum_j \hat{w}_{ij})^2 - \sum_j \hat{w}_{ij}^2}}
+#'
+#'   Saramäki et al. (2007) compare the three.
+#'   On an unweighted network, all four variants give the same values.
+#'   The first choice, `"watts"`, is the default on an unweighted network only.
+#'   On a weighted network, the default is `"barrat"`, since this is the
+#'   weighted form that reduces most directly to the unweighted one;
+#'   use `variant = "watts"` to ignore the weights.
+#'   A node with fewer than two ties has no pair of neighbours to close,
+#'   and scores `NaN` in every variant.
+#'   A two-mode network contains no triangles, so every node scores 0 or `NaN`.
+#' @section Directed networks:
+#'   Transitivity here ignores the direction of ties.
+#'   The weighted variants add the weights of the two directions of a tie,
+#'   following Fagiolo (2007).
+#'   Every weighted variant is unchanged when all weights are multiplied by the
+#'   same number, so this gives the same result as their mean.
+#'   To combine the two directions differently, use `manynet::to_undirected()`
+#'   first.
+#' @section Multiplex networks:
+#'   The `"watts"` variant counts a pair of nodes as tied if they are tied in
+#'   any layer.
+#'   The weighted variants add the weights of the parallel ties between two
+#'   nodes, so that, in an unweighted multiplex network, a tie is weighted by
+#'   the number of layers it appears in.
+#'   To measure one layer alone, use `manynet::to_uniplex()` first.
+#' @section Signed networks:
+#'   A tie counts here however it is signed, so each tie is read by the
+#'   magnitude of its weight.
+#'   To consider only the positive ties, use
+#'   `manynet::to_unsigned(keep = "positive")` first.
 #' @references
 #' ## On the local clustering coefficient
 #' Watts, Duncan J., and Steven H. Strogatz. 1998.
@@ -268,15 +319,90 @@ node_by_reciprocity <- function(.data) {
 #' "Transitivity in structural models of small groups".
 #' _Comparative Group Studies_ 2(2): 107-124.
 #' \doi{10.1177/104649647100200201}
+#' ## On weighted clustering
+#' Barrat, Alain, Marc Barthelemy, Romualdo Pastor-Satorras, and Alessandro Vespignani. 2004.
+#' "The architecture of complex weighted networks".
+#' _Proceedings of the National Academy of Sciences_ 101(11): 3747-3752.
+#' \doi{10.1073/pnas.0400087101}
+#'
+#' Onnela, Jukka-Pekka, Jari Saramäki, János Kertész, and Kimmo Kaski. 2005.
+#' "Intensity and coherence of motifs in weighted complex networks".
+#' _Physical Review E_ 71(6): 065103.
+#' \doi{10.1103/PhysRevE.71.065103}
+#'
+#' Zhang, Bin, and Steve Horvath. 2005.
+#' "A general framework for weighted gene co-expression network analysis".
+#' _Statistical Applications in Genetics and Molecular Biology_ 4(1): 17.
+#' \doi{10.2202/1544-6115.1128}
+#'
+#' Saramäki, Jari, Mikko Kivelä, Jukka-Pekka Onnela, Kimmo Kaski, and János Kertész. 2007.
+#' "Generalizations of the clustering coefficient to weighted complex networks".
+#' _Physical Review E_ 75(2): 027105.
+#' \doi{10.1103/PhysRevE.75.027105}
+#'
+#' Fagiolo, Giorgio. 2007.
+#' "Clustering in complex directed networks".
+#' _Physical Review E_ 76(2): 026107.
+#' \doi{10.1103/PhysRevE.76.026107}
 #' @examples
 #' node_by_transitivity(ison_adolescents)
+#' node_by_transitivity(ison_networkers)
+#' node_by_transitivity(ison_networkers, variant = "onnela")
 #' @export
-node_by_transitivity <- function(.data) {
+node_by_transitivity <- function(.data,
+                                 variant = c("watts", "barrat", "onnela", "zhang")) {
   .data <- manynet::expect_nodes(.data)
-  make_node_measure(igraph::transitivity(manynet::as_igraph(.data), 
-                                         type = "local"),
-                    .data, measure = "transitivity", range = c(0, 1),
-                    normalization = "normalized")
+  # A tie closes a triangle however it is signed, as the unweighted count
+  # already reads it, so a negative weight is read by its magnitude.
+  .data <- .to_unsigned(.data)
+  # The unweighted coefficient is the historical default, and stays so where
+  # there are no weights to use. Where there are, Barrat's is the default,
+  # since it reduces to the unweighted one when every weight is equal.
+  if(missing(variant) && manynet::is_weighted(.data)){
+    variant <- "barrat"
+    manynet::snet_info("Using {.val barrat} weighted clustering;",
+                       "use {.code variant = \"watts\"} to ignore weights.")
+  }
+  variant <- match.arg(variant)
+  if(variant == "watts"){
+    out <- igraph::transitivity(manynet::as_igraph(.data), type = "local")
+  } else {
+    # igraph's adjacency matrix is square for two-mode networks too, and adds
+    # the weights of parallel ties, where `manynet::as_matrix()` returns a
+    # list or missing values for some multiplex networks.
+    g <- manynet::as_igraph(.data)
+    W <- igraph::as_adjacency_matrix(
+      g, attr = if(manynet::is_weighted(.data)) "weight" else NULL,
+      sparse = FALSE)
+    diag(W) <- 0
+    # None of the three is defined for directed ties. Summing the two
+    # directions follows Fagiolo (2007), and since every variant is unchanged
+    # by a common rescaling of the weights, this is the same as their mean.
+    if(manynet::is_directed(.data)) W <- W + t(W)
+    A <- (W > 0) * 1
+    k <- rowSums(A)
+    # A node with fewer than two ties divides 0 by 0 in every variant below,
+    # and so scores NaN, as igraph's unweighted coefficient does.
+    out <- switch(variant,
+                  barrat = rowSums(W * (A %*% A)) / (rowSums(W) * (k - 1)),
+                  onnela = {
+                    W3 <- (W / max(W))^(1/3)
+                    diag(W3 %*% W3 %*% W3) / (k * (k - 1))
+                  },
+                  zhang = {
+                    Wh <- W / max(W)
+                    diag(Wh %*% Wh %*% Wh) / (rowSums(Wh)^2 - rowSums(Wh^2))
+                  })
+    out <- unname(out)
+  }
+  make_node_measure(out, .data,
+                    measure = switch(variant,
+                                     watts = "transitivity",
+                                     barrat = "Barrat transitivity",
+                                     onnela = "Onnela transitivity",
+                                     zhang = "Zhang-Horvath transitivity"),
+                    range = c(0, 1),
+                    normalization = "normalized", variant = variant)
 }
 
 #' @rdname measure_closure_node

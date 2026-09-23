@@ -9,7 +9,7 @@
 \usage{
 node_by_reciprocity(.data)
 
-node_by_transitivity(.data)
+node_by_transitivity(.data, variant = c("watts", "barrat", "onnela", "zhang"))
 
 node_by_equivalency(.data)
 }
@@ -17,6 +17,10 @@ node_by_equivalency(.data)
 \item{.data}{A network object of class \code{stocnet}, \code{igraph}, \code{tbl_graph}, \code{network}, or similar.
 Internally any of these will be coerced to an efficient implementation.
 For more information on possible coercions, see e.g. \code{\link[manynet:as_stocnet]{manynet::as_stocnet()}}.}
+
+\item{variant}{Character string naming which variant of the measure to
+compute, where more than one definition of the same quantity is in use.
+The variant chosen is reported when the result is printed.}
 }
 \value{
 A \code{node_measure} numeric vector the length of the nodes in the network,
@@ -42,8 +46,9 @@ in a (usually two-mode) network.
 }
 }
 \details{
-For one-mode networks, shallow wrappers of igraph versions exist via
-\code{node_by_reciprocity} and \code{node_by_transitivity}.
+For one-mode networks, \code{node_by_reciprocity} is a shallow wrapper of the
+igraph version, and \code{node_by_transitivity} offers the igraph version
+alongside three weighted clustering coefficients.
 
 For two-mode networks, \code{node_by_equivalency} calculates the proportion of three-paths in the network
 that are closed by fourth tie to establish a "shared four-cycle" structure.
@@ -61,11 +66,72 @@ This is what \code{net_by_reciprocity()} reports for such a network too.
 A node's transitivity is the proportion of its neighbours that are
 themselves connected, which is also known as the \emph{local clustering
 coefficient} of the node.
+Where \eqn{a_{ij}} indicates a tie and \eqn{k_i} is the node's degree,
+the \code{"watts"} variant (Watts and Strogatz 1998) counts the node's
+closed triangles:
+\deqn{C_i = \frac{\sum_{j,h} a_{ij} a_{ih} a_{jh}}{k_i(k_i - 1)}}
+
+The other variants weight each triangle by the ties' weights
+\eqn{w_{ij}}, and differ in which weights count:
+\itemize{
+\item \code{"barrat"} (Barrat et al. 2004) weights each triangle by the mean
+weight of the node's own two ties in it, divided by the node's strength
+\eqn{s_i}. Only whether the tie opposite the node is present counts:
+\deqn{C_i = \frac{1}{s_i(k_i - 1)} \sum_{j,h} \frac{w_{ij} + w_{ih}}{2} a_{ij} a_{ih} a_{jh}}
+\item \code{"onnela"} (Onnela et al. 2005) weights each triangle by the geometric
+mean of all three of its weights, each divided by the network's largest
+weight, so that a triangle closed by a weak tie counts for less:
+\deqn{C_i = \frac{1}{k_i(k_i - 1)} \sum_{j,h} (\hat{w}_{ij} \hat{w}_{ih} \hat{w}_{jh})^{1/3}}
+\item \code{"zhang"} (Zhang and Horvath 2005) divides the product of the three
+weights by the most that the node's own weights allow:
+\deqn{C_i = \frac{\sum_{j,h} \hat{w}_{ij} \hat{w}_{ih} \hat{w}_{jh}}{(\sum_j \hat{w}_{ij})^2 - \sum_j \hat{w}_{ij}^2}}
+}
+
+Saramäki et al. (2007) compare the three.
+On an unweighted network, all four variants give the same values.
+The first choice, \code{"watts"}, is the default on an unweighted network only.
+On a weighted network, the default is \code{"barrat"}, since this is the
+weighted form that reduces most directly to the unweighted one;
+use \code{variant = "watts"} to ignore the weights.
+A node with fewer than two ties has no pair of neighbours to close,
+and scores \code{NaN} in every variant.
+A two-mode network contains no triangles, so every node scores 0 or \code{NaN}.
+}
+
+\section{Directed networks}{
+
+Transitivity here ignores the direction of ties.
+The weighted variants add the weights of the two directions of a tie,
+following Fagiolo (2007).
+Every weighted variant is unchanged when all weights are multiplied by the
+same number, so this gives the same result as their mean.
+To combine the two directions differently, use \code{manynet::to_undirected()}
+first.
+}
+
+\section{Multiplex networks}{
+
+The \code{"watts"} variant counts a pair of nodes as tied if they are tied in
+any layer.
+The weighted variants add the weights of the parallel ties between two
+nodes, so that, in an unweighted multiplex network, a tie is weighted by
+the number of layers it appears in.
+To measure one layer alone, use \code{manynet::to_uniplex()} first.
+}
+
+\section{Signed networks}{
+
+A tie counts here however it is signed, so each tie is read by the
+magnitude of its weight.
+To consider only the positive ties, use
+\code{manynet::to_unsigned(keep = "positive")} first.
 }
 
 \examples{
 node_by_reciprocity(ison_networkers)
 node_by_transitivity(ison_adolescents)
+node_by_transitivity(ison_networkers)
+node_by_transitivity(ison_networkers, variant = "onnela")
 }
 \references{
 \subsection{On the local clustering coefficient}{
@@ -79,6 +145,34 @@ Holland, Paul W., and Samuel Leinhardt. 1971.
 "Transitivity in structural models of small groups".
 \emph{Comparative Group Studies} 2(2): 107-124.
 \doi{10.1177/104649647100200201}
+}
+
+\subsection{On weighted clustering}{
+
+Barrat, Alain, Marc Barthelemy, Romualdo Pastor-Satorras, and Alessandro Vespignani. 2004.
+"The architecture of complex weighted networks".
+\emph{Proceedings of the National Academy of Sciences} 101(11): 3747-3752.
+\doi{10.1073/pnas.0400087101}
+
+Onnela, Jukka-Pekka, Jari Saramäki, János Kertész, and Kimmo Kaski. 2005.
+"Intensity and coherence of motifs in weighted complex networks".
+\emph{Physical Review E} 71(6): 065103.
+\doi{10.1103/PhysRevE.71.065103}
+
+Zhang, Bin, and Steve Horvath. 2005.
+"A general framework for weighted gene co-expression network analysis".
+\emph{Statistical Applications in Genetics and Molecular Biology} 4(1): 17.
+\doi{10.2202/1544-6115.1128}
+
+Saramäki, Jari, Mikko Kivelä, Jukka-Pekka Onnela, Kimmo Kaski, and János Kertész. 2007.
+"Generalizations of the clustering coefficient to weighted complex networks".
+\emph{Physical Review E} 75(2): 027105.
+\doi{10.1103/PhysRevE.75.027105}
+
+Fagiolo, Giorgio. 2007.
+"Clustering in complex directed networks".
+\emph{Physical Review E} 76(2): 026107.
+\doi{10.1103/PhysRevE.76.026107}
 }
 }
 \seealso{
