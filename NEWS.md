@@ -44,6 +44,12 @@
 - Fixed `net_x_stability()` miscounting the ties that changed between networks
   - `==` bound after `*`, so it counted every absent tie, including self-ties, as changed
   - Now also counts undirected and weighted ties only once
+- Improved `node_x_alters()`, thanks @RWKrause (closes #39)
+  - Added `direction=` for out, in, reciprocated, or all (default) alters
+  - Added `WeightedSum`, each alter's value times the strength of the tie to it
+  - Alters with missing values are now left out of the summary
+  - Nodes without alters of known value now return `NA`, also if categorical
+  - Two-mode attributes on one mode only are now read at distance two
 
 # netrics 1.0.3
 

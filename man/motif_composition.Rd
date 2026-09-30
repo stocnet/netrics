@@ -9,7 +9,11 @@
 \usage{
 node_x_ties(.data, direction = c("all", "out", "in"))
 
-node_x_alters(.data, attribute)
+node_x_alters(
+  .data,
+  attribute,
+  direction = c("all", "out", "in", "reciprocated")
+)
 
 node_x_similarity(.data, attribute)
 }
@@ -52,6 +56,33 @@ Each branches internally on the type of network or attribute given,
 so the same function serves weighted, multiplex, and two-mode networks,
 and categorical as well as continuous attributes.
 }
+\section{Cognitive social structures}{
+
+A cognitive social structure records each node's report of the ties in
+the whole network, in a \code{by} column that names who reported each tie.
+Counting every report as a tie of its own would count each tie once for
+every perceiver who reports it.
+So the functions here first combine the reports into the locally
+aggregated structure of Krackhardt (1987), with the intersection rule:
+a tie exists if both of its ends report it, and a message says so.
+A tie that names no reporter is kept as it is.
+
+A tie-level function still returns one value for each report,
+so that the result can be added back to the network it was given.
+Each report takes the value of the tie that it reports.
+A report of a tie that is not in the aggregated structure takes \code{NA},
+or \code{FALSE} for a mark.
+\code{tie_is_random()} is the exception, and draws among the reports.
+
+To combine the reports in a different way, do this before the function,
+e.g. with \code{manynet::to_aggregated(over = "by")}.
+
+Krackhardt, David. 1987.
+"Cognitive social structures".
+\emph{Social Networks} 9(2): 109-134.
+\doi{10.1016/0378-8733(87)90009-8}
+}
+
 \section{Multiplex networks}{
 
 \code{node_x_ties()} returns one column per layer, plus a Diversity column,
@@ -97,14 +128,38 @@ alters rather than its arcs, while \code{Sum} matches its total degree.
 Where the attribute is categorical, this returns how many of each node's
 alters fall into each category, weighted by tie strength where the network
 is weighted.
-Where it is continuous, this returns the sum, mean, tie-strength weighted
-mean, minimum, maximum, range, and standard deviation of the attribute
-across each node's alters.
+Where it is continuous, this returns the sum, tie-strength weighted sum,
+mean, tie-strength weighted mean, minimum, maximum, range, and standard
+deviation of the attribute across each node's alters.
 
-The weighted mean differs from the mean wherever a node's ties are of
-unequal strength: it describes the attribute of the alters a node is most
-involved with, rather than of its alters as an undifferentiated set.
-Isolates have no alters and so take \code{NA}.
+The two weighted columns answer different questions.
+The weighted mean (\code{Weighted}) differs from the mean wherever a node's ties
+are of unequal strength: it describes the attribute of the alters a node
+is most involved with, rather than of its alters as an undifferentiated set.
+The weighted sum (\code{WeightedSum}) instead multiplies each alter's value by
+the strength of the tie to it, as where a tie's weight is an amount of
+exposure to that alter.
+On an unweighted network these equal the mean and the sum.
+
+Alters whose value is missing are left out of the summary.
+Nodes with no alters of known value, including isolates, take \code{NA}.
+
+In a directed network, \code{direction} selects which alters are described:
+those a node sends ties to (\code{"out"}), those it receives ties from
+(\code{"in"}), those it does either with (\code{"all"}), or those it does both with
+(\code{"reciprocated"}).
+Under \code{"all"} and \code{"reciprocated"}, an alter counts once,
+with the combined strength of the ties in both directions.
+
+In a two-mode network where the attribute is held by one mode alone,
+a node of that mode has no alters of known value at distance one.
+Each node of that mode is instead described by its alters at distance two,
+the nodes of its own mode that it shares a node of the other mode with,
+weighted by how many it shares (see Tertius similarity below).
+Each node of the other mode is described by its alters at distance one,
+which hold the attribute.
+Where both modes hold the attribute, every node is described by its
+alters at distance one.
 
 Any tie counts as a tie here, whatever its sign. Apply
 \code{\link[manynet:to_unsigned]{manynet::to_unsigned()}} first to consider only positive or only negative
@@ -163,6 +218,8 @@ node_x_ties(ison_algebra)
 node_x_ties(fict_marvel)
 node_x_alters(ison_networkers, "Discipline")
 node_x_alters(ison_networkers, "Citations")
+node_x_alters(ison_networkers, "Citations", direction = "reciprocated")
+node_x_alters(ison_southern_women, "Title")
 node_x_similarity(ison_networkers, "Discipline")
 node_x_similarity(ison_southern_women, "Title")
 }
