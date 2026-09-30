@@ -2,6 +2,7 @@
 
 #' Measuring nodes betweenness-like centrality
 #' @name measure_central_between
+#' @template section_cognitive
 #' @description
 #'   These functions calculate common betweenness-related centrality measures for one- and two-mode networks:
 #'   
@@ -82,6 +83,7 @@ node_by_betweenness <- function(.data, normalized = TRUE,
                                 cutoff = NULL){
   
   .data <- manynet::expect_nodes(.data)
+  .data <- .to_aggregated_css(.data)
   
   .data <- .to_positive(.data)
   weights <- `if`(manynet::is_weighted(.data), 
@@ -138,6 +140,7 @@ node_by_betweenness <- function(.data, normalized = TRUE,
 node_by_induced <- function(.data, normalized = TRUE, 
                             cutoff = NULL){
   .data <- manynet::expect_nodes(.data)
+  .data <- .to_aggregated_css(.data)
   .data <- .to_positive(.data)
   endog <- sum(node_by_betweenness(.data, normalized = normalized, cutoff = cutoff),
                na.rm = TRUE)
@@ -172,6 +175,7 @@ node_by_induced <- function(.data, normalized = TRUE,
 #' @export 
 node_by_flow <- function(.data, normalized = TRUE){
   .data <- manynet::expect_nodes(.data)
+  .data <- .to_aggregated_css(.data)
   thisRequires("sna")
   out <- sna::flowbet(manynet::as_network(.data),
                       gmode = ifelse(manynet::is_directed(.data), "digraph", "graph"),
@@ -200,6 +204,7 @@ node_by_flow <- function(.data, normalized = TRUE){
 #' @export 
 node_by_stress <- function(.data, normalized = TRUE){
   .data <- manynet::expect_nodes(.data)
+  .data <- .to_aggregated_css(.data)
   thisRequires("sna")
   out <- sna::stresscent(manynet::as_network(.data),
                          gmode = ifelse(manynet::is_directed(.data), "digraph", "graph"),
@@ -216,6 +221,7 @@ node_by_stress <- function(.data, normalized = TRUE){
 
 #' Measuring ties betweenness-like centrality
 #' @name measure_central_tie_between
+#' @template section_cognitive
 #' @description
 #'   `tie_by_betweenness()` measures the number of shortest paths going through a tie.
 #'   
@@ -264,6 +270,8 @@ NULL
 #' @export
 tie_by_betweenness <- function(.data, normalized = TRUE){
   .data <- manynet::expect_ties(.data)
+  if(manynet::is_cognitive(.data))
+    return(.map_css_ties(.data, tie_by_betweenness, normalized = normalized))
   .data <- .to_unsigned(.data)
   .data <- manynet::as_igraph(.data)
   eddies <- manynet::as_edgelist(.data)
@@ -287,6 +295,7 @@ tie_by_betweenness <- function(.data, normalized = TRUE){
 
 #' Measuring networks betweenness-like centralisation
 #' @name measure_centralisation_between
+#' @template section_cognitive
 #' @description
 #'   - `net_by_betweenness()` measures the betweenness centralization for a
 #'   network as a single score.
@@ -344,6 +353,7 @@ NULL
 #' @export
 net_by_betweenness <- function(.data, normalized = TRUE) {
   .data <- manynet::expect_nodes(.data)
+  .data <- .to_aggregated_css(.data)
   .data <- .to_positive(.data)
   graph <- manynet::as_igraph(.data)
 

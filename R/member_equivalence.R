@@ -20,6 +20,7 @@
 #'   of the hierarchical cluster and showing the returned cluster
 #'   assignment.
 #' @name member_equivalence
+#' @template section_cognitive
 #' @template param_data
 #' @template param_motf
 #' @template node_member
@@ -97,6 +98,7 @@ node_in_structural <- function(.data,
                                max_k = 8L, Kmax = NULL){
   max_k <- resolve_max_k(max_k, Kmax)
   .data <- manynet::expect_nodes(.data)
+  .data <- .to_aggregated_css(.data)
   mat <- node_x_tie(.data)
   if(any(colSums(t(mat))==0)){
     mat <- cbind(mat, (colSums(t(mat))==0))
@@ -145,6 +147,7 @@ node_in_regular <- function(.data,
                             decay = 0.15, beta = NULL, Kmax = NULL){
   max_k <- resolve_max_k(max_k, Kmax)
   .data <- manynet::expect_nodes(.data)
+  .data <- .to_aggregated_css(.data)
   regularity <- match.arg(regularity)
   decay <- resolve_decay(decay, beta, "beta")
   manynet::snet_info("Calculating regular equivalence using",
@@ -202,6 +205,7 @@ node_in_motif <- function(.data,
                           max_k = 8L, Kmax = NULL){
   max_k <- resolve_max_k(max_k, Kmax)
   .data <- manynet::expect_nodes(.data)
+  .data <- .to_aggregated_css(.data)
   if(manynet::is_twomode(.data)){
     manynet::snet_info("Since this is a two-mode network,",
               "using {.fn node_x_tetrad} to",
@@ -233,6 +237,7 @@ node_in_automorphic <- function(.data,
                                 max_k = 8L, Kmax = NULL){
   max_k <- resolve_max_k(max_k, Kmax)
   .data <- manynet::expect_nodes(.data)
+  .data <- .to_aggregated_css(.data)
   mat <- node_x_path(.data)
   node_in_equivalence(.data, mat, 
                    k = k, cluster = cluster, distance = distance, max_k = max_k)
@@ -275,6 +280,7 @@ node_in_block <- function(.data, k = 2L,
                                blocks = c("nul", "com"),
                                times = NULL){
   .data <- manynet::expect_nodes(.data)
+  .data <- .to_aggregated_css(.data)
   if(!is.numeric(k) || k < 2)
     manynet::snet_abort("`k` must be the number of positions sought, at least 2.")
   n <- manynet::net_nodes(.data)

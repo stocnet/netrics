@@ -49,6 +49,7 @@
 #' @template param_data
 #' @template node_member
 #' @name member_cliques
+#' @template section_cognitive
 NULL
 
 #' @rdname member_cliques
@@ -95,7 +96,7 @@ NULL
 #' net <- create_empty(8)
 #' for(round in 1:3){
 #'   grp <- node_in_roulette(net, group_size = 4, decay = 0.5)
-#'   pairs <- which(as_matrix(grp) == 1 & upper.tri(diag(8)), arr.ind = TRUE)
+#'   pairs <- which(outer(grp, grp, "==") & upper.tri(diag(8)), arr.ind = TRUE)
 #'   net <- add_ties(net, pairs, attr_list = list(time = rep(round, nrow(pairs))))
 #' }
 #' net
@@ -104,6 +105,7 @@ node_in_roulette <- function(.data, groups, group_size, times = NULL,
                              decay = 1, attribute = NULL, balance = 0.5,
                              num_groups = NULL){
   .data <- manynet::expect_nodes(.data)
+  .data <- .to_aggregated_css(.data)
   if(manynet::is_twomode(.data))
     manynet::snet_abort("{.fn node_in_roulette} groups the nodes of a one-mode network.")
   # Read before `resolve_groups()` assigns, since assigning to a formal that

@@ -120,6 +120,33 @@ and a numeric attribute costs a pair their absolute difference over its maximum.
 0 considers only the ties, and 1 only the attribute.
 }
 
+\section{Cognitive social structures}{
+
+A cognitive social structure records each node's report of the ties in
+the whole network, in a \code{by} column that names who reported each tie.
+Counting every report as a tie of its own would count each tie once for
+every perceiver who reports it.
+So the functions here first combine the reports into the locally
+aggregated structure of Krackhardt (1987), with the intersection rule:
+a tie exists if both of its ends report it, and a message says so.
+A tie that names no reporter is kept as it is.
+
+A tie-level function still returns one value for each report,
+so that the result can be added back to the network it was given.
+Each report takes the value of the tie that it reports.
+A report of a tie that is not in the aggregated structure takes \code{NA},
+or \code{FALSE} for a mark.
+\code{tie_is_random()} is the exception, and draws among the reports.
+
+To combine the reports in a different way, do this before the function,
+e.g. with \code{manynet::to_aggregated(over = "by")}.
+
+Krackhardt, David. 1987.
+"Cognitive social structures".
+\emph{Social Networks} 9(2): 109-134.
+\doi{10.1016/0378-8733(87)90009-8}
+}
+
 \examples{
 node_in_roulette(ison_adolescents, groups = 3)
 # Mix the groups on an attribute
@@ -129,7 +156,7 @@ node_in_roulette(marvel_friends, groups = 3, attribute = "Gender")
 net <- create_empty(8)
 for(round in 1:3){
   grp <- node_in_roulette(net, group_size = 4, decay = 0.5)
-  pairs <- which(as_matrix(grp) == 1 & upper.tri(diag(8)), arr.ind = TRUE)
+  pairs <- which(outer(grp, grp, "==") & upper.tri(diag(8)), arr.ind = TRUE)
   net <- add_ties(net, pairs, attr_list = list(time = rep(round, nrow(pairs))))
 }
 net

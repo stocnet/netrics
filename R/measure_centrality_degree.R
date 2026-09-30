@@ -2,6 +2,7 @@
 
 #' Measuring nodes degree-like centrality
 #' @name measure_central_degree
+#' @template section_cognitive
 #' @description
 #'   These functions calculate common degree-related centrality measures for one- and two-mode networks:
 #'   
@@ -111,6 +112,7 @@ NULL
 node_by_degree <- function (.data, normalized = TRUE, alpha = 0,
                          direction = c("all","out","in")){
   .data <- manynet::expect_nodes(.data)
+  .data <- .to_aggregated_css(.data)
   graph <- manynet::as_igraph(.data)
   weights <- `if`(manynet::is_weighted(.data),
                   manynet::tie_weights(.data), NA)
@@ -164,6 +166,7 @@ node_by_degree <- function (.data, normalized = TRUE, alpha = 0,
 #' @export
 node_by_deg <- function (.data, alpha = 0, direction = c("all","out","in")){
   .data <- manynet::expect_nodes(.data)
+  .data <- .to_aggregated_css(.data)
   node_by_degree(.data, normalized = FALSE, alpha = alpha, direction = direction)
 }
 
@@ -171,6 +174,7 @@ node_by_deg <- function (.data, alpha = 0, direction = c("all","out","in")){
 #' @export
 node_by_outdegree <- function (.data, normalized = TRUE, alpha = 0){
   .data <- manynet::expect_nodes(.data)
+  .data <- .to_aggregated_css(.data)
   node_by_degree(.data, normalized = normalized, alpha = alpha, direction = "out")
 }
 
@@ -178,6 +182,7 @@ node_by_outdegree <- function (.data, normalized = TRUE, alpha = 0){
 #' @export
 node_by_indegree <- function (.data, normalized = TRUE, alpha = 0){
   .data <- manynet::expect_nodes(.data)
+  .data <- .to_aggregated_css(.data)
   node_by_degree(.data, normalized = normalized, alpha = alpha, direction = "in")
 }
 
@@ -226,6 +231,7 @@ uniplex_degree <- function(.data, tie, normalized = TRUE, direction = "all") {
 #' @export
 node_by_leverage <- function(.data){
   .data <- manynet::expect_nodes(.data)
+  .data <- .to_aggregated_css(.data)
   out <- (node_by_deg(.data) - node_by_neighbours_degree(.data))/
     (node_by_deg(.data) + node_by_neighbours_degree(.data))
   # Bounded by construction rather than divided by a maximum: a ratio of
@@ -238,6 +244,7 @@ node_by_leverage <- function(.data){
 
 #' Measuring ties degree-like centrality
 #' @name measure_central_tie_degree
+#' @template section_cognitive
 #' @description
 #'   `tie_by_degree()` measures the degree centrality of ties in a network
 #'   
@@ -260,6 +267,8 @@ NULL
 #' @export
 tie_by_degree <- function(.data, normalized = TRUE){
   .data <- manynet::expect_ties(.data)
+  if(manynet::is_cognitive(.data))
+    return(.map_css_ties(.data, tie_by_degree, normalized = normalized))
   edge_adj <- manynet::to_linegraph(.data)
   out <- node_by_degree(edge_adj, normalized = normalized)
   class(out) <- "numeric"
@@ -272,6 +281,7 @@ tie_by_degree <- function(.data, normalized = TRUE){
 
 #' Measuring networks degree-like centralisation
 #' @name measure_centralisation_degree
+#' @template section_cognitive
 #' @description
 #'   - `net_by_degree()` measures a network's degree centralization as a single
 #'   score; there are several related shortcut functions:
@@ -331,6 +341,7 @@ net_by_degree <- function(.data, normalized = TRUE,
                            direction = c("all", "out", "in")){
 
   .data <- manynet::expect_nodes(.data)
+  .data <- .to_aggregated_css(.data)
   direction <- match.arg(direction)
 
   if (manynet::is_twomode(.data)) {
@@ -398,6 +409,7 @@ mode_by_degree <- function(.data, normalized = TRUE,
 #' @export
 net_by_outdegree <- function(.data, normalized = TRUE){
   .data <- manynet::expect_nodes(.data)
+  .data <- .to_aggregated_css(.data)
   net_by_degree(.data, normalized = normalized, direction = "out")
 }
 
@@ -405,6 +417,7 @@ net_by_outdegree <- function(.data, normalized = TRUE){
 #' @export
 net_by_indegree <- function(.data, normalized = TRUE){
   .data <- manynet::expect_nodes(.data)
+  .data <- .to_aggregated_css(.data)
   net_by_degree(.data, normalized = normalized, direction = "in")
 }
 

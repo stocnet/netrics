@@ -197,6 +197,7 @@ net_by_diversity <- function(.data, attribute,
 
 #' Measures of nodes diversity
 #' @name measure_diverse_node
+#' @template section_cognitive
 #' @description
 #'   These functions offer ways to measure the heterogeneity of an attribute
 #'   across a network, within groups of a network, or the distribution of ties
@@ -221,6 +222,7 @@ NULL
 #' @export
 node_by_richness <- function(.data, attribute){
   .data <- manynet::expect_nodes(.data)
+  .data <- .to_aggregated_css(.data)
   out <- vapply(manynet::to_egos(.data, min_dist = 1), 
                 function(x) length(unique(manynet::node_attribute(x, attribute))),
                 FUN.VALUE = numeric(1))
@@ -239,6 +241,7 @@ node_by_richness <- function(.data, attribute){
 node_by_diversity <- function(.data, attribute, 
                               diversity = c("blau","teachman","variation","gini")){
   .data <- manynet::expect_nodes(.data)
+  .data <- .to_aggregated_css(.data)
   attr <- manynet::node_attribute(.data, attribute)
   diversity <- match.arg(diversity)
   if(is.numeric(attr) && diversity %in% c("blau","teachman")){
@@ -271,6 +274,7 @@ node_by_diversity <- function(.data, attribute,
 
 #' Measures of network assortativity
 #' @name measure_assort_net
+#' @template section_cognitive
 #' @description
 #'   These functions offer ways to measure the distribution or assortativity 
 #'   of ties in a network:
@@ -362,6 +366,7 @@ NULL
 #' @export
 net_by_heterophily <- function(.data, attribute){
   .data <- manynet::expect_nodes(.data)
+  .data <- .to_aggregated_css(.data)
   m <- manynet::as_matrix(.data)
   if (length(attribute) == 1 && is.character(attribute)) {
     attribute <- manynet::node_attribute(.data, attribute)
@@ -385,6 +390,7 @@ net_by_heterophily <- function(.data, attribute){
 net_by_homophily <- function(.data, attribute,
                              assortativity = c("ie","ei","yule","geary")){
   .data <- manynet::expect_nodes(.data)
+  .data <- .to_aggregated_css(.data)
   # mode <- attr_mode(.data, attribute)
   # if(is_twomode(.data) && !is.null(mode)){
   #   if(mode){
@@ -532,6 +538,7 @@ attr_mode <- function(.data, attribute){
 #' @export
 net_by_assortativity <- function(.data){
   .data <- manynet::expect_nodes(.data)
+  .data <- .to_aggregated_css(.data)
   make_network_measure(igraph::assortativity_degree(manynet::as_igraph(.data), 
                                                     directed = manynet::is_directed(.data)),
                        .data, call = deparse(sys.call()),
@@ -576,6 +583,7 @@ net_by_assortativity <- function(.data){
 #' @export
 net_by_spatial <- function(.data, attribute){
   .data <- manynet::expect_nodes(.data)
+  .data <- .to_aggregated_css(.data)
   x <- manynet::node_attribute(.data, attribute)
   # Moran's I is the correlation of a value with itself across ties, so the
   # attribute has to hold a quantity rather than a category
@@ -627,6 +635,7 @@ net_by_spatial <- function(.data, attribute){
 
 #' Measures of nodes assortativity
 #' @name measure_assort_node
+#' @template section_cognitive
 #' @description
 #'   These functions offer ways to measure nodes' assortativity in a network:
 #'   
@@ -650,6 +659,7 @@ NULL
 #' @export
 node_by_heterophily <- function(.data, attribute){
   .data <- manynet::expect_nodes(.data)
+  .data <- .to_aggregated_css(.data)
   m <- manynet::as_matrix(.data)
   if (length(attribute) == 1 && is.character(attribute)) {
     attribute <- manynet::node_attribute(.data, attribute)
@@ -675,6 +685,7 @@ node_by_heterophily <- function(.data, attribute){
 node_by_homophily <- function(.data, attribute,
                               assortativity = c("ie","ei","yule","geary")){
   .data <- manynet::expect_nodes(.data)
+  .data <- .to_aggregated_css(.data)
   if (length(attribute) == 1 && is.character(attribute)) {
     attribute <- manynet::node_attribute(.data, attribute)
   }

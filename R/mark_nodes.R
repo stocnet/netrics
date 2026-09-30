@@ -2,6 +2,7 @@
 
 #' Marking nodes based on structural properties
 #' @name mark_nodes
+#' @template section_cognitive
 #' @description 
 #'   These functions return logical vectors the length of the 
 #'   nodes in a network identifying which hold certain properties or positions in the network.
@@ -40,6 +41,7 @@ NULL
 #' @export
 node_is_independent <- function(.data){
   .data <- manynet::expect_nodes(.data)
+  .data <- .to_aggregated_css(.data)
   # A multilevel network reports itself as two-mode, but holds ties within a
   # mode as well as between them, so it cannot be projected. Its matrix is
   # already square over every node, so it takes the one-mode branch, as
@@ -107,6 +109,7 @@ node_is_cutpoint <- function(.data){
 #' @export
 node_is_fold <- function(.data){
   .data <- manynet::expect_nodes(.data)
+  .data <- .to_aggregated_css(.data)
   .data <- .to_positive(.data)
   mult_tri <- igraph::count_triangles(.data)>1
   tris <- igraph::triangles(.data)
@@ -143,6 +146,7 @@ node_is_fold <- function(.data){
 #' @export
 node_is_mentor <- function(.data, elites = 0.1){
   .data <- manynet::expect_nodes(.data)
+  .data <- .to_aggregated_css(.data)
   indegs <- colSums(manynet::as_matrix(.data)) # get rank order of indegrees
   out <- indegs == max(indegs)
   if(sum(out) < length(indegs)*elites){
@@ -156,6 +160,7 @@ node_is_mentor <- function(.data, elites = 0.1){
 #' @export
 node_is_neighbor <- function(.data, node){
   .data <- manynet::expect_nodes(.data)
+  .data <- .to_aggregated_css(.data)
   .data <- manynet::as_igraph(.data)
   out <- igraph::V(.data) %in% igraph::neighbors(.data, v = node)
   make_node_mark(out, .data)
@@ -165,6 +170,7 @@ node_is_neighbor <- function(.data, node){
 
 #' Marking nodes based on degree properties
 #' @name mark_degree
+#' @template section_cognitive
 #' @description
 #'   These functions return logical vectors the length of the 
 #'   nodes in a network identifying which hold certain properties or positions in the network.
@@ -186,6 +192,7 @@ NULL
 #' @export
 node_is_isolate <- function(.data){
   .data <- manynet::expect_nodes(.data)
+  .data <- .to_aggregated_css(.data)
   mat <- abs(manynet::as_matrix(.data))
   if(manynet::is_twomode(.data)){
     out <- c(rowSums(mat)==0, colSums(mat)==0)
@@ -200,6 +207,7 @@ node_is_isolate <- function(.data){
 #' @export
 node_is_pendant <- function(.data){
   .data <- manynet::expect_nodes(.data)
+  .data <- .to_aggregated_css(.data)
   mat <- abs(manynet::as_matrix(.data))
   if(manynet::is_twomode(.data)){
     out <- c(rowSums(mat)==1, colSums(mat)==1)
@@ -223,6 +231,7 @@ node_is_pendant <- function(.data){
 #' @export
 node_is_universal <- function(.data){
   .data <- manynet::expect_nodes(.data)
+  .data <- .to_aggregated_css(.data)
   net <- manynet::to_undirected(manynet::to_unweighted(.data))
   make_node_mark(node_by_deg(net)==(manynet::net_nodes(net)-1), .data)
 }
@@ -243,6 +252,7 @@ node_is_universal <- function(.data){
 #' @template node_mark
 #' @family diffusion
 #' @name mark_diff
+#' @template section_cognitive
 NULL
 
 #' @rdname mark_diff 
@@ -394,6 +404,7 @@ node_is_recovered <- function(.data, time = 0){
 #' @export
 node_is_exposed <- function(.data, mark, time = 0){
   .data <- manynet::expect_nodes(.data)
+  .data <- .to_aggregated_css(.data)
   if (missing(mark)){
     if(manynet::is_changing(.data)){
       t <- time

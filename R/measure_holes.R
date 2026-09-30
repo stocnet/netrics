@@ -2,6 +2,7 @@
 
 #' Measuring nodes brokerage
 #' @name measure_broker_node
+#' @template section_cognitive
 #' @description
 #'   These function provide different measures of the degree to which nodes
 #'   fill structural holes, as outlined in Burt (1992):
@@ -78,6 +79,7 @@ node_by_bridges <- function(.data){
 #' @export
 node_by_redundancy <- function(.data){
   .data <- manynet::expect_nodes(.data)
+  .data <- .to_aggregated_css(.data)
   if(manynet::is_twomode(.data)){
     mat <- manynet::as_matrix(.data)
     out <- c(.redund2(mat), .redund2(t(mat)))
@@ -118,6 +120,7 @@ node_by_redundancy <- function(.data){
 #' @export
 node_by_effsize <- function(.data){
   .data <- manynet::expect_nodes(.data)
+  .data <- .to_aggregated_css(.data)
   # A multilevel network reports itself as two-mode, but holds ties within a
   # mode as well as between them, so it cannot be projected. Its matrix is
   # already square over every node, so it takes the one-mode branch, as
@@ -149,6 +152,7 @@ node_by_effsize <- function(.data){
 #' @export
 node_by_efficiency <- function(.data){
   .data <- manynet::expect_nodes(.data)
+  .data <- .to_aggregated_css(.data)
   out <- node_by_effsize(.data) / node_by_degree(.data, normalized = FALSE)
   make_node_measure(as.numeric(out), .data, measure = "efficiency",
                     range = c(0, 1), normalization = "normalized")
@@ -171,6 +175,7 @@ node_by_efficiency <- function(.data){
 #' @export 
 node_by_constraint <- function(.data) {
   .data <- manynet::expect_nodes(.data)
+  .data <- .to_aggregated_css(.data)
   if (manynet::is_twomode(.data)) {
     get_constraint_scores <- function(mat) {
       inst <- colnames(mat)
@@ -220,6 +225,7 @@ node_by_constraint <- function(.data) {
 #' @export
 node_by_hierarchy <- function(.data){
   .data <- manynet::expect_nodes(.data)
+  .data <- .to_aggregated_css(.data)
   cs <- node_by_constraint(.data)
   g <- manynet::as_igraph(.data)
   out <- vapply(igraph::V(g), function(ego){
@@ -245,6 +251,7 @@ node_by_hierarchy <- function(.data){
 #' @export
 node_by_neighbours_degree <- function(.data){
   .data <- manynet::expect_nodes(.data)
+  .data <- .to_aggregated_css(.data)
   out <- igraph::knn(manynet::as_igraph(.data),
                               mode = "out")$knn
   make_node_measure(out, .data, measure = "average neighbour degree",
@@ -255,6 +262,7 @@ node_by_neighbours_degree <- function(.data){
 
 #' Measuring ties brokerage
 #' @name measure_broker_tie
+#' @template section_cognitive
 #' @description
 #'   `tie_by_cohesion()` measures the ratio between common neighbors to ties'
 #'   adjacent nodes and the total number of adjacent nodes,
@@ -274,6 +282,8 @@ NULL
 #' @export
 tie_by_cohesion <- function(.data){
   .data <- manynet::expect_ties(.data)
+  if(manynet::is_cognitive(.data))
+    return(.map_css_ties(.data, tie_by_cohesion))
   ties <- igraph::E(.data)
   coins <- data.frame(heads = igraph::head_of(.data, ties),
                       tails = igraph::tail_of(.data, ties))

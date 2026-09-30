@@ -359,6 +359,7 @@ node_in_community <- function(.data, k = NULL, max_k = 8L,
 
 #' Memberships in non-hierarchical communities
 #' @name member_community_non
+#' @template section_cognitive
 #' @section Signed networks:
 #'   [node_in_optimal()], [node_in_infomap()], [node_in_fluid()],
 #'   [node_in_louvain()], and [node_in_labels()] read a tie's weight as the
@@ -464,6 +465,7 @@ node_in_partition <- function(.data, k = 2L, max_k = 8L,
   max_k <- resolve_max_k(max_k, Kmax)
   start <- match.arg(start)
   .data <- manynet::expect_nodes(.data)
+  .data <- .to_aggregated_css(.data)
   k <- check_k(k, .data)
   n <- manynet::net_nodes(.data)
   g <- manynet::as_matrix(manynet::to_onemode(.data))
@@ -571,6 +573,7 @@ kl_partition <- function(g, n, k, rounds = 50, start = "order"){
 #' @export
 node_in_infomap <- function(.data, times = 50){
   .data <- manynet::expect_nodes(.data)
+  .data <- .to_aggregated_css(.data)
   .data <- .to_positive(.data)
   out <- igraph::cluster_infomap(manynet::as_igraph(.data), 
                                  nb.trials = times
@@ -614,6 +617,7 @@ node_in_infomap <- function(.data, times = 50){
 #' @export
 node_in_spinglass <- function(.data, max_k = 200, resolution = 1){
   .data <- manynet::expect_nodes(.data)
+  .data <- .to_aggregated_css(.data)
   # `snet_unavailable()` is silent unless verbosity is raised, so this was a
   # branch that returned NULL rather than a membership. The algorithm reads the
   # network as undirected, so the test is for weak connectivity, as in
@@ -649,6 +653,7 @@ node_in_spinglass <- function(.data, max_k = 200, resolution = 1){
 node_in_fluid <- function(.data, k = NULL, max_k = 8L, Kmax = NULL) {
   max_k <- resolve_max_k(max_k, Kmax)
   .data <- manynet::expect_nodes(.data)
+  .data <- .to_aggregated_css(.data)
   .data <- .to_positive(.data)
   k <- check_k(k, .data)
   .data <- manynet::as_igraph(.data)
@@ -705,6 +710,7 @@ node_in_fluid <- function(.data, k = NULL, max_k = 8L, Kmax = NULL) {
 node_in_louvain <- function(.data, k = NULL, max_k = 8L, resolution = 1, Kmax = NULL){
   max_k <- resolve_max_k(max_k, Kmax)
   .data <- manynet::expect_nodes(.data)
+  .data <- .to_aggregated_css(.data)
   .data <- .to_positive(.data)
   k <- check_k(k, .data)
   if(manynet::is_directed(.data)){
@@ -755,6 +761,7 @@ node_in_louvain <- function(.data, k = NULL, max_k = 8L, resolution = 1, Kmax = 
 node_in_leiden <- function(.data, k = NULL, max_k = 8L, resolution = NULL, Kmax = NULL){
   max_k <- resolve_max_k(max_k, Kmax)
   .data <- manynet::expect_nodes(.data)
+  .data <- .to_aggregated_css(.data)
   k <- check_k(k, .data)
   if(manynet::is_directed(.data)){
     manynet::snet_info("This algorithm only works for undirected networks.", 
@@ -846,6 +853,7 @@ node_in_labels <- function(.data, k = NULL, max_k = 8L, Kmax = NULL){
 
 #' Memberships in hierarchical communities
 #' @name member_community_hier
+#' @template section_cognitive
 #' @section Signed networks:
 #'   These algorithms read a tie's weight as the strength of a pull into the
 #'   same community, and a negative tie is hostility rather than such a pull.
@@ -897,6 +905,7 @@ NULL
 node_in_betweenness <- function(.data, k = NULL, max_k = 8L, Kmax = NULL){
   max_k <- resolve_max_k(max_k, Kmax)
   .data <- manynet::expect_nodes(.data)
+  .data <- .to_aggregated_css(.data)
   .data <- .to_positive(.data)
   k <- check_k(k, .data)
   if(manynet::net_nodes(.data)>100) 
@@ -935,6 +944,7 @@ node_in_betweenness <- function(.data, k = NULL, max_k = 8L, Kmax = NULL){
 node_in_greedy <- function(.data, k = NULL, max_k = 8L, Kmax = NULL){
   max_k <- resolve_max_k(max_k, Kmax)
   .data <- manynet::expect_nodes(.data)
+  .data <- .to_aggregated_css(.data)
   .data <- .to_positive(.data)
   k <- check_k(k, .data)
   clust <- igraph::cluster_fast_greedy(manynet::to_undirected(manynet::as_igraph(.data)))
@@ -968,6 +978,7 @@ node_in_greedy <- function(.data, k = NULL, max_k = 8L, Kmax = NULL){
 node_in_eigen <- function(.data, k = NULL, max_k = 8L, Kmax = NULL){
   max_k <- resolve_max_k(max_k, Kmax)
   .data <- manynet::expect_nodes(.data)
+  .data <- .to_aggregated_css(.data)
   .data <- .to_positive(.data)
   k <- check_k(k, .data)
   if(manynet::is_directed(.data)){
@@ -1006,6 +1017,7 @@ node_in_eigen <- function(.data, k = NULL, max_k = 8L, Kmax = NULL){
 node_in_walktrap <- function(.data, k = NULL, max_k = 8L, steps = 4, Kmax = NULL){
   max_k <- resolve_max_k(max_k, Kmax)
   .data <- manynet::expect_nodes(.data)
+  .data <- .to_aggregated_css(.data)
   .data <- .to_positive(.data)
   k <- check_k(k, .data)
   clust <- igraph::cluster_walktrap(manynet::as_igraph(.data), steps = steps)

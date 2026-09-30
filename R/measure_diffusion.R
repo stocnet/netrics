@@ -297,6 +297,7 @@ net_by_infection_peak <- function(.data){
 
 #' Measures of nodes in a diffusion
 #' @name measure_diffusion_node
+#' @template section_cognitive
 #' @description
 #'   These functions allow measurement of various features of
 #'   a diffusion process:
@@ -515,6 +516,7 @@ node_by_adopt_recovery <- function(.data){
 #' @export
 node_by_adopt_exposure <- function(.data, mark, time = 0){
   .data <- manynet::expect_nodes(.data)
+  .data <- .to_aggregated_css(.data)
   if(missing(mark)){ 
     if(inherits(.data, "diff_model")){
       mark <- node_is_infected(.data, time = time)

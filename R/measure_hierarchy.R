@@ -2,6 +2,7 @@
 
 #' Motifs of network hierarchy
 #' @name motif_hierarchy
+#' @template section_cognitive
 #' @description
 #'   `net_x_hierarchy()` collects the measures of hierarchy into a single motif,
 #'   which can be used to compare the relative hierarchy of different networks.
@@ -38,6 +39,7 @@ NULL
 #' @export
 net_x_hierarchy <- function(.data){
   .data <- manynet::expect_nodes(.data)
+  .data <- .to_aggregated_css(.data)
   out <- data.frame(Connectedness = net_by_connectedness(.data),
                     InvReciprocity = 1 - net_by_reciprocity(.data),
                     Efficiency = net_by_efficiency(.data),
@@ -49,6 +51,7 @@ net_x_hierarchy <- function(.data){
 
 #' Measures of hierarchy
 #' @name measure_hierarchy
+#' @template section_cognitive
 #' @description
 #'   These functions, together with `net_reciprocity()`, are used jointly to
 #'   measure how hierarchical a network is:
@@ -114,6 +117,7 @@ net_by_connectedness <- function(.data){
 #' @export
 net_by_efficiency <- function(.data) {
   .data <- manynet::expect_nodes(.data)
+  .data <- .to_aggregated_css(.data)
   object <- manynet::as_igraph(.data)
   comps <- igraph::components(object, mode = "weak")
   sizes <- comps$csize

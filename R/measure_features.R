@@ -2,6 +2,7 @@
 
 #' Measuring network topological features
 #' @name measure_features
+#' @template section_cognitive
 #' @description
 #'   These functions measure topological features that are intrinsic to a
 #'   network, in the sense that they require nothing of the user beyond the
@@ -135,6 +136,7 @@ net_by_smallworld <- function(.data,
                                times = 100, method = NULL) {
   variant <- resolve_method(variant, method, "variant")
   .data <- manynet::expect_nodes(.data)
+  .data <- .to_aggregated_css(.data)
   variant <- match.arg(variant, c("omega", "sigma", "SWI"))
   
   if(manynet::is_twomode(.data)){
@@ -209,6 +211,7 @@ net_by_smallworld <- function(.data,
 #' @export
 net_by_scalefree <- function(.data){
   .data <- manynet::expect_nodes(.data)
+  .data <- .to_aggregated_css(.data)
   out <- igraph::fit_power_law(node_by_deg(.data))
   if ("KS.p" %in% names(out) && !is.null(out$KS.p) && !is.na(out$KS.p) && out$KS.p < 0.05) 
     manynet::snet_info("Note: Kolmogorov-Smirnov test that data could have been drawn",
@@ -248,6 +251,7 @@ net_by_scalefree <- function(.data){
 #' @export
 net_by_bipartivity <- function(.data) {
   .data <- manynet::expect_nodes(.data)
+  .data <- .to_aggregated_css(.data)
   # Even-length closed walks as a share of all of them. Both counts are
   # strictly positive, since the length-zero walk at each node is even.
   out <- sum(.closed_walks(.data, walks = "even")) /
@@ -352,6 +356,7 @@ net_by_balance <- function(.data) {
 
 #' Measuring how well a structure fits a network
 #' @name measure_fit
+#' @template section_cognitive
 #' @description
 #'   These functions measure how well some proposed structure describes a
 #'   network. Unlike the intrinsic properties in [measure_features], each takes
@@ -448,6 +453,7 @@ net_by_core <- function(.data,
                         method = NULL){
   variant <- resolve_method(variant, method, "variant")
   .data <- manynet::expect_nodes(.data)
+  .data <- .to_aggregated_css(.data)
   direction <- match.arg(direction)
   # `manynet::create_core()` builds one layer, so it reads a multilevel network
   # as the two-mode network that network reports itself to be, and returns a
@@ -521,6 +527,7 @@ net_by_core <- function(.data,
 net_by_factions <- function(.data,
                             membership = NULL){
   .data <- manynet::expect_nodes(.data)
+  .data <- .to_aggregated_css(.data)
   # `manynet::create_components()` builds one layer; see `net_by_core()`
   if(.is_multilevel(.data))
     manynet::snet_abort("{.fn net_by_factions} fits the network to a",
@@ -589,6 +596,7 @@ net_by_modularity <- function(.data,
                               membership = NULL, 
                               resolution = 1){
   .data <- manynet::expect_nodes(.data)
+  .data <- .to_aggregated_css(.data)
   # modularity counts a tie however it is signed, as a census does
   .data <- .to_unsigned(.data)
   membership <- .resolve_membership(.data, membership)
@@ -700,7 +708,8 @@ net_by_divergence <- function(.data, ideal = manynet::create_core,
   # the variant falls back to portrait silently only where the user left it
   chosen <- !missing(variant)
   variant <- match.arg(variant)
-  .data <- manynet::to_unweighted(.to_unsigned(manynet::expect_nodes(.data)))
+  .data <- manynet::to_unweighted(.to_unsigned(
+    .to_aggregated_css(manynet::expect_nodes(.data))))
   symmetrise <- FALSE
   if(is.function(ideal)){
     # `manynet::create_*()` builds one layer; see `net_by_core()`
@@ -736,7 +745,8 @@ net_by_divergence <- function(.data, ideal = manynet::create_core,
                  identical, logical(1), ideal))
     ideal <- do.call(ideal, args)
   } else {
-    ideal <- manynet::to_unweighted(.to_unsigned(manynet::expect_nodes(ideal)))
+    ideal <- manynet::to_unweighted(.to_unsigned(
+      .to_aggregated_css(manynet::expect_nodes(ideal))))
     aligned <- identical(manynet::net_dims(ideal), manynet::net_dims(.data)) &&
       identical(manynet::node_names(ideal), manynet::node_names(.data))
   }
@@ -893,6 +903,7 @@ net_by_divergence <- function(.data, ideal = manynet::create_core,
 net_by_inconsistency <- function(.data, membership = NULL,
                                  blocks = c("nul", "com")){
   .data <- manynet::expect_nodes(.data)
+  .data <- .to_aggregated_css(.data)
   membership <- .resolve_membership(.data, membership)
   if(is.null(membership)){
     manynet::snet_info("No membership vector assigned.",

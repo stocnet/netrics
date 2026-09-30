@@ -2,6 +2,7 @@
 
 #' Measuring nodes eigenvector-like centrality
 #' @name measure_central_eigen
+#' @template section_cognitive
 #' @description
 #'   These functions calculate common eigenvector-related centrality 
 #'   measures, or walk-based eigenmeasures, for one- and two-mode networks:
@@ -93,6 +94,7 @@ node_by_eigenvector <- function(.data, normalized = TRUE, scaled = TRUE,
                                 scale = NULL){
 
   .data <- manynet::expect_nodes(.data)
+  .data <- .to_aggregated_css(.data)
 
   .data <- .to_unsigned(.data)
   scaled <- resolve_scaled(scaled, scale)
@@ -167,6 +169,7 @@ node_by_power <- function(.data, normalized = TRUE, scaled = FALSE,
                           scale = NULL, exponent = 1){
 
   .data <- manynet::expect_nodes(.data)
+  .data <- .to_aggregated_css(.data)
 
   .data <- .to_unsigned(.data)
   scaled <- resolve_scaled(scaled, scale)
@@ -253,6 +256,7 @@ node_by_power <- function(.data, normalized = TRUE, scaled = FALSE,
 #' @export
 node_by_alpha <- function(.data, decay = 0.85, alpha = NULL){
   .data <- manynet::expect_nodes(.data)
+  .data <- .to_aggregated_css(.data)
   .data <- .to_unsigned(.data)
   decay <- check_decay(resolve_decay(decay, alpha, "alpha"))
   # Alpha centrality is unbounded and can be negative, so there is no
@@ -285,6 +289,7 @@ node_by_alpha <- function(.data, decay = 0.85, alpha = NULL){
 #' @export
 node_by_pagerank <- function(.data, decay = 0.85){
   .data <- manynet::expect_nodes(.data)
+  .data <- .to_aggregated_css(.data)
   .data <- .to_unsigned(.data)
   decay <- check_decay(decay)
   # PageRank is a stationary distribution over a random walk, so scores are
@@ -311,6 +316,7 @@ node_by_pagerank <- function(.data, decay = 0.85){
 #' @export
 node_by_authority <- function(.data, scaled = TRUE){
   .data <- manynet::expect_nodes(.data)
+  .data <- .to_aggregated_css(.data)
   .data <- .to_unsigned(.data)
   out <- igraph::hits_scores(manynet::as_igraph(.data), scale = scaled)$authority
   make_node_measure(out, .data, measure = "authority centrality",
@@ -322,6 +328,7 @@ node_by_authority <- function(.data, scaled = TRUE){
 #' @export
 node_by_hub <- function(.data, scaled = TRUE){
   .data <- manynet::expect_nodes(.data)
+  .data <- .to_aggregated_css(.data)
   .data <- .to_unsigned(.data)
   out <- igraph::hits_scores(manynet::as_igraph(.data), scale = scaled)$hub
   make_node_measure(out, .data, measure = "hub centrality",
@@ -381,6 +388,7 @@ node_by_subgraph <- function(.data, decay = 1,
                              method = NULL){
   walks <- resolve_method(walks, method, "walks")
   .data <- manynet::expect_nodes(.data)
+  .data <- .to_aggregated_css(.data)
   .data <- .to_unsigned(.data)
   walks <- match.arg(walks, c("all", "odd", "even"))
   decay <- check_decay(decay)
@@ -458,6 +466,7 @@ node_by_posneg <- function(.data){
 
 #' Measuring ties eigenvector-like centrality
 #' @name measure_central_tie_eigen
+#' @template section_cognitive
 #' @description
 #'   `tie_by_eigenvector()` measures the eigenvector centrality of ties in a 
 #'   network.
@@ -481,6 +490,8 @@ NULL
 #' @export
 tie_by_eigenvector <- function(.data, normalized = TRUE){
   .data <- manynet::expect_ties(.data)
+  if(manynet::is_cognitive(.data))
+    return(.map_css_ties(.data, tie_by_eigenvector, normalized = normalized))
   edge_adj <- manynet::to_linegraph(.data)
   out <- node_by_eigenvector(edge_adj, normalized = normalized)
   class(out) <- "numeric"
@@ -492,6 +503,7 @@ tie_by_eigenvector <- function(.data, normalized = TRUE){
 
 #' Measuring networks eigenvector-like centralisation
 #' @name measure_centralisation_eigen
+#' @template section_cognitive
 #' @description
 #'   - `net_by_eigenvector()` measures the eigenvector centralization for a
 #'   network as a single score.
@@ -531,6 +543,7 @@ NULL
 #' @export
 net_by_eigenvector <- function(.data, normalized = TRUE){
   .data <- manynet::expect_nodes(.data)
+  .data <- .to_aggregated_css(.data)
   .data <- .to_unsigned(.data)
   if (manynet::is_twomode(.data)) {
     # Two-mode eigenvector centralization is intrinsically per mode

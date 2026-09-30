@@ -2,6 +2,7 @@
 
 #' Motifs of nodes pathing
 #' @name motif_path
+#' @template section_cognitive
 #' @description
 #'   These functions include ways to take a census of the positions of nodes
 #'   in a network: 
@@ -35,6 +36,7 @@ NULL
 #' @export
 node_x_tie <- function(.data){
   .data <- manynet::expect_nodes(.data)
+  .data <- .to_aggregated_css(.data)
   object <- manynet::as_igraph(.data)
   # Only tie-level waves split the census; a diffusion model's ties do not change
   waved <- "wave" %in% manynet::net_tie_attributes(object)
@@ -125,6 +127,7 @@ node_x_tie <- function(.data){
 #' @export
 node_x_path <- function(.data){
   .data <- manynet::expect_nodes(.data)
+  .data <- .to_aggregated_css(.data)
   .data <- .to_positive(.data)
   if(manynet::is_weighted(.data)){
     tore <- manynet::as_matrix(.data)/mean(manynet::as_matrix(.data))
@@ -138,6 +141,7 @@ node_x_path <- function(.data){
 
 #' Motifs of nodes cohesion
 #' @name motif_node
+#' @template section_cognitive
 #' @description
 #'   These functions include ways to take a census of the positions of nodes
 #'   in a network: 
@@ -170,6 +174,7 @@ NULL
 #' @export
 node_x_dyad <- function(.data) {
   .data <- manynet::expect_nodes(.data)
+  .data <- .to_aggregated_css(.data)
   if(is_weighted(.data)){
     .data <- manynet::to_unweighted(.data)
     manynet::snet_info("Ignoring tie weights.")
@@ -195,6 +200,7 @@ node_x_dyad <- function(.data) {
 #' @export
 node_x_triad <- function(.data){
   .data <- manynet::expect_nodes(.data)
+  .data <- .to_aggregated_css(.data)
   out <- t(sapply(seq.int(manynet::net_nodes(.data)), 
                   function(x) net_x_triad(.data) - net_x_triad(manynet::delete_nodes(.data, x))))
   make_node_motif(out, .data)
@@ -268,6 +274,7 @@ node_x_triad <- function(.data){
 #' @export
 node_x_tetrad <- function(.data){
   .data <- manynet::expect_nodes(.data)
+  .data <- .to_aggregated_css(.data)
   cmbs <- utils::combn(1:manynet::net_nodes(.data), 4)
   mat <- manynet::as_matrix(manynet::to_onemode(.data))
   dd <- apply(cmbs, 2, function(x) c(sum(mat[x,x]), 
@@ -334,6 +341,7 @@ node_x_tetrad <- function(.data){
 
 #' Motifs of network cohesion
 #' @name motif_net
+#' @template section_cognitive
 #' @description
 #'   These functions include ways to take a census of the graphlets
 #'   in a network: 
@@ -384,6 +392,7 @@ NULL
 #' @export
 net_x_dyad <- function(.data) {
   .data <- manynet::expect_nodes(.data)
+  .data <- .to_aggregated_css(.data)
   out <- suppressWarnings(igraph::dyad_census(manynet::as_igraph(.data)))
   out <- unlist(out)
   names(out) <- c("Mutual", "Asymmetric", "Null")
@@ -462,6 +471,7 @@ net_x_dyad <- function(.data) {
 #' @export
 net_x_triad <- function(.data, object2 = NULL) {
   .data <- manynet::expect_nodes(.data)
+  .data <- .to_aggregated_css(.data)
   if(!is.null(object2))
     return(make_network_motif(.mixed_census(.data, object2), .data))
   if(manynet::is_multiplex(.data)){
@@ -533,6 +543,7 @@ net_x_triad <- function(.data, object2 = NULL) {
 #' @export
 net_x_tetrad <- function(.data){
   .data <- manynet::expect_nodes(.data)
+  .data <- .to_aggregated_css(.data)
   cmbs <- utils::combn(1:manynet::net_nodes(.data), 4)
   mat <- manynet::as_matrix(manynet::to_onemode(.data))
   dens <- apply(cmbs, 2, function(x) sum(mat[x,x]))

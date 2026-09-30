@@ -15,6 +15,7 @@
 #' @template param_data
 #' @template tie_mark
 #' @name mark_ties
+#' @template section_cognitive
 NULL
 
 #' @rdname mark_ties
@@ -24,6 +25,8 @@ NULL
 #' @export
 tie_is_loop <- function(.data){
   .data <- manynet::expect_ties(.data)  
+  if(manynet::is_cognitive(.data))
+    return(.map_css_ties(.data, tie_is_loop))
   make_tie_mark(igraph::which_loop(manynet::as_igraph(.data)), .data)
 }
 
@@ -34,6 +37,8 @@ tie_is_loop <- function(.data){
 #' @export
 tie_is_feedback <- function(.data){
   .data <- manynet::expect_ties(.data)  
+  if(manynet::is_cognitive(.data))
+    return(.map_css_ties(.data, tie_is_feedback))
   .data <- manynet::as_igraph(.data)
   make_tie_mark(igraph::E(.data) %in% igraph::feedback_arc_set(.data), 
                 .data)
@@ -46,6 +51,8 @@ tie_is_feedback <- function(.data){
 #' @export
 tie_is_bridge <- function(.data){
   .data <- manynet::expect_ties(.data)  
+  if(manynet::is_cognitive(.data))
+    return(.map_css_ties(.data, tie_is_bridge))
   num_comp <- length( igraph::decompose(manynet::as_igraph(.data)) )
   out <- vapply(seq_len(manynet::net_ties(.data)), function(x){
     length( igraph::decompose(igraph::delete_edges(.data, x)) ) > num_comp
@@ -72,6 +79,9 @@ tie_is_path <- function(.data, from, to, all_paths = FALSE){
     manynet::snet_abort("{.fn tie_is_path} needs both {.arg from} and",
                         "{.arg to}, the nodes the path runs between,",
                         "e.g. {.code tie_is_path(.data, from = 1, to = 7)}.")
+  if(manynet::is_cognitive(.data))
+    return(.map_css_ties(.data, tie_is_path, from = from, to = to,
+                         all_paths = all_paths))
   # A path runs over the positive ties alone, as a distance does, but the mark
   # still needs a place for every tie, so the path is traced on the positive
   # ties and then read back onto the network as it was given.
@@ -109,6 +119,7 @@ tie_is_path <- function(.data, from, to, all_paths = FALSE){
 #' @template param_data
 #' @template tie_mark
 #' @name mark_dyads
+#' @template section_cognitive
 NULL
 
 #' @rdname mark_dyads
@@ -118,6 +129,8 @@ NULL
 #' @export
 tie_is_multiple <- function(.data){
   .data <- manynet::expect_ties(.data)  
+  if(manynet::is_cognitive(.data))
+    return(.map_css_ties(.data, tie_is_multiple))
   make_tie_mark(igraph::which_multiple(manynet::as_igraph(.data)), .data)
 }
 
@@ -128,6 +141,8 @@ tie_is_multiple <- function(.data){
 #' @export
 tie_is_reciprocated <- function(.data){
   .data <- manynet::expect_ties(.data)  
+  if(manynet::is_cognitive(.data))
+    return(.map_css_ties(.data, tie_is_reciprocated))
   make_tie_mark(igraph::which_mutual(manynet::as_igraph(.data)), .data)
 }
 
@@ -154,6 +169,7 @@ tie_is_reciprocated <- function(.data){
 #' @template tie_mark
 #' @family cohesion
 #' @name mark_triangles
+#' @template section_cognitive
 #' @section Signed networks:
 #'   These marks ask only whether a two-path exists, as a census does, so a tie
 #'   counts however it is signed. Where the network is signed, each tie is
@@ -169,6 +185,8 @@ NULL
 #' @export
 tie_is_triangular <- function(.data){
   .data <- manynet::expect_ties(.data)  
+  if(manynet::is_cognitive(.data))
+    return(.map_css_ties(.data, tie_is_triangular))
   out <- .triangle_ties(.data)
   ties <- manynet::as_edgelist(manynet::to_unnamed(.data))[,c("from","to")]
   out <- do.call(paste, ties) %in% do.call(paste, as.data.frame(out))
@@ -189,6 +207,8 @@ tie_is_triangular <- function(.data){
 #' @export
 tie_is_transitive <- function(.data){
   .data <- manynet::expect_ties(.data)  
+  if(manynet::is_cognitive(.data))
+    return(.map_css_ties(.data, tie_is_transitive))
   # once, outside the loop, since `.to_unsigned()` reports what it did
   .data <- .to_unsigned(.data)
   nodes <- manynet::as_edgelist(manynet::to_unnamed(.data))
@@ -207,6 +227,8 @@ tie_is_transitive <- function(.data){
 #' @export
 tie_is_triplet <- function(.data){
   .data <- manynet::expect_ties(.data)  
+  if(manynet::is_cognitive(.data))
+    return(.map_css_ties(.data, tie_is_triplet))
   .data <- .to_unsigned(.data)
   nodes <- manynet::as_edgelist(manynet::to_unnamed(.data))
   trans <- tie_is_transitive(.data)
@@ -229,6 +251,8 @@ tie_is_triplet <- function(.data){
 #' @export
 tie_is_cyclical <- function(.data){
   .data <- manynet::expect_ties(.data)  
+  if(manynet::is_cognitive(.data))
+    return(.map_css_ties(.data, tie_is_cyclical))
   # once, outside the loop, since `.to_unsigned()` reports what it did
   .data <- .to_unsigned(.data)
   out <- vapply(seq_len(manynet::net_ties(.data)), function(x){
@@ -247,6 +271,8 @@ tie_is_cyclical <- function(.data){
 #' @export
 tie_is_simmelian <- function(.data){
   .data <- manynet::expect_ties(.data)  
+  if(manynet::is_cognitive(.data))
+    return(.map_css_ties(.data, tie_is_simmelian))
   recip <- manynet::filter_ties(.data, tie_is_reciprocated())
   simmel <- manynet::filter_ties(recip, tie_is_triangular())
   ties <- manynet::as_edgelist(manynet::to_unnamed(.data))[,c("from","to")]
@@ -294,6 +320,8 @@ tie_is_simmelian <- function(.data){
 #' @export
 tie_is_imbalanced <- function(.data){
   .data <- manynet::expect_ties(.data)  
+  if(manynet::is_cognitive(.data))
+    return(.map_css_ties(.data, tie_is_imbalanced))
   
   # identify_imbalanced_ties <- function(adj_matrix) {
   adj_matrix <- manynet::as_matrix(.data)

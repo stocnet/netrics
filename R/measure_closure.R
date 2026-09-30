@@ -2,6 +2,7 @@
 
 #' Measuring network closure
 #' @name measure_closure
+#' @template section_cognitive
 #' @description
 #'   These functions offer methods for summarising the closure in configurations 
 #'   in one-, two-, and three-mode networks:
@@ -44,6 +45,7 @@ net_by_reciprocity <- function(.data, variant = c("default", "ratio"),
                                method = NULL) {
   variant <- resolve_method(variant, method, "variant")
   .data <- manynet::expect_nodes(.data)
+  .data <- .to_aggregated_css(.data)
   variant <- match.arg(variant, c("default", "ratio"))
   # Both methods return a proportion in [0,1], but of different things: the
   # default is the share of ties that are reciprocated, the ratio the share of
@@ -62,6 +64,7 @@ net_by_reciprocity <- function(.data, variant = c("default", "ratio"),
 #' @export
 net_by_transitivity <- function(.data) {
   .data <- manynet::expect_nodes(.data)
+  .data <- .to_aggregated_css(.data)
   make_network_measure(igraph::transitivity(manynet::as_igraph(.data)),
                        .data, call = deparse(sys.call()),
                        measure = "transitivity", range = c(0, 1),
@@ -96,6 +99,7 @@ net_by_transitivity <- function(.data) {
 #' @export
 net_by_cyclicality <- function(.data) {
   .data <- manynet::expect_nodes(.data)
+  .data <- .to_aggregated_css(.data)
   # Flattening to one mode gives every node a row and a column,
   # so that a two-mode network can be squared at all. It then scores 0, since
   # it contains no cycle of odd length, which is how `net_by_transitivity()`
@@ -131,6 +135,7 @@ net_by_cyclicality <- function(.data) {
 #' @export
 net_by_equivalency <- function(.data) {
   .data <- manynet::expect_nodes(.data)
+  .data <- .to_aggregated_css(.data)
   if(manynet::is_weighted(.data))
     manynet::snet_info("Using the unweighted form of the network.")
   if(manynet::is_twomode(.data)){
@@ -205,6 +210,7 @@ net_by_congruency <- function(.data, object2){
 
 #' Measuring node closure
 #' @name measure_closure_node
+#' @template section_cognitive
 #' @description
 #'   These functions offer methods for summarising the closure in configurations 
 #'   in one- and two-mode networks:
@@ -237,6 +243,7 @@ NULL
 #' @export
 node_by_reciprocity <- function(.data) {
   .data <- manynet::expect_nodes(.data)
+  .data <- .to_aggregated_css(.data)
   if(manynet::is_weighted(.data))
     manynet::snet_info("Using the unweighted form of the network.")
   # A proportion of a node's ties that are returned, so counts of ties rather
@@ -352,6 +359,7 @@ node_by_reciprocity <- function(.data) {
 node_by_transitivity <- function(.data,
                                  variant = c("watts", "barrat", "onnela", "zhang")) {
   .data <- manynet::expect_nodes(.data)
+  .data <- .to_aggregated_css(.data)
   # A tie closes a triangle however it is signed, as the unweighted count
   # already reads it, so a negative weight is read by its magnitude.
   .data <- .to_unsigned(.data)
@@ -409,6 +417,7 @@ node_by_transitivity <- function(.data,
 #' @export
 node_by_equivalency <- function(.data) {
   .data <- manynet::expect_nodes(.data)
+  .data <- .to_aggregated_css(.data)
   if(manynet::is_weighted(.data))
     manynet::snet_info("Using the unweighted form of the network.")
   out <- vapply(manynet::snet_progress_nodes(.data), function(i){

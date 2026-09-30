@@ -2,6 +2,7 @@
 
 #' Measures of network cohesion
 #' @name measure_cohesion
+#' @template section_cognitive
 #' @description
 #'   These functions return values or vectors relating to how cohesive a network is:
 #'   
@@ -44,6 +45,7 @@ NULL
 #' @export
 net_by_density <- function(.data) {
   .data <- manynet::expect_nodes(.data)
+  .data <- .to_aggregated_css(.data)
   if (manynet::is_twomode(.data)) {
     # counting ties rather than summing weights, so that the two-mode branch
     # stays a ratio of ties to possible ties, as the one-mode branch is
@@ -95,6 +97,7 @@ net_by_density <- function(.data) {
 #' @export
 net_by_compactness <- function(.data) {
   .data <- manynet::expect_nodes(.data)
+  .data <- .to_aggregated_css(.data)
   # note that igraph's default mode ignores direction, which would treat a
   # directed network as though every tie ran both ways
   dists <- igraph::distances(manynet::as_igraph(.to_positive(.data)),
@@ -133,6 +136,7 @@ net_by_components <- function(.data, connectivity = c("strong", "weak")){
 #' @export
 net_by_independence <- function(.data){
   .data <- manynet::expect_nodes(.data)
+  .data <- .to_aggregated_css(.data)
   # A multilevel network reports itself as two-mode, but has ties within a
   # mode, so it cannot be projected. It needs no projection either: the
   # independence number of the whole network is already the quantity wanted.
@@ -152,6 +156,7 @@ net_by_independence <- function(.data){
 
 #' Measures of network breadth
 #' @name measure_breadth
+#' @template section_cognitive
 #' @description
 #'   These functions return values or vectors relating to how broad a network is.
 #'   
@@ -179,6 +184,7 @@ NULL
 #' @export
 net_by_diameter <- function(.data){
   .data <- manynet::expect_nodes(.data)
+  .data <- .to_aggregated_css(.data)
   object <- manynet::as_igraph(.to_positive(.data))
   make_network_measure(igraph::diameter(object,
                                         directed = manynet::is_directed(object)),
@@ -195,6 +201,7 @@ net_by_diameter <- function(.data){
 #' @export
 net_by_length <- function(.data){
   .data <- manynet::expect_nodes(.data)
+  .data <- .to_aggregated_css(.data)
   object <- manynet::as_igraph(.to_positive(.data))
   make_network_measure(igraph::mean_distance(object,
                                              directed = manynet::is_directed(object)),
@@ -207,6 +214,7 @@ net_by_length <- function(.data){
 
 #' Measures of network fragmentation
 #' @name measure_fragmentation
+#' @template section_cognitive
 #' @description
 #'   These functions return values relating to how connected a network is
 #'   and the number of nodes or edges to remove that would increase fragmentation.
@@ -251,6 +259,7 @@ NULL
 #' @export
 net_by_cohesion <- function(.data){
   .data <- manynet::expect_nodes(.data)
+  .data <- .to_aggregated_css(.data)
   make_network_measure(igraph::cohesion(manynet::as_igraph(.data)),
                        .data, call = deparse(sys.call()),
                        measure = "node connectivity", range = c(0, Inf),
@@ -265,6 +274,7 @@ net_by_cohesion <- function(.data){
 #' @export
 net_by_adhesion <- function(.data){
   .data <- manynet::expect_nodes(.data)
+  .data <- .to_aggregated_css(.data)
   make_network_measure(igraph::adhesion(manynet::as_igraph(.data)),
                        .data, call = deparse(sys.call()),
                        measure = "tie connectivity", range = c(0, Inf),

@@ -1,15 +1,15 @@
 ## Test environments
 
 * local R installation, macOS 26.5.2, aarch64-apple-darwin23, R 4.6.1 (release)
-* macOS 26.4 (on Github), R 4.6.1
-* Microsoft Windows Server 2025 10.0.26100 (on Github), R 4.6.1
-* Ubuntu 24.04.4 (on Github), R 4.6.1
 
 ## R CMD check results
 
 0 errors | 0 warnings | 0 notes
 
-This release fixes the two test failures that netrics 1.0.1 shows against
-manynet 2.3.4, which is currently in the submission queue. 
-Both come from changes to reporting inherited from manynet rather than from the measures themselves.
-The test suite here passes against manynet 2.3.1 and 2.3.4.
+This release adds `net_by_divergence()`, several arguments to existing
+measures and memberships, and fixes how the functions read a two-mode network
+and a cognitive social structure.
+
+It also prepares for manynet 2.4.0, which follows this submission.
+The local check gives 0 errors, 0 warnings, and 0 notes against manynet 2.3.4
+(the current CRAN version), 2.3.5, and 2.4.0.

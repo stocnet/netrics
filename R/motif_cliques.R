@@ -2,6 +2,7 @@
 
 #' Motifs of clique participation
 #' @name motif_clique
+#' @template section_cognitive
 #' @description
 #'   `node_x_clique()` returns which maximal cliques each node belongs to.
 #'
@@ -44,6 +45,7 @@
 #' @export
 node_x_clique <- function(.data, min_clique_size = 3){
   .data <- manynet::expect_nodes(.data)
+  .data <- .to_aggregated_css(.data)
   twomode <- manynet::is_twomode(.data)
   if(twomode && length(min_clique_size) == 1)
     min_clique_size <- c(min_clique_size, min_clique_size)
