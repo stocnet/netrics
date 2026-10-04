@@ -39,6 +39,9 @@ nodes are embedded in.
 in motifs of four nodes.
 \item \code{node_x_path()} returns the shortest path lengths
 of each node to every other node in the network.
+Where the network is weighted, stronger ties are shorter steps:
+each tie costs the mean tie weight divided by its own weight.
+Nodes that cannot reach each other are an infinite distance apart.
 \item \code{node_x_proximity()} returns how alike each pair of nodes' profiles
 in some census are, by default their profiles of ties.
 }

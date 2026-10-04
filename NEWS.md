@@ -43,6 +43,8 @@
   - Deprecated `cluster = "cosine"` and `cluster_cosine()` in favour of `proximity = "cosine"`
   - `cluster_hierarchical()` now also returns the proximities it clustered as `$proximity`
   - Raised `{manynet}` floor to 2.3.5
+- Fixed `node_in_automorphic()` erroring with `k = "elbow"` on weighted or unconnected networks
+  - Nodes that cannot reach each other are now treated as one step further apart than the most distant nodes that can, with a message
 - Improved `node_in_roulette()`, with some implications for `node_in_block()`
   - Now uses an iterated local search to improve the partition, rather than a single pass of greedy moves
     - Weak moves now kept only if they improve the partition
@@ -60,6 +62,9 @@
   - Now also counts undirected and weighted ties only once
 - Added `node_x_proximity()` for how alike each pair of nodes' profiles in some census are (closes #29)
   - This is the matrix that the equivalence functions cluster, by default from `node_x_tie()`
+- Fixed `node_x_path()` on weighted networks to return shortest path lengths (Opsahl et al. 2010)
+  - It was inverting each tie's weight, so that every pair of nodes without a tie was infinitely far apart
+  - Two-mode weighted networks now return a square matrix, as unweighted ones do
 - Improved `node_x_alters()`, thanks @RWKrause (closes #39)
   - Added `direction=` for out, in, reciprocated, or all (default) alters
   - Added `WeightedSum`, each alter's value times the strength of the tie to it

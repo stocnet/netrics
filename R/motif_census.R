@@ -12,6 +12,9 @@
 #'   For multiplex networks, the various types of ties are bound together.
 #'   - `node_x_path()` returns the shortest path lengths
 #'   of each node to every other node in the network.
+#'   Where the network is weighted, stronger ties are shorter steps:
+#'   each tie costs the mean tie weight divided by its own weight.
+#'   Nodes that cannot reach each other are an infinite distance apart.
 #'   - `node_x_proximity()` returns how alike each pair of nodes' profiles
 #'   in some census are, by default their profiles of ties.
 #'   
@@ -131,10 +134,13 @@ node_x_path <- function(.data){
   .data <- manynet::expect_nodes(.data)
   .data <- .to_aggregated_css(.data)
   .data <- .to_positive(.data)
+  object <- manynet::as_igraph(.data)
   if(manynet::is_weighted(.data)){
-    tore <- manynet::as_matrix(.data)/mean(manynet::as_matrix(.data))
-    out <- 1/tore
-  } else out <- igraph::distances(manynet::as_igraph(.data))
+    # A stronger tie is a shorter step (Opsahl et al. 2010): each tie costs
+    # the mean tie weight over its own, so an average tie is one step.
+    weights <- igraph::E(object)$weight
+    out <- igraph::distances(object, weights = mean(weights)/weights)
+  } else out <- igraph::distances(object)
   diag(out) <- 0
   make_node_motif(out, .data)
 }
@@ -183,6 +189,9 @@ node_x_proximity <- function(.data, motif = node_x_tie(.data),
 #'   in motifs of four nodes.
 #'   - `node_x_path()` returns the shortest path lengths
 #'   of each node to every other node in the network.
+#'   Where the network is weighted, stronger ties are shorter steps:
+#'   each tie costs the mean tie weight divided by its own weight.
+#'   Nodes that cannot reach each other are an infinite distance apart.
 #'   - `node_x_proximity()` returns how alike each pair of nodes' profiles
 #'   in some census are, by default their profiles of ties.
 #'   

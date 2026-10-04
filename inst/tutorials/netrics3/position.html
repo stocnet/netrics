@@ -1724,10 +1724,10 @@ alge %&gt;%
   graphr(node_color = &quot;ae&quot;)</code></pre>
 <script type="application/json" data-ui-opts="1">{"engine":"r","has_checker":false,"caption":"<span data-i18n=\"text.enginecap\" data-i18n-opts=\"{&quot;engine&quot;:&quot;R&quot;}\">R Code<\/span>"}</script>
 </div>
-<p>Automorphic equivalence here carves the network into many small
-classes: requiring identical structural surroundings is demanding, so
-few nodes qualify as truly interchangeable and most end up on their
-own.</p>
+<p>Automorphic equivalence here groups most nodes into one large class,
+with a few nodes set apart in small classes of their own: most students
+are a similar (weighted) distance from everyone else, and only those
+whose distances to the others are unusual stand out.</p>
 </div>
 <div id="section-which-equivalence-when" class="section level3">
 <h3>Which equivalence when?</h3>
@@ -2214,19 +2214,10 @@ learnr:::store_exercise_cache(structure(list(label = "data", global_setup = stru
         aniopts = "controls,loop", warning = TRUE, error = FALSE, 
         message = TRUE, render = NULL, ref.label = NULL, child = NULL, 
         engine = "r", split = FALSE, include = TRUE, purl = FALSE, 
-        tutorial.random_phrases = list(praise = list(fr = c("C'est génial!", 
-        "Beau travail", "Excellent travail!", "Bravo!", "Super!", 
-        "Bien fait", "Bien joué", "Tu l'as fait!", "Je savais que tu pouvais le faire.", 
-        "Ça a l'air facile!", "C'était un travail de première classe.", 
-        "C'est ce que j'appelle un bon travail!"), en = c("That's brilliant!", 
-        "Great work!", "Well done!", "Awesome!")), encouragement = list(
-            fr = c("Bon effort", "Vous l'avez presque maîtrisé!", 
-            "Ça avance bien.", "Continuez comme ça.", "Continuez à travailler dur!", 
-            "Vous apprenez vite!", "Vous faites un excellent travail aujourd'hui."
-            ), en = "Good effort")), max.print = 1000, label = "data", 
-        exercise = TRUE, code = "", context = "data", out.width.px = 624, 
-        out.height.px = 384, params.src = "data, exercise = TRUE, purl = FALSE", 
-        fig.num = 0L, exercise.df_print = "paged", exercise.checker = "NULL"), 
+        max.print = 1000, label = "data", exercise = TRUE, code = "", 
+        context = "data", out.width.px = 624, out.height.px = 384, 
+        params.src = "data, exercise = TRUE, purl = FALSE", fig.num = 0L, 
+        exercise.df_print = "paged", exercise.checker = "NULL"), 
     engine = "r", version = "4"), class = c("r", "tutorial_exercise"
 )))
 </script>
@@ -2289,18 +2280,9 @@ learnr:::store_exercise_cache(structure(list(label = "separatingnets", global_se
         aniopts = "controls,loop", warning = TRUE, error = FALSE, 
         message = TRUE, render = NULL, ref.label = NULL, child = NULL, 
         engine = "r", split = FALSE, include = TRUE, purl = FALSE, 
-        tutorial.random_phrases = list(praise = list(fr = c("C'est génial!", 
-        "Beau travail", "Excellent travail!", "Bravo!", "Super!", 
-        "Bien fait", "Bien joué", "Tu l'as fait!", "Je savais que tu pouvais le faire.", 
-        "Ça a l'air facile!", "C'était un travail de première classe.", 
-        "C'est ce que j'appelle un bon travail!"), en = c("That's brilliant!", 
-        "Great work!", "Well done!", "Awesome!")), encouragement = list(
-            fr = c("Bon effort", "Vous l'avez presque maîtrisé!", 
-            "Ça avance bien.", "Continuez comme ça.", "Continuez à travailler dur!", 
-            "Vous apprenez vite!", "Vous faites un excellent travail aujourd'hui."
-            ), en = "Good effort")), max.print = 1000, label = "separatingnets", 
-        exercise = TRUE, exercise.setup = "data", code = "", 
-        out.width.px = 624, out.height.px = 384, params.src = "separatingnets, exercise=TRUE, exercise.setup = \"data\", purl = FALSE", 
+        max.print = 1000, label = "separatingnets", exercise = TRUE, 
+        exercise.setup = "data", code = "", out.width.px = 624, 
+        out.height.px = 384, params.src = "separatingnets, exercise=TRUE, exercise.setup = \"data\", purl = FALSE", 
         fig.num = 0L, exercise.df_print = "paged", exercise.checker = "NULL"), 
     engine = "r", version = "4"), class = c("r", "tutorial_exercise"
 )))
@@ -2310,19 +2292,19 @@ learnr:::store_exercise_cache(structure(list(label = "separatingnets", global_se
 <script type="application/shiny-prerendered" data-context="server">
 learnr:::question_prerendered_chunk(structure(list(type = "learnr_radio", label = "strongties-qa", 
     question = structure("If we interpret ties with higher weights as strong ties, and lesser weights as weak ties, then, according to network theory (Granovetter’s ‘strength of weak ties’), where would we expect novel information to come from?", html = TRUE, class = c("html", 
-    "character")), answers = list(structure(list(id = "lnr_ans_927c35f", 
+    "character")), answers = list(structure(list(id = "lnr_ans_a7e830a", 
         option = "Weak ties", value = "Weak ties", label = structure("Weak ties", html = TRUE, class = c("html", 
-        "character")), correct = TRUE, message = structure("Terrific! Weak ties tend to reach beyond our immediate, tightly-knit circle, so they are more likely to bring in information we don’t already have.", html = TRUE, class = c("html", 
+        "character")), correct = TRUE, message = structure("That’s a first-class answer! Weak ties tend to reach beyond our immediate, tightly-knit circle, so they are more likely to bring in information we don’t already have.", html = TRUE, class = c("html", 
         "character")), type = "literal"), class = c("tutorial_question_answer", 
-    "tutorial_quiz_answer")), structure(list(id = "lnr_ans_eacf2a9", 
+    "tutorial_quiz_answer")), structure(list(id = "lnr_ans_3e2de6b", 
         option = "Strong ties", value = "Strong ties", label = structure("Strong ties", html = TRUE, class = c("html", 
         "character")), correct = FALSE, message = structure("Not quite – strong ties usually connect us to people who already share our circle (and so our information), which is why Granovetter emphasised the <em>weak<\u002fem> ones for novelty.", html = TRUE, class = c("html", 
         "character")), type = "literal"), class = c("tutorial_question_answer", 
-    "tutorial_quiz_answer")), structure(list(id = "lnr_ans_6d4415b", 
+    "tutorial_quiz_answer")), structure(list(id = "lnr_ans_b85edb2", 
         option = "Isolates", value = "Isolates", label = structure("Isolates", html = TRUE, class = c("html", 
         "character")), correct = FALSE, message = structure("Not quite – an isolate has no ties at all, so it can neither send nor receive novel information through the network.", html = TRUE, class = c("html", 
         "character")), type = "literal"), class = c("tutorial_question_answer", 
-    "tutorial_quiz_answer")), structure(list(id = "lnr_ans_140b81d", 
+    "tutorial_quiz_answer")), structure(list(id = "lnr_ans_9ec4636", 
         option = "Highest degree nodes", value = "Highest degree nodes", 
         label = structure("Highest degree nodes", html = TRUE, class = c("html", 
         "character")), correct = FALSE, message = structure("Not quite – having many ties is not the same as having ties that reach into different parts of the network; a high-degree node may still sit inside a single, redundant cluster.", html = TRUE, class = c("html", 
@@ -2335,34 +2317,34 @@ learnr:::question_prerendered_chunk(structure(list(type = "learnr_radio", label 
     "character")), message = NULL, post_message = NULL), ids = list(
         answer = "strongties-qa-answer", question = "strongties-qa"), 
     loading = NULL, random_answer_order = TRUE, allow_retry = TRUE, 
-    seed = 1410869652.34301, options = list()), class = c("learnr_radio", 
+    seed = 1388667080.35335, options = list()), class = c("learnr_radio", 
 "tutorial_question")), session = session)
 </script>
  
 <script type="application/shiny-prerendered" data-context="server">
 learnr:::question_prerendered_chunk(structure(list(type = "learnr_checkbox", label = "structinnov-qa", 
     question = structure("Which network concepts are associated with innovation?", html = TRUE, class = c("html", 
-    "character")), answers = list(structure(list(id = "lnr_ans_f08b297", 
+    "character")), answers = list(structure(list(id = "lnr_ans_bac3c3a", 
         option = "Structural holes", value = "Structural holes", 
         label = structure("Structural holes", html = TRUE, class = c("html", 
         "character")), correct = TRUE, message = structure("Being positioned in a structural hole is said to be a brokerage position that brings with it information arbitrage possibilities.", html = TRUE, class = c("html", 
         "character")), type = "literal"), class = c("tutorial_question_answer", 
-    "tutorial_quiz_answer")), structure(list(id = "lnr_ans_11a4a3", 
+    "tutorial_quiz_answer")), structure(list(id = "lnr_ans_9f330dc", 
         option = "Structural folds", value = "Structural folds", 
         label = structure("Structural folds", html = TRUE, class = c("html", 
         "character")), correct = TRUE, message = structure("Being positioned in a structural fold, with in-group membership in multiple groups, can provide not only information arbitrage possibilities, but also the standing in the target group to introduce novelty successfully. (More on this in the next section.)", html = TRUE, class = c("html", 
         "character")), type = "literal"), class = c("tutorial_question_answer", 
-    "tutorial_quiz_answer")), structure(list(id = "lnr_ans_26f4f7a", 
+    "tutorial_quiz_answer")), structure(list(id = "lnr_ans_16a7ce7", 
         option = "Structural balance", value = "Structural balance", 
         label = structure("Structural balance", html = TRUE, class = c("html", 
         "character")), correct = FALSE, message = structure("Structural balance is about whether signed (e.g. friend/enemy) ties form stable, tension-free configurations – a different question from where innovation appears.", html = TRUE, class = c("html", 
         "character")), type = "literal"), class = c("tutorial_question_answer", 
-    "tutorial_quiz_answer")), structure(list(id = "lnr_ans_957ec9b", 
+    "tutorial_quiz_answer")), structure(list(id = "lnr_ans_574c488", 
         option = "Structural equivalence", value = "Structural equivalence", 
         label = structure("Structural equivalence", html = TRUE, class = c("html", 
         "character")), correct = FALSE, message = structure("<img src=\"https://i.giphy.com/media/v1.Y2lkPTc5MGI3NjExdmY4ejhpMnZoZmh3OGUxbTdjbXQwMTcwcmg0ZHo5dmJ6NzI3c3FxNyZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9dg/2E7VU4zGVm8H1mFSAz/giphy.gif\" alt=\"gif of a morty assassinating another morty\"/>", html = TRUE, class = c("html", 
         "character")), type = "literal"), class = c("tutorial_question_answer", 
-    "tutorial_quiz_answer")), structure(list(id = "lnr_ans_3ca6faf", 
+    "tutorial_quiz_answer")), structure(list(id = "lnr_ans_541e7b9", 
         option = "Structuralism", value = "Structuralism", label = structure("Structuralism", html = TRUE, class = c("html", 
         "character")), correct = FALSE, message = structure("Structuralism is a broad intellectual movement, not a specific network mechanism for innovation.", html = TRUE, class = c("html", 
         "character")), type = "literal"), class = c("tutorial_question_answer", 
@@ -2374,7 +2356,7 @@ learnr:::question_prerendered_chunk(structure(list(type = "learnr_checkbox", lab
     "character")), message = NULL, post_message = NULL), ids = list(
         answer = "structinnov-qa-answer", question = "structinnov-qa"), 
     loading = NULL, random_answer_order = TRUE, allow_retry = TRUE, 
-    seed = 666042607.68985, options = list()), class = c("learnr_checkbox", 
+    seed = 1106889822.48456, options = list()), class = c("learnr_checkbox", 
 "tutorial_question")), session = session)
 </script>
 
@@ -2382,28 +2364,28 @@ learnr:::question_prerendered_chunk(structure(list(type = "learnr_checkbox", lab
 <script type="application/shiny-prerendered" data-context="server">
 learnr:::question_prerendered_chunk(structure(list(type = "learnr_checkbox", label = "shmeasures-qa", 
     question = structure("There are a number of measures that might be used to approximate the concept of structural holes. Select all that apply.", html = TRUE, class = c("html", 
-    "character")), answers = list(structure(list(id = "lnr_ans_ad0806a", 
+    "character")), answers = list(structure(list(id = "lnr_ans_dc319b6", 
         option = "Constraint", value = "Constraint", label = structure("Constraint", html = TRUE, class = c("html", 
-        "character")), correct = TRUE, message = structure("Absolutely fabulous! Constraint captures how far a node’s contacts are tied to one another – high constraint means few structural holes to exploit.", html = TRUE, class = c("html", 
+        "character")), correct = TRUE, message = structure("Lovely job! Constraint captures how far a node’s contacts are tied to one another – high constraint means few structural holes to exploit.", html = TRUE, class = c("html", 
         "character")), type = "literal"), class = c("tutorial_question_answer", 
-    "tutorial_quiz_answer")), structure(list(id = "lnr_ans_b8d19ae", 
+    "tutorial_quiz_answer")), structure(list(id = "lnr_ans_5837778", 
         option = "Effective size", value = "Effective size", 
         label = structure("Effective size", html = TRUE, class = c("html", 
         "character")), correct = TRUE, message = structure("Yes – effective size counts a node’s <em>non-redundant<\u002fem> contacts, so it grows as the node spans more structural holes.", html = TRUE, class = c("html", 
         "character")), type = "literal"), class = c("tutorial_question_answer", 
-    "tutorial_quiz_answer")), structure(list(id = "lnr_ans_40f91f6", 
+    "tutorial_quiz_answer")), structure(list(id = "lnr_ans_8962f02", 
         option = "Bridges", value = "Bridges", label = structure("Bridges", html = TRUE, class = c("html", 
         "character")), correct = TRUE, message = structure("Yes – a bridge is precisely a tie that spans a structural hole between otherwise disconnected parts of the network.", html = TRUE, class = c("html", 
         "character")), type = "literal"), class = c("tutorial_question_answer", 
-    "tutorial_quiz_answer")), structure(list(id = "lnr_ans_adb34f5", 
+    "tutorial_quiz_answer")), structure(list(id = "lnr_ans_145bfd3", 
         option = "Redundancy", value = "Redundancy", label = structure("Redundancy", html = TRUE, class = c("html", 
         "character")), correct = TRUE, message = structure("Yes – redundancy measures how much a node’s contacts overlap, so it is the flip side of having structural holes.", html = TRUE, class = c("html", 
         "character")), type = "literal"), class = c("tutorial_question_answer", 
-    "tutorial_quiz_answer")), structure(list(id = "lnr_ans_10b2c98", 
+    "tutorial_quiz_answer")), structure(list(id = "lnr_ans_fede698", 
         option = "Efficiency", value = "Efficiency", label = structure("Efficiency", html = TRUE, class = c("html", 
         "character")), correct = TRUE, message = structure("Yes – efficiency is effective size relative to degree, i.e. how much structural-hole benefit each contact yields on average.", html = TRUE, class = c("html", 
         "character")), type = "literal"), class = c("tutorial_question_answer", 
-    "tutorial_quiz_answer")), structure(list(id = "lnr_ans_9cf632c", 
+    "tutorial_quiz_answer")), structure(list(id = "lnr_ans_2423d37", 
         option = "Hierarchy", value = "Hierarchy", label = structure("Hierarchy", html = TRUE, class = c("html", 
         "character")), correct = TRUE, message = structure("Yes – hierarchy captures whether a node’s constraint is concentrated in a single dominant contact, another facet of its structural-hole position.", html = TRUE, class = c("html", 
         "character")), type = "literal"), class = c("tutorial_question_answer", 
@@ -2415,7 +2397,7 @@ learnr:::question_prerendered_chunk(structure(list(type = "learnr_checkbox", lab
     "character")), message = NULL, post_message = NULL), ids = list(
         answer = "shmeasures-qa-answer", question = "shmeasures-qa"), 
     loading = NULL, random_answer_order = TRUE, allow_retry = TRUE, 
-    seed = 1976818850.57947, options = list()), class = c("learnr_checkbox", 
+    seed = 1368518916.86273, options = list()), class = c("learnr_checkbox", 
 "tutorial_question")), session = session)
 </script>
  
@@ -2475,17 +2457,8 @@ learnr:::store_exercise_cache(structure(list(label = "bridges", global_setup = s
         aniopts = "controls,loop", warning = TRUE, error = FALSE, 
         message = TRUE, render = NULL, ref.label = NULL, child = NULL, 
         engine = "r", split = FALSE, include = TRUE, purl = TRUE, 
-        tutorial.random_phrases = list(praise = list(fr = c("C'est génial!", 
-        "Beau travail", "Excellent travail!", "Bravo!", "Super!", 
-        "Bien fait", "Bien joué", "Tu l'as fait!", "Je savais que tu pouvais le faire.", 
-        "Ça a l'air facile!", "C'était un travail de première classe.", 
-        "C'est ce que j'appelle un bon travail!"), en = c("That's brilliant!", 
-        "Great work!", "Well done!", "Awesome!")), encouragement = list(
-            fr = c("Bon effort", "Vous l'avez presque maîtrisé!", 
-            "Ça avance bien.", "Continuez comme ça.", "Continuez à travailler dur!", 
-            "Vous apprenez vite!", "Vous faites un excellent travail aujourd'hui."
-            ), en = "Good effort")), max.print = 1000, label = "bridges", 
-        exercise = TRUE, exercise.setup = "objects-setup", code = c("sum(tie_is_bridge(friends))", 
+        max.print = 1000, label = "bridges", exercise = TRUE, 
+        exercise.setup = "objects-setup", code = c("sum(tie_is_bridge(friends))", 
         "any(node_by_bridges(friends)>0)"), out.width.px = 624, 
         out.height.px = 384, params.src = "bridges, exercise = TRUE, exercise.setup = \"objects-setup\"", 
         fig.num = 0, exercise.df_print = "paged", exercise.checker = "NULL"), 
@@ -2549,18 +2522,9 @@ learnr:::store_exercise_cache(structure(list(label = "constraint", global_setup 
         aniopts = "controls,loop", warning = TRUE, error = FALSE, 
         message = TRUE, render = NULL, ref.label = NULL, child = NULL, 
         engine = "r", split = FALSE, include = TRUE, purl = FALSE, 
-        tutorial.random_phrases = list(praise = list(fr = c("C'est génial!", 
-        "Beau travail", "Excellent travail!", "Bravo!", "Super!", 
-        "Bien fait", "Bien joué", "Tu l'as fait!", "Je savais que tu pouvais le faire.", 
-        "Ça a l'air facile!", "C'était un travail de première classe.", 
-        "C'est ce que j'appelle un bon travail!"), en = c("That's brilliant!", 
-        "Great work!", "Well done!", "Awesome!")), encouragement = list(
-            fr = c("Bon effort", "Vous l'avez presque maîtrisé!", 
-            "Ça avance bien.", "Continuez comme ça.", "Continuez à travailler dur!", 
-            "Vous apprenez vite!", "Vous faites un excellent travail aujourd'hui."
-            ), en = "Good effort")), max.print = 1000, label = "constraint", 
-        exercise = TRUE, exercise.setup = "objects-setup", code = "", 
-        out.width.px = 624, out.height.px = 384, params.src = "constraint, exercise = TRUE, exercise.setup = \"objects-setup\", purl = FALSE", 
+        max.print = 1000, label = "constraint", exercise = TRUE, 
+        exercise.setup = "objects-setup", code = "", out.width.px = 624, 
+        out.height.px = 384, params.src = "constraint, exercise = TRUE, exercise.setup = \"objects-setup\", purl = FALSE", 
         fig.num = 0L, exercise.df_print = "paged", exercise.checker = "NULL"), 
     engine = "r", version = "4"), class = c("r", "tutorial_exercise"
 )))
@@ -2626,18 +2590,9 @@ learnr:::store_exercise_cache(structure(list(label = "constraintplot", global_se
         aniopts = "controls,loop", warning = TRUE, error = FALSE, 
         message = TRUE, render = NULL, ref.label = NULL, child = NULL, 
         engine = "r", split = FALSE, include = TRUE, purl = FALSE, 
-        tutorial.random_phrases = list(praise = list(fr = c("C'est génial!", 
-        "Beau travail", "Excellent travail!", "Bravo!", "Super!", 
-        "Bien fait", "Bien joué", "Tu l'as fait!", "Je savais que tu pouvais le faire.", 
-        "Ça a l'air facile!", "C'était un travail de première classe.", 
-        "C'est ce que j'appelle un bon travail!"), en = c("That's brilliant!", 
-        "Great work!", "Well done!", "Awesome!")), encouragement = list(
-            fr = c("Bon effort", "Vous l'avez presque maîtrisé!", 
-            "Ça avance bien.", "Continuez comme ça.", "Continuez à travailler dur!", 
-            "Vous apprenez vite!", "Vous faites un excellent travail aujourd'hui."
-            ), en = "Good effort")), max.print = 1000, label = "constraintplot", 
-        exercise = TRUE, exercise.setup = "objects-setup", code = "", 
-        out.width.px = 624, out.height.px = 384, params.src = "constraintplot, exercise=TRUE, exercise.setup = \"objects-setup\", purl = FALSE", 
+        max.print = 1000, label = "constraintplot", exercise = TRUE, 
+        exercise.setup = "objects-setup", code = "", out.width.px = 624, 
+        out.height.px = 384, params.src = "constraintplot, exercise=TRUE, exercise.setup = \"objects-setup\", purl = FALSE", 
         fig.num = 0L, exercise.df_print = "paged", exercise.checker = "NULL"), 
     engine = "r", version = "4"), class = c("r", "tutorial_exercise"
 )))
@@ -2646,11 +2601,11 @@ learnr:::store_exercise_cache(structure(list(label = "constraintplot", global_se
 <script type="application/shiny-prerendered" data-context="server">
 learnr:::question_prerendered_chunk(structure(list(type = "learnr_radio", label = "constraintQ", 
     question = structure("Do bridges innovate?", html = TRUE, class = c("html", 
-    "character")), answers = list(structure(list(id = "lnr_ans_e708460", 
+    "character")), answers = list(structure(list(id = "lnr_ans_3312a67", 
         option = "No", value = "No", label = structure("No", html = TRUE, class = c("html", 
-        "character")), correct = TRUE, message = structure("Awesome! Ties don’t have agency – people (nodes) do. It is the <em>broker<\u002fem> sitting in the structural hole who can act on the novel information, not the tie itself.", html = TRUE, class = c("html", 
+        "character")), correct = TRUE, message = structure("What first-rate work! Ties don’t have agency – people (nodes) do. It is the <em>broker<\u002fem> sitting in the structural hole who can act on the novel information, not the tie itself.", html = TRUE, class = c("html", 
         "character")), type = "literal"), class = c("tutorial_question_answer", 
-    "tutorial_quiz_answer")), structure(list(id = "lnr_ans_45cde04", 
+    "tutorial_quiz_answer")), structure(list(id = "lnr_ans_2238488", 
         option = "Yes", value = "Yes", label = structure("Yes", html = TRUE, class = c("html", 
         "character")), correct = FALSE, message = structure("Bridges can be important conduits for information, but ties do not typically have agency. Nodes do. Nodes in structural holes are called brokers. Nodes that are located in structural holes that would be there but for the node and their ties can be identified through various measures such as the number of bridges they are adjacent to, or their constraint score.", html = TRUE, class = c("html", 
         "character")), type = "literal"), class = c("tutorial_question_answer", 
@@ -2662,7 +2617,7 @@ learnr:::question_prerendered_chunk(structure(list(type = "learnr_radio", label 
     "character")), message = NULL, post_message = NULL), ids = list(
         answer = "constraintQ-answer", question = "constraintQ"), 
     loading = NULL, random_answer_order = TRUE, allow_retry = TRUE, 
-    seed = 80199449.9626542, options = list()), class = c("learnr_radio", 
+    seed = 552465295.742738, options = list()), class = c("learnr_radio", 
 "tutorial_question")), session = session)
 </script>
 
@@ -2722,17 +2677,8 @@ learnr:::store_exercise_cache(structure(list(label = "shfamily", global_setup = 
         aniopts = "controls,loop", warning = TRUE, error = FALSE, 
         message = TRUE, render = NULL, ref.label = NULL, child = NULL, 
         engine = "r", split = FALSE, include = TRUE, purl = TRUE, 
-        tutorial.random_phrases = list(praise = list(fr = c("C'est génial!", 
-        "Beau travail", "Excellent travail!", "Bravo!", "Super!", 
-        "Bien fait", "Bien joué", "Tu l'as fait!", "Je savais que tu pouvais le faire.", 
-        "Ça a l'air facile!", "C'était un travail de première classe.", 
-        "C'est ce que j'appelle un bon travail!"), en = c("That's brilliant!", 
-        "Great work!", "Well done!", "Awesome!")), encouragement = list(
-            fr = c("Bon effort", "Vous l'avez presque maîtrisé!", 
-            "Ça avance bien.", "Continuez comme ça.", "Continuez à travailler dur!", 
-            "Vous apprenez vite!", "Vous faites un excellent travail aujourd'hui."
-            ), en = "Good effort")), max.print = 1000, label = "shfamily", 
-        exercise = TRUE, exercise.setup = "objects-setup", code = c("node_by_effsize(tasks)", 
+        max.print = 1000, label = "shfamily", exercise = TRUE, 
+        exercise.setup = "objects-setup", code = c("node_by_effsize(tasks)", 
         "node_by_redundancy(tasks)", "node_by_hierarchy(tasks)"
         ), out.width.px = 624, out.height.px = 384, params.src = "shfamily, exercise = TRUE, exercise.setup = \"objects-setup\"", 
         fig.num = 0, exercise.df_print = "paged", exercise.checker = "NULL"), 
@@ -2744,24 +2690,24 @@ learnr:::store_exercise_cache(structure(list(label = "shfamily", global_setup = 
 <script type="application/shiny-prerendered" data-context="server">
 learnr:::question_prerendered_chunk(structure(list(type = "learnr_radio", label = "foldvshole-qa", 
     question = structure("What does a structural fold add to the structural-hole story?", html = TRUE, class = c("html", 
-    "character")), answers = list(structure(list(id = "lnr_ans_52d77b8", 
+    "character")), answers = list(structure(list(id = "lnr_ans_ca81336", 
         option = "Membership: the node is a recognised insider to both groups, giving it the standing to get novel ideas adopted, not just heard.", 
         value = "Membership: the node is a recognised insider to both groups, giving it the standing to get novel ideas adopted, not just heard.", 
         label = structure("Membership: the node is a recognised insider to both groups, giving it the standing to get novel ideas adopted, not just heard.", html = TRUE, class = c("html", 
-        "character")), correct = TRUE, message = structure("Bravo!", html = TRUE, class = c("html", 
+        "character")), correct = TRUE, message = structure("Delightful!", html = TRUE, class = c("html", 
         "character")), type = "literal"), class = c("tutorial_question_answer", 
-    "tutorial_quiz_answer")), structure(list(id = "lnr_ans_a385d82", 
+    "tutorial_quiz_answer")), structure(list(id = "lnr_ans_1c9184d", 
         option = "Nothing new -- a fold is just another name for a structural hole.", 
         value = "Nothing new -- a fold is just another name for a structural hole.", 
         label = structure("Nothing new – a fold is just another name for a structural hole.", html = TRUE, class = c("html", 
         "character")), correct = FALSE, message = structure("Not quite – a hole is a <em>gap between<\u002fem> groups spanned from outside, whereas a fold is an <em>overlap<\u002fem>: the node belongs to both groups at once.", html = TRUE, class = c("html", 
         "character")), type = "literal"), class = c("tutorial_question_answer", 
-    "tutorial_quiz_answer")), structure(list(id = "lnr_ans_8fa7b3c", 
+    "tutorial_quiz_answer")), structure(list(id = "lnr_ans_cd9844e", 
         option = "It measures how many ties a node has.", value = "It measures how many ties a node has.", 
         label = structure("It measures how many ties a node has.", html = TRUE, class = c("html", 
         "character")), correct = FALSE, message = structure("Not quite – that would be degree. A fold is about overlapping <em>group membership<\u002fem>, not tie count.", html = TRUE, class = c("html", 
         "character")), type = "literal"), class = c("tutorial_question_answer", 
-    "tutorial_quiz_answer")), structure(list(id = "lnr_ans_aee4512", 
+    "tutorial_quiz_answer")), structure(list(id = "lnr_ans_8f55f5", 
         option = "It guarantees the node has the highest betweenness.", 
         value = "It guarantees the node has the highest betweenness.", 
         label = structure("It guarantees the node has the highest betweenness.", html = TRUE, class = c("html", 
@@ -2775,7 +2721,7 @@ learnr:::question_prerendered_chunk(structure(list(type = "learnr_radio", label 
     "character")), message = NULL, post_message = NULL), ids = list(
         answer = "foldvshole-qa-answer", question = "foldvshole-qa"), 
     loading = NULL, random_answer_order = TRUE, allow_retry = TRUE, 
-    seed = 1821934426.6516, options = list()), class = c("learnr_radio", 
+    seed = 1890951976.11946, options = list()), class = c("learnr_radio", 
 "tutorial_question")), session = session)
 </script>
  
@@ -2835,19 +2781,9 @@ learnr:::store_exercise_cache(structure(list(label = "folds", global_setup = str
         aniopts = "controls,loop", warning = TRUE, error = FALSE, 
         message = TRUE, render = NULL, ref.label = NULL, child = NULL, 
         engine = "r", split = FALSE, include = TRUE, purl = TRUE, 
-        tutorial.random_phrases = list(praise = list(fr = c("C'est génial!", 
-        "Beau travail", "Excellent travail!", "Bravo!", "Super!", 
-        "Bien fait", "Bien joué", "Tu l'as fait!", "Je savais que tu pouvais le faire.", 
-        "Ça a l'air facile!", "C'était un travail de première classe.", 
-        "C'est ce que j'appelle un bon travail!"), en = c("That's brilliant!", 
-        "Great work!", "Well done!", "Awesome!")), encouragement = list(
-            fr = c("Bon effort", "Vous l'avez presque maîtrisé!", 
-            "Ça avance bien.", "Continuez comme ça.", "Continuez à travailler dur!", 
-            "Vous apprenez vite!", "Vous faites un excellent travail aujourd'hui."
-            ), en = "Good effort")), max.print = 1000, label = "folds", 
-        exercise = TRUE, exercise.setup = "objects-setup", code = c("node_is_fold(alge)", 
-        "any(node_is_fold(alge))"), out.width.px = 624, out.height.px = 384, 
-        params.src = "folds, exercise = TRUE, exercise.setup = \"objects-setup\"", 
+        max.print = 1000, label = "folds", exercise = TRUE, exercise.setup = "objects-setup", 
+        code = c("node_is_fold(alge)", "any(node_is_fold(alge))"
+        ), out.width.px = 624, out.height.px = 384, params.src = "folds, exercise = TRUE, exercise.setup = \"objects-setup\"", 
         fig.num = 0, exercise.df_print = "paged", exercise.checker = "NULL"), 
     engine = "r", version = "4"), class = c("r", "tutorial_exercise"
 )))
@@ -2855,23 +2791,23 @@ learnr:::store_exercise_cache(structure(list(label = "folds", global_setup = str
  
 <script type="application/shiny-prerendered" data-context="server">
 learnr:::question_prerendered_chunk(structure(list(type = "learnr_radio", label = "torture-qa", question = structure("According to Krackhardt’s ‘ties that torture’ argument, why might a node in a structural fold be <em>more<\u002fem> constrained rather than less?", html = TRUE, class = c("html", 
-"character")), answers = list(structure(list(id = "lnr_ans_1006941", 
+"character")), answers = list(structure(list(id = "lnr_ans_386820a", 
     option = "It is subject to the norms and obligations of two cohesive groups at once, which may conflict.", 
     value = "It is subject to the norms and obligations of two cohesive groups at once, which may conflict.", 
     label = structure("It is subject to the norms and obligations of two cohesive groups at once, which may conflict.", html = TRUE, class = c("html", 
-    "character")), correct = TRUE, message = structure("Awesome! Dual membership means dual accountability – the same embeddedness that grants legitimacy can also trap the node between competing expectations.", html = TRUE, class = c("html", 
+    "character")), correct = TRUE, message = structure("Wicked smaht! Dual membership means dual accountability – the same embeddedness that grants legitimacy can also trap the node between competing expectations.", html = TRUE, class = c("html", 
     "character")), type = "literal"), class = c("tutorial_question_answer", 
-"tutorial_quiz_answer")), structure(list(id = "lnr_ans_6b9c9b5", 
+"tutorial_quiz_answer")), structure(list(id = "lnr_ans_4c600b7", 
     option = "It has too few ties to be influential.", value = "It has too few ties to be influential.", 
     label = structure("It has too few ties to be influential.", html = TRUE, class = c("html", 
     "character")), correct = FALSE, message = structure("Not quite – the problem isn’t too few ties; it is being bound by the (possibly conflicting) obligations of two groups simultaneously.", html = TRUE, class = c("html", 
     "character")), type = "literal"), class = c("tutorial_question_answer", 
-"tutorial_quiz_answer")), structure(list(id = "lnr_ans_98587a1", 
+"tutorial_quiz_answer")), structure(list(id = "lnr_ans_e7acc67", 
     option = "Its constraint score is always exactly zero.", 
     value = "Its constraint score is always exactly zero.", label = structure("Its constraint score is always exactly zero.", html = TRUE, class = c("html", 
     "character")), correct = FALSE, message = structure("Not quite – the argument is substantive, not about a particular numeric value; the point is that dual embeddedness can be constraining rather than liberating.", html = TRUE, class = c("html", 
     "character")), type = "literal"), class = c("tutorial_question_answer", 
-"tutorial_quiz_answer")), structure(list(id = "lnr_ans_7b08fce", 
+"tutorial_quiz_answer")), structure(list(id = "lnr_ans_3c384be", 
     option = "Structural folds and structural holes are the same thing.", 
     value = "Structural folds and structural holes are the same thing.", 
     label = structure("Structural folds and structural holes are the same thing.", html = TRUE, class = c("html", 
@@ -2884,7 +2820,7 @@ learnr:::question_prerendered_chunk(structure(list(type = "learnr_radio", label 
 "character")), incorrect = structure("Incorrect", html = TRUE, class = c("html", 
 "character")), message = NULL, post_message = NULL), ids = list(
     answer = "torture-qa-answer", question = "torture-qa"), loading = NULL, 
-    random_answer_order = TRUE, allow_retry = TRUE, seed = 96317876.4551485, 
+    random_answer_order = TRUE, allow_retry = TRUE, seed = 2049601658.04558, 
     options = list()), class = c("learnr_radio", "tutorial_question"
 )), session = session)
 </script>
@@ -2893,20 +2829,20 @@ learnr:::question_prerendered_chunk(structure(list(type = "learnr_radio", label 
 <script type="application/shiny-prerendered" data-context="server">
 learnr:::question_prerendered_chunk(structure(list(type = "learnr_radio", label = "brokerrole-qa", 
     question = structure("A lawyer receives advice from a colleague in another office and passes it on to a colleague in their <em>own<\u002fem> office. Which Gould-Fernandez brokerage role is this?", html = TRUE, class = c("html", 
-    "character")), answers = list(structure(list(id = "lnr_ans_d9ef905", 
+    "character")), answers = list(structure(list(id = "lnr_ans_bdb3856", 
         option = "Gatekeeper", value = "Gatekeeper", label = structure("Gatekeeper", html = TRUE, class = c("html", 
-        "character")), correct = TRUE, message = structure("You aced it! The broker and the target share a group while the source is an outsider, so the broker governs what gets <em>in<\u002fem> to their own group.", html = TRUE, class = c("html", 
+        "character")), correct = TRUE, message = structure("What first-rate work! The broker and the target share a group while the source is an outsider, so the broker governs what gets <em>in<\u002fem> to their own group.", html = TRUE, class = c("html", 
         "character")), type = "literal"), class = c("tutorial_question_answer", 
-    "tutorial_quiz_answer")), structure(list(id = "lnr_ans_ad2f4af", 
+    "tutorial_quiz_answer")), structure(list(id = "lnr_ans_9c11f5", 
         option = "Representative", value = "Representative", 
         label = structure("Representative", html = TRUE, class = c("html", 
         "character")), correct = FALSE, message = structure("Not quite – a representative sends its <em>own<\u002fem> group’s resource <em>out<\u002fem> to an outsider; here the flow runs the other way, from an outsider <em>in<\u002fem> to the broker’s group.", html = TRUE, class = c("html", 
         "character")), type = "literal"), class = c("tutorial_question_answer", 
-    "tutorial_quiz_answer")), structure(list(id = "lnr_ans_c145834", 
+    "tutorial_quiz_answer")), structure(list(id = "lnr_ans_b196408", 
         option = "Coordinator", value = "Coordinator", label = structure("Coordinator", html = TRUE, class = c("html", 
         "character")), correct = FALSE, message = structure("Not quite – a coordinator brokers between two members of its <em>own<\u002fem> group; here the source sits in a different office.", html = TRUE, class = c("html", 
         "character")), type = "literal"), class = c("tutorial_question_answer", 
-    "tutorial_quiz_answer")), structure(list(id = "lnr_ans_bf34203", 
+    "tutorial_quiz_answer")), structure(list(id = "lnr_ans_3b600b4", 
         option = "Liaison", value = "Liaison", label = structure("Liaison", html = TRUE, class = c("html", 
         "character")), correct = FALSE, message = structure("Not quite – a liaison brokers between two groups that are <em>both<\u002fem> different from its own; here the broker and the target share an office.", html = TRUE, class = c("html", 
         "character")), type = "literal"), class = c("tutorial_question_answer", 
@@ -2918,7 +2854,7 @@ learnr:::question_prerendered_chunk(structure(list(type = "learnr_radio", label 
     "character")), message = NULL, post_message = NULL), ids = list(
         answer = "brokerrole-qa-answer", question = "brokerrole-qa"), 
     loading = NULL, random_answer_order = TRUE, allow_retry = TRUE, 
-    seed = 1163129479.45838, options = list()), class = c("learnr_radio", 
+    seed = 392424437.317263, options = list()), class = c("learnr_radio", 
 "tutorial_question")), session = session)
 </script>
  
@@ -2978,17 +2914,8 @@ learnr:::store_exercise_cache(structure(list(label = "nodebrokerage", global_set
         aniopts = "controls,loop", warning = TRUE, error = FALSE, 
         message = TRUE, render = NULL, ref.label = NULL, child = NULL, 
         engine = "r", split = FALSE, include = TRUE, purl = TRUE, 
-        tutorial.random_phrases = list(praise = list(fr = c("C'est génial!", 
-        "Beau travail", "Excellent travail!", "Bravo!", "Super!", 
-        "Bien fait", "Bien joué", "Tu l'as fait!", "Je savais que tu pouvais le faire.", 
-        "Ça a l'air facile!", "C'était un travail de première classe.", 
-        "C'est ce que j'appelle un bon travail!"), en = c("That's brilliant!", 
-        "Great work!", "Well done!", "Awesome!")), encouragement = list(
-            fr = c("Bon effort", "Vous l'avez presque maîtrisé!", 
-            "Ça avance bien.", "Continuez comme ça.", "Continuez à travailler dur!", 
-            "Vous apprenez vite!", "Vous faites un excellent travail aujourd'hui."
-            ), en = "Good effort")), max.print = 1000, label = "nodebrokerage", 
-        exercise = TRUE, exercise.setup = "broker-setup", code = "node_x_brokerage(lawfirm_advice, \"office\")", 
+        max.print = 1000, label = "nodebrokerage", exercise = TRUE, 
+        exercise.setup = "broker-setup", code = "node_x_brokerage(lawfirm_advice, \"office\")", 
         out.width.px = 624, out.height.px = 384, params.src = "nodebrokerage, exercise = TRUE, exercise.setup = \"broker-setup\"", 
         fig.num = 0, exercise.df_print = "paged", exercise.checker = "NULL"), 
     engine = "r", version = "4"), class = c("r", "tutorial_exercise"
@@ -3051,17 +2978,8 @@ learnr:::store_exercise_cache(structure(list(label = "netbrokerage", global_setu
         aniopts = "controls,loop", warning = TRUE, error = FALSE, 
         message = TRUE, render = NULL, ref.label = NULL, child = NULL, 
         engine = "r", split = FALSE, include = TRUE, purl = TRUE, 
-        tutorial.random_phrases = list(praise = list(fr = c("C'est génial!", 
-        "Beau travail", "Excellent travail!", "Bravo!", "Super!", 
-        "Bien fait", "Bien joué", "Tu l'as fait!", "Je savais que tu pouvais le faire.", 
-        "Ça a l'air facile!", "C'était un travail de première classe.", 
-        "C'est ce que j'appelle un bon travail!"), en = c("That's brilliant!", 
-        "Great work!", "Well done!", "Awesome!")), encouragement = list(
-            fr = c("Bon effort", "Vous l'avez presque maîtrisé!", 
-            "Ça avance bien.", "Continuez comme ça.", "Continuez à travailler dur!", 
-            "Vous apprenez vite!", "Vous faites un excellent travail aujourd'hui."
-            ), en = "Good effort")), max.print = 1000, label = "netbrokerage", 
-        exercise = TRUE, exercise.setup = "broker-setup", code = "net_x_brokerage(lawfirm_advice, \"office\")", 
+        max.print = 1000, label = "netbrokerage", exercise = TRUE, 
+        exercise.setup = "broker-setup", code = "net_x_brokerage(lawfirm_advice, \"office\")", 
         out.width.px = 624, out.height.px = 384, params.src = "netbrokerage, exercise = TRUE, exercise.setup = \"broker-setup\"", 
         fig.num = 0, exercise.df_print = "paged", exercise.checker = "NULL"), 
     engine = "r", version = "4"), class = c("r", "tutorial_exercise"
@@ -3121,18 +3039,8 @@ learnr:::store_exercise_cache(structure(list(label = "brokertry", global_setup =
         aniopts = "controls,loop", warning = TRUE, error = FALSE, 
         message = TRUE, render = NULL, ref.label = NULL, child = NULL, 
         engine = "r", split = FALSE, include = TRUE, purl = FALSE, 
-        tutorial.random_phrases = list(praise = list(fr = c("C'est génial!", 
-        "Beau travail", "Excellent travail!", "Bravo!", "Super!", 
-        "Bien fait", "Bien joué", "Tu l'as fait!", "Je savais que tu pouvais le faire.", 
-        "Ça a l'air facile!", "C'était un travail de première classe.", 
-        "C'est ce que j'appelle un bon travail!"), en = c("That's brilliant!", 
-        "Great work!", "Well done!", "Awesome!")), encouragement = list(
-            fr = c("Bon effort", "Vous l'avez presque maîtrisé!", 
-            "Ça avance bien.", "Continuez comme ça.", "Continuez à travailler dur!", 
-            "Vous apprenez vite!", "Vous faites un excellent travail aujourd'hui."
-            ), en = "Good effort")), max.print = 1000, label = "brokertry", 
-        exercise = TRUE, code = "", out.width.px = 624, out.height.px = 384, 
-        params.src = "brokertry, exercise = TRUE, purl = FALSE", 
+        max.print = 1000, label = "brokertry", exercise = TRUE, 
+        code = "", out.width.px = 624, out.height.px = 384, params.src = "brokertry, exercise = TRUE, purl = FALSE", 
         fig.num = 0L, exercise.df_print = "paged", exercise.checker = "NULL"), 
     engine = "r", version = "4"), class = c("r", "tutorial_exercise"
 )))
@@ -3140,17 +3048,17 @@ learnr:::store_exercise_cache(structure(list(label = "brokertry", global_setup =
  
 <script type="application/shiny-prerendered" data-context="server">
 learnr:::question_prerendered_chunk(structure(list(type = "learnr_radio", label = "equiv-qa", question = structure("Structural equivalence means identifying classes of nodes with…", html = TRUE, class = c("html", 
-"character")), answers = list(structure(list(id = "lnr_ans_e5a3734", 
+"character")), answers = list(structure(list(id = "lnr_ans_6e6679c", 
     option = "same/similar tie partners.", value = "same/similar tie partners.", 
     label = structure("same/similar tie partners.", html = TRUE, class = c("html", 
-    "character")), correct = TRUE, message = structure("Nice job! <br><br> <img src=\"https://i.giphy.com/media/v1.Y2lkPTc5MGI3NjExNGhvaTZ2Z3NxOW0yeTJ6ZjVoZ2ZqM2NqMjlxbXp1YnBmb2VtdTBldiZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/XcFqv8EzBiAlzeEID9/giphy.gif\" alt=\"gif of rick multiplying\"/>", html = TRUE, class = c("html", 
+    "character")), correct = TRUE, message = structure("Amazing! <br><br> <img src=\"https://i.giphy.com/media/v1.Y2lkPTc5MGI3NjExNGhvaTZ2Z3NxOW0yeTJ6ZjVoZ2ZqM2NqMjlxbXp1YnBmb2VtdTBldiZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/XcFqv8EzBiAlzeEID9/giphy.gif\" alt=\"gif of rick multiplying\"/>", html = TRUE, class = c("html", 
     "character")), type = "literal"), class = c("tutorial_question_answer", 
-"tutorial_quiz_answer")), structure(list(id = "lnr_ans_8b0f752", 
+"tutorial_quiz_answer")), structure(list(id = "lnr_ans_c5c1212", 
     option = "same/similar pattern of ties.", value = "same/similar pattern of ties.", 
     label = structure("same/similar pattern of ties.", html = TRUE, class = c("html", 
     "character")), correct = FALSE, message = structure("Close, but that is the definition for <em>regular<\u002fem> equivalence – equivalent nodes tie to equivalent others, not necessarily the <em>same<\u002fem> others. We’ll get to it.", html = TRUE, class = c("html", 
     "character")), type = "literal"), class = c("tutorial_question_answer", 
-"tutorial_quiz_answer")), structure(list(id = "lnr_ans_e75feb0", 
+"tutorial_quiz_answer")), structure(list(id = "lnr_ans_9898e82", 
     option = "same/similar distance from all others.", value = "same/similar distance from all others.", 
     label = structure("same/similar distance from all others.", html = TRUE, class = c("html", 
     "character")), correct = FALSE, message = structure("Not quite – that is closer to <em>automorphic<\u002fem> equivalence (interchangeable positions). We’ll get to it too.", html = TRUE, class = c("html", 
@@ -3162,7 +3070,7 @@ learnr:::question_prerendered_chunk(structure(list(type = "learnr_radio", label 
 "character")), incorrect = structure("Incorrect", html = TRUE, class = c("html", 
 "character")), message = NULL, post_message = NULL), ids = list(
     answer = "equiv-qa-answer", question = "equiv-qa"), loading = NULL, 
-    random_answer_order = TRUE, allow_retry = TRUE, seed = 1073993052.49988, 
+    random_answer_order = TRUE, allow_retry = TRUE, seed = 1070519135.5015, 
     options = list()), class = c("learnr_radio", "tutorial_question"
 )), session = session)
 </script>
@@ -3222,17 +3130,8 @@ learnr:::store_exercise_cache(structure(list(label = "find-se", global_setup = s
         aniopts = "controls,loop", warning = TRUE, error = FALSE, 
         message = TRUE, render = NULL, ref.label = NULL, child = NULL, 
         engine = "r", split = FALSE, include = TRUE, purl = TRUE, 
-        tutorial.random_phrases = list(praise = list(fr = c("C'est génial!", 
-        "Beau travail", "Excellent travail!", "Bravo!", "Super!", 
-        "Bien fait", "Bien joué", "Tu l'as fait!", "Je savais que tu pouvais le faire.", 
-        "Ça a l'air facile!", "C'était un travail de première classe.", 
-        "C'est ce que j'appelle un bon travail!"), en = c("That's brilliant!", 
-        "Great work!", "Well done!", "Awesome!")), encouragement = list(
-            fr = c("Bon effort", "Vous l'avez presque maîtrisé!", 
-            "Ça avance bien.", "Continuez comme ça.", "Continuez à travailler dur!", 
-            "Vous apprenez vite!", "Vous faites un excellent travail aujourd'hui."
-            ), en = "Good effort")), max.print = 1000, label = "find-se", 
-        exercise = TRUE, exercise.setup = "data", code = c("node_in_structural(ison_algebra)", 
+        max.print = 1000, label = "find-se", exercise = TRUE, 
+        exercise.setup = "data", code = c("node_in_structural(ison_algebra)", 
         "", "ison_algebra %>%", "  mutate(se = node_in_structural(ison_algebra)) %>%", 
         "  graphr(node_color = \"se\")"), out.width.px = 624, 
         out.height.px = 384, params.src = "find-se, exercise = TRUE, exercise.setup = \"data\"", 
@@ -3297,18 +3196,9 @@ learnr:::store_exercise_cache(structure(list(label = "construct-cor", global_set
         aniopts = "controls,loop", warning = TRUE, error = FALSE, 
         message = TRUE, render = NULL, ref.label = NULL, child = NULL, 
         engine = "r", split = FALSE, include = TRUE, purl = FALSE, 
-        tutorial.random_phrases = list(praise = list(fr = c("C'est génial!", 
-        "Beau travail", "Excellent travail!", "Bravo!", "Super!", 
-        "Bien fait", "Bien joué", "Tu l'as fait!", "Je savais que tu pouvais le faire.", 
-        "Ça a l'air facile!", "C'était un travail de première classe.", 
-        "C'est ce que j'appelle un bon travail!"), en = c("That's brilliant!", 
-        "Great work!", "Well done!", "Awesome!")), encouragement = list(
-            fr = c("Bon effort", "Vous l'avez presque maîtrisé!", 
-            "Ça avance bien.", "Continuez comme ça.", "Continuez à travailler dur!", 
-            "Vous apprenez vite!", "Vous faites un excellent travail aujourd'hui."
-            ), en = "Good effort")), max.print = 1000, label = "construct-cor", 
-        exercise = TRUE, exercise.setup = "data", code = "", 
-        out.width.px = 624, out.height.px = 384, params.src = "construct-cor, exercise = TRUE, exercise.setup = \"data\", purl = FALSE", 
+        max.print = 1000, label = "construct-cor", exercise = TRUE, 
+        exercise.setup = "data", code = "", out.width.px = 624, 
+        out.height.px = 384, params.src = "construct-cor, exercise = TRUE, exercise.setup = \"data\", purl = FALSE", 
         fig.num = 0L, exercise.df_print = "paged", exercise.checker = "NULL"), 
     engine = "r", version = "4"), class = c("r", "tutorial_exercise"
 )))
@@ -3372,18 +3262,9 @@ learnr:::store_exercise_cache(structure(list(label = "construct-binary", global_
         aniopts = "controls,loop", warning = TRUE, error = FALSE, 
         message = TRUE, render = NULL, ref.label = NULL, child = NULL, 
         engine = "r", split = FALSE, include = TRUE, purl = FALSE, 
-        tutorial.random_phrases = list(praise = list(fr = c("C'est génial!", 
-        "Beau travail", "Excellent travail!", "Bravo!", "Super!", 
-        "Bien fait", "Bien joué", "Tu l'as fait!", "Je savais que tu pouvais le faire.", 
-        "Ça a l'air facile!", "C'était un travail de première classe.", 
-        "C'est ce que j'appelle un bon travail!"), en = c("That's brilliant!", 
-        "Great work!", "Well done!", "Awesome!")), encouragement = list(
-            fr = c("Bon effort", "Vous l'avez presque maîtrisé!", 
-            "Ça avance bien.", "Continuez comme ça.", "Continuez à travailler dur!", 
-            "Vous apprenez vite!", "Vous faites un excellent travail aujourd'hui."
-            ), en = "Good effort")), max.print = 1000, label = "construct-binary", 
-        exercise = TRUE, exercise.setup = "data", code = "", 
-        out.width.px = 624, out.height.px = 384, params.src = "construct-binary, exercise = TRUE, exercise.setup = \"data\", purl = FALSE", 
+        max.print = 1000, label = "construct-binary", exercise = TRUE, 
+        exercise.setup = "data", code = "", out.width.px = 624, 
+        out.height.px = 384, params.src = "construct-binary, exercise = TRUE, exercise.setup = \"data\", purl = FALSE", 
         fig.num = 0L, exercise.df_print = "paged", exercise.checker = "NULL"), 
     engine = "r", version = "4"), class = c("r", "tutorial_exercise"
 )))
@@ -3444,17 +3325,8 @@ learnr:::store_exercise_cache(structure(list(label = "varyclust", global_setup =
         aniopts = "controls,loop", warning = TRUE, error = FALSE, 
         message = TRUE, render = NULL, ref.label = NULL, child = NULL, 
         engine = "r", split = FALSE, include = TRUE, purl = TRUE, 
-        tutorial.random_phrases = list(praise = list(fr = c("C'est génial!", 
-        "Beau travail", "Excellent travail!", "Bravo!", "Super!", 
-        "Bien fait", "Bien joué", "Tu l'as fait!", "Je savais que tu pouvais le faire.", 
-        "Ça a l'air facile!", "C'était un travail de première classe.", 
-        "C'est ce que j'appelle un bon travail!"), en = c("That's brilliant!", 
-        "Great work!", "Well done!", "Awesome!")), encouragement = list(
-            fr = c("Bon effort", "Vous l'avez presque maîtrisé!", 
-            "Ça avance bien.", "Continuez comme ça.", "Continuez à travailler dur!", 
-            "Vous apprenez vite!", "Vous faites un excellent travail aujourd'hui."
-            ), en = "Good effort")), max.print = 1000, label = "varyclust", 
-        exercise = TRUE, exercise.setup = "data", code = c("alge <- to_named(ison_algebra) # fake names to make comparison clearer", 
+        max.print = 1000, label = "varyclust", exercise = TRUE, 
+        exercise.setup = "data", code = c("alge <- to_named(ison_algebra) # fake names to make comparison clearer", 
         "plot(node_in_structural(alge, cluster = \"hier\", proximity = \"pearson\"))", 
         "", "# changing how the profiles are compared", "plot(node_in_structural(alge, cluster = \"hier\", proximity = \"cosine\"))", 
         "", "# changing the clustering algorithm", "plot(node_in_structural(alge, cluster = \"concor\"))"
@@ -3468,11 +3340,11 @@ learnr:::store_exercise_cache(structure(list(label = "varyclust", global_setup =
 <script type="application/shiny-prerendered" data-context="server">
 learnr:::question_prerendered_chunk(structure(list(type = "learnr_radio", label = "scale-interp", 
     question = structure("Do you see any differences?", html = TRUE, class = c("html", 
-    "character")), answers = list(structure(list(id = "lnr_ans_f77b059", 
+    "character")), answers = list(structure(list(id = "lnr_ans_1f9342c", 
         option = "Yes", value = "Yes", label = structure("Yes", html = TRUE, class = c("html", 
-        "character")), correct = TRUE, message = structure("Spectacular job! The dendrograms shift as you change the proximity measure and the clustering algorithm – which is exactly why it matters to report which options you used.", html = TRUE, class = c("html", 
+        "character")), correct = TRUE, message = structure("Superb work! The dendrograms shift as you change the proximity measure and the clustering algorithm – which is exactly why it matters to report which options you used.", html = TRUE, class = c("html", 
         "character")), type = "literal"), class = c("tutorial_question_answer", 
-    "tutorial_quiz_answer")), structure(list(id = "lnr_ans_7d79f7d", 
+    "tutorial_quiz_answer")), structure(list(id = "lnr_ans_eadcffa", 
         option = "No", value = "No", label = structure("No", html = TRUE, class = c("html", 
         "character")), correct = FALSE, message = structure("Look again – changing the proximity (pearson vs. cosine) and especially the algorithm (hierarchical vs. CONCOR) reshapes the dendrogram and can regroup the nodes.", html = TRUE, class = c("html", 
         "character")), type = "literal"), class = c("tutorial_question_answer", 
@@ -3484,7 +3356,7 @@ learnr:::question_prerendered_chunk(structure(list(type = "learnr_radio", label 
     "character")), message = NULL, post_message = NULL), ids = list(
         answer = "scale-interp-answer", question = "scale-interp"), 
     loading = NULL, random_answer_order = FALSE, allow_retry = TRUE, 
-    seed = 1608459976.751, options = list()), class = c("learnr_radio", 
+    seed = 1261063381.41277, options = list()), class = c("learnr_radio", 
 "tutorial_question")), session = session)
 </script>
  
@@ -3547,17 +3419,8 @@ learnr:::store_exercise_cache(structure(list(label = "k-discrete", global_setup 
         aniopts = "controls,loop", warning = TRUE, error = FALSE, 
         message = TRUE, render = NULL, ref.label = NULL, child = NULL, 
         engine = "r", split = FALSE, include = TRUE, purl = TRUE, 
-        tutorial.random_phrases = list(praise = list(fr = c("C'est génial!", 
-        "Beau travail", "Excellent travail!", "Bravo!", "Super!", 
-        "Bien fait", "Bien joué", "Tu l'as fait!", "Je savais que tu pouvais le faire.", 
-        "Ça a l'air facile!", "C'était un travail de première classe.", 
-        "C'est ce que j'appelle un bon travail!"), en = c("That's brilliant!", 
-        "Great work!", "Well done!", "Awesome!")), encouragement = list(
-            fr = c("Bon effort", "Vous l'avez presque maîtrisé!", 
-            "Ça avance bien.", "Continuez comme ça.", "Continuez à travailler dur!", 
-            "Vous apprenez vite!", "Vous faites un excellent travail aujourd'hui."
-            ), en = "Good effort")), max.print = 1000, label = "k-discrete", 
-        exercise = TRUE, exercise.setup = "varyclust", code = "plot(node_in_structural(to_named(ison_algebra), k = 2))", 
+        max.print = 1000, label = "k-discrete", exercise = TRUE, 
+        exercise.setup = "varyclust", code = "plot(node_in_structural(to_named(ison_algebra), k = 2))", 
         out.width.px = 624, out.height.px = 384, params.src = "k-discrete, exercise = TRUE, exercise.setup = \"varyclust\"", 
         fig.num = 0, exercise.df_print = "paged", exercise.checker = "NULL"), 
     engine = "r", version = "4"), class = c("r", "tutorial_exercise"
@@ -3623,17 +3486,8 @@ learnr:::store_exercise_cache(structure(list(label = "elbowsil", global_setup = 
         aniopts = "controls,loop", warning = TRUE, error = FALSE, 
         message = TRUE, render = NULL, ref.label = NULL, child = NULL, 
         engine = "r", split = FALSE, include = TRUE, purl = TRUE, 
-        tutorial.random_phrases = list(praise = list(fr = c("C'est génial!", 
-        "Beau travail", "Excellent travail!", "Bravo!", "Super!", 
-        "Bien fait", "Bien joué", "Tu l'as fait!", "Je savais que tu pouvais le faire.", 
-        "Ça a l'air facile!", "C'était un travail de première classe.", 
-        "C'est ce que j'appelle un bon travail!"), en = c("That's brilliant!", 
-        "Great work!", "Well done!", "Awesome!")), encouragement = list(
-            fr = c("Bon effort", "Vous l'avez presque maîtrisé!", 
-            "Ça avance bien.", "Continuez comme ça.", "Continuez à travailler dur!", 
-            "Vous apprenez vite!", "Vous faites un excellent travail aujourd'hui."
-            ), en = "Good effort")), max.print = 1000, label = "elbowsil", 
-        exercise = TRUE, exercise.setup = "varyclust", code = c("plot(node_in_structural(to_named(ison_algebra), k = \"elbow\"))", 
+        max.print = 1000, label = "elbowsil", exercise = TRUE, 
+        exercise.setup = "varyclust", code = c("plot(node_in_structural(to_named(ison_algebra), k = \"elbow\"))", 
         "plot(node_in_structural(to_named(ison_algebra), k = \"silhouette\"))"
         ), out.width.px = 624, out.height.px = 384, params.src = "elbowsil, exercise = TRUE, exercise.setup = \"varyclust\"", 
         fig.num = 0, exercise.df_print = "paged", exercise.checker = "NULL"), 
@@ -3700,17 +3554,8 @@ learnr:::store_exercise_cache(structure(list(label = "strict", global_setup = st
         aniopts = "controls,loop", warning = TRUE, error = FALSE, 
         message = TRUE, render = NULL, ref.label = NULL, child = NULL, 
         engine = "r", split = FALSE, include = TRUE, purl = TRUE, 
-        tutorial.random_phrases = list(praise = list(fr = c("C'est génial!", 
-        "Beau travail", "Excellent travail!", "Bravo!", "Super!", 
-        "Bien fait", "Bien joué", "Tu l'as fait!", "Je savais que tu pouvais le faire.", 
-        "Ça a l'air facile!", "C'était un travail de première classe.", 
-        "C'est ce que j'appelle un bon travail!"), en = c("That's brilliant!", 
-        "Great work!", "Well done!", "Awesome!")), encouragement = list(
-            fr = c("Bon effort", "Vous l'avez presque maîtrisé!", 
-            "Ça avance bien.", "Continuez comme ça.", "Continuez à travailler dur!", 
-            "Vous apprenez vite!", "Vous faites un excellent travail aujourd'hui."
-            ), en = "Good effort")), max.print = 1000, label = "strict", 
-        exercise = TRUE, exercise.setup = "varyclust", code = "plot(node_in_structural(to_named(ison_algebra), k = \"strict\"))", 
+        max.print = 1000, label = "strict", exercise = TRUE, 
+        exercise.setup = "varyclust", code = "plot(node_in_structural(to_named(ison_algebra), k = \"strict\"))", 
         out.width.px = 624, out.height.px = 384, params.src = "strict, exercise = TRUE, exercise.setup = \"varyclust\"", 
         fig.num = 0, exercise.df_print = "paged", exercise.checker = "NULL"), 
     engine = "r", version = "4"), class = c("r", "tutorial_exercise"
@@ -3776,17 +3621,8 @@ learnr:::store_exercise_cache(structure(list(label = "strplot", global_setup = s
         aniopts = "controls,loop", warning = TRUE, error = FALSE, 
         message = TRUE, render = NULL, ref.label = NULL, child = NULL, 
         engine = "r", split = FALSE, include = TRUE, purl = TRUE, 
-        tutorial.random_phrases = list(praise = list(fr = c("C'est génial!", 
-        "Beau travail", "Excellent travail!", "Bravo!", "Super!", 
-        "Bien fait", "Bien joué", "Tu l'as fait!", "Je savais que tu pouvais le faire.", 
-        "Ça a l'air facile!", "C'était un travail de première classe.", 
-        "C'est ce que j'appelle un bon travail!"), en = c("That's brilliant!", 
-        "Great work!", "Well done!", "Awesome!")), encouragement = list(
-            fr = c("Bon effort", "Vous l'avez presque maîtrisé!", 
-            "Ça avance bien.", "Continuez comme ça.", "Continuez à travailler dur!", 
-            "Vous apprenez vite!", "Vous faites un excellent travail aujourd'hui."
-            ), en = "Good effort")), max.print = 1000, label = "strplot", 
-        exercise = TRUE, exercise.setup = "varyclust", code = c("alge <- to_named(ison_algebra)", 
+        max.print = 1000, label = "strplot", exercise = TRUE, 
+        exercise.setup = "varyclust", code = c("alge <- to_named(ison_algebra)", 
         "alge %>%", "  mutate(se = node_in_structural(alge, k = 4)) %>%", 
         "  graphr(node_color = \"se\")"), out.width.px = 624, 
         out.height.px = 384, params.src = "strplot, exercise = TRUE, exercise.setup = \"varyclust\"", 
@@ -3858,18 +3694,8 @@ learnr:::store_exercise_cache(structure(list(label = "summ", global_setup = stru
         aniopts = "controls,loop", warning = TRUE, error = FALSE, 
         message = TRUE, render = NULL, ref.label = NULL, child = NULL, 
         engine = "r", split = FALSE, include = TRUE, purl = FALSE, 
-        tutorial.random_phrases = list(praise = list(fr = c("C'est génial!", 
-        "Beau travail", "Excellent travail!", "Bravo!", "Super!", 
-        "Bien fait", "Bien joué", "Tu l'as fait!", "Je savais que tu pouvais le faire.", 
-        "Ça a l'air facile!", "C'était un travail de première classe.", 
-        "C'est ce que j'appelle un bon travail!"), en = c("That's brilliant!", 
-        "Great work!", "Well done!", "Awesome!")), encouragement = list(
-            fr = c("Bon effort", "Vous l'avez presque maîtrisé!", 
-            "Ça avance bien.", "Continuez comme ça.", "Continuez à travailler dur!", 
-            "Vous apprenez vite!", "Vous faites un excellent travail aujourd'hui."
-            ), en = "Good effort")), max.print = 1000, label = "summ", 
-        exercise = TRUE, exercise.setup = "strplot", code = "", 
-        out.width.px = 624, out.height.px = 384, params.src = "summ, exercise = TRUE, exercise.setup = \"strplot\", purl = FALSE", 
+        max.print = 1000, label = "summ", exercise = TRUE, exercise.setup = "strplot", 
+        code = "", out.width.px = 624, out.height.px = 384, params.src = "summ, exercise = TRUE, exercise.setup = \"strplot\", purl = FALSE", 
         fig.num = 0L, exercise.df_print = "paged", exercise.checker = "NULL"), 
     engine = "r", version = "4"), class = c("r", "tutorial_exercise"
 )))
@@ -3943,18 +3769,8 @@ learnr:::store_exercise_cache(structure(list(label = "block", global_setup = str
         aniopts = "controls,loop", warning = TRUE, error = FALSE, 
         message = TRUE, render = NULL, ref.label = NULL, child = NULL, 
         engine = "r", split = FALSE, include = TRUE, purl = FALSE, 
-        tutorial.random_phrases = list(praise = list(fr = c("C'est génial!", 
-        "Beau travail", "Excellent travail!", "Bravo!", "Super!", 
-        "Bien fait", "Bien joué", "Tu l'as fait!", "Je savais que tu pouvais le faire.", 
-        "Ça a l'air facile!", "C'était un travail de première classe.", 
-        "C'est ce que j'appelle un bon travail!"), en = c("That's brilliant!", 
-        "Great work!", "Well done!", "Awesome!")), encouragement = list(
-            fr = c("Bon effort", "Vous l'avez presque maîtrisé!", 
-            "Ça avance bien.", "Continuez comme ça.", "Continuez à travailler dur!", 
-            "Vous apprenez vite!", "Vous faites un excellent travail aujourd'hui."
-            ), en = "Good effort")), max.print = 1000, label = "block", 
-        exercise = TRUE, exercise.setup = "strplot", code = "", 
-        out.width.px = 624, out.height.px = 384, params.src = "block, exercise = TRUE, exercise.setup = \"strplot\", purl = FALSE", 
+        max.print = 1000, label = "block", exercise = TRUE, exercise.setup = "strplot", 
+        code = "", out.width.px = 624, out.height.px = 384, params.src = "block, exercise = TRUE, exercise.setup = \"strplot\", purl = FALSE", 
         fig.num = 0L, exercise.df_print = "paged", exercise.checker = "NULL"), 
     engine = "r", version = "4"), class = c("r", "tutorial_exercise"
 )))
@@ -3963,24 +3779,24 @@ learnr:::store_exercise_cache(structure(list(label = "block", global_setup = str
 <script type="application/shiny-prerendered" data-context="server">
 learnr:::question_prerendered_chunk(structure(list(type = "learnr_radio", label = "blockinterp-qa", 
     question = structure("In a blockmodel plot sorted by class, what does an empty (white) off-diagonal block between class A (rows) and class B (columns) tell you?", html = TRUE, class = c("html", 
-    "character")), answers = list(structure(list(id = "lnr_ans_42b1fdd", 
+    "character")), answers = list(structure(list(id = "lnr_ans_7e75dc9", 
         option = "Members of class A rarely or never send ties to members of class B.", 
         value = "Members of class A rarely or never send ties to members of class B.", 
         label = structure("Members of class A rarely or never send ties to members of class B.", html = TRUE, class = c("html", 
-        "character")), correct = TRUE, message = structure("Resplendent! <br><br> <img src=\"https://i.giphy.com/media/v1.Y2lkPTc5MGI3NjExeHVzdGlhOGkyOWg2Z3BnMmE2eDgxMnlhZHhwaWx0bGZ3dTNmZnYyaSZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/dsKkAGVnds7aXQKBI7/giphy.gif\" alt=\"gif of mortys in a block parade\"/>", html = TRUE, class = c("html", 
+        "character")), correct = TRUE, message = structure("Wonderful! <br><br> <img src=\"https://i.giphy.com/media/v1.Y2lkPTc5MGI3NjExeHVzdGlhOGkyOWg2Z3BnMmE2eDgxMnlhZHhwaWx0bGZ3dTNmZnYyaSZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/dsKkAGVnds7aXQKBI7/giphy.gif\" alt=\"gif of mortys in a block parade\"/>", html = TRUE, class = c("html", 
         "character")), type = "literal"), class = c("tutorial_question_answer", 
-    "tutorial_quiz_answer")), structure(list(id = "lnr_ans_bd82c71", 
+    "tutorial_quiz_answer")), structure(list(id = "lnr_ans_ba169b6", 
         option = "Classes A and B are the same class.", value = "Classes A and B are the same class.", 
         label = structure("Classes A and B are the same class.", html = TRUE, class = c("html", 
         "character")), correct = FALSE, message = structure("Not quite – an empty block is about the <em>absence of ties<\u002fem> from one class to another, not about the classes being identical. Identical classes wouldn’t be drawn as two separate blocks. <br><br> <img src=\"https://i.giphy.com/media/v1.Y2lkPTc5MGI3NjExdmRlczhzaDJzaTBma3Q0c3pydDJjZTFkY20yMmhzbW13YmU3cnl6ZSZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9dg/QIEol1DjEwSOc9PvLu/giphy.gif\" alt=\"gif of mortys learning about roles\"/>", html = TRUE, class = c("html", 
         "character")), type = "literal"), class = c("tutorial_question_answer", 
-    "tutorial_quiz_answer")), structure(list(id = "lnr_ans_bc952ce", 
+    "tutorial_quiz_answer")), structure(list(id = "lnr_ans_9aea15c", 
         option = "Every member of class A sends a tie to every member of class B.", 
         value = "Every member of class A sends a tie to every member of class B.", 
         label = structure("Every member of class A sends a tie to every member of class B.", html = TRUE, class = c("html", 
         "character")), correct = FALSE, message = structure("That would be a full, dark block – the opposite of an empty one.", html = TRUE, class = c("html", 
         "character")), type = "literal"), class = c("tutorial_question_answer", 
-    "tutorial_quiz_answer")), structure(list(id = "lnr_ans_4867b43", 
+    "tutorial_quiz_answer")), structure(list(id = "lnr_ans_db653d1", 
         option = "Class A has no members.", value = "Class A has no members.", 
         label = structure("Class A has no members.", html = TRUE, class = c("html", 
         "character")), correct = FALSE, message = structure("Not quite – an empty block still has rows (members); it just records that those members don’t tie to class B.", html = TRUE, class = c("html", 
@@ -3993,7 +3809,7 @@ learnr:::question_prerendered_chunk(structure(list(type = "learnr_radio", label 
     "character")), message = NULL, post_message = NULL), ids = list(
         answer = "blockinterp-qa-answer", question = "blockinterp-qa"), 
     loading = NULL, random_answer_order = TRUE, allow_retry = TRUE, 
-    seed = 835026308.61116, options = list()), class = c("learnr_radio", 
+    seed = 2064813347.5385, options = list()), class = c("learnr_radio", 
 "tutorial_question")), session = session)
 </script>
 
@@ -4056,17 +3872,8 @@ learnr:::store_exercise_cache(structure(list(label = "blockfit", global_setup = 
         aniopts = "controls,loop", warning = TRUE, error = FALSE, 
         message = TRUE, render = NULL, ref.label = NULL, child = NULL, 
         engine = "r", split = FALSE, include = TRUE, purl = TRUE, 
-        tutorial.random_phrases = list(praise = list(fr = c("C'est génial!", 
-        "Beau travail", "Excellent travail!", "Bravo!", "Super!", 
-        "Bien fait", "Bien joué", "Tu l'as fait!", "Je savais que tu pouvais le faire.", 
-        "Ça a l'air facile!", "C'était un travail de première classe.", 
-        "C'est ce que j'appelle un bon travail!"), en = c("That's brilliant!", 
-        "Great work!", "Well done!", "Awesome!")), encouragement = list(
-            fr = c("Bon effort", "Vous l'avez presque maîtrisé!", 
-            "Ça avance bien.", "Continuez comme ça.", "Continuez à travailler dur!", 
-            "Vous apprenez vite!", "Vous faites un excellent travail aujourd'hui."
-            ), en = "Good effort")), max.print = 1000, label = "blockfit", 
-        exercise = TRUE, exercise.setup = "varyclust", code = c("net_by_inconsistency(alge, node_in_structural(alge, k = 4))", 
+        max.print = 1000, label = "blockfit", exercise = TRUE, 
+        exercise.setup = "varyclust", code = c("net_by_inconsistency(alge, node_in_structural(alge, k = 4))", 
         "", "# a coarser partition has to lump dissimilar nodes together", 
         "net_by_inconsistency(alge, node_in_structural(alge, k = 2))", 
         "", "# and an arbitrary partition should do worse than a fitted one", 
@@ -4136,17 +3943,8 @@ learnr:::store_exercise_cache(structure(list(label = "blockreg", global_setup = 
         aniopts = "controls,loop", warning = TRUE, error = FALSE, 
         message = TRUE, render = NULL, ref.label = NULL, child = NULL, 
         engine = "r", split = FALSE, include = TRUE, purl = TRUE, 
-        tutorial.random_phrases = list(praise = list(fr = c("C'est génial!", 
-        "Beau travail", "Excellent travail!", "Bravo!", "Super!", 
-        "Bien fait", "Bien joué", "Tu l'as fait!", "Je savais que tu pouvais le faire.", 
-        "Ça a l'air facile!", "C'était un travail de première classe.", 
-        "C'est ce que j'appelle un bon travail!"), en = c("That's brilliant!", 
-        "Great work!", "Well done!", "Awesome!")), encouragement = list(
-            fr = c("Bon effort", "Vous l'avez presque maîtrisé!", 
-            "Ça avance bien.", "Continuez comme ça.", "Continuez à travailler dur!", 
-            "Vous apprenez vite!", "Vous faites un excellent travail aujourd'hui."
-            ), en = "Good effort")), max.print = 1000, label = "blockreg", 
-        exercise = TRUE, exercise.setup = "varyclust", code = c("# structural blockmodelling: blocks must be empty or full", 
+        max.print = 1000, label = "blockreg", exercise = TRUE, 
+        exercise.setup = "varyclust", code = c("# structural blockmodelling: blocks must be empty or full", 
         "net_by_inconsistency(alge, node_in_structural(alge, k = 3))", 
         "", "# regular blockmodelling: blocks must be empty or have every row and column", 
         "# represented, which is a much easier standard to meet", 
@@ -4216,17 +4014,8 @@ learnr:::store_exercise_cache(structure(list(label = "blocksearch", global_setup
         aniopts = "controls,loop", warning = TRUE, error = FALSE, 
         message = TRUE, render = NULL, ref.label = NULL, child = NULL, 
         engine = "r", split = FALSE, include = TRUE, purl = TRUE, 
-        tutorial.random_phrases = list(praise = list(fr = c("C'est génial!", 
-        "Beau travail", "Excellent travail!", "Bravo!", "Super!", 
-        "Bien fait", "Bien joué", "Tu l'as fait!", "Je savais que tu pouvais le faire.", 
-        "Ça a l'air facile!", "C'était un travail de première classe.", 
-        "C'est ce que j'appelle un bon travail!"), en = c("That's brilliant!", 
-        "Great work!", "Well done!", "Awesome!")), encouragement = list(
-            fr = c("Bon effort", "Vous l'avez presque maîtrisé!", 
-            "Ça avance bien.", "Continuez comme ça.", "Continuez à travailler dur!", 
-            "Vous apprenez vite!", "Vous faites un excellent travail aujourd'hui."
-            ), en = "Good effort")), max.print = 1000, label = "blocksearch", 
-        exercise = TRUE, exercise.setup = "varyclust", code = c("set.seed(123)", 
+        max.print = 1000, label = "blocksearch", exercise = TRUE, 
+        exercise.setup = "varyclust", code = c("set.seed(123)", 
         "nbm <- node_in_block(alge, k = 3)", "net_by_inconsistency(alge, nbm)", 
         "net_by_inconsistency(alge, node_in_structural(alge, k = 3))"
         ), out.width.px = 624, out.height.px = 384, params.src = "blocksearch, exercise = TRUE, exercise.setup = \"varyclust\"", 
@@ -4294,17 +4083,8 @@ learnr:::store_exercise_cache(structure(list(label = "structblock", global_setup
         aniopts = "controls,loop", warning = FALSE, error = FALSE, 
         message = TRUE, render = NULL, ref.label = NULL, child = NULL, 
         engine = "r", split = FALSE, include = TRUE, purl = TRUE, 
-        tutorial.random_phrases = list(praise = list(fr = c("C'est génial!", 
-        "Beau travail", "Excellent travail!", "Bravo!", "Super!", 
-        "Bien fait", "Bien joué", "Tu l'as fait!", "Je savais que tu pouvais le faire.", 
-        "Ça a l'air facile!", "C'était un travail de première classe.", 
-        "C'est ce que j'appelle un bon travail!"), en = c("That's brilliant!", 
-        "Great work!", "Well done!", "Awesome!")), encouragement = list(
-            fr = c("Bon effort", "Vous l'avez presque maîtrisé!", 
-            "Ça avance bien.", "Continuez comme ça.", "Continuez à travailler dur!", 
-            "Vous apprenez vite!", "Vous faites un excellent travail aujourd'hui."
-            ), en = "Good effort")), max.print = 1000, label = "structblock", 
-        exercise = TRUE, exercise.setup = "varyclust", code = "(bm <- to_blockmodel(alge, node_in_structural(alge, k = 4)))", 
+        max.print = 1000, label = "structblock", exercise = TRUE, 
+        exercise.setup = "varyclust", code = "(bm <- to_blockmodel(alge, node_in_structural(alge, k = 4)))", 
         out.width.px = 624, out.height.px = 384, params.src = "structblock, exercise = TRUE, exercise.setup = \"varyclust\", warning=FALSE", 
         fig.num = 0, exercise.df_print = "paged", exercise.checker = "NULL"), 
     engine = "r", version = "4"), class = c("r", "tutorial_exercise"
@@ -4373,17 +4153,8 @@ learnr:::store_exercise_cache(structure(list(label = "reducedgraph", global_setu
         aniopts = "controls,loop", warning = FALSE, error = FALSE, 
         message = TRUE, render = NULL, ref.label = NULL, child = NULL, 
         engine = "r", split = FALSE, include = TRUE, purl = TRUE, 
-        tutorial.random_phrases = list(praise = list(fr = c("C'est génial!", 
-        "Beau travail", "Excellent travail!", "Bravo!", "Super!", 
-        "Bien fait", "Bien joué", "Tu l'as fait!", "Je savais que tu pouvais le faire.", 
-        "Ça a l'air facile!", "C'était un travail de première classe.", 
-        "C'est ce que j'appelle un bon travail!"), en = c("That's brilliant!", 
-        "Great work!", "Well done!", "Awesome!")), encouragement = list(
-            fr = c("Bon effort", "Vous l'avez presque maîtrisé!", 
-            "Ça avance bien.", "Continuez comme ça.", "Continuez à travailler dur!", 
-            "Vous apprenez vite!", "Vous faites un excellent travail aujourd'hui."
-            ), en = "Good effort")), max.print = 1000, label = "reducedgraph", 
-        exercise = TRUE, exercise.setup = "structblock", code = c("bm <- bm %>% as_tidygraph %>%", 
+        max.print = 1000, label = "reducedgraph", exercise = TRUE, 
+        exercise.setup = "structblock", code = c("bm <- bm %>% as_tidygraph %>%", 
         "  mutate(name = c(\"Freaks\", \"Squares\", \"Nerds\", \"Geek\"))", 
         "graphr(bm)"), out.width.px = 624, out.height.px = 384, 
         params.src = "reducedgraph, exercise = TRUE, exercise.setup = \"structblock\", warning=FALSE", 
@@ -4395,18 +4166,18 @@ learnr:::store_exercise_cache(structure(list(label = "reducedgraph", global_setu
 
 <script type="application/shiny-prerendered" data-context="server">
 learnr:::question_prerendered_chunk(structure(list(type = "learnr_radio", label = "threeq-qa", question = structure("Match the intuition to the equivalence. Which statement describes <em>regular<\u002fem> equivalence?", html = TRUE, class = c("html", 
-"character")), answers = list(structure(list(id = "lnr_ans_b3dd075", 
+"character")), answers = list(structure(list(id = "lnr_ans_1c4fb8a", 
     option = "Nodes tie to equivalent others -- the same *pattern* of ties, not necessarily to the same people.", 
     value = "Nodes tie to equivalent others -- the same *pattern* of ties, not necessarily to the same people.", 
     label = structure("Nodes tie to equivalent others – the same <em>pattern<\u002fem> of ties, not necessarily to the same people.", html = TRUE, class = c("html", 
-    "character")), correct = TRUE, message = structure("Lovely job! Two managers who each supervise their own (different) team are regularly equivalent.", html = TRUE, class = c("html", 
+    "character")), correct = TRUE, message = structure("Impressive work! Two managers who each supervise their own (different) team are regularly equivalent.", html = TRUE, class = c("html", 
     "character")), type = "literal"), class = c("tutorial_question_answer", 
-"tutorial_quiz_answer")), structure(list(id = "lnr_ans_288a041", 
+"tutorial_quiz_answer")), structure(list(id = "lnr_ans_299fae", 
     option = "Nodes have exactly the same tie partners.", value = "Nodes have exactly the same tie partners.", 
     label = structure("Nodes have exactly the same tie partners.", html = TRUE, class = c("html", 
     "character")), correct = FALSE, message = structure("That is <em>structural<\u002fem> equivalence – the strictest of the three.", html = TRUE, class = c("html", 
     "character")), type = "literal"), class = c("tutorial_question_answer", 
-"tutorial_quiz_answer")), structure(list(id = "lnr_ans_b714555", 
+"tutorial_quiz_answer")), structure(list(id = "lnr_ans_f55ab00", 
     option = "Nodes can be swapped without changing the network's structure.", 
     value = "Nodes can be swapped without changing the network's structure.", 
     label = structure("Nodes can be swapped without changing the network’s structure.", html = TRUE, class = c("html", 
@@ -4419,7 +4190,7 @@ learnr:::question_prerendered_chunk(structure(list(type = "learnr_radio", label 
 "character")), incorrect = structure("Incorrect", html = TRUE, class = c("html", 
 "character")), message = NULL, post_message = NULL), ids = list(
     answer = "threeq-qa-answer", question = "threeq-qa"), loading = NULL, 
-    random_answer_order = TRUE, allow_retry = TRUE, seed = 1690940286.21259, 
+    random_answer_order = TRUE, allow_retry = TRUE, seed = 989050630.039437, 
     options = list()), class = c("learnr_radio", "tutorial_question"
 )), session = session)
 </script>
@@ -4483,17 +4254,8 @@ learnr:::store_exercise_cache(structure(list(label = "regular", global_setup = s
         aniopts = "controls,loop", warning = TRUE, error = FALSE, 
         message = TRUE, render = NULL, ref.label = NULL, child = NULL, 
         engine = "r", split = FALSE, include = TRUE, purl = TRUE, 
-        tutorial.random_phrases = list(praise = list(fr = c("C'est génial!", 
-        "Beau travail", "Excellent travail!", "Bravo!", "Super!", 
-        "Bien fait", "Bien joué", "Tu l'as fait!", "Je savais que tu pouvais le faire.", 
-        "Ça a l'air facile!", "C'était un travail de première classe.", 
-        "C'est ce que j'appelle un bon travail!"), en = c("That's brilliant!", 
-        "Great work!", "Well done!", "Awesome!")), encouragement = list(
-            fr = c("Bon effort", "Vous l'avez presque maîtrisé!", 
-            "Ça avance bien.", "Continuez comme ça.", "Continuez à travailler dur!", 
-            "Vous apprenez vite!", "Vous faites un excellent travail aujourd'hui."
-            ), en = "Good effort")), max.print = 1000, label = "regular", 
-        exercise = TRUE, exercise.setup = "varyclust", code = c("node_in_regular(alge)", 
+        max.print = 1000, label = "regular", exercise = TRUE, 
+        exercise.setup = "varyclust", code = c("node_in_regular(alge)", 
         "plot(node_in_regular(alge))", "", "alge %>%", "  mutate(re = node_in_regular(alge)) %>%", 
         "  graphr(node_color = \"re\")"), out.width.px = 624, 
         out.height.px = 384, params.src = "regular, exercise = TRUE, exercise.setup = \"varyclust\"", 
@@ -4561,17 +4323,8 @@ learnr:::store_exercise_cache(structure(list(label = "automorphic", global_setup
         aniopts = "controls,loop", warning = TRUE, error = FALSE, 
         message = TRUE, render = NULL, ref.label = NULL, child = NULL, 
         engine = "r", split = FALSE, include = TRUE, purl = TRUE, 
-        tutorial.random_phrases = list(praise = list(fr = c("C'est génial!", 
-        "Beau travail", "Excellent travail!", "Bravo!", "Super!", 
-        "Bien fait", "Bien joué", "Tu l'as fait!", "Je savais que tu pouvais le faire.", 
-        "Ça a l'air facile!", "C'était un travail de première classe.", 
-        "C'est ce que j'appelle un bon travail!"), en = c("That's brilliant!", 
-        "Great work!", "Well done!", "Awesome!")), encouragement = list(
-            fr = c("Bon effort", "Vous l'avez presque maîtrisé!", 
-            "Ça avance bien.", "Continuez comme ça.", "Continuez à travailler dur!", 
-            "Vous apprenez vite!", "Vous faites un excellent travail aujourd'hui."
-            ), en = "Good effort")), max.print = 1000, label = "automorphic", 
-        exercise = TRUE, exercise.setup = "varyclust", code = c("node_in_automorphic(alge)", 
+        max.print = 1000, label = "automorphic", exercise = TRUE, 
+        exercise.setup = "varyclust", code = c("node_in_automorphic(alge)", 
         "plot(node_in_automorphic(alge))", "", "alge %>%", "  mutate(ae = node_in_automorphic(alge)) %>%", 
         "  graphr(node_color = \"ae\")"), out.width.px = 624, 
         out.height.px = 384, params.src = "automorphic, exercise = TRUE, exercise.setup = \"varyclust\"", 
@@ -4639,17 +4392,8 @@ learnr:::store_exercise_cache(structure(list(label = "compareq", global_setup = 
         aniopts = "controls,loop", warning = TRUE, error = FALSE, 
         message = TRUE, render = NULL, ref.label = NULL, child = NULL, 
         engine = "r", split = FALSE, include = TRUE, purl = TRUE, 
-        tutorial.random_phrases = list(praise = list(fr = c("C'est génial!", 
-        "Beau travail", "Excellent travail!", "Bravo!", "Super!", 
-        "Bien fait", "Bien joué", "Tu l'as fait!", "Je savais que tu pouvais le faire.", 
-        "Ça a l'air facile!", "C'était un travail de première classe.", 
-        "C'est ce que j'appelle un bon travail!"), en = c("That's brilliant!", 
-        "Great work!", "Well done!", "Awesome!")), encouragement = list(
-            fr = c("Bon effort", "Vous l'avez presque maîtrisé!", 
-            "Ça avance bien.", "Continuez comme ça.", "Continuez à travailler dur!", 
-            "Vous apprenez vite!", "Vous faites un excellent travail aujourd'hui."
-            ), en = "Good effort")), max.print = 1000, label = "compareq", 
-        exercise = TRUE, exercise.setup = "varyclust", code = c("node_in_structural(alge, k = 4)", 
+        max.print = 1000, label = "compareq", exercise = TRUE, 
+        exercise.setup = "varyclust", code = c("node_in_structural(alge, k = 4)", 
         "node_in_regular(alge)", "node_in_automorphic(alge)"), 
         out.width.px = 624, out.height.px = 384, params.src = "compareq, exercise = TRUE, exercise.setup = \"varyclust\"", 
         fig.num = 0, exercise.df_print = "paged", exercise.checker = "NULL"), 
@@ -4659,17 +4403,17 @@ learnr:::store_exercise_cache(structure(list(label = "compareq", global_setup = 
  
 <script type="application/shiny-prerendered" data-context="server">
 learnr:::question_prerendered_chunk(structure(list(type = "learnr_radio", label = "whichq-qa", question = structure("You want to identify which employees play the ‘regional manager’ role in a company network, regardless of which particular staff or head office they connect to. Which equivalence best fits?", html = TRUE, class = c("html", 
-"character")), answers = list(structure(list(id = "lnr_ans_b570c2c", 
+"character")), answers = list(structure(list(id = "lnr_ans_c607ff", 
     option = "Regular equivalence", value = "Regular equivalence", 
     label = structure("Regular equivalence", html = TRUE, class = c("html", 
-    "character")), correct = TRUE, message = structure("Awesome! Roles defined by <em>pattern<\u002fem> of ties – relating to some staff below and some office above – are exactly what regular equivalence captures.", html = TRUE, class = c("html", 
+    "character")), correct = TRUE, message = structure("You rock! Roles defined by <em>pattern<\u002fem> of ties – relating to some staff below and some office above – are exactly what regular equivalence captures.", html = TRUE, class = c("html", 
     "character")), type = "literal"), class = c("tutorial_question_answer", 
-"tutorial_quiz_answer")), structure(list(id = "lnr_ans_8350d7", 
+"tutorial_quiz_answer")), structure(list(id = "lnr_ans_fc657a4", 
     option = "Structural equivalence", value = "Structural equivalence", 
     label = structure("Structural equivalence", html = TRUE, class = c("html", 
     "character")), correct = FALSE, message = structure("Too strict here – it would require the managers to share the <em>same<\u002fem> staff and office, which regional managers in different regions do not.", html = TRUE, class = c("html", 
     "character")), type = "literal"), class = c("tutorial_question_answer", 
-"tutorial_quiz_answer")), structure(list(id = "lnr_ans_f297642", 
+"tutorial_quiz_answer")), structure(list(id = "lnr_ans_4f5929e", 
     option = "Automorphic equivalence", value = "Automorphic equivalence", 
     label = structure("Automorphic equivalence", html = TRUE, class = c("html", 
     "character")), correct = FALSE, message = structure("Closer, but it demands identical structural surroundings; the everyday notion of the same <em>role<\u002fem> across different regions is better matched by regular equivalence.", html = TRUE, class = c("html", 
@@ -4681,7 +4425,7 @@ learnr:::question_prerendered_chunk(structure(list(type = "learnr_radio", label 
 "character")), incorrect = structure("Incorrect", html = TRUE, class = c("html", 
 "character")), message = NULL, post_message = NULL), ids = list(
     answer = "whichq-qa-answer", question = "whichq-qa"), loading = NULL, 
-    random_answer_order = TRUE, allow_retry = TRUE, seed = 714378729.667341, 
+    random_answer_order = TRUE, allow_retry = TRUE, seed = 1101600440.98703, 
     options = list()), class = c("learnr_radio", "tutorial_question"
 )), session = session)
 </script>
@@ -4738,18 +4482,8 @@ learnr:::store_exercise_cache(structure(list(label = "freeplay", global_setup = 
         aniopts = "controls,loop", warning = TRUE, error = FALSE, 
         message = TRUE, render = NULL, ref.label = NULL, child = NULL, 
         engine = "r", split = FALSE, include = TRUE, purl = FALSE, 
-        tutorial.random_phrases = list(praise = list(fr = c("C'est génial!", 
-        "Beau travail", "Excellent travail!", "Bravo!", "Super!", 
-        "Bien fait", "Bien joué", "Tu l'as fait!", "Je savais que tu pouvais le faire.", 
-        "Ça a l'air facile!", "C'était un travail de première classe.", 
-        "C'est ce que j'appelle un bon travail!"), en = c("That's brilliant!", 
-        "Great work!", "Well done!", "Awesome!")), encouragement = list(
-            fr = c("Bon effort", "Vous l'avez presque maîtrisé!", 
-            "Ça avance bien.", "Continuez comme ça.", "Continuez à travailler dur!", 
-            "Vous apprenez vite!", "Vous faites un excellent travail aujourd'hui."
-            ), en = "Good effort")), max.print = 1000, label = "freeplay", 
-        exercise = TRUE, code = "", out.width.px = 624, out.height.px = 384, 
-        params.src = "freeplay, exercise = TRUE, purl = FALSE", 
+        max.print = 1000, label = "freeplay", exercise = TRUE, 
+        code = "", out.width.px = 624, out.height.px = 384, params.src = "freeplay, exercise = TRUE, purl = FALSE", 
         fig.num = 0L, exercise.df_print = "paged", exercise.checker = "NULL"), 
     engine = "r", version = "4"), class = c("r", "tutorial_exercise"
 )))

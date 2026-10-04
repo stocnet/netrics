@@ -1658,9 +1658,10 @@ alge %>%
   graphr(node_color = "ae")
 ```
 
-Automorphic equivalence here carves the network into many small classes:
-requiring identical structural surroundings is demanding,
-so few nodes qualify as truly interchangeable and most end up on their own.
+Automorphic equivalence here groups most nodes into one large class,
+with a few nodes set apart in small classes of their own:
+most students are a similar (weighted) distance from everyone else,
+and only those whose distances to the others are unusual stand out.
 
 ### Which equivalence when? {#which-equivalence-when}
 

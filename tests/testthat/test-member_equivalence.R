@@ -153,3 +153,18 @@ test_that("node_x_proximity returns the proximities that are clustered", {
   expect_equal(unclass(node_x_proximity(empty, census, "ruzicka"))[1,2], 0.5)
   expect_equal(unclass(node_x_proximity(empty, census, "overlap"))[1,2], 2/3)
 })
+
+test_that("automorphic equivalence works on weighted and unconnected networks", {
+  # weights used to be inverted tie by tie, leaving every non-tie infinite,
+  # which `k_elbow()` could not correlate
+  expect_true(all(is.finite(node_x_path(ison_algebra))))
+  expect_s3_class(node_in_automorphic(ison_algebra, k = "elbow"), "node_member")
+  expect_s3_class(node_in_automorphic(ison_monks, k = "elbow"), "node_member")
+  apart <- manynet::delete_ties(ison_adolescents, 
+                                seq_len(c(net_ties(ison_adolescents))))
+  apart <- manynet::add_ties(apart, c(1,2, 2,3, 4,5, 5,6, 7,8))
+  expect_true(any(is.infinite(node_x_path(apart))))
+  for(k in c("elbow", "silhouette", "strict"))
+    expect_equal(length(node_in_automorphic(apart, k = k)), 
+                 c(net_nodes(apart)))
+})

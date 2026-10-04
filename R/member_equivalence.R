@@ -267,6 +267,14 @@ node_in_automorphic <- function(.data,
   .data <- manynet::expect_nodes(.data)
   .data <- .to_aggregated_css(.data)
   mat <- node_x_path(.data)
+  # Infinite distances cannot be correlated, so nodes that cannot reach each
+  # other are put one step further apart than the furthest that can.
+  if(any(is.infinite(mat))){
+    manynet::snet_info("Some nodes cannot reach each other, so they are",
+                       "treated as one step further apart than the most",
+                       "distant nodes that can.")
+    mat[is.infinite(mat)] <- max(mat[is.finite(mat)]) + 1
+  }
   node_in_equivalence(.data, mat, 
                    k = k, cluster = cluster, distance = distance, max_k = max_k,
                    proximity = proximity)
