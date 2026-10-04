@@ -4,16 +4,25 @@
 \alias{motif_path}
 \alias{node_x_tie}
 \alias{node_x_path}
+\alias{node_x_proximity}
 \title{Motifs of nodes pathing}
 \usage{
 node_x_tie(.data)
 
 node_x_path(.data)
+
+node_x_proximity(.data, motif = node_x_tie(.data), proximity = "pearson")
 }
 \arguments{
 \item{.data}{A network object of class \code{stocnet}, \code{igraph}, \code{tbl_graph}, \code{network}, or similar.
 Internally any of these will be coerced to an efficient implementation.
 For more information on possible coercions, see e.g. \code{\link[manynet:as_stocnet]{manynet::as_stocnet()}}.}
+
+\item{motif}{A matrix returned by a \verb{node_x_*()} function.}
+
+\item{proximity}{Character string indicating how nodes' profiles
+should be compared, passed on to \code{\link[manynet:to_proximity]{manynet::to_proximity()}}.
+By default \code{"pearson"}, their correlation.}
 }
 \value{
 A \code{node_motif} matrix with one row for each node in the network and
@@ -32,6 +41,8 @@ For directed networks, out-ties and in-ties are bound together.
 For multiplex networks, the various types of ties are bound together.
 \item \code{node_x_path()} returns the shortest path lengths
 of each node to every other node in the network.
+\item \code{node_x_proximity()} returns how alike each pair of nodes' profiles
+in some census are, by default their profiles of ties.
 }
 }
 \section{Cognitive social structures}{
@@ -77,11 +88,23 @@ Where the network is signed, it therefore considers only the positive
 ties. Use \code{\link[manynet:to_unsigned]{manynet::to_unsigned()}} first to control this yourself.
 }
 
+\section{Proximity}{
+
+\code{node_x_proximity()} returns the middle step of the equivalence pipeline:
+the node-by-node matrix that \code{\link[=node_in_equivalence]{node_in_equivalence()}} and related
+functions cluster.
+Use it to inspect how alike nodes' positions are,
+or to ask whether some attribute structures that likeness.
+Note that the diagonal is 0, as \code{\link[manynet:to_proximity]{manynet::to_proximity()}} returns it.
+}
+
 \examples{
 task_eg <- to_named(to_uniplex(ison_algebra, "tasks"))
 (tie_cen <- node_x_tie(task_eg))
 node_x_path(ison_adolescents)
 node_x_path(ison_southern_women)
+node_x_proximity(ison_adolescents)
+node_x_proximity(ison_adolescents, node_x_triad(ison_adolescents), "cosine")
 }
 \references{
 \subsection{On paths}{

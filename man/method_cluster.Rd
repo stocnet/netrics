@@ -7,9 +7,9 @@
 \alias{cluster_concor}
 \title{Methods for equivalence clustering}
 \usage{
-cluster_hierarchical(motif, distance)
+cluster_hierarchical(motif, distance = NULL, proximity = "pearson")
 
-cluster_cosine(motif, distance)
+cluster_cosine(motif, distance = NULL)
 
 cluster_concor(.data, motif)
 }
@@ -17,10 +17,29 @@ cluster_concor(.data, motif)
 \item{motif}{A matrix returned by a \verb{node_x_*()} function.}
 
 \item{distance}{Character string indicating which distance metric
-to pass on to \code{stats::dist}.
-By default \code{"euclidean"}, but other options include
+to pass on to \code{stats::dist} to compare nodes a second time,
+on their profiles of dissimilarities to all nodes.
+By default \code{NULL}, so that the proximities are clustered directly.
+Options include \code{"euclidean"},
 \code{"maximum"}, \code{"manhattan"}, \code{"canberra"}, \code{"binary"}, and \code{"minkowski"}.
-Fewer, identifiable letters, e.g. \code{"e"} for Euclidean, is sufficient.}
+Fewer, identifiable letters, e.g. \code{"e"} for Euclidean, is sufficient.
+Before v1.1.0 the default was \code{"euclidean"},
+so pass that to reproduce earlier results.
+Ignored when \code{cluster = "concor"}.}
+
+\item{proximity}{Character string indicating how nodes' profiles
+should be compared, passed on to \code{\link[manynet:to_proximity]{manynet::to_proximity()}}.
+By default \code{"pearson"}, their correlation,
+but any measure offered there can be used,
+e.g. \code{"cosine"}, \code{"ruzicka"}, \code{"overlap"}, \code{"euclidean"}, or \code{"hamming"}.
+Note that \code{"jaccard"} dichotomises a valued census;
+\code{"ruzicka"} is the weighted counterpart that keeps the counts.
+The proximities themselves are returned by \code{\link[=node_x_proximity]{node_x_proximity()}}.
+Ignored when \code{cluster = "concor"}.
+\code{"asis"} clusters a \code{motif} that is already a node-by-node similarity.
+\code{node_in_regular()} does not take it,
+since \verb{regularity_*()} already returns a node-by-node similarity,
+which is clustered as it is.}
 
 \item{.data}{A network object of class \code{stocnet}, \code{igraph}, \code{tbl_graph}, \code{network}, or similar.
 Internally any of these will be coerced to an efficient implementation.
@@ -28,19 +47,20 @@ For more information on possible coercions, see e.g. \code{\link[manynet:as_stoc
 }
 \value{
 A hierarchical clustering object created by \code{stats::hclust()},
-with an additional \code{distances} attribute containing the distance matrix
-used for clustering.
+with an additional \code{distances} element containing the distance matrix
+used for clustering and, for \code{cluster_hierarchical()},
+a \code{proximity} element containing the node-by-node proximity matrix
+those distances were made from.
 }
 \description{
 These functions are used to cluster some motif census object:
 \itemize{
 \item \code{cluster_hierarchical()} returns a hierarchical clustering object
-created by \code{stats::hclust()}.
+created by \code{stats::hclust()} on the proximities between nodes' profiles.
 \item \code{cluster_concor()} returns a hierarchical clustering object
 created from a convergence of correlations procedure (CONCOR).
-\item \code{cluster_cosine()} returns a hierarchical clustering object
-created by \code{stats::hclust()} on cosine dissimilarities,
-rather than correlations, as created by \code{to_cosine()}.
+\item \code{cluster_cosine()} is deprecated;
+use \code{cluster_hierarchical()} with \code{proximity = "cosine"} instead.
 }
 
 These functions are not intended to be called directly,
@@ -50,22 +70,25 @@ They are exported and listed here to provide more detailed documentation.
 \section{Hierarchical clustering}{
 
 This method uses \code{stats::hclust()} to create a hierarchical clustering object
-from a distance matrix created from the correlations between nodes' profiles
-in the given motif census.
-First a matrix of Pearson correlation coefficients between each pair of
-nodes' profiles in the given motif census is created.
-Then a distance matrix is created by subtracting these correlations from \code{1},
-and this is given to \code{stats::hclust()} to enable dendrogram construction etc.
-}
+from the proximities between nodes' profiles in the given motif census.
+First a matrix of how alike each pair of nodes' profiles are is created
+using \code{\link[manynet:to_proximity]{manynet::to_proximity()}},
+by default their Pearson correlation coefficients.
+Then a dissimilarity matrix is created by subtracting these proximities
+from \code{1}, and this is given to \code{stats::hclust()} to enable
+dendrogram construction etc.
+Each pair of nodes is thus compared once.
 
-\section{Cosine similarity}{
+Where \code{distance} is given, the nodes are compared a second time:
+\code{stats::dist()} measures the distance between each pair of nodes'
+profiles of dissimilarities to all nodes,
+and it is these distances that are clustered.
+This was the only behaviour before v1.1.0.
 
-This method is similar to the hierarchical clustering method,
-but uses cosine similarity rather than correlation as the clustering basis.
-First a matrix of cosine similarities between each pair of nodes' profiles
-in the given census is created.
-Then a distance matrix is created by subtracting these similarities from \code{1},
-and this is given to \code{stats::hclust} to enable dendrogram construction etc.
+Some proximities, such as \code{"count"}, \code{"match"}, \code{"crossmin"},
+\code{"maxcrossmin"}, and \code{"covariance"}, are not bounded by 1.
+These are subtracted from the largest proximity observed instead,
+with a message, so that no dissimilarity is negative.
 }
 
 \section{CONCOR}{

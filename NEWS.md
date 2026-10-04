@@ -32,6 +32,17 @@
   - Before, a signed network's signs were ignored where held in a `sign` attribute, so negative ties were read as positive ones
 - Fixed twomodes in `node_in_partition()`, `node_in_regular()` etc by 
   replacing `to_multilevel()` with `manynet::to_onemode()` to create square matrices
+- Improved the equivalence functions to compare nodes' profiles once, rather than twice, thanks @Kaladani (closes #29)
+  - `node_in_equivalence()`, `node_in_structural()`, `node_in_motif()`, and `node_in_automorphic()` now cluster the proximities between nodes' profiles directly, as documented and as `sna::equiv.clust()` does
+  - Memberships may therefore differ from earlier versions; pass `distance = "euclidean"` to reproduce them
+  - Added `proximity=` to choose how profiles are compared, by default `"pearson"`, from any measure in `manynet::to_proximity()`, e.g. `"cosine"`, `"ruzicka"`, or `"overlap"`
+  - `distance=` is now `NULL` by default; naming a distance compares nodes a second time on their dissimilarities, as before
+  - Unbounded proximities such as `"count"` or `"crossmin"` are subtracted from the largest proximity, with a message, rather than returning negative merge heights
+  - A square census is now compared as the profile matrix it is, rather than as a one-mode network
+  - `node_in_regular()` now clusters the `regularity_*()` similarity directly
+  - Deprecated `cluster = "cosine"` and `cluster_cosine()` in favour of `proximity = "cosine"`
+  - `cluster_hierarchical()` now also returns the proximities it clustered as `$proximity`
+  - Raised `{manynet}` floor to 2.3.5
 - Improved `node_in_roulette()`, with some implications for `node_in_block()`
   - Now uses an iterated local search to improve the partition, rather than a single pass of greedy moves
     - Weak moves now kept only if they improve the partition
@@ -47,6 +58,8 @@
 - Fixed `net_x_stability()` miscounting the ties that changed between networks
   - `==` bound after `*`, so it counted every absent tie, including self-ties, as changed
   - Now also counts undirected and weighted ties only once
+- Added `node_x_proximity()` for how alike each pair of nodes' profiles in some census are (closes #29)
+  - This is the matrix that the equivalence functions cluster, by default from `node_x_tie()`
 - Improved `node_x_alters()`, thanks @RWKrause (closes #39)
   - Added `direction=` for out, in, reciprocated, or all (default) alters
   - Added `WeightedSum`, each alter's value times the strength of the tie to it

@@ -103,3 +103,53 @@ test_that("node_in_block searches for a fitting partition", {
   expect_error(node_in_block(ison_adolescents, k = 1))
   expect_error(node_in_block(ison_adolescents, k = 99))
 })
+
+test_that("equivalence compares nodes once unless a distance is given", {
+  n_classes <- function(x) length(unique(c(x)))
+  expect_equal(n_classes(node_in_structural(ison_algebra)), 7)
+  expect_equal(n_classes(node_in_structural(ison_algebra, 
+                                            distance = "euclidean")), 4)
+})
+
+test_that("cluster = 'cosine' is deprecated in favour of proximity", {
+  expect_warning(old <- node_in_structural(ison_algebra, cluster = "cosine"),
+                 "proximity")
+  expect_equal(c(old), c(node_in_structural(ison_algebra, proximity = "cosine")))
+})
+
+test_that("equivalence takes the proximities manynet offers", {
+  expect_true(all(attr(node_in_structural(ison_algebra, proximity = "crossmin"),
+                       "hc")$height >= 0))
+  for(p in c("ruzicka", "overlap", "euclidean", "correlation"))
+    expect_equal(length(node_in_structural(ison_algebra, proximity = p)),
+                 c(net_nodes(ison_algebra)))
+  expect_equal(c(node_in_structural(ison_algebra, proximity = "correlation")),
+               c(node_in_structural(ison_algebra)))
+  expect_error(node_in_structural(ison_algebra, proximity = "nonsense"))
+  expect_error(node_in_structural(ison_algebra, distance = "nonsense"))
+})
+
+test_that("regular equivalence clusters the regularity directly", {
+  hc <- attr(node_in_regular(ison_adolescents), "hc")
+  expect_equal(unclass(hc$proximity), 
+               unclass(as.matrix(regularity_rolesim(ison_adolescents))),
+               ignore_attr = TRUE)
+  expect_equal(c(as.matrix(hc$distances))[2], 1 - hc$proximity[2,1])
+})
+
+test_that("node_x_proximity returns the proximities that are clustered", {
+  prox <- node_x_proximity(ison_adolescents)
+  expect_s3_class(prox, "node_motif")
+  expect_equal(dim(prox), rep(c(net_nodes(ison_adolescents)), 2))
+  expect_equal(unclass(prox), t(unclass(prox)), ignore_attr = TRUE)
+  expect_equal(rownames(prox), node_names(ison_adolescents))
+  expect_equal(unclass(prox), 
+               unclass(attr(node_in_structural(ison_adolescents), "hc")$proximity),
+               ignore_attr = TRUE)
+  # the worked example in stocnet/netrics#29
+  census <- rbind(c(1,2,3,1,2), c(1,0,6,1,1), c(0,1,0,0,2))
+  empty <- manynet::create_empty(3)
+  expect_equal(unclass(node_x_proximity(empty, census, "crossmin"))[1,2], 6)
+  expect_equal(unclass(node_x_proximity(empty, census, "ruzicka"))[1,2], 0.5)
+  expect_equal(unclass(node_x_proximity(empty, census, "overlap"))[1,2], 2/3)
+})

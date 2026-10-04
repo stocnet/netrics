@@ -39,6 +39,8 @@ nodes are embedded in.
 in motifs of four nodes.
 \item \code{node_x_path()} returns the shortest path lengths
 of each node to every other node in the network.
+\item \code{node_x_proximity()} returns how alike each pair of nodes' profiles
+in some census are, by default their profiles of ties.
 }
 }
 \section{Cognitive social structures}{

@@ -86,6 +86,20 @@ resolve_max_k <- function(max_k, Kmax = NULL) {
   max_k
 }
 
+# `cluster = "cosine"` named a proximity and not a clustering algorithm.
+# Accepts the old value and warns, moving it to `proximity`.
+resolve_cluster <- function(cluster, proximity) {
+  cluster <- match.arg(cluster[1], c("hierarchical", "concor", "cosine"))
+  if(cluster == "cosine") {
+    warning("`cluster = \"cosine\"` is deprecated, ",
+            "since cosine is a proximity and not a clustering algorithm. ",
+            "Please use `proximity = \"cosine\"` instead.", call. = FALSE)
+    cluster <- "hierarchical"
+    proximity <- "cosine"
+  }
+  list(cluster = cluster, proximity = proximity)
+}
+
 # `num_groups` was the one place a fixed number of groups was not called
 # `groups`, as `node_in_core()` calls it. Accepts the old spelling and warns.
 resolve_groups <- function(groups, num_groups = NULL) {

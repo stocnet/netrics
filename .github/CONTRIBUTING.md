@@ -157,7 +157,8 @@ Apply that test when naming a new family. For example, `equivalence_*` would be 
 
 Two further points of style:
 
-- Pick a word narrow enough to own the family. `regularity` is preferred over `similarity` because the latter is broad enough to be overrun later, and because generic similarities (`to_cosine()`, `to_correlation()`) belong to `{manynet}` and are consumed here through `distance =` and `cluster_*()`, so they would never live in this family anyway.
+- Pick a word narrow enough to own the family. `regularity` is preferred over `similarity` because the latter is broad enough to be overrun later, and because generic similarities belong to `{manynet}`: `manynet::to_proximity()` holds every such measure, so they would never live in this family anyway.
+- `proximity =` is the one deliberate exception to the `<argument>_<value>` rule. Its values are the measures of `manynet::to_proximity()`, so there is no `proximity_*()` family here to duplicate them; `cluster_hierarchical()` passes the value straight on. The matrix this stage produces is returned by `node_x_proximity()`, which gives the pipeline (census → proximity → clustering → membership) its middle exit. `distance =` is not a proximity: it asks `stats::dist()` for an optional second comparison of the nodes' dissimilarity profiles, and is `NULL` by default.
 - The dispatching function should name the method in its `snet_info()` message by interpolation, e.g. `manynet::snet_info("...using {.fn regularity_{regularity}}.")`. This surfaces the convention to users at run time, and makes it obvious if the argument and the prefix ever drift apart.
 
 One known exception: `node_in_equivalence()`'s `motif =` argument is fed by `node_x_*()` functions rather than `motif_*()` ones. 

@@ -12,6 +12,8 @@
 #'   For multiplex networks, the various types of ties are bound together.
 #'   - `node_x_path()` returns the shortest path lengths
 #'   of each node to every other node in the network.
+#'   - `node_x_proximity()` returns how alike each pair of nodes' profiles
+#'   in some census are, by default their profiles of ties.
 #'   
 #' @section Multiplex networks:
 #'   `node_x_tie()` binds the layers together, giving one block of columns
@@ -137,6 +139,32 @@ node_x_path <- function(.data){
   make_node_motif(out, .data)
 }
 
+#' @rdname motif_path
+#' @template param_motf
+#' @param proximity Character string indicating how nodes' profiles
+#'   should be compared, passed on to [manynet::to_proximity()].
+#'   By default `"pearson"`, their correlation.
+#' @section Proximity:
+#'   `node_x_proximity()` returns the middle step of the equivalence pipeline:
+#'   the node-by-node matrix that [node_in_equivalence()] and related 
+#'   functions cluster.
+#'   Use it to inspect how alike nodes' positions are, 
+#'   or to ask whether some attribute structures that likeness.
+#'   Note that the diagonal is 0, as [manynet::to_proximity()] returns it.
+#' @examples
+#' node_x_proximity(ison_adolescents)
+#' node_x_proximity(ison_adolescents, node_x_triad(ison_adolescents), "cosine")
+#' @export
+node_x_proximity <- function(.data, motif = node_x_tie(.data), 
+                             proximity = "pearson"){
+  .data <- manynet::expect_nodes(.data)
+  .data <- .to_aggregated_css(.data)
+  out <- .proximity(motif, proximity)
+  if(manynet::is_labelled(.data)) 
+    colnames(out) <- manynet::node_names(.data)
+  make_node_motif(out, .data)
+}
+
 # Node cohesion ####
 
 #' Motifs of nodes cohesion
@@ -155,6 +183,8 @@ node_x_path <- function(.data){
 #'   in motifs of four nodes.
 #'   - `node_x_path()` returns the shortest path lengths
 #'   of each node to every other node in the network.
+#'   - `node_x_proximity()` returns how alike each pair of nodes' profiles
+#'   in some census are, by default their profiles of ties.
 #'   
 #' @template param_data
 #' @family cohesion

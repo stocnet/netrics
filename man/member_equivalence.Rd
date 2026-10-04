@@ -17,26 +17,28 @@ node_in_equivalence(
   .data,
   motif,
   k = c("silhouette", "elbow", "strict"),
-  cluster = c("hierarchical", "concor", "cosine"),
-  distance = c("euclidean", "maximum", "manhattan", "canberra", "binary", "minkowski"),
+  cluster = c("hierarchical", "concor"),
+  distance = NULL,
   max_k = 8L,
+  proximity = "pearson",
   Kmax = NULL
 )
 
 node_in_structural(
   .data,
   k = c("silhouette", "elbow", "strict"),
-  cluster = c("hierarchical", "concor", "cosine"),
-  distance = c("euclidean", "maximum", "manhattan", "canberra", "binary", "minkowski"),
+  cluster = c("hierarchical", "concor"),
+  distance = NULL,
   max_k = 8L,
+  proximity = "pearson",
   Kmax = NULL
 )
 
 node_in_regular(
   .data,
   k = c("silhouette", "elbow", "strict"),
-  cluster = c("hierarchical", "concor", "cosine"),
-  distance = c("euclidean", "maximum", "manhattan", "canberra", "binary", "minkowski"),
+  cluster = c("hierarchical", "concor"),
+  distance = NULL,
   max_k = 8L,
   regularity = c("rolesim", "rege"),
   decay = 0.15,
@@ -47,18 +49,20 @@ node_in_regular(
 node_in_motif(
   .data,
   k = c("silhouette", "elbow", "strict"),
-  cluster = c("hierarchical", "concor", "cosine"),
-  distance = c("euclidean", "maximum", "manhattan", "canberra", "binary", "minkowski"),
+  cluster = c("hierarchical", "concor"),
+  distance = NULL,
   max_k = 8L,
+  proximity = "pearson",
   Kmax = NULL
 )
 
 node_in_automorphic(
   .data,
   k = c("silhouette", "elbow", "strict"),
-  cluster = c("hierarchical", "concor", "cosine"),
-  distance = c("euclidean", "maximum", "manhattan", "canberra", "binary", "minkowski"),
+  cluster = c("hierarchical", "concor"),
+  distance = NULL,
   max_k = 8L,
+  proximity = "pearson",
   Kmax = NULL
 )
 
@@ -84,17 +88,37 @@ then all selection routines are skipped in favour of this number of clusters.}
 \item{cluster}{Character string indicating whether clusters should be
 clustered hierarchically (\code{"hierarchical"}) or
 through convergence of correlations (\code{"concor"}).
-Fewer, identifiable letters, e.g. \code{"c"} for CONCOR, is sufficient.}
+Fewer, identifiable letters, e.g. \code{"c"} for CONCOR, is sufficient.
+\code{"cosine"} is deprecated; use \code{proximity = "cosine"} instead.}
 
 \item{distance}{Character string indicating which distance metric
-to pass on to \code{stats::dist}.
-By default \code{"euclidean"}, but other options include
+to pass on to \code{stats::dist} to compare nodes a second time,
+on their profiles of dissimilarities to all nodes.
+By default \code{NULL}, so that the proximities are clustered directly.
+Options include \code{"euclidean"},
 \code{"maximum"}, \code{"manhattan"}, \code{"canberra"}, \code{"binary"}, and \code{"minkowski"}.
-Fewer, identifiable letters, e.g. \code{"e"} for Euclidean, is sufficient.}
+Fewer, identifiable letters, e.g. \code{"e"} for Euclidean, is sufficient.
+Before v1.1.0 the default was \code{"euclidean"},
+so pass that to reproduce earlier results.
+Ignored when \code{cluster = "concor"}.}
 
 \item{max_k}{Integer indicating the maximum number of (k) clusters
 to evaluate.
 Ignored when \code{k = "strict"} or a discrete number is given for \code{k}.}
+
+\item{proximity}{Character string indicating how nodes' profiles
+should be compared, passed on to \code{\link[manynet:to_proximity]{manynet::to_proximity()}}.
+By default \code{"pearson"}, their correlation,
+but any measure offered there can be used,
+e.g. \code{"cosine"}, \code{"ruzicka"}, \code{"overlap"}, \code{"euclidean"}, or \code{"hamming"}.
+Note that \code{"jaccard"} dichotomises a valued census;
+\code{"ruzicka"} is the weighted counterpart that keeps the counts.
+The proximities themselves are returned by \code{\link[=node_x_proximity]{node_x_proximity()}}.
+Ignored when \code{cluster = "concor"}.
+\code{"asis"} clusters a \code{motif} that is already a node-by-node similarity.
+\code{node_in_regular()} does not take it,
+since \verb{regularity_*()} already returns a node-by-node similarity,
+which is clustered as it is.}
 
 \item{Kmax}{Deprecated. The former spelling of \code{max_k}.
 Still accepted, but warns; please use \code{max_k} instead.}
@@ -131,7 +155,7 @@ then the assignments will be labelled with the nodes' names.
 \description{
 These functions combine an appropriate \verb{node_x_*()} function
 together with methods for calculating the hierarchical clusters
-provided by a certain distance calculation.
+provided by how alike nodes' profiles are.
 \itemize{
 \item \code{node_in_equivalence()} assigns nodes membership based on their equivalence
 with respective to some motif/class.
@@ -188,8 +212,10 @@ have subordinates, not how many or which.
 The definition is recursive: nodes are equivalent if their alters are
 equivalent, whose equivalence depends in turn on \emph{their} alters.
 \code{node_in_regular()} therefore computes a similarity matrix by iterating
-that definition to a fixed point, and then clusters it in the same way as
-the other functions here.
+that definition to a fixed point, and then clusters that similarity
+directly, rather than comparing nodes' profiles first as
+the other functions here do.
+Give \code{distance} to compare the nodes' similarities a second time.
 
 Note that this differs from \code{node_in_motif()}, which compares nodes on how
 often they appear embedded in local structures.

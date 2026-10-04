@@ -731,35 +731,43 @@ functions we will actually use later in this tutorial.
 ### Step two: growing a tree of similarity {#growing-a-tree-of-similarity}
 
 The next part takes this census and creates a `r gloss("dendrogram")` based on
-distance or dissimilarity among the nodes' census profiles.
+how alike or unalike the nodes' census profiles are.
 This is all done internally within e.g. `node_in_structural()`,
-though there are two important parameters that can be set to obtain different results.
+though there are a few important parameters that can be set to obtain different results.
 
-First, users can set the type of distance measure used.
+First, users can set how nodes' profiles are compared, their `proximity`.
+By default this is `"pearson"`, the correlation between each pair of profiles,
+but any of the measures in `manynet::to_proximity()` can be used,
+such as `"cosine"`, or `"ruzicka"` for counts.
+The resulting node-by-node matrix is what gets clustered,
+and you can look at it yourself with `node_x_proximity()`.
+
+Optionally, users can ask for the nodes to be compared a second time,
+on how (dis)similar they are to every node, by naming a `distance`.
 For enthusiasts, this is passed on to `stats::dist()`,
 so that help page should be consulted for more details.
-By default `"euclidean"` is used.
+By default no such second comparison is made.
 
-Second, we can also set the type of clustering algorithm employed.
+Lastly, we can also set the type of clustering algorithm employed.
 By default, `{netrics}`'s equivalence functions use `r gloss("hierarchical clustering","hierclust")`, `"hier"`,
 but for compatibility and enthusiasts, we also offer `"concor"`,
 which implements a CONCOR (CONvergence of CORrelations) algorithm.
 
-We can see the difference from varying the clustering algorithm and/or distance
+We can see the difference from varying the proximity and/or clustering algorithm
 by plotting the dendrograms (hidden) in the output from `node_in_structural()`.
 
-**Run the code to plot three dendrograms — varying first the distance, then the
+**Run the code to plot three dendrograms — varying first the proximity, then the
 algorithm — and watch how the tree changes.**
 
 ```{r varyclust}
 alge <- to_named(ison_algebra) # fake names to make comparison clearer
-plot(node_in_structural(alge, cluster = "hier", distance = "euclidean"))
+plot(node_in_structural(alge, cluster = "hier", proximity = "pearson"))
 
-# changing the type of distance used
-plot(node_in_structural(alge, cluster = "hier", distance = "manhattan"))
+# changing how the profiles are compared
+plot(node_in_structural(alge, cluster = "hier", proximity = "cosine"))
 
 # changing the clustering algorithm
-plot(node_in_structural(alge, cluster = "concor", distance = "euclidean"))
+plot(node_in_structural(alge, cluster = "concor"))
 ```
 
 ::: {.callout}
@@ -870,15 +878,17 @@ plot(node_in_structural(to_named(ison_algebra), k = "elbow"))
 plot(node_in_structural(to_named(ison_algebra), k = "silhouette"))
 ```
 
-Ok, so it looks like the elbow method returns `k == 3` as a good trade-off
+Ok, so it looks like the elbow method returns `k == 4` as a good trade-off
 between fit and parsimony.
-The silhouette method, by contrast, sees `k == 4` as maximising cluster
+The silhouette method, by contrast, sees `k == 7` as maximising cluster
 similarity and dissimilarity.
 Either is probably fine here,
 and there is much debate around how to select the number of clusters anyway.
-However, the silhouette method seems to do a better job of identifying
-how unique the 16th node is.
-The silhouette method is also the default in `{netrics}`.
+Both identify how unique the 16th node is,
+but the silhouette method splits the remaining nodes more finely.
+The silhouette method is the default in `{netrics}`,
+but we will carry on with the four classes here, `k = 4`,
+since they are easier to interpret.
 
 Note that there is a somewhat hidden parameter here, `range`.
 Since testing across all possible numbers of clusters can get
@@ -910,9 +920,9 @@ but here it essentially just reports nodes' identity.
 ::: {.callout}
 <span class="callout-label">**In brief**:</span> `node_in_structural()` partitions nodes into
 structurally equivalent classes in three steps:
-a tie census (`node_x_tie()`), a dendrogram built from the distances between
-census profiles (`cluster = "hier"` or `"concor"`,
-`distance = "euclidean"` or others),
+a tie census (`node_x_tie()`), a dendrogram built from how alike the
+census profiles are (`proximity = "pearson"` or others,
+`cluster = "hier"` or `"concor"`),
 and a cut-point choosing the number of clusters
 (`k = ` an integer, `"strict"`, `"elbow"`, or the default `"silhouette"`).
 :::
@@ -934,7 +944,7 @@ We can graph this of course, as we did above.
 ```{r strplot}
 alge <- to_named(ison_algebra)
 alge %>%
-  mutate(se = node_in_structural(alge)) %>%
+  mutate(se = node_in_structural(alge, k = 4)) %>%
   graphr(node_color = "se")
 ```
 
@@ -1045,7 +1055,7 @@ it is a distance from the ideal, so lower is better.
 and against a random partition.**
 
 ```{r blockfit}
-net_by_inconsistency(alge, node_in_structural(alge))
+net_by_inconsistency(alge, node_in_structural(alge, k = 4))
 
 # a coarser partition has to lump dissimilar nodes together
 net_by_inconsistency(alge, node_in_structural(alge, k = 2))
@@ -1129,7 +1139,7 @@ where each cell holds the average tie (weight) from one class to another.
 **Contract the algebra network into its four structural-equivalence blocks.**
 
 ```{r structblock, warning=FALSE}
-(bm <- to_blockmodel(alge, node_in_structural(alge)))
+(bm <- to_blockmodel(alge, node_in_structural(alge, k = 4)))
 ```
 
 Notice how this is just a compact, numerical version of the blockmodel plot
@@ -1277,7 +1287,7 @@ so structural is strictest, regular loosest.
 **Run all three side by side and compare how many classes each finds.**
 
 ```{r compareq}
-node_in_structural(alge)
+node_in_structural(alge, k = 4)
 node_in_regular(alge)
 node_in_automorphic(alge)
 ```
@@ -1349,7 +1359,7 @@ Along the way, you have learned to use these functions:
 | `node_is_fold()` | flags nodes in a structural fold (cohesive membership in more than one group) |
 | `node_x_brokerage()`, `net_x_brokerage()` | Gould and Fernandez's five brokerage roles, per node and for the whole network |
 | `node_is_min()` | flags the node(s) with the minimum score, for highlighting |
-| `node_in_structural()` | structurally equivalent classes (same tie partners; `cluster`, `distance`, `k`, `range` options) |
+| `node_in_structural()` | structurally equivalent classes (same tie partners; `proximity`, `cluster`, `distance`, `k`, `max_k` options) |
 | `node_in_regular()`, `node_in_automorphic()` | regularly and automorphically equivalent classes (same role; interchangeable) |
 | `node_in_motif()` | classes of similar local embedding, from a triad or tetrad census |
 | `node_x_tie()`, `node_x_triad()`, `node_x_path()` | the tie, triad, and path censuses behind the census-based equivalences |
