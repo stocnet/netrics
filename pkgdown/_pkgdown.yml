@@ -136,6 +136,8 @@ reference:
       Functions for tabulating the subgraphs that nodes or networks participate in,
       recognisable by the `_x_` in the function name.
       They return a matrix or table, with the motif or other property as columns.
+      Nodes are cross-referenced against categories and never against nodes;
+      node-by-node results come from `{manynet}`'s `to_*()` functions.
     contents:
       - contains("_x_")
       

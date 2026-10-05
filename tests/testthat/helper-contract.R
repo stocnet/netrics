@@ -383,6 +383,23 @@ cognitive_arguments <- list(
   node_by_brokering_exclusivity = list(membership = "dept")
 )
 
+# `ison_hightech` aggregates to a connected network, on which a measure of
+# components, reach, or bridges gives the same answer whether or not it
+# aggregates. This small CSS is sparse: three ties that both ends report, and
+# two reports of ties between them that only a third node makes. A function
+# that reads the raw reports finds one component here, and not three.
+sparse_css <- local({
+  el <- data.frame(from = c(1, 1, 2, 2, 3, 3, 4, 4, 5, 5, 6, 6, 2, 1),
+                   to   = c(2, 2, 1, 1, 4, 4, 3, 3, 6, 6, 5, 5, 3, 5),
+                   by   = as.integer(c(1, 2, 1, 2, 3, 4, 3, 4, 5, 6, 5, 6,
+                                       1, 3)))
+  out <- manynet::as_stocnet(el)
+  out <- manynet::add_node_attribute(out, "dept", c(1, 1, 2, 2, 1, 2))
+  manynet::add_node_attribute(out, "age", c(30, 40, 35, 50, 45, 25))
+})
+cognitive_fixtures <- list(hightech = manynet::ison_hightech,
+                           sparse = sparse_css)
+
 # `ison_hightech` names the perceiver of each report only since manynet 2.4.0.
 # With an earlier manynet it is an ordinary multiplex network, which says
 # nothing about how a measure reads a CSS, so the sweep is skipped there.

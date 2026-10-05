@@ -137,23 +137,6 @@ test_that("regular equivalence clusters the regularity directly", {
   expect_equal(c(as.matrix(hc$distances))[2], 1 - hc$proximity[2,1])
 })
 
-test_that("node_x_proximity returns the proximities that are clustered", {
-  prox <- node_x_proximity(ison_adolescents)
-  expect_s3_class(prox, "node_motif")
-  expect_equal(dim(prox), rep(c(net_nodes(ison_adolescents)), 2))
-  expect_equal(unclass(prox), t(unclass(prox)), ignore_attr = TRUE)
-  expect_equal(rownames(prox), node_names(ison_adolescents))
-  expect_equal(unclass(prox), 
-               unclass(attr(node_in_structural(ison_adolescents), "hc")$proximity),
-               ignore_attr = TRUE)
-  # the worked example in stocnet/netrics#29
-  census <- rbind(c(1,2,3,1,2), c(1,0,6,1,1), c(0,1,0,0,2))
-  empty <- manynet::create_empty(3)
-  expect_equal(unclass(node_x_proximity(empty, census, "crossmin"))[1,2], 6)
-  expect_equal(unclass(node_x_proximity(empty, census, "ruzicka"))[1,2], 0.5)
-  expect_equal(unclass(node_x_proximity(empty, census, "overlap"))[1,2], 2/3)
-})
-
 test_that("automorphic equivalence works on weighted and unconnected networks", {
   # weights used to be inverted tie by tie, leaving every non-tie infinite,
   # which `k_elbow()` could not correlate

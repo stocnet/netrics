@@ -72,4 +72,6 @@ test_that("net_x_stability returns the Jaccard index of ties", {
                                           manynet::create_empty(4))), 1)
   out <- as.numeric(unlist(net_x_stability(ison_monks)))
   expect_true(all(out >= 0 & out <= 1))
+  # the waves of a longitudinal network are correlated in consecutive pairs
+  expect_length(unlist(net_x_correlation(ison_monks)), length(out))
 })

@@ -8,6 +8,7 @@
 
 - Fixed `tie_is_path()` erroring on a signed 'stocnet', whose signs reach igraph as negative weights
   - The path now runs over the positive ties alone, and every tie keeps its place in the mark
+- Fixed `tie_is_path()` erroring where no path exists
 
 ## Measures
 
@@ -32,8 +33,8 @@
 
 ## Memberships
 
-- Fixed the single community algorithms erroring on a signed 'stocnet', whose signs reach igraph as negative weights
-  - `node_in_optimal()`, `node_in_infomap()`, `node_in_fluid()`, `node_in_louvain()`, `node_in_labels()`, `node_in_betweenness()`, `node_in_greedy()`, `node_in_eigen()`, and `node_in_walktrap()` now consider only the positive ties, and say so
+- Fixed the single community algorithms erroring on a signed 'stocnet', whose signs reach igraph as negative weights (closes #32)
+  - `node_in_optimal()`, `node_in_infomap()`, `node_in_fluid()`, `node_in_louvain()`, `node_in_labels()`, `node_in_betweenness()`, `node_in_greedy()`, `node_in_eigen()`, and `node_in_walktrap()` now consider only the positive ties
   - Before, a signed network's signs were ignored where held in a `sign` attribute, so negative ties were read as positive ones
 - Fixed twomodes in `node_in_partition()`, `node_in_regular()` etc by 
   replacing `to_multilevel()` with `manynet::to_onemode()` to create square matrices
@@ -65,8 +66,9 @@
 - Fixed `net_x_stability()` miscounting the ties that changed between networks
   - `==` bound after `*`, so it counted every absent tie, including self-ties, as changed
   - Now also counts undirected and weighted ties only once
-- Added `node_x_proximity()` for how alike each pair of nodes' profiles in some census are (closes #29)
-  - This is the matrix that the equivalence functions cluster, by default from `node_x_tie()`
+- Fixed `net_x_correlation()` requiring a second network (closes #27)
+  - Now correlates consecutive waves of a longitudinal network
+- Fixed `net_x_change()` and `net_x_stability()` on networks with missing ties
 - Fixed `node_x_path()` on weighted networks to return shortest path lengths (Opsahl et al. 2010)
   - It was inverting each tie's weight, so that every pair of nodes without a tie was infinitely far apart
   - Two-mode weighted networks now return a square matrix, as unweighted ones do
@@ -76,6 +78,7 @@
   - Alters with missing values are now left out of the summary
   - Nodes without alters of known value now return `NA`, also if categorical
   - Two-mode attributes on one mode only are now read at distance two
+  - Signed ties now count by their magnitude
 
 # netrics 1.0.3
 

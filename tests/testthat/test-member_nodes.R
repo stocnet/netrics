@@ -10,7 +10,7 @@ for(fn in names(node_membs)) {
       # Fluid reads only the positive ties of a signed network, which can
       # disconnect it even where the whole network is connected.
       skip_if(grepl("fluid", fn) &&
-                !igraph::is_connected(manynet::as_igraph(.to_positive(data_objs[[ob]]))))
+                !igraph::is_connected(manynet::as_igraph(manynet::to_positive(data_objs[[ob]]))))
       if(grepl("roulette", fn)){
         if(ob != "twomode")
           expect_s3_class(node_membs[[fn]](data_objs[[ob]], groups = 3), 

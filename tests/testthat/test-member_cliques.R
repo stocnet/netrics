@@ -5,6 +5,9 @@ test_that("node_in_roulette works", {
   expect_false(res[1] == res[2])
   expect_output(print(res), "3 groups")
   expect_output(print(summary(res)), "Class A:")
+  # a vector gives the size of each group
+  expect_equal(sort(c(table(node_in_roulette(ison_adolescents, groups = c(3, 3, 2)))),
+                    decreasing = TRUE), c(3, 3, 2), ignore_attr = TRUE)
 })
 
 test_that("node_in_roulette keeps the group sizes it starts from", {

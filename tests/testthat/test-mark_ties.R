@@ -42,6 +42,8 @@ test_that("tie_is_bridge works", {
 
 test_that("tie_is_path works", {
   expect_equal(sum(tie_is_path(ison_adolescents, "Betty", "Alice")), 2)
+  # where no path exists, no tie is marked
+  expect_equal(sum(tie_is_path(add_nodes(create_ring(3), 1), 1, 4)), 0)
 })
 
 test_that("tie_is_triangular works", {

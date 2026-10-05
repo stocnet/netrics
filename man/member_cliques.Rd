@@ -21,7 +21,8 @@ node_in_roulette(
 Internally any of these will be coerced to an efficient implementation.
 For more information on possible coercions, see e.g. \code{\link[manynet:as_stocnet]{manynet::as_stocnet()}}.}
 
-\item{groups}{An integer indicating the number of groups desired.}
+\item{groups}{An integer indicating the number of groups desired,
+or a vector of the size of each group, which must sum to the number of nodes.}
 
 \item{group_size}{An integer indicating the desired size of most of the groups.
 Note that if the number of nodes is not divisible into groups of equal size,

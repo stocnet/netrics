@@ -53,7 +53,8 @@
 NULL
 
 #' @rdname member_cliques
-#' @param groups An integer indicating the number of groups desired.
+#' @param groups An integer indicating the number of groups desired,
+#'   or a vector of the size of each group, which must sum to the number of nodes.
 #' @param num_groups Deprecated. The former spelling of `groups`.
 #'   Still accepted, but warns; please use `groups` instead.
 #' @param group_size An integer indicating the desired size of most of the groups.
@@ -121,7 +122,13 @@ node_in_roulette <- function(.data, groups, group_size, times = NULL,
   n <- manynet::net_nodes(.data)
   my_vec <- sample(seq.int(n))
   # Initial partition
-  if(has_groups){
+  if(has_groups && length(groups) > 1){
+    # a vector gives the size of each group
+    if(sum(groups) != n)
+      manynet::snet_abort("The group sizes in {.arg groups} must sum to the",
+                          "number of nodes, {n}.")
+    out <- rep(seq_along(groups), times = groups)[my_vec]
+  } else if(has_groups){
     out <- cut(seq_along(my_vec), groups, labels = FALSE)[my_vec]
   } else {
     out <- ceiling(seq_along(my_vec) / group_size)[my_vec]

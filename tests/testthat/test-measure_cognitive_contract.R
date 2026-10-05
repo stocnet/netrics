@@ -2,8 +2,12 @@
 # so that a new measure cannot count each perceiver's report as a tie.
 # See `check_cognitive_contract()` in helper-contract.R.
 
-for (family in names(measure_rosters)) {
-  test_that(paste(family, "measures read a CSS as its aggregated structure"), {
-    check_cognitive_contract(measure_rosters[[family]])
-  })
+for (fixture in names(cognitive_fixtures)) {
+  for (family in names(measure_rosters)) {
+    test_that(paste(family, "measures read the", fixture,
+                    "CSS as its aggregated structure"), {
+      check_cognitive_contract(measure_rosters[[family]],
+                               cognitive_fixtures[[fixture]])
+    })
+  }
 }

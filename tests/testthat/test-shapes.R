@@ -70,6 +70,8 @@ for(fn in c("node_by_eigenvector", "node_by_power", "node_by_efficiency",
     test_that(paste(fn, "returns one value per node of", nm), {
       net <- get(nm)
       expect_length(do.call(fn, list(net)), manynet::net_nodes(net))
+      # and each mode's centralisation is read from the whole network too
+      expect_length(mode_by_eigenvector(net), 2)
     })
   }
 }
@@ -85,45 +87,6 @@ test_that("net_by_core() and net_by_factions() stop on a multilevel network", {
   # `manynet::create_*()` builds one layer, so there is no ideal to fit
   expect_error(net_by_core(multilevel), "one layer")
   expect_error(net_by_factions(multilevel), "one layer")
-})
-
-test_that(".to_positive() and .to_unsigned() each keep every node", {
-  pos <- .to_positive(signed_multilevel)
-  uns <- .to_unsigned(signed_multilevel)
-  # `net_nodes()` and `net_ties()` carry attributes that differ with the class
-  # of the network they were given, so the counts are compared as numbers
-  n <- function(x) as.numeric(x)
-  expect_equal(n(manynet::net_nodes(pos)), n(manynet::net_nodes(signed_multilevel)))
-  expect_lt(n(manynet::net_ties(pos)), n(manynet::net_ties(signed_multilevel)))
-  # every tie counts in a census, so none is dropped
-  expect_equal(n(manynet::net_ties(uns)), n(manynet::net_ties(signed_multilevel)))
-  expect_false(manynet::is_signed(uns))
-  # an unsigned network passes through both untouched
-  expect_identical(.to_positive(manynet::ison_adolescents),
-                   manynet::ison_adolescents)
-  expect_identical(.to_unsigned(manynet::ison_adolescents),
-                   manynet::ison_adolescents)
-})
-
-test_that(".to_unsigned() returns the class it was given", {
-  # The measure that calls this passes the result to its `make_*()`
-  # constructor, so a changed class changes the result's attributes. The
-  # helper takes `manynet::to_unsigned(keep = "both")` where manynet offers it
-  # and a fallback otherwise, and both branches have to hold this.
-  for(net in list(signed_multilevel,
-                  manynet::as_tidygraph(signed_multilevel),
-                  manynet::as_igraph(signed_multilevel))){
-    expect_identical(class(.to_unsigned(net)), class(net))
-  }
-  # a sign is held either as the sign of a weight or in a `sign` attribute
-  bysign <- manynet::add_tie_attribute(manynet::create_ring(6), "sign",
-                                       c(1, -1, 1, -1, 1, -1))
-  expect_true(manynet::is_signed(bysign))
-  out <- .to_unsigned(bysign)
-  expect_identical(class(out), class(bysign))
-  expect_false(manynet::is_signed(out))
-  expect_equal(as.numeric(manynet::net_ties(out)),
-               as.numeric(manynet::net_ties(bysign)))
 })
 
 # A cognitive social structure. Since manynet 2.4.0, and before it,
@@ -147,13 +110,16 @@ cognitive_arguments_other <- list(
   node_in_roulette  = list(groups = 3),
   node_is_neighbor  = list(node = 1),
   node_is_exposed   = list(mark = c(1, 3)),
-  tie_is_path       = list(from = 1, to = 7)
+  tie_is_path       = list(from = 1, to = 2)
 )
 # A random draw among the reports is as valid as one among the ties, and
 # giving one drawn tie to every one of its reports would break `select`.
 cognitive_exempt <- c("tie_is_random")
 
-test_that("marks, memberships, and motifs read a CSS as its aggregated structure", {
+for (fixture in names(cognitive_fixtures)) {
+test_that(paste("marks, memberships, and motifs read the", fixture,
+                "CSS as its aggregated structure"), {
+  css <- cognitive_fixtures[[fixture]]
   skip_if_not_cognitive(css)
   agg <- suppressMessages(.to_aggregated_css(css))
   report <- match(.tie_keys(css), .tie_keys(agg))
@@ -184,6 +150,7 @@ test_that("marks, memberships, and motifs read a CSS as its aggregated structure
                  expected.label = "its value on the aggregated network")
   }
 })
+}
 
 test_that("regularity methods return a square matrix for a CSS", {
   skip_if_not_cognitive(css)
