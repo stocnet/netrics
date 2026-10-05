@@ -370,6 +370,8 @@ net_by_balance <- function(.data) {
 #'   and a component model with the same dimensions.
 #'   - `net_by_modularity()` measures the modularity of a network
 #'   based on nodes' membership in defined clusters.
+#'   - `net_by_linkdensity()` measures the partition density of a network
+#'   based on ties' membership in defined clusters.
 #'   - `net_by_divergence()` measures how far a network is from an ideal
 #'   network, such as a core-periphery, complete, or star network.
 #'   - `net_by_inconsistency()` measures how far a partition's blocks depart from
@@ -388,6 +390,7 @@ net_by_balance <- function(.data) {
 #'   | `net_by_core()` | a core-periphery model | -1 to 1 | higher |
 #'   | `net_by_factions()` | a components model | -1 to 1 | higher |
 #'   | `net_by_modularity()` | the partition's communities | -0.5 to 1 (at the default resolution) | higher |
+#'   | `net_by_linkdensity()` | the partition's communities of ties | -1/3 to 1 | higher |
 #'   | `net_by_divergence()` | an ideal network | 0 to 1 | **lower** |
 #'   | `net_by_inconsistency()` | ideal block types | 0 upwards | **lower** |
 #'
@@ -623,6 +626,50 @@ net_by_modularity <- function(.data,
                               measure = "modularity",
                               range = `if`(resolution == 1, c(-0.5, 1), c(-Inf, 1)),
                               normalization = "none")
+}
+
+#' @rdname measure_fit
+#' @section Link density:
+#'   `net_by_linkdensity()` measures the partition density of a membership of
+#'   the network's _ties_, such as that from [tie_in_community()],
+#'   which is used where no membership is given.
+#'   Each community's density is the number of its ties beyond those that a
+#'   tree over its nodes needs, as a share of the ties that would make those
+#'   nodes a clique.
+#'   The partition density is the mean of these, weighted by the number of
+#'   ties in each community (Ahn et al. 2010).
+#'   It is 1 where every community is a clique, 0 where every community is a
+#'   tree, and negative only where the ties of a community do not connect.
+#'   Ties between the same two nodes count once, and ties without a
+#'   membership are left out.
+#' @examples
+#' net_by_linkdensity(ison_adolescents,
+#'   tie_in_community(ison_adolescents))
+#' @references
+#' ## On link density
+#' Ahn, Yong-Yeol, James P. Bagrow, and Sune Lehmann. 2010.
+#' "Link communities reveal multiscale complexity in networks".
+#' _Nature_ 466(7307): 761-764.
+#' \doi{10.1038/nature09182}
+#' @export
+net_by_linkdensity <- function(.data, membership = NULL){
+  .data <- manynet::expect_ties(.data)
+  .data <- .to_aggregated_css(.data)
+  if(is.null(membership)) membership <- tie_in_community(.data)
+  if(length(membership) != manynet::net_ties(.data))
+    manynet::snet_abort("{.arg membership} must hold one group for each",
+                        "tie in the network.")
+  links <- .as_links(.data)
+  # each link takes the group of the first tie between its two nodes
+  memb <- as.character(membership)[match(seq_len(nrow(links$ends)),
+                                         links$link)]
+  known <- !is.na(memb)
+  out <- if(any(known))
+    .link_density(links$ends[known, , drop = FALSE], memb[known]) else 0
+  make_network_measure(out, .data, call = deparse(sys.call()),
+                       measure = "link density",
+                       range = c(-1/3, 1),
+                       normalization = "none")
 }
 
 #' @rdname measure_fit

@@ -159,7 +159,8 @@ Other tie:
 \code{\link{measure_broker_tie}},
 \code{\link{measure_central_tie_close}},
 \code{\link{measure_central_tie_degree}},
-\code{\link{measure_central_tie_eigen}}
+\code{\link{measure_central_tie_eigen}},
+\code{\link{member_community_link}}
 }
 \concept{betweenness}
 \concept{centrality}

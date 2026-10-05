@@ -127,7 +127,7 @@ Functions are grouped into four families by naming pattern, each with dedicated 
 |---|---|---|---|---|
 | Marks | `node_is_*()`, `tie_is_*()` | node/tie (network `is_*()` are in `{manynet}`) | logical vector | `make_node_mark()`, `make_tie_mark()` |
 | Measures | `net_by_*()`, `mode_by_*()`, `node_by_*()`, `tie_by_*()` | network/mode/node/tie | numeric (vector) | `make_network_measure()`, `make_mode_measure()`, `make_node_measure()`, `make_tie_measure()` |
-| Memberships | `node_in_*()` | node | character vector (group labels, via `MORELETTERS`) | `make_node_member()` |
+| Memberships | `node_in_*()`, `tie_in_*()` | node/tie | character vector (group labels, via `MORELETTERS`) | `make_node_member()`, `make_tie_member()` |
 | Motifs | `net_x_*()`, `node_x_*()` | network/node | tabular | `make_network_motif()`, `make_node_motif()` |
 
 A `node_x_*()` function cross-references nodes against two or more categories or classifications,

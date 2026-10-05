@@ -155,6 +155,7 @@ Tagarelli, Andrea, Alessia Amelio, and Francesco Gullo. 2017.
 \seealso{
 Other community:
 \code{\link{member_community_hier}},
+\code{\link{member_community_link}},
 \code{\link{member_community_modular}},
 \code{\link{member_community_partition}},
 \code{\link{member_community_spread}}
@@ -163,6 +164,7 @@ Other memberships:
 \code{\link{member_brokerage}},
 \code{\link{member_cliques}},
 \code{\link{member_community_hier}},
+\code{\link{member_community_link}},
 \code{\link{member_community_modular}},
 \code{\link{member_community_partition}},
 \code{\link{member_community_spread}},

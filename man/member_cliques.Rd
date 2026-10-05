@@ -181,6 +181,7 @@ Other memberships:
 \code{\link{member_brokerage}},
 \code{\link{member_community}},
 \code{\link{member_community_hier}},
+\code{\link{member_community_link}},
 \code{\link{member_community_modular}},
 \code{\link{member_community_partition}},
 \code{\link{member_community_spread}},

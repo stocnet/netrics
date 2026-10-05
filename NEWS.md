@@ -37,6 +37,7 @@
 - Added `net_by_divergence()` for networks' Hamming, Jaccard, or portrait divergence
   - `ideal=` takes a network or any `manynet::create_*()` or `manynet::generate_*()` function
   - Falls back to portrait divergence where the networks' nodes differ
+- Added `net_by_linkdensity()` for the partition density of a tie membership
 
 ## Memberships
 
@@ -49,6 +50,8 @@
 - Added `search=` to `node_in_block()` for searching by `"tabu"` (default) or `"iterated"`
   - The tabu search lets positions take any size, where the iterated search held them near equal
   - Partitions may therefore differ from earlier versions; pass `search = "iterated"` to reproduce them
+- Added `tie_in_community()` for link communities (Ahn et al. 2010), which group ties rather than nodes (closes #20)
+  - A node belongs to every community one of its ties does, so nodes' communities can overlap
 - Fixed twomodes in `node_in_partition()`, `node_in_regular()` etc by 
   replacing `to_multilevel()` with `manynet::to_onemode()` to create square matrices
 - Improved the equivalence functions to compare nodes' profiles once, rather than twice, thanks @Kaladani (closes #29)

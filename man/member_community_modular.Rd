@@ -220,6 +220,7 @@ Traag, Vincent A., Ludo Waltman, and Nees Jan van Eck. 2019.
 Other community:
 \code{\link{member_community}},
 \code{\link{member_community_hier}},
+\code{\link{member_community_link}},
 \code{\link{member_community_partition}},
 \code{\link{member_community_spread}}
 
@@ -228,6 +229,7 @@ Other memberships:
 \code{\link{member_cliques}},
 \code{\link{member_community}},
 \code{\link{member_community_hier}},
+\code{\link{member_community_link}},
 \code{\link{member_community_partition}},
 \code{\link{member_community_spread}},
 \code{\link{member_components}},

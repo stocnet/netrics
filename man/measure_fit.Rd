@@ -5,6 +5,7 @@
 \alias{net_by_core}
 \alias{net_by_factions}
 \alias{net_by_modularity}
+\alias{net_by_linkdensity}
 \alias{net_by_divergence}
 \alias{net_by_inconsistency}
 \title{Measures of how well a structure fits a network}
@@ -21,6 +22,8 @@ net_by_core(
 net_by_factions(.data, membership = NULL)
 
 net_by_modularity(.data, membership = NULL, resolution = 1)
+
+net_by_linkdensity(.data, membership = NULL)
 
 net_by_divergence(
   .data,
@@ -106,6 +109,8 @@ and a core-periphery model with the same dimensions.
 and a component model with the same dimensions.
 \item \code{net_by_modularity()} measures the modularity of a network
 based on nodes' membership in defined clusters.
+\item \code{net_by_linkdensity()} measures the partition density of a network
+based on ties' membership in defined clusters.
 \item \code{net_by_divergence()} measures how far a network is from an ideal
 network, such as a core-periphery, complete, or star network.
 \item \code{net_by_inconsistency()} measures how far a partition's blocks depart from
@@ -123,6 +128,7 @@ direction, so they are not interchangeable:\tabular{llll}{
    \code{net_by_core()} \tab a core-periphery model \tab -1 to 1 \tab higher \cr
    \code{net_by_factions()} \tab a components model \tab -1 to 1 \tab higher \cr
    \code{net_by_modularity()} \tab the partition's communities \tab -0.5 to 1 (at the default resolution) \tab higher \cr
+   \code{net_by_linkdensity()} \tab the partition's communities of ties \tab -1/3 to 1 \tab higher \cr
    \code{net_by_divergence()} \tab an ideal network \tab 0 to 1 \tab \strong{lower} \cr
    \code{net_by_inconsistency()} \tab ideal block types \tab 0 upwards \tab \strong{lower} \cr
 }
@@ -221,6 +227,22 @@ In the extreme case, this can be where they are only connected
 to the rest of the network through a single tie.
 To help manage this problem, a \code{resolution} parameter is added.
 Please see the argument definition for more details.
+}
+
+\section{Link density}{
+
+\code{net_by_linkdensity()} measures the partition density of a membership of
+the network's \emph{ties}, such as that from \code{\link[=tie_in_community]{tie_in_community()}},
+which is used where no membership is given.
+Each community's density is the number of its ties beyond those that a
+tree over its nodes needs, as a share of the ties that would make those
+nodes a clique.
+The partition density is the mean of these, weighted by the number of
+ties in each community (Ahn et al. 2010).
+It is 1 where every community is a clique, 0 where every community is a
+tree, and negative only where the ties of a community do not connect.
+Ties between the same two nodes count once, and ties without a
+membership are left out.
 }
 
 \section{Divergence}{
@@ -360,6 +382,8 @@ net_by_modularity(ison_adolescents,
   node_in_partition(ison_adolescents))
 net_by_modularity(ison_southern_women, 
   node_in_partition(ison_southern_women))
+net_by_linkdensity(ison_adolescents,
+  tie_in_community(ison_adolescents))
 net_by_divergence(ison_adolescents, manynet::create_filled)
 net_by_divergence(ison_adolescents, manynet::create_filled,
                   variant = "jaccard")
@@ -391,6 +415,14 @@ In: Memon, N., Xu, J., Hicks, D., Chen, H. (eds)
 \emph{Data Mining for Social Network Data. Annals of Information Systems}, Vol 12.
 Springer, Boston, MA.
 \doi{10.1007/978-1-4419-6287-4_7}
+}
+
+\subsection{On link density}{
+
+Ahn, Yong-Yeol, James P. Bagrow, and Sune Lehmann. 2010.
+"Link communities reveal multiscale complexity in networks".
+\emph{Nature} 466(7307): 761-764.
+\doi{10.1038/nature09182}
 }
 
 \subsection{On portrait divergence}{

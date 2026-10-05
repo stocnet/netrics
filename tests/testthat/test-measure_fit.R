@@ -127,3 +127,22 @@ test_that("net_by_divergence matches net_by_inconsistency where it should", {
                as.numeric(net_by_inconsistency(cl, m)))
   expect_equal(as.numeric(net_by_inconsistency(cl, m)), 2/28)
 })
+
+test_that("net_by_linkdensity scores a tie membership", {
+  # a clique of four and a path of three ties
+  net <- manynet::as_tidygraph(igraph::graph_from_literal(
+    1-2, 1-3, 1-4, 2-3, 2-4, 3-4, 4-5, 5-6, 6-7))
+  memb <- c(rep("A", 6), rep("B", 3))
+  out <- net_by_linkdensity(net, memb)
+  expect_s3_class(out, "network_measure")
+  # the clique scores 1 and the tree 0, weighted by their ties
+  expect_equal(as.numeric(out), 6/9)
+  # one community of all ties: 9 ties, 7 nodes
+  expect_equal(as.numeric(net_by_linkdensity(net, rep("A", 9))),
+               (9 - 6) / (21 - 6))
+  # every tie alone is no community at all
+  expect_equal(as.numeric(net_by_linkdensity(net, 1:9)), 0)
+  expect_error(net_by_linkdensity(net, c("A", "B")), "one group for each")
+  # the default membership is the one that maximises it
+  expect_gte(as.numeric(net_by_linkdensity(net)), 6/9)
+})

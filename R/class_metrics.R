@@ -181,6 +181,13 @@ make_node_measure <- function(out, .data, measure = NULL, range = NULL,
 make_tie_measure <- function(out, .data, measure = NULL, range = NULL,
                              normalization = NULL, variant = NULL) {
   class(out) <- c("tie_measure", class(out))
+  out <- .name_ties(out, .data)
+  set_measure_attributes(out, measure, range, normalization, variant)
+}
+
+# Names each tie by the pair of nodes it joins.
+.name_ties <- function(out, .data) {
+  if(length(out) == 0) return(out)
   if(manynet::is_labelled(.data)){
     tie_names <- attr(igraph::E(.data), "vnames")
     if(manynet::is_directed(.data)) 
@@ -192,7 +199,7 @@ make_tie_measure <- function(out, .data, measure = NULL, range = NULL,
       names(out) <- paste0(ties$from, "->", ties$to) else
         names(out) <- paste0(ties$from, "-", ties$to)
   }
-  set_measure_attributes(out, measure, range, normalization, variant)
+  out
 }
 
 make_network_measure <- function(out, .data, call, measure = NULL,
@@ -220,6 +227,15 @@ make_node_member <- function(out, .data) {
   class(out) <- c("node_member", class(out))
   attr(out, "mode") <- manynet::node_is_mode(.data)
   out
+}
+
+# A tie belongs to one group only, so a tie membership carries no 'mode'
+# attribute as a node membership does.
+make_tie_member <- function(out, .data) {
+  if(is.numeric(out))
+    out <- MORELETTERS[out]
+  class(out) <- c("tie_member", class(out))
+  .name_ties(out, .data)
 }
 
 MORELETTERS <- c(LETTERS, sapply(LETTERS, function(x) paste0(x, LETTERS)))
