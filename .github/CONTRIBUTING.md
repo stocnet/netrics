@@ -158,6 +158,7 @@ Users can therefore find the implementation, and its documentation, from the arg
 | `method_regularity` | a node-by-node similarity matrix | `regularity_*` | `regularity =` |
 | `method_coreness` | a continuous coreness score plus a core/periphery split | `coreness_*` | `coreness =` |
 | `method_split` | an ordered split of a continuous score into groups | `split_*` | `split =` |
+| `method_search` | the membership that minimises a cost | `search_*` | `search =` |
 
 Apply that test when naming a new family. For example, `equivalence_*` would be the wrong name for `regularity_*`, even though those methods are only ever called from `node_in_regular()`: they return a *similarity*, which `cluster_*()` only later partitions into an equivalence. Naming the step for the pipeline's eventual output rather than its own return value breaks the rule.
 

@@ -399,7 +399,37 @@ node_in_community <- function(.data, k = NULL, max_k = 8L,
 #' @template node_member
 NULL
 
-#' @rdname member_community_non 
+#' Memberships in communities that fill a set number of groups
+#' @name member_community_partition
+#' @template section_cognitive
+#' @section Signed networks:
+#'   [node_in_faction()] reads a tie as a pull into the same community,
+#'   and a negative tie is hostility rather than such a pull.
+#'   Where the network is signed, it therefore considers only the positive
+#'   ties, and says so.
+#'   Use [manynet::to_unsigned()] first to control this yourself.
+#' @description
+#'   These functions divide the nodes into a number of groups that you set,
+#'   two by default:
+#' 
+#'   - `node_in_partition()` is a greedy, iterative, deterministic
+#'   partitioning algorithm that results in two equally-sized communities.
+#'   - `node_in_faction()` is a tabu search for the `k` groups, of any size,
+#'   that come closest to being separate cliques.
+#'
+#'   Since they return the number of groups asked for whether or not the
+#'   network holds that many communities, check the fit of the result,
+#'   e.g. with [net_by_modularity()].
+#'   See [member_community] for a comparison with the other community
+#'   detection algorithms.
+#'   
+#' @template param_data
+#' @template param_k
+#' @family community
+#' @template node_member
+NULL
+
+#' @rdname member_community_modular 
 #' @section Optimal:
 #'   The general idea is to calculate the modularity of all possible partitions,
 #'   and choose the community structure that maximises this modularity measure.
@@ -552,7 +582,127 @@ kl_partition <- function(g, n, k, rounds = 50, start = "order"){
   out
 }
 
-#' @rdname member_community_non 
+#' @rdname member_community_partition 
+#' @section Faction:
+#'   The general idea is that a network of factions is one of separate
+#'   cliques: every pair of nodes in the same group is tied, and no pair in
+#'   different groups is. `node_in_faction()` searches for the partition into
+#'   `k` groups that comes closest to that ideal, using a tabu search;
+#'   see [search_tabu()] for how it works.
+#'   Unlike `node_in_partition()`, the groups are free to take any size,
+#'   and unlike `node_in_optimal()`, the number of groups is yours to choose.
+#'
+#'   `variant` names how closeness to the ideal is scored:
+#'
+#'   - `"hamming"` (the default) counts the errors: the pairs within a group
+#'   that are not tied plus the pairs in different groups that are.
+#'   - `"phi"` is the correlation between the network and the ideal, with
+#'   ones for pairs in the same group and zeros for pairs in different groups.
+#'   - `"modularity"` is the share of ties that fall within groups less the
+#'   share expected if ties fell at random among nodes of the same degrees.
+#'
+#'   `"hamming"` and `"phi"` read the pattern of ties and not their weights,
+#'   and `"modularity"` reads a directed network as undirected.
+#'
+#'   Some care is needed in reading the result. The search always returns
+#'   `k` groups, however poor the best fit is, so the groups it returns need
+#'   not be cohesive: check the fit with [net_by_modularity()] or
+#'   [net_by_inconsistency()]. The search may also end in a local minimum,
+#'   and it returns one partition even where several fit equally well.
+#'   Since it begins from random partitions, repeated calls can return
+#'   different partitions; where they agree, the split is a clear one.
+#'   Set a seed to repeat a result.
+#'
+#'   Note that `k` must be an integer here, since the search needs to know
+#'   how many groups to fill, and that `times` is by default the number of
+#'   nodes multiplied by `k`.
+#' @param variant Which measure of fit the factions should optimise.
+#'   One of "hamming" (the default), "phi", or "modularity".
+#' @template param_times
+#' @references
+#' ## On faction community detection
+#' de Amorim, Samuel G., Jean-Pierre Barthélemy, and Celso C. Ribeiro. 1992.
+#' "Clustering and clique partitioning: Simulated annealing and tabu search approaches."
+#' _Journal of Classification_ 9(1): 17-41.
+#' \doi{10.1007/BF02618466}
+#'
+#' Borgatti, Stephen P., Martin G. Everett, and Linton C. Freeman. 2002.
+#' _UCINET for Windows: Software for Social Network Analysis_.
+#' Harvard, MA: Analytic Technologies.
+#' @examples
+#' node_in_faction(ison_adolescents)
+#' node_in_faction(ison_adolescents, k = 3, variant = "modularity")
+#' @export
+node_in_faction <- function(.data, k = 2L,
+                            variant = c("hamming", "phi", "modularity"),
+                            times = NULL){
+  .data <- manynet::expect_nodes(.data)
+  .data <- .to_aggregated_css(.data)
+  variant <- match.arg(variant)
+  if(!is.numeric(k) || length(k) != 1 || k < 2 || k %% 1 != 0)
+    manynet::snet_abort("`k` must be the number of factions sought, at least 2.")
+  n <- manynet::net_nodes(.data)
+  if(k > n) manynet::snet_abort("`k` cannot exceed the number of nodes.")
+  if(is.null(times)) times <- n * k
+  .data <- manynet::to_positive(.data)
+  g <- manynet::as_matrix(manynet::to_onemode(.data))
+  diag(g) <- 0
+  init <- sample(rep(seq_len(k), length.out = n))
+  out <- if(variant == "phi"){
+    search_tabu(faction_phi(g), init, times)
+  } else {
+    pairs <- faction_pairs(g, variant)
+    search_tabu(cost = function(m) .clique_cost(m, pairs), init = init,
+                times = times,
+                delta = function(old, new) faction_delta(pairs, old, new))
+  }
+  out <- make_node_member(out, .data)
+  attr(out, "k") <- as.integer(k)
+  out
+}
+
+# The cost of placing each pair of nodes in the same faction, as a symmetric
+# matrix with a zero diagonal, so that `.clique_cost()` sums it over the pairs
+# that share a group.
+# For "hamming" a pair costs 1 where it is not tied and -1 where it is. Summed
+# over the pairs that share a group, and with the number of ties added, this
+# is the count of errors, and the number of ties is the same for every
+# partition. For "modularity" it is the negative of the modularity matrix.
+faction_pairs <- function(g, variant){
+  if(variant == "hamming"){
+    pairs <- 1 - 2 * (g != 0)
+  } else {
+    deg <- (rowSums(g) + colSums(g)) / 2
+    total <- sum(deg)
+    pairs <- if(total == 0) g else outer(deg, deg) / total - g
+  }
+  pairs <- (pairs + t(pairs)) / 2
+  diag(pairs) <- 0
+  pairs
+}
+
+# The change in `.clique_cost()` from `old` to `new`. A tabu search moves one
+# node at a time, and that change is read from the node's own row.
+faction_delta <- function(pairs, old, new){
+  moved <- which(old != new)
+  if(length(moved) != 1) return(.clique_delta(pairs, old, new))
+  2 * (sum(pairs[moved, new == new[moved]]) - sum(pairs[moved, old == old[moved]]))
+}
+
+# The cost function for "phi": the negative correlation, over every ordered
+# pair of different nodes, between whether the pair is tied and whether it
+# shares a group.
+faction_phi <- function(g){
+  offdiag <- which(diag(nrow(g)) == 0)
+  obs <- (g != 0)[offdiag] * 1
+  function(m){
+    val <- suppressWarnings(stats::cor(obs, outer(m, m, "==")[offdiag]))
+    if(!is.finite(val)) return(1)
+    -val
+  }
+}
+
+#' @rdname member_community_spread 
 #' @section Infomap:
 #'   Motivated by information theoretic principles, this algorithm tries to build 
 #'   a grouping that provides the shortest description length for a random walk,
