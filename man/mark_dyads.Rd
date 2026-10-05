@@ -24,13 +24,32 @@ whether the condition is matched.
 These functions return logical vectors the length of the ties
 in a network identifying which are embedded within particular dyads.
 \itemize{
-\item \code{tie_is_multiple()} marks ties that are multiples.
+\item \code{tie_is_multiple()} marks ties that repeat an earlier tie between
+the same two nodes.
 \item \code{tie_is_reciprocated()} marks ties that are mutual/reciprocated.
 }
 
 They are most useful in highlighting parts of the network where
 relationships are denser.
 }
+\section{Multiple and parallel ties}{
+
+\code{tie_is_multiple()} and \code{\link[manynet:tie_is_parallel]{manynet::tie_is_parallel()}} answer different
+questions, and can give different answers on the same network.
+
+\code{tie_is_multiple()} marks only the repeats, as \code{\link[igraph:which_multiple]{igraph::which_multiple()}}
+does: the first tie between two nodes is \code{FALSE}, and each further tie
+between them is \code{TRUE}.
+It reads nothing but the two nodes a tie joins, so ties at different
+times, in different layers, or from different reporters all count as
+repeats of each other.
+
+\code{manynet::tie_is_parallel()} marks every tie in such a bundle, the first
+included, but only where the ties coexist: at the same time or over
+overlapping intervals, in the same layer, and from the same reporter.
+Use it to ask whether a network holds ties that could be combined.
+}
+
 \section{Cognitive social structures}{
 
 A cognitive social structure records each node's report of the ties in

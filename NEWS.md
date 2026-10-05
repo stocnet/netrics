@@ -10,6 +10,7 @@
 - Improved `tie_is_path()`
   - Fixed erroring on a signed 'stocnet', now runs over the positive ties alone
   - Fixed erroring where no path exists
+- Improved `tie_is_multiple()` documentation to distinguish from `manynet::tie_is_parallel()`
 
 ## Measures
 
