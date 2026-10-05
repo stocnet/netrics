@@ -85,7 +85,7 @@ node_by_betweenness <- function(.data, normalized = TRUE,
   .data <- manynet::expect_nodes(.data)
   .data <- .to_aggregated_css(.data)
   
-  .data <- .to_positive(.data)
+  .data <- manynet::to_positive(.data)
   weights <- `if`(manynet::is_weighted(.data), 
                   manynet::tie_weights(.data), NA)
   graph <- manynet::as_igraph(.data)
@@ -141,7 +141,7 @@ node_by_induced <- function(.data, normalized = TRUE,
                             cutoff = NULL){
   .data <- manynet::expect_nodes(.data)
   .data <- .to_aggregated_css(.data)
-  .data <- .to_positive(.data)
+  .data <- manynet::to_positive(.data)
   endog <- sum(node_by_betweenness(.data, normalized = normalized, cutoff = cutoff),
                na.rm = TRUE)
   exog <- vapply(seq.int(manynet::net_nodes(.data)),
@@ -272,7 +272,7 @@ tie_by_betweenness <- function(.data, normalized = TRUE){
   .data <- manynet::expect_ties(.data)
   if(manynet::is_cognitive(.data))
     return(.map_css_ties(.data, tie_by_betweenness, normalized = normalized))
-  .data <- .to_unsigned(.data)
+  .data <- manynet::to_unsigned(.data, keep = "both")
   .data <- manynet::as_igraph(.data)
   eddies <- manynet::as_edgelist(.data)
   eddies <- paste(eddies[["from"]], eddies[["to"]], sep = "-")
@@ -354,7 +354,7 @@ NULL
 net_by_betweenness <- function(.data, normalized = TRUE) {
   .data <- manynet::expect_nodes(.data)
   .data <- .to_aggregated_css(.data)
-  .data <- .to_positive(.data)
+  .data <- manynet::to_positive(.data)
   graph <- manynet::as_igraph(.data)
 
   if (manynet::is_twomode(.data)) {
@@ -382,7 +382,7 @@ net_by_betweenness <- function(.data, normalized = TRUE) {
 mode_by_betweenness <- function(.data, normalized = TRUE,
                                 direction = c("all", "in")) {
   .data <- manynet::expect_nodes(.data)
-  .data <- .to_positive(.data)
+  .data <- manynet::to_positive(.data)
   direction <- match.arg(direction)
   graph <- manynet::as_igraph(.data)
 

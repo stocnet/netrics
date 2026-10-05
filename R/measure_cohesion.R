@@ -100,7 +100,7 @@ net_by_compactness <- function(.data) {
   .data <- .to_aggregated_css(.data)
   # note that igraph's default mode ignores direction, which would treat a
   # directed network as though every tie ran both ways
-  dists <- igraph::distances(manynet::as_igraph(.to_positive(.data)),
+  dists <- igraph::distances(manynet::as_igraph(manynet::to_positive(.data)),
                              mode = "out")
   recip <- 1/dists
   diag(recip) <- 0 # exclude self-pairs
@@ -121,6 +121,7 @@ net_by_compactness <- function(.data) {
 net_by_components <- function(.data, connectivity = c("strong", "weak")){
   connectivity <- match.arg(connectivity)
   .data <- manynet::expect_nodes(.data)
+  .data <- .to_aggregated_css(.data)
   object <- manynet::as_igraph(.data)
   make_network_measure(igraph::components(object, mode = connectivity)$no,
                        object, call = deparse(sys.call()),
@@ -142,7 +143,7 @@ net_by_independence <- function(.data){
   # independence number of the whole network is already the quantity wanted.
   # The two-mode branch exists because no two nodes of one mode are ever tied
   # there, which would make the answer trivially the size of the larger mode.
-  if(manynet::is_twomode(.data) && !.is_multilevel(.data)){
+  if(manynet::is_twomode(.data) && !manynet::is_multilevel(.data)){
     out <- igraph::ivs_size(manynet::to_mode1(manynet::as_igraph(.data)))
   } else {
     out <- igraph::ivs_size(manynet::to_undirected(manynet::as_igraph(.data)))
@@ -185,7 +186,7 @@ NULL
 net_by_diameter <- function(.data){
   .data <- manynet::expect_nodes(.data)
   .data <- .to_aggregated_css(.data)
-  object <- manynet::as_igraph(.to_positive(.data))
+  object <- manynet::as_igraph(manynet::to_positive(.data))
   make_network_measure(igraph::diameter(object,
                                         directed = manynet::is_directed(object)),
                        object, call = deparse(sys.call()),
@@ -202,7 +203,7 @@ net_by_diameter <- function(.data){
 net_by_length <- function(.data){
   .data <- manynet::expect_nodes(.data)
   .data <- .to_aggregated_css(.data)
-  object <- manynet::as_igraph(.to_positive(.data))
+  object <- manynet::as_igraph(manynet::to_positive(.data))
   make_network_measure(igraph::mean_distance(object,
                                              directed = manynet::is_directed(object)),
                        object, call = deparse(sys.call()),
@@ -304,6 +305,7 @@ net_by_adhesion <- function(.data){
 #' @export
 net_by_strength <- function(.data, limit = 20){
   .data <- manynet::expect_nodes(.data)
+  .data <- .to_aggregated_css(.data)
   n <- manynet::net_ties(.data)
   .check_enumerable(n, limit, "net_by_strength", "ties")
   seties <- unlist(lapply(1:n, utils::combn, x = 1:n, simplify = FALSE), recursive = FALSE)
@@ -320,6 +322,7 @@ net_by_strength <- function(.data, limit = 20){
 #' @export
 net_by_toughness <- function(.data, limit = 20){
   .data <- manynet::expect_nodes(.data)
+  .data <- .to_aggregated_css(.data)
   n <- manynet::net_nodes(.data)
   .check_enumerable(n, limit, "net_by_toughness", "nodes")
   seties <- unlist(lapply(1:n, utils::combn, x = 1:n, simplify = FALSE), recursive = FALSE)

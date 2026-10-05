@@ -96,7 +96,7 @@ node_by_eigenvector <- function(.data, normalized = TRUE, scaled = TRUE,
   .data <- manynet::expect_nodes(.data)
   .data <- .to_aggregated_css(.data)
 
-  .data <- .to_unsigned(.data)
+  .data <- manynet::to_unsigned(.data, keep = "both")
   scaled <- resolve_scaled(scaled, scale)
   weights <- `if`(manynet::is_weighted(.data),
                   manynet::tie_weights(.data), NULL)
@@ -117,7 +117,7 @@ node_by_eigenvector <- function(.data, normalized = TRUE, scaled = TRUE,
   # mode as well as between them, so it cannot be projected. It needs no
   # projection either: its matrix is already square over every node, so it
   # takes the one-mode branch, as `net_by_independence()` does.
-  if (!manynet::is_twomode(graph) || .is_multilevel(graph)){
+  if (!manynet::is_twomode(graph) || manynet::is_multilevel(graph)){
     out <- igraph::eigen_centrality(graph = graph,
                                     directed = manynet::is_directed(graph),
                                     weights = weights,
@@ -171,7 +171,7 @@ node_by_power <- function(.data, normalized = TRUE, scaled = FALSE,
   .data <- manynet::expect_nodes(.data)
   .data <- .to_aggregated_css(.data)
 
-  .data <- .to_unsigned(.data)
+  .data <- manynet::to_unsigned(.data, keep = "both")
   scaled <- resolve_scaled(scaled, scale)
   graph <- manynet::as_igraph(.data)
 
@@ -187,7 +187,7 @@ node_by_power <- function(.data, normalized = TRUE, scaled = FALSE,
   
   # Do the calculations. A multilevel network takes the one-mode branch,
   # since it cannot be projected; see `node_by_eigenvector()`.
-  if (!manynet::is_twomode(graph) || .is_multilevel(graph)){
+  if (!manynet::is_twomode(graph) || manynet::is_multilevel(graph)){
     out <- igraph::power_centrality(graph = graph,
                                     exponent = exponent,
                                     rescale = scaled)
@@ -257,7 +257,7 @@ node_by_power <- function(.data, normalized = TRUE, scaled = FALSE,
 node_by_alpha <- function(.data, decay = 0.85, alpha = NULL){
   .data <- manynet::expect_nodes(.data)
   .data <- .to_aggregated_css(.data)
-  .data <- .to_unsigned(.data)
+  .data <- manynet::to_unsigned(.data, keep = "both")
   decay <- check_decay(resolve_decay(decay, alpha, "alpha"))
   # Alpha centrality is unbounded and can be negative, so there is no
   # theoretical maximum to normalise against.
@@ -290,7 +290,7 @@ node_by_alpha <- function(.data, decay = 0.85, alpha = NULL){
 node_by_pagerank <- function(.data, decay = 0.85){
   .data <- manynet::expect_nodes(.data)
   .data <- .to_aggregated_css(.data)
-  .data <- .to_unsigned(.data)
+  .data <- manynet::to_unsigned(.data, keep = "both")
   decay <- check_decay(decay)
   # PageRank is a stationary distribution over a random walk, so scores are
   # already shares summing to one and no further rescaling applies.
@@ -317,7 +317,7 @@ node_by_pagerank <- function(.data, decay = 0.85){
 node_by_authority <- function(.data, scaled = TRUE){
   .data <- manynet::expect_nodes(.data)
   .data <- .to_aggregated_css(.data)
-  .data <- .to_unsigned(.data)
+  .data <- manynet::to_unsigned(.data, keep = "both")
   out <- igraph::hits_scores(manynet::as_igraph(.data), scale = scaled)$authority
   make_node_measure(out, .data, measure = "authority centrality",
                     range = `if`(scaled, c(0, 1), c(0, Inf)),
@@ -329,7 +329,7 @@ node_by_authority <- function(.data, scaled = TRUE){
 node_by_hub <- function(.data, scaled = TRUE){
   .data <- manynet::expect_nodes(.data)
   .data <- .to_aggregated_css(.data)
-  .data <- .to_unsigned(.data)
+  .data <- manynet::to_unsigned(.data, keep = "both")
   out <- igraph::hits_scores(manynet::as_igraph(.data), scale = scaled)$hub
   make_node_measure(out, .data, measure = "hub centrality",
                     range = `if`(scaled, c(0, 1), c(0, Inf)),
@@ -389,7 +389,7 @@ node_by_subgraph <- function(.data, decay = 1,
   walks <- resolve_method(walks, method, "walks")
   .data <- manynet::expect_nodes(.data)
   .data <- .to_aggregated_css(.data)
-  .data <- .to_unsigned(.data)
+  .data <- manynet::to_unsigned(.data, keep = "both")
   walks <- match.arg(walks, c("all", "odd", "even"))
   decay <- check_decay(decay)
   out <- .closed_walks(.data, decay, walks)
@@ -510,6 +510,8 @@ tie_by_eigenvector <- function(.data, normalized = TRUE){
 #'   - `mode_by_eigenvector()` measures eigenvector centralization separately for
 #'   each mode of a two-mode network (via projection to each mode), returning one
 #'   score per mode (following Borgatti and Everett, 1997).
+#'   A multilevel network cannot be projected, so there each mode's scores
+#'   are read from the whole network.
 #'
 #'   All measures attempt to use as much information as they are offered,
 #'   including whether the networks are directed, weighted, or multimodal.
@@ -544,7 +546,7 @@ NULL
 net_by_eigenvector <- function(.data, normalized = TRUE){
   .data <- manynet::expect_nodes(.data)
   .data <- .to_aggregated_css(.data)
-  .data <- .to_unsigned(.data)
+  .data <- manynet::to_unsigned(.data, keep = "both")
   if (manynet::is_twomode(.data)) {
     # Two-mode eigenvector centralization is intrinsically per mode
     # (see `mode_by_eigenvector()`, following Borgatti and Everett, 1997).
@@ -569,10 +571,20 @@ net_by_eigenvector <- function(.data, normalized = TRUE){
 #' @export
 mode_by_eigenvector <- function(.data, normalized = TRUE){
   .data <- manynet::expect_nodes(.data)
-  .data <- .to_unsigned(.data)
+  .data <- manynet::to_unsigned(.data, keep = "both")
   if (!manynet::is_twomode(.data))
     manynet::snet_abort("`mode_by_eigenvector()` is only defined for two-mode networks; use `net_by_eigenvector()` for one-mode networks.")
-  out <- c("Mode 1" = igraph::centr_eigen(manynet::as_igraph(manynet::to_mode1(.data)),
+  # A multilevel network cannot be projected, since it has ties within a mode,
+  # so each mode's scores are read from the whole network and centralised.
+  if(manynet::is_multilevel(.data)){
+    scores <- as.numeric(node_by_eigenvector(.data))
+    mode <- manynet::node_is_mode(.data)
+    out <- vapply(list("Mode 1" = scores[!mode], "Mode 2" = scores[mode]),
+                  function(x) igraph::centralize(
+                    x, igraph::centr_eigen_tmax(nodes = length(x)),
+                    normalized = normalized),
+                  FUN.VALUE = numeric(1))
+  } else out <- c("Mode 1" = igraph::centr_eigen(manynet::as_igraph(manynet::to_mode1(.data)),
                                           normalized = normalized)$centralization,
            "Mode 2" = igraph::centr_eigen(manynet::as_igraph(manynet::to_mode2(.data)),
                                           normalized = normalized)$centralization)

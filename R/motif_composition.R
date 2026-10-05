@@ -173,9 +173,9 @@ node_x_ties <- function(.data, direction = c("all", "out", "in")){
 #'   Where both modes hold the attribute, every node is described by its
 #'   alters at distance one.
 #'
-#'   Any tie counts as a tie here, whatever its sign. Apply
-#'   [manynet::to_unsigned()] first to consider only positive or only negative
-#'   ties.
+#'   Any tie counts as a tie here, whatever its sign, and by its magnitude.
+#'   Apply [manynet::to_unsigned()] first to consider only positive or only
+#'   negative ties.
 #' @examples
 #' node_x_alters(ison_networkers, "Discipline")
 #' node_x_alters(ison_networkers, "Citations")
@@ -186,6 +186,7 @@ node_x_alters <- function(.data, attribute,
                           direction = c("all", "out", "in", "reciprocated")){
   .data <- manynet::expect_nodes(.data)
   .data <- .to_aggregated_css(.data)
+  .data <- manynet::to_unsigned(.data, keep = "both")
   direction <- match.arg(direction)
   attr <- .resolve_attribute(.data, attribute)
   mat <- .alter_matrix(.data, attr, direction)

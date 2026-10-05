@@ -97,7 +97,10 @@ tie_is_path <- function(.data, from, to, all_paths = FALSE){
     paths <- igraph::delete_edge_attr(paths, "weight")
   out <- igraph::all_shortest_paths(paths, from = from, to = to,
                                      mode = "out")$epath
-  on <- if(all_paths) unique(unlist(out)) else
+  if(length(out) == 0)
+    manynet::snet_info("No path runs from {.arg from} to {.arg to},",
+                       "so no tie is marked.")
+  on <- if(all_paths || length(out) == 0) unique(unlist(out)) else
     as.numeric(out[[sample(length(out),1)]])
   out <- seq_len(igraph::ecount(graph)) %in% keep[on]
   make_tie_mark(out, .data)
@@ -209,8 +212,8 @@ tie_is_transitive <- function(.data){
   .data <- manynet::expect_ties(.data)  
   if(manynet::is_cognitive(.data))
     return(.map_css_ties(.data, tie_is_transitive))
-  # once, outside the loop, since `.to_unsigned()` reports what it did
-  .data <- .to_unsigned(.data)
+  # once, outside the loop
+  .data <- manynet::to_unsigned(.data, keep = "both")
   nodes <- manynet::as_edgelist(manynet::to_unnamed(.data))
   out <- vapply(seq_len(manynet::net_ties(.data)), function(x){
     igraph::distances(manynet::delete_ties(.data, x), 
@@ -229,7 +232,7 @@ tie_is_triplet <- function(.data){
   .data <- manynet::expect_ties(.data)  
   if(manynet::is_cognitive(.data))
     return(.map_css_ties(.data, tie_is_triplet))
-  .data <- .to_unsigned(.data)
+  .data <- manynet::to_unsigned(.data, keep = "both")
   nodes <- manynet::as_edgelist(manynet::to_unnamed(.data))
   trans <- tie_is_transitive(.data)
   altpath <- unlist(lapply(which(trans), function(x){
@@ -253,8 +256,8 @@ tie_is_cyclical <- function(.data){
   .data <- manynet::expect_ties(.data)  
   if(manynet::is_cognitive(.data))
     return(.map_css_ties(.data, tie_is_cyclical))
-  # once, outside the loop, since `.to_unsigned()` reports what it did
-  .data <- .to_unsigned(.data)
+  # once, outside the loop
+  .data <- manynet::to_unsigned(.data, keep = "both")
   out <- vapply(seq_len(manynet::net_ties(.data)), function(x){
     nodes <- manynet::as_edgelist(manynet::to_unnamed(.data))[x,]
     igraph::distances(manynet::delete_ties(.data, x), 

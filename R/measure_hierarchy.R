@@ -94,7 +94,8 @@ NULL
 #' @export
 net_by_connectedness <- function(.data){
   .data <- manynet::expect_nodes(.data)
-  .data <- .to_positive(.data)
+  .data <- .to_aggregated_css(.data)
+  .data <- manynet::to_positive(.data)
   dists <- igraph::distances(manynet::as_igraph(.data))
   make_network_measure(1 - sum(dists==Inf)/sum(dists!=0),
                        .data,
@@ -137,7 +138,8 @@ net_by_efficiency <- function(.data) {
 #' @export
 net_by_upperbound <- function(.data) {
   .data <- manynet::expect_nodes(.data)
-  .data <- .to_positive(.data)
+  .data <- .to_aggregated_css(.data)
+  .data <- manynet::to_positive(.data)
   dists <- igraph::distances(manynet::as_igraph(.data), mode = "in")
   dists[is.infinite(dists)] <- 0
   dists <- dists[order(rowSums(dists)), order(rowSums(dists))]

@@ -130,6 +130,12 @@ Functions are grouped into four families by naming pattern, each with dedicated 
 | Memberships | `node_in_*()` | node | character vector (group labels, via `MORELETTERS`) | `make_node_member()` |
 | Motifs | `net_x_*()`, `node_x_*()` | network/node | tabular | `make_network_motif()`, `make_node_motif()` |
 
+A `node_x_*()` function cross-references nodes against two or more categories or classifications,
+such as the triads a node sits in or the categories of its alters.
+It never cross-references nodes against nodes:
+a node-by-node result is the job of a `manynet::to_*()` function, as `manynet::to_proximity()` is.
+The one known exception is `node_x_path()`, which stays until stocnet/manynet#183 gives it a home.
+
 When adding a new analytic function, pick the family that matches its semantics and follow the existing naming scheme exactly.
 This predictability is a stated project goal.
 
@@ -158,7 +164,7 @@ Apply that test when naming a new family. For example, `equivalence_*` would be 
 Two further points of style:
 
 - Pick a word narrow enough to own the family. `regularity` is preferred over `similarity` because the latter is broad enough to be overrun later, and because generic similarities belong to `{manynet}`: `manynet::to_proximity()` holds every such measure, so they would never live in this family anyway.
-- `proximity =` is the one deliberate exception to the `<argument>_<value>` rule. Its values are the measures of `manynet::to_proximity()`, so there is no `proximity_*()` family here to duplicate them; `cluster_hierarchical()` passes the value straight on. The matrix this stage produces is returned by `node_x_proximity()`, which gives the pipeline (census → proximity → clustering → membership) its middle exit. `distance =` is not a proximity: it asks `stats::dist()` for an optional second comparison of the nodes' dissimilarity profiles, and is `NULL` by default.
+- `proximity =` is the one deliberate exception to the `<argument>_<value>` rule. Its values are the measures of `manynet::to_proximity()`, so there is no `proximity_*()` family here to duplicate them; `cluster_hierarchical()` passes the value straight on. The matrix this stage produces is kept in the `proximity` element of the clustering. `distance =` is not a proximity: it asks `stats::dist()` for an optional second comparison of the nodes' dissimilarity profiles, and is `NULL` by default.
 - The dispatching function should name the method in its `snet_info()` message by interpolation, e.g. `manynet::snet_info("...using {.fn regularity_{regularity}}.")`. This surfaces the convention to users at run time, and makes it obvious if the argument and the prefix ever drift apart.
 
 One known exception: `node_in_equivalence()`'s `motif =` argument is fed by `node_x_*()` functions rather than `motif_*()` ones. 
@@ -253,14 +259,14 @@ a multiplex, a multilevel and a longitudinal network, and decide each case delib
   so a signed network reaches `{igraph}` carrying a `weight` attribute of -1 and 1.
   Shortest-path functions read any attribute of that name as a distance,
   and either abort on the negative values or report a negative cycle.
-  Where the measure concerns cohesion or distance, call `.to_positive()`
-  ([R/netrics-utils.R](../R/netrics-utils.R)), which drops to the positive ties and says so.
+  Where the measure concerns cohesion or distance, call `manynet::to_positive()`,
+  which drops to the positive ties and records the exclusion.
   Do not simply drop the attribute: that reads a negative tie as a path of length one,
   when a negative tie is hostility rather than a channel along which cohesion travels.
   Where the measure instead counts a tie however it is signed, as a census does,
-  call `.to_unsigned()` in the same file, which keeps every tie and reads each by
+  call `manynet::to_unsigned(keep = "both")`, which keeps every tie and reads each by
   its magnitude. A tie-level function takes this branch even where it measures
-  distance, since `.to_positive()` drops ties and a tie measure must hold one
+  distance, since `manynet::to_positive()` drops ties and a tie measure must hold one
   value per tie; `tie_by_betweenness()` is the case, and says so in its
   `@section Signed networks:`.
 - **Multiplex.** Take one layer at a time with `manynet::to_uniplex()`.

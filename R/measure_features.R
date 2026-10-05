@@ -39,6 +39,7 @@ NULL
 #' @export
 net_by_richclub <- function(.data){
   .data <- manynet::expect_nodes(.data)
+  .data <- .to_aggregated_css(.data)
   coefs <- vector()
   temp <- .data
   for(k in seq_len(max(node_by_deg(temp)))){
@@ -459,7 +460,7 @@ net_by_core <- function(.data,
   # as the two-mode network that network reports itself to be, and returns a
   # rectangular ideal that the square observed matrix cannot be compared with.
   # What ideal a multilevel network should be fitted to is an open question.
-  if(.is_multilevel(.data))
+  if(manynet::is_multilevel(.data))
     manynet::snet_abort("{.fn net_by_core} fits the network to a",
                         "core-periphery ideal of one layer, and this network",
                         "holds two. Take one layer first, e.g. with",
@@ -529,7 +530,7 @@ net_by_factions <- function(.data,
   .data <- manynet::expect_nodes(.data)
   .data <- .to_aggregated_css(.data)
   # `manynet::create_components()` builds one layer; see `net_by_core()`
-  if(.is_multilevel(.data))
+  if(manynet::is_multilevel(.data))
     manynet::snet_abort("{.fn net_by_factions} fits the network to a",
                         "factional ideal of one layer, and this network holds",
                         "two. Take one layer first, e.g. with",
@@ -598,7 +599,7 @@ net_by_modularity <- function(.data,
   .data <- manynet::expect_nodes(.data)
   .data <- .to_aggregated_css(.data)
   # modularity counts a tie however it is signed, as a census does
-  .data <- .to_unsigned(.data)
+  .data <- manynet::to_unsigned(.data, keep = "both")
   membership <- .resolve_membership(.data, membership)
   if(is.null(membership)){
     manynet::snet_info("Since no membership argument has been provided,",
@@ -708,12 +709,12 @@ net_by_divergence <- function(.data, ideal = manynet::create_core,
   # the variant falls back to portrait silently only where the user left it
   chosen <- !missing(variant)
   variant <- match.arg(variant)
-  .data <- manynet::to_unweighted(.to_unsigned(
-    .to_aggregated_css(manynet::expect_nodes(.data))))
+  .data <- manynet::to_unweighted(manynet::to_unsigned(
+    .to_aggregated_css(manynet::expect_nodes(.data)), keep = "both"))
   symmetrise <- FALSE
   if(is.function(ideal)){
     # `manynet::create_*()` builds one layer; see `net_by_core()`
-    if(.is_multilevel(.data))
+    if(manynet::is_multilevel(.data))
       manynet::snet_abort("{.fn net_by_divergence} builds an ideal of one",
                           "layer, and this network holds two. Take one layer",
                           "first, e.g. with {.fn to_mode1} or {.fn to_uniplex},",
@@ -745,8 +746,8 @@ net_by_divergence <- function(.data, ideal = manynet::create_core,
                  identical, logical(1), ideal))
     ideal <- do.call(ideal, args)
   } else {
-    ideal <- manynet::to_unweighted(.to_unsigned(
-      .to_aggregated_css(manynet::expect_nodes(ideal))))
+    ideal <- manynet::to_unweighted(manynet::to_unsigned(
+      .to_aggregated_css(manynet::expect_nodes(ideal)), keep = "both"))
     aligned <- identical(manynet::net_dims(ideal), manynet::net_dims(.data)) &&
       identical(manynet::node_names(ideal), manynet::node_names(.data))
   }
@@ -773,7 +774,8 @@ net_by_divergence <- function(.data, ideal = manynet::create_core,
     obs <- obs[keep] != 0
     ide <- ide[keep] != 0
     if(variant == "hamming"){
-      out <- mean(obs != ide)
+      # two networks without any possible ties are identical
+      out <- if(length(obs) == 0) 0 else mean(obs != ide)
     } else {
       union <- sum(obs | ide)
       # two networks without any ties are identical

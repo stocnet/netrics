@@ -46,7 +46,7 @@ node_is_independent <- function(.data){
   # mode as well as between them, so it cannot be projected. Its matrix is
   # already square over every node, so it takes the one-mode branch, as
   # `net_by_independence()` does.
-  if(manynet::is_twomode(.data) && !.is_multilevel(.data)){
+  if(manynet::is_twomode(.data) && !manynet::is_multilevel(.data)){
     samp <- igraph::largest_ivs(manynet::to_mode1(.data))
     if(manynet::is_labelled(.data)){
       out <- manynet::node_names(.data) %in% 
@@ -85,6 +85,7 @@ node_is_independent <- function(.data){
 #' @export
 node_is_cutpoint <- function(.data){
   .data <- manynet::expect_nodes(.data)
+  .data <- .to_aggregated_css(.data)
   if(manynet::is_labelled(.data)){
     out <- manynet::node_names(.data) %in% 
       attr(igraph::articulation_points(as_igraph(.data)), 
@@ -110,7 +111,7 @@ node_is_cutpoint <- function(.data){
 node_is_fold <- function(.data){
   .data <- manynet::expect_nodes(.data)
   .data <- .to_aggregated_css(.data)
-  .data <- .to_positive(.data)
+  .data <- manynet::to_positive(.data)
   mult_tri <- igraph::count_triangles(.data)>1
   tris <- igraph::triangles(.data)
   tris <- matrix(tris, length(tris)/3, 3, byrow = TRUE)

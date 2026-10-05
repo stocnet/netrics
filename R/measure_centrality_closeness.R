@@ -93,7 +93,7 @@ node_by_closeness <- function(.data, normalized = TRUE,
   .data <- manynet::expect_nodes(.data)
   .data <- .to_aggregated_css(.data)
 
-  .data <- .to_positive(.data)
+  .data <- manynet::to_positive(.data)
   direction <- match.arg(direction)
   weights <- `if`(manynet::is_weighted(.data),
                   manynet::tie_weights(.data), NA)
@@ -153,7 +153,7 @@ node_by_harmonic <- function(.data, normalized = TRUE, cutoff = -1,
                              decay = NULL, direction = c("out", "in")){
   .data <- manynet::expect_nodes(.data)
   .data <- .to_aggregated_css(.data)
-  .data <- .to_positive(.data)
+  .data <- manynet::to_positive(.data)
   direction <- match.arg(direction)
   if(is.null(decay)){
     out <- igraph::harmonic_centrality(as_igraph(.data), # weighted if present
@@ -212,7 +212,8 @@ node_by_harmonic <- function(.data, normalized = TRUE, cutoff = -1,
 #' @export
 node_by_reach <- function(.data, normalized = TRUE, cutoff = 2){
   .data <- manynet::expect_nodes(.data)
-  .data <- .to_positive(.data)
+  .data <- .to_aggregated_css(.data)
+  .data <- manynet::to_positive(.data)
   if(manynet::is_weighted(.data)){
     tore <- manynet::as_matrix(.data)/mean(manynet::as_matrix(.data))
     out <- 1/tore
@@ -289,7 +290,7 @@ node_by_integration <- function(.data, normalized = TRUE,
                                 direction = c("in", "out")){
   .data <- manynet::expect_nodes(.data)
   .data <- .to_aggregated_css(.data)
-  .data <- .to_positive(.data)
+  .data <- manynet::to_positive(.data)
   direction <- match.arg(direction)
   dists <- igraph::distances(manynet::as_igraph(.data),
                              mode = ifelse(direction == "in", "in", "out"))
@@ -389,7 +390,7 @@ node_by_information <- function(.data, normalized = TRUE){
 node_by_eccentricity <- function(.data, normalized = TRUE){
   .data <- manynet::expect_nodes(.data)
   .data <- .to_aggregated_css(.data)
-  .data <- .to_positive(.data)
+  .data <- manynet::to_positive(.data)
   if(!manynet::is_connected(.data)) 
     manynet::snet_unavailable("Eccentricity centrality is only available for connected networks.")
   disties <- igraph::distances(as_igraph(.data))
@@ -432,7 +433,7 @@ node_by_distance <- function(.data, from, to, normalized = TRUE){
   .data <- manynet::expect_nodes(.data)
   .data <- .to_aggregated_css(.data)
   if(missing(from) && missing(to)) manynet::snet_abort("Either 'from' or 'to' must be specified.")
-  .data <- .to_positive(.data)
+  .data <- manynet::to_positive(.data)
   if(!missing(from)) out <- igraph::distances(manynet::as_igraph(.data), v = from) else
     if(!missing(to)) out <- igraph::distances(manynet::as_igraph(.data), to = to)
   unreachable <- is.infinite(out)
@@ -482,7 +483,7 @@ node_by_distance <- function(.data, from, to, normalized = TRUE){
 node_by_vitality <- function(.data, normalized = TRUE){
   .data <- manynet::expect_nodes(.data)
   .data <- .to_aggregated_css(.data)
-  .data <- .to_positive(.data)
+  .data <- manynet::to_positive(.data)
   .data <- manynet::as_igraph(.data)
   out <- vapply(manynet::snet_progress_nodes(.data), function(x){
     sum(igraph::distances(.data)) -
@@ -681,7 +682,7 @@ net_by_closeness <- function(.data, normalized = TRUE,
   .data <- manynet::expect_nodes(.data)
   .data <- .to_aggregated_css(.data)
 
-  .data <- .to_positive(.data)
+  .data <- manynet::to_positive(.data)
   direction <- match.arg(direction)
   graph <- manynet::as_igraph(.data)
 
@@ -713,7 +714,7 @@ mode_by_closeness <- function(.data, normalized = TRUE,
 
   .data <- manynet::expect_nodes(.data)
 
-  .data <- .to_positive(.data)
+  .data <- manynet::to_positive(.data)
   direction <- match.arg(direction)
   graph <- manynet::as_igraph(.data)
 

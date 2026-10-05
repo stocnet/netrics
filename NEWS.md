@@ -1,5 +1,9 @@
 # netrics 1.1.0
 
+## Package
+
+- Replaced internal signed and multilevel helpers with `{manynet}`'s own
+
 ## Marks
 
 - Fixed `tie_is_path()` erroring on a signed 'stocnet', whose signs reach igraph as negative weights

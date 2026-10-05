@@ -362,7 +362,7 @@ node_by_transitivity <- function(.data,
   .data <- .to_aggregated_css(.data)
   # A tie closes a triangle however it is signed, as the unweighted count
   # already reads it, so a negative weight is read by its magnitude.
-  .data <- .to_unsigned(.data)
+  .data <- manynet::to_unsigned(.data, keep = "both")
   # The unweighted coefficient is the historical default, and stays so where
   # there are no weights to use. Where there are, Barrat's is the default,
   # since it reduces to the unweighted one when every weight is equal.

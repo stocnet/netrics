@@ -54,6 +54,7 @@ NULL
 #' @export
 node_by_bridges <- function(.data){
   .data <- manynet::expect_nodes(.data)
+  .data <- .to_aggregated_css(.data)
   g <- manynet::as_igraph(.data)
   .inc <- NULL
   out <- vapply(igraph::V(g), function(ego){
@@ -125,7 +126,7 @@ node_by_effsize <- function(.data){
   # mode as well as between them, so it cannot be projected. Its matrix is
   # already square over every node, so it takes the one-mode branch, as
   # `net_by_independence()` does.
-  if(manynet::is_twomode(.data) && !.is_multilevel(.data)){
+  if(manynet::is_twomode(.data) && !manynet::is_multilevel(.data)){
     mat <- manynet::as_matrix(.data)
     out <- c(rowSums(manynet::as_matrix(manynet::to_mode1(.data))>0), 
              rowSums(manynet::as_matrix(manynet::to_mode2(.data))>0)) - node_by_redundancy(.data)
