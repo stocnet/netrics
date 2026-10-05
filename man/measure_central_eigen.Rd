@@ -10,7 +10,7 @@
 \alias{node_by_hub}
 \alias{node_by_subgraph}
 \alias{node_by_posneg}
-\title{Measuring nodes eigenvector-like centrality}
+\title{Measures of node eigenvector-like centrality}
 \usage{
 node_by_eigenvector(.data, normalized = TRUE, scaled = TRUE, scale = NULL)
 
@@ -445,7 +445,9 @@ Other nodal:
 \code{\link{member_cliques}},
 \code{\link{member_community}},
 \code{\link{member_community_hier}},
-\code{\link{member_community_non}},
+\code{\link{member_community_modular}},
+\code{\link{member_community_partition}},
+\code{\link{member_community_spread}},
 \code{\link{member_components}},
 \code{\link{member_core}},
 \code{\link{member_diffusion}},

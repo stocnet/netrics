@@ -8,7 +8,7 @@
 \alias{net_by_indegree}
 \alias{mode_by_outdegree}
 \alias{mode_by_indegree}
-\title{Measuring networks degree-like centralisation}
+\title{Measures of network degree-like centralisation}
 \usage{
 net_by_degree(.data, normalized = TRUE, direction = c("all", "out", "in"))
 

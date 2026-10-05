@@ -4,7 +4,7 @@
 \alias{measure_centralisation_eigen}
 \alias{net_by_eigenvector}
 \alias{mode_by_eigenvector}
-\title{Measuring networks eigenvector-like centralisation}
+\title{Measures of network eigenvector-like centralisation}
 \usage{
 net_by_eigenvector(.data, normalized = TRUE)
 

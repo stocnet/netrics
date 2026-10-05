@@ -39,6 +39,9 @@
 - Added `node_in_faction()` for the `k` groups, of any size, that come closest to separate cliques
   - Uses a tabu search, as the UCINET 'Factions' routine does
   - `variant=` scores the fit by `"hamming"` (default), `"phi"`, or `"modularity"`
+- Split the documentation of the non-hierarchical community algorithms into three pages, by the idea they share
+  - `?member_community_modular`, `?member_community_spread`, and `?member_community_partition` replace `?member_community_non`
+  - `?member_community` now compares all the algorithms in one table
 - Added `search=` to `node_in_block()` for searching by `"tabu"` (default) or `"iterated"`
   - The tabu search lets positions take any size, where the iterated search held them near equal
   - Partitions may therefore differ from earlier versions; pass `search = "iterated"` to reproduce them

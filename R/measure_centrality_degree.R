@@ -1,6 +1,6 @@
 # Degree-like centralities ####
 
-#' Measuring nodes degree-like centrality
+#' Measures of node degree-like centrality
 #' @name measure_central_degree
 #' @template section_cognitive
 #' @description
@@ -242,7 +242,7 @@ node_by_leverage <- function(.data){
 
 # Degree-like centralities ####
 
-#' Measuring ties degree-like centrality
+#' Measures of tie degree-like centrality
 #' @name measure_central_tie_degree
 #' @template section_cognitive
 #' @description
@@ -279,7 +279,7 @@ tie_by_degree <- function(.data, normalized = TRUE){
 
 # Degree centralisation ####
 
-#' Measuring networks degree-like centralisation
+#' Measures of network degree-like centralisation
 #' @name measure_centralisation_degree
 #' @template section_cognitive
 #' @description

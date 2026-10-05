@@ -1,6 +1,6 @@
 # Eigenvector-like centralities ####
 
-#' Measuring nodes eigenvector-like centrality
+#' Measures of node eigenvector-like centrality
 #' @name measure_central_eigen
 #' @template section_cognitive
 #' @description
@@ -464,7 +464,7 @@ node_by_posneg <- function(.data){
 
 # Eigenvector-like centralities ####
 
-#' Measuring ties eigenvector-like centrality
+#' Measures of tie eigenvector-like centrality
 #' @name measure_central_tie_eigen
 #' @template section_cognitive
 #' @description
@@ -501,7 +501,7 @@ tie_by_eigenvector <- function(.data, normalized = TRUE){
 
 # Eigenvector centralisation ####
 
-#' Measuring networks eigenvector-like centralisation
+#' Measures of network eigenvector-like centralisation
 #' @name measure_centralisation_eigen
 #' @template section_cognitive
 #' @description

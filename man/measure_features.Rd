@@ -7,7 +7,7 @@
 \alias{net_by_scalefree}
 \alias{net_by_bipartivity}
 \alias{net_by_balance}
-\title{Measuring network topological features}
+\title{Measures of network topological features}
 \source{
 \code{{signnet}} by David Schoch
 }

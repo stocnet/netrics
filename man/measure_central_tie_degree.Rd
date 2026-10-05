@@ -3,7 +3,7 @@
 \name{measure_central_tie_degree}
 \alias{measure_central_tie_degree}
 \alias{tie_by_degree}
-\title{Measuring ties degree-like centrality}
+\title{Measures of tie degree-like centrality}
 \usage{
 tie_by_degree(.data, normalized = TRUE)
 }

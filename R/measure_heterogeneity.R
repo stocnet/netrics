@@ -195,7 +195,7 @@ net_by_diversity <- function(.data, attribute,
 
 # Nodal diversity ####
 
-#' Measures of nodes diversity
+#' Measures of node diversity
 #' @name measure_diverse_node
 #' @template section_cognitive
 #' @description
@@ -633,7 +633,7 @@ net_by_spatial <- function(.data, attribute){
 
 # Network assortativity ####
 
-#' Measures of nodes assortativity
+#' Measures of node assortativity
 #' @name measure_assort_node
 #' @template section_cognitive
 #' @description

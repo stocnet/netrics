@@ -5,7 +5,7 @@
 \alias{node_x_dyad}
 \alias{node_x_triad}
 \alias{node_x_tetrad}
-\title{Motifs of nodes cohesion}
+\title{Motifs of node cohesion}
 \usage{
 node_x_dyad(.data)
 
@@ -175,7 +175,9 @@ Other nodal:
 \code{\link{member_cliques}},
 \code{\link{member_community}},
 \code{\link{member_community_hier}},
-\code{\link{member_community_non}},
+\code{\link{member_community_modular}},
+\code{\link{member_community_partition}},
+\code{\link{member_community_spread}},
 \code{\link{member_components}},
 \code{\link{member_core}},
 \code{\link{member_diffusion}},

@@ -1,6 +1,6 @@
 # Marking core ####
 
-#' Marking nodes as core or periphery
+#' Marks of nodes as core or periphery
 #' @name mark_core
 #' @template section_cognitive
 #' @description
@@ -57,7 +57,7 @@ node_is_core <- function(.data, coreness = NULL,
 
 # Measuring core ####
 
-#' Measuring nodes' coreness
+#' Measures of node coreness
 #' @name measure_core
 #' @template section_cognitive
 #' @description

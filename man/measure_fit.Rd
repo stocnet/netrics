@@ -7,7 +7,7 @@
 \alias{net_by_modularity}
 \alias{net_by_divergence}
 \alias{net_by_inconsistency}
-\title{Measuring how well a structure fits a network}
+\title{Measures of how well a structure fits a network}
 \usage{
 net_by_core(
   .data,

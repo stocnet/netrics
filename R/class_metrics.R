@@ -280,3 +280,10 @@ run_coreness <- function(.data, coreness, direction = "all") {
          transition = coreness_transition(.data, direction = direction),
          hub = coreness_hub(.data, direction = direction))
 }
+
+# Runs the chosen search for the membership that minimises `cost`.
+run_search <- function(search, cost, init, times, delta = NULL) {
+  switch(search,
+         tabu = search_tabu(cost, init, times, delta),
+         iterated = search_iterated(cost, init, times, delta))
+}

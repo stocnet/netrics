@@ -1,6 +1,6 @@
 # Betweenness centrality ####
 
-#' Measuring nodes betweenness-like centrality
+#' Measures of node betweenness-like centrality
 #' @name measure_central_between
 #' @template section_cognitive
 #' @description
@@ -219,7 +219,7 @@ node_by_stress <- function(.data, normalized = TRUE){
 
 # Tie betweenness centrality ####
 
-#' Measuring ties betweenness-like centrality
+#' Measures of tie betweenness-like centrality
 #' @name measure_central_tie_between
 #' @template section_cognitive
 #' @description
@@ -293,7 +293,7 @@ tie_by_betweenness <- function(.data, normalized = TRUE){
 
 # Betweenness centralisation ####
 
-#' Measuring networks betweenness-like centralisation
+#' Measures of network betweenness-like centralisation
 #' @name measure_centralisation_between
 #' @template section_cognitive
 #' @description

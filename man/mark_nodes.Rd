@@ -7,7 +7,7 @@
 \alias{node_is_fold}
 \alias{node_is_mentor}
 \alias{node_is_neighbor}
-\title{Marking nodes based on structural properties}
+\title{Marks of nodes based on structural properties}
 \usage{
 node_is_independent(.data)
 
@@ -169,7 +169,9 @@ Other nodal:
 \code{\link{member_cliques}},
 \code{\link{member_community}},
 \code{\link{member_community_hier}},
-\code{\link{member_community_non}},
+\code{\link{member_community_modular}},
+\code{\link{member_community_partition}},
+\code{\link{member_community_spread}},
 \code{\link{member_components}},
 \code{\link{member_core}},
 \code{\link{member_diffusion}},

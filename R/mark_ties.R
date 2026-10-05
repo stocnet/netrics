@@ -1,6 +1,6 @@
 # Structural properties ####
 
-#' Marking ties based on structural properties
+#' Marks of ties based on structural properties
 #' @description 
 #'   These functions return logical vectors the length of the ties
 #'   in a network identifying which hold certain properties or positions in the network.
@@ -108,7 +108,7 @@ tie_is_path <- function(.data, from, to, all_paths = FALSE){
 
 # Dyadic properties ####
 
-#' Marking ties based on dyadic properties
+#' Marks of ties based on dyadic properties
 #' 
 #' @description 
 #'   These functions return logical vectors the length of the ties
@@ -151,7 +151,7 @@ tie_is_reciprocated <- function(.data){
 
 # Triangular properties ####
 
-#' Marking ties based on triangular properties
+#' Marks of ties based on triangular properties
 #' 
 #' @description 
 #'   These functions return logical vectors the length of the ties
@@ -382,7 +382,7 @@ tie_is_imbalanced <- function(.data){
 
 # Selection properties ####
 
-#' Marking ties based on measures
+#' Marks of ties based on measures
 #' @name mark_select_tie
 #' @description 
 #'   These functions return logical vectors the length of the ties in a network:

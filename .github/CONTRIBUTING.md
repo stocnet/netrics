@@ -457,6 +457,13 @@ Run `devtools::document()` after changing any roxygen comment.
   calling them; and where no fast example exists, the topic goes without one
   rather than carrying a slow one, since a CRAN check that times out costs more
   than the example gains. Do not reach for `\donttest{}` to keep a slow example.
+- Begin the title of a topic with the plural name of its family and the same preposition
+  as the other topics of that family: "Marks of nodes…" or "Marks of ties…",
+  "Measures of node…", "Measures of tie…" or "Measures of network…",
+  "Memberships in…", "Motifs of node…" or "Motifs of network…", and "Methods for…".
+  Where several topics document one concept, they share its stem and differ only in what follows,
+  e.g. "Memberships in communities that form a hierarchy" and
+  "Memberships in communities that follow a spreading process".
 - Cite the source of a measure with `@references` in the ecosystem's format
   (authors, year, title, journal, and `\doi{}` where available),
   so that users can trace an implementation back to its definition.

@@ -1,6 +1,6 @@
 # Motifs ####
 
-#' Motifs of nodes brokerage
+#' Motifs of node brokerage
 #' @description
 #'   `node_x_brokerage()` returns the Gould-Fernandez brokerage
 #'   roles played by nodes in a network.

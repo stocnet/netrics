@@ -10,6 +10,12 @@ test_that("node_in_roulette works", {
                     decreasing = TRUE), c(3, 3, 2), ignore_attr = TRUE)
 })
 
+test_that("node_in_roulette preserves its seeded result", {
+  set.seed(1234)
+  expect_equal(unname(as.character(node_in_roulette(ison_adolescents, groups = 3))),
+               c("A","C","A","C","B","B","A","C"))
+})
+
 test_that("node_in_roulette keeps the group sizes it starts from", {
   ring <- create_ring(10)
   for(i in 1:50){

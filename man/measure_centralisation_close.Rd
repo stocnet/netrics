@@ -8,7 +8,7 @@
 \alias{net_by_decay}
 \alias{net_by_integration}
 \alias{net_by_harmonic}
-\title{Measuring networks closeness-like centralisation}
+\title{Measures of network closeness-like centralisation}
 \usage{
 net_by_closeness(.data, normalized = TRUE, direction = c("all", "out", "in"))
 

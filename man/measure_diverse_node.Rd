@@ -4,7 +4,7 @@
 \alias{measure_diverse_node}
 \alias{node_by_richness}
 \alias{node_by_diversity}
-\title{Measures of nodes diversity}
+\title{Measures of node diversity}
 \usage{
 node_by_richness(.data, attribute)
 
@@ -143,7 +143,9 @@ Other nodal:
 \code{\link{member_cliques}},
 \code{\link{member_community}},
 \code{\link{member_community_hier}},
-\code{\link{member_community_non}},
+\code{\link{member_community_modular}},
+\code{\link{member_community_partition}},
+\code{\link{member_community_spread}},
 \code{\link{member_components}},
 \code{\link{member_core}},
 \code{\link{member_diffusion}},

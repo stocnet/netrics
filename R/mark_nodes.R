@@ -1,6 +1,6 @@
 # Structural properties ####
 
-#' Marking nodes based on structural properties
+#' Marks of nodes based on structural properties
 #' @name mark_nodes
 #' @template section_cognitive
 #' @description 
@@ -169,7 +169,7 @@ node_is_neighbor <- function(.data, node){
 
 # Degree properties ####
 
-#' Marking nodes based on degree properties
+#' Marks of nodes based on degree properties
 #' @name mark_degree
 #' @template section_cognitive
 #' @description
@@ -239,7 +239,7 @@ node_is_universal <- function(.data){
 
 # Diffusion properties ####
 
-#' Marking nodes based on diffusion properties
+#' Marks of nodes based on diffusion properties
 #' 
 #' @description 
 #'   These functions return logical vectors the length of the 
@@ -426,7 +426,7 @@ node_is_exposed <- function(.data, mark, time = 0){
 
 # Selection properties ####
 
-#' Marking nodes based on measures
+#' Marks of nodes based on measures
 #' @name mark_select_node
 #' @description 
 #'   These functions return logical vectors the length of the 

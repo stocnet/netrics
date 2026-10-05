@@ -85,6 +85,46 @@ but does not rest the answer on a single run of a single algorithm.
 \code{times} applies only when \code{consensus = TRUE}, and is 20 by default.
 Deterministic algorithms are run once however it is set.
 }
+\section{Choosing an algorithm}{
+
+The community detection algorithms are documented on four pages,
+by the idea that they share:
+\itemize{
+\item \link{member_community_modular} for those that optimise a quality function,
+such as modularity, over the partitions.
+\item \link{member_community_spread} for those that follow a process as it spreads
+over the network, such as a random walk or a label.
+\item \link{member_community_partition} for those that divide the nodes into a
+number of groups that you set.
+\item \link{member_community_hier} for those that build a dendrogram, which is
+then cut into communities.
+}
+
+They differ in whether the number of communities can be set with \code{k},
+and in whether a second run returns the same partition:\tabular{llll}{
+   Algorithm \tab Page \tab \code{k} \tab Repeatable \cr
+   \code{\link[=node_in_optimal]{node_in_optimal()}} \tab modular \tab found \tab yes \cr
+   \code{\link[=node_in_louvain]{node_in_louvain()}} \tab modular \tab optional \tab set a seed \cr
+   \code{\link[=node_in_leiden]{node_in_leiden()}} \tab modular \tab optional \tab set a seed \cr
+   \code{\link[=node_in_spinglass]{node_in_spinglass()}} \tab modular \tab found \tab set a seed \cr
+   \code{\link[=node_in_infomap]{node_in_infomap()}} \tab spread \tab found \tab set a seed \cr
+   \code{\link[=node_in_fluid]{node_in_fluid()}} \tab spread \tab optional \tab set a seed \cr
+   \code{\link[=node_in_labels]{node_in_labels()}} \tab spread \tab optional \tab set a seed \cr
+   \code{\link[=node_in_partition]{node_in_partition()}} \tab partition \tab optional, 2 by default \tab yes, by default \cr
+   \code{\link[=node_in_faction]{node_in_faction()}} \tab partition \tab required, 2 by default \tab set a seed \cr
+   \code{\link[=node_in_betweenness]{node_in_betweenness()}} \tab hierarchical \tab optional \tab yes \cr
+   \code{\link[=node_in_greedy]{node_in_greedy()}} \tab hierarchical \tab optional \tab yes \cr
+   \code{\link[=node_in_eigen]{node_in_eigen()}} \tab hierarchical \tab optional \tab yes \cr
+   \code{\link[=node_in_walktrap]{node_in_walktrap()}} \tab hierarchical \tab optional \tab yes \cr
+}
+
+
+The pages overlap in places: \code{\link[=node_in_greedy]{node_in_greedy()}} and \code{\link[=node_in_eigen]{node_in_eigen()}}
+also optimise modularity, and \code{\link[=node_in_walktrap]{node_in_walktrap()}} also follows random
+walks. They are documented as hierarchical because the dendrogram, and
+where it is cut, is what you control.
+}
+
 \section{Signed networks}{
 
 Every algorithm but \code{\link[=node_in_spinglass]{node_in_spinglass()}} sets the negative ties aside,
@@ -115,13 +155,17 @@ Tagarelli, Andrea, Alessia Amelio, and Francesco Gullo. 2017.
 \seealso{
 Other community:
 \code{\link{member_community_hier}},
-\code{\link{member_community_non}}
+\code{\link{member_community_modular}},
+\code{\link{member_community_partition}},
+\code{\link{member_community_spread}}
 
 Other memberships:
 \code{\link{member_brokerage}},
 \code{\link{member_cliques}},
 \code{\link{member_community_hier}},
-\code{\link{member_community_non}},
+\code{\link{member_community_modular}},
+\code{\link{member_community_partition}},
+\code{\link{member_community_spread}},
 \code{\link{member_components}},
 \code{\link{member_core}},
 \code{\link{member_diffusion}},
@@ -147,7 +191,9 @@ Other nodal:
 \code{\link{member_brokerage}},
 \code{\link{member_cliques}},
 \code{\link{member_community_hier}},
-\code{\link{member_community_non}},
+\code{\link{member_community_modular}},
+\code{\link{member_community_partition}},
+\code{\link{member_community_spread}},
 \code{\link{member_components}},
 \code{\link{member_core}},
 \code{\link{member_diffusion}},

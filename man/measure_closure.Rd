@@ -7,7 +7,7 @@
 \alias{net_by_cyclicality}
 \alias{net_by_equivalency}
 \alias{net_by_congruency}
-\title{Measuring network closure}
+\title{Measures of network closure}
 \usage{
 net_by_reciprocity(.data, variant = c("default", "ratio"), method = NULL)
 

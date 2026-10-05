@@ -3,7 +3,7 @@
 \name{measure_central_tie_eigen}
 \alias{measure_central_tie_eigen}
 \alias{tie_by_eigenvector}
-\title{Measuring ties eigenvector-like centrality}
+\title{Measures of tie eigenvector-like centrality}
 \usage{
 tie_by_eigenvector(.data, normalized = TRUE)
 }

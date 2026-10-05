@@ -295,6 +295,42 @@ consensus_memb <- function(.data, k, max_k, times, threshold = 0.5, iter = 10){
 #' "Ensemble-based Community Detection in Multilayer Networks".
 #' _Data Mining and Knowledge Discovery_ 31: 1506-1543.
 #' \doi{10.1007/s10618-017-0528-8}
+#' @section Choosing an algorithm:
+#'   The community detection algorithms are documented on four pages,
+#'   by the idea that they share:
+#'
+#'   - [member_community_modular] for those that optimise a quality function,
+#'   such as modularity, over the partitions.
+#'   - [member_community_spread] for those that follow a process as it spreads
+#'   over the network, such as a random walk or a label.
+#'   - [member_community_partition] for those that divide the nodes into a
+#'   number of groups that you set.
+#'   - [member_community_hier] for those that build a dendrogram, which is
+#'   then cut into communities.
+#'
+#'   They differ in whether the number of communities can be set with `k`,
+#'   and in whether a second run returns the same partition:
+#'
+#'   | Algorithm | Page | `k` | Repeatable |
+#'   |---|---|---|---|
+#'   | [node_in_optimal()] | modular | found | yes |
+#'   | [node_in_louvain()] | modular | optional | set a seed |
+#'   | [node_in_leiden()] | modular | optional | set a seed |
+#'   | [node_in_spinglass()] | modular | found | set a seed |
+#'   | [node_in_infomap()] | spread | found | set a seed |
+#'   | [node_in_fluid()] | spread | optional | set a seed |
+#'   | [node_in_labels()] | spread | optional | set a seed |
+#'   | [node_in_partition()] | partition | optional, 2 by default | yes, by default |
+#'   | [node_in_faction()] | partition | required, 2 by default | set a seed |
+#'   | [node_in_betweenness()] | hierarchical | optional | yes |
+#'   | [node_in_greedy()] | hierarchical | optional | yes |
+#'   | [node_in_eigen()] | hierarchical | optional | yes |
+#'   | [node_in_walktrap()] | hierarchical | optional | yes |
+#'
+#'   The pages overlap in places: [node_in_greedy()] and [node_in_eigen()]
+#'   also optimise modularity, and [node_in_walktrap()] also follows random
+#'   walks. They are documented as hierarchical because the dendrogram, and
+#'   where it is cut, is what you control.
 #' @section Signed networks:
 #'   Every algorithm but [node_in_spinglass()] sets the negative ties aside,
 #'   and spinglass reads a sign as a sign (Traag and Bruggeman 2009).
@@ -358,40 +394,58 @@ node_in_community <- function(.data, k = NULL, max_k = 8L,
 
 # Non-hierarchical community clustering ####
 
-#' Memberships in non-hierarchical communities
-#' @name member_community_non
+#' Memberships in communities that optimise a quality function
+#' @name member_community_modular
 #' @template section_cognitive
 #' @section Signed networks:
-#'   [node_in_optimal()], [node_in_infomap()], [node_in_fluid()],
-#'   [node_in_louvain()], and [node_in_labels()] read a tie's weight as the
+#'   [node_in_optimal()] and [node_in_louvain()] read a tie's weight as the
 #'   strength of a pull into the same community, and a negative tie is
 #'   hostility rather than such a pull.
 #'   Where the network is signed, they therefore consider only the positive
 #'   ties, and say so. [node_in_spinglass()] reads a sign as a sign.
 #'   Use [manynet::to_unsigned()] first to control this yourself.
 #' @description
-#'   These functions offer algorithms for partitioning
-#'   networks into sets of communities:
+#'   These functions score a partition with a quality function, such as
+#'   modularity, and search for the partition that scores best:
 #' 
 #'   - `node_in_optimal()` is a problem-solving algorithm that seeks to maximise 
 #'   modularity over all possible partitions.
-#'   - `node_in_partition()` is a greedy, iterative, deterministic
-#'   partitioning algorithm that results in two equally-sized communities.
-#'   - `node_in_infomap()` is an algorithm based on the information in random walks.
 #'   - `node_in_spinglass()` is a greedy, iterative, probabilistic algorithm, 
 #'   based on analogy to model from statistical physics.
-#'   - `node_in_fluid()` is a propogation-based partitioning algorithm,
-#'   based on analogy to model from fluid dynamics.
 #'   - `node_in_louvain()` is an agglomerative multilevel algorithm that seeks to maximise 
 #'   modularity over all possible partitions.
 #'   - `node_in_leiden()` is an agglomerative multilevel algorithm that seeks to maximise
 #'   the Constant Potts Model over all possible partitions.
+#'
+#'   They differ in the quality function, in how thoroughly they search,
+#'   and so in how large a network they can be used on.
+#'   See [member_community] for a comparison with the other community
+#'   detection algorithms.
+#'   
+#' @template param_data
+#' @template param_k
+#' @family community
+#' @template node_member
+NULL
+
+#' Memberships in communities that follow a spreading process
+#' @name member_community_spread
+#' @template section_cognitive
+#' @template section_signed
+#' @description
+#'   These functions follow a process as it spreads over the network,
+#'   and read the communities off where it settles:
+#' 
+#'   - `node_in_infomap()` is an algorithm based on the information in random walks.
+#'   - `node_in_fluid()` is a propogation-based partitioning algorithm,
+#'   based on analogy to model from fluid dynamics.
 #'   - `node_in_labels()` is a fast, propagation-based algorithm in which nodes
 #'   iteratively adopt whichever community label is most common among their neighbours.
 #'
-#'   The different algorithms offer various advantages in terms of computation time,
-#'   availability on different types of networks, ability to maximise modularity,
-#'   and their logic or domain of inspiration.
+#'   They need no quality function, and are among the fastest algorithms,
+#'   but each run can return a different partition.
+#'   See [member_community] for a comparison with the other community
+#'   detection algorithms.
 #'   
 #' @template param_data
 #' @template param_k
@@ -455,7 +509,7 @@ node_in_optimal <- function(.data){
   make_node_member(out, .data)
 }
 
-#' @rdname member_community_non 
+#' @rdname member_community_partition 
 #' @section Partition:
 #'   The general idea is to assign nodes to two groups, and then iteratively 
 #'   swap pairs of nodes (one from each group) that give a positive sum of net tie costs,
@@ -476,6 +530,7 @@ node_in_optimal <- function(.data){
 #'   modularity, and since it holds the groups at equal size.
 #'   Note that this algorithm is only applicable to undirected, unipartite networks, 
 #'   and returns `k` communities of equal size (or as close to equal as possible).
+#'   For `k` groups that are free to take any size, see `node_in_faction()`.
 #' @param start One of `"order"` (the default) or `"random"`,
 #'   naming how the nodes are dealt into the groups to begin with.
 #'   `"order"` deals them in node order, which makes the algorithm
@@ -733,7 +788,7 @@ node_in_infomap <- function(.data, times = 50){
   make_node_member(out, .data)
 }
 
-#' @rdname member_community_non 
+#' @rdname member_community_modular 
 #' @param resolution The Reichardt-Bornholdt “gamma” resolution parameter for modularity.
 #'   By default 1, making existing and non-existing ties equally important.
 #'   Smaller values make existing ties more important,
@@ -785,7 +840,7 @@ node_in_spinglass <- function(.data, max_k = 200, resolution = 1){
   make_node_member(out, .data)
 }
 
-#' @rdname member_community_non 
+#' @rdname member_community_spread 
 #' @section Fluid:
 #'   The general idea is to observe how a discrete number of fluids interact, expand and contract, 
 #'   in a non-homogenous environment, i.e. the network structure.
@@ -841,7 +896,7 @@ node_in_fluid <- function(.data, k = NULL, max_k = 8L, Kmax = NULL) {
   }
 }
 
-#' @rdname member_community_non 
+#' @rdname member_community_modular 
 #' @section Louvain:
 #'   The general idea is to take a hierarchical approach to optimising the modularity criterion.
 #'   Nodes begin in their own communities and are re-assigned in a local, greedy way:
@@ -878,7 +933,7 @@ node_in_louvain <- function(.data, k = NULL, max_k = 8L, resolution = 1, Kmax = 
   make_node_member(memb, .data)
 }
 
-#' @rdname member_community_non 
+#' @rdname member_community_modular 
 #' @section Leiden:
 #'   The general idea is to optimise the Constant Potts Model, 
 #'   which does not suffer from the resolution limit, instead of modularity.
@@ -938,7 +993,7 @@ node_in_leiden <- function(.data, k = NULL, max_k = 8L, resolution = NULL, Kmax 
   make_node_member(memb, .data)
 }
 
-#' @rdname member_community_non
+#' @rdname member_community_spread
 #' @section Label propagation:
 #'   Every node is initially given a unique label.
 #'   Nodes are then visited in random order, each adopting whichever label is
@@ -1004,15 +1059,10 @@ node_in_labels <- function(.data, k = NULL, max_k = 8L, Kmax = NULL){
 
 # Hierarchical community clustering ####
 
-#' Memberships in hierarchical communities
+#' Memberships in communities that form a hierarchy
 #' @name member_community_hier
 #' @template section_cognitive
-#' @section Signed networks:
-#'   These algorithms read a tie's weight as the strength of a pull into the
-#'   same community, and a negative tie is hostility rather than such a pull.
-#'   Where the network is signed, they therefore consider only the positive
-#'   ties, and say so. Only [node_in_spinglass()] reads a sign as a sign.
-#'   Use [manynet::to_unsigned()] first to control this yourself.
+#' @template section_signed
 #' @description
 #'   These functions offer algorithms for hierarchically clustering
 #'   networks into communities. Since all of the following are hierarchical,
@@ -1029,6 +1079,8 @@ node_in_labels <- function(.data, k = NULL, max_k = 8L, Kmax = NULL){
 #'   The different algorithms offer various advantages in terms of computation time,
 #'   availability on different types of networks, ability to maximise modularity,
 #'   and their logic or domain of inspiration.
+#'   See [member_community] for a comparison with the other community
+#'   detection algorithms.
 #'   
 #' @template param_data
 #' @template param_k

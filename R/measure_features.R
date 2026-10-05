@@ -1,6 +1,6 @@
 # Topological features ####
 
-#' Measuring network topological features
+#' Measures of network topological features
 #' @name measure_features
 #' @template section_cognitive
 #' @description
@@ -355,7 +355,7 @@ net_by_balance <- function(.data) {
 
 # Structural fit ####
 
-#' Measuring how well a structure fits a network
+#' Measures of how well a structure fits a network
 #' @name measure_fit
 #' @template section_cognitive
 #' @description
@@ -914,8 +914,20 @@ net_by_inconsistency <- function(.data, membership = NULL,
   }
   mat <- manynet::as_matrix(manynet::to_unweighted(manynet::to_onemode(.data)))
   memb <- as.numeric(as.factor(membership))
-  g <- max(memb)
   loops <- manynet::is_complex(.data)
+  total <- .block_cost(mat, memb, blocks, loops)
+  cells <- if(loops) length(mat) else length(mat) - nrow(mat)
+  make_network_measure(total/cells, .data, call = deparse(sys.call()),
+                       measure = "blockmodel inconsistency", range = c(0, Inf),
+                       normalization = "none")
+}
+
+# The number of inconsistencies between a binary matrix, partitioned by
+# `memb`, and the nearest permitted ideal type of each of its blocks.
+# Kept apart from `net_by_inconsistency()` so that a search can score many
+# candidate partitions without coercing the network for each of them.
+.block_cost <- function(mat, memb, blocks, loops = FALSE){
+  g <- max(memb)
   total <- 0
   for(i in seq_len(g)) for(j in seq_len(g)){
     permitted <- .permitted_blocks(blocks, i, j)
@@ -926,10 +938,7 @@ net_by_inconsistency <- function(.data, membership = NULL,
     total <- total + min(vapply(permitted, .block_inconsistency, sub,
                                 FUN.VALUE = numeric(1)))
   }
-  cells <- if(loops) length(mat) else length(mat) - nrow(mat)
-  make_network_measure(total/cells, .data, call = deparse(sys.call()),
-                       measure = "blockmodel inconsistency", range = c(0, Inf),
-                       normalization = "none")
+  total
 }
 
 # Resolve the vocabulary permitted at block position (i,j), which is either

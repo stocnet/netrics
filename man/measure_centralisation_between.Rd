@@ -4,7 +4,7 @@
 \alias{measure_centralisation_between}
 \alias{net_by_betweenness}
 \alias{mode_by_betweenness}
-\title{Measuring networks betweenness-like centralisation}
+\title{Measures of network betweenness-like centralisation}
 \usage{
 net_by_betweenness(.data, normalized = TRUE)
 

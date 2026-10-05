@@ -6,7 +6,7 @@
 \alias{tie_is_feedback}
 \alias{tie_is_bridge}
 \alias{tie_is_path}
-\title{Marking ties based on structural properties}
+\title{Marks of ties based on structural properties}
 \usage{
 tie_is_loop(.data)
 

@@ -3,7 +3,7 @@
 \name{measure_central_tie_close}
 \alias{measure_central_tie_close}
 \alias{tie_by_closeness}
-\title{Measuring ties closeness-like centrality}
+\title{Measures of tie closeness-like centrality}
 \usage{
 tie_by_closeness(.data, normalized = TRUE)
 }

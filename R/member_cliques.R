@@ -140,30 +140,11 @@ node_in_roulette <- function(.data, groups, group_size, times = NULL,
     check_decay(balance, "balance")
     mat <- .roulette_mix(mat, .roulette_dissimilarity(.data, attribute), balance)
   }
-  fit <- .clique_cost(out, mat)
-  # An iterated local search: `soln` descends by weak moves that improve it,
-  # and every 10th iteration restarts from a strong perturbation of the best.
   # A weak move changes one or two nodes, so its change in cost is found from
-  # their rows alone. The tolerance keeps rounding from being taken as a gain.
-  tol <- sqrt(.Machine$double.eps) * max(1, abs(mat))
-  soln <- out
-  soln_fit <- fit
-  for(t in seq.int(times)){
-    cand <- .weakPerturb(soln)
-    delta <- .clique_delta(mat, soln, cand)
-    if(delta < -tol){
-      soln <- cand
-      soln_fit <- soln_fit + delta
-    }
-    if(soln_fit < fit - tol){
-      out <- soln
-      fit <- soln_fit
-    }
-    if(t %% 10 == 0){
-      soln <- .strongPerturb(out)
-      soln_fit <- .clique_cost(soln, mat)
-    }
-  }
+  # their rows alone.
+  out <- search_iterated(cost = function(m) .clique_cost(m, mat), init = out,
+                         times = times,
+                         delta = function(old, new) .clique_delta(mat, old, new))
   make_node_member(out, .data)
 }
 

@@ -6,7 +6,7 @@
 \alias{node_is_infected}
 \alias{node_is_recovered}
 \alias{node_is_exposed}
-\title{Marking nodes based on diffusion properties}
+\title{Marks of nodes based on diffusion properties}
 \usage{
 node_is_latent(.data, time = 0)
 
@@ -121,7 +121,9 @@ Other nodal:
 \code{\link{member_cliques}},
 \code{\link{member_community}},
 \code{\link{member_community_hier}},
-\code{\link{member_community_non}},
+\code{\link{member_community_modular}},
+\code{\link{member_community_partition}},
+\code{\link{member_community_spread}},
 \code{\link{member_components}},
 \code{\link{member_core}},
 \code{\link{member_diffusion}},

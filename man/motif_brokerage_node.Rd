@@ -3,7 +3,7 @@
 \name{motif_brokerage_node}
 \alias{motif_brokerage_node}
 \alias{node_x_brokerage}
-\title{Motifs of nodes brokerage}
+\title{Motifs of node brokerage}
 \usage{
 node_x_brokerage(.data, membership, standardized = FALSE)
 }
@@ -125,7 +125,9 @@ Other nodal:
 \code{\link{member_cliques}},
 \code{\link{member_community}},
 \code{\link{member_community_hier}},
-\code{\link{member_community_non}},
+\code{\link{member_community_modular}},
+\code{\link{member_community_partition}},
+\code{\link{member_community_spread}},
 \code{\link{member_components}},
 \code{\link{member_core}},
 \code{\link{member_diffusion}},

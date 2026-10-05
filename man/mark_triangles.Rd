@@ -8,7 +8,7 @@
 \alias{tie_is_cyclical}
 \alias{tie_is_simmelian}
 \alias{tie_is_imbalanced}
-\title{Marking ties based on triangular properties}
+\title{Marks of ties based on triangular properties}
 \usage{
 tie_is_triangular(.data)
 

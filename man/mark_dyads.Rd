@@ -4,7 +4,7 @@
 \alias{mark_dyads}
 \alias{tie_is_multiple}
 \alias{tie_is_reciprocated}
-\title{Marking ties based on dyadic properties}
+\title{Marks of ties based on dyadic properties}
 \usage{
 tie_is_multiple(.data)
 

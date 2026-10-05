@@ -3,7 +3,7 @@
 \name{measure_broker_tie}
 \alias{measure_broker_tie}
 \alias{tie_by_cohesion}
-\title{Measuring ties brokerage}
+\title{Measures of tie brokerage}
 \usage{
 tie_by_cohesion(.data)
 }

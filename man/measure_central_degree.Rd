@@ -8,7 +8,7 @@
 \alias{node_by_indegree}
 \alias{node_by_multidegree}
 \alias{node_by_leverage}
-\title{Measuring nodes degree-like centrality}
+\title{Measures of node degree-like centrality}
 \usage{
 node_by_degree(
   .data,
@@ -284,7 +284,9 @@ Other nodal:
 \code{\link{member_cliques}},
 \code{\link{member_community}},
 \code{\link{member_community_hier}},
-\code{\link{member_community_non}},
+\code{\link{member_community_modular}},
+\code{\link{member_community_partition}},
+\code{\link{member_community_spread}},
 \code{\link{member_components}},
 \code{\link{member_core}},
 \code{\link{member_diffusion}},

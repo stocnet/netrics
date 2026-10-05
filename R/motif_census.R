@@ -1,6 +1,6 @@
 # Node path ####
 
-#' Motifs of nodes pathing
+#' Motifs of node pathing
 #' @name motif_path
 #' @template section_cognitive
 #' @description
@@ -145,7 +145,7 @@ node_x_path <- function(.data){
 
 # Node cohesion ####
 
-#' Motifs of nodes cohesion
+#' Motifs of node cohesion
 #' @name motif_node
 #' @template section_cognitive
 #' @description
@@ -641,7 +641,7 @@ net_x_tetrad <- function(.data){
 
 # Exposure ####
 
-#' Motifs of nodes exposure
+#' Motifs of node exposure
 #' @name motif_exposure
 #' @description
 #'   `node_x_exposure()` produces a motif matrix of nodes' exposure to 

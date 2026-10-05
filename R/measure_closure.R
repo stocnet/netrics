@@ -1,6 +1,6 @@
 # Network closure ####
 
-#' Measuring network closure
+#' Measures of network closure
 #' @name measure_closure
 #' @template section_cognitive
 #' @description
@@ -208,7 +208,7 @@ net_by_congruency <- function(.data, object2){
 
 # Nodal closure ####
 
-#' Measuring node closure
+#' Measures of node closure
 #' @name measure_closure_node
 #' @template section_cognitive
 #' @description

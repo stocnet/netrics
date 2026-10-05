@@ -1,6 +1,6 @@
 # Nodal holes ####
 
-#' Measuring nodes brokerage
+#' Measures of node brokerage
 #' @name measure_broker_node
 #' @template section_cognitive
 #' @description
@@ -261,7 +261,7 @@ node_by_neighbours_degree <- function(.data){
 
 # Tie holes ####
 
-#' Measuring ties brokerage
+#' Measures of tie brokerage
 #' @name measure_broker_tie
 #' @template section_cognitive
 #' @description

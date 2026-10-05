@@ -1,6 +1,6 @@
 # Closeness-like centralities ####
 
-#' Measuring nodes closeness-like centrality
+#' Measures of node closeness-like centrality
 #' @name measure_central_close
 #' @template section_cognitive
 #' @description
@@ -584,7 +584,7 @@ node_by_randomwalk <- function(.data, normalized = TRUE){
 
 # Tie closeness centrality ####
 
-#' Measuring ties closeness-like centrality
+#' Measures of tie closeness-like centrality
 #' @name measure_central_tie_close
 #' @template section_cognitive
 #' @description
@@ -623,7 +623,7 @@ tie_by_closeness <- function(.data, normalized = TRUE){
 
 # Closeness centralisation ####
 
-#' Measuring networks closeness-like centralisation
+#' Measures of network closeness-like centralisation
 #' @name measure_centralisation_close
 #' @template section_cognitive
 #' @description

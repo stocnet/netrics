@@ -13,7 +13,7 @@
 \alias{node_by_distance}
 \alias{node_by_vitality}
 \alias{node_by_randomwalk}
-\title{Measuring nodes closeness-like centrality}
+\title{Measures of node closeness-like centrality}
 \usage{
 node_by_closeness(
   .data,
@@ -517,7 +517,9 @@ Other nodal:
 \code{\link{member_cliques}},
 \code{\link{member_community}},
 \code{\link{member_community_hier}},
-\code{\link{member_community_non}},
+\code{\link{member_community_modular}},
+\code{\link{member_community_partition}},
+\code{\link{member_community_spread}},
 \code{\link{member_components}},
 \code{\link{member_core}},
 \code{\link{member_diffusion}},
