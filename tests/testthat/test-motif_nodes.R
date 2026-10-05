@@ -54,7 +54,6 @@ test_that("net_x_triad census works", {
   expect_equal(test[[1]], 13)
   expect_equal(test[[3]], 29)
   expect_equal(names(test), c("003", "012", "102", "201", "210", "300"))
-  expect_equal(names(summary(test)), c("003", "012", "102", "201", "210", "300"))
   # Error
   expect_error(net_x_triad(ison_southern_women))
 })

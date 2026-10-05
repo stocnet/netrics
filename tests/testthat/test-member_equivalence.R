@@ -120,7 +120,9 @@ test_that("cluster = 'cosine' is deprecated in favour of proximity", {
 test_that("equivalence takes the proximities manynet offers", {
   expect_true(all(attr(node_in_structural(ison_algebra, proximity = "crossmin"),
                        "hc")$height >= 0))
-  for(p in c("ruzicka", "overlap", "euclidean", "correlation"))
+  # "ruzicka" is offered only since manynet 2.3.5
+  for(p in c(if(utils::packageVersion("manynet") >= "2.3.5") "ruzicka",
+             "overlap", "euclidean", "correlation"))
     expect_equal(length(node_in_structural(ison_algebra, proximity = p)),
                  c(net_nodes(ison_algebra)))
   expect_equal(c(node_in_structural(ison_algebra, proximity = "correlation")),

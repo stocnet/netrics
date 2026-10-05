@@ -32,14 +32,25 @@ NULL
   attr(motif, "mode") <- NULL
   if(proximity == "asis") return(motif)
   if(proximity == "correlation") proximity <- "pearson"
+  # TODO: `manynet::to_proximity()` compares a census that is not square, and
+  # reports a node without ties as 0, only since manynet 2.3.5, but the
+  # DESCRIPTION floor is 2.3.4, which is what CRAN serves. There
+  # `manynet::to_mode1()` makes the same comparison of the rows, and the
+  # missing values are set to 0 here. Remove `old`, and the two branches that
+  # use it, once the floor is raised to 2.3.5.
+  old <- utils::packageVersion("manynet") < "2.3.5"
+  compare <- if(old && nrow(motif) != ncol(motif))
+    function(x) manynet::to_mode1(x, similarity = proximity) else
+      function(x) manynet::to_proximity(x, similarity = proximity,
+                                        across = "rows", dyad = "include")
   # A node whose profile does not vary has no correlation with any other;
   # `to_proximity()` reports that as 0, so the warning adds nothing.
   out <- withCallingHandlers(
-    manynet::to_proximity(motif, similarity = proximity,
-                          across = "rows", dyad = "include"),
+    compare(motif),
     warning = function(w) 
       if(grepl("standard deviation is zero", conditionMessage(w)))
         invokeRestart("muffleWarning"))
+  if(old) out[is.na(out)] <- 0
   dimnames(out) <- list(rownames(motif), rownames(motif))
   out
 }
