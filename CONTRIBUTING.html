@@ -17,7 +17,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="index.html">netrics</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.0.3</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.1.0</span>
       </span>
     </div>
 
@@ -186,10 +186,14 @@
 <code>make_network_measure()</code>, <code>make_mode_measure()</code>, <code>make_node_measure()</code>, <code>make_tie_measure()</code>
 </td>
 </tr><tr><td>Memberships</td>
-<td><code>node_in_*()</code></td>
-<td>node</td>
+<td>
+<code>node_in_*()</code>, <code>tie_in_*()</code>
+</td>
+<td>node/tie</td>
 <td>character vector (group labels, via <code>MORELETTERS</code>)</td>
-<td><code>make_node_member()</code></td>
+<td>
+<code>make_node_member()</code>, <code>make_tie_member()</code>
+</td>
 </tr><tr><td>Motifs</td>
 <td>
 <code>net_x_*()</code>, <code>node_x_*()</code>
@@ -199,7 +203,8 @@
 <td>
 <code>make_network_motif()</code>, <code>make_node_motif()</code>
 </td>
-</tr></tbody></table><p>When adding a new analytic function, pick the family that matches its semantics and follow the existing naming scheme exactly. This predictability is a stated project goal.</p>
+</tr></tbody></table><p>A <code>node_x_*()</code> function cross-references nodes against two or more categories or classifications, such as the triads a node sits in or the categories of its alters. It never cross-references nodes against nodes: a node-by-node result is the job of a <code>manynet::to_*()</code> function, as <code><a href="https://stocnet.github.io/manynet/reference/modif_proximity.html" class="external-link">manynet::to_proximity()</a></code> is. The one known exception is <code><a href="reference/motif_path.html">node_x_path()</a></code>, which stays until stocnet/manynet#183 gives it a home.</p>
+<p>When adding a new analytic function, pick the family that matches its semantics and follow the existing naming scheme exactly. This predictability is a stated project goal.</p>
 <p>Where one concept appears in several families, give it one stem in each: <code><a href="reference/mark_core.html">node_is_core()</a></code>, <code><a href="reference/measure_core.html">node_by_core()</a></code> and <code><a href="reference/member_core.html">node_in_core()</a></code> are the mark, the measure and the membership of the same idea.</p>
 </div>
 <div class="section level3">
@@ -230,9 +235,15 @@
 <td>an ordered split of a continuous score into groups</td>
 <td><code>split_*</code></td>
 <td><code>split =</code></td>
+</tr><tr><td><code>method_search</code></td>
+<td>the membership that minimises a cost</td>
+<td><code>search_*</code></td>
+<td><code>search =</code></td>
 </tr></tbody></table><p>Apply that test when naming a new family. For example, <code>equivalence_*</code> would be the wrong name for <code>regularity_*</code>, even though those methods are only ever called from <code><a href="reference/member_equivalence.html">node_in_regular()</a></code>: they return a <em>similarity</em>, which <code>cluster_*()</code> only later partitions into an equivalence. Naming the step for the pipeline’s eventual output rather than its own return value breaks the rule.</p>
 <p>Two further points of style:</p>
-<ul><li>Pick a word narrow enough to own the family. <code>regularity</code> is preferred over <code>similarity</code> because the latter is broad enough to be overrun later, and because generic similarities (<code>to_cosine()</code>, <code>to_correlation()</code>) belong to <a href="https://stocnet.github.io/manynet/" class="external-link">manynet</a> and are consumed here through <code>distance =</code> and <code>cluster_*()</code>, so they would never live in this family anyway.</li>
+<ul><li>Pick a word narrow enough to own the family. <code>regularity</code> is preferred over <code>similarity</code> because the latter is broad enough to be overrun later, and because generic similarities belong to <a href="https://stocnet.github.io/manynet/" class="external-link">manynet</a>: <code><a href="https://stocnet.github.io/manynet/reference/modif_proximity.html" class="external-link">manynet::to_proximity()</a></code> holds every such measure, so they would never live in this family anyway.</li>
+<li>
+<code>proximity =</code> is the one deliberate exception to the <code>&lt;argument&gt;_&lt;value&gt;</code> rule. Its values are the measures of <code><a href="https://stocnet.github.io/manynet/reference/modif_proximity.html" class="external-link">manynet::to_proximity()</a></code>, so there is no <code>proximity_*()</code> family here to duplicate them; <code><a href="reference/method_cluster.html">cluster_hierarchical()</a></code> passes the value straight on. The matrix this stage produces is kept in the <code>proximity</code> element of the clustering. <code>distance =</code> is not a proximity: it asks <code><a href="https://rdrr.io/r/stats/dist.html" class="external-link">stats::dist()</a></code> for an optional second comparison of the nodes’ dissimilarity profiles, and is <code>NULL</code> by default.</li>
 <li>The dispatching function should name the method in its <code>snet_info()</code> message by interpolation, e.g. <code>manynet::snet_info("...using {.fn regularity_{regularity}}.")</code>. This surfaces the convention to users at run time, and makes it obvious if the argument and the prefix ever drift apart.</li>
 </ul><p>One known exception: <code><a href="reference/member_equivalence.html">node_in_equivalence()</a></code>’s <code>motif =</code> argument is fed by <code>node_x_*()</code> functions rather than <code>motif_*()</code> ones. Motifs are one of the four core families above and cannot be renamed to suit this rule, so leave that as it is.</p>
 </div>
@@ -242,7 +253,7 @@
 <ul><li>
 <strong>Group-nouns</strong> name the grouping itself, and are the generic entry point where there is one: <code><a href="reference/member_community.html">node_in_community()</a></code> tries every applicable algorithm and returns the highest-modularity partition; <code><a href="reference/member_components.html">node_in_component()</a></code> sits above <code><a href="reference/defunct.html">node_in_strong()</a></code>/<code><a href="reference/defunct.html">node_in_weak()</a></code>. Also <code><a href="reference/member_core.html">node_in_core()</a></code>, <code><a href="reference/member_equivalence.html">node_in_block()</a></code>.</li>
 <li>
-<strong>Algorithm names</strong> name one specific method: <code><a href="reference/member_community_non.html">node_in_louvain()</a></code>, <code><a href="reference/member_community_non.html">node_in_leiden()</a></code>, <code><a href="reference/member_community_hier.html">node_in_walktrap()</a></code>, <code><a href="reference/member_community_non.html">node_in_infomap()</a></code>, <code><a href="reference/member_community_non.html">node_in_spinglass()</a></code>, <code><a href="reference/member_cliques.html">node_in_roulette()</a></code>, <code><a href="reference/member_community_non.html">node_in_partition()</a></code> (Kernighan–Lin).</li>
+<strong>Algorithm names</strong> name one specific method: <code><a href="reference/member_community_modular.html">node_in_louvain()</a></code>, <code><a href="reference/member_community_modular.html">node_in_leiden()</a></code>, <code><a href="reference/member_community_hier.html">node_in_walktrap()</a></code>, <code><a href="reference/member_community_spread.html">node_in_infomap()</a></code>, <code><a href="reference/member_community_modular.html">node_in_spinglass()</a></code>, <code><a href="reference/member_cliques.html">node_in_roulette()</a></code>, <code><a href="reference/member_community_partition.html">node_in_partition()</a></code> (Kernighan–Lin).</li>
 </ul><p>Two rules about number:</p>
 <ul><li>
 <strong>Number follows level, not stem.</strong> <code>node_in_*()</code> is singular, because a node belongs to one group; <code>net_by_*()</code> takes the plural when the measure concerns all of them. Hence <code><a href="reference/member_components.html">node_in_component()</a></code> with <code><a href="reference/measure_cohesion.html">net_by_components()</a></code>. Do not “correct” one of a pair to match the other — the mismatch is the convention. (Note that <code>net_by_*</code> names ending in <em>s</em> are not all plurals: <code>betweenness</code>, <code>compactness</code>, <code>richness</code> and <code>toughness</code> are abstract nouns. The real plurals are <code>components</code>, <code>factions</code> and <code>waves</code>.)</li>
@@ -319,7 +330,7 @@
 <h3 id="input-shapes">Input shapes<a class="anchor" aria-label="anchor" href="#input-shapes"></a></h3>
 <p>Most defects reported against this package are not wrong arithmetic. They are a network shape the function did not expect. Before finishing a function, run it on a signed, a weighted, a directed, a two-mode, a multiplex, a multilevel and a longitudinal network, and decide each case deliberately:</p>
 <ul><li>
-<strong>Signed.</strong> A <code>stocnet</code> object holds a tie’s sign as the sign of its weight, so a signed network reaches <a href="https://r.igraph.org/" class="external-link">igraph</a> carrying a <code>weight</code> attribute of -1 and 1. Shortest-path functions read any attribute of that name as a distance, and either abort on the negative values or report a negative cycle. Where the measure concerns cohesion or distance, call <code>.to_positive()</code> (<a href="../R/netrics-utils.R">R/netrics-utils.R</a>), which drops to the positive ties and says so. Do not simply drop the attribute: that reads a negative tie as a path of length one, when a negative tie is hostility rather than a channel along which cohesion travels. Where the measure instead counts a tie however it is signed, as a census does, call <code>.to_unsigned()</code> in the same file, which keeps every tie and reads each by its magnitude. A tie-level function takes this branch even where it measures distance, since <code>.to_positive()</code> drops ties and a tie measure must hold one value per tie; <code><a href="reference/measure_central_tie_between.html">tie_by_betweenness()</a></code> is the case, and says so in its <code>@section Signed networks:</code>.</li>
+<strong>Signed.</strong> A <code>stocnet</code> object holds a tie’s sign as the sign of its weight, so a signed network reaches <a href="https://r.igraph.org/" class="external-link">igraph</a> carrying a <code>weight</code> attribute of -1 and 1. Shortest-path functions read any attribute of that name as a distance, and either abort on the negative values or report a negative cycle. Where the measure concerns cohesion or distance, call <code><a href="https://stocnet.github.io/manynet/reference/modif_weight.html" class="external-link">manynet::to_positive()</a></code>, which drops to the positive ties and records the exclusion. Do not simply drop the attribute: that reads a negative tie as a path of length one, when a negative tie is hostility rather than a channel along which cohesion travels. Where the measure instead counts a tie however it is signed, as a census does, call <code>manynet::to_unsigned(keep = "both")</code>, which keeps every tie and reads each by its magnitude. A tie-level function takes this branch even where it measures distance, since <code><a href="https://stocnet.github.io/manynet/reference/modif_weight.html" class="external-link">manynet::to_positive()</a></code> drops ties and a tie measure must hold one value per tie; <code><a href="reference/measure_central_tie_between.html">tie_by_betweenness()</a></code> is the case, and says so in its <code>@section Signed networks:</code>.</li>
 <li>
 <strong>Multiplex.</strong> Take one layer at a time with <code><a href="https://stocnet.github.io/manynet/reference/modif_plexity.html" class="external-link">manynet::to_uniplex()</a></code>. That drops nodes holding none of the retained ties, so results of different lengths would otherwise be recycled against each other; <code>uniplex_degree()</code> (<a href="../R/measure_centrality_degree.R">R/measure_centrality_degree.R</a>) restores the whole nodeset, and is the pattern to follow.</li>
 <li>
@@ -404,6 +415,7 @@
 <ul><li>Reuse the shared <code>@template</code> fragments in <code>man-roxygen/</code> (e.g. <code>param_data.R</code>, <code>node_measure.R</code>, <code>param_norm.R</code>) instead of re-writing standard <code>@param</code>/<code>@returns</code> docs. If you find yourself writing the same <code>@param</code> twice, add a template. Indeed, prefer defining fewer arguments, so if alpha and beta are both decays, just use <code>decay=</code> as the argument.</li>
 <li>Related functions share one roxygen block via <code>@name</code>/<code>@rdname</code>, matching the file organisation above.</li>
 <li>Every exported function needs a runnable <code>@examples</code> block: examples are run by R CMD check, and they are also the fastest documentation for users. Prefer the bundled <code>ison_*</code>/<code>fict_*</code> networks over ad hoc constructions, unless they take too long to run. Two exemptions, both deliberate: the <code>method_*</code> topics that document <code>cluster_*()</code>, <code>k_*()</code> and <code>regularity_*()</code> carry none, because users reach those through an argument rather than by calling them; and where no fast example exists, the topic goes without one rather than carrying a slow one, since a CRAN check that times out costs more than the example gains. Do not reach for <code>\donttest{}</code> to keep a slow example.</li>
+<li>Begin the title of a topic with the plural name of its family and the same preposition as the other topics of that family: “Marks of nodes…” or “Marks of ties…”, “Measures of node…”, “Measures of tie…” or “Measures of network…”, “Memberships in…”, “Motifs of node…” or “Motifs of network…”, and “Methods for…”. Where several topics document one concept, they share its stem and differ only in what follows, e.g. “Memberships in communities that form a hierarchy” and “Memberships in communities that follow a spreading process”.</li>
 <li>Cite the source of a measure with <code>@references</code> in the ecosystem’s format (authors, year, title, journal, and <code>\doi{}</code> where available), so that users can trace an implementation back to its definition.</li>
 <li>Documented behaviour and implemented behaviour must agree. Several past bugs were documentation claiming a default or a normalisation that the code did not apply, so when you change a default, search the roxygen and templates for it too.</li>
 </ul></div>

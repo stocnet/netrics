@@ -39,7 +39,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">netrics</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.0.3</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.1.0</span>
       </span>
     </div>
 
@@ -459,9 +459,10 @@ when the node is removed. It answers “what would we lose without this
 node?” rather than “how often is this node in between?”.</li>
 <li>
 <code><a href="../reference/measure_central_between.html">node_by_flow()</a></code> measures <em>flow</em> betweenness,
-which models spreading as electrical current across <em>all</em> paths,
-not just the shortest ones — useful when whatever flows does not know
-the shortest route.</li>
+which asks how much could pass between other nodes along <em>all</em>
+paths, not just the shortest ones, and how much of that depends on the
+node — useful when whatever flows does not know the shortest route. It
+reads tie weights as capacities.</li>
 <li>
 <code><a href="../reference/measure_central_between.html">node_by_stress()</a></code> counts the shortest paths through each
 node without weighting them by how many alternatives exist — an older,
@@ -482,8 +483,8 @@ betweenness family measures control over flow:
 <code><a href="../reference/measure_central_between.html">node_by_betweenness()</a></code> via shortest paths,
 <code><a href="../reference/measure_central_tie_between.html">tie_by_betweenness()</a></code> for ties rather than nodes,
 <code><a href="../reference/measure_central_between.html">node_by_induced()</a></code> via a node’s contribution to total
-betweenness, <code><a href="../reference/measure_central_between.html">node_by_flow()</a></code> via current across all paths,
-and <code><a href="../reference/measure_central_between.html">node_by_stress()</a></code> via raw path counts.</p>
+betweenness, <code><a href="../reference/measure_central_between.html">node_by_flow()</a></code> via the maximum flow across all
+paths, and <code><a href="../reference/measure_central_between.html">node_by_stress()</a></code> via raw path counts.</p>
 </div>
 </div>
 </div>
@@ -1098,7 +1099,7 @@ returns the raw, unnormalised counts</td>
 <code><a href="../reference/measure_central_between.html">node_by_induced()</a></code>, <code><a href="../reference/measure_central_between.html">node_by_flow()</a></code>,
 <code><a href="../reference/measure_central_between.html">node_by_stress()</a></code>
 </td>
-<td>betweenness variants: contribution to total, current flow, raw path
+<td>betweenness variants: contribution to total, maximum flow, raw path
 counts</td>
 </tr>
 <tr class="odd">

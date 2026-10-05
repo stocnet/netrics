@@ -6,7 +6,11 @@ Cliques are the strictest notion of a cohesive subgroup,
 and unlike the communities returned by node_in_*() functions they
 overlap: a node may belong to many cliques at once, or to none.
 That is why this returns an incidence table rather than a membership
-vector."><meta property="og:image" content="https://stocnet.github.io/netrics/logo.png"><!-- mathjax --><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js" integrity="sha256-nvJJv9wWKEm88qvoQl9ekL2J+k/RWIsaSScxxlsrv8k=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/config/TeX-AMS-MML_HTMLorMML.js" integrity="sha256-84DKXVJXs0/F8OTMzX4UR909+jtl4G7SPypPavF+GfA=" crossorigin="anonymous"></script><!--[if lt IE 9]>
+vector.
+node_x_percolation() returns which communities of adjacent cliques
+each node belongs to, by clique percolation.
+These communities also overlap, but there are fewer of them than there
+are cliques, since cliques that share most of their nodes are joined."><meta property="og:image" content="https://stocnet.github.io/netrics/logo.png"><!-- mathjax --><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js" integrity="sha256-nvJJv9wWKEm88qvoQl9ekL2J+k/RWIsaSScxxlsrv8k=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/config/TeX-AMS-MML_HTMLorMML.js" integrity="sha256-84DKXVJXs0/F8OTMzX4UR909+jtl4G7SPypPavF+GfA=" crossorigin="anonymous"></script><!--[if lt IE 9]>
 <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
 <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
 <![endif]--></head><body data-spy="scroll" data-target="#toc">
@@ -24,7 +28,7 @@ vector."><meta property="og:image" content="https://stocnet.github.io/netrics/lo
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">netrics</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.0.3</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.1.0</span>
       </span>
     </div>
 
@@ -105,10 +109,16 @@ and unlike the communities returned by <code>node_in_*()</code> functions they
 <em>overlap</em>: a node may belong to many cliques at once, or to none.
 That is why this returns an incidence table rather than a membership
 vector.</p>
+<p><code>node_x_percolation()</code> returns which communities of adjacent cliques
+each node belongs to, by clique percolation.
+These communities also overlap, but there are fewer of them than there
+are cliques, since cliques that share most of their nodes are joined.</p>
     </div>
 
     <div id="ref-usage">
-    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">node_x_clique</span><span class="op">(</span><span class="va">.data</span>, min_clique_size <span class="op">=</span> <span class="fl">3</span><span class="op">)</span></span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">node_x_clique</span><span class="op">(</span><span class="va">.data</span>, min_clique_size <span class="op">=</span> <span class="fl">3</span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu">node_x_percolation</span><span class="op">(</span><span class="va">.data</span>, min_clique_size <span class="op">=</span> <span class="fl">3</span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div id="arguments">
@@ -137,6 +147,31 @@ It is printed as a tibble, however, to avoid greedy printing.
 If the network is labelled,
 then the node names will be in a column named <code>names</code>.</p>
     </div>
+    <div id="cognitive-social-structures">
+    <h2>Cognitive social structures</h2>
+
+
+<p>A cognitive social structure records each node's report of the ties in
+the whole network, in a <code>by</code> column that names who reported each tie.
+Counting every report as a tie of its own would count each tie once for
+every perceiver who reports it.
+So the functions here first combine the reports into the locally
+aggregated structure of Krackhardt (1987), with the intersection rule:
+a tie exists if both of its ends report it, and a message says so.
+A tie that names no reporter is kept as it is.</p>
+<p>A tie-level function still returns one value for each report,
+so that the result can be added back to the network it was given.
+Each report takes the value of the tie that it reports.
+A report of a tie that is not in the aggregated structure takes <code>NA</code>,
+or <code>FALSE</code> for a mark.
+<code><a href="mark_select_tie.html">tie_is_random()</a></code> is the exception, and draws among the reports.</p>
+<p>To combine the reports in a different way, do this before the function,
+e.g. with <code>manynet::to_aggregated(over = "by")</code>.</p>
+<p>Krackhardt, David. 1987.
+"Cognitive social structures".
+<em>Social Networks</em> 9(2): 109-134.
+<a href="https://doi.org/10.1016/0378-8733%2887%2990009-8" class="external-link">doi:10.1016/0378-8733(87)90009-8</a></p>
+    </div>
     <div id="bicliques">
     <h2>Bicliques</h2>
 
@@ -149,6 +184,18 @@ that every node of the one is tied to every node of the other.
 before searching, so that a biclique becomes an ordinary clique,
 and then keeping only those cliques with at least <code>min_clique_size</code> nodes
 from each mode.</p>
+    </div>
+    <div id="clique-percolation">
+    <h2>Clique percolation</h2>
+
+
+<p>Clique percolation (Palla et al. 2005) treats two cliques as adjacent
+where they share all but one of <code>min_clique_size</code> nodes,
+so with the default of 3 where they share a tie.
+A community is then a set of cliques that can be reached from each other
+through such adjacent cliques,
+and a node belongs to every community that holds a clique it is in.
+A node in no clique of at least <code>min_clique_size</code> belongs to none.</p>
     </div>
     <div id="signed-networks">
     <h2>Signed networks</h2>
@@ -169,6 +216,17 @@ considered. Use <code><a href="https://stocnet.github.io/manynet/reference/modif
 "A method of matrix analysis of group structure".
 <em>Psychometrika</em> 14(2): 95-116.
 <a href="https://doi.org/10.1007/BF02289146" class="external-link">doi:10.1007/BF02289146</a></p>
+</div>
+
+<div class="section">
+<h3 id="on-clique-percolation">On clique percolation<a class="anchor" aria-label="anchor" href="#on-clique-percolation"></a></h3>
+
+
+<p>Palla, Gergely, Imre Derényi, Illés Farkas, and Tamás Vicsek. 2005.
+"Uncovering the overlapping community structure of complex networks in
+nature and society".
+<em>Nature</em> 435(7043): 814-818.
+<a href="https://doi.org/10.1038/nature03607" class="external-link">doi:10.1038/nature03607</a></p>
 </div>
 
     </div>
@@ -207,7 +265,9 @@ considered. Use <code><a href="https://stocnet.github.io/manynet/reference/modif
 <code><a href="member_cliques.html">member_cliques</a></code>,
 <code><a href="member_community.html">member_community</a></code>,
 <code><a href="member_community_hier.html">member_community_hier</a></code>,
-<code><a href="member_community_non.html">member_community_non</a></code>,
+<code><a href="member_community_modular.html">member_community_modular</a></code>,
+<code><a href="member_community_partition.html">member_community_partition</a></code>,
+<code><a href="member_community_spread.html">member_community_spread</a></code>,
 <code><a href="member_components.html">member_components</a></code>,
 <code><a href="member_core.html">member_core</a></code>,
 <code><a href="member_diffusion.html">member_diffusion</a></code>,
@@ -257,6 +317,17 @@ considered. Use <code><a href="https://stocnet.github.io/manynet/reference/modif
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># ℹ 8 more rows</span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># ℹ 10 more variables: C13 &lt;int&gt;, C14 &lt;int&gt;, C15 &lt;int&gt;, C16 &lt;int&gt;, C17 &lt;int&gt;,</span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;">#   C18 &lt;int&gt;, C19 &lt;int&gt;, C20 &lt;int&gt;, C21 &lt;int&gt;, C22 &lt;int&gt;</span></span>
+<span class="r-in"><span><span class="fu">node_x_percolation</span><span class="op">(</span><span class="va">ison_adolescents</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># A tibble: 8 × 2</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   names    C1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> <span style="color: #949494; font-style: italic;">&lt;int&gt;</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">1</span> Betty     0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">2</span> Sue       1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">3</span> Alice     1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">4</span> Jane      1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">5</span> Dale      1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">6</span> Pam       1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># ℹ 2 more rows</span></span>
 </code></pre></div>
     </div>
   </div>

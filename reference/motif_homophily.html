@@ -26,7 +26,7 @@ Apply manynet::to_unweighted() first to compare them directly."><meta property="
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">netrics</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.0.3</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.1.0</span>
       </span>
     </div>
 
@@ -135,6 +135,31 @@ For more information on possible coercions, see e.g. <code><a href="https://stoc
 one row and a column for each motif type,
 giving the count of each motif in the network.
 This is printed as a tibble to avoid greedy printing of long vectors.</p>
+    </div>
+    <div id="cognitive-social-structures">
+    <h2>Cognitive social structures</h2>
+
+
+<p>A cognitive social structure records each node's report of the ties in
+the whole network, in a <code>by</code> column that names who reported each tie.
+Counting every report as a tie of its own would count each tie once for
+every perceiver who reports it.
+So the functions here first combine the reports into the locally
+aggregated structure of Krackhardt (1987), with the intersection rule:
+a tie exists if both of its ends report it, and a message says so.
+A tie that names no reporter is kept as it is.</p>
+<p>A tie-level function still returns one value for each report,
+so that the result can be added back to the network it was given.
+Each report takes the value of the tie that it reports.
+A report of a tie that is not in the aggregated structure takes <code>NA</code>,
+or <code>FALSE</code> for a mark.
+<code><a href="mark_select_tie.html">tie_is_random()</a></code> is the exception, and draws among the reports.</p>
+<p>To combine the reports in a different way, do this before the function,
+e.g. with <code>manynet::to_aggregated(over = "by")</code>.</p>
+<p>Krackhardt, David. 1987.
+"Cognitive social structures".
+<em>Social Networks</em> 9(2): 109-134.
+<a href="https://doi.org/10.1016/0378-8733%2887%2990009-8" class="external-link">doi:10.1016/0378-8733(87)90009-8</a></p>
     </div>
     <div id="expected-ei">
     <h2>Expected EI</h2>

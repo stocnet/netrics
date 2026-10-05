@@ -60,7 +60,10 @@
 <url><loc>https://stocnet.github.io/netrics/reference/member_cliques.html</loc></url>
 <url><loc>https://stocnet.github.io/netrics/reference/member_community.html</loc></url>
 <url><loc>https://stocnet.github.io/netrics/reference/member_community_hier.html</loc></url>
-<url><loc>https://stocnet.github.io/netrics/reference/member_community_non.html</loc></url>
+<url><loc>https://stocnet.github.io/netrics/reference/member_community_link.html</loc></url>
+<url><loc>https://stocnet.github.io/netrics/reference/member_community_modular.html</loc></url>
+<url><loc>https://stocnet.github.io/netrics/reference/member_community_partition.html</loc></url>
+<url><loc>https://stocnet.github.io/netrics/reference/member_community_spread.html</loc></url>
 <url><loc>https://stocnet.github.io/netrics/reference/member_components.html</loc></url>
 <url><loc>https://stocnet.github.io/netrics/reference/member_core.html</loc></url>
 <url><loc>https://stocnet.github.io/netrics/reference/member_diffusion.html</loc></url>
@@ -69,6 +72,7 @@
 <url><loc>https://stocnet.github.io/netrics/reference/method_coreness.html</loc></url>
 <url><loc>https://stocnet.github.io/netrics/reference/method_kselect.html</loc></url>
 <url><loc>https://stocnet.github.io/netrics/reference/method_regularity.html</loc></url>
+<url><loc>https://stocnet.github.io/netrics/reference/method_search.html</loc></url>
 <url><loc>https://stocnet.github.io/netrics/reference/method_split.html</loc></url>
 <url><loc>https://stocnet.github.io/netrics/reference/motif_brokerage_net.html</loc></url>
 <url><loc>https://stocnet.github.io/netrics/reference/motif_brokerage_node.html</loc></url>

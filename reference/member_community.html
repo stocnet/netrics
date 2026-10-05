@@ -31,7 +31,7 @@ but does not rest the answer on a single run of a single algorithm."><meta prope
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">netrics</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.0.3</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.1.0</span>
       </span>
     </div>
 
@@ -161,7 +161,7 @@ requested, a warning is given and the nearest number is returned.</p></dd>
 <dd><p>Integer indicating the maximum number of communities to
 evaluate for <code>"silhouette"</code> and <code>"elbow"</code>. By default <code>8</code>.
 Otherwise ignored.
-Note that for <code><a href="member_community_non.html">node_in_louvain()</a></code> and <code><a href="member_community_non.html">node_in_leiden()</a></code> each candidate
+Note that for <code><a href="member_community_modular.html">node_in_louvain()</a></code> and <code><a href="member_community_modular.html">node_in_leiden()</a></code> each candidate
 requires its own search over the resolution parameter,
 so a large <code>max_k</code> is costly on large networks.</p></dd>
 
@@ -171,7 +171,7 @@ so a large <code>max_k</code> is costly on large networks.</p></dd>
 applicable algorithms instead of selecting the one with the highest
 modularity. By default <code>FALSE</code>, since combining them costs more time.
 This argument is ignored on a network small enough for
-<code><a href="member_community_non.html">node_in_optimal()</a></code>, which already returns the maximum modularity
+<code><a href="member_community_modular.html">node_in_optimal()</a></code>, which already returns the maximum modularity
 partition.</p></dd>
 
 
@@ -201,12 +201,31 @@ then the assignments will be labelled with the nodes' names.</p>
     <p><code>times</code> applies only when <code>consensus = TRUE</code>, and is 20 by default.
 Deterministic algorithms are run once however it is set.</p>
     </div>
+    <div id="choosing-an-algorithm">
+    <h2>Choosing an algorithm</h2>
+
+
+<p>The community detection algorithms are documented on four pages,
+by the idea that they share:</p><ul><li><p><a href="member_community_modular.html">member_community_modular</a> for those that optimise a quality function,
+such as modularity, over the partitions.</p></li>
+<li><p><a href="member_community_spread.html">member_community_spread</a> for those that follow a process as it spreads
+over the network, such as a random walk or a label.</p></li>
+<li><p><a href="member_community_partition.html">member_community_partition</a> for those that divide the nodes into a
+number of groups that you set.</p></li>
+<li><p><a href="member_community_hier.html">member_community_hier</a> for those that build a dendrogram, which is
+then cut into communities.</p></li>
+</ul><p>They differ in whether the number of communities can be set with <code>k</code>,
+and in whether a second run returns the same partition:</p><table class="table table"><tr><td>Algorithm</td><td>Page</td><td><code>k</code></td><td>Repeatable</td></tr><tr><td><code><a href="member_community_modular.html">node_in_optimal()</a></code></td><td>modular</td><td>found</td><td>yes</td></tr><tr><td><code><a href="member_community_modular.html">node_in_louvain()</a></code></td><td>modular</td><td>optional</td><td>set a seed</td></tr><tr><td><code><a href="member_community_modular.html">node_in_leiden()</a></code></td><td>modular</td><td>optional</td><td>set a seed</td></tr><tr><td><code><a href="member_community_modular.html">node_in_spinglass()</a></code></td><td>modular</td><td>found</td><td>set a seed</td></tr><tr><td><code><a href="member_community_spread.html">node_in_infomap()</a></code></td><td>spread</td><td>found</td><td>set a seed</td></tr><tr><td><code><a href="member_community_spread.html">node_in_fluid()</a></code></td><td>spread</td><td>optional</td><td>set a seed</td></tr><tr><td><code><a href="member_community_spread.html">node_in_labels()</a></code></td><td>spread</td><td>optional</td><td>set a seed</td></tr><tr><td><code><a href="member_community_partition.html">node_in_partition()</a></code></td><td>partition</td><td>optional, 2 by default</td><td>yes, by default</td></tr><tr><td><code><a href="member_community_partition.html">node_in_faction()</a></code></td><td>partition</td><td>required, 2 by default</td><td>set a seed</td></tr><tr><td><code><a href="member_community_hier.html">node_in_betweenness()</a></code></td><td>hierarchical</td><td>optional</td><td>yes</td></tr><tr><td><code><a href="member_community_hier.html">node_in_greedy()</a></code></td><td>hierarchical</td><td>optional</td><td>yes</td></tr><tr><td><code><a href="member_community_hier.html">node_in_eigen()</a></code></td><td>hierarchical</td><td>optional</td><td>yes</td></tr><tr><td><code><a href="member_community_hier.html">node_in_walktrap()</a></code></td><td>hierarchical</td><td>optional</td><td>yes</td></tr></table><p>The pages overlap in places: <code><a href="member_community_hier.html">node_in_greedy()</a></code> and <code><a href="member_community_hier.html">node_in_eigen()</a></code>
+also optimise modularity, and <code><a href="member_community_hier.html">node_in_walktrap()</a></code> also follows random
+walks. They are documented as hierarchical because the dendrogram, and
+where it is cut, is what you control.</p>
+    </div>
     <div id="signed-networks">
     <h2>Signed networks</h2>
 
 
-<p>Every algorithm but <code><a href="member_community_non.html">node_in_spinglass()</a></code> reads a negative weight as an
-error, and spinglass reads a sign as a sign (Traag and Bruggeman 2009).
+<p>Every algorithm but <code><a href="member_community_modular.html">node_in_spinglass()</a></code> sets the negative ties aside,
+and spinglass reads a sign as a sign (Traag and Bruggeman 2009).
 <code>node_in_community()</code> therefore considers only spinglass where the network
 is signed. Since spinglass needs a connected network and accepts no <code>k</code>,
 a signed network that is unconnected, or a <code>k</code> that is given, leaves no
@@ -234,12 +253,18 @@ applicable algorithm and the function stops.</p>
     <h2>See also</h2>
     <div class="dont-index"><p>Other community:
 <code><a href="member_community_hier.html">member_community_hier</a></code>,
-<code><a href="member_community_non.html">member_community_non</a></code></p>
+<code><a href="member_community_link.html">member_community_link</a></code>,
+<code><a href="member_community_modular.html">member_community_modular</a></code>,
+<code><a href="member_community_partition.html">member_community_partition</a></code>,
+<code><a href="member_community_spread.html">member_community_spread</a></code></p>
 <p>Other memberships:
 <code><a href="member_brokerage.html">member_brokerage</a></code>,
 <code><a href="member_cliques.html">member_cliques</a></code>,
 <code><a href="member_community_hier.html">member_community_hier</a></code>,
-<code><a href="member_community_non.html">member_community_non</a></code>,
+<code><a href="member_community_link.html">member_community_link</a></code>,
+<code><a href="member_community_modular.html">member_community_modular</a></code>,
+<code><a href="member_community_partition.html">member_community_partition</a></code>,
+<code><a href="member_community_spread.html">member_community_spread</a></code>,
 <code><a href="member_components.html">member_components</a></code>,
 <code><a href="member_core.html">member_core</a></code>,
 <code><a href="member_diffusion.html">member_diffusion</a></code>,
@@ -264,7 +289,9 @@ applicable algorithm and the function stops.</p>
 <code><a href="member_brokerage.html">member_brokerage</a></code>,
 <code><a href="member_cliques.html">member_cliques</a></code>,
 <code><a href="member_community_hier.html">member_community_hier</a></code>,
-<code><a href="member_community_non.html">member_community_non</a></code>,
+<code><a href="member_community_modular.html">member_community_modular</a></code>,
+<code><a href="member_community_partition.html">member_community_partition</a></code>,
+<code><a href="member_community_spread.html">member_community_spread</a></code>,
 <code><a href="member_components.html">member_components</a></code>,
 <code><a href="member_core.html">member_core</a></code>,
 <code><a href="member_diffusion.html">member_diffusion</a></code>,

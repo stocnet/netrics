@@ -39,7 +39,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">netrics</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.0.3</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.1.0</span>
       </span>
     </div>
 
@@ -846,35 +846,44 @@ functions we will actually use later in this tutorial.</p>
 </h3>
 <p>The next part takes this census and creates a
 <abbr><dfn title="A dendrogram is a tree diagram that records the sequences of merges or splits from some, say, hierarchical clustering.">
-dendrogram </dfn></abbr> based on distance or dissimilarity among the
-nodes’ census profiles. This is all done internally within
-e.g. <code><a href="../reference/member_equivalence.html">node_in_structural()</a></code>, though there are two important
+dendrogram </dfn></abbr> based on how alike or unalike the nodes’ census
+profiles are. This is all done internally within
+e.g. <code><a href="../reference/member_equivalence.html">node_in_structural()</a></code>, though there are a few important
 parameters that can be set to obtain different results.</p>
-<p>First, users can set the type of distance measure used. For
-enthusiasts, this is passed on to <code><a href="https://rdrr.io/r/stats/dist.html" class="external-link">stats::dist()</a></code>, so that
-help page should be consulted for more details. By default
-<code>"euclidean"</code> is used.</p>
-<p>Second, we can also set the type of clustering algorithm employed. By
+<p>First, users can set how nodes’ profiles are compared, their
+<code>proximity</code>. By default this is <code>"pearson"</code>, the
+correlation between each pair of profiles, but any of the measures in
+<code><a href="https://stocnet.github.io/manynet/reference/modif_proximity.html" class="external-link">manynet::to_proximity()</a></code> can be used, such as
+<code>"cosine"</code>, or <code>"ruzicka"</code> for counts. The
+resulting node-by-node matrix is what gets clustered, and you can look
+at it yourself in the <code>proximity</code> element of the clustering,
+e.g. <code>attr(node_in_structural(ison_algebra), "hc")$proximity</code>.</p>
+<p>Optionally, users can ask for the nodes to be compared a second time,
+on how (dis)similar they are to every node, by naming a
+<code>distance</code>. For enthusiasts, this is passed on to
+<code><a href="https://rdrr.io/r/stats/dist.html" class="external-link">stats::dist()</a></code>, so that help page should be consulted for
+more details. By default no such second comparison is made.</p>
+<p>Lastly, we can also set the type of clustering algorithm employed. By
 default, <a href="https://stocnet.github.io/netrics/">netrics</a>’s equivalence functions use
 <abbr><dfn title="Hierarchical clustering is a method of cluster analysis that seeks to build a hierarchy of clusters.">
 hierarchical clustering </dfn></abbr>, <code>"hier"</code>, but for
 compatibility and enthusiasts, we also offer <code>"concor"</code>,
 which implements a CONCOR (CONvergence of CORrelations) algorithm.</p>
-<p>We can see the difference from varying the clustering algorithm
-and/or distance by plotting the dendrograms (hidden) in the output from
-<code><a href="../reference/member_equivalence.html">node_in_structural()</a></code>.</p>
+<p>We can see the difference from varying the proximity and/or
+clustering algorithm by plotting the dendrograms (hidden) in the output
+from <code><a href="../reference/member_equivalence.html">node_in_structural()</a></code>.</p>
 <p><strong>Run the code to plot three dendrograms — varying first the
-distance, then the algorithm — and watch how the tree
+proximity, then the algorithm — and watch how the tree
 changes.</strong></p>
 <div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">alge</span> <span class="op">&lt;-</span> <span class="fu">to_named</span><span class="op">(</span><span class="va">ison_algebra</span><span class="op">)</span> <span class="co"># fake names to make comparison clearer</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="fu"><a href="../reference/member_equivalence.html">node_in_structural</a></span><span class="op">(</span><span class="va">alge</span>, cluster <span class="op">=</span> <span class="st">"hier"</span>, distance <span class="op">=</span> <span class="st">"euclidean"</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="fu"><a href="../reference/member_equivalence.html">node_in_structural</a></span><span class="op">(</span><span class="va">alge</span>, cluster <span class="op">=</span> <span class="st">"hier"</span>, proximity <span class="op">=</span> <span class="st">"pearson"</span><span class="op">)</span><span class="op">)</span></span>
 <span></span>
-<span><span class="co"># changing the type of distance used</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="fu"><a href="../reference/member_equivalence.html">node_in_structural</a></span><span class="op">(</span><span class="va">alge</span>, cluster <span class="op">=</span> <span class="st">"hier"</span>, distance <span class="op">=</span> <span class="st">"manhattan"</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="co"># changing how the profiles are compared</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="fu"><a href="../reference/member_equivalence.html">node_in_structural</a></span><span class="op">(</span><span class="va">alge</span>, cluster <span class="op">=</span> <span class="st">"hier"</span>, proximity <span class="op">=</span> <span class="st">"cosine"</span><span class="op">)</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># changing the clustering algorithm</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="fu"><a href="../reference/member_equivalence.html">node_in_structural</a></span><span class="op">(</span><span class="va">alge</span>, cluster <span class="op">=</span> <span class="st">"concor"</span>, distance <span class="op">=</span> <span class="st">"euclidean"</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
+<span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="fu"><a href="../reference/member_equivalence.html">node_in_structural</a></span><span class="op">(</span><span class="va">alge</span>, cluster <span class="op">=</span> <span class="st">"concor"</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 <div class="callout">
 <p><span class="callout-label"><strong>Try it yourself</strong>:</span>
 This section includes an interactive quiz in the live tutorial — run
@@ -967,14 +976,15 @@ everything else the same.</strong></p>
 <div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="fu"><a href="../reference/member_equivalence.html">node_in_structural</a></span><span class="op">(</span><span class="fu">to_named</span><span class="op">(</span><span class="va">ison_algebra</span><span class="op">)</span>, k <span class="op">=</span> <span class="st">"elbow"</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="fu"><a href="../reference/member_equivalence.html">node_in_structural</a></span><span class="op">(</span><span class="fu">to_named</span><span class="op">(</span><span class="va">ison_algebra</span><span class="op">)</span>, k <span class="op">=</span> <span class="st">"silhouette"</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
-<p>Ok, so it looks like the elbow method returns <code>k == 3</code> as
+<p>Ok, so it looks like the elbow method returns <code>k == 4</code> as
 a good trade-off between fit and parsimony. The silhouette method, by
-contrast, sees <code>k == 4</code> as maximising cluster similarity and
+contrast, sees <code>k == 7</code> as maximising cluster similarity and
 dissimilarity. Either is probably fine here, and there is much debate
-around how to select the number of clusters anyway. However, the
-silhouette method seems to do a better job of identifying how unique the
-16th node is. The silhouette method is also the default in
-<a href="https://stocnet.github.io/netrics/">netrics</a>.</p>
+around how to select the number of clusters anyway. Both identify how
+unique the 16th node is, but the silhouette method splits the remaining
+nodes more finely. The silhouette method is the default in
+<a href="https://stocnet.github.io/netrics/">netrics</a>, but we will carry on with the four classes here,
+<code>k = 4</code>, since they are easier to interpret.</p>
 <p>Note that there is a somewhat hidden parameter here,
 <code>range</code>. Since testing across all possible numbers of
 clusters can get computationally expensive (not to mention
@@ -1001,11 +1011,11 @@ identity.</p>
 <p><span class="callout-label"><strong>In brief</strong>:</span>
 <code><a href="../reference/member_equivalence.html">node_in_structural()</a></code> partitions nodes into structurally
 equivalent classes in three steps: a tie census
-(<code><a href="../reference/motif_path.html">node_x_tie()</a></code>), a dendrogram built from the distances
-between census profiles (<code>cluster = "hier"</code> or
-<code>"concor"</code>, <code>distance = "euclidean"</code> or others),
-and a cut-point choosing the number of clusters (<code>k =</code> an
-integer, <code>"strict"</code>, <code>"elbow"</code>, or the default
+(<code><a href="../reference/motif_path.html">node_x_tie()</a></code>), a dendrogram built from how alike the
+census profiles are (<code>proximity = "pearson"</code> or others,
+<code>cluster = "hier"</code> or <code>"concor"</code>), and a cut-point
+choosing the number of clusters (<code>k =</code> an integer,
+<code>"strict"</code>, <code>"elbow"</code>, or the default
 <code>"silhouette"</code>).</p>
 </div>
 </div>
@@ -1027,7 +1037,7 @@ class.</strong></p>
 <div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">alge</span> <span class="op">&lt;-</span> <span class="fu">to_named</span><span class="op">(</span><span class="va">ison_algebra</span><span class="op">)</span></span>
 <span><span class="va">alge</span> <span class="op">%&gt;%</span></span>
-<span>  <span class="fu">mutate</span><span class="op">(</span>se <span class="op">=</span> <span class="fu"><a href="../reference/member_equivalence.html">node_in_structural</a></span><span class="op">(</span><span class="va">alge</span><span class="op">)</span><span class="op">)</span> <span class="op">%&gt;%</span></span>
+<span>  <span class="fu">mutate</span><span class="op">(</span>se <span class="op">=</span> <span class="fu"><a href="../reference/member_equivalence.html">node_in_structural</a></span><span class="op">(</span><span class="va">alge</span>, k <span class="op">=</span> <span class="fl">4</span><span class="op">)</span><span class="op">)</span> <span class="op">%&gt;%</span></span>
 <span>  <span class="fu">graphr</span><span class="op">(</span>node_color <span class="op">=</span> <span class="st">"se"</span><span class="op">)</span></span></code></pre></div>
 <p>While this plot adds the structurally equivalent classes information
 to our earlier graph, it doesn’t really help us understand how the
@@ -1138,7 +1148,7 @@ most measures — it is a distance from the ideal, so lower is better.</p>
 <code>alge</code> against a coarser one and against a random
 partition.</strong></p>
 <div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="../reference/measure_fit.html">net_by_inconsistency</a></span><span class="op">(</span><span class="va">alge</span>, <span class="fu"><a href="../reference/member_equivalence.html">node_in_structural</a></span><span class="op">(</span><span class="va">alge</span><span class="op">)</span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/measure_fit.html">net_by_inconsistency</a></span><span class="op">(</span><span class="va">alge</span>, <span class="fu"><a href="../reference/member_equivalence.html">node_in_structural</a></span><span class="op">(</span><span class="va">alge</span>, k <span class="op">=</span> <span class="fl">4</span><span class="op">)</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># a coarser partition has to lump dissimilar nodes together</span></span>
 <span><span class="fu"><a href="../reference/measure_fit.html">net_by_inconsistency</a></span><span class="op">(</span><span class="va">alge</span>, <span class="fu"><a href="../reference/member_equivalence.html">node_in_structural</a></span><span class="op">(</span><span class="va">alge</span>, k <span class="op">=</span> <span class="fl">2</span><span class="op">)</span><span class="op">)</span></span>
@@ -1218,7 +1228,7 @@ row and column per <em>class</em>, where each cell holds the average tie
 <p><strong>Contract the algebra network into its four
 structural-equivalence blocks.</strong></p>
 <div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="op">(</span><span class="va">bm</span> <span class="op">&lt;-</span> <span class="fu">to_blockmodel</span><span class="op">(</span><span class="va">alge</span>, <span class="fu"><a href="../reference/member_equivalence.html">node_in_structural</a></span><span class="op">(</span><span class="va">alge</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="op">(</span><span class="va">bm</span> <span class="op">&lt;-</span> <span class="fu">to_blockmodel</span><span class="op">(</span><span class="va">alge</span>, <span class="fu"><a href="../reference/member_equivalence.html">node_in_structural</a></span><span class="op">(</span><span class="va">alge</span>, k <span class="op">=</span> <span class="fl">4</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 <p>Notice how this is just a compact, numerical version of the
 blockmodel plot from the previous page: each cell summarises a whole
 block of the sorted matrix, and the diagonal records the average tie
@@ -1346,10 +1356,10 @@ class.</strong></p>
 <span><span class="va">alge</span> <span class="op">%&gt;%</span></span>
 <span>  <span class="fu">mutate</span><span class="op">(</span>ae <span class="op">=</span> <span class="fu"><a href="../reference/member_equivalence.html">node_in_automorphic</a></span><span class="op">(</span><span class="va">alge</span><span class="op">)</span><span class="op">)</span> <span class="op">%&gt;%</span></span>
 <span>  <span class="fu">graphr</span><span class="op">(</span>node_color <span class="op">=</span> <span class="st">"ae"</span><span class="op">)</span></span></code></pre></div>
-<p>Automorphic equivalence here carves the network into many small
-classes: requiring identical structural surroundings is demanding, so
-few nodes qualify as truly interchangeable and most end up on their
-own.</p>
+<p>Automorphic equivalence here groups most nodes into one large class,
+with a few nodes set apart in small classes of their own: most students
+are a similar (weighted) distance from everyone else, and only those
+whose distances to the others are unusual stand out.</p>
 </div>
 <div class="section level3">
 <h3 id="which-equivalence-when">Which equivalence when?<a class="anchor" aria-label="anchor" href="#which-equivalence-when"></a>
@@ -1362,7 +1372,7 @@ loosest.</p>
 <p><strong>Run all three side by side and compare how many classes each
 finds.</strong></p>
 <div class="sourceCode" id="cb19"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="../reference/member_equivalence.html">node_in_structural</a></span><span class="op">(</span><span class="va">alge</span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/member_equivalence.html">node_in_structural</a></span><span class="op">(</span><span class="va">alge</span>, k <span class="op">=</span> <span class="fl">4</span><span class="op">)</span></span>
 <span><span class="fu"><a href="../reference/member_equivalence.html">node_in_regular</a></span><span class="op">(</span><span class="va">alge</span><span class="op">)</span></span>
 <span><span class="fu"><a href="../reference/member_equivalence.html">node_in_automorphic</a></span><span class="op">(</span><span class="va">alge</span><span class="op">)</span></span></code></pre></div>
 <p>In practice, though, the class <em>counts</em> you get here will not
@@ -1492,8 +1502,8 @@ whole network</td>
 <tr class="even">
 <td><code><a href="../reference/member_equivalence.html">node_in_structural()</a></code></td>
 <td>structurally equivalent classes (same tie partners;
-<code>cluster</code>, <code>distance</code>, <code>k</code>,
-<code>range</code> options)</td>
+<code>proximity</code>, <code>cluster</code>, <code>distance</code>,
+<code>k</code>, <code>max_k</code> options)</td>
 </tr>
 <tr class="odd">
 <td>

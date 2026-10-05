@@ -39,7 +39,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">netrics</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.0.3</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.1.0</span>
       </span>
     </div>
 
@@ -223,7 +223,7 @@ with <code><a href="../reference/measure_cohesion.html">net_by_components()</a><
 <code><a href="../reference/member_components.html">node_in_component()</a></code></label></li>
 <li><label><input type="checkbox">  Concentrate on a network’s giant
 component with <code>to_giant()</code> and split it into factions with
-<code><a href="../reference/member_community_non.html">node_in_partition()</a></code></label></li>
+<code><a href="../reference/member_community_partition.html">node_in_partition()</a></code></label></li>
 <li><label><input type="checkbox">  Judge the fit of <em>any</em>
 membership assignment with <code><a href="../reference/measure_fit.html">net_by_modularity()</a></code></label></li>
 <li><label><input type="checkbox">  Detect communities with the
@@ -690,7 +690,7 @@ reasonable <em>partition</em> of the network into two
 <h3 id="finding-a-partition">Finding a partition<a class="anchor" aria-label="anchor" href="#finding-a-partition"></a>
 </h3>
 <p>To find a partition in a network, we use the
-<code><a href="../reference/member_community_non.html">node_in_partition()</a></code> function.</p>
+<code><a href="../reference/member_community_partition.html">node_in_partition()</a></code> function.</p>
 <div class="callout">
 <p><span class="callout-label"><strong>Beginner note</strong>:</span>
 All <code>node_in_*()</code> functions return a string vector the length
@@ -701,7 +701,7 @@ nodes, we can assign the result to the nodes as an attribute and graph
 with it.</p>
 </div>
 <div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">blogs</span> <span class="op">|&gt;</span> <span class="fu">mutate_nodes</span><span class="op">(</span>part <span class="op">=</span> <span class="fu"><a href="../reference/member_community_non.html">node_in_partition</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<code class="sourceCode R"><span><span class="va">blogs</span> <span class="op">|&gt;</span> <span class="fu">mutate_nodes</span><span class="op">(</span>part <span class="op">=</span> <span class="fu"><a href="../reference/member_community_partition.html">node_in_partition</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu">graphr</span><span class="op">(</span>node_color <span class="op">=</span> <span class="st">"part"</span><span class="op">)</span></span></code></pre></div>
 <p>We see from this graph that indeed there seems to be an obvious
 separation between the left and right ‘hemispheres’ of the network.
@@ -714,7 +714,7 @@ of fit, which is where we turn next.</p>
 <code><a href="../reference/measure_fit.html">net_by_factions()</a></code> offers a whole-network summary of how
 factional a network is: it measures the correlation between the observed
 network and an idealised component model with the same dimensions, using
-<code><a href="../reference/member_community_non.html">node_in_partition()</a></code>’s bipartition when no membership is
+<code><a href="../reference/member_community_partition.html">node_in_partition()</a></code>’s bipartition when no membership is
 supplied. See <code><a href="../reference/measure_features.html">?measure_features</a></code> for details.</p>
 </div>
 <div class="callout">
@@ -722,7 +722,7 @@ supplied. See <code><a href="../reference/measure_features.html">?measure_featur
 network is dominated by isolates and minor components,
 <code>to_giant()</code> focuses analysis on the giant component (count
 isolates first with <code>sum(node_is_isolate())</code>).
-<code><a href="../reference/member_community_non.html">node_in_partition()</a></code> then splits the network into two
+<code><a href="../reference/member_community_partition.html">node_in_partition()</a></code> then splits the network into two
 factions, returning a categorical membership vector you can map onto
 <code>node_color</code>.</p>
 </div>
@@ -743,7 +743,7 @@ in a network is
 <abbr><dfn title="The modularity of a membership assignment is the difference of the cross-cluster ties from the expected value.">
 modularity </dfn></abbr>.</p>
 <div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="../reference/measure_fit.html">net_by_modularity</a></span><span class="op">(</span><span class="va">blogs</span>, membership <span class="op">=</span> <span class="fu"><a href="../reference/member_community_non.html">node_in_partition</a></span><span class="op">(</span><span class="va">blogs</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/measure_fit.html">net_by_modularity</a></span><span class="op">(</span><span class="va">blogs</span>, membership <span class="op">=</span> <span class="fu"><a href="../reference/member_community_partition.html">node_in_partition</a></span><span class="op">(</span><span class="va">blogs</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 <p>Remember that modularity is conventionally described as ranging
 between 1 and -1, though in practice the lowest value a real partition
 reaches is only about -0.5. How can we interpret this result?</p>
@@ -782,7 +782,7 @@ other solutions that return an even greater modularity criterion.</p>
 <div class="callout">
 <p><span class="callout-label"><strong>In brief</strong>:</span>
 <code><a href="../reference/measure_fit.html">net_by_modularity()</a></code> scores the fit of <em>any</em>
-membership vector — algorithmic (e.g. <code><a href="../reference/member_community_non.html">node_in_partition()</a></code>)
+membership vector — algorithmic (e.g. <code><a href="../reference/member_community_partition.html">node_in_partition()</a></code>)
 or empirical (e.g. <code>node_attribute()</code>) — as the excess of
 within-group ties over a random baseline. Positive values mean the
 grouping captures real structure, and competing groupings can be
@@ -935,13 +935,13 @@ groups becoming weighted ties between these new nodes.</li>
 pass the network is much smaller, so the next pass is much cheaper, and
 a network of millions of nodes collapses within a few rounds.</p>
 <div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">friend_lv</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/member_community_non.html">node_in_louvain</a></span><span class="op">(</span><span class="va">friends</span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="va">friend_lv</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/member_community_modular.html">node_in_louvain</a></span><span class="op">(</span><span class="va">friends</span><span class="op">)</span></span>
 <span><span class="va">friend_lv</span></span>
 <span></span>
 <span><span class="co"># The resolution argument changes how large a community has to be</span></span>
 <span><span class="co"># before it is worth keeping separate.</span></span>
-<span><span class="fu"><a href="../reference/member_community_non.html">node_in_louvain</a></span><span class="op">(</span><span class="va">friends</span>, resolution <span class="op">=</span> <span class="fl">0.5</span><span class="op">)</span> <span class="co"># fewer, larger communities</span></span>
-<span><span class="fu"><a href="../reference/member_community_non.html">node_in_louvain</a></span><span class="op">(</span><span class="va">friends</span>, resolution <span class="op">=</span> <span class="fl">3</span><span class="op">)</span>   <span class="co"># more, smaller communities</span></span></code></pre></div>
+<span><span class="fu"><a href="../reference/member_community_modular.html">node_in_louvain</a></span><span class="op">(</span><span class="va">friends</span>, resolution <span class="op">=</span> <span class="fl">0.5</span><span class="op">)</span> <span class="co"># fewer, larger communities</span></span>
+<span><span class="fu"><a href="../reference/member_community_modular.html">node_in_louvain</a></span><span class="op">(</span><span class="va">friends</span>, resolution <span class="op">=</span> <span class="fl">3</span><span class="op">)</span>   <span class="co"># more, smaller communities</span></span></code></pre></div>
 <p>That <code>resolution</code> argument relates to a known weakness of
 modularity itself, the <em>resolution limit</em>. Below a certain size,
 a community can be missed entirely, because merging it into a neighbour
@@ -954,7 +954,7 @@ lowering it privileges larger ones.</p>
 unfolding of communities in large networks, <a href="https://arxiv.org/abs/0803.0476" class="external-link uri">https://arxiv.org/abs/0803.0476</a></p>
 <div class="callout">
 <p><span class="callout-label"><strong>Going further</strong>:</span>
-Not every algorithm optimises modularity. <code><a href="../reference/member_community_non.html">node_in_infomap()</a></code>
+Not every algorithm optimises modularity. <code><a href="../reference/member_community_spread.html">node_in_infomap()</a></code>
 minimises the <em>map equation</em> instead, which asks how briefly
 (i.e. information theory) you could describe the path of a random walker
 on the network. A walker that stays inside a group for a long time can
@@ -981,7 +981,7 @@ the applicable community detection procedures. This is helpfully called
 <code><a href="../reference/member_community.html">node_in_community()</a></code>. This function pays attention to the
 size and other salient network properties, such as whether it is
 directed, weighted, or connected. It either uses the algorithm that
-maximises modularity by default (<code><a href="../reference/member_community_non.html">node_in_optimal()</a></code>) for
+maximises modularity by default (<code><a href="../reference/member_community_modular.html">node_in_optimal()</a></code>) for
 smaller networks, or surveys the approximations provided by other
 algorithms for the result that maximises the modularity.</p>
 <div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
@@ -995,7 +995,7 @@ over, records how often each pair of nodes ends up together, and then
 runs the algorithms again on that record until they agree. The answer no
 longer rests on a single run of a single algorithm. It costs
 considerably more time, which is why it is not the default, and it is
-ignored on a network small enough for <code><a href="../reference/member_community_non.html">node_in_optimal()</a></code>,
+ignored on a network small enough for <code><a href="../reference/member_community_modular.html">node_in_optimal()</a></code>,
 where the exact maximum is already available. On a network the size of
 <code>irps_books</code> this may take about twenty seconds.</p>
 <div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
@@ -1008,10 +1008,10 @@ This section includes an interactive quiz in the live tutorial — run
 <div class="callout">
 <p><span class="callout-label"><strong>Going further</strong>:</span>
 The four algorithms treated here are only the start of the menagerie:
-<a href="https://stocnet.github.io/netrics/">netrics</a> also offers <code><a href="../reference/member_community_non.html">node_in_leiden()</a></code> (a
+<a href="https://stocnet.github.io/netrics/">netrics</a> also offers <code><a href="../reference/member_community_modular.html">node_in_leiden()</a></code> (a
 refinement of Louvain that avoids leaving a community internally
-disconnected), <code><a href="../reference/member_community_non.html">node_in_spinglass()</a></code> (simulated annealing),
-<code><a href="../reference/member_community_non.html">node_in_fluid()</a></code> (fixed number of communities), and
+disconnected), <code><a href="../reference/member_community_modular.html">node_in_spinglass()</a></code> (simulated annealing),
+<code><a href="../reference/member_community_spread.html">node_in_fluid()</a></code> (fixed number of communities), and
 <code><a href="../reference/member_community_hier.html">node_in_eigen()</a></code> (spectral). See
 <code><a href="../reference/member_community.html">?member_community</a></code> for the full list with definitions and
 references.</p>
@@ -1022,10 +1022,10 @@ Community detection algorithms cluster nodes by tie density:
 <code><a href="../reference/member_community_hier.html">node_in_walktrap()</a></code> via random walks,
 <code><a href="../reference/member_community_hier.html">node_in_betweenness()</a></code> divisively by cutting bridging ties,
 <code><a href="../reference/member_community_hier.html">node_in_greedy()</a></code> agglomeratively by modularity-improving
-merges, and <code><a href="../reference/member_community_non.html">node_in_louvain()</a></code> by moving nodes and then
+merges, and <code><a href="../reference/member_community_modular.html">node_in_louvain()</a></code> by moving nodes and then
 contracting groups, which is what makes it fast enough for a large
 network. <code><a href="../reference/member_community.html">node_in_community()</a></code> surveys the applicable
-algorithms (exhaustively via <code><a href="../reference/member_community_non.html">node_in_optimal()</a></code> on small
+algorithms (exhaustively via <code><a href="../reference/member_community_modular.html">node_in_optimal()</a></code> on small
 networks) and returns the assignment that maximises modularity, or
 combines them all with <code>consensus = TRUE</code> — but always report
 which algorithm produced the result you analyse.</p>
@@ -1168,7 +1168,7 @@ itself</td>
 <td>removes chosen (e.g. sampled) nodes</td>
 </tr>
 <tr class="even">
-<td><code><a href="../reference/member_community_non.html">node_in_partition()</a></code></td>
+<td><code><a href="../reference/member_community_partition.html">node_in_partition()</a></code></td>
 <td>splits a network into two factions</td>
 </tr>
 <tr class="odd">

@@ -17,7 +17,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">netrics</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.0.3</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.1.0</span>
       </span>
     </div>
 
@@ -89,7 +89,149 @@
     </div>
 
     <div class="section level2">
-<h2 class="page-header" data-toc-text="1.0.3" id="netrics-103">netrics 1.0.3<a class="anchor" aria-label="anchor" href="#netrics-103"></a></h2>
+<h2 class="page-header" data-toc-text="1.1.0" id="netrics-110">netrics 1.1.0<a class="anchor" aria-label="anchor" href="#netrics-110"></a></h2>
+<div class="section level3">
+<h3 id="package-1-1-0">Package<a class="anchor" aria-label="anchor" href="#package-1-1-0"></a></h3>
+<ul><li>Raised <a href="https://stocnet.github.io/manynet/" class="external-link">manynet</a> floor to 2.3.4
+<ul><li>Replaced internal signed and multilevel helpers with <a href="https://stocnet.github.io/manynet/" class="external-link">manynet</a>’s own</li>
+</ul></li>
+</ul></div>
+<div class="section level3">
+<h3 id="marks-1-1-0">Marks<a class="anchor" aria-label="anchor" href="#marks-1-1-0"></a></h3>
+<ul><li>Improved <code><a href="../reference/mark_ties.html">tie_is_path()</a></code>
+<ul><li>Fixed erroring on a signed ‘stocnet’, now runs over the positive ties alone</li>
+<li>Fixed erroring where no path exists</li>
+</ul></li>
+<li>Improved <code><a href="../reference/mark_dyads.html">tie_is_multiple()</a></code> documentation to distinguish from <code><a href="https://stocnet.github.io/manynet/reference/measure_attributes_ties.html" class="external-link">manynet::tie_is_parallel()</a></code>
+</li>
+</ul></div>
+<div class="section level3">
+<h3 id="measures-1-1-0">Measures<a class="anchor" aria-label="anchor" href="#measures-1-1-0"></a></h3>
+<ul><li>Fixed <code><a href="../reference/measure_hierarchy.html">net_by_upperbound()</a></code>, <code><a href="../reference/motif_hierarchy.html">net_x_hierarchy()</a></code>, and <code><a href="../reference/measure_central_close.html">node_by_distance()</a></code> erroring on a signed ‘stocnet’
+<ul><li>Now consider only the positive ties</li>
+</ul></li>
+<li>Fixed <code><a href="../reference/measure_central_close.html">node_by_distance()</a></code> scaling every distance to 0 where some node cannot be reached
+<ul><li>The scaled distances now divide by the largest finite distance, and unreachable nodes stay infinite, with a message</li>
+</ul></li>
+<li>Fixed <code><a href="../reference/measure_diverse_node.html">node_by_diversity()</a></code> to not include ego when measuring alter diversity (closes <a href="https://github.com/stocnet/netrics/issues/39" class="external-link">#39</a>)
+<ul><li>Nodes without alters now return <code>NA</code>
+</li>
+</ul></li>
+<li>Fixed twomodes in <code><a href="../reference/measure_central_close.html">node_by_information()</a></code>, <code><a href="../reference/measure_assort_net.html">net_by_spatial()</a></code> etc by replacing <code>to_multilevel()</code> with <code><a href="https://stocnet.github.io/manynet/reference/modif_levels.html" class="external-link">manynet::to_onemode()</a></code> to create square matrices</li>
+<li>Added <code>membership=</code> to <code><a href="../reference/measure_diverse_net.html">net_by_diversity()</a></code> for mean diversity by group weighted by size</li>
+<li>Fixed <code><a href="../reference/measure_centralisation_eigen.html">mode_by_eigenvector()</a></code> erroring on multilevel networks (closes <a href="https://github.com/stocnet/netrics/issues/23" class="external-link">#23</a>)</li>
+<li>Fixed about 40 measures, memberships, marks, and motifs erroring on, or miscounting, CSSs
+<ul><li>Now combine reports into locally aggregated structures</li>
+<li>Tie-level functions still return one value per report</li>
+</ul></li>
+<li>Added <code>variant=</code> to <code><a href="../reference/measure_closure_node.html">node_by_transitivity()</a></code> for Barrat, Onnela, or Zhang-Horvath weighted clustering
+<ul><li>Weighted networks now use Barrat’s coefficient by default; <code>variant = "watts"</code> keeps the unweighted result</li>
+</ul></li>
+<li>Improved <code><a href="../reference/measure_central_between.html">node_by_flow()</a></code>
+<ul><li>Fixed ignoring tie weights and erroring on two-mode networks</li>
+<li>Added <code>from=</code> and <code>to=</code> for the maximum flow from or to a given node</li>
+</ul></li>
+<li>
+<code><a href="../reference/measure_fragmentation.html">net_by_adhesion()</a></code> now reads tie weights as capacities, returning weighted minimum cut
+<ul><li>Signed networks now read by their positive ties alone</li>
+</ul></li>
+<li>Added <code><a href="../reference/measure_fit.html">net_by_divergence()</a></code> for networks’ Hamming, Jaccard, or portrait divergence
+<ul><li>
+<code>ideal=</code> takes a network or any <code>manynet::create_*()</code> or <code>manynet::generate_*()</code> function</li>
+<li>Falls back to portrait divergence where the networks’ nodes differ</li>
+</ul></li>
+<li>Added <code><a href="../reference/measure_fit.html">net_by_linkdensity()</a></code> for the partition density of a tie membership</li>
+</ul></div>
+<div class="section level3">
+<h3 id="memberships-1-1-0">Memberships<a class="anchor" aria-label="anchor" href="#memberships-1-1-0"></a></h3>
+<ul><li>Fixed nodetie memberships returning <code>NA</code> for groups beyond the 702nd</li>
+<li>Fixed single community algorithms erroring on a signed ‘stocnet’ (closes <a href="https://github.com/stocnet/netrics/issues/32" class="external-link">#32</a>)</li>
+<li>Added <code><a href="../reference/member_community_partition.html">node_in_faction()</a></code> for the <code>k</code> groups, of any size, that come closest to separate cliques
+<ul><li>Uses a tabu search, as the UCINET ‘Factions’ routine does</li>
+<li>
+<code>variant=</code> scores the fit by <code>"hamming"</code> (default), <code>"phi"</code>, or <code>"modularity"</code>
+</li>
+</ul></li>
+<li>Added <code>search=</code> to <code><a href="../reference/member_equivalence.html">node_in_block()</a></code> for searching by <code>"tabu"</code> (default) or <code>"iterated"</code>
+<ul><li>The tabu search lets positions take any size, where the iterated search held them near equal</li>
+<li>Partitions may therefore differ from earlier versions; pass <code>search = "iterated"</code> to reproduce them</li>
+</ul></li>
+<li>Added <code><a href="../reference/member_community_link.html">tie_in_community()</a></code> for link communities (Ahn et al. 2010), which group ties rather than nodes (closes <a href="https://github.com/stocnet/netrics/issues/20" class="external-link">#20</a>)
+<ul><li>A node belongs to every community one of its ties does, so nodes’ communities can overlap</li>
+</ul></li>
+<li>Fixed twomodes in <code><a href="../reference/member_community_partition.html">node_in_partition()</a></code>, <code><a href="../reference/member_equivalence.html">node_in_regular()</a></code> etc by replacing <code>to_multilevel()</code> with <code><a href="https://stocnet.github.io/manynet/reference/modif_levels.html" class="external-link">manynet::to_onemode()</a></code> to create square matrices</li>
+<li>Improved the equivalence functions to compare nodes’ profiles once, rather than twice, thanks <a href="https://github.com/Kaladani" class="external-link">@Kaladani</a> (closes <a href="https://github.com/stocnet/netrics/issues/29" class="external-link">#29</a>)
+<ul><li>
+<code><a href="../reference/member_equivalence.html">node_in_equivalence()</a></code>, <code><a href="../reference/member_equivalence.html">node_in_structural()</a></code>, <code><a href="../reference/member_equivalence.html">node_in_motif()</a></code>, and <code><a href="../reference/member_equivalence.html">node_in_automorphic()</a></code> now cluster the proximities between nodes’ profiles directly, as documented and as <code><a href="https://rdrr.io/pkg/sna/man/equiv.clust.html" class="external-link">sna::equiv.clust()</a></code> does</li>
+<li>Memberships may therefore differ from earlier versions; pass <code>distance = "euclidean"</code> to reproduce them</li>
+<li>Added <code>proximity=</code> to choose how profiles are compared, by default <code>"pearson"</code>, from any measure in <code><a href="https://stocnet.github.io/manynet/reference/modif_proximity.html" class="external-link">manynet::to_proximity()</a></code>, e.g. <code>"cosine"</code>, <code>"ruzicka"</code>, or <code>"overlap"</code>
+</li>
+<li>
+<code>distance=</code> is now <code>NULL</code> by default; naming a distance compares nodes a second time on their dissimilarities, as before</li>
+<li>Unbounded proximities such as <code>"count"</code> or <code>"crossmin"</code> are subtracted from the largest proximity, with a message, rather than returning negative merge heights</li>
+<li>A square census is now compared as the profile matrix it is, rather than as a one-mode network</li>
+<li>
+<code><a href="../reference/member_equivalence.html">node_in_regular()</a></code> now clusters the <code>regularity_*()</code> similarity directly</li>
+<li>Deprecated <code>cluster = "cosine"</code> and <code><a href="../reference/method_cluster.html">cluster_cosine()</a></code> in favour of <code>proximity = "cosine"</code>
+</li>
+<li>
+<code><a href="../reference/method_cluster.html">cluster_hierarchical()</a></code> now also returns the proximities it clustered as <code>$proximity</code>
+</li>
+</ul></li>
+<li>Fixed <code><a href="../reference/member_equivalence.html">node_in_automorphic()</a></code> erroring with <code>k = "elbow"</code> on weighted or unconnected networks
+<ul><li>Nodes that cannot reach each other are now treated as one step further apart than the most distant nodes that can, with a message</li>
+</ul></li>
+<li>Improved <code><a href="../reference/member_cliques.html">node_in_roulette()</a></code>, with some implications for <code><a href="../reference/member_equivalence.html">node_in_block()</a></code>
+<ul><li>Now uses an iterated local search to improve the partition, rather than a single pass of greedy moves
+<ul><li>Weak moves now kept only if they improve the partition</li>
+<li>Strong perturbation now restarts from the best partition</li>
+</ul></li>
+<li>Improved speed by several times</li>
+<li>Improved <code>groups=</code> to accept a vector of group sizes</li>
+<li>Added <code>attribute=</code> and <code>balance=</code> to mix groups by a node attribute</li>
+<li>Added <code>decay=</code> to discount ties from earlier waves or times, by default uniform</li>
+<li>Now stops with a message on a two-mode network</li>
+</ul></li>
+<li>Split the documentation of the non-hierarchical community algorithms into three pages, by the idea they share
+<ul><li>
+<code><a href="../reference/member_community_modular.html">?member_community_modular</a></code>, <code><a href="../reference/member_community_spread.html">?member_community_spread</a></code>, and <code><a href="../reference/member_community_partition.html">?member_community_partition</a></code> replace <code>?member_community_non</code>
+</li>
+<li>
+<code><a href="../reference/member_community.html">?member_community</a></code> now compares all the algorithms in one table</li>
+</ul></li>
+</ul></div>
+<div class="section level3">
+<h3 id="methods-1-1-0">Methods<a class="anchor" aria-label="anchor" href="#methods-1-1-0"></a></h3>
+<ul><li>Added <code><a href="../reference/method_search.html">search_tabu()</a></code> and <code><a href="../reference/method_search.html">search_iterated()</a></code> for finding membership that minimises a cost</li>
+</ul></div>
+<div class="section level3">
+<h3 id="motifs-1-1-0">Motifs<a class="anchor" aria-label="anchor" href="#motifs-1-1-0"></a></h3>
+<ul><li>Fixed <code><a href="../reference/motif_periods.html">net_x_stability()</a></code> miscounting the ties that changed between networks
+<ul><li>
+<code>==</code> bound after <code>*</code>, so it counted every absent tie, including self-ties, as changed</li>
+<li>Now also counts undirected and weighted ties only once</li>
+</ul></li>
+<li>Fixed <code><a href="../reference/motif_periods.html">net_x_correlation()</a></code> requiring a second network (closes <a href="https://github.com/stocnet/netrics/issues/27" class="external-link">#27</a>)
+<ul><li>Now correlates consecutive waves of a longitudinal network</li>
+</ul></li>
+<li>Fixed <code><a href="../reference/motif_periods.html">net_x_change()</a></code> and <code><a href="../reference/motif_periods.html">net_x_stability()</a></code> on networks with missing ties</li>
+<li>Fixed <code><a href="../reference/motif_path.html">node_x_path()</a></code> on weighted networks to return shortest path lengths (Opsahl et al. 2010)
+<ul><li>Was inverting tie weights, so every dyad without a tie was infinitely far apart</li>
+<li>Two-mode weighted networks now return a square matrix</li>
+</ul></li>
+<li>Improved <code><a href="../reference/motif_composition.html">node_x_alters()</a></code>, thanks <a href="https://github.com/RWKrause" class="external-link">@RWKrause</a> (closes <a href="https://github.com/stocnet/netrics/issues/39" class="external-link">#39</a>)
+<ul><li>Added <code>direction=</code> for out, in, reciprocated, or all (default) alters</li>
+<li>Added <code>WeightedSum</code>, each alter’s value times the strength of the tie to it</li>
+<li>Alters with missing values are now left out of the summary</li>
+<li>Nodes without alters of known value now return <code>NA</code>, also if categorical</li>
+<li>Two-mode attributes on one mode only are now read at distance two</li>
+<li>Signed ties now count by their magnitude</li>
+</ul></li>
+<li>Added <code><a href="../reference/motif_clique.html">node_x_percolation()</a></code> for overlapping communities by clique percolation (Palla et al. 2005) (closes <a href="https://github.com/stocnet/netrics/issues/21" class="external-link">#21</a>)</li>
+</ul></div>
+</div>
+    <div class="section level2">
+<h2 class="page-header" data-toc-text="1.0.3" id="netrics-103">netrics 1.0.3<small>2026-09-09</small><a class="anchor" aria-label="anchor" href="#netrics-103"></a></h2>
 <div class="section level3">
 <h3 id="measures-1-0-3">Measures<a class="anchor" aria-label="anchor" href="#measures-1-0-3"></a></h3>
 <ul><li>Fixed two <code><a href="../reference/measure_assort_node.html">node_by_homophily()</a></code> issues
@@ -108,13 +250,13 @@
 </ul></div>
 <div class="section level3">
 <h3 id="memberships-1-0-3">Memberships<a class="anchor" aria-label="anchor" href="#memberships-1-0-3"></a></h3>
-<ul><li>Fixed two <code><a href="../reference/member_community_non.html">node_in_leiden()</a></code> issues
+<ul><li>Fixed two <code><a href="../reference/member_community_modular.html">node_in_leiden()</a></code> issues
 <ul><li>It was returning a community for every node on an unweighted network</li>
 <li>It was overriding a user’s <code>resolution</code>
 </li>
 </ul></li>
-<li>Fixed <code><a href="../reference/member_community.html">node_in_community()</a></code>, <code><a href="../reference/member_community_non.html">node_in_spinglass()</a></code> and <code><a href="../reference/member_community_non.html">node_in_fluid()</a></code> treating a weakly connected directed network as unconnected</li>
-<li>Fixed <code><a href="../reference/member_community_non.html">node_in_partition()</a></code> returning a split it had already improved upon
+<li>Fixed <code><a href="../reference/member_community.html">node_in_community()</a></code>, <code><a href="../reference/member_community_modular.html">node_in_spinglass()</a></code> and <code><a href="../reference/member_community_spread.html">node_in_fluid()</a></code> treating a weakly connected directed network as unconnected</li>
+<li>Fixed <code><a href="../reference/member_community_partition.html">node_in_partition()</a></code> returning a split it had already improved upon
 <ul><li>Added <code>start=</code> for a random rather than a node-order initialisation</li>
 </ul></li>
 </ul></div>
@@ -159,7 +301,7 @@
 </ul></div>
 <div class="section level3">
 <h3 id="memberships-1-0-2">Memberships<a class="anchor" aria-label="anchor" href="#memberships-1-0-2"></a></h3>
-<ul><li>Fixed <code><a href="../reference/member_community.html">node_in_community()</a></code> erroring on signed networks, which now considers only <code><a href="../reference/member_community_non.html">node_in_spinglass()</a></code> (closes <a href="https://github.com/stocnet/netrics/issues/25" class="external-link">#25</a>)</li>
+<ul><li>Fixed <code><a href="../reference/member_community.html">node_in_community()</a></code> erroring on signed networks, which now considers only <code><a href="../reference/member_community_modular.html">node_in_spinglass()</a></code> (closes <a href="https://github.com/stocnet/netrics/issues/25" class="external-link">#25</a>)</li>
 <li>Fixed <code><a href="../reference/member_core.html">node_in_core()</a></code> and <code><a href="../reference/measure_core.html">node_by_core()</a></code> returning two values per node on multilevel networks (closes <a href="https://github.com/stocnet/netrics/issues/26" class="external-link">#26</a>)</li>
 </ul></div>
 <div class="section level3">
@@ -323,14 +465,14 @@
 <ul><li>Hierarchical algorithms cut their dendrograms at <code>k</code>
 </li>
 <li>
-<code><a href="../reference/member_community_non.html">node_in_louvain()</a></code> and <code><a href="../reference/member_community_non.html">node_in_leiden()</a></code> search the resolution parameter for the value that returns <code>k</code>
+<code><a href="../reference/member_community_modular.html">node_in_louvain()</a></code> and <code><a href="../reference/member_community_modular.html">node_in_leiden()</a></code> search the resolution parameter for the value that returns <code>k</code>
 </li>
 <li>
-<code><a href="../reference/member_community_non.html">node_in_fluid()</a></code> passes <code>k</code> straight to the algorithm, which also makes it much faster</li>
+<code><a href="../reference/member_community_spread.html">node_in_fluid()</a></code> passes <code>k</code> straight to the algorithm, which also makes it much faster</li>
 <li>
-<code><a href="../reference/member_community_non.html">node_in_labels()</a></code> seeds <code>k</code> fixed labels and merges any surplus groups by modularity</li>
+<code><a href="../reference/member_community_spread.html">node_in_labels()</a></code> seeds <code>k</code> fixed labels and merges any surplus groups by modularity</li>
 <li>
-<code><a href="../reference/member_community_non.html">node_in_partition()</a></code> is now a k-way Kernighan-Lin, and no longer returns only two groups</li>
+<code><a href="../reference/member_community_partition.html">node_in_partition()</a></code> is now a k-way Kernighan-Lin, and no longer returns only two groups</li>
 <li>
 <code><a href="../reference/member_community.html">node_in_community()</a></code> considers only these algorithms when <code>k</code> is given</li>
 <li>
@@ -338,14 +480,14 @@
 </li>
 <li>Note <code>k=</code> is now positioned second, so positional calls must name arguments</li>
 </ul></li>
-<li>Fixed <code><a href="../reference/member_community_non.html">node_in_fluid()</a></code> and <code><a href="../reference/member_community_non.html">node_in_spinglass()</a></code> aborting silently on disconnected networks</li>
-<li>Added <code><a href="../reference/member_community_non.html">node_in_labels()</a></code> for label propagation community detection</li>
+<li>Fixed <code><a href="../reference/member_community_spread.html">node_in_fluid()</a></code> and <code><a href="../reference/member_community_modular.html">node_in_spinglass()</a></code> aborting silently on disconnected networks</li>
+<li>Added <code><a href="../reference/member_community_spread.html">node_in_labels()</a></code> for label propagation community detection</li>
 <li>Renamed <code>times=</code> in <code><a href="../reference/member_community_hier.html">node_in_walktrap()</a></code> to <code>steps=</code>
 </li>
 <li>Added <code>consensus=</code> to <code><a href="../reference/member_community.html">node_in_community()</a></code> for combining partitions of all applicable algorithms
 <ul><li>Runs each algorithm (stochastic ones <code>times</code>), then converges on common groupings</li>
 <li>
-<code>consensus = FALSE</code> default, and ignored where network small enough for <code><a href="../reference/member_community_non.html">node_in_optimal()</a></code>
+<code>consensus = FALSE</code> default, and ignored where network small enough for <code><a href="../reference/member_community_modular.html">node_in_optimal()</a></code>
 </li>
 <li>Fixed returning nothing but an error whenever verbosity was not <code>"verbose"</code>
 </li>
@@ -547,7 +689,7 @@
 </ul></div>
 <div class="section level3">
 <h3 id="memberships-0-2-1">Memberships<a class="anchor" aria-label="anchor" href="#memberships-0-2-1"></a></h3>
-<ul><li>Added more explanation for <code><a href="../reference/member_community_non.html">node_in_partition()</a></code>
+<ul><li>Added more explanation for <code><a href="../reference/member_community_partition.html">node_in_partition()</a></code>
 </li>
 </ul></div>
 </div>
@@ -638,7 +780,7 @@
 <div class="section level4">
 <h4 id="memberships-0-1-0">Memberships<a class="anchor" aria-label="anchor" href="#memberships-0-1-0"></a></h4>
 <ul><li>
-<code><a href="../reference/member_diffusion.html">node_in_adopter()</a></code>, <code><a href="../reference/member_equivalence.html">node_in_automorphic()</a></code>, <code><a href="../reference/member_community_hier.html">node_in_betweenness()</a></code>, <code><a href="../reference/member_brokerage.html">node_in_brokering()</a></code>, <code><a href="../reference/member_community.html">node_in_community()</a></code>, <code><a href="../reference/member_components.html">node_in_component()</a></code>, <code><a href="../reference/member_core.html">node_in_core()</a></code>, <code><a href="../reference/member_community_hier.html">node_in_eigen()</a></code>, <code><a href="../reference/member_equivalence.html">node_in_equivalence()</a></code>, <code><a href="../reference/member_community_non.html">node_in_fluid()</a></code>, <code><a href="../reference/member_community_hier.html">node_in_greedy()</a></code>, <code><a href="../reference/member_community_non.html">node_in_infomap()</a></code>, <code><a href="../reference/member_community_non.html">node_in_leiden()</a></code>, <code><a href="../reference/member_community_non.html">node_in_louvain()</a></code>, <code><a href="../reference/member_community_non.html">node_in_optimal()</a></code>, <code><a href="../reference/member_community_non.html">node_in_partition()</a></code>, <code><a href="../reference/member_equivalence.html">node_in_regular()</a></code>, <code><a href="../reference/member_cliques.html">node_in_roulette()</a></code>, <code><a href="../reference/member_community_non.html">node_in_spinglass()</a></code>, <code><a href="../reference/defunct.html">node_in_strong()</a></code>, <code><a href="../reference/member_equivalence.html">node_in_structural()</a></code>, <code><a href="../reference/member_community_hier.html">node_in_walktrap()</a></code>, <code><a href="../reference/defunct.html">node_in_weak()</a></code>
+<code><a href="../reference/member_diffusion.html">node_in_adopter()</a></code>, <code><a href="../reference/member_equivalence.html">node_in_automorphic()</a></code>, <code><a href="../reference/member_community_hier.html">node_in_betweenness()</a></code>, <code><a href="../reference/member_brokerage.html">node_in_brokering()</a></code>, <code><a href="../reference/member_community.html">node_in_community()</a></code>, <code><a href="../reference/member_components.html">node_in_component()</a></code>, <code><a href="../reference/member_core.html">node_in_core()</a></code>, <code><a href="../reference/member_community_hier.html">node_in_eigen()</a></code>, <code><a href="../reference/member_equivalence.html">node_in_equivalence()</a></code>, <code><a href="../reference/member_community_spread.html">node_in_fluid()</a></code>, <code><a href="../reference/member_community_hier.html">node_in_greedy()</a></code>, <code><a href="../reference/member_community_spread.html">node_in_infomap()</a></code>, <code><a href="../reference/member_community_modular.html">node_in_leiden()</a></code>, <code><a href="../reference/member_community_modular.html">node_in_louvain()</a></code>, <code><a href="../reference/member_community_modular.html">node_in_optimal()</a></code>, <code><a href="../reference/member_community_partition.html">node_in_partition()</a></code>, <code><a href="../reference/member_equivalence.html">node_in_regular()</a></code>, <code><a href="../reference/member_cliques.html">node_in_roulette()</a></code>, <code><a href="../reference/member_community_modular.html">node_in_spinglass()</a></code>, <code><a href="../reference/defunct.html">node_in_strong()</a></code>, <code><a href="../reference/member_equivalence.html">node_in_structural()</a></code>, <code><a href="../reference/member_community_hier.html">node_in_walktrap()</a></code>, <code><a href="../reference/defunct.html">node_in_weak()</a></code>
 </li>
 </ul></div>
 </div>

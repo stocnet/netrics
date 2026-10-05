@@ -5,6 +5,9 @@ across this attribute:
 net_by_richness() measures the number of unique categories
 in a network attribute.
 net_by_diversity() measures the heterogeneity of ties across a network.
+Where a membership is given, it instead measures the heterogeneity
+within each group, as the mean over the groups weighted by their size,
+such as for the groups from node_in_roulette().
 
 "><meta property="og:image" content="https://stocnet.github.io/netrics/logo.png"><!-- mathjax --><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js" integrity="sha256-nvJJv9wWKEm88qvoQl9ekL2J+k/RWIsaSScxxlsrv8k=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/config/TeX-AMS-MML_HTMLorMML.js" integrity="sha256-84DKXVJXs0/F8OTMzX4UR909+jtl4G7SPypPavF+GfA=" crossorigin="anonymous"></script><!--[if lt IE 9]>
 <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
@@ -24,7 +27,7 @@ net_by_diversity() measures the heterogeneity of ties across a network.
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">netrics</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.0.3</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.1.0</span>
       </span>
     </div>
 
@@ -101,7 +104,10 @@ net_by_diversity() measures the heterogeneity of ties across a network.
 across a network, within groups of a network, or the distribution of ties
 across this attribute:</p><ul><li><p><code>net_by_richness()</code> measures the number of unique categories
 in a network attribute.</p></li>
-<li><p><code>net_by_diversity()</code> measures the heterogeneity of ties across a network.</p></li>
+<li><p><code>net_by_diversity()</code> measures the heterogeneity of ties across a network.
+Where a <code>membership</code> is given, it instead measures the heterogeneity
+within each group, as the mean over the groups weighted by their size,
+such as for the groups from <code><a href="member_cliques.html">node_in_roulette()</a></code>.</p></li>
 </ul></div>
 
     <div id="ref-usage">
@@ -110,7 +116,8 @@ in a network attribute.</p></li>
 <span><span class="fu">net_by_diversity</span><span class="op">(</span></span>
 <span>  <span class="va">.data</span>,</span>
 <span>  <span class="va">attribute</span>,</span>
-<span>  diversity <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"blau"</span>, <span class="st">"teachman"</span>, <span class="st">"variation"</span>, <span class="st">"gini"</span><span class="op">)</span></span>
+<span>  diversity <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"blau"</span>, <span class="st">"teachman"</span>, <span class="st">"variation"</span>, <span class="st">"gini"</span><span class="op">)</span>,</span>
+<span>  membership <span class="op">=</span> <span class="cn">NULL</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
 
@@ -135,6 +142,15 @@ or "variation" (coefficient of variation) or "gini" (Gini coefficient) for numer
 Default is "blau".
 If an incompatible method is chosen for the attribute type,
 a suitable alternative will be used instead with a message.</p></dd>
+
+
+<dt id="arg-membership">membership<a class="anchor" aria-label="anchor" href="#arg-membership"></a></dt>
+<dd><p>A character string naming an existing node attribute in
+the network, or a categorical vector of the same length as the number of
+nodes in the network where each element indicates the group membership of
+the corresponding node.
+While this may often be a vector created using <code>node_in_*()</code> functions,
+it can be any character vector that assigns nodes to groups or categories.</p></dd>
 
 </dl></div>
     <div id="value">
@@ -302,6 +318,10 @@ Princeton: Princeton University Press.
 <span class="r-in"><span><span class="fu">net_by_diversity</span><span class="op">(</span><span class="va">marvel_friends</span>, <span class="st">"Appearances"</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># Coefficient of variation (-Inf, Inf)</span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0.802</span>
+<span class="r-in"><span><span class="fu">net_by_diversity</span><span class="op">(</span><span class="va">marvel_friends</span>, <span class="st">"Gender"</span>,</span></span>
+<span class="r-in"><span>  membership <span class="op">=</span> <span class="fu"><a href="member_cliques.html">node_in_roulette</a></span><span class="op">(</span><span class="va">marvel_friends</span>, groups <span class="op">=</span> <span class="fl">3</span>, attribute <span class="op">=</span> <span class="st">"Gender"</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># Blau's index, normalized [0, 1]</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0.297</span>
 </code></pre></div>
     </div>
   </div>

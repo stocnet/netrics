@@ -33,7 +33,7 @@ and categorical as well as continuous attributes."><meta property="og:image" con
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">netrics</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.0.3</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.1.0</span>
       </span>
     </div>
 
@@ -125,7 +125,11 @@ and categorical as well as continuous attributes.</p>
     <div id="ref-usage">
     <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">node_x_ties</span><span class="op">(</span><span class="va">.data</span>, direction <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"all"</span>, <span class="st">"out"</span>, <span class="st">"in"</span><span class="op">)</span><span class="op">)</span></span>
 <span></span>
-<span><span class="fu">node_x_alters</span><span class="op">(</span><span class="va">.data</span>, <span class="va">attribute</span><span class="op">)</span></span>
+<span><span class="fu">node_x_alters</span><span class="op">(</span></span>
+<span>  <span class="va">.data</span>,</span>
+<span>  <span class="va">attribute</span>,</span>
+<span>  direction <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"all"</span>, <span class="st">"out"</span>, <span class="st">"in"</span>, <span class="st">"reciprocated"</span><span class="op">)</span></span>
+<span><span class="op">)</span></span>
 <span></span>
 <span><span class="fu">node_x_similarity</span><span class="op">(</span><span class="va">.data</span>, <span class="va">attribute</span><span class="op">)</span></span></code></pre></div>
     </div>
@@ -158,6 +162,31 @@ giving the count of each motif in which each node participates.
 It is printed as a tibble, however, to avoid greedy printing.
 If the network is labelled,
 then the node names will be in a column named <code>names</code>.</p>
+    </div>
+    <div id="cognitive-social-structures">
+    <h2>Cognitive social structures</h2>
+
+
+<p>A cognitive social structure records each node's report of the ties in
+the whole network, in a <code>by</code> column that names who reported each tie.
+Counting every report as a tie of its own would count each tie once for
+every perceiver who reports it.
+So the functions here first combine the reports into the locally
+aggregated structure of Krackhardt (1987), with the intersection rule:
+a tie exists if both of its ends report it, and a message says so.
+A tie that names no reporter is kept as it is.</p>
+<p>A tie-level function still returns one value for each report,
+so that the result can be added back to the network it was given.
+Each report takes the value of the tie that it reports.
+A report of a tie that is not in the aggregated structure takes <code>NA</code>,
+or <code>FALSE</code> for a mark.
+<code><a href="mark_select_tie.html">tie_is_random()</a></code> is the exception, and draws among the reports.</p>
+<p>To combine the reports in a different way, do this before the function,
+e.g. with <code>manynet::to_aggregated(over = "by")</code>.</p>
+<p>Krackhardt, David. 1987.
+"Cognitive social structures".
+<em>Social Networks</em> 9(2): 109-134.
+<a href="https://doi.org/10.1016/0378-8733%2887%2990009-8" class="external-link">doi:10.1016/0378-8733(87)90009-8</a></p>
     </div>
     <div id="multiplex-networks">
     <h2>Multiplex networks</h2>
@@ -205,16 +234,39 @@ alters rather than its arcs, while <code>Sum</code> matches its total degree.</p
 <p>Where the attribute is categorical, this returns how many of each node's
 alters fall into each category, weighted by tie strength where the network
 is weighted.
-Where it is continuous, this returns the sum, mean, tie-strength weighted
-mean, minimum, maximum, range, and standard deviation of the attribute
-across each node's alters.</p>
-<p>The weighted mean differs from the mean wherever a node's ties are of
-unequal strength: it describes the attribute of the alters a node is most
-involved with, rather than of its alters as an undifferentiated set.
-Isolates have no alters and so take <code>NA</code>.</p>
-<p>Any tie counts as a tie here, whatever its sign. Apply
-<code><a href="https://stocnet.github.io/manynet/reference/modif_weight.html" class="external-link">manynet::to_unsigned()</a></code> first to consider only positive or only negative
-ties.</p>
+Where it is continuous, this returns the sum, tie-strength weighted sum,
+mean, tie-strength weighted mean, minimum, maximum, range, and standard
+deviation of the attribute across each node's alters.</p>
+<p>The two weighted columns answer different questions.
+The weighted mean (<code>Weighted</code>) differs from the mean wherever a node's ties
+are of unequal strength: it describes the attribute of the alters a node
+is most involved with, rather than of its alters as an undifferentiated set.
+The weighted sum (<code>WeightedSum</code>) instead multiplies each alter's value by
+the strength of the tie to it, as where a tie's weight is an amount of
+exposure to that alter.
+On an unweighted network these equal the mean and the sum.</p>
+<p>Alters whose value is missing are left out of the summary.
+Nodes with no alters of known value, including isolates, take <code>NA</code>.</p>
+<p>In a directed network, <code>direction</code> selects which alters are described:
+those a node sends ties to (<code>"out"</code>), those it receives ties from
+(<code>"in"</code>), those it does either with (<code>"all"</code>), or those it does both with
+(<code>"reciprocated"</code>).
+Under <code>"all"</code> and <code>"reciprocated"</code>, an alter counts once,
+with the combined strength of the ties in both directions.</p>
+<p>In a two-mode network where the attribute is held by one mode alone,
+a node of that mode has no alters of known value at distance one.
+Each node of that mode is instead described by its alters at distance two,
+the nodes of its own mode that it shares a node of the other mode with,
+weighted by how many it shares (see Tertius similarity below).
+Each node of the other mode is described by its alters at distance one,
+which hold the attribute.
+Where both modes hold the attribute, every node is described by its
+alters at distance one.
+<code>direction</code> applies to one-mode networks only:
+a two-mode network is read as undirected.</p>
+<p>Any tie counts as a tie here, whatever its sign, and by its magnitude.
+Apply <code><a href="https://stocnet.github.io/manynet/reference/modif_weight.html" class="external-link">manynet::to_unsigned()</a></code> first to consider only positive or only
+negative ties.</p>
     </div>
     <div id="ego-alter-similarity">
     <h2>Ego-alter similarity</h2>
@@ -337,7 +389,9 @@ Germany's nuclear energy phase-out".
 <code><a href="member_cliques.html">member_cliques</a></code>,
 <code><a href="member_community.html">member_community</a></code>,
 <code><a href="member_community_hier.html">member_community_hier</a></code>,
-<code><a href="member_community_non.html">member_community_non</a></code>,
+<code><a href="member_community_modular.html">member_community_modular</a></code>,
+<code><a href="member_community_partition.html">member_community_partition</a></code>,
+<code><a href="member_community_spread.html">member_community_spread</a></code>,
 <code><a href="member_components.html">member_components</a></code>,
 <code><a href="member_core.html">member_core</a></code>,
 <code><a href="member_diffusion.html">member_diffusion</a></code>,
@@ -398,24 +452,56 @@ Germany's nuclear energy phase-out".
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># A tibble: 32 × 5</span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   names              Anthropology Mathematics.Statistics Other Sociology</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>                     <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>                  <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>     <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">1</span> Lin Freeman                <span style="text-decoration: underline;">1</span>196                    194   447      <span style="text-decoration: underline;">1</span>334</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">2</span> Doug White                  132                     75   250       664</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">3</span> Ev Rogers                    10                      0     0         4</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">4</span> Richard Alba                120                     17    25       169</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">5</span> Phipps Arabie                27                     12    24        92</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">6</span> Carol Barner-Barry           42                     14    28       155</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">1</span> Lin Freeman                <span style="text-decoration: underline;">2</span>106                    311   708      <span style="text-decoration: underline;">2</span>541</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">2</span> Doug White                  359                    128   425      <span style="text-decoration: underline;">1</span>421</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">3</span> Ev Rogers                    32                      0    23        60</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">4</span> Richard Alba                209                     40    60       344</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">5</span> Phipps Arabie                51                     12    34       147</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">6</span> Carol Barner-Barry           79                     14    53       307</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># ℹ 26 more rows</span></span>
 <span class="r-in"><span><span class="fu">node_x_alters</span><span class="op">(</span><span class="va">ison_networkers</span>, <span class="st">"Citations"</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># A tibble: 32 × 8</span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   names                Sum  Mean Weighted   Min   Max Range    SD</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>              <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">1</span> Lin Freeman          714  23.0    12.7      0   170   170 32.8 </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">2</span> Doug White           672  24      18.1      0   170   170 34.1 </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">3</span> Ev Rogers             31  10.3     9.71     3    19    16  8.08</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">4</span> Richard Alba         281  15.6    15.9      0    56    56 15.9 </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">5</span> Phipps Arabie        597  21.3    19.6      0   170   170 32.7 </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">6</span> Carol Barner-Barry   273  18.2    14.6      0    56    56 15.4 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># A tibble: 32 × 9</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   names                Sum WeightedSum  Mean Weighted   Min   Max Range    SD</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>              <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>       <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">1</span> Lin Freeman          714       <span style="text-decoration: underline;">66</span>879  23.0     11.8     0   170   170  32.8</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">2</span> Doug White           730       <span style="text-decoration: underline;">37</span>695  23.5     16.2     0   170   170  32.6</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">3</span> Ev Rogers            178        <span style="text-decoration: underline;">1</span>741  16.2     15.1     0    46    46  13.8</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">4</span> Richard Alba         297       <span style="text-decoration: underline;">10</span>386  15.6     15.9     0    56    56  15.4</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">5</span> Phipps Arabie        597        <span style="text-decoration: underline;">4</span>005  21.3     16.4     0   170   170  32.7</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">6</span> Carol Barner-Barry   289        <span style="text-decoration: underline;">6</span>960  18.1     15.4     0    56    56  14.8</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># ℹ 26 more rows</span></span>
+<span class="r-in"><span><span class="fu">node_x_alters</span><span class="op">(</span><span class="va">ison_networkers</span>, <span class="st">"Citations"</span>, direction <span class="op">=</span> <span class="st">"reciprocated"</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># A tibble: 32 × 9</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   names                Sum WeightedSum  Mean Weighted   Min   Max Range    SD</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>              <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>       <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">1</span> Lin Freeman          596       <span style="text-decoration: underline;">63</span>383  20.6     11.3     0   170   170 32.4 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">2</span> Doug White           518       <span style="text-decoration: underline;">34</span>756  24.7     16.0     0   170   170 37.4 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">3</span> Ev Rogers             31         764  10.3     11.9     3    19    16  8.08</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">4</span> Richard Alba         225       <span style="text-decoration: underline;">10</span>042  13.2     15.6     0    40    40 12.7 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">5</span> Phipps Arabie         64        <span style="text-decoration: underline;">1</span>825   8       11.7     0    19    19  7.67</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">6</span> Carol Barner-Barry   234        <span style="text-decoration: underline;">6</span>575  19.5     16.0     0    56    56 15.5 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># ℹ 26 more rows</span></span>
+<span class="r-in"><span><span class="fu">node_x_alters</span><span class="op">(</span><span class="va">ison_southern_women</span>, <span class="st">"Title"</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># A tibble: 18 × 3</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   names      Miss   Mrs</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>     <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">1</span> Evelyn       41     9</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">2</span> Laura        32    13</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">3</span> Theresa      38    19</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">4</span> Brenda       33    13</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">5</span> Charlotte    18     6</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">6</span> Frances      24     8</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># ℹ 12 more rows</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># A tibble: 14 × 3</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   names  Miss   Mrs</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">1</span> E1        2     1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">2</span> E2        2     1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">3</span> E3        5     1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">4</span> E4        3     1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">5</span> E5        7     1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">6</span> E6        6     2</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># ℹ 8 more rows</span></span>
 <span class="r-in"><span><span class="fu">node_x_similarity</span><span class="op">(</span><span class="va">ison_networkers</span>, <span class="st">"Discipline"</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># A tibble: 32 × 10</span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   names      TieSame TieDiff NoTieSame NoTieDiff PctSame      EI   Odds  LogOdds</span>

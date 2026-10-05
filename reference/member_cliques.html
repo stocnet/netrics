@@ -21,7 +21,7 @@ node_in_roulette() assigns nodes to maximally diverse groups.
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">netrics</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.0.3</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.1.0</span>
       </span>
     </div>
 
@@ -99,7 +99,16 @@ cliques:</p><ul><li><p><code>node_in_roulette()</code> assigns nodes to maximall
 </ul></div>
 
     <div id="ref-usage">
-    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">node_in_roulette</span><span class="op">(</span><span class="va">.data</span>, <span class="va">groups</span>, <span class="va">group_size</span>, times <span class="op">=</span> <span class="cn">NULL</span>, num_groups <span class="op">=</span> <span class="cn">NULL</span><span class="op">)</span></span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">node_in_roulette</span><span class="op">(</span></span>
+<span>  <span class="va">.data</span>,</span>
+<span>  <span class="va">groups</span>,</span>
+<span>  <span class="va">group_size</span>,</span>
+<span>  times <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  decay <span class="op">=</span> <span class="fl">1</span>,</span>
+<span>  attribute <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  balance <span class="op">=</span> <span class="fl">0.5</span>,</span>
+<span>  num_groups <span class="op">=</span> <span class="cn">NULL</span></span>
+<span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div id="arguments">
@@ -113,7 +122,9 @@ For more information on possible coercions, see e.g. <code><a href="https://stoc
 
 
 <dt id="arg-groups">groups<a class="anchor" aria-label="anchor" href="#arg-groups"></a></dt>
-<dd><p>An integer indicating the number of groups desired.</p></dd>
+<dd><p>An integer indicating the number of groups desired,
+or a vector of the size of each group, which must sum to the number of nodes.
+The groups then keep exactly these sizes.</p></dd>
 
 
 <dt id="arg-group-size">group_size<a class="anchor" aria-label="anchor" href="#arg-group-size"></a></dt>
@@ -129,6 +140,22 @@ and the best or the most frequent result is kept.
 Where the algorithm searches, this is how many steps the search takes.
 More repetitions give a more reliable result and take longer,
 so each function documents its own default.</p></dd>
+
+
+<dt id="arg-decay">decay<a class="anchor" aria-label="anchor" href="#arg-decay"></a></dt>
+<dd><p>A proportion between 0 and 1 by which a tie in a longitudinal
+or dynamic network is discounted for each wave or unit of time before the latest.
+By default 1, so that every earlier tie costs the same.</p></dd>
+
+
+<dt id="arg-attribute">attribute<a class="anchor" aria-label="anchor" href="#arg-attribute"></a></dt>
+<dd><p>Optionally, the name of a node attribute, or a vector
+with a value for each node, on which the groups should be mixed.</p></dd>
+
+
+<dt id="arg-balance">balance<a class="anchor" aria-label="anchor" href="#arg-balance"></a></dt>
+<dd><p>A proportion between 0 and 1 that weighs mixing on the
+<code>attribute</code> against keeping tied nodes apart. By default 0.5.</p></dd>
 
 
 <dt id="arg-num-groups">num_groups<a class="anchor" aria-label="anchor" href="#arg-num-groups"></a></dt>
@@ -148,9 +175,11 @@ then the assignments will be labelled with the nodes' names.</p>
     <p><code>times</code> defaults to the number of nodes multiplied by the number of groups.
 This heuristic may be insufficient for small networks and numbers of groups,
 and burdensome for large ones, but can be overwritten.
-At every 10th iteration, a stronger perturbation of a number of successive
-changes, approximately the number of nodes divided by the number of groups,
-takes place whether or not it improves the objective function.</p>
+Each iteration makes a weak perturbation, and keeps it only
+if it improves the objective function.
+At every 10th iteration, the search starts again from a stronger
+perturbation of the best solution so far, a number of successive changes
+approximately the number of nodes divided by the number of groups.</p>
     </div>
     <div id="maximally-diverse-grouping-problem">
     <h2>Maximally diverse grouping problem</h2>
@@ -165,14 +194,65 @@ that minimises the sum of their previous (weighted) ties:</p>
 <p>$$\sum_{g=1}^{m} \sum_{i=1}^{n-1} \sum_{j=i+1}^{n} x_{ij} y_{ig} y_{jg}$$</p>
 <p>where \(y_{ig} = 1\) if node \(i\) is in group \(g\), and 0 otherwise.</p>
 <p>\(x_{ij}\) is the existing network data.
-If this is an empty network, the function will just return cliques.
-To run this repeatedly, one can join a clique network of the membership result
-with the original network, using this as the network data for the next round.</p>
+If this is an empty network, the function will just return cliques.</p>
 <p>A form of the Lai and Hao (2016) iterated maxima search (IMS) is used here.
 This performs well for small and moderately sized networks.
 It includes both weak and strong perturbations to an initial solution
 to ensure that a robust solution from the broader state space is identified.
 The user is referred to Lai and Hao (2016) and Lai et al (2021) for more details.</p>
+    </div>
+    <div id="repeated-rounds">
+    <h2>Repeated rounds</h2>
+
+
+<p>The history of earlier rounds is held in the network data.
+A weighted network costs each pair by the weight of their tie.
+A longitudinal network, with a wave for each earlier round,
+or a dynamic network, with a <code>time</code> (or <code>begin</code> and <code>end</code>) for each tie,
+costs each tie by <code>decay</code> for each wave or unit of time before the latest.
+With <code>decay = 1</code>, every earlier meeting costs the same;
+with <code>decay = 0</code>, only the latest meetings cost anything.
+A date is discounted for each day.</p>
+<p>To record a new round, add the membership's ties to the network
+as a new wave, as in the examples.</p>
+    </div>
+    <div id="mixing-on-an-attribute">
+    <h2>Mixing on an attribute</h2>
+
+
+<p>Where an <code>attribute</code> is given, the function also places nodes that
+differ on that attribute in the same group,
+as in the diversity-based assignment of the grouper package.
+Both costs are first scaled to \([0,1]\).
+A categorical attribute costs a pair 1 where their categories differ,
+and a numeric attribute costs a pair their absolute difference over its maximum.
+<code>balance</code> then weighs the attribute against the ties:
+0 considers only the ties, and 1 only the attribute.</p>
+    </div>
+    <div id="cognitive-social-structures">
+    <h2>Cognitive social structures</h2>
+
+
+<p>A cognitive social structure records each node's report of the ties in
+the whole network, in a <code>by</code> column that names who reported each tie.
+Counting every report as a tie of its own would count each tie once for
+every perceiver who reports it.
+So the functions here first combine the reports into the locally
+aggregated structure of Krackhardt (1987), with the intersection rule:
+a tie exists if both of its ends report it, and a message says so.
+A tie that names no reporter is kept as it is.</p>
+<p>A tie-level function still returns one value for each report,
+so that the result can be added back to the network it was given.
+Each report takes the value of the tie that it reports.
+A report of a tie that is not in the aggregated structure takes <code>NA</code>,
+or <code>FALSE</code> for a mark.
+<code><a href="mark_select_tie.html">tie_is_random()</a></code> is the exception, and draws among the reports.</p>
+<p>To combine the reports in a different way, do this before the function,
+e.g. with <code>manynet::to_aggregated(over = "by")</code>.</p>
+<p>Krackhardt, David. 1987.
+"Cognitive social structures".
+<em>Social Networks</em> 9(2): 109-134.
+<a href="https://doi.org/10.1016/0378-8733%2887%2990009-8" class="external-link">doi:10.1016/0378-8733(87)90009-8</a></p>
     </div>
     <div id="references">
     <h2>References</h2>
@@ -200,7 +280,10 @@ The user is referred to Lai and Hao (2016) and Lai et al (2021) for more details
 <code><a href="member_brokerage.html">member_brokerage</a></code>,
 <code><a href="member_community.html">member_community</a></code>,
 <code><a href="member_community_hier.html">member_community_hier</a></code>,
-<code><a href="member_community_non.html">member_community_non</a></code>,
+<code><a href="member_community_link.html">member_community_link</a></code>,
+<code><a href="member_community_modular.html">member_community_modular</a></code>,
+<code><a href="member_community_partition.html">member_community_partition</a></code>,
+<code><a href="member_community_spread.html">member_community_spread</a></code>,
 <code><a href="member_components.html">member_components</a></code>,
 <code><a href="member_core.html">member_core</a></code>,
 <code><a href="member_diffusion.html">member_diffusion</a></code>,
@@ -225,7 +308,9 @@ The user is referred to Lai and Hao (2016) and Lai et al (2021) for more details
 <code><a href="member_brokerage.html">member_brokerage</a></code>,
 <code><a href="member_community.html">member_community</a></code>,
 <code><a href="member_community_hier.html">member_community_hier</a></code>,
-<code><a href="member_community_non.html">member_community_non</a></code>,
+<code><a href="member_community_modular.html">member_community_modular</a></code>,
+<code><a href="member_community_partition.html">member_community_partition</a></code>,
+<code><a href="member_community_spread.html">member_community_spread</a></code>,
 <code><a href="member_components.html">member_components</a></code>,
 <code><a href="member_core.html">member_core</a></code>,
 <code><a href="member_diffusion.html">member_diffusion</a></code>,
@@ -243,7 +328,38 @@ The user is referred to Lai and Hao (2016) and Lai et al (2021) for more details
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="fu">node_in_roulette</span><span class="op">(</span><span class="va">ison_adolescents</span>, groups <span class="op">=</span> <span class="fl">3</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;">3 groups</span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   Betty Sue   Alice Jane  Dale  Pam   Carol Tina </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">1</span> B     A     C     A     B     B     C     C    </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">1</span> C     A     B     A     C     C     A     B    </span>
+<span class="r-in"><span><span class="co"># Mix the groups on an attribute</span></span></span>
+<span class="r-in"><span><span class="va">marvel_friends</span> <span class="op">&lt;-</span> <span class="fu">to_unsigned</span><span class="op">(</span><span class="fu">to_uniplex</span><span class="op">(</span><span class="va">fict_marvel</span>, <span class="st">"relationship"</span><span class="op">)</span>, <span class="st">"positive"</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu">node_in_roulette</span><span class="op">(</span><span class="va">marvel_friends</span>, groups <span class="op">=</span> <span class="fl">3</span>, attribute <span class="op">=</span> <span class="st">"Gender"</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;">3 groups</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   Abomination `Ant-Man` Apocalypse Beast `Black Panther` `Black Widow` Blade</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">1</span> C           A         C          C     B               C             B    </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># ... and 46 more values from this nodeset. Use `print_all(...)` to print all values.</span></span>
+<span class="r-in"><span><span class="co"># Record three rounds as waves, discounting older meetings by half</span></span></span>
+<span class="r-in"><span><span class="va">net</span> <span class="op">&lt;-</span> <span class="fu">create_empty</span><span class="op">(</span><span class="fl">8</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="kw">for</span><span class="op">(</span><span class="va">round</span> <span class="kw">in</span> <span class="fl">1</span><span class="op">:</span><span class="fl">3</span><span class="op">)</span><span class="op">{</span></span></span>
+<span class="r-in"><span>  <span class="va">grp</span> <span class="op">&lt;-</span> <span class="fu">node_in_roulette</span><span class="op">(</span><span class="va">net</span>, group_size <span class="op">=</span> <span class="fl">4</span>, decay <span class="op">=</span> <span class="fl">0.5</span><span class="op">)</span></span></span>
+<span class="r-in"><span>  <span class="va">pairs</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/which.html" class="external-link">which</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/outer.html" class="external-link">outer</a></span><span class="op">(</span><span class="va">grp</span>, <span class="va">grp</span>, <span class="st">"=="</span><span class="op">)</span> <span class="op">&amp;</span> <span class="fu"><a href="https://rdrr.io/r/base/lower.tri.html" class="external-link">upper.tri</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/diag.html" class="external-link">diag</a></span><span class="op">(</span><span class="fl">8</span><span class="op">)</span><span class="op">)</span>, arr.ind <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
+<span class="r-in"><span>  <span class="va">net</span> <span class="op">&lt;-</span> <span class="fu">add_ties</span><span class="op">(</span><span class="va">net</span>, <span class="va">pairs</span>, attr_list <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>time <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="va">round</span>, <span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">nrow</a></span><span class="op">(</span><span class="va">pairs</span><span class="op">)</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="op">}</span></span></span>
+<span class="r-in"><span><span class="va">net</span></span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">──</span> <span style="font-weight: bold;"># Empty network</span> <span style="color: #00BBBB;">─────────────────────────────────────────────────────────────</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #5F87D7; font-style: italic;"># A longitudinal, undirected network of 8 nodes and 36 ties over 3 waves</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> ── Ties </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># A tibble: 36 × 3</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    from    to  time</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;int&gt;</span> <span style="color: #949494; font-style: italic;">&lt;int&gt;</span> <span style="color: #949494; font-style: italic;">&lt;int&gt;</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">1</span>     1     2     1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">2</span>     3     4     1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">3</span>     1     5     1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">4</span>     2     5     1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">5</span>     3     6     1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">6</span>     4     6     1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># ℹ 30 more rows</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
 </code></pre></div>
     </div>
   </div>
