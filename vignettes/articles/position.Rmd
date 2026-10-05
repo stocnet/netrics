@@ -740,7 +740,8 @@ By default this is `"pearson"`, the correlation between each pair of profiles,
 but any of the measures in `manynet::to_proximity()` can be used,
 such as `"cosine"`, or `"ruzicka"` for counts.
 The resulting node-by-node matrix is what gets clustered,
-and you can look at it yourself with `node_x_proximity()`.
+and you can look at it yourself in the `proximity` element of the clustering,
+e.g. `attr(node_in_structural(ison_algebra), "hc")$proximity`.
 
 Optionally, users can ask for the nodes to be compared a second time,
 on how (dis)similar they are to every node, by naming a `distance`.

@@ -106,57 +106,6 @@ seq_nodes <- function(.data){
 
 # nocov end
 
-# A 'stocnet' object holds a tie's sign as the sign of its weight, so a signed
-# network reaches igraph carrying a `weight` attribute of -1 and 1. igraph's
-# shortest path functions read any attribute of that name as a distance, and
-# either abort on the negative values or report a negative cycle.
-#
-# Dropping the attribute would keep the negative ties as paths of length one,
-# which is the wrong reading: a negative tie is hostility, not a channel along
-# which cohesion travels. Path-based measures therefore run over the positive
-# ties alone, as `node_x_clique()` does for the same reason.
-.to_positive <- function(.data){
-  if(manynet::is_signed(.data)){
-    manynet::snet_info("Using only the positive ties,",
-                       "since a negative tie does not carry cohesion.")
-    manynet::to_unsigned(.data, keep = "positive")
-  } else .data
-}
-
-# The other half of the signed treatment. Where a measure counts a tie however
-# it is signed, as a census does, every non-zero entry is a tie and the sign
-# carries nothing: `igraph::triad_census()` reads a signed network this way,
-# and `.mixed_census()` makes the same reading explicit. This keeps every tie,
-# so a tie-level result still holds one value per tie, which `.to_positive()`
-# would not.
-#
-# TODO: `keep = "both"` arrived in manynet 2.3.2, but the DESCRIPTION floor is
-# 2.3.1, which is what CRAN serves and what the CI checks run against. The
-# fallback takes each weight's magnitude instead, which is the same operation.
-# Remove the fallback and call `manynet::to_unsigned(keep = "both")` directly
-# once the floor is raised past 2.3.2.
-.to_unsigned <- function(.data){
-  if(manynet::is_signed(.data)){
-    manynet::snet_info("Reading each tie by its magnitude,",
-                       "since a tie counts here however it is signed.")
-    if("both" %in% eval(formals(manynet::to_unsigned)$keep))
-      manynet::to_unsigned(.data, keep = "both")
-    else {
-      # The fallback has to return the class it was given, as
-      # `manynet::to_unsigned()` does, since the measure that called this
-      # passes the result on to its `make_*()` constructor. A sign is held
-      # either in a `sign` attribute or as the sign of a weight, so both are
-      # covered.
-      out <- .data
-      if("sign" %in% manynet::net_tie_attributes(out))
-        out <- manynet::mutate_ties(out, sign = NULL)
-      if("weight" %in% manynet::net_tie_attributes(out))
-        out <- manynet::mutate_ties(out, weight = abs(weight))
-      out
-    }
-  } else .data
-}
-
 # A cognitive social structure (CSS) asks every node to report on the ties of
 # the whole network, and records who reported each tie in a 'by' column. Since
 # 'manynet' 2.4.0, `manynet::as_matrix()` returns such a network as a
@@ -170,7 +119,7 @@ seq_nodes <- function(.data){
 # that names no reporter, such as a formal reporting line, is kept as it is.
 #
 # TODO: `manynet::to_aggregated()` arrived in manynet 2.4.0, but the
-# DESCRIPTION floor is 2.3.1, whose `manynet::as_matrix()` already returns the
+# DESCRIPTION floor is 2.3.5, whose `manynet::as_matrix()` already returns the
 # perceivers' array. The fallback keeps the report of each tie by its sender,
 # where its receiver reports it too, which is the same structure. Remove the
 # fallback and call `manynet::to_aggregated()` directly once the floor is
@@ -244,26 +193,6 @@ seq_nodes <- function(.data){
   # The constructor names each tie of the network it is given.
   names(out) <- names(make_tie_mark(logical(length(out)), .data))
   out
-}
-
-# `manynet::is_multilevel()` is not exported by every 'manynet' version that
-# this package supports, so the test is kept here. A multilevel network reports
-# itself as two-mode, but interlocks its levels: it has ties both within and
-# between the modes. A network whose ties all run between the modes, as
-# `ison_southern_women`'s do, is a plain two-mode network. A network whose ties
-# all fall within the modes is two networks and not two levels of one.
-.is_multilevel <- function(.data){
-  .data <- manynet::as_igraph(.data)
-  # `to_multilevel()` records levels in a 'lvl' attribute and deletes 'type',
-  # so a network that is already converted has to be recognised by its levels.
-  if("lvl" %in% igraph::vertex_attr_names(.data))
-    return(length(unique(igraph::vertex_attr(.data, "lvl"))) > 1)
-  if(!manynet::is_twomode(.data)) return(FALSE)
-  if(igraph::ecount(.data) == 0) return(FALSE)
-  type <- igraph::vertex_attr(.data, "type")
-  ends <- igraph::ends(.data, igraph::E(.data), names = FALSE)
-  between <- type[ends[,1]] != type[ends[,2]]
-  any(between) && any(!between)
 }
 
 # The cells of an adjacency matrix that are possible ties: a node cannot be tied

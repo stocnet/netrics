@@ -55,7 +55,10 @@
 #'   e.g. `"cosine"`, `"ruzicka"`, `"overlap"`, `"euclidean"`, or `"hamming"`.
 #'   Note that `"jaccard"` dichotomises a valued census;
 #'   `"ruzicka"` is the weighted counterpart that keeps the counts.
-#'   The proximities themselves are returned by [node_x_proximity()].
+#'   The proximities themselves are in the `proximity` element of the
+#'   clustering, e.g. `attr(node_in_structural(.data), "hc")$proximity`,
+#'   or can be made with [manynet::to_proximity()] from any census,
+#'   using `across = "rows"` and `dyad = "include"`.
 #'   Ignored when `cluster = "concor"`.
 #'   `"asis"` clusters a `motif` that is already a node-by-node similarity.
 #'   `node_in_regular()` does not take it, 

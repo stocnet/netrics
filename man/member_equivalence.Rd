@@ -113,7 +113,10 @@ but any measure offered there can be used,
 e.g. \code{"cosine"}, \code{"ruzicka"}, \code{"overlap"}, \code{"euclidean"}, or \code{"hamming"}.
 Note that \code{"jaccard"} dichotomises a valued census;
 \code{"ruzicka"} is the weighted counterpart that keeps the counts.
-The proximities themselves are returned by \code{\link[=node_x_proximity]{node_x_proximity()}}.
+The proximities themselves are in the \code{proximity} element of the
+clustering, e.g. \code{attr(node_in_structural(.data), "hc")$proximity},
+or can be made with \code{\link[manynet:to_proximity]{manynet::to_proximity()}} from any census,
+using \code{across = "rows"} and \code{dyad = "include"}.
 Ignored when \code{cluster = "concor"}.
 \code{"asis"} clusters a \code{motif} that is already a node-by-node similarity.
 \code{node_in_regular()} does not take it,

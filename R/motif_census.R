@@ -15,8 +15,6 @@
 #'   Where the network is weighted, stronger ties are shorter steps:
 #'   each tie costs the mean tie weight divided by its own weight.
 #'   Nodes that cannot reach each other are an infinite distance apart.
-#'   - `node_x_proximity()` returns how alike each pair of nodes' profiles
-#'   in some census are, by default their profiles of ties.
 #'   
 #' @section Multiplex networks:
 #'   `node_x_tie()` binds the layers together, giving one block of columns
@@ -133,7 +131,7 @@ node_x_tie <- function(.data){
 node_x_path <- function(.data){
   .data <- manynet::expect_nodes(.data)
   .data <- .to_aggregated_css(.data)
-  .data <- .to_positive(.data)
+  .data <- manynet::to_positive(.data)
   object <- manynet::as_igraph(.data)
   if(manynet::is_weighted(.data)){
     # A stronger tie is a shorter step (Opsahl et al. 2010): each tie costs
@@ -142,32 +140,6 @@ node_x_path <- function(.data){
     out <- igraph::distances(object, weights = mean(weights)/weights)
   } else out <- igraph::distances(object)
   diag(out) <- 0
-  make_node_motif(out, .data)
-}
-
-#' @rdname motif_path
-#' @template param_motf
-#' @param proximity Character string indicating how nodes' profiles
-#'   should be compared, passed on to [manynet::to_proximity()].
-#'   By default `"pearson"`, their correlation.
-#' @section Proximity:
-#'   `node_x_proximity()` returns the middle step of the equivalence pipeline:
-#'   the node-by-node matrix that [node_in_equivalence()] and related 
-#'   functions cluster.
-#'   Use it to inspect how alike nodes' positions are, 
-#'   or to ask whether some attribute structures that likeness.
-#'   Note that the diagonal is 0, as [manynet::to_proximity()] returns it.
-#' @examples
-#' node_x_proximity(ison_adolescents)
-#' node_x_proximity(ison_adolescents, node_x_triad(ison_adolescents), "cosine")
-#' @export
-node_x_proximity <- function(.data, motif = node_x_tie(.data), 
-                             proximity = "pearson"){
-  .data <- manynet::expect_nodes(.data)
-  .data <- .to_aggregated_css(.data)
-  out <- .proximity(motif, proximity)
-  if(manynet::is_labelled(.data)) 
-    colnames(out) <- manynet::node_names(.data)
   make_node_motif(out, .data)
 }
 
@@ -192,8 +164,6 @@ node_x_proximity <- function(.data, motif = node_x_tie(.data),
 #'   Where the network is weighted, stronger ties are shorter steps:
 #'   each tie costs the mean tie weight divided by its own weight.
 #'   Nodes that cannot reach each other are an infinite distance apart.
-#'   - `node_x_proximity()` returns how alike each pair of nodes' profiles
-#'   in some census are, by default their profiles of ties.
 #'   
 #' @template param_data
 #' @family cohesion
