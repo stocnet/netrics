@@ -160,6 +160,8 @@ Each node of the other mode is described by its alters at distance one,
 which hold the attribute.
 Where both modes hold the attribute, every node is described by its
 alters at distance one.
+\code{direction} applies to one-mode networks only:
+a two-mode network is read as undirected.
 
 Any tie counts as a tie here, whatever its sign, and by its magnitude.
 Apply \code{\link[manynet:to_unsigned]{manynet::to_unsigned()}} first to consider only positive or only

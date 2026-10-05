@@ -89,13 +89,17 @@ resolve_max_k <- function(max_k, Kmax = NULL) {
 # `cluster = "cosine"` named a proximity and not a clustering algorithm.
 # Accepts the old value and warns, moving it to `proximity`.
 resolve_cluster <- function(cluster, proximity) {
-  cluster <- match.arg(cluster[1], c("hierarchical", "concor", "cosine"))
-  if(cluster == "cosine") {
+  cluster <- cluster[1]
+  # Only the whole word is the old value, so that fewer letters, such as "c",
+  # still name an algorithm.
+  if(identical(cluster, "cosine")) {
     warning("`cluster = \"cosine\"` is deprecated, ",
             "since cosine is a proximity and not a clustering algorithm. ",
             "Please use `proximity = \"cosine\"` instead.", call. = FALSE)
     cluster <- "hierarchical"
     proximity <- "cosine"
+  } else {
+    cluster <- match.arg(cluster, c("hierarchical", "concor"))
   }
   list(cluster = cluster, proximity = proximity)
 }
@@ -222,7 +226,7 @@ make_mode_measure <- function(out, .data, call, measure = NULL,
 
 make_node_member <- function(out, .data) {
   if(is.numeric(out))
-    out <- MORELETTERS[out]
+    out <- .group_labels(out)
   if (manynet::is_labelled(.data)) names(out) <- manynet::node_names(.data)
   class(out) <- c("node_member", class(out))
   attr(out, "mode") <- manynet::node_is_mode(.data)
@@ -233,12 +237,25 @@ make_node_member <- function(out, .data) {
 # attribute as a node membership does.
 make_tie_member <- function(out, .data) {
   if(is.numeric(out))
-    out <- MORELETTERS[out]
+    out <- .group_labels(out)
   class(out) <- c("tie_member", class(out))
   .name_ties(out, .data)
 }
 
-MORELETTERS <- c(LETTERS, sapply(LETTERS, function(x) paste0(x, LETTERS)))
+# Labels groups 'A' to 'Z', then 'AA' to 'ZZ', then 'AAA', and so on, so that
+# no number of groups is left without a label.
+.group_labels <- function(x) {
+  out <- rep(NA_character_, length(x))
+  left <- as.numeric(x)
+  todo <- !is.na(left) & left >= 1
+  out[todo] <- ""
+  while(any(todo)) {
+    out[todo] <- paste0(LETTERS[(left[todo] - 1) %% 26 + 1], out[todo])
+    left[todo] <- (left[todo] - 1) %/% 26
+    todo <- todo & left >= 1
+  }
+  out
+}
 
 make_node_motif <- function(out, .data) {
   class(out) <- c("node_motif", class(out))

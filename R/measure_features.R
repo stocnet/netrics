@@ -654,8 +654,15 @@ net_by_modularity <- function(.data,
 #' @export
 net_by_linkdensity <- function(.data, membership = NULL){
   .data <- manynet::expect_ties(.data)
+  reports <- .data
   .data <- .to_aggregated_css(.data)
   if(is.null(membership)) membership <- tie_in_community(.data)
+  # A membership of a cognitive social structure's reports, such as that from
+  # `tie_in_community()`, takes the group of the first report of each tie.
+  if(manynet::is_cognitive(reports) &&
+     length(membership) == manynet::net_ties(reports))
+    membership <- unname(unclass(membership))[match(.tie_keys(.data),
+                                                    .tie_keys(reports))]
   if(length(membership) != manynet::net_ties(.data))
     manynet::snet_abort("{.arg membership} must hold one group for each",
                         "tie in the network.")

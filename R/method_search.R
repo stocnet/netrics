@@ -48,7 +48,8 @@ NULL
 #'   `times` is the number of steps.
 #'
 #'   The moves keep the groups at near-equal size: groups that begin equal
-#'   stay equal. That is what `node_in_roulette()` needs, but it means this
+#'   stay equal, and groups that begin unequal move towards equal sizes.
+#'   That is what `node_in_roulette()` needs, but it means this
 #'   search cannot find, say, a small core beside a large periphery.
 #'   Since the moves are drawn at random, repeated runs may return different
 #'   memberships; set a seed to repeat one.
@@ -58,13 +59,20 @@ NULL
 #' search_iterated(cost, init = rep(1:2, 4), times = 50)
 #' @export
 search_iterated <- function(cost, init, times, delta = NULL){
+  .search_iterated(cost, init, times, delta)
+}
+
+# `weak` is the weak perturbation. `.swapMove` alone keeps every group at the
+# size it began with, which `node_in_roulette()` needs for given group sizes.
+.search_iterated <- function(cost, init, times, delta = NULL,
+                             weak = .weakPerturb){
   out <- init
   fit <- cost(out)
   tol <- .search_tol(fit)
   soln <- out
   soln_fit <- fit
   for(t in seq_len(times)){
-    cand <- .weakPerturb(soln)
+    cand <- weak(soln)
     change <- if(is.null(delta)) cost(cand) - soln_fit else delta(soln, cand)
     if(change < -tol){
       soln <- cand
@@ -75,7 +83,7 @@ search_iterated <- function(cost, init, times, delta = NULL){
       fit <- soln_fit
     }
     if(t %% 10 == 0){
-      soln <- .strongPerturb(out)
+      soln <- .strongPerturb(out, weak = weak)
       soln_fit <- cost(soln)
     }
   }

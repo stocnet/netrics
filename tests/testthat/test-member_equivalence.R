@@ -142,6 +142,11 @@ test_that("cluster = 'cosine' is deprecated in favour of proximity", {
   expect_warning(old <- node_in_structural(ison_algebra, cluster = "cosine"),
                  "proximity")
   expect_equal(c(old), c(node_in_structural(ison_algebra, proximity = "cosine")))
+  # fewer letters still name an algorithm
+  expect_equal(c(node_in_structural(ison_adolescents, cluster = "c")),
+               c(node_in_structural(ison_adolescents, cluster = "concor")))
+  expect_equal(c(node_in_structural(ison_adolescents, cluster = "h")),
+               c(node_in_structural(ison_adolescents)))
 })
 
 test_that("equivalence takes the proximities manynet offers", {

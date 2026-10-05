@@ -96,10 +96,10 @@ seq_nodes <- function(.data){
   soln
 }
 
-.strongPerturb <- function(soln, strength = 1){
+.strongPerturb <- function(soln, strength = 1, weak = .weakPerturb){
   times <- ceiling(strength * length(soln)/max(soln))
   for (t in seq.int(times)){
-    soln <- .weakPerturb(soln)
+    soln <- weak(soln)
   }
   soln
 }

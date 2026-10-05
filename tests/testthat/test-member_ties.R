@@ -12,6 +12,17 @@ test_that("tie_in_community finds link communities", {
   expect_equal(as.numeric(net_by_linkdensity(net, res)), 1)
 })
 
+test_that("tie memberships are labelled beyond 702 groups", {
+  expect_equal(netrics:::.group_labels(c(1, 26, 27, 702, 703, NA)),
+               c("A", "Z", "AA", "ZZ", "AAA", NA))
+  net <- igraph::make_graph(c(rbind(seq(1, 1600, 2), seq(2, 1600, 2))),
+                            directed = FALSE)
+  res <- tie_in_community(net)
+  expect_false(anyNA(res))
+  expect_length(unique(res), 800)
+  expect_false(anyNA(node_in_component(net)))
+})
+
 test_that("tie_in_community keeps a place for every tie", {
   res <- tie_in_community(ison_adolescents)
   expect_length(res, c(manynet::net_ties(ison_adolescents)))

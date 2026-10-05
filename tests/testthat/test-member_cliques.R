@@ -8,6 +8,11 @@ test_that("node_in_roulette works", {
   # a vector gives the size of each group
   expect_equal(sort(c(table(node_in_roulette(ison_adolescents, groups = c(3, 3, 2)))),
                     decreasing = TRUE), c(3, 3, 2), ignore_attr = TRUE)
+  # unequal sizes are kept too
+  expect_equal(c(table(node_in_roulette(ison_adolescents, groups = c(2, 6)))),
+               c(2, 6), ignore_attr = TRUE)
+  expect_equal(c(table(node_in_roulette(ison_adolescents, groups = c(1, 3, 4)))),
+               c(1, 3, 4), ignore_attr = TRUE)
 })
 
 test_that("node_in_roulette preserves its seeded result", {

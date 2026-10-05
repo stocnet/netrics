@@ -55,6 +55,7 @@ NULL
 #' @rdname member_cliques
 #' @param groups An integer indicating the number of groups desired,
 #'   or a vector of the size of each group, which must sum to the number of nodes.
+#'   The groups then keep exactly these sizes.
 #' @param num_groups Deprecated. The former spelling of `groups`.
 #'   Still accepted, but warns; please use `groups` instead.
 #' @param group_size An integer indicating the desired size of most of the groups.
@@ -141,10 +142,13 @@ node_in_roulette <- function(.data, groups, group_size, times = NULL,
     mat <- .roulette_mix(mat, .roulette_dissimilarity(.data, attribute), balance)
   }
   # A weak move changes one or two nodes, so its change in cost is found from
-  # their rows alone.
-  out <- search_iterated(cost = function(m) .clique_cost(m, mat), init = out,
-                         times = times,
-                         delta = function(old, new) .clique_delta(mat, old, new))
+  # their rows alone. Where the size of each group is given, the search only
+  # swaps nodes between groups, so that each group keeps its size.
+  out <- .search_iterated(cost = function(m) .clique_cost(m, mat), init = out,
+                          times = times,
+                          delta = function(old, new) .clique_delta(mat, old, new),
+                          weak = if(has_groups && length(groups) > 1)
+                            .swapMove else .weakPerturb)
   make_node_member(out, .data)
 }
 

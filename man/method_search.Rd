@@ -64,7 +64,8 @@ of approximately the number of nodes divided by the number of groups.
 \code{times} is the number of steps.
 
 The moves keep the groups at near-equal size: groups that begin equal
-stay equal. That is what \code{node_in_roulette()} needs, but it means this
+stay equal, and groups that begin unequal move towards equal sizes.
+That is what \code{node_in_roulette()} needs, but it means this
 search cannot find, say, a small core beside a large periphery.
 Since the moves are drawn at random, repeated runs may return different
 memberships; set a seed to repeat one.
