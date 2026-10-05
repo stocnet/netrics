@@ -33,6 +33,7 @@ NULL
 node_in_component <- function(.data, connectivity = c("strong", "weak")){
   connectivity <- match.arg(connectivity)
   .data <- manynet::expect_nodes(.data)
+  .data <- .to_aggregated_css(.data)
   if(!manynet::is_graph(.data)) .data <- manynet::as_igraph(.data) # nocov
   make_node_member(igraph::components(.data, mode = connectivity)$membership,
               .data)

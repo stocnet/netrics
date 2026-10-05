@@ -1,15 +1,18 @@
 # Betweenness centrality ####
 
-#' Measuring nodes betweenness-like centrality
+#' Measures of node betweenness-like centrality
 #' @name measure_central_between
+#' @template section_cognitive
 #' @description
 #'   These functions calculate common betweenness-related centrality measures for one- and two-mode networks:
 #'   
 #'   - `node_by_betweenness()` measures the betweenness centralities of nodes in a network.
 #'   - `node_by_induced()` measures the induced betweenness centralities of nodes in a network.
 #'   - `node_by_flow()` measures the flow betweenness centralities of nodes in a network,
-#'   which uses an electrical current model for information spreading 
+#'   which uses the maximum flow that the ties can carry between other nodes
 #'   in contrast to the shortest paths model used by normal betweenness centrality.
+#'   Given `from` or `to`, it instead measures the maximum flow between that
+#'   node and each other node.
 #'   - `node_by_stress()` measures the stress centrality of nodes in a network.
 #'
 #'   These four differ in what they count:
@@ -82,8 +85,9 @@ node_by_betweenness <- function(.data, normalized = TRUE,
                                 cutoff = NULL){
   
   .data <- manynet::expect_nodes(.data)
+  .data <- .to_aggregated_css(.data)
   
-  .data <- .to_positive(.data)
+  .data <- manynet::to_positive(.data)
   weights <- `if`(manynet::is_weighted(.data), 
                   manynet::tie_weights(.data), NA)
   graph <- manynet::as_igraph(.data)
@@ -138,7 +142,8 @@ node_by_betweenness <- function(.data, normalized = TRUE,
 node_by_induced <- function(.data, normalized = TRUE, 
                             cutoff = NULL){
   .data <- manynet::expect_nodes(.data)
-  .data <- .to_positive(.data)
+  .data <- .to_aggregated_css(.data)
+  .data <- manynet::to_positive(.data)
   endog <- sum(node_by_betweenness(.data, normalized = normalized, cutoff = cutoff),
                na.rm = TRUE)
   exog <- vapply(seq.int(manynet::net_nodes(.data)),
@@ -152,12 +157,39 @@ node_by_induced <- function(.data, normalized = TRUE,
 }
 
 #' @rdname measure_central_between 
+#' @param from,to Index or name of a node to measure the maximum flow from or to.
+#'   If neither is given (the default), `node_by_flow()` returns flow
+#'   betweenness centrality.
 #' @section Flow betweenness centrality: 
 #'   Flow betweenness centrality concerns the total maximum flow, \eqn{f},
 #'   between other nodes \eqn{j,k} in a network \eqn{G} that a given node mediates:
 #'   \deqn{C_F(i) = \sum_{j,k:j\neq k, j\neq i, k\neq i} f(j,k,G) - f(j,k,G\ i)}
 #'   When normalized (by default) this sum of differences is divided by the
 #'   sum of flows \eqn{f(i,j,G)}.
+#' @section Maximum flow:
+#'   Given `from` or `to`, `node_by_flow()` is not a centrality index but a
+#'   flow query, as [node_by_distance()] is a distance query:
+#'   it reports the maximum flow \eqn{f(i,j,G)} that the ties can carry from
+#'   the named node to each other node (or to the named node from each other).
+#'   By the max-flow min-cut theorem this is also the smallest total capacity
+#'   of ties that would need to be removed to separate the two nodes.
+#'   Flow betweenness is built from this quantity:
+#'   maximum flow says how much can pass _between_ two nodes,
+#'   and flow betweenness how much of what passes between others depends on
+#'   a third.
+#'   The named node has no flow to itself, and so is `NA`.
+#'   When normalized (by default) each flow is divided by the most that could
+#'   leave its source or enter its target,
+#'   the smaller of the source's out-strength and the target's in-strength.
+#'   The smallest maximum flow between any two nodes in a network is its
+#'   tie connectivity; see [net_by_adhesion()].
+#' @section Weighted networks:
+#'   `node_by_flow()` reads a tie's weight as its capacity:
+#'   how much the tie can carry, so that a heavier tie carries more.
+#'   Note that this is the reverse of the shortest-path measures documented
+#'   here, which read a weight as a distance.
+#'   An unweighted tie has a capacity of one.
+#'   Use [manynet::to_unweighted()] first to treat all ties alike.
 #' @references
 #' ## On flow centrality
 #' Freeman, Linton C., Stephen P. Borgatti, and Douglas R. White. 1991.
@@ -169,17 +201,61 @@ node_by_induced <- function(.data, normalized = TRUE,
 #' "Centrality Indices". 
 #' In U. Brandes and T. Erlebach (eds.), _Network Analysis: Methodological Foundations_. 
 #' Berlin: Springer.
+#'
+#' ## On maximum flow
+#' Ford, Lester R., and Delbert R. Fulkerson. 1956.
+#' "Maximal flow through a network".
+#' _Canadian Journal of Mathematics_, 8: 399-404.
+#' \doi{10.4153/CJM-1956-045-5}
+#' @examples
+#' node_by_flow(ison_adolescents)
+#' node_by_flow(ison_adolescents, from = 1, normalized = FALSE)
 #' @export 
-node_by_flow <- function(.data, normalized = TRUE){
+node_by_flow <- function(.data, from, to, normalized = TRUE){
   .data <- manynet::expect_nodes(.data)
-  thisRequires("sna")
-  out <- sna::flowbet(manynet::as_network(.data),
-                      gmode = ifelse(manynet::is_directed(.data), "digraph", "graph"),
-                      diag = manynet::is_complex(.data),
-                      cmode = ifelse(normalized, "normflow", "rawflow"))
-  # `sna`'s "normflow" divides each node's mediated flow by the total flow,
-  # bounding the result by one.
-  make_node_measure(out, .data, measure = "flow betweenness centrality",
+  .data <- .to_aggregated_css(.data)
+  .data <- manynet::to_positive(.data)
+  # A two-mode network has no square matrix of its own, so it is measured as
+  # one nodeset, keeping any tie weights to serve as capacities.
+  onemode <- manynet::to_onemode(.data)
+  if(missing(from) && missing(to)){
+    thisRequires("sna")
+    out <- sna::flowbet(manynet::as_matrix(onemode),
+                        gmode = ifelse(manynet::is_directed(.data), "digraph", "graph"),
+                        diag = manynet::is_complex(.data),
+                        cmode = ifelse(normalized, "normflow", "rawflow"))
+    # `sna`'s "normflow" divides each node's mediated flow by the total flow,
+    # bounding the result by one.
+    return(make_node_measure(out, .data, measure = "flow betweenness centrality",
+                             range = `if`(normalized, c(0, 1), c(0, Inf)),
+                             normalization = `if`(normalized, "normalized", "none")))
+  }
+  graph <- manynet::as_igraph(onemode)
+  capacity <- `if`(manynet::is_weighted(onemode),
+                   as.numeric(manynet::tie_weights(onemode)),
+                   rep(1, igraph::ecount(graph)))
+  outward <- !missing(from)
+  ego <- `if`(outward, from, to)
+  if(is.character(ego)) ego <- match(ego, manynet::node_names(onemode))
+  if(length(ego) != 1 || is.na(ego) || !ego %in% seq_len(igraph::vcount(graph)))
+    manynet::snet_abort("{.arg from} or {.arg to} must name one node in the network.")
+  alters <- setdiff(seq_len(igraph::vcount(graph)), ego)
+  out <- rep(NA_real_, igraph::vcount(graph))
+  out[alters] <- vapply(alters, function(alter)
+    igraph::max_flow(graph, source = `if`(outward, ego, alter),
+                     target = `if`(outward, alter, ego),
+                     capacity = capacity)$value, FUN.VALUE = numeric(1))
+  # No more can flow between two nodes than can leave the source or enter the
+  # target, so the smaller of those two strengths bounds each flow.
+  if(normalized){
+    leaving <- igraph::strength(graph, mode = "out", weights = capacity)
+    entering <- igraph::strength(graph, mode = "in", weights = capacity)
+    bound <- `if`(outward, pmin(leaving[ego], entering),
+                  pmin(leaving, entering[ego]))
+    out <- ifelse(bound > 0, out/bound, 0)
+    out[ego] <- NA_real_
+  }
+  make_node_measure(out, .data, measure = "maximum flow",
                     range = `if`(normalized, c(0, 1), c(0, Inf)),
                     normalization = `if`(normalized, "normalized", "none"))
 }
@@ -200,6 +276,7 @@ node_by_flow <- function(.data, normalized = TRUE){
 #' @export 
 node_by_stress <- function(.data, normalized = TRUE){
   .data <- manynet::expect_nodes(.data)
+  .data <- .to_aggregated_css(.data)
   thisRequires("sna")
   out <- sna::stresscent(manynet::as_network(.data),
                          gmode = ifelse(manynet::is_directed(.data), "digraph", "graph"),
@@ -214,8 +291,9 @@ node_by_stress <- function(.data, normalized = TRUE){
 
 # Tie betweenness centrality ####
 
-#' Measuring ties betweenness-like centrality
+#' Measures of tie betweenness-like centrality
 #' @name measure_central_tie_between
+#' @template section_cognitive
 #' @description
 #'   `tie_by_betweenness()` measures the number of shortest paths going through a tie.
 #'   
@@ -264,7 +342,9 @@ NULL
 #' @export
 tie_by_betweenness <- function(.data, normalized = TRUE){
   .data <- manynet::expect_ties(.data)
-  .data <- .to_unsigned(.data)
+  if(manynet::is_cognitive(.data))
+    return(.map_css_ties(.data, tie_by_betweenness, normalized = normalized))
+  .data <- manynet::to_unsigned(.data, keep = "both")
   .data <- manynet::as_igraph(.data)
   eddies <- manynet::as_edgelist(.data)
   eddies <- paste(eddies[["from"]], eddies[["to"]], sep = "-")
@@ -285,8 +365,9 @@ tie_by_betweenness <- function(.data, normalized = TRUE){
 
 # Betweenness centralisation ####
 
-#' Measuring networks betweenness-like centralisation
+#' Measures of network betweenness-like centralisation
 #' @name measure_centralisation_between
+#' @template section_cognitive
 #' @description
 #'   - `net_by_betweenness()` measures the betweenness centralization for a
 #'   network as a single score.
@@ -344,7 +425,8 @@ NULL
 #' @export
 net_by_betweenness <- function(.data, normalized = TRUE) {
   .data <- manynet::expect_nodes(.data)
-  .data <- .to_positive(.data)
+  .data <- .to_aggregated_css(.data)
+  .data <- manynet::to_positive(.data)
   graph <- manynet::as_igraph(.data)
 
   if (manynet::is_twomode(.data)) {
@@ -372,7 +454,7 @@ net_by_betweenness <- function(.data, normalized = TRUE) {
 mode_by_betweenness <- function(.data, normalized = TRUE,
                                 direction = c("all", "in")) {
   .data <- manynet::expect_nodes(.data)
-  .data <- .to_positive(.data)
+  .data <- manynet::to_positive(.data)
   direction <- match.arg(direction)
   graph <- manynet::as_igraph(.data)
 

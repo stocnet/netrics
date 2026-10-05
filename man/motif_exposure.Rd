@@ -3,7 +3,7 @@
 \name{motif_exposure}
 \alias{motif_exposure}
 \alias{node_x_exposure}
-\title{Motifs of nodes exposure}
+\title{Motifs of node exposure}
 \usage{
 node_x_exposure(.data)
 }
@@ -70,7 +70,9 @@ Other nodal:
 \code{\link{member_cliques}},
 \code{\link{member_community}},
 \code{\link{member_community_hier}},
-\code{\link{member_community_non}},
+\code{\link{member_community_modular}},
+\code{\link{member_community_partition}},
+\code{\link{member_community_spread}},
 \code{\link{member_components}},
 \code{\link{member_core}},
 \code{\link{member_diffusion}},

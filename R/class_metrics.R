@@ -86,6 +86,24 @@ resolve_max_k <- function(max_k, Kmax = NULL) {
   max_k
 }
 
+# `cluster = "cosine"` named a proximity and not a clustering algorithm.
+# Accepts the old value and warns, moving it to `proximity`.
+resolve_cluster <- function(cluster, proximity) {
+  cluster <- cluster[1]
+  # Only the whole word is the old value, so that fewer letters, such as "c",
+  # still name an algorithm.
+  if(identical(cluster, "cosine")) {
+    warning("`cluster = \"cosine\"` is deprecated, ",
+            "since cosine is a proximity and not a clustering algorithm. ",
+            "Please use `proximity = \"cosine\"` instead.", call. = FALSE)
+    cluster <- "hierarchical"
+    proximity <- "cosine"
+  } else {
+    cluster <- match.arg(cluster, c("hierarchical", "concor"))
+  }
+  list(cluster = cluster, proximity = proximity)
+}
+
 # `num_groups` was the one place a fixed number of groups was not called
 # `groups`, as `node_in_core()` calls it. Accepts the old spelling and warns.
 resolve_groups <- function(groups, num_groups = NULL) {
@@ -167,6 +185,13 @@ make_node_measure <- function(out, .data, measure = NULL, range = NULL,
 make_tie_measure <- function(out, .data, measure = NULL, range = NULL,
                              normalization = NULL, variant = NULL) {
   class(out) <- c("tie_measure", class(out))
+  out <- .name_ties(out, .data)
+  set_measure_attributes(out, measure, range, normalization, variant)
+}
+
+# Names each tie by the pair of nodes it joins.
+.name_ties <- function(out, .data) {
+  if(length(out) == 0) return(out)
   if(manynet::is_labelled(.data)){
     tie_names <- attr(igraph::E(.data), "vnames")
     if(manynet::is_directed(.data)) 
@@ -178,7 +203,7 @@ make_tie_measure <- function(out, .data, measure = NULL, range = NULL,
       names(out) <- paste0(ties$from, "->", ties$to) else
         names(out) <- paste0(ties$from, "-", ties$to)
   }
-  set_measure_attributes(out, measure, range, normalization, variant)
+  out
 }
 
 make_network_measure <- function(out, .data, call, measure = NULL,
@@ -201,14 +226,36 @@ make_mode_measure <- function(out, .data, call, measure = NULL,
 
 make_node_member <- function(out, .data) {
   if(is.numeric(out))
-    out <- MORELETTERS[out]
+    out <- .group_labels(out)
   if (manynet::is_labelled(.data)) names(out) <- manynet::node_names(.data)
   class(out) <- c("node_member", class(out))
   attr(out, "mode") <- manynet::node_is_mode(.data)
   out
 }
 
-MORELETTERS <- c(LETTERS, sapply(LETTERS, function(x) paste0(x, LETTERS)))
+# A tie belongs to one group only, so a tie membership carries no 'mode'
+# attribute as a node membership does.
+make_tie_member <- function(out, .data) {
+  if(is.numeric(out))
+    out <- .group_labels(out)
+  class(out) <- c("tie_member", class(out))
+  .name_ties(out, .data)
+}
+
+# Labels groups 'A' to 'Z', then 'AA' to 'ZZ', then 'AAA', and so on, so that
+# no number of groups is left without a label.
+.group_labels <- function(x) {
+  out <- rep(NA_character_, length(x))
+  left <- as.numeric(x)
+  todo <- !is.na(left) & left >= 1
+  out[todo] <- ""
+  while(any(todo)) {
+    out[todo] <- paste0(LETTERS[(left[todo] - 1) %% 26 + 1], out[todo])
+    left[todo] <- (left[todo] - 1) %/% 26
+    todo <- todo & left >= 1
+  }
+  out
+}
 
 make_node_motif <- function(out, .data) {
   class(out) <- c("node_motif", class(out))
@@ -265,4 +312,11 @@ run_coreness <- function(.data, coreness, direction = "all") {
          rich = coreness_rich(.data, direction = direction),
          transition = coreness_transition(.data, direction = direction),
          hub = coreness_hub(.data, direction = direction))
+}
+
+# Runs the chosen search for the membership that minimises `cost`.
+run_search <- function(search, cost, init, times, delta = NULL) {
+  switch(search,
+         tabu = search_tabu(cost, init, times, delta),
+         iterated = search_iterated(cost, init, times, delta))
 }

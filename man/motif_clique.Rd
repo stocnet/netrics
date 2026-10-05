@@ -3,9 +3,12 @@
 \name{motif_clique}
 \alias{motif_clique}
 \alias{node_x_clique}
+\alias{node_x_percolation}
 \title{Motifs of clique participation}
 \usage{
 node_x_clique(.data, min_clique_size = 3)
+
+node_x_percolation(.data, min_clique_size = 3)
 }
 \arguments{
 \item{.data}{A network object of class \code{stocnet}, \code{igraph}, \code{tbl_graph}, \code{network}, or similar.
@@ -35,7 +38,39 @@ and unlike the communities returned by \verb{node_in_*()} functions they
 \emph{overlap}: a node may belong to many cliques at once, or to none.
 That is why this returns an incidence table rather than a membership
 vector.
+
+\code{node_x_percolation()} returns which communities of adjacent cliques
+each node belongs to, by clique percolation.
+These communities also overlap, but there are fewer of them than there
+are cliques, since cliques that share most of their nodes are joined.
 }
+\section{Cognitive social structures}{
+
+A cognitive social structure records each node's report of the ties in
+the whole network, in a \code{by} column that names who reported each tie.
+Counting every report as a tie of its own would count each tie once for
+every perceiver who reports it.
+So the functions here first combine the reports into the locally
+aggregated structure of Krackhardt (1987), with the intersection rule:
+a tie exists if both of its ends report it, and a message says so.
+A tie that names no reporter is kept as it is.
+
+A tie-level function still returns one value for each report,
+so that the result can be added back to the network it was given.
+Each report takes the value of the tie that it reports.
+A report of a tie that is not in the aggregated structure takes \code{NA},
+or \code{FALSE} for a mark.
+\code{tie_is_random()} is the exception, and draws among the reports.
+
+To combine the reports in a different way, do this before the function,
+e.g. with \code{manynet::to_aggregated(over = "by")}.
+
+Krackhardt, David. 1987.
+"Cognitive social structures".
+\emph{Social Networks} 9(2): 109-134.
+\doi{10.1016/0378-8733(87)90009-8}
+}
+
 \section{Bicliques}{
 
 In a two-mode network no two nodes of the same mode are ever tied
@@ -48,6 +83,17 @@ and then keeping only those cliques with at least \code{min_clique_size} nodes
 from each mode.
 }
 
+\section{Clique percolation}{
+
+Clique percolation (Palla et al. 2005) treats two cliques as adjacent
+where they share all but one of \code{min_clique_size} nodes,
+so with the default of 3 where they share a tie.
+A community is then a set of cliques that can be reached from each other
+through such adjacent cliques,
+and a node belongs to every community that holds a clique it is in.
+A node in no clique of at least \code{min_clique_size} belongs to none.
+}
+
 \section{Signed networks}{
 
 Since a clique is a maximally cohesive subgroup, negative ties cannot
@@ -58,6 +104,7 @@ considered. Use \code{\link[manynet:to_unsigned]{manynet::to_unsigned()}} first 
 \examples{
 node_x_clique(ison_adolescents)
 node_x_clique(ison_southern_women, min_clique_size = c(3, 3))
+node_x_percolation(ison_adolescents)
 }
 \references{
 \subsection{On cliques}{
@@ -66,6 +113,15 @@ Luce, R. Duncan, and Albert D. Perry. 1949.
 "A method of matrix analysis of group structure".
 \emph{Psychometrika} 14(2): 95-116.
 \doi{10.1007/BF02289146}
+}
+
+\subsection{On clique percolation}{
+
+Palla, Gergely, Imre Derényi, Illés Farkas, and Tamás Vicsek. 2005.
+"Uncovering the overlapping community structure of complex networks in
+nature and society".
+\emph{Nature} 435(7043): 814-818.
+\doi{10.1038/nature03607}
 }
 }
 \seealso{
@@ -103,7 +159,9 @@ Other nodal:
 \code{\link{member_cliques}},
 \code{\link{member_community}},
 \code{\link{member_community_hier}},
-\code{\link{member_community_non}},
+\code{\link{member_community_modular}},
+\code{\link{member_community_partition}},
+\code{\link{member_community_spread}},
 \code{\link{member_components}},
 \code{\link{member_core}},
 \code{\link{member_diffusion}},

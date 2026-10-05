@@ -11,7 +11,8 @@ net_by_richness(.data, attribute)
 net_by_diversity(
   .data,
   attribute,
-  diversity = c("blau", "teachman", "variation", "gini")
+  diversity = c("blau", "teachman", "variation", "gini"),
+  membership = NULL
 )
 }
 \arguments{
@@ -27,6 +28,13 @@ or "variation" (coefficient of variation) or "gini" (Gini coefficient) for numer
 Default is "blau".
 If an incompatible method is chosen for the attribute type,
 a suitable alternative will be used instead with a message.}
+
+\item{membership}{A character string naming an existing node attribute in
+the network, or a categorical vector of the same length as the number of
+nodes in the network where each element indicates the group membership of
+the corresponding node.
+While this may often be a vector created using \verb{node_in_*()} functions,
+it can be any character vector that assigns nodes to groups or categories.}
 }
 \value{
 A \code{network_measure} numeric score.
@@ -46,6 +54,9 @@ across this attribute:
 \item \code{net_by_richness()} measures the number of unique categories
 in a network attribute.
 \item \code{net_by_diversity()} measures the heterogeneity of ties across a network.
+Where a \code{membership} is given, it instead measures the heterogeneity
+within each group, as the mean over the groups weighted by their size,
+such as for the groups from \code{node_in_roulette()}.
 }
 }
 \section{Richness}{
@@ -126,6 +137,8 @@ net_by_richness(ison_networkers)
 marvel_friends <- to_unsigned(to_uniplex(fict_marvel, "relationship"), "positive")
 net_by_diversity(marvel_friends, "Gender")
 net_by_diversity(marvel_friends, "Appearances")
+net_by_diversity(marvel_friends, "Gender",
+  membership = node_in_roulette(marvel_friends, groups = 3, attribute = "Gender"))
 }
 \references{
 \subsection{On richness}{

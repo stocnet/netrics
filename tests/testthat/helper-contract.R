@@ -142,6 +142,8 @@ measure_rosters <- list(
     net_by_core          = list(),
     net_by_factions      = list(),
     net_by_modularity    = list(),
+    net_by_linkdensity   = list(),
+    net_by_divergence    = list(),
     net_by_inconsistency = list()
   ),
 
@@ -354,6 +356,89 @@ check_measure_contract <- function(roster, .data,
         }
       }
     }
+  }
+  succeed()
+}
+
+# The cognitive social structure contract. A measure given a cognitive social
+# structure (CSS) should read it as its locally aggregated structure, since
+# otherwise it counts every perceiver's report as a tie of its own. So, for
+# each measure that applies to the aggregated network, the result on the CSS
+# must be the result on the aggregated network: the same values, and the same
+# declaration. A tie-level result gives each report the value of the tie it
+# reports, so that it still holds one value per tie of the network given.
+#
+# `ison_hightech` has none of the attributes the rosters name, so those
+# measures take the arguments below instead.
+cognitive_arguments <- list(
+  net_by_richness      = list(attribute = "dept"),
+  net_by_diversity     = list(attribute = "dept"),
+  net_by_heterophily   = list(attribute = "dept"),
+  net_by_homophily     = list(attribute = "dept"),
+  node_by_richness     = list(attribute = "dept"),
+  node_by_diversity    = list(attribute = "dept"),
+  node_by_heterophily  = list(attribute = "dept"),
+  node_by_homophily    = list(attribute = "dept"),
+  net_by_spatial       = list(attribute = "age"),
+  node_by_brokering_activity    = list(membership = "dept"),
+  node_by_brokering_exclusivity = list(membership = "dept")
+)
+
+# `ison_hightech` aggregates to a connected network, on which a measure of
+# components, reach, or bridges gives the same answer whether or not it
+# aggregates. This small CSS is sparse: three ties that both ends report, and
+# two reports of ties between them that only a third node makes. A function
+# that reads the raw reports finds one component here, and not three.
+sparse_css <- local({
+  el <- data.frame(from = c(1, 1, 2, 2, 3, 3, 4, 4, 5, 5, 6, 6, 2, 1),
+                   to   = c(2, 2, 1, 1, 4, 4, 3, 3, 6, 6, 5, 5, 3, 5),
+                   by   = as.integer(c(1, 2, 1, 2, 3, 4, 3, 4, 5, 6, 5, 6,
+                                       1, 3)))
+  out <- manynet::as_stocnet(el)
+  out <- manynet::add_node_attribute(out, "dept", c(1, 1, 2, 2, 1, 2))
+  manynet::add_node_attribute(out, "age", c(30, 40, 35, 50, 45, 25))
+})
+cognitive_fixtures <- list(hightech = manynet::ison_hightech,
+                           sparse = sparse_css)
+
+# `ison_hightech` names the perceiver of each report only since manynet 2.4.0.
+# With an earlier manynet it is an ordinary multiplex network, which says
+# nothing about how a measure reads a CSS, so the sweep is skipped there.
+skip_if_not_cognitive <- function(css = manynet::ison_hightech) {
+  testthat::skip_if_not(manynet::is_cognitive(css),
+                        "`ison_hightech` is a CSS only since manynet 2.4.0")
+}
+
+check_cognitive_contract <- function(roster,
+                                     css = manynet::ison_hightech) {
+  skip_if_not_cognitive(css)
+  agg <- suppressMessages(.to_aggregated_css(css))
+  report <- match(.tie_keys(css), .tie_keys(agg))
+  quietly <- function(fn, args, .data) {
+    # the same seed for both, so that a stochastic measure draws alike
+    set.seed(1234)
+    tryCatch(suppressMessages(suppressWarnings(call_measure(fn, args, .data))),
+             error = function(e) e)
+  }
+  for (fn in names(roster)) {
+    args <- if (fn %in% names(cognitive_arguments))
+      cognitive_arguments[[fn]] else roster[[fn]]
+    expected <- quietly(fn, args, agg)
+    # A measure that does not apply to the aggregated network, such as a
+    # diffusion measure, does not apply to the CSS either.
+    if (inherits(expected, "error")) next
+    res <- quietly(fn, args, css)
+    expect_false(inherits(res, "error"),
+                 label = paste0(fn, " runs on a cognitive social structure"))
+    if (inherits(res, "error")) next
+    vals <- unname(unclass(expected))
+    if (startsWith(fn, "tie_")) vals <- vals[report]
+    expect_equal(unname(as.numeric(res)), as.numeric(vals),
+                 label = paste0(fn, " on a CSS"),
+                 expected.label = "its value on the aggregated network")
+    for (a in c("measure", "range", "normalization", "variant"))
+      expect_identical(attr(res, a), attr(expected, a),
+                       label = paste0(fn, "'s `", a, "` on a CSS"))
   }
   succeed()
 }

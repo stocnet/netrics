@@ -1,6 +1,6 @@
 # Structural properties ####
 
-#' Marking ties based on structural properties
+#' Marks of ties based on structural properties
 #' @description 
 #'   These functions return logical vectors the length of the ties
 #'   in a network identifying which hold certain properties or positions in the network.
@@ -15,6 +15,7 @@
 #' @template param_data
 #' @template tie_mark
 #' @name mark_ties
+#' @template section_cognitive
 NULL
 
 #' @rdname mark_ties
@@ -24,6 +25,8 @@ NULL
 #' @export
 tie_is_loop <- function(.data){
   .data <- manynet::expect_ties(.data)  
+  if(manynet::is_cognitive(.data))
+    return(.map_css_ties(.data, tie_is_loop))
   make_tie_mark(igraph::which_loop(manynet::as_igraph(.data)), .data)
 }
 
@@ -34,6 +37,8 @@ tie_is_loop <- function(.data){
 #' @export
 tie_is_feedback <- function(.data){
   .data <- manynet::expect_ties(.data)  
+  if(manynet::is_cognitive(.data))
+    return(.map_css_ties(.data, tie_is_feedback))
   .data <- manynet::as_igraph(.data)
   make_tie_mark(igraph::E(.data) %in% igraph::feedback_arc_set(.data), 
                 .data)
@@ -46,6 +51,8 @@ tie_is_feedback <- function(.data){
 #' @export
 tie_is_bridge <- function(.data){
   .data <- manynet::expect_ties(.data)  
+  if(manynet::is_cognitive(.data))
+    return(.map_css_ties(.data, tie_is_bridge))
   num_comp <- length( igraph::decompose(manynet::as_igraph(.data)) )
   out <- vapply(seq_len(manynet::net_ties(.data)), function(x){
     length( igraph::decompose(igraph::delete_edges(.data, x)) ) > num_comp
@@ -72,30 +79,66 @@ tie_is_path <- function(.data, from, to, all_paths = FALSE){
     manynet::snet_abort("{.fn tie_is_path} needs both {.arg from} and",
                         "{.arg to}, the nodes the path runs between,",
                         "e.g. {.code tie_is_path(.data, from = 1, to = 7)}.")
-  out <- igraph::all_shortest_paths(.data, from = from, to = to,
+  if(manynet::is_cognitive(.data))
+    return(.map_css_ties(.data, tie_is_path, from = from, to = to,
+                         all_paths = all_paths))
+  # A path runs over the positive ties alone, as a distance does, but the mark
+  # still needs a place for every tie, so the path is traced on the positive
+  # ties and then read back onto the network as it was given.
+  graph <- manynet::as_igraph(.data)
+  keep <- which(as.numeric(manynet::tie_signs(graph)) >= 0)
+  if(length(keep) < igraph::ecount(graph))
+    manynet::snet_info("Using only the positive ties,",
+                       "since a negative tie does not carry cohesion.")
+  paths <- igraph::subgraph_from_edges(graph, keep, delete.vertices = FALSE)
+  # Where the weights only hold the signs, they are not distances.
+  if(manynet::is_signed(graph) && !manynet::is_weighted(graph) &&
+     "weight" %in% igraph::edge_attr_names(paths))
+    paths <- igraph::delete_edge_attr(paths, "weight")
+  out <- igraph::all_shortest_paths(paths, from = from, to = to,
                                      mode = "out")$epath
-  if(all_paths){
-    out <- igraph::E(.data) %in% unique(unlist(out))
-  } else out <- igraph::E(.data) %in% out[[sample(length(out),1)]]
+  if(length(out) == 0)
+    manynet::snet_info("No path runs from {.arg from} to {.arg to},",
+                       "so no tie is marked.")
+  on <- if(all_paths || length(out) == 0) unique(unlist(out)) else
+    as.numeric(out[[sample(length(out),1)]])
+  out <- seq_len(igraph::ecount(graph)) %in% keep[on]
   make_tie_mark(out, .data)
 }
 
 # Dyadic properties ####
 
-#' Marking ties based on dyadic properties
+#' Marks of ties based on dyadic properties
 #' 
 #' @description 
 #'   These functions return logical vectors the length of the ties
 #'   in a network identifying which are embedded within particular dyads.
 #'   
-#'   - `tie_is_multiple()` marks ties that are multiples.
+#'   - `tie_is_multiple()` marks ties that repeat an earlier tie between
+#'   the same two nodes.
 #'   - `tie_is_reciprocated()` marks ties that are mutual/reciprocated.
-#'   
+#'
 #'   They are most useful in highlighting parts of the network where
 #'   relationships are denser.
+#' @section Multiple and parallel ties:
+#'   `tie_is_multiple()` and [manynet::tie_is_parallel()] answer different
+#'   questions, and can give different answers on the same network.
+#'
+#'   `tie_is_multiple()` marks only the repeats, as [igraph::which_multiple()]
+#'   does: the first tie between two nodes is `FALSE`, and each further tie
+#'   between them is `TRUE`.
+#'   It reads nothing but the two nodes a tie joins, so ties at different
+#'   times, in different layers, or from different reporters all count as
+#'   repeats of each other.
+#'
+#'   `manynet::tie_is_parallel()` marks every tie in such a bundle, the first
+#'   included, but only where the ties coexist: at the same time or over
+#'   overlapping intervals, in the same layer, and from the same reporter.
+#'   Use it to ask whether a network holds ties that could be combined.
 #' @template param_data
 #' @template tie_mark
 #' @name mark_dyads
+#' @template section_cognitive
 NULL
 
 #' @rdname mark_dyads
@@ -105,6 +148,8 @@ NULL
 #' @export
 tie_is_multiple <- function(.data){
   .data <- manynet::expect_ties(.data)  
+  if(manynet::is_cognitive(.data))
+    return(.map_css_ties(.data, tie_is_multiple))
   make_tie_mark(igraph::which_multiple(manynet::as_igraph(.data)), .data)
 }
 
@@ -115,12 +160,14 @@ tie_is_multiple <- function(.data){
 #' @export
 tie_is_reciprocated <- function(.data){
   .data <- manynet::expect_ties(.data)  
+  if(manynet::is_cognitive(.data))
+    return(.map_css_ties(.data, tie_is_reciprocated))
   make_tie_mark(igraph::which_mutual(manynet::as_igraph(.data)), .data)
 }
 
 # Triangular properties ####
 
-#' Marking ties based on triangular properties
+#' Marks of ties based on triangular properties
 #' 
 #' @description 
 #'   These functions return logical vectors the length of the ties
@@ -141,6 +188,7 @@ tie_is_reciprocated <- function(.data){
 #' @template tie_mark
 #' @family cohesion
 #' @name mark_triangles
+#' @template section_cognitive
 #' @section Signed networks:
 #'   These marks ask only whether a two-path exists, as a census does, so a tie
 #'   counts however it is signed. Where the network is signed, each tie is
@@ -156,6 +204,8 @@ NULL
 #' @export
 tie_is_triangular <- function(.data){
   .data <- manynet::expect_ties(.data)  
+  if(manynet::is_cognitive(.data))
+    return(.map_css_ties(.data, tie_is_triangular))
   out <- .triangle_ties(.data)
   ties <- manynet::as_edgelist(manynet::to_unnamed(.data))[,c("from","to")]
   out <- do.call(paste, ties) %in% do.call(paste, as.data.frame(out))
@@ -176,8 +226,10 @@ tie_is_triangular <- function(.data){
 #' @export
 tie_is_transitive <- function(.data){
   .data <- manynet::expect_ties(.data)  
-  # once, outside the loop, since `.to_unsigned()` reports what it did
-  .data <- .to_unsigned(.data)
+  if(manynet::is_cognitive(.data))
+    return(.map_css_ties(.data, tie_is_transitive))
+  # once, outside the loop
+  .data <- manynet::to_unsigned(.data, keep = "both")
   nodes <- manynet::as_edgelist(manynet::to_unnamed(.data))
   out <- vapply(seq_len(manynet::net_ties(.data)), function(x){
     igraph::distances(manynet::delete_ties(.data, x), 
@@ -194,7 +246,9 @@ tie_is_transitive <- function(.data){
 #' @export
 tie_is_triplet <- function(.data){
   .data <- manynet::expect_ties(.data)  
-  .data <- .to_unsigned(.data)
+  if(manynet::is_cognitive(.data))
+    return(.map_css_ties(.data, tie_is_triplet))
+  .data <- manynet::to_unsigned(.data, keep = "both")
   nodes <- manynet::as_edgelist(manynet::to_unnamed(.data))
   trans <- tie_is_transitive(.data)
   altpath <- unlist(lapply(which(trans), function(x){
@@ -216,8 +270,10 @@ tie_is_triplet <- function(.data){
 #' @export
 tie_is_cyclical <- function(.data){
   .data <- manynet::expect_ties(.data)  
-  # once, outside the loop, since `.to_unsigned()` reports what it did
-  .data <- .to_unsigned(.data)
+  if(manynet::is_cognitive(.data))
+    return(.map_css_ties(.data, tie_is_cyclical))
+  # once, outside the loop
+  .data <- manynet::to_unsigned(.data, keep = "both")
   out <- vapply(seq_len(manynet::net_ties(.data)), function(x){
     nodes <- manynet::as_edgelist(manynet::to_unnamed(.data))[x,]
     igraph::distances(manynet::delete_ties(.data, x), 
@@ -234,6 +290,8 @@ tie_is_cyclical <- function(.data){
 #' @export
 tie_is_simmelian <- function(.data){
   .data <- manynet::expect_ties(.data)  
+  if(manynet::is_cognitive(.data))
+    return(.map_css_ties(.data, tie_is_simmelian))
   recip <- manynet::filter_ties(.data, tie_is_reciprocated())
   simmel <- manynet::filter_ties(recip, tie_is_triangular())
   ties <- manynet::as_edgelist(manynet::to_unnamed(.data))[,c("from","to")]
@@ -281,6 +339,8 @@ tie_is_simmelian <- function(.data){
 #' @export
 tie_is_imbalanced <- function(.data){
   .data <- manynet::expect_ties(.data)  
+  if(manynet::is_cognitive(.data))
+    return(.map_css_ties(.data, tie_is_imbalanced))
   
   # identify_imbalanced_ties <- function(adj_matrix) {
   adj_matrix <- manynet::as_matrix(.data)
@@ -338,7 +398,7 @@ tie_is_imbalanced <- function(.data){
 
 # Selection properties ####
 
-#' Marking ties based on measures
+#' Marks of ties based on measures
 #' @name mark_select_tie
 #' @description 
 #'   These functions return logical vectors the length of the ties in a network:

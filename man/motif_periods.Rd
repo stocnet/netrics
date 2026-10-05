@@ -31,14 +31,16 @@ These functions measure certain topological features of networks:
 \itemize{
 \item \code{net_x_change()} measures the Hamming distance between two or more networks.
 \item \code{net_x_stability()} measures the Jaccard index of stability between two or more networks.
-\item \code{net_x_correlation()} measures the product-moment correlation between two networks.
+\item \code{net_x_correlation()} measures the product-moment correlation between two or more networks.
 }
 
 These \verb{net_*()} functions return a numeric vector the length of the number
 of networks minus one. E.g., the periods between waves.
+Cells that are missing in either network of a pair are left out.
 }
 \examples{
 net_x_change(ison_monks)
+net_x_correlation(ison_monks)
 }
 \seealso{
 Other change:

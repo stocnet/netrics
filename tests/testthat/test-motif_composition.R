@@ -40,7 +40,7 @@ test_that("node_x_alters branches on attribute type", {
                                                        "Discipline")))))
   # continuous attributes give distributional summaries
   con_res <- node_x_alters(ison_networkers, "Citations")
-  expect_equal(colnames(con_res), c("Sum", "Mean", "Weighted",
+  expect_equal(colnames(con_res), c("Sum", "WeightedSum", "Mean", "Weighted",
                                     "Min", "Max", "Range", "SD"))
   expect_true(all(con_res[, "Min"] <= con_res[, "Max"], na.rm = TRUE))
   expect_true(all(con_res[, "Range"] ==
@@ -48,6 +48,64 @@ test_that("node_x_alters branches on attribute type", {
   # isolates have no alters to summarise
   iso <- add_node_attribute(create_empty(4), "x", c(1, 2, 3, 4))
   expect_true(all(is.na(node_x_alters(iso, "x")[, "Mean"])))
+  expect_true(all(is.na(node_x_alters(iso, as.factor(c("a", "b", "a", "b"))))))
+})
+
+test_that("node_x_alters selects alters by direction", {
+  # 1 and 2 are tied both ways, 1 sends to 3, and 4 sends to 1
+  g <- as_tidygraph(data.frame(from = c(1, 2, 1, 4), to = c(2, 1, 3, 1)))
+  x <- c(10, 20, 30, 40)
+  expect_equal(unname(node_x_alters(g, x, "out")[, "Sum"]),
+               c(50, 10, NA, 10))
+  expect_equal(unname(node_x_alters(g, x, "in")[, "Sum"]),
+               c(60, 10, 10, NA))
+  # a reciprocated pair is one alter, not two
+  expect_equal(unname(node_x_alters(g, x, "all")[, "Sum"]),
+               c(90, 10, 10, 10))
+  expect_equal(unname(node_x_alters(g, x, "reciprocated")[, "Sum"]),
+               c(20, 10, NA, NA))
+  # the default considers all alters
+  expect_equal(node_x_alters(g, x), node_x_alters(g, x, "all"))
+  # on an undirected network every direction gives the same alters
+  u <- to_undirected(g)
+  expect_equal(node_x_alters(u, x, "out"), node_x_alters(u, x, "in"))
+})
+
+test_that("node_x_alters leaves out alters of unknown value", {
+  g <- create_star(4)
+  res <- node_x_alters(g, c(NA, 1, NA, 3))
+  # the centre summarises only the two alters whose values are known
+  expect_equal(unname(res[1, c("Sum", "Mean", "Min", "Max")]), c(4, 2, 1, 3))
+  # the leaves' only alter has no known value
+  expect_true(all(is.na(res[-1, "Mean"])))
+  cat_res <- node_x_alters(g, c(NA, "a", NA, "b"))
+  expect_equal(unname(cat_res[1, ]), c(1, 1))
+  expect_true(all(is.na(cat_res[-1, ])))
+})
+
+test_that("node_x_alters weights the sum by tie strength", {
+  g <- add_tie_attribute(create_star(3), "weight", c(2, 5))
+  res <- node_x_alters(g, c(0, 10, 20))
+  expect_equal(unname(res[1, "Sum"]), 30)
+  expect_equal(unname(res[1, "WeightedSum"]), 2 * 10 + 5 * 20)
+  expect_equal(unname(res[1, "Weighted"]), (2 * 10 + 5 * 20) / 7)
+  # on an unweighted network the weighted columns are the plain ones
+  un <- node_x_alters(ison_adolescents, seq_len(8))
+  expect_equal(un[, "WeightedSum"], un[, "Sum"])
+  expect_equal(un[, "Weighted"], un[, "Mean"])
+})
+
+test_that("node_x_alters reads a one-mode attribute at distance two", {
+  res <- node_x_alters(ison_southern_women, "Title")
+  women <- !node_is_mode(ison_southern_women)
+  # each woman is described by the other women she shares an event with,
+  # weighted by how many events they share
+  d2 <- as_matrix(to_mode1(ison_southern_women))
+  diag(d2) <- 0
+  expect_equal(unname(rowSums(res[women, ])), unname(rowSums(d2)))
+  # each event is described by the women who attend it
+  expect_equal(unname(rowSums(res[!women, ])),
+               unname(colSums(as_matrix(ison_southern_women))))
 })
 
 test_that("node_x_similarity branches on attribute type", {

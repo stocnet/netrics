@@ -8,7 +8,7 @@
 \alias{net_by_decay}
 \alias{net_by_integration}
 \alias{net_by_harmonic}
-\title{Measuring networks closeness-like centralisation}
+\title{Measures of network closeness-like centralisation}
 \usage{
 net_by_closeness(.data, normalized = TRUE, direction = c("all", "out", "in"))
 
@@ -80,6 +80,33 @@ For two-mode networks the two modes have different theoretical maxima, so
 Freeman's general centralization index over the normalized node closeness
 scores, whereas \code{mode_by_closeness()} reports the per-mode scores directly.
 }
+\section{Cognitive social structures}{
+
+A cognitive social structure records each node's report of the ties in
+the whole network, in a \code{by} column that names who reported each tie.
+Counting every report as a tie of its own would count each tie once for
+every perceiver who reports it.
+So the functions here first combine the reports into the locally
+aggregated structure of Krackhardt (1987), with the intersection rule:
+a tie exists if both of its ends report it, and a message says so.
+A tie that names no reporter is kept as it is.
+
+A tie-level function still returns one value for each report,
+so that the result can be added back to the network it was given.
+Each report takes the value of the tie that it reports.
+A report of a tie that is not in the aggregated structure takes \code{NA},
+or \code{FALSE} for a mark.
+\code{tie_is_random()} is the exception, and draws among the reports.
+
+To combine the reports in a different way, do this before the function,
+e.g. with \code{manynet::to_aggregated(over = "by")}.
+
+Krackhardt, David. 1987.
+"Cognitive social structures".
+\emph{Social Networks} 9(2): 109-134.
+\doi{10.1016/0378-8733(87)90009-8}
+}
+
 \section{Signed networks}{
 
 These measures read a tie as a distance, and a negative tie is hostility

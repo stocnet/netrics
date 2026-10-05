@@ -24,3 +24,4 @@ vignettes/precompile\.R
 ^\.claude$
 ^CLAUDE\.md$
 ^Rplots\.pdf$
+^\.gitattributes$

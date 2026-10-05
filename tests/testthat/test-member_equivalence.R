@@ -103,3 +103,85 @@ test_that("node_in_block searches for a fitting partition", {
   expect_error(node_in_block(ison_adolescents, k = 1))
   expect_error(node_in_block(ison_adolescents, k = 99))
 })
+
+test_that("node_in_block finds positions of unequal size by tabu search", {
+  # Two cliques, of 4 and of 8 nodes, joined by a single tie
+  m <- matrix(0, 12, 12)
+  m[1:4, 1:4] <- 1
+  m[5:12, 5:12] <- 1
+  m[4, 5] <- m[5, 4] <- 1
+  diag(m) <- 0
+  net <- manynet::as_igraph(m)
+  set.seed(1234)
+  tabu <- node_in_block(net, k = 2)
+  expect_equal(sort(c(table(tabu))), c(4, 8), ignore_attr = TRUE)
+  # the iterated search holds the positions at equal size, so it cannot
+  set.seed(1234)
+  iter <- node_in_block(net, k = 2, search = "iterated")
+  expect_equal(c(table(iter)), c(6, 6), ignore_attr = TRUE)
+  expect_lt(as.numeric(net_by_inconsistency(net, tabu)),
+            as.numeric(net_by_inconsistency(net, iter)))
+  expect_error(node_in_block(net, k = 2, search = "annealing"))
+})
+
+test_that("node_in_block preserves its iterated search result", {
+  set.seed(1234)
+  expect_equal(unname(as.character(node_in_block(ison_adolescents, k = 3,
+                                                 search = "iterated"))),
+               c("A","A","B","B","B","A","C","C"))
+})
+
+test_that("equivalence compares nodes once unless a distance is given", {
+  n_classes <- function(x) length(unique(c(x)))
+  expect_equal(n_classes(node_in_structural(ison_algebra)), 7)
+  expect_equal(n_classes(node_in_structural(ison_algebra, 
+                                            distance = "euclidean")), 4)
+})
+
+test_that("cluster = 'cosine' is deprecated in favour of proximity", {
+  expect_warning(old <- node_in_structural(ison_algebra, cluster = "cosine"),
+                 "proximity")
+  expect_equal(c(old), c(node_in_structural(ison_algebra, proximity = "cosine")))
+  # fewer letters still name an algorithm
+  expect_equal(c(node_in_structural(ison_adolescents, cluster = "c")),
+               c(node_in_structural(ison_adolescents, cluster = "concor")))
+  expect_equal(c(node_in_structural(ison_adolescents, cluster = "h")),
+               c(node_in_structural(ison_adolescents)))
+})
+
+test_that("equivalence takes the proximities manynet offers", {
+  expect_true(all(attr(node_in_structural(ison_algebra, proximity = "crossmin"),
+                       "hc")$height >= 0))
+  # "ruzicka" is offered only since manynet 2.3.5
+  for(p in c(if(utils::packageVersion("manynet") >= "2.3.5") "ruzicka",
+             "overlap", "euclidean", "correlation"))
+    expect_equal(length(node_in_structural(ison_algebra, proximity = p)),
+                 c(net_nodes(ison_algebra)))
+  expect_equal(c(node_in_structural(ison_algebra, proximity = "correlation")),
+               c(node_in_structural(ison_algebra)))
+  expect_error(node_in_structural(ison_algebra, proximity = "nonsense"))
+  expect_error(node_in_structural(ison_algebra, distance = "nonsense"))
+})
+
+test_that("regular equivalence clusters the regularity directly", {
+  hc <- attr(node_in_regular(ison_adolescents), "hc")
+  expect_equal(unclass(hc$proximity), 
+               unclass(as.matrix(regularity_rolesim(ison_adolescents))),
+               ignore_attr = TRUE)
+  expect_equal(c(as.matrix(hc$distances))[2], 1 - hc$proximity[2,1])
+})
+
+test_that("automorphic equivalence works on weighted and unconnected networks", {
+  # weights used to be inverted tie by tie, leaving every non-tie infinite,
+  # which `k_elbow()` could not correlate
+  expect_true(all(is.finite(node_x_path(ison_algebra))))
+  expect_s3_class(node_in_automorphic(ison_algebra, k = "elbow"), "node_member")
+  expect_s3_class(node_in_automorphic(ison_monks, k = "elbow"), "node_member")
+  apart <- manynet::delete_ties(ison_adolescents, 
+                                seq_len(c(net_ties(ison_adolescents))))
+  apart <- manynet::add_ties(apart, c(1,2, 2,3, 4,5, 5,6, 7,8))
+  expect_true(any(is.infinite(node_x_path(apart))))
+  for(k in c("elbow", "silhouette", "strict"))
+    expect_equal(length(node_in_automorphic(apart, k = k)), 
+                 c(net_nodes(apart)))
+})

@@ -39,21 +39,19 @@ net_by_waves <- function(.data){
 #'   
 #'   - `net_x_change()` measures the Hamming distance between two or more networks.
 #'   - `net_x_stability()` measures the Jaccard index of stability between two or more networks.
-#'   - `net_x_correlation()` measures the product-moment correlation between two networks.
+#'   - `net_x_correlation()` measures the product-moment correlation between two or more networks.
 #' 
 #'   These `net_*()` functions return a numeric vector the length of the number
 #'   of networks minus one. E.g., the periods between waves.
+#'   Cells that are missing in either network of a pair are left out.
 #' @template param_data
 #' @family change
 #' @template net_motif
 NULL
 
-#' @rdname motif_periods 
-#' @param object2 A network object.
-#' @examples
-#' net_x_change(ison_monks)
-#' @export
-net_x_change <- function(.data, object2){
+# The networks to compare in consecutive pairs: the two given, or the waves of
+# a longitudinal network.
+.as_periods <- function(.data, object2){
   net <- manynet::expect_nodes(.data)
   if(!missing(object2)){
     net <- list(net, object2)
@@ -62,11 +60,22 @@ net_x_change <- function(.data, object2){
   }
   if(!manynet::is_list(net))
     manynet::snet_abort("`.data` must be a list of networks or a second network must be provided.")
+  net
+}
+
+#' @rdname motif_periods 
+#' @param object2 A network object.
+#' @examples
+#' net_x_change(ison_monks)
+#' net_x_correlation(ison_monks)
+#' @export
+net_x_change <- function(.data, object2){
+  net <- .as_periods(.data, object2)
   periods <- length(net)-1
   out <- vapply(seq.int(periods), function(x){
     net1 <- manynet::as_matrix(net[[x]])
     net2 <- manynet::as_matrix(net[[x+1]])
-    sum(net1 != net2)
+    sum(net1 != net2, na.rm = TRUE)
   }, FUN.VALUE = numeric(1))
   make_network_motif(out, .data)
 }
@@ -74,22 +83,20 @@ net_x_change <- function(.data, object2){
 #' @rdname motif_periods 
 #' @export
 net_x_stability <- function(.data, object2){
-  net <- manynet::expect_nodes(.data)
-  if(!missing(object2)){
-    net <- list(net, object2)
-  } else if(manynet::is_longitudinal(net)){
-    net <- manynet::to_waves(net)
-  }
-  if(!manynet::is_list(net))
-    manynet::snet_abort("`.data` must be a list of networks or a second network must be provided.")
+  net <- .as_periods(.data, object2)
   periods <- length(net)-1
   out <- vapply(seq.int(periods), function(x){
     net1 <- manynet::as_matrix(net[[x]])
     net2 <- manynet::as_matrix(net[[x+1]])
-    n11 <- sum(net1 * net2)
-    n01 <- sum(net1==0 * net2)
-    n10 <- sum(net1 * net2==0)
-    n11 / (n01 + n10 + n11)
+    # ties are counted as present or absent, over the possible ties only
+    keep <- .valid_cells(net[[x]], net1) & !is.na(net1) & !is.na(net2)
+    net1 <- net1[keep] != 0
+    net2 <- net2[keep] != 0
+    n11 <- sum(net1 & net2)
+    n01 <- sum(!net1 & net2)
+    n10 <- sum(net1 & !net2)
+    # two networks without any ties are identical
+    if(n11 + n01 + n10 == 0) 1 else n11 / (n01 + n10 + n11)
   }, FUN.VALUE = numeric(1))
   make_network_motif(out, .data)
 }
@@ -97,15 +104,16 @@ net_x_stability <- function(.data, object2){
 #' @rdname motif_periods 
 #' @export
 net_x_correlation <- function(.data, object2){
-  .data <- manynet::expect_nodes(.data)
-  comp1 <- manynet::as_matrix(.data)
-  comp2 <- manynet::as_matrix(object2)
-  if(!manynet::is_complex(.data)){
-    diag(comp1) <- NA
-  }
-  if(!manynet::is_directed(.data)){
-    comp1[upper.tri(comp1)] <- NA
-  }
-  out <- cor(c(comp1), c(comp2), use = "complete.obs")
+  net <- .as_periods(.data, object2)
+  periods <- length(net)-1
+  out <- vapply(seq.int(periods), function(x){
+    net1 <- manynet::as_matrix(net[[x]])
+    net2 <- manynet::as_matrix(net[[x+1]])
+    if(!identical(dim(net1), dim(net2)))
+      manynet::snet_abort("The networks must be of the same dimensions.")
+    # correlated over the possible ties only
+    keep <- .valid_cells(net[[x]], net1)
+    stats::cor(net1[keep], net2[keep], use = "complete.obs")
+  }, FUN.VALUE = numeric(1))
   make_network_motif(out, .data)
 }

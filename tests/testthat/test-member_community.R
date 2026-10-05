@@ -122,6 +122,15 @@ test_that("node_in_partition keeps the best split a pass reaches", {
   expect_gt(net_by_modularity(ison_adolescents, memb), 0)
 })
 
+test_that("node_in_partition partitions a two-mode network", {
+  # From manynet 2.4.0, `to_multilevel()` keeps a two-mode network two-mode,
+  # so its matrix stayed rectangular and was indexed out of bounds.
+  res <- node_in_partition(ison_southern_women)
+  expect_s3_class(res, "node_member")
+  expect_length(res, manynet::net_nodes(ison_southern_women))
+  expect_equal(as.numeric(table(res)), c(16, 16))
+})
+
 test_that("node_in_partition takes a random start", {
   set.seed(1234)
   res <- node_in_partition(ison_karateka, start = "random")
@@ -218,4 +227,45 @@ test_that("an unconnected network still drops the algorithms that need one", {
   expect_snet_abort(node_in_fluid(unconn), "connected")
   expect_false(any(c("node_in_spinglass", "node_in_fluid") %in%
                      poss_algs(NULL, unconn)))
+})
+
+test_that("node_in_faction finds cliques of unequal size", {
+  m <- matrix(0, 12, 12)
+  m[1:4, 1:4] <- 1
+  m[5:12, 5:12] <- 1
+  m[4, 5] <- m[5, 4] <- 1
+  diag(m) <- 0
+  net <- as_igraph(m)
+  for(v in c("hamming", "phi", "modularity")){
+    set.seed(1234)
+    res <- node_in_faction(net, variant = v)
+    expect_s3_class(res, "node_member")
+    expect_equal(sort(c(table(res))), c(4, 8), ignore_attr = TRUE)
+    expect_equal(length(unique(res[1:4])), 1)
+  }
+})
+
+test_that("node_in_faction returns k factions", {
+  for(k in 2:4){
+    set.seed(1234)
+    res <- node_in_faction(ison_adolescents, k = k)
+    expect_length(res, net_nodes(ison_adolescents))
+    expect_equal(length(unique(res)), k)
+  }
+  # a short search still returns k factions
+  set.seed(1234)
+  expect_equal(length(unique(node_in_faction(ison_adolescents, k = 3,
+                                             times = 1))), 3)
+  expect_s3_class(node_in_faction(ison_southern_women), "node_member")
+  expect_error(node_in_faction(ison_adolescents, k = 1))
+  expect_error(node_in_faction(ison_adolescents, k = 99))
+  expect_error(node_in_faction(ison_adolescents, k = "elbow"))
+})
+
+test_that("node_in_faction maximises modularity where asked", {
+  set.seed(1234)
+  res <- node_in_faction(ison_adolescents, k = 2, variant = "modularity")
+  expect_gte(as.numeric(net_by_modularity(ison_adolescents, res)),
+             as.numeric(net_by_modularity(ison_adolescents,
+                                          node_in_partition(ison_adolescents))))
 })

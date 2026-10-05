@@ -7,7 +7,7 @@
 \alias{node_is_fold}
 \alias{node_is_mentor}
 \alias{node_is_neighbor}
-\title{Marking nodes based on structural properties}
+\title{Marks of nodes based on structural properties}
 \usage{
 node_is_independent(.data)
 
@@ -59,6 +59,33 @@ triangles that are only connected by that node.
 \item \code{node_is_neighbor()} marks nodes that are neighbours of a given node.
 }
 }
+\section{Cognitive social structures}{
+
+A cognitive social structure records each node's report of the ties in
+the whole network, in a \code{by} column that names who reported each tie.
+Counting every report as a tie of its own would count each tie once for
+every perceiver who reports it.
+So the functions here first combine the reports into the locally
+aggregated structure of Krackhardt (1987), with the intersection rule:
+a tie exists if both of its ends report it, and a message says so.
+A tie that names no reporter is kept as it is.
+
+A tie-level function still returns one value for each report,
+so that the result can be added back to the network it was given.
+Each report takes the value of the tie that it reports.
+A report of a tie that is not in the aggregated structure takes \code{NA},
+or \code{FALSE} for a mark.
+\code{tie_is_random()} is the exception, and draws among the reports.
+
+To combine the reports in a different way, do this before the function,
+e.g. with \code{manynet::to_aggregated(over = "by")}.
+
+Krackhardt, David. 1987.
+"Cognitive social structures".
+\emph{Social Networks} 9(2): 109-134.
+\doi{10.1016/0378-8733(87)90009-8}
+}
+
 \section{Signed networks}{
 
 \code{node_is_fold()} reads a tie as a distance, and a negative tie is
@@ -142,7 +169,9 @@ Other nodal:
 \code{\link{member_cliques}},
 \code{\link{member_community}},
 \code{\link{member_community_hier}},
-\code{\link{member_community_non}},
+\code{\link{member_community_modular}},
+\code{\link{member_community_partition}},
+\code{\link{member_community_spread}},
 \code{\link{member_components}},
 \code{\link{member_core}},
 \code{\link{member_diffusion}},

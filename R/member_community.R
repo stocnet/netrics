@@ -179,8 +179,8 @@ poss_algs <- function(k, .data){
   if(!manynet::is_connected(.data, connectivity = "weak"))
     poss <- exclude(poss, c("node_in_spinglass", "node_in_fluid"),
                     "network unconnected")
-  # Every algorithm but spinglass reads a negative weight as an error, and
-  # spinglass reads a sign as a sign, so a signed network leaves it alone.
+  # Every algorithm but spinglass sets the negative ties aside, and spinglass
+  # reads a sign as a sign, so a signed network leaves it alone.
   if(manynet::is_signed(.data))
     poss <- exclude(poss, setdiff(poss, "node_in_spinglass"),
                     "network signed and only {.fn node_in_spinglass} reads signs")
@@ -295,9 +295,45 @@ consensus_memb <- function(.data, k, max_k, times, threshold = 0.5, iter = 10){
 #' "Ensemble-based Community Detection in Multilayer Networks".
 #' _Data Mining and Knowledge Discovery_ 31: 1506-1543.
 #' \doi{10.1007/s10618-017-0528-8}
+#' @section Choosing an algorithm:
+#'   The community detection algorithms are documented on four pages,
+#'   by the idea that they share:
+#'
+#'   - [member_community_modular] for those that optimise a quality function,
+#'   such as modularity, over the partitions.
+#'   - [member_community_spread] for those that follow a process as it spreads
+#'   over the network, such as a random walk or a label.
+#'   - [member_community_partition] for those that divide the nodes into a
+#'   number of groups that you set.
+#'   - [member_community_hier] for those that build a dendrogram, which is
+#'   then cut into communities.
+#'
+#'   They differ in whether the number of communities can be set with `k`,
+#'   and in whether a second run returns the same partition:
+#'
+#'   | Algorithm | Page | `k` | Repeatable |
+#'   |---|---|---|---|
+#'   | [node_in_optimal()] | modular | found | yes |
+#'   | [node_in_louvain()] | modular | optional | set a seed |
+#'   | [node_in_leiden()] | modular | optional | set a seed |
+#'   | [node_in_spinglass()] | modular | found | set a seed |
+#'   | [node_in_infomap()] | spread | found | set a seed |
+#'   | [node_in_fluid()] | spread | optional | set a seed |
+#'   | [node_in_labels()] | spread | optional | set a seed |
+#'   | [node_in_partition()] | partition | optional, 2 by default | yes, by default |
+#'   | [node_in_faction()] | partition | required, 2 by default | set a seed |
+#'   | [node_in_betweenness()] | hierarchical | optional | yes |
+#'   | [node_in_greedy()] | hierarchical | optional | yes |
+#'   | [node_in_eigen()] | hierarchical | optional | yes |
+#'   | [node_in_walktrap()] | hierarchical | optional | yes |
+#'
+#'   The pages overlap in places: [node_in_greedy()] and [node_in_eigen()]
+#'   also optimise modularity, and [node_in_walktrap()] also follows random
+#'   walks. They are documented as hierarchical because the dendrogram, and
+#'   where it is cut, is what you control.
 #' @section Signed networks:
-#'   Every algorithm but [node_in_spinglass()] reads a negative weight as an
-#'   error, and spinglass reads a sign as a sign (Traag and Bruggeman 2009).
+#'   Every algorithm but [node_in_spinglass()] sets the negative ties aside,
+#'   and spinglass reads a sign as a sign (Traag and Bruggeman 2009).
 #'   `node_in_community()` therefore considers only spinglass where the network
 #'   is signed. Since spinglass needs a connected network and accepts no `k`,
 #'   a signed network that is unconnected, or a `k` that is given, leaves no
@@ -312,6 +348,7 @@ node_in_community <- function(.data, k = NULL, max_k = 8L,
                               consensus = FALSE, times = 20, Kmax = NULL){
   max_k <- resolve_max_k(max_k, Kmax)
   .data <- manynet::expect_nodes(.data)
+  .data <- .to_aggregated_css(.data)
   k <- check_k(k, .data)
   # `node_in_optimal()` aborts on a negative weight, as every algorithm but
   # spinglass does, so a signed network never takes this short cut.
@@ -357,31 +394,33 @@ node_in_community <- function(.data, k = NULL, max_k = 8L,
 
 # Non-hierarchical community clustering ####
 
-#' Memberships in non-hierarchical communities
-#' @name member_community_non
+#' Memberships in communities that optimise a quality function
+#' @name member_community_modular
+#' @template section_cognitive
+#' @section Signed networks:
+#'   [node_in_optimal()] and [node_in_louvain()] read a tie's weight as the
+#'   strength of a pull into the same community, and a negative tie is
+#'   hostility rather than such a pull.
+#'   Where the network is signed, they therefore consider only the positive
+#'   ties, and say so. [node_in_spinglass()] reads a sign as a sign.
+#'   Use [manynet::to_unsigned()] first to control this yourself.
 #' @description
-#'   These functions offer algorithms for partitioning
-#'   networks into sets of communities:
+#'   These functions score a partition with a quality function, such as
+#'   modularity, and search for the partition that scores best:
 #' 
 #'   - `node_in_optimal()` is a problem-solving algorithm that seeks to maximise 
 #'   modularity over all possible partitions.
-#'   - `node_in_partition()` is a greedy, iterative, deterministic
-#'   partitioning algorithm that results in two equally-sized communities.
-#'   - `node_in_infomap()` is an algorithm based on the information in random walks.
 #'   - `node_in_spinglass()` is a greedy, iterative, probabilistic algorithm, 
 #'   based on analogy to model from statistical physics.
-#'   - `node_in_fluid()` is a propogation-based partitioning algorithm,
-#'   based on analogy to model from fluid dynamics.
 #'   - `node_in_louvain()` is an agglomerative multilevel algorithm that seeks to maximise 
 #'   modularity over all possible partitions.
 #'   - `node_in_leiden()` is an agglomerative multilevel algorithm that seeks to maximise
 #'   the Constant Potts Model over all possible partitions.
-#'   - `node_in_labels()` is a fast, propagation-based algorithm in which nodes
-#'   iteratively adopt whichever community label is most common among their neighbours.
 #'
-#'   The different algorithms offer various advantages in terms of computation time,
-#'   availability on different types of networks, ability to maximise modularity,
-#'   and their logic or domain of inspiration.
+#'   They differ in the quality function, in how thoroughly they search,
+#'   and so in how large a network they can be used on.
+#'   See [member_community] for a comparison with the other community
+#'   detection algorithms.
 #'   
 #' @template param_data
 #' @template param_k
@@ -389,7 +428,62 @@ node_in_community <- function(.data, k = NULL, max_k = 8L,
 #' @template node_member
 NULL
 
-#' @rdname member_community_non 
+#' Memberships in communities that follow a spreading process
+#' @name member_community_spread
+#' @template section_cognitive
+#' @template section_signed
+#' @description
+#'   These functions follow a process as it spreads over the network,
+#'   and read the communities off where it settles:
+#' 
+#'   - `node_in_infomap()` is an algorithm based on the information in random walks.
+#'   - `node_in_fluid()` is a propogation-based partitioning algorithm,
+#'   based on analogy to model from fluid dynamics.
+#'   - `node_in_labels()` is a fast, propagation-based algorithm in which nodes
+#'   iteratively adopt whichever community label is most common among their neighbours.
+#'
+#'   They need no quality function, and are among the fastest algorithms,
+#'   but each run can return a different partition.
+#'   See [member_community] for a comparison with the other community
+#'   detection algorithms.
+#'   
+#' @template param_data
+#' @template param_k
+#' @family community
+#' @template node_member
+NULL
+
+#' Memberships in communities that fill a set number of groups
+#' @name member_community_partition
+#' @template section_cognitive
+#' @section Signed networks:
+#'   [node_in_faction()] reads a tie as a pull into the same community,
+#'   and a negative tie is hostility rather than such a pull.
+#'   Where the network is signed, it therefore considers only the positive
+#'   ties, and says so.
+#'   Use [manynet::to_unsigned()] first to control this yourself.
+#' @description
+#'   These functions divide the nodes into a number of groups that you set,
+#'   two by default:
+#' 
+#'   - `node_in_partition()` is a greedy, iterative, deterministic
+#'   partitioning algorithm that results in two equally-sized communities.
+#'   - `node_in_faction()` is a tabu search for the `k` groups, of any size,
+#'   that come closest to being separate cliques.
+#'
+#'   Since they return the number of groups asked for whether or not the
+#'   network holds that many communities, check the fit of the result,
+#'   e.g. with [net_by_modularity()].
+#'   See [member_community] for a comparison with the other community
+#'   detection algorithms.
+#'   
+#' @template param_data
+#' @template param_k
+#' @family community
+#' @template node_member
+NULL
+
+#' @rdname member_community_modular 
 #' @section Optimal:
 #'   The general idea is to calculate the modularity of all possible partitions,
 #'   and choose the community structure that maximises this modularity measure.
@@ -405,6 +499,8 @@ NULL
 #' @export
 node_in_optimal <- function(.data){
   .data <- manynet::expect_nodes(.data)
+  .data <- .to_aggregated_css(.data)
+  .data <- manynet::to_positive(.data)
   if(manynet::net_nodes(.data)>100) 
     manynet::snet_warn("This algorithm may take some time", 
     "or even run out of memory on such a large network.")
@@ -413,7 +509,7 @@ node_in_optimal <- function(.data){
   make_node_member(out, .data)
 }
 
-#' @rdname member_community_non 
+#' @rdname member_community_partition 
 #' @section Partition:
 #'   The general idea is to assign nodes to two groups, and then iteratively 
 #'   swap pairs of nodes (one from each group) that give a positive sum of net tie costs,
@@ -434,6 +530,7 @@ node_in_optimal <- function(.data){
 #'   modularity, and since it holds the groups at equal size.
 #'   Note that this algorithm is only applicable to undirected, unipartite networks, 
 #'   and returns `k` communities of equal size (or as close to equal as possible).
+#'   For `k` groups that are free to take any size, see `node_in_faction()`.
 #' @param start One of `"order"` (the default) or `"random"`,
 #'   naming how the nodes are dealt into the groups to begin with.
 #'   `"order"` deals them in node order, which makes the algorithm
@@ -455,9 +552,10 @@ node_in_partition <- function(.data, k = 2L, max_k = 8L,
   max_k <- resolve_max_k(max_k, Kmax)
   start <- match.arg(start)
   .data <- manynet::expect_nodes(.data)
+  .data <- .to_aggregated_css(.data)
   k <- check_k(k, .data)
   n <- manynet::net_nodes(.data)
-  g <- manynet::as_matrix(manynet::to_multilevel(.data))
+  g <- manynet::as_matrix(manynet::to_onemode(.data))
   at_k <- function(no) kl_partition(g, n, no, start = start)
   memb <- apply_k(k, max_k, .data, at_k = at_k, default = function() at_k(2L))
   make_node_member(memb, .data)
@@ -539,7 +637,127 @@ kl_partition <- function(g, n, k, rounds = 50, start = "order"){
   out
 }
 
-#' @rdname member_community_non 
+#' @rdname member_community_partition 
+#' @section Faction:
+#'   The general idea is that a network of factions is one of separate
+#'   cliques: every pair of nodes in the same group is tied, and no pair in
+#'   different groups is. `node_in_faction()` searches for the partition into
+#'   `k` groups that comes closest to that ideal, using a tabu search;
+#'   see [search_tabu()] for how it works.
+#'   Unlike `node_in_partition()`, the groups are free to take any size,
+#'   and unlike `node_in_optimal()`, the number of groups is yours to choose.
+#'
+#'   `variant` names how closeness to the ideal is scored:
+#'
+#'   - `"hamming"` (the default) counts the errors: the pairs within a group
+#'   that are not tied plus the pairs in different groups that are.
+#'   - `"phi"` is the correlation between the network and the ideal, with
+#'   ones for pairs in the same group and zeros for pairs in different groups.
+#'   - `"modularity"` is the share of ties that fall within groups less the
+#'   share expected if ties fell at random among nodes of the same degrees.
+#'
+#'   `"hamming"` and `"phi"` read the pattern of ties and not their weights,
+#'   and `"modularity"` reads a directed network as undirected.
+#'
+#'   Some care is needed in reading the result. The search always returns
+#'   `k` groups, however poor the best fit is, so the groups it returns need
+#'   not be cohesive: check the fit with [net_by_modularity()] or
+#'   [net_by_inconsistency()]. The search may also end in a local minimum,
+#'   and it returns one partition even where several fit equally well.
+#'   Since it begins from random partitions, repeated calls can return
+#'   different partitions; where they agree, the split is a clear one.
+#'   Set a seed to repeat a result.
+#'
+#'   Note that `k` must be an integer here, since the search needs to know
+#'   how many groups to fill, and that `times` is by default the number of
+#'   nodes multiplied by `k`.
+#' @param variant Which measure of fit the factions should optimise.
+#'   One of "hamming" (the default), "phi", or "modularity".
+#' @template param_times
+#' @references
+#' ## On faction community detection
+#' de Amorim, Samuel G., Jean-Pierre Barthélemy, and Celso C. Ribeiro. 1992.
+#' "Clustering and clique partitioning: Simulated annealing and tabu search approaches."
+#' _Journal of Classification_ 9(1): 17-41.
+#' \doi{10.1007/BF02618466}
+#'
+#' Borgatti, Stephen P., Martin G. Everett, and Linton C. Freeman. 2002.
+#' _UCINET for Windows: Software for Social Network Analysis_.
+#' Harvard, MA: Analytic Technologies.
+#' @examples
+#' node_in_faction(ison_adolescents)
+#' node_in_faction(ison_adolescents, k = 3, variant = "modularity")
+#' @export
+node_in_faction <- function(.data, k = 2L,
+                            variant = c("hamming", "phi", "modularity"),
+                            times = NULL){
+  .data <- manynet::expect_nodes(.data)
+  .data <- .to_aggregated_css(.data)
+  variant <- match.arg(variant)
+  if(!is.numeric(k) || length(k) != 1 || k < 2 || k %% 1 != 0)
+    manynet::snet_abort("`k` must be the number of factions sought, at least 2.")
+  n <- manynet::net_nodes(.data)
+  if(k > n) manynet::snet_abort("`k` cannot exceed the number of nodes.")
+  if(is.null(times)) times <- n * k
+  .data <- manynet::to_positive(.data)
+  g <- manynet::as_matrix(manynet::to_onemode(.data))
+  diag(g) <- 0
+  init <- sample(rep(seq_len(k), length.out = n))
+  out <- if(variant == "phi"){
+    search_tabu(faction_phi(g), init, times)
+  } else {
+    pairs <- faction_pairs(g, variant)
+    search_tabu(cost = function(m) .clique_cost(m, pairs), init = init,
+                times = times,
+                delta = function(old, new) faction_delta(pairs, old, new))
+  }
+  out <- make_node_member(out, .data)
+  attr(out, "k") <- as.integer(k)
+  out
+}
+
+# The cost of placing each pair of nodes in the same faction, as a symmetric
+# matrix with a zero diagonal, so that `.clique_cost()` sums it over the pairs
+# that share a group.
+# For "hamming" a pair costs 1 where it is not tied and -1 where it is. Summed
+# over the pairs that share a group, and with the number of ties added, this
+# is the count of errors, and the number of ties is the same for every
+# partition. For "modularity" it is the negative of the modularity matrix.
+faction_pairs <- function(g, variant){
+  if(variant == "hamming"){
+    pairs <- 1 - 2 * (g != 0)
+  } else {
+    deg <- (rowSums(g) + colSums(g)) / 2
+    total <- sum(deg)
+    pairs <- if(total == 0) g else outer(deg, deg) / total - g
+  }
+  pairs <- (pairs + t(pairs)) / 2
+  diag(pairs) <- 0
+  pairs
+}
+
+# The change in `.clique_cost()` from `old` to `new`. A tabu search moves one
+# node at a time, and that change is read from the node's own row.
+faction_delta <- function(pairs, old, new){
+  moved <- which(old != new)
+  if(length(moved) != 1) return(.clique_delta(pairs, old, new))
+  2 * (sum(pairs[moved, new == new[moved]]) - sum(pairs[moved, old == old[moved]]))
+}
+
+# The cost function for "phi": the negative correlation, over every ordered
+# pair of different nodes, between whether the pair is tied and whether it
+# shares a group.
+faction_phi <- function(g){
+  offdiag <- which(diag(nrow(g)) == 0)
+  obs <- (g != 0)[offdiag] * 1
+  function(m){
+    val <- suppressWarnings(stats::cor(obs, outer(m, m, "==")[offdiag]))
+    if(!is.finite(val)) return(1)
+    -val
+  }
+}
+
+#' @rdname member_community_spread 
 #' @section Infomap:
 #'   Motivated by information theoretic principles, this algorithm tries to build 
 #'   a grouping that provides the shortest description length for a random walk,
@@ -562,13 +780,15 @@ kl_partition <- function(g, n, k, rounds = 50, start = "order"){
 #' @export
 node_in_infomap <- function(.data, times = 50){
   .data <- manynet::expect_nodes(.data)
+  .data <- .to_aggregated_css(.data)
+  .data <- manynet::to_positive(.data)
   out <- igraph::cluster_infomap(manynet::as_igraph(.data), 
                                  nb.trials = times
   )$membership
   make_node_member(out, .data)
 }
 
-#' @rdname member_community_non 
+#' @rdname member_community_modular 
 #' @param resolution The Reichardt-Bornholdt “gamma” resolution parameter for modularity.
 #'   By default 1, making existing and non-existing ties equally important.
 #'   Smaller values make existing ties more important,
@@ -604,6 +824,7 @@ node_in_infomap <- function(.data, times = 50){
 #' @export
 node_in_spinglass <- function(.data, max_k = 200, resolution = 1){
   .data <- manynet::expect_nodes(.data)
+  .data <- .to_aggregated_css(.data)
   # `snet_unavailable()` is silent unless verbosity is raised, so this was a
   # branch that returned NULL rather than a membership. The algorithm reads the
   # network as undirected, so the test is for weak connectivity, as in
@@ -619,7 +840,7 @@ node_in_spinglass <- function(.data, max_k = 200, resolution = 1){
   make_node_member(out, .data)
 }
 
-#' @rdname member_community_non 
+#' @rdname member_community_spread 
 #' @section Fluid:
 #'   The general idea is to observe how a discrete number of fluids interact, expand and contract, 
 #'   in a non-homogenous environment, i.e. the network structure.
@@ -639,6 +860,8 @@ node_in_spinglass <- function(.data, max_k = 200, resolution = 1){
 node_in_fluid <- function(.data, k = NULL, max_k = 8L, Kmax = NULL) {
   max_k <- resolve_max_k(max_k, Kmax)
   .data <- manynet::expect_nodes(.data)
+  .data <- .to_aggregated_css(.data)
+  .data <- manynet::to_positive(.data)
   k <- check_k(k, .data)
   .data <- manynet::as_igraph(.data)
   # As in `node_in_spinglass()`: this must abort, or the function returns NULL.
@@ -673,7 +896,7 @@ node_in_fluid <- function(.data, k = NULL, max_k = 8L, Kmax = NULL) {
   }
 }
 
-#' @rdname member_community_non 
+#' @rdname member_community_modular 
 #' @section Louvain:
 #'   The general idea is to take a hierarchical approach to optimising the modularity criterion.
 #'   Nodes begin in their own communities and are re-assigned in a local, greedy way:
@@ -694,6 +917,8 @@ node_in_fluid <- function(.data, k = NULL, max_k = 8L, Kmax = NULL) {
 node_in_louvain <- function(.data, k = NULL, max_k = 8L, resolution = 1, Kmax = NULL){
   max_k <- resolve_max_k(max_k, Kmax)
   .data <- manynet::expect_nodes(.data)
+  .data <- .to_aggregated_css(.data)
+  .data <- manynet::to_positive(.data)
   k <- check_k(k, .data)
   if(manynet::is_directed(.data)){
     manynet::snet_info("This algorithm only works for undirected networks.", 
@@ -708,7 +933,7 @@ node_in_louvain <- function(.data, k = NULL, max_k = 8L, resolution = 1, Kmax = 
   make_node_member(memb, .data)
 }
 
-#' @rdname member_community_non 
+#' @rdname member_community_modular 
 #' @section Leiden:
 #'   The general idea is to optimise the Constant Potts Model, 
 #'   which does not suffer from the resolution limit, instead of modularity.
@@ -743,6 +968,7 @@ node_in_louvain <- function(.data, k = NULL, max_k = 8L, resolution = 1, Kmax = 
 node_in_leiden <- function(.data, k = NULL, max_k = 8L, resolution = NULL, Kmax = NULL){
   max_k <- resolve_max_k(max_k, Kmax)
   .data <- manynet::expect_nodes(.data)
+  .data <- .to_aggregated_css(.data)
   k <- check_k(k, .data)
   if(manynet::is_directed(.data)){
     manynet::snet_info("This algorithm only works for undirected networks.", 
@@ -767,7 +993,7 @@ node_in_leiden <- function(.data, k = NULL, max_k = 8L, resolution = NULL, Kmax 
   make_node_member(memb, .data)
 }
 
-#' @rdname member_community_non
+#' @rdname member_community_spread
 #' @section Label propagation:
 #'   Every node is initially given a unique label.
 #'   Nodes are then visited in random order, each adopting whichever label is
@@ -804,6 +1030,8 @@ node_in_leiden <- function(.data, k = NULL, max_k = 8L, resolution = NULL, Kmax 
 node_in_labels <- function(.data, k = NULL, max_k = 8L, Kmax = NULL){
   max_k <- resolve_max_k(max_k, Kmax)
   .data <- manynet::expect_nodes(.data)
+  .data <- .to_aggregated_css(.data)
+  .data <- manynet::to_positive(.data)
   k <- check_k(k, .data)
   if(manynet::is_directed(.data)){
     manynet::snet_info("This algorithm only works for undirected networks.",
@@ -831,8 +1059,10 @@ node_in_labels <- function(.data, k = NULL, max_k = 8L, Kmax = NULL){
 
 # Hierarchical community clustering ####
 
-#' Memberships in hierarchical communities
+#' Memberships in communities that form a hierarchy
 #' @name member_community_hier
+#' @template section_cognitive
+#' @template section_signed
 #' @description
 #'   These functions offer algorithms for hierarchically clustering
 #'   networks into communities. Since all of the following are hierarchical,
@@ -849,6 +1079,8 @@ node_in_labels <- function(.data, k = NULL, max_k = 8L, Kmax = NULL){
 #'   The different algorithms offer various advantages in terms of computation time,
 #'   availability on different types of networks, ability to maximise modularity,
 #'   and their logic or domain of inspiration.
+#'   See [member_community] for a comparison with the other community
+#'   detection algorithms.
 #'   
 #' @template param_data
 #' @template param_k
@@ -878,6 +1110,8 @@ NULL
 node_in_betweenness <- function(.data, k = NULL, max_k = 8L, Kmax = NULL){
   max_k <- resolve_max_k(max_k, Kmax)
   .data <- manynet::expect_nodes(.data)
+  .data <- .to_aggregated_css(.data)
+  .data <- manynet::to_positive(.data)
   k <- check_k(k, .data)
   if(manynet::net_nodes(.data)>100) 
     manynet::snet_warn("This algorithm may take some time", 
@@ -915,6 +1149,8 @@ node_in_betweenness <- function(.data, k = NULL, max_k = 8L, Kmax = NULL){
 node_in_greedy <- function(.data, k = NULL, max_k = 8L, Kmax = NULL){
   max_k <- resolve_max_k(max_k, Kmax)
   .data <- manynet::expect_nodes(.data)
+  .data <- .to_aggregated_css(.data)
+  .data <- manynet::to_positive(.data)
   k <- check_k(k, .data)
   clust <- igraph::cluster_fast_greedy(manynet::to_undirected(manynet::as_igraph(.data)))
   memb <- apply_k(k, max_k, .data,
@@ -947,6 +1183,8 @@ node_in_greedy <- function(.data, k = NULL, max_k = 8L, Kmax = NULL){
 node_in_eigen <- function(.data, k = NULL, max_k = 8L, Kmax = NULL){
   max_k <- resolve_max_k(max_k, Kmax)
   .data <- manynet::expect_nodes(.data)
+  .data <- .to_aggregated_css(.data)
+  .data <- manynet::to_positive(.data)
   k <- check_k(k, .data)
   if(manynet::is_directed(.data)){
     manynet::snet_info("This algorithm only works for undirected networks.", 
@@ -984,6 +1222,8 @@ node_in_eigen <- function(.data, k = NULL, max_k = 8L, Kmax = NULL){
 node_in_walktrap <- function(.data, k = NULL, max_k = 8L, steps = 4, Kmax = NULL){
   max_k <- resolve_max_k(max_k, Kmax)
   .data <- manynet::expect_nodes(.data)
+  .data <- .to_aggregated_css(.data)
+  .data <- manynet::to_positive(.data)
   k <- check_k(k, .data)
   clust <- igraph::cluster_walktrap(manynet::as_igraph(.data), steps = steps)
   memb <- apply_k(k, max_k, .data,

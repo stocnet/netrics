@@ -6,7 +6,7 @@
 \alias{node_in_greedy}
 \alias{node_in_eigen}
 \alias{node_in_walktrap}
-\title{Memberships in hierarchical communities}
+\title{Memberships in communities that form a hierarchy}
 \usage{
 node_in_betweenness(.data, k = NULL, max_k = 8L, Kmax = NULL)
 
@@ -71,7 +71,45 @@ that tries to optimize modularity in a greedy manner.
 The different algorithms offer various advantages in terms of computation time,
 availability on different types of networks, ability to maximise modularity,
 and their logic or domain of inspiration.
+See \link{member_community} for a comparison with the other community
+detection algorithms.
 }
+\section{Cognitive social structures}{
+
+A cognitive social structure records each node's report of the ties in
+the whole network, in a \code{by} column that names who reported each tie.
+Counting every report as a tie of its own would count each tie once for
+every perceiver who reports it.
+So the functions here first combine the reports into the locally
+aggregated structure of Krackhardt (1987), with the intersection rule:
+a tie exists if both of its ends report it, and a message says so.
+A tie that names no reporter is kept as it is.
+
+A tie-level function still returns one value for each report,
+so that the result can be added back to the network it was given.
+Each report takes the value of the tie that it reports.
+A report of a tie that is not in the aggregated structure takes \code{NA},
+or \code{FALSE} for a mark.
+\code{tie_is_random()} is the exception, and draws among the reports.
+
+To combine the reports in a different way, do this before the function,
+e.g. with \code{manynet::to_aggregated(over = "by")}.
+
+Krackhardt, David. 1987.
+"Cognitive social structures".
+\emph{Social Networks} 9(2): 109-134.
+\doi{10.1016/0378-8733(87)90009-8}
+}
+
+\section{Signed networks}{
+
+These algorithms read a tie's weight as the strength of a pull into the
+same community, and a negative tie is hostility rather than such a pull.
+Where the network is signed, they therefore consider only the positive
+ties, and say so. Only \code{\link[=node_in_spinglass]{node_in_spinglass()}} reads a sign as a sign.
+Use \code{\link[manynet:to_unsigned]{manynet::to_unsigned()}} first to control this yourself.
+}
+
 \section{Edge-betweenness}{
 
 This is motivated by the idea that edges connecting different groups
@@ -157,7 +195,10 @@ Other memberships:
 \code{\link{member_brokerage}},
 \code{\link{member_cliques}},
 \code{\link{member_community}},
-\code{\link{member_community_non}},
+\code{\link{member_community_link}},
+\code{\link{member_community_modular}},
+\code{\link{member_community_partition}},
+\code{\link{member_community_spread}},
 \code{\link{member_components}},
 \code{\link{member_core}},
 \code{\link{member_diffusion}},
@@ -183,7 +224,9 @@ Other nodal:
 \code{\link{member_brokerage}},
 \code{\link{member_cliques}},
 \code{\link{member_community}},
-\code{\link{member_community_non}},
+\code{\link{member_community_modular}},
+\code{\link{member_community_partition}},
+\code{\link{member_community_spread}},
 \code{\link{member_components}},
 \code{\link{member_core}},
 \code{\link{member_diffusion}},
@@ -197,7 +240,10 @@ Other nodal:
 
 Other community:
 \code{\link{member_community}},
-\code{\link{member_community_non}}
+\code{\link{member_community_link}},
+\code{\link{member_community_modular}},
+\code{\link{member_community_partition}},
+\code{\link{member_community_spread}}
 }
 \concept{community}
 \concept{memberships}

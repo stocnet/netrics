@@ -4,7 +4,15 @@ test_that("diversity functions works", {
   expect_equal(as.numeric(net_by_diversity(to_uniplex(fict_marvel,"relationship"), "Gender")), 
                0.306, tolerance = 0.001)
   expect_equal(top3(node_by_diversity(ison_lawfirm, "gender")),
-               c(0.285, 0.375,0), tolerance = 0.01)
+               c(0.293, 0.384, 0), tolerance = 0.01)
+})
+
+test_that("node diversity describes alters only", {
+  star <- manynet::as_tidygraph(igraph::add_vertices(
+    igraph::make_star(4, mode = "undirected"), 1))
+  star <- manynet::add_node_attribute(star, "grp", c("a","a","a","b","a"))
+  expect_equal(as.numeric(node_by_diversity(star, "grp")),
+               c(4/9, 0, 0, 0, NA))
 })
 
 test_that("heterophily function works", {
@@ -55,7 +63,7 @@ test_that("net_by_spatial() reads the multilevel matrix where both modes hold th
   set.seed(2025)
   tm <- igraph::set_vertex_attr(as_igraph(ison_southern_women), "age",
                                 value = round(rnorm(32, 40, 8), 1))
-  w <- as_matrix(to_multilevel(tm))
+  w <- as_matrix(to_onemode(tm))
   x <- node_attribute(tm, "age")
   ref <- (32 / sum(w)) * sum(w * outer(x - mean(x), x - mean(x))) /
     sum((x - mean(x))^2)
@@ -112,4 +120,17 @@ test_that("net_by_diversity() substitutes Blau's index for a factor attribute", 
   res <- net_by_diversity(fct, "f", diversity = "gini")
   expect_equal(attr(res, "measure"), "Blau's index")
   expect_values(res, 0.667)
+})
+
+test_that("net_by_diversity() measures within the groups of a membership", {
+  x <- igraph::set_vertex_attr(create_ring(6), "f",
+                               value = c("a", "a", "b", "b", "c", "c"))
+  expect_equal(as.numeric(net_by_diversity(x, "f",
+                                           membership = c(1, 1, 2, 2, 3, 3))), 0)
+  expect_equal(as.numeric(net_by_diversity(x, "f",
+                                           membership = c(1, 2, 3, 1, 2, 3))),
+               0.5)
+  x <- igraph::set_vertex_attr(x, "grp", value = c(1, 1, 2, 2, 3, 3))
+  expect_equal(as.numeric(net_by_diversity(x, "f", membership = "grp")), 0)
+  expect_error(net_by_diversity(x, "f", membership = c(1, 2)), "each node")
 })

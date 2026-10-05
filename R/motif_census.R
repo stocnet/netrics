@@ -1,7 +1,8 @@
 # Node path ####
 
-#' Motifs of nodes pathing
+#' Motifs of node pathing
 #' @name motif_path
+#' @template section_cognitive
 #' @description
 #'   These functions include ways to take a census of the positions of nodes
 #'   in a network: 
@@ -11,6 +12,9 @@
 #'   For multiplex networks, the various types of ties are bound together.
 #'   - `node_x_path()` returns the shortest path lengths
 #'   of each node to every other node in the network.
+#'   Where the network is weighted, stronger ties are shorter steps:
+#'   each tie costs the mean tie weight divided by its own weight.
+#'   Nodes that cannot reach each other are an infinite distance apart.
 #'   
 #' @section Multiplex networks:
 #'   `node_x_tie()` binds the layers together, giving one block of columns
@@ -35,6 +39,7 @@ NULL
 #' @export
 node_x_tie <- function(.data){
   .data <- manynet::expect_nodes(.data)
+  .data <- .to_aggregated_css(.data)
   object <- manynet::as_igraph(.data)
   # Only tie-level waves split the census; a diffusion model's ties do not change
   waved <- "wave" %in% manynet::net_tie_attributes(object)
@@ -83,7 +88,7 @@ node_x_tie <- function(.data){
                                      manynet::as_matrix(manynet::to_waves(object)[[x]])
                                    }))
     } else if (manynet::is_twomode(.data)) {
-      mat <- manynet::as_matrix(manynet::to_multilevel(object))
+      mat <- manynet::as_matrix(manynet::to_onemode(object))
     } else {
       mat <- manynet::as_matrix(object)
     }
@@ -125,19 +130,24 @@ node_x_tie <- function(.data){
 #' @export
 node_x_path <- function(.data){
   .data <- manynet::expect_nodes(.data)
-  .data <- .to_positive(.data)
+  .data <- .to_aggregated_css(.data)
+  .data <- manynet::to_positive(.data)
+  object <- manynet::as_igraph(.data)
   if(manynet::is_weighted(.data)){
-    tore <- manynet::as_matrix(.data)/mean(manynet::as_matrix(.data))
-    out <- 1/tore
-  } else out <- igraph::distances(manynet::as_igraph(.data))
+    # A stronger tie is a shorter step (Opsahl et al. 2010): each tie costs
+    # the mean tie weight over its own, so an average tie is one step.
+    weights <- igraph::E(object)$weight
+    out <- igraph::distances(object, weights = mean(weights)/weights)
+  } else out <- igraph::distances(object)
   diag(out) <- 0
   make_node_motif(out, .data)
 }
 
 # Node cohesion ####
 
-#' Motifs of nodes cohesion
+#' Motifs of node cohesion
 #' @name motif_node
+#' @template section_cognitive
 #' @description
 #'   These functions include ways to take a census of the positions of nodes
 #'   in a network: 
@@ -151,6 +161,9 @@ node_x_path <- function(.data){
 #'   in motifs of four nodes.
 #'   - `node_x_path()` returns the shortest path lengths
 #'   of each node to every other node in the network.
+#'   Where the network is weighted, stronger ties are shorter steps:
+#'   each tie costs the mean tie weight divided by its own weight.
+#'   Nodes that cannot reach each other are an infinite distance apart.
 #'   
 #' @template param_data
 #' @family cohesion
@@ -170,6 +183,7 @@ NULL
 #' @export
 node_x_dyad <- function(.data) {
   .data <- manynet::expect_nodes(.data)
+  .data <- .to_aggregated_css(.data)
   if(is_weighted(.data)){
     .data <- manynet::to_unweighted(.data)
     manynet::snet_info("Ignoring tie weights.")
@@ -195,6 +209,7 @@ node_x_dyad <- function(.data) {
 #' @export
 node_x_triad <- function(.data){
   .data <- manynet::expect_nodes(.data)
+  .data <- .to_aggregated_css(.data)
   out <- t(sapply(seq.int(manynet::net_nodes(.data)), 
                   function(x) net_x_triad(.data) - net_x_triad(manynet::delete_nodes(.data, x))))
   make_node_motif(out, .data)
@@ -268,6 +283,7 @@ node_x_triad <- function(.data){
 #' @export
 node_x_tetrad <- function(.data){
   .data <- manynet::expect_nodes(.data)
+  .data <- .to_aggregated_css(.data)
   cmbs <- utils::combn(1:manynet::net_nodes(.data), 4)
   mat <- manynet::as_matrix(manynet::to_onemode(.data))
   dd <- apply(cmbs, 2, function(x) c(sum(mat[x,x]), 
@@ -334,6 +350,7 @@ node_x_tetrad <- function(.data){
 
 #' Motifs of network cohesion
 #' @name motif_net
+#' @template section_cognitive
 #' @description
 #'   These functions include ways to take a census of the graphlets
 #'   in a network: 
@@ -384,6 +401,7 @@ NULL
 #' @export
 net_x_dyad <- function(.data) {
   .data <- manynet::expect_nodes(.data)
+  .data <- .to_aggregated_css(.data)
   out <- suppressWarnings(igraph::dyad_census(manynet::as_igraph(.data)))
   out <- unlist(out)
   names(out) <- c("Mutual", "Asymmetric", "Null")
@@ -462,6 +480,7 @@ net_x_dyad <- function(.data) {
 #' @export
 net_x_triad <- function(.data, object2 = NULL) {
   .data <- manynet::expect_nodes(.data)
+  .data <- .to_aggregated_css(.data)
   if(!is.null(object2))
     return(make_network_motif(.mixed_census(.data, object2), .data))
   if(manynet::is_multiplex(.data)){
@@ -533,6 +552,7 @@ net_x_triad <- function(.data, object2 = NULL) {
 #' @export
 net_x_tetrad <- function(.data){
   .data <- manynet::expect_nodes(.data)
+  .data <- .to_aggregated_css(.data)
   cmbs <- utils::combn(1:manynet::net_nodes(.data), 4)
   mat <- manynet::as_matrix(manynet::to_onemode(.data))
   dens <- apply(cmbs, 2, function(x) sum(mat[x,x]))
@@ -621,7 +641,7 @@ net_x_tetrad <- function(.data){
 
 # Exposure ####
 
-#' Motifs of nodes exposure
+#' Motifs of node exposure
 #' @name motif_exposure
 #' @description
 #'   `node_x_exposure()` produces a motif matrix of nodes' exposure to 

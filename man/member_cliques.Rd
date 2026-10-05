@@ -5,14 +5,25 @@
 \alias{node_in_roulette}
 \title{Memberships in maximally diverse cliques}
 \usage{
-node_in_roulette(.data, groups, group_size, times = NULL, num_groups = NULL)
+node_in_roulette(
+  .data,
+  groups,
+  group_size,
+  times = NULL,
+  decay = 1,
+  attribute = NULL,
+  balance = 0.5,
+  num_groups = NULL
+)
 }
 \arguments{
 \item{.data}{A network object of class \code{stocnet}, \code{igraph}, \code{tbl_graph}, \code{network}, or similar.
 Internally any of these will be coerced to an efficient implementation.
 For more information on possible coercions, see e.g. \code{\link[manynet:as_stocnet]{manynet::as_stocnet()}}.}
 
-\item{groups}{An integer indicating the number of groups desired.}
+\item{groups}{An integer indicating the number of groups desired,
+or a vector of the size of each group, which must sum to the number of nodes.
+The groups then keep exactly these sizes.}
 
 \item{group_size}{An integer indicating the desired size of most of the groups.
 Note that if the number of nodes is not divisible into groups of equal size,
@@ -24,6 +35,16 @@ and the best or the most frequent result is kept.
 Where the algorithm searches, this is how many steps the search takes.
 More repetitions give a more reliable result and take longer,
 so each function documents its own default.}
+
+\item{decay}{A proportion between 0 and 1 by which a tie in a longitudinal
+or dynamic network is discounted for each wave or unit of time before the latest.
+By default 1, so that every earlier tie costs the same.}
+
+\item{attribute}{Optionally, the name of a node attribute, or a vector
+with a value for each node, on which the groups should be mixed.}
+
+\item{balance}{A proportion between 0 and 1 that weighs mixing on the
+\code{attribute} against keeping tied nodes apart. By default 0.5.}
 
 \item{num_groups}{Deprecated. The former spelling of \code{groups}.
 Still accepted, but warns; please use \code{groups} instead.}
@@ -45,9 +66,11 @@ cliques:
 \code{times} defaults to the number of nodes multiplied by the number of groups.
 This heuristic may be insufficient for small networks and numbers of groups,
 and burdensome for large ones, but can be overwritten.
-At every 10th iteration, a stronger perturbation of a number of successive
-changes, approximately the number of nodes divided by the number of groups,
-takes place whether or not it improves the objective function.
+Each iteration makes a weak perturbation, and keeps it only
+if it improves the objective function.
+At every 10th iteration, the search starts again from a stronger
+perturbation of the best solution so far, a number of successive changes
+approximately the number of nodes divided by the number of groups.
 }
 \section{Maximally diverse grouping problem}{
 
@@ -64,8 +87,6 @@ where \eqn{y_{ig} = 1} if node \eqn{i} is in group \eqn{g}, and 0 otherwise.
 
 \eqn{x_{ij}} is the existing network data.
 If this is an empty network, the function will just return cliques.
-To run this repeatedly, one can join a clique network of the membership result
-with the original network, using this as the network data for the next round.
 
 A form of the Lai and Hao (2016) iterated maxima search (IMS) is used here.
 This performs well for small and moderately sized networks.
@@ -74,8 +95,73 @@ to ensure that a robust solution from the broader state space is identified.
 The user is referred to Lai and Hao (2016) and Lai et al (2021) for more details.
 }
 
+\section{Repeated rounds}{
+
+The history of earlier rounds is held in the network data.
+A weighted network costs each pair by the weight of their tie.
+A longitudinal network, with a wave for each earlier round,
+or a dynamic network, with a \code{time} (or \code{begin} and \code{end}) for each tie,
+costs each tie by \code{decay} for each wave or unit of time before the latest.
+With \code{decay = 1}, every earlier meeting costs the same;
+with \code{decay = 0}, only the latest meetings cost anything.
+A date is discounted for each day.
+
+To record a new round, add the membership's ties to the network
+as a new wave, as in the examples.
+}
+
+\section{Mixing on an attribute}{
+
+Where an \code{attribute} is given, the function also places nodes that
+differ on that attribute in the same group,
+as in the diversity-based assignment of the grouper package.
+Both costs are first scaled to \eqn{[0,1]}.
+A categorical attribute costs a pair 1 where their categories differ,
+and a numeric attribute costs a pair their absolute difference over its maximum.
+\code{balance} then weighs the attribute against the ties:
+0 considers only the ties, and 1 only the attribute.
+}
+
+\section{Cognitive social structures}{
+
+A cognitive social structure records each node's report of the ties in
+the whole network, in a \code{by} column that names who reported each tie.
+Counting every report as a tie of its own would count each tie once for
+every perceiver who reports it.
+So the functions here first combine the reports into the locally
+aggregated structure of Krackhardt (1987), with the intersection rule:
+a tie exists if both of its ends report it, and a message says so.
+A tie that names no reporter is kept as it is.
+
+A tie-level function still returns one value for each report,
+so that the result can be added back to the network it was given.
+Each report takes the value of the tie that it reports.
+A report of a tie that is not in the aggregated structure takes \code{NA},
+or \code{FALSE} for a mark.
+\code{tie_is_random()} is the exception, and draws among the reports.
+
+To combine the reports in a different way, do this before the function,
+e.g. with \code{manynet::to_aggregated(over = "by")}.
+
+Krackhardt, David. 1987.
+"Cognitive social structures".
+\emph{Social Networks} 9(2): 109-134.
+\doi{10.1016/0378-8733(87)90009-8}
+}
+
 \examples{
 node_in_roulette(ison_adolescents, groups = 3)
+# Mix the groups on an attribute
+marvel_friends <- to_unsigned(to_uniplex(fict_marvel, "relationship"), "positive")
+node_in_roulette(marvel_friends, groups = 3, attribute = "Gender")
+# Record three rounds as waves, discounting older meetings by half
+net <- create_empty(8)
+for(round in 1:3){
+  grp <- node_in_roulette(net, group_size = 4, decay = 0.5)
+  pairs <- which(outer(grp, grp, "==") & upper.tri(diag(8)), arr.ind = TRUE)
+  net <- add_ties(net, pairs, attr_list = list(time = rep(round, nrow(pairs))))
+}
+net
 }
 \references{
 \subsection{On the maximally diverse grouping problem}{
@@ -96,7 +182,10 @@ Other memberships:
 \code{\link{member_brokerage}},
 \code{\link{member_community}},
 \code{\link{member_community_hier}},
-\code{\link{member_community_non}},
+\code{\link{member_community_link}},
+\code{\link{member_community_modular}},
+\code{\link{member_community_partition}},
+\code{\link{member_community_spread}},
 \code{\link{member_components}},
 \code{\link{member_core}},
 \code{\link{member_diffusion}},
@@ -122,7 +211,9 @@ Other nodal:
 \code{\link{member_brokerage}},
 \code{\link{member_community}},
 \code{\link{member_community_hier}},
-\code{\link{member_community_non}},
+\code{\link{member_community_modular}},
+\code{\link{member_community_partition}},
+\code{\link{member_community_spread}},
 \code{\link{member_components}},
 \code{\link{member_core}},
 \code{\link{member_diffusion}},

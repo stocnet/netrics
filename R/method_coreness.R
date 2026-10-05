@@ -79,7 +79,7 @@ NULL
 # test for a plain two-mode network rather than for a two-mode one, as
 # `net_by_independence()` does.
 .core_twomode <- function(.data){
-  manynet::is_twomode(.data) && !.is_multilevel(.data)
+  manynet::is_twomode(.data) && !manynet::is_multilevel(.data)
 }
 
 # Every method needs the network as a matrix, oriented by `direction`.

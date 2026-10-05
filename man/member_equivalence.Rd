@@ -17,26 +17,28 @@ node_in_equivalence(
   .data,
   motif,
   k = c("silhouette", "elbow", "strict"),
-  cluster = c("hierarchical", "concor", "cosine"),
-  distance = c("euclidean", "maximum", "manhattan", "canberra", "binary", "minkowski"),
+  cluster = c("hierarchical", "concor"),
+  distance = NULL,
   max_k = 8L,
+  proximity = "pearson",
   Kmax = NULL
 )
 
 node_in_structural(
   .data,
   k = c("silhouette", "elbow", "strict"),
-  cluster = c("hierarchical", "concor", "cosine"),
-  distance = c("euclidean", "maximum", "manhattan", "canberra", "binary", "minkowski"),
+  cluster = c("hierarchical", "concor"),
+  distance = NULL,
   max_k = 8L,
+  proximity = "pearson",
   Kmax = NULL
 )
 
 node_in_regular(
   .data,
   k = c("silhouette", "elbow", "strict"),
-  cluster = c("hierarchical", "concor", "cosine"),
-  distance = c("euclidean", "maximum", "manhattan", "canberra", "binary", "minkowski"),
+  cluster = c("hierarchical", "concor"),
+  distance = NULL,
   max_k = 8L,
   regularity = c("rolesim", "rege"),
   decay = 0.15,
@@ -47,22 +49,30 @@ node_in_regular(
 node_in_motif(
   .data,
   k = c("silhouette", "elbow", "strict"),
-  cluster = c("hierarchical", "concor", "cosine"),
-  distance = c("euclidean", "maximum", "manhattan", "canberra", "binary", "minkowski"),
+  cluster = c("hierarchical", "concor"),
+  distance = NULL,
   max_k = 8L,
+  proximity = "pearson",
   Kmax = NULL
 )
 
 node_in_automorphic(
   .data,
   k = c("silhouette", "elbow", "strict"),
-  cluster = c("hierarchical", "concor", "cosine"),
-  distance = c("euclidean", "maximum", "manhattan", "canberra", "binary", "minkowski"),
+  cluster = c("hierarchical", "concor"),
+  distance = NULL,
   max_k = 8L,
+  proximity = "pearson",
   Kmax = NULL
 )
 
-node_in_block(.data, k = 2L, blocks = c("nul", "com"), times = NULL)
+node_in_block(
+  .data,
+  k = 2L,
+  blocks = c("nul", "com"),
+  times = NULL,
+  search = c("tabu", "iterated")
+)
 }
 \arguments{
 \item{.data}{A network object of class \code{stocnet}, \code{igraph}, \code{tbl_graph}, \code{network}, or similar.
@@ -84,17 +94,40 @@ then all selection routines are skipped in favour of this number of clusters.}
 \item{cluster}{Character string indicating whether clusters should be
 clustered hierarchically (\code{"hierarchical"}) or
 through convergence of correlations (\code{"concor"}).
-Fewer, identifiable letters, e.g. \code{"c"} for CONCOR, is sufficient.}
+Fewer, identifiable letters, e.g. \code{"c"} for CONCOR, is sufficient.
+\code{"cosine"} is deprecated; use \code{proximity = "cosine"} instead.}
 
 \item{distance}{Character string indicating which distance metric
-to pass on to \code{stats::dist}.
-By default \code{"euclidean"}, but other options include
+to pass on to \code{stats::dist} to compare nodes a second time,
+on their profiles of dissimilarities to all nodes.
+By default \code{NULL}, so that the proximities are clustered directly.
+Options include \code{"euclidean"},
 \code{"maximum"}, \code{"manhattan"}, \code{"canberra"}, \code{"binary"}, and \code{"minkowski"}.
-Fewer, identifiable letters, e.g. \code{"e"} for Euclidean, is sufficient.}
+Fewer, identifiable letters, e.g. \code{"e"} for Euclidean, is sufficient.
+Before v1.1.0 the default was \code{"euclidean"},
+so pass that to reproduce earlier results.
+Ignored when \code{cluster = "concor"}.}
 
 \item{max_k}{Integer indicating the maximum number of (k) clusters
 to evaluate.
 Ignored when \code{k = "strict"} or a discrete number is given for \code{k}.}
+
+\item{proximity}{Character string indicating how nodes' profiles
+should be compared, passed on to \code{\link[manynet:to_proximity]{manynet::to_proximity()}}.
+By default \code{"pearson"}, their correlation,
+but any measure offered there can be used,
+e.g. \code{"cosine"}, \code{"ruzicka"}, \code{"overlap"}, \code{"euclidean"}, or \code{"hamming"}.
+Note that \code{"jaccard"} dichotomises a valued census;
+\code{"ruzicka"} is the weighted counterpart that keeps the counts.
+The proximities themselves are in the \code{proximity} element of the
+clustering, e.g. \code{attr(node_in_structural(.data), "hc")$proximity},
+or can be made with \code{\link[manynet:to_proximity]{manynet::to_proximity()}} from any census,
+using \code{across = "rows"} and \code{dyad = "include"}.
+Ignored when \code{cluster = "concor"}.
+\code{"asis"} clusters a \code{motif} that is already a node-by-node similarity.
+\code{node_in_regular()} does not take it,
+since \verb{regularity_*()} already returns a node-by-node similarity,
+which is clustered as it is.}
 
 \item{Kmax}{Deprecated. The former spelling of \code{max_k}.
 Still accepted, but warns; please use \code{max_k} instead.}
@@ -119,8 +152,14 @@ so each documents its own default.}
 or a list-matrix giving the permitted types per block position.
 See \code{\link[=net_by_inconsistency]{net_by_inconsistency()}} for the available types.}
 
-\item{times}{Integer number of search iterations.
-By default the number of nodes times the number of positions.}
+\item{times}{Integer number of steps the search takes.
+By default the number of nodes times the number of positions.
+For \code{search = "tabu"} this is the most steps that each of its runs may
+take, since a run also ends once it stops improving.}
+
+\item{search}{Which method to use to search the space of partitions.
+One of "tabu" (the default) or "iterated";
+see \link{method_search} for what each does.}
 }
 \value{
 A \code{node_member} character vector the length of the nodes in the network,
@@ -131,7 +170,7 @@ then the assignments will be labelled with the nodes' names.
 \description{
 These functions combine an appropriate \verb{node_x_*()} function
 together with methods for calculating the hierarchical clusters
-provided by a certain distance calculation.
+provided by how alike nodes' profiles are.
 \itemize{
 \item \code{node_in_equivalence()} assigns nodes membership based on their equivalence
 with respective to some motif/class.
@@ -150,6 +189,33 @@ A \code{plot()} method exists for investigating the dendrogram
 of the hierarchical cluster and showing the returned cluster
 assignment.
 }
+\section{Cognitive social structures}{
+
+A cognitive social structure records each node's report of the ties in
+the whole network, in a \code{by} column that names who reported each tie.
+Counting every report as a tie of its own would count each tie once for
+every perceiver who reports it.
+So the functions here first combine the reports into the locally
+aggregated structure of Krackhardt (1987), with the intersection rule:
+a tie exists if both of its ends report it, and a message says so.
+A tie that names no reporter is kept as it is.
+
+A tie-level function still returns one value for each report,
+so that the result can be added back to the network it was given.
+Each report takes the value of the tie that it reports.
+A report of a tie that is not in the aggregated structure takes \code{NA},
+or \code{FALSE} for a mark.
+\code{tie_is_random()} is the exception, and draws among the reports.
+
+To combine the reports in a different way, do this before the function,
+e.g. with \code{manynet::to_aggregated(over = "by")}.
+
+Krackhardt, David. 1987.
+"Cognitive social structures".
+\emph{Social Networks} 9(2): 109-134.
+\doi{10.1016/0378-8733(87)90009-8}
+}
+
 \section{Regular equivalence}{
 
 Two nodes are regularly equivalent if each has ties to the same \emph{kinds} of
@@ -161,8 +227,10 @@ have subordinates, not how many or which.
 The definition is recursive: nodes are equivalent if their alters are
 equivalent, whose equivalence depends in turn on \emph{their} alters.
 \code{node_in_regular()} therefore computes a similarity matrix by iterating
-that definition to a fixed point, and then clusters it in the same way as
-the other functions here.
+that definition to a fixed point, and then clusters that similarity
+directly, rather than comparing nodes' profiles first as
+the other functions here do.
+Give \code{distance} to compare the nodes' similarities a second time.
 
 Note that this differs from \code{node_in_motif()}, which compares nodes on how
 often they appear embedded in local structures.
@@ -210,9 +278,16 @@ and that ideal types other than "null and complete" become available —
 \code{blocks = c("nul", "reg")} searches directly for a regular-equivalence
 blockmodel.
 The cost is that the number of positions \code{k} must be chosen in advance,
-and that the search is stochastic: it explores by random restarts and
-perturbations, so repeated runs may return different partitions and a
+and that the search is stochastic: it begins from random partitions,
+so repeated runs may return different partitions and a
 longer search is more likely to find a good one.
+
+By default the search is a tabu search, \code{\link[=search_tabu]{search_tabu()}}, which lets the
+positions take any size, and so can find a small core or one large
+position where the network has them.
+\code{search = "iterated"} uses \code{\link[=search_iterated]{search_iterated()}}, the only search available
+prior to version 1.1.0. It is quicker on a large network, but it holds
+the positions at near-equal size.
 Set a seed for reproducibility, and compare runs with \code{\link[=net_by_inconsistency]{net_by_inconsistency()}}.
 }
 
@@ -258,7 +333,10 @@ Other memberships:
 \code{\link{member_cliques}},
 \code{\link{member_community}},
 \code{\link{member_community_hier}},
-\code{\link{member_community_non}},
+\code{\link{member_community_link}},
+\code{\link{member_community_modular}},
+\code{\link{member_community_partition}},
+\code{\link{member_community_spread}},
 \code{\link{member_components}},
 \code{\link{member_core}},
 \code{\link{member_diffusion}}
@@ -284,7 +362,9 @@ Other nodal:
 \code{\link{member_cliques}},
 \code{\link{member_community}},
 \code{\link{member_community_hier}},
-\code{\link{member_community_non}},
+\code{\link{member_community_modular}},
+\code{\link{member_community_partition}},
+\code{\link{member_community_spread}},
 \code{\link{member_components}},
 \code{\link{member_core}},
 \code{\link{member_diffusion}},

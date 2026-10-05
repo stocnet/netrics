@@ -2,6 +2,7 @@
 
 #' Measures of network cohesion
 #' @name measure_cohesion
+#' @template section_cognitive
 #' @description
 #'   These functions return values or vectors relating to how cohesive a network is:
 #'   
@@ -44,6 +45,7 @@ NULL
 #' @export
 net_by_density <- function(.data) {
   .data <- manynet::expect_nodes(.data)
+  .data <- .to_aggregated_css(.data)
   if (manynet::is_twomode(.data)) {
     # counting ties rather than summing weights, so that the two-mode branch
     # stays a ratio of ties to possible ties, as the one-mode branch is
@@ -95,9 +97,10 @@ net_by_density <- function(.data) {
 #' @export
 net_by_compactness <- function(.data) {
   .data <- manynet::expect_nodes(.data)
+  .data <- .to_aggregated_css(.data)
   # note that igraph's default mode ignores direction, which would treat a
   # directed network as though every tie ran both ways
-  dists <- igraph::distances(manynet::as_igraph(.to_positive(.data)),
+  dists <- igraph::distances(manynet::as_igraph(manynet::to_positive(.data)),
                              mode = "out")
   recip <- 1/dists
   diag(recip) <- 0 # exclude self-pairs
@@ -118,6 +121,7 @@ net_by_compactness <- function(.data) {
 net_by_components <- function(.data, connectivity = c("strong", "weak")){
   connectivity <- match.arg(connectivity)
   .data <- manynet::expect_nodes(.data)
+  .data <- .to_aggregated_css(.data)
   object <- manynet::as_igraph(.data)
   make_network_measure(igraph::components(object, mode = connectivity)$no,
                        object, call = deparse(sys.call()),
@@ -133,12 +137,13 @@ net_by_components <- function(.data, connectivity = c("strong", "weak")){
 #' @export
 net_by_independence <- function(.data){
   .data <- manynet::expect_nodes(.data)
+  .data <- .to_aggregated_css(.data)
   # A multilevel network reports itself as two-mode, but has ties within a
   # mode, so it cannot be projected. It needs no projection either: the
   # independence number of the whole network is already the quantity wanted.
   # The two-mode branch exists because no two nodes of one mode are ever tied
   # there, which would make the answer trivially the size of the larger mode.
-  if(manynet::is_twomode(.data) && !.is_multilevel(.data)){
+  if(manynet::is_twomode(.data) && !manynet::is_multilevel(.data)){
     out <- igraph::ivs_size(manynet::to_mode1(manynet::as_igraph(.data)))
   } else {
     out <- igraph::ivs_size(manynet::to_undirected(manynet::as_igraph(.data)))
@@ -152,6 +157,7 @@ net_by_independence <- function(.data){
 
 #' Measures of network breadth
 #' @name measure_breadth
+#' @template section_cognitive
 #' @description
 #'   These functions return values or vectors relating to how broad a network is.
 #'   
@@ -179,7 +185,8 @@ NULL
 #' @export
 net_by_diameter <- function(.data){
   .data <- manynet::expect_nodes(.data)
-  object <- manynet::as_igraph(.to_positive(.data))
+  .data <- .to_aggregated_css(.data)
+  object <- manynet::as_igraph(manynet::to_positive(.data))
   make_network_measure(igraph::diameter(object,
                                         directed = manynet::is_directed(object)),
                        object, call = deparse(sys.call()),
@@ -195,7 +202,8 @@ net_by_diameter <- function(.data){
 #' @export
 net_by_length <- function(.data){
   .data <- manynet::expect_nodes(.data)
-  object <- manynet::as_igraph(.to_positive(.data))
+  .data <- .to_aggregated_css(.data)
+  object <- manynet::as_igraph(manynet::to_positive(.data))
   make_network_measure(igraph::mean_distance(object,
                                              directed = manynet::is_directed(object)),
                        object, call = deparse(sys.call()),
@@ -207,6 +215,7 @@ net_by_length <- function(.data){
 
 #' Measures of network fragmentation
 #' @name measure_fragmentation
+#' @template section_cognitive
 #' @description
 #'   These functions return values relating to how connected a network is
 #'   and the number of nodes or edges to remove that would increase fragmentation.
@@ -216,7 +225,8 @@ net_by_length <- function(.data){
 #'   - `net_by_toughness()` measures the number of nodes that would need to be
 #'   removed from a network to increase its number of components.
 #'   - `net_by_adhesion()` measures the minimum number of ties to remove
-#'   from the network needed to increase the number of components.
+#'   from the network needed to increase the number of components,
+#'   or the minimum total weight of such ties in a weighted network.
 #'   - `net_by_strength()` measures the number of ties that would need to be
 #'   removed from a network to increase its number of components.
 #'   
@@ -251,6 +261,7 @@ NULL
 #' @export
 net_by_cohesion <- function(.data){
   .data <- manynet::expect_nodes(.data)
+  .data <- .to_aggregated_css(.data)
   make_network_measure(igraph::cohesion(manynet::as_igraph(.data)),
                        .data, call = deparse(sys.call()),
                        measure = "node connectivity", range = c(0, Inf),
@@ -259,15 +270,42 @@ net_by_cohesion <- function(.data){
 
 #' @rdname measure_fragmentation 
 #' @importFrom igraph adhesion
+#' @section Weighted networks:
+#'   `net_by_adhesion()` reads a tie's weight as its capacity,
+#'   and so returns the smallest total weight of ties whose removal would
+#'   increase the number of components, the network's minimum cut,
+#'   rather than the smallest number of such ties.
+#'   This is also the smallest maximum flow between any two of its nodes;
+#'   see [node_by_flow()] for the flow between particular nodes.
+#'   Use [manynet::to_unweighted()] first to count ties instead.
+#'   The other measures documented here count nodes or ties whatever
+#'   their weight.
+#' @section Signed networks:
+#'   `net_by_adhesion()` asks what holds a network together,
+#'   and a negative tie is hostility rather than a channel along which
+#'   cohesion travels.
+#'   Where the network is signed, it therefore considers only the positive
+#'   ties, and says so.
+#'   Use [manynet::to_unsigned()] first to control this yourself.
+#'   The other measures documented here use every tie whatever its sign.
 #' @examples 
 #' net_by_adhesion(fict_greys)
 #' net_by_adhesion(to_giant(fict_greys))
 #' @export
 net_by_adhesion <- function(.data){
   .data <- manynet::expect_nodes(.data)
-  make_network_measure(igraph::adhesion(manynet::as_igraph(.data)),
-                       .data, call = deparse(sys.call()),
-                       measure = "tie connectivity", range = c(0, Inf),
+  .data <- .to_aggregated_css(.data)
+  .data <- manynet::to_positive(.data)
+  if(manynet::is_weighted(.data)){
+    out <- igraph::min_cut(manynet::as_igraph(.data),
+                           capacity = as.numeric(manynet::tie_weights(.data)))
+    meas <- "weighted tie connectivity"
+  } else {
+    out <- igraph::adhesion(manynet::as_igraph(.data))
+    meas <- "tie connectivity"
+  }
+  make_network_measure(out, .data, call = deparse(sys.call()),
+                       measure = meas, range = c(0, Inf),
                        normalization = "none")
 }
 
@@ -294,6 +332,7 @@ net_by_adhesion <- function(.data){
 #' @export
 net_by_strength <- function(.data, limit = 20){
   .data <- manynet::expect_nodes(.data)
+  .data <- .to_aggregated_css(.data)
   n <- manynet::net_ties(.data)
   .check_enumerable(n, limit, "net_by_strength", "ties")
   seties <- unlist(lapply(1:n, utils::combn, x = 1:n, simplify = FALSE), recursive = FALSE)
@@ -310,6 +349,7 @@ net_by_strength <- function(.data, limit = 20){
 #' @export
 net_by_toughness <- function(.data, limit = 20){
   .data <- manynet::expect_nodes(.data)
+  .data <- .to_aggregated_css(.data)
   n <- manynet::net_nodes(.data)
   .check_enumerable(n, limit, "net_by_toughness", "nodes")
   seties <- unlist(lapply(1:n, utils::combn, x = 1:n, simplify = FALSE), recursive = FALSE)

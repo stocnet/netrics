@@ -1,7 +1,8 @@
 # Marking core ####
 
-#' Marking nodes as core or periphery
+#' Marks of nodes as core or periphery
 #' @name mark_core
+#' @template section_cognitive
 #' @description
 #'   `node_is_core()` identifies whether nodes belong to the core of the 
 #'   network, as opposed to the periphery.
@@ -47,6 +48,7 @@ node_is_core <- function(.data, coreness = NULL,
                          direction = c("all","out","in"),
                          centrality = NULL){
   .data <- manynet::expect_nodes(.data)
+  .data <- .to_aggregated_css(.data)
   direction <- match.arg(direction)
   coreness <- check_coreness(.data, resolve_coreness(coreness, centrality))
   out <- run_coreness(.data, coreness, direction)
@@ -55,8 +57,9 @@ node_is_core <- function(.data, coreness = NULL,
 
 # Measuring core ####
 
-#' Measuring nodes' coreness
+#' Measures of node coreness
 #' @name measure_core
+#' @template section_cognitive
 #' @description
 #'   These functions identify nodes belonging to (some level of) the core of a network:
 #'   
@@ -92,6 +95,7 @@ NULL
 #' @export
 node_by_kcoreness <- function(.data){
   .data <- manynet::expect_nodes(.data)
+  .data <- .to_aggregated_css(.data)
   if(!manynet::is_graph(.data)) .data <- manynet::as_igraph(.data)
   out <- igraph::coreness(.data)
   make_node_measure(out, .data, measure = "k-coreness", range = c(0, Inf),
@@ -125,6 +129,7 @@ node_by_kcoreness <- function(.data){
 node_by_core <- function(.data, coreness = NULL,
                          direction = c("all","out","in")) {
   .data <- manynet::expect_nodes(.data)
+  .data <- .to_aggregated_css(.data)
   direction <- match.arg(direction)
   coreness <- check_coreness(.data, coreness)
   out <- run_coreness(.data, coreness, direction)
@@ -136,6 +141,7 @@ node_by_core <- function(.data, coreness = NULL,
 
 #' Memberships in core-periphery categories
 #' @name member_core
+#' @template section_cognitive
 #' @description
 #'   `node_in_core()` categorizes nodes into two or more core/periphery
 #'   categories based on their coreness.
@@ -207,6 +213,7 @@ node_in_core <- function(.data, groups = 3,
                          cluster_by = NULL) {
   split <- resolve_split(split, cluster_by)
   .data <- manynet::expect_nodes(.data)
+  .data <- .to_aggregated_css(.data)
   direction <- match.arg(direction)
   if(direction == "both") return(.core_four_sets(.data))
   if (groups < 2) manynet::snet_abort("{.arg groups} must be at least 2.")

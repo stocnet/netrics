@@ -4,12 +4,11 @@
 #'   These functions are used to cluster some motif census object:
 #'   
 #'   - `cluster_hierarchical()` returns a hierarchical clustering object
-#'   created by `stats::hclust()`.
+#'   created by `stats::hclust()` on the proximities between nodes' profiles.
 #'   - `cluster_concor()` returns a hierarchical clustering object
 #'   created from a convergence of correlations procedure (CONCOR).
-#'   - `cluster_cosine()` returns a hierarchical clustering object
-#'   created by `stats::hclust()` on cosine dissimilarities,
-#'   rather than correlations, as created by `to_cosine()`.
+#'   - `cluster_cosine()` is deprecated;
+#'   use `cluster_hierarchical()` with `proximity = "cosine"` instead.
 #' 
 #'   These functions are not intended to be called directly,
 #'   but are called within `node_in_equivalence()` and related functions.
@@ -18,45 +17,99 @@
 #' @inheritParams member_equivalence
 #' @returns 
 #'   A hierarchical clustering object created by `stats::hclust()`,
-#'   with an additional `distances` attribute containing the distance matrix 
-#'   used for clustering.
+#'   with an additional `distances` element containing the distance matrix 
+#'   used for clustering and, for `cluster_hierarchical()`,
+#'   a `proximity` element containing the node-by-node proximity matrix
+#'   those distances were made from.
 NULL
+
+# How alike each pair of nodes' profiles are. The measures all live in
+# `manynet::to_proximity()`; `dyad = "include"` reads a square census as the
+# profile matrix it is and not as a one-mode network.
+# "asis" passes on a matrix that is already a node-by-node similarity.
+.proximity <- function(motif, proximity = "pearson"){
+  motif <- unclass(as.matrix(motif))
+  attr(motif, "mode") <- NULL
+  if(proximity == "asis") return(motif)
+  if(proximity == "correlation") proximity <- "pearson"
+  # TODO: `manynet::to_proximity()` compares a census that is not square, and
+  # reports a node without ties as 0, only since manynet 2.3.5, but the
+  # DESCRIPTION floor is 2.3.4, which is what CRAN serves. There
+  # `manynet::to_mode1()` makes the same comparison of the rows, and the
+  # missing values are set to 0 here. Remove `old`, and the two branches that
+  # use it, once the floor is raised to 2.3.5.
+  old <- utils::packageVersion("manynet") < "2.3.5"
+  compare <- if(old && nrow(motif) != ncol(motif))
+    function(x) manynet::to_mode1(x, similarity = proximity) else
+      function(x) manynet::to_proximity(x, similarity = proximity,
+                                        across = "rows", dyad = "include")
+  # A node whose profile does not vary has no correlation with any other;
+  # `to_proximity()` reports that as 0, so the warning adds nothing.
+  out <- withCallingHandlers(
+    compare(motif),
+    warning = function(w) 
+      if(grepl("standard deviation is zero", conditionMessage(w)))
+        invokeRestart("muffleWarning"))
+  if(old) out[is.na(out)] <- 0
+  dimnames(out) <- list(rownames(motif), rownames(motif))
+  out
+}
+
+# `1 - P` only works as a dissimilarity where `P` does not exceed 1.
+# Counts, covariances and the like are unbounded, and `hclust()` would take
+# the negative dissimilarities silently and return negative merge heights.
+.as_dissimilarity <- function(P){
+  top <- max(P[upper.tri(P) | lower.tri(P)], na.rm = TRUE)
+  if(top > 1){
+    manynet::snet_info("This proximity is unbounded, so dissimilarities are",
+                       "the largest proximity less each proximity.")
+    out <- top - P
+  } else out <- 1 - P
+  diag(out) <- 0
+  out
+}
 
 #' @rdname method_cluster
 #' @section Hierarchical clustering:
 #'  This method uses `stats::hclust()` to create a hierarchical clustering object
-#'  from a distance matrix created from the correlations between nodes' profiles 
-#'  in the given motif census.
-#'  First a matrix of Pearson correlation coefficients between each pair of 
-#'  nodes' profiles in the given motif census is created.
-#'  Then a distance matrix is created by subtracting these correlations from `1`,
-#'  and this is given to `stats::hclust()` to enable dendrogram construction etc.
+#'  from the proximities between nodes' profiles in the given motif census.
+#'  First a matrix of how alike each pair of nodes' profiles are is created
+#'  using [manynet::to_proximity()],
+#'  by default their Pearson correlation coefficients.
+#'  Then a dissimilarity matrix is created by subtracting these proximities 
+#'  from `1`, and this is given to `stats::hclust()` to enable 
+#'  dendrogram construction etc.
+#'  Each pair of nodes is thus compared once.
+#'  
+#'  Where `distance` is given, the nodes are compared a second time:
+#'  `stats::dist()` measures the distance between each pair of nodes' 
+#'  profiles of dissimilarities to all nodes, 
+#'  and it is these distances that are clustered.
+#'  This was the only behaviour before v1.1.0.
+#'  
+#'  Some proximities, such as `"count"`, `"match"`, `"crossmin"`,
+#'  `"maxcrossmin"`, and `"covariance"`, are not bounded by 1.
+#'  These are subtracted from the largest proximity observed instead,
+#'  with a message, so that no dissimilarity is negative.
 #' @export
-cluster_hierarchical <- function(motif, distance){
-  correlations <- manynet::to_correlation(t(motif))
-  dissimilarity <- 1 - correlations
-  distances <- stats::dist(dissimilarity, method = distance)
+cluster_hierarchical <- function(motif, distance = NULL, proximity = "pearson"){
+  proximities <- .proximity(motif, proximity)
+  dissimilarity <- .as_dissimilarity(proximities)
+  distances <- if(is.null(distance)) stats::as.dist(dissimilarity) else
+    stats::dist(dissimilarity, method = distance)
   hc <- stats::hclust(distances)
   hc$distances <- distances
+  hc$proximity <- proximities
   hc
 }
 
 #' @rdname method_cluster
-#' @section Cosine similarity: 
-#'   This method is similar to the hierarchical clustering method, 
-#'   but uses cosine similarity rather than correlation as the clustering basis.
-#'   First a matrix of cosine similarities between each pair of nodes' profiles 
-#'   in the given census is created. 
-#'   Then a distance matrix is created by subtracting these similarities from `1`, 
-#'   and this is given to `stats::hclust` to enable dendrogram construction etc.
 #' @export
-cluster_cosine <- function(motif, distance){
-  cosines <- manynet::to_cosine(t(motif))
-  dissimilarity <- 1 - cosines
-  distances <- stats::dist(dissimilarity, method = distance)
-  hc <- stats::hclust(distances)
-  hc$distances <- distances
-  hc
+cluster_cosine <- function(motif, distance = NULL){
+  warning("`cluster_cosine()` is deprecated. ",
+          "Please use `cluster_hierarchical()` with `proximity = \"cosine\"` ",
+          "instead.", call. = FALSE)
+  cluster_hierarchical(motif, distance, proximity = "cosine")
 }
 
 # cluster_concor(ison_adolescents)

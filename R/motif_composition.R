@@ -2,6 +2,7 @@
 
 #' Motifs of ego-network composition
 #' @name motif_composition
+#' @template section_cognitive
 #' @description
 #'   These functions describe the composition of each node's ego-network,
 #'   that is, what the ties and alters surrounding each node look like:
@@ -70,6 +71,7 @@ NULL
 #' @export
 node_x_ties <- function(.data, direction = c("all", "out", "in")){
   .data <- manynet::expect_nodes(.data)
+  .data <- .to_aggregated_css(.data)
   direction <- match.arg(direction)
   if(manynet::is_multiplex(.data)){
     # `layer_names()` rather than the "type" tie attribute, since a network
@@ -111,7 +113,7 @@ node_x_ties <- function(.data, direction = c("all", "out", "in")){
 # described by: its outgoing ties, its incoming ties, or both. For an
 # undirected network all three coincide.
 .directed_matrix <- function(.data, direction){
-  mat <- manynet::as_matrix(manynet::to_multilevel(.data))
+  mat <- manynet::as_matrix(manynet::to_onemode(.data))
   if(!manynet::is_directed(.data)) return(mat)
   switch(direction,
          out = mat,
@@ -138,49 +140,119 @@ node_x_ties <- function(.data, direction = c("all", "out", "in")){
 #'   Where the attribute is categorical, this returns how many of each node's
 #'   alters fall into each category, weighted by tie strength where the network
 #'   is weighted.
-#'   Where it is continuous, this returns the sum, mean, tie-strength weighted
-#'   mean, minimum, maximum, range, and standard deviation of the attribute
-#'   across each node's alters.
+#'   Where it is continuous, this returns the sum, tie-strength weighted sum,
+#'   mean, tie-strength weighted mean, minimum, maximum, range, and standard
+#'   deviation of the attribute across each node's alters.
 #'
-#'   The weighted mean differs from the mean wherever a node's ties are of
-#'   unequal strength: it describes the attribute of the alters a node is most
-#'   involved with, rather than of its alters as an undifferentiated set.
-#'   Isolates have no alters and so take `NA`.
+#'   The two weighted columns answer different questions.
+#'   The weighted mean (`Weighted`) differs from the mean wherever a node's ties
+#'   are of unequal strength: it describes the attribute of the alters a node
+#'   is most involved with, rather than of its alters as an undifferentiated set.
+#'   The weighted sum (`WeightedSum`) instead multiplies each alter's value by
+#'   the strength of the tie to it, as where a tie's weight is an amount of
+#'   exposure to that alter.
+#'   On an unweighted network these equal the mean and the sum.
 #'
-#'   Any tie counts as a tie here, whatever its sign. Apply
-#'   [manynet::to_unsigned()] first to consider only positive or only negative
-#'   ties.
+#'   Alters whose value is missing are left out of the summary.
+#'   Nodes with no alters of known value, including isolates, take `NA`.
+#'
+#'   In a directed network, `direction` selects which alters are described:
+#'   those a node sends ties to (`"out"`), those it receives ties from
+#'   (`"in"`), those it does either with (`"all"`), or those it does both with
+#'   (`"reciprocated"`).
+#'   Under `"all"` and `"reciprocated"`, an alter counts once,
+#'   with the combined strength of the ties in both directions.
+#'
+#'   In a two-mode network where the attribute is held by one mode alone,
+#'   a node of that mode has no alters of known value at distance one.
+#'   Each node of that mode is instead described by its alters at distance two,
+#'   the nodes of its own mode that it shares a node of the other mode with,
+#'   weighted by how many it shares (see Tertius similarity below).
+#'   Each node of the other mode is described by its alters at distance one,
+#'   which hold the attribute.
+#'   Where both modes hold the attribute, every node is described by its
+#'   alters at distance one.
+#'   `direction` applies to one-mode networks only:
+#'   a two-mode network is read as undirected.
+#'
+#'   Any tie counts as a tie here, whatever its sign, and by its magnitude.
+#'   Apply [manynet::to_unsigned()] first to consider only positive or only
+#'   negative ties.
 #' @examples
 #' node_x_alters(ison_networkers, "Discipline")
 #' node_x_alters(ison_networkers, "Citations")
+#' node_x_alters(ison_networkers, "Citations", direction = "reciprocated")
+#' node_x_alters(ison_southern_women, "Title")
 #' @export
-node_x_alters <- function(.data, attribute){
+node_x_alters <- function(.data, attribute,
+                          direction = c("all", "out", "in", "reciprocated")){
   .data <- manynet::expect_nodes(.data)
+  .data <- .to_aggregated_css(.data)
+  .data <- manynet::to_unsigned(.data, keep = "both")
+  direction <- match.arg(direction)
   attr <- .resolve_attribute(.data, attribute)
-  mat <- manynet::as_matrix(manynet::to_multilevel(.data))
-  diag(mat) <- 0 # a node is not its own alter
+  mat <- .alter_matrix(.data, attr, direction)
+  known <- !is.na(attr)
+  mat[, !known] <- 0 # alters of unknown value are left out
+  none <- rowSums(mat != 0) == 0 # nodes with nothing to summarise
   if(.is_categorical(attr)){
     attr <- as.factor(attr)
     out <- vapply(levels(attr), function(l)
-      rowSums(mat[, attr == l, drop = FALSE], na.rm = TRUE),
+      rowSums(mat[, which(attr == l), drop = FALSE]),
       FUN.VALUE = numeric(nrow(mat)))
-    colnames(out) <- levels(attr)
+    out <- matrix(out, nrow = nrow(mat),
+                  dimnames = list(NULL, levels(attr)))
+    out[none, ] <- NA_real_
   } else {
     attr <- as.numeric(attr)
     out <- t(vapply(seq_len(nrow(mat)), function(i){
       w <- mat[i,]
-      alters <- attr[w != 0 & !is.na(w)]
-      wts <- w[w != 0 & !is.na(w)]
-      if(length(alters) == 0) return(rep(NA_real_, 7))
-      c(sum(alters), mean(alters),
-        stats::weighted.mean(alters, wts),
+      alters <- attr[w != 0]
+      wts <- w[w != 0]
+      if(length(alters) == 0) return(rep(NA_real_, 8))
+      c(sum(alters), sum(alters * wts),
+        mean(alters), stats::weighted.mean(alters, wts),
         min(alters), max(alters), diff(range(alters)),
         stats::sd(alters))
-    }, FUN.VALUE = numeric(7)))
-    colnames(out) <- c("Sum", "Mean", "Weighted",
+    }, FUN.VALUE = numeric(8)))
+    colnames(out) <- c("Sum", "WeightedSum", "Mean", "Weighted",
                        "Min", "Max", "Range", "SD")
   }
   make_node_motif(out, .data)
+}
+
+# The strength of each node's tie to each of its alters, with rows for the
+# nodes described and 0 where a node is not an alter. Missing ties count as
+# absent, and on an unweighted network every alter has strength 1, so that a
+# reciprocated pair is one alter and not two.
+.alter_matrix <- function(.data, attr, direction){
+  mat <- manynet::as_matrix(manynet::to_onemode(.data))
+  mat[is.na(mat)] <- 0
+  if(!manynet::is_weighted(.data)) mat <- (mat != 0) * 1
+  if(manynet::is_twomode(.data)){
+    mode <- manynet::node_is_mode(.data)
+    known <- !is.na(attr)
+    # Where one mode alone holds the attribute, that mode's nodes are read at
+    # distance two, as in `.comparable_matrix()`, but weighted by the number
+    # of other-mode nodes they share; the other mode's nodes keep their
+    # distance one alters, which already hold the attribute.
+    held <- if(!any(known[mode])) !mode else if(!any(known[!mode])) mode
+    if(!is.null(held) && any(known)){
+      d2 <- mat %*% mat
+      d2[outer(mode, mode, "!=")] <- 0
+      mat[held, ] <- d2[held, ]
+    }
+  } else if(manynet::is_directed(.data)){
+    both <- mat != 0 & t(mat) != 0
+    mat <- switch(direction,
+                  out = mat,
+                  `in` = t(mat),
+                  all = mat + t(mat),
+                  reciprocated = (mat + t(mat)) * both)
+    if(!manynet::is_weighted(.data)) mat <- (mat != 0) * 1
+  }
+  diag(mat) <- 0 # a node is not its own alter
+  mat
 }
 
 #' @rdname motif_composition
@@ -249,6 +321,7 @@ node_x_alters <- function(.data, attribute){
 #' @export
 node_x_similarity <- function(.data, attribute){
   .data <- manynet::expect_nodes(.data)
+  .data <- .to_aggregated_css(.data)
   attr <- .resolve_attribute(.data, attribute)
   mat <- .comparable_matrix(.data)
   if(.is_categorical(attr)){
@@ -295,6 +368,7 @@ node_x_similarity <- function(.data, attribute){
 
 #' Motifs of network homophily
 #' @name motif_homophily
+#' @template section_cognitive
 #' @description
 #'   `net_x_homophily()` returns the two-by-two table from which network-level
 #'   homophily is calculated, together with the summaries built from it.
@@ -337,6 +411,7 @@ node_x_similarity <- function(.data, attribute){
 #' @export
 net_x_homophily <- function(.data, attribute){
   .data <- manynet::expect_nodes(.data)
+  .data <- .to_aggregated_css(.data)
   if(manynet::is_twomode(.data))
     manynet::snet_abort("Homophily is only defined for one-mode networks.")
   attr <- .resolve_attribute(.data, attribute)
@@ -371,7 +446,7 @@ net_x_homophily <- function(.data, attribute){
 # non-alters, and so are held out rather than counted as absent ties.
 .comparable_matrix <- function(.data){
   mat <- manynet::as_matrix(
-    manynet::to_unweighted(manynet::to_multilevel(.data)))
+    manynet::to_unweighted(manynet::to_onemode(.data)))
   mat[mat != 0] <- 1
   if(manynet::is_twomode(.data)){
     mat <- (mat %*% mat > 0) * 1 # shares at least one node of the other mode

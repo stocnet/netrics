@@ -1,0 +1,3 @@
+# Rendered learnr tutorials are build output, not source.
+# Exclude them from GitHub's language statistics.
+inst/tutorials/**/*.html linguist-generated=true

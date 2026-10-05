@@ -2,6 +2,7 @@
 
 #' Motifs of network hierarchy
 #' @name motif_hierarchy
+#' @template section_cognitive
 #' @description
 #'   `net_x_hierarchy()` collects the measures of hierarchy into a single motif,
 #'   which can be used to compare the relative hierarchy of different networks.
@@ -38,6 +39,7 @@ NULL
 #' @export
 net_x_hierarchy <- function(.data){
   .data <- manynet::expect_nodes(.data)
+  .data <- .to_aggregated_css(.data)
   out <- data.frame(Connectedness = net_by_connectedness(.data),
                     InvReciprocity = 1 - net_by_reciprocity(.data),
                     Efficiency = net_by_efficiency(.data),
@@ -49,6 +51,7 @@ net_x_hierarchy <- function(.data){
 
 #' Measures of hierarchy
 #' @name measure_hierarchy
+#' @template section_cognitive
 #' @description
 #'   These functions, together with `net_reciprocity()`, are used jointly to
 #'   measure how hierarchical a network is:
@@ -91,7 +94,8 @@ NULL
 #' @export
 net_by_connectedness <- function(.data){
   .data <- manynet::expect_nodes(.data)
-  .data <- .to_positive(.data)
+  .data <- .to_aggregated_css(.data)
+  .data <- manynet::to_positive(.data)
   dists <- igraph::distances(manynet::as_igraph(.data))
   make_network_measure(1 - sum(dists==Inf)/sum(dists!=0),
                        .data,
@@ -114,6 +118,7 @@ net_by_connectedness <- function(.data){
 #' @export
 net_by_efficiency <- function(.data) {
   .data <- manynet::expect_nodes(.data)
+  .data <- .to_aggregated_css(.data)
   object <- manynet::as_igraph(.data)
   comps <- igraph::components(object, mode = "weak")
   sizes <- comps$csize
@@ -133,7 +138,9 @@ net_by_efficiency <- function(.data) {
 #' @export
 net_by_upperbound <- function(.data) {
   .data <- manynet::expect_nodes(.data)
-  dists <- igraph::distances(.data, mode = "in")
+  .data <- .to_aggregated_css(.data)
+  .data <- manynet::to_positive(.data)
+  dists <- igraph::distances(manynet::as_igraph(.data), mode = "in")
   dists[is.infinite(dists)] <- 0
   dists <- dists[order(rowSums(dists)), order(rowSums(dists))]
   if (max(colSums(dists > 0)) / (manynet::net_nodes(.data)-1) == 1){

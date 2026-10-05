@@ -1,7 +1,8 @@
 # Closeness-like centralities ####
 
-#' Measuring nodes closeness-like centrality
+#' Measures of node closeness-like centrality
 #' @name measure_central_close
+#' @template section_cognitive
 #' @description
 #'   These functions calculate common closeness-related centrality measures 
 #'   that rely on path-length for one- and two-mode networks:
@@ -90,8 +91,9 @@ node_by_closeness <- function(.data, normalized = TRUE,
                               direction = c("out", "in", "all"), cutoff = NULL){
 
   .data <- manynet::expect_nodes(.data)
+  .data <- .to_aggregated_css(.data)
 
-  .data <- .to_positive(.data)
+  .data <- manynet::to_positive(.data)
   direction <- match.arg(direction)
   weights <- `if`(manynet::is_weighted(.data),
                   manynet::tie_weights(.data), NA)
@@ -150,7 +152,8 @@ node_by_closeness <- function(.data, normalized = TRUE,
 node_by_harmonic <- function(.data, normalized = TRUE, cutoff = -1,
                              decay = NULL, direction = c("out", "in")){
   .data <- manynet::expect_nodes(.data)
-  .data <- .to_positive(.data)
+  .data <- .to_aggregated_css(.data)
+  .data <- manynet::to_positive(.data)
   direction <- match.arg(direction)
   if(is.null(decay)){
     out <- igraph::harmonic_centrality(as_igraph(.data), # weighted if present
@@ -209,7 +212,8 @@ node_by_harmonic <- function(.data, normalized = TRUE, cutoff = -1,
 #' @export
 node_by_reach <- function(.data, normalized = TRUE, cutoff = 2){
   .data <- manynet::expect_nodes(.data)
-  .data <- .to_positive(.data)
+  .data <- .to_aggregated_css(.data)
+  .data <- manynet::to_positive(.data)
   if(manynet::is_weighted(.data)){
     tore <- manynet::as_matrix(.data)/mean(manynet::as_matrix(.data))
     out <- 1/tore
@@ -251,6 +255,7 @@ node_by_reach <- function(.data, normalized = TRUE, cutoff = 2){
 node_by_decay <- function(.data, normalized = TRUE, decay = 0.5,
                           direction = c("out", "in")){
   .data <- manynet::expect_nodes(.data)
+  .data <- .to_aggregated_css(.data)
   node_by_harmonic(.data, normalized = normalized, decay = decay,
                    direction = match.arg(direction))
 }
@@ -284,7 +289,8 @@ node_by_decay <- function(.data, normalized = TRUE, decay = 0.5,
 node_by_integration <- function(.data, normalized = TRUE,
                                 direction = c("in", "out")){
   .data <- manynet::expect_nodes(.data)
-  .data <- .to_positive(.data)
+  .data <- .to_aggregated_css(.data)
+  .data <- manynet::to_positive(.data)
   direction <- match.arg(direction)
   dists <- igraph::distances(manynet::as_igraph(.data),
                              mode = ifelse(direction == "in", "in", "out"))
@@ -308,6 +314,7 @@ node_by_integration <- function(.data, normalized = TRUE,
 #' @export
 node_by_radiality <- function(.data, normalized = TRUE){
   .data <- manynet::expect_nodes(.data)
+  .data <- .to_aggregated_css(.data)
   node_by_integration(.data, normalized = normalized, direction = "out")
 }
 
@@ -349,12 +356,13 @@ node_by_radiality <- function(.data, normalized = TRUE){
 #' @export
 node_by_information <- function(.data, normalized = TRUE){
   .data <- manynet::expect_nodes(.data)
+  .data <- .to_aggregated_css(.data)
   thisRequires("sna")
   # `sna` needs a square sociomatrix, but `as_network()` hands it the
-  # rectangular incidence matrix of a two-mode network. Flattening to a
-  # multilevel network first gives every node a row and a column, which is
+  # rectangular incidence matrix of a two-mode network. Flattening to one
+  # mode first gives every node a row and a column, which is
   # how the other path-based measures in this file handle two modes.
-  out <- sna::infocent(manynet::as_network(manynet::to_multilevel(.data)),
+  out <- sna::infocent(manynet::as_network(manynet::to_onemode(.data)),
                        gmode = ifelse(manynet::is_directed(.data), "digraph", "graph"),
                        diag = manynet::is_complex(.data),
                        rescale = normalized)
@@ -381,7 +389,8 @@ node_by_information <- function(.data, normalized = TRUE){
 #' @export
 node_by_eccentricity <- function(.data, normalized = TRUE){
   .data <- manynet::expect_nodes(.data)
-  .data <- .to_positive(.data)
+  .data <- .to_aggregated_css(.data)
+  .data <- manynet::to_positive(.data)
   if(!manynet::is_connected(.data)) 
     manynet::snet_unavailable("Eccentricity centrality is only available for connected networks.")
   disties <- igraph::distances(as_igraph(.data))
@@ -416,15 +425,29 @@ node_by_eccentricity <- function(.data, normalized = TRUE){
 #'   with respect to the network as a whole.
 #'   It is grouped here because the closeness-like centralities are all built
 #'   from the same geodesic distances.
+#'   A node that cannot be reached has an infinite distance, normalised or not.
+#'   The scaled distances divide by the largest finite distance, so that the
+#'   reachable nodes still fall within \eqn{[0,1]}.
 #' @export
 node_by_distance <- function(.data, from, to, normalized = TRUE){
   .data <- manynet::expect_nodes(.data)
+  .data <- .to_aggregated_css(.data)
   if(missing(from) && missing(to)) manynet::snet_abort("Either 'from' or 'to' must be specified.")
+  .data <- manynet::to_positive(.data)
   if(!missing(from)) out <- igraph::distances(manynet::as_igraph(.data), v = from) else
     if(!missing(to)) out <- igraph::distances(manynet::as_igraph(.data), to = to)
+  unreachable <- is.infinite(out)
+  if(any(unreachable))
+    manynet::snet_info("{sum(unreachable)} node{?s} cannot be reached,",
+                       "so {?its/their} distance is infinite.")
   # Distances have no theoretical maximum, so this divides by the largest
-  # distance observed from (or to) the named node.
-  if(normalized) out <- out/max(out)
+  # distance observed from (or to) the named node. An unreachable node's
+  # distance is infinite, which would make every finite distance 0, so only
+  # the finite distances set the scale and the infinite ones stay infinite.
+  if(normalized){
+    maxd <- suppressWarnings(max(out[!unreachable]))
+    if(is.finite(maxd) && maxd > 0) out <- out/maxd
+  }
   make_node_measure(out, .data, measure = "geodesic distance",
                     range = `if`(normalized, c(0, 1), c(0, Inf)),
                     normalization = `if`(normalized, "scaled", "none"))
@@ -459,7 +482,8 @@ node_by_distance <- function(.data, from, to, normalized = TRUE){
 #' @export
 node_by_vitality <- function(.data, normalized = TRUE){
   .data <- manynet::expect_nodes(.data)
-  .data <- .to_positive(.data)
+  .data <- .to_aggregated_css(.data)
+  .data <- manynet::to_positive(.data)
   .data <- manynet::as_igraph(.data)
   out <- vapply(manynet::snet_progress_nodes(.data), function(x){
     sum(igraph::distances(.data)) -
@@ -503,8 +527,9 @@ node_by_vitality <- function(.data, normalized = TRUE){
 #' @export
 node_by_randomwalk <- function(.data, normalized = TRUE){
   .data <- manynet::expect_nodes(.data)
+  .data <- .to_aggregated_css(.data)
   # adjacency and degree matrices
-  A <- manynet::as_matrix(manynet::to_multilevel(.data))
+  A <- manynet::as_matrix(manynet::to_onemode(.data))
   degs <- node_by_deg(.data)
   D <- diag(degs)
   
@@ -559,8 +584,9 @@ node_by_randomwalk <- function(.data, normalized = TRUE){
 
 # Tie closeness centrality ####
 
-#' Measuring ties closeness-like centrality
+#' Measures of tie closeness-like centrality
 #' @name measure_central_tie_close
+#' @template section_cognitive
 #' @description
 #'   `tie_by_closeness()` measures the closeness of each tie to other ties 
 #'   in the network.
@@ -585,6 +611,8 @@ NULL
 #' @export
 tie_by_closeness <- function(.data, normalized = TRUE){
   .data <- manynet::expect_ties(.data)
+  if(manynet::is_cognitive(.data))
+    return(.map_css_ties(.data, tie_by_closeness, normalized = normalized))
   edge_adj <- manynet::to_linegraph(.data)
   out <- node_by_closeness(edge_adj, normalized = normalized)
   class(out) <- "numeric"
@@ -595,8 +623,9 @@ tie_by_closeness <- function(.data, normalized = TRUE){
 
 # Closeness centralisation ####
 
-#' Measuring networks closeness-like centralisation
+#' Measures of network closeness-like centralisation
 #' @name measure_centralisation_close
+#' @template section_cognitive
 #' @description
 #'   - `net_by_closeness()` measures a network's closeness centralization as a
 #'   single score.
@@ -651,8 +680,9 @@ net_by_closeness <- function(.data, normalized = TRUE,
                              direction = c("all", "out", "in")){
 
   .data <- manynet::expect_nodes(.data)
+  .data <- .to_aggregated_css(.data)
 
-  .data <- .to_positive(.data)
+  .data <- manynet::to_positive(.data)
   direction <- match.arg(direction)
   graph <- manynet::as_igraph(.data)
 
@@ -684,7 +714,7 @@ mode_by_closeness <- function(.data, normalized = TRUE,
 
   .data <- manynet::expect_nodes(.data)
 
-  .data <- .to_positive(.data)
+  .data <- manynet::to_positive(.data)
   direction <- match.arg(direction)
   graph <- manynet::as_igraph(.data)
 
@@ -773,6 +803,7 @@ net_by_reach <- function(.data, normalized = TRUE, cutoff = 2){
 net_by_decay <- function(.data, normalized = TRUE, decay = 0.5,
                          direction = c("out", "in")){
   .data <- manynet::expect_nodes(.data)
+  .data <- .to_aggregated_css(.data)
   decs <- node_by_decay(.data, normalized = normalized, decay = decay,
                         direction = match.arg(direction))
   out <- sum(max(decs) - decs)
@@ -790,6 +821,7 @@ net_by_decay <- function(.data, normalized = TRUE, decay = 0.5,
 net_by_integration <- function(.data, normalized = TRUE,
                                direction = c("in", "out")){
   .data <- manynet::expect_nodes(.data)
+  .data <- .to_aggregated_css(.data)
   ints <- node_by_integration(.data, normalized = normalized,
                               direction = match.arg(direction))
   out <- sum(max(ints) - ints)
@@ -804,6 +836,7 @@ net_by_integration <- function(.data, normalized = TRUE,
 #' @export
 net_by_harmonic <- function(.data, normalized = TRUE, cutoff = 2){
   .data <- manynet::expect_nodes(.data)
+  .data <- .to_aggregated_css(.data)
   harm <- node_by_harmonic(.data, normalized = FALSE, cutoff = cutoff)
   out <- sum(max(harm) - harm)
   if(normalized) out <- out / sum(manynet::net_nodes(.data) - harm)

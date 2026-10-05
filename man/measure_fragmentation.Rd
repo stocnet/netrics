@@ -45,11 +45,39 @@ from the network needed to increase the number of components.
 \item \code{net_by_toughness()} measures the number of nodes that would need to be
 removed from a network to increase its number of components.
 \item \code{net_by_adhesion()} measures the minimum number of ties to remove
-from the network needed to increase the number of components.
+from the network needed to increase the number of components,
+or the minimum total weight of such ties in a weighted network.
 \item \code{net_by_strength()} measures the number of ties that would need to be
 removed from a network to increase its number of components.
 }
 }
+\section{Cognitive social structures}{
+
+A cognitive social structure records each node's report of the ties in
+the whole network, in a \code{by} column that names who reported each tie.
+Counting every report as a tie of its own would count each tie once for
+every perceiver who reports it.
+So the functions here first combine the reports into the locally
+aggregated structure of Krackhardt (1987), with the intersection rule:
+a tie exists if both of its ends report it, and a message says so.
+A tie that names no reporter is kept as it is.
+
+A tie-level function still returns one value for each report,
+so that the result can be added back to the network it was given.
+Each report takes the value of the tie that it reports.
+A report of a tie that is not in the aggregated structure takes \code{NA},
+or \code{FALSE} for a mark.
+\code{tie_is_random()} is the exception, and draws among the reports.
+
+To combine the reports in a different way, do this before the function,
+e.g. with \code{manynet::to_aggregated(over = "by")}.
+
+Krackhardt, David. 1987.
+"Cognitive social structures".
+\emph{Social Networks} 9(2): 109-134.
+\doi{10.1016/0378-8733(87)90009-8}
+}
+
 \section{Cost of the enumerated measures}{
 
 \code{net_by_cohesion()} and \code{net_by_adhesion()} are connectivity problems that
@@ -59,6 +87,30 @@ every subset of the tieset or the nodeset, which is \eqn{2^n} subsets.
 Their cost therefore quadruples for every two nodes added: a ring of 16
 nodes takes about 8 seconds, one of 20 over two minutes, and one of 30
 more than a day. \code{limit} stops each before it becomes a hang.
+}
+
+\section{Weighted networks}{
+
+\code{net_by_adhesion()} reads a tie's weight as its capacity,
+and so returns the smallest total weight of ties whose removal would
+increase the number of components, the network's minimum cut,
+rather than the smallest number of such ties.
+This is also the smallest maximum flow between any two of its nodes;
+see \code{\link[=node_by_flow]{node_by_flow()}} for the flow between particular nodes.
+Use \code{\link[manynet:to_unweighted]{manynet::to_unweighted()}} first to count ties instead.
+The other measures documented here count nodes or ties whatever
+their weight.
+}
+
+\section{Signed networks}{
+
+\code{net_by_adhesion()} asks what holds a network together,
+and a negative tie is hostility rather than a channel along which
+cohesion travels.
+Where the network is signed, it therefore considers only the positive
+ties, and says so.
+Use \code{\link[manynet:to_unsigned]{manynet::to_unsigned()}} first to control this yourself.
+The other measures documented here use every tie whatever its sign.
 }
 
 \examples{

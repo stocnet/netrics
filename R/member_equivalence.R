@@ -2,7 +2,7 @@
 #' @description 
 #'   These functions combine an appropriate `node_x_*()` function
 #'   together with methods for calculating the hierarchical clusters
-#'   provided by a certain distance calculation.
+#'   provided by how alike nodes' profiles are.
 #'   
 #'   - `node_in_equivalence()` assigns nodes membership based on their equivalence 
 #'   with respective to some motif/class.
@@ -20,6 +20,7 @@
 #'   of the hierarchical cluster and showing the returned cluster
 #'   assignment.
 #' @name member_equivalence
+#' @template section_cognitive
 #' @template param_data
 #' @template param_motf
 #' @template node_member
@@ -36,11 +37,33 @@
 #'   clustered hierarchically (`"hierarchical"`) or 
 #'   through convergence of correlations (`"concor"`). 
 #'   Fewer, identifiable letters, e.g. `"c"` for CONCOR, is sufficient.
+#'   `"cosine"` is deprecated; use `proximity = "cosine"` instead.
 #' @param distance Character string indicating which distance metric
-#'   to pass on to `stats::dist`.
-#'   By default `"euclidean"`, but other options include
+#'   to pass on to `stats::dist` to compare nodes a second time,
+#'   on their profiles of dissimilarities to all nodes.
+#'   By default `NULL`, so that the proximities are clustered directly.
+#'   Options include `"euclidean"`,
 #'   `"maximum"`, `"manhattan"`, `"canberra"`, `"binary"`, and `"minkowski"`.
 #'   Fewer, identifiable letters, e.g. `"e"` for Euclidean, is sufficient.
+#'   Before v1.1.0 the default was `"euclidean"`,
+#'   so pass that to reproduce earlier results.
+#'   Ignored when `cluster = "concor"`.
+#' @param proximity Character string indicating how nodes' profiles
+#'   should be compared, passed on to [manynet::to_proximity()].
+#'   By default `"pearson"`, their correlation, 
+#'   but any measure offered there can be used, 
+#'   e.g. `"cosine"`, `"ruzicka"`, `"overlap"`, `"euclidean"`, or `"hamming"`.
+#'   Note that `"jaccard"` dichotomises a valued census;
+#'   `"ruzicka"` is the weighted counterpart that keeps the counts.
+#'   The proximities themselves are in the `proximity` element of the
+#'   clustering, e.g. `attr(node_in_structural(.data), "hc")$proximity`,
+#'   or can be made with [manynet::to_proximity()] from any census,
+#'   using `across = "rows"` and `dyad = "include"`.
+#'   Ignored when `cluster = "concor"`.
+#'   `"asis"` clusters a `motif` that is already a node-by-node similarity.
+#'   `node_in_regular()` does not take it, 
+#'   since `regularity_*()` already returns a node-by-node similarity,
+#'   which is clustered as it is.
 #' @param max_k Integer indicating the maximum number of (k) clusters
 #'   to evaluate.
 #'   Ignored when `k = "strict"` or a discrete number is given for `k`.
@@ -54,20 +77,29 @@ NULL
 #' @export
 node_in_equivalence <- function(.data, motif,
                                 k = c("silhouette", "elbow", "strict"),
-                                cluster = c("hierarchical", "concor", "cosine"),
-                                distance = c("euclidean", "maximum", "manhattan", 
-                                             "canberra", "binary", "minkowski"),
-                                max_k = 8L, Kmax = NULL){
+                                cluster = c("hierarchical", "concor"),
+                                distance = NULL,
+                                max_k = 8L, proximity = "pearson", Kmax = NULL){
   max_k <- resolve_max_k(max_k, Kmax)
   .data <- manynet::expect_nodes(.data)
-  cluster <- match.arg(cluster)
+  resolved <- resolve_cluster(cluster, proximity)
+  cluster <- resolved$cluster
+  proximity <- resolved$proximity
+  if(!is.null(distance))
+    distance <- match.arg(distance, c("euclidean", "maximum", "manhattan", 
+                                      "canberra", "binary", "minkowski"))
   manynet::snet_info("Clustering using {.fn cluster_{cluster}}.")
+  if(cluster == "hierarchical"){
+    if(proximity != "asis")
+      manynet::snet_info("Comparing nodes' profiles by their {.val {proximity}}",
+                         "proximity, see {.fn manynet::to_proximity}.")
+    if(!is.null(distance))
+      manynet::snet_info("Comparing nodes a second time by the {.val {distance}}",
+                         "distance between their dissimilarities.")
+  }
   hc <- switch(cluster,
-               hierarchical = cluster_hierarchical(motif,
-                                                   match.arg(distance)),
-               concor = cluster_concor(.data, motif),
-               cosine = cluster_cosine(motif, 
-                                       match.arg(distance)))
+               hierarchical = cluster_hierarchical(motif, distance, proximity),
+               concor = cluster_concor(.data, motif))
   
   if(!is.numeric(k)){
     k <- match.arg(k)
@@ -91,19 +123,19 @@ node_in_equivalence <- function(.data, motif,
 #' @export
 node_in_structural <- function(.data,
                                k = c("silhouette", "elbow", "strict"),
-                               cluster = c("hierarchical", "concor","cosine"),
-                               distance = c("euclidean", "maximum", "manhattan", 
-                                            "canberra", "binary", "minkowski"),
-                               max_k = 8L, Kmax = NULL){
+                               cluster = c("hierarchical", "concor"),
+                               distance = NULL,
+                               max_k = 8L, proximity = "pearson", Kmax = NULL){
   max_k <- resolve_max_k(max_k, Kmax)
   .data <- manynet::expect_nodes(.data)
+  .data <- .to_aggregated_css(.data)
   mat <- node_x_tie(.data)
   if(any(colSums(t(mat))==0)){
     mat <- cbind(mat, (colSums(t(mat))==0))
   } 
   node_in_equivalence(.data, mat, 
                       k = k, cluster = cluster, distance = distance, 
-                      max_k = max_k)
+                      max_k = max_k, proximity = proximity)
 }
 
 #' @rdname member_equivalence
@@ -124,8 +156,10 @@ node_in_structural <- function(.data,
 #'   The definition is recursive: nodes are equivalent if their alters are
 #'   equivalent, whose equivalence depends in turn on _their_ alters.
 #'   `node_in_regular()` therefore computes a similarity matrix by iterating
-#'   that definition to a fixed point, and then clusters it in the same way as
-#'   the other functions here.
+#'   that definition to a fixed point, and then clusters that similarity
+#'   directly, rather than comparing nodes' profiles first as
+#'   the other functions here do.
+#'   Give `distance` to compare the nodes' similarities a second time.
 #'
 #'   Note that this differs from `node_in_motif()`, which compares nodes on how
 #'   often they appear embedded in local structures. 
@@ -137,14 +171,14 @@ node_in_structural <- function(.data,
 #' @export
 node_in_regular <- function(.data,
                             k = c("silhouette", "elbow", "strict"),
-                            cluster = c("hierarchical", "concor","cosine"),
-                            distance = c("euclidean", "maximum", "manhattan",
-                                         "canberra", "binary", "minkowski"),
+                            cluster = c("hierarchical", "concor"),
+                            distance = NULL,
                             max_k = 8L,
                             regularity = c("rolesim", "rege"),
                             decay = 0.15, beta = NULL, Kmax = NULL){
   max_k <- resolve_max_k(max_k, Kmax)
   .data <- manynet::expect_nodes(.data)
+  .data <- .to_aggregated_css(.data)
   regularity <- match.arg(regularity)
   decay <- resolve_decay(decay, beta, "beta")
   manynet::snet_info("Calculating regular equivalence using",
@@ -153,7 +187,8 @@ node_in_regular <- function(.data,
                 rolesim = regularity_rolesim(.data, decay = decay),
                 rege = regularity_rege(.data))
   node_in_equivalence(.data, mat,
-                   k = k, cluster = cluster, distance = distance, max_k = max_k)
+                   k = k, cluster = cluster, distance = distance, max_k = max_k,
+                   proximity = "asis")
 }
 
 #' @rdname member_equivalence
@@ -196,12 +231,12 @@ node_in_regular <- function(.data,
 #' @export
 node_in_motif <- function(.data,
                           k = c("silhouette", "elbow", "strict"),
-                          cluster = c("hierarchical", "concor","cosine"),
-                          distance = c("euclidean", "maximum", "manhattan",
-                                       "canberra", "binary", "minkowski"),
-                          max_k = 8L, Kmax = NULL){
+                          cluster = c("hierarchical", "concor"),
+                          distance = NULL,
+                          max_k = 8L, proximity = "pearson", Kmax = NULL){
   max_k <- resolve_max_k(max_k, Kmax)
   .data <- manynet::expect_nodes(.data)
+  .data <- .to_aggregated_css(.data)
   if(manynet::is_twomode(.data)){
     manynet::snet_info("Since this is a two-mode network,",
               "using {.fn node_x_tetrad} to",
@@ -215,7 +250,8 @@ node_in_motif <- function(.data,
   }
   if(any(colSums(mat) == 0)) mat <- mat[,-which(colSums(mat) == 0)]
   node_in_equivalence(.data, mat,
-                   k = k, cluster = cluster, distance = distance, max_k = max_k)
+                   k = k, cluster = cluster, distance = distance, max_k = max_k,
+                   proximity = proximity)
 }
 
 #' @rdname member_equivalence
@@ -227,23 +263,37 @@ node_in_motif <- function(.data,
 #' @export
 node_in_automorphic <- function(.data,
                                 k = c("silhouette", "elbow", "strict"),
-                                cluster = c("hierarchical", "concor","cosine"),
-                                distance = c("euclidean", "maximum", "manhattan", 
-                                             "canberra", "binary", "minkowski"),
-                                max_k = 8L, Kmax = NULL){
+                                cluster = c("hierarchical", "concor"),
+                                distance = NULL,
+                                max_k = 8L, proximity = "pearson", Kmax = NULL){
   max_k <- resolve_max_k(max_k, Kmax)
   .data <- manynet::expect_nodes(.data)
+  .data <- .to_aggregated_css(.data)
   mat <- node_x_path(.data)
+  # Infinite distances cannot be correlated, so nodes that cannot reach each
+  # other are put one step further apart than the furthest that can.
+  if(any(is.infinite(mat))){
+    manynet::snet_info("Some nodes cannot reach each other, so they are",
+                       "treated as one step further apart than the most",
+                       "distant nodes that can.")
+    mat[is.infinite(mat)] <- max(mat[is.finite(mat)]) + 1
+  }
   node_in_equivalence(.data, mat, 
-                   k = k, cluster = cluster, distance = distance, max_k = max_k)
+                   k = k, cluster = cluster, distance = distance, max_k = max_k,
+                   proximity = proximity)
 }
 
 #' @rdname member_equivalence
 #' @param blocks A character vector of permitted ideal block types,
 #'   or a list-matrix giving the permitted types per block position.
 #'   See [net_by_inconsistency()] for the available types.
-#' @param times Integer number of search iterations.
+#' @param times Integer number of steps the search takes.
 #'   By default the number of nodes times the number of positions.
+#'   For `search = "tabu"` this is the most steps that each of its runs may
+#'   take, since a run also ends once it stops improving.
+#' @param search Which method to use to search the space of partitions.
+#'   One of "tabu" (the default) or "iterated";
+#'   see [method_search] for what each does.
 #' @section Direct blockmodelling:
 #'   The other functions here are _indirect_: they build a similarity between
 #'   nodes, cluster it, and read a partition off the result.
@@ -257,9 +307,16 @@ node_in_automorphic <- function(.data,
 #'   `blocks = c("nul", "reg")` searches directly for a regular-equivalence
 #'   blockmodel.
 #'   The cost is that the number of positions `k` must be chosen in advance,
-#'   and that the search is stochastic: it explores by random restarts and
-#'   perturbations, so repeated runs may return different partitions and a
+#'   and that the search is stochastic: it begins from random partitions,
+#'   so repeated runs may return different partitions and a
 #'   longer search is more likely to find a good one.
+#'
+#'   By default the search is a tabu search, [search_tabu()], which lets the
+#'   positions take any size, and so can find a small core or one large
+#'   position where the network has them.
+#'   `search = "iterated"` uses [search_iterated()], the only search available
+#'   prior to version 1.1.0. It is quicker on a large network, but it holds
+#'   the positions at near-equal size.
 #'   Set a seed for reproducibility, and compare runs with [net_by_inconsistency()].
 #' @references
 #' ## On direct blockmodelling
@@ -272,29 +329,29 @@ node_in_automorphic <- function(.data,
 #' net_by_inconsistency(ison_adolescents, nbm)
 #' @export
 node_in_block <- function(.data, k = 2L,
-                               blocks = c("nul", "com"),
-                               times = NULL){
+                          blocks = c("nul", "com"),
+                          times = NULL,
+                          search = c("tabu", "iterated")){
   .data <- manynet::expect_nodes(.data)
+  .data <- .to_aggregated_css(.data)
+  search <- match.arg(search)
   if(!is.numeric(k) || k < 2)
     manynet::snet_abort("`k` must be the number of positions sought, at least 2.")
   n <- manynet::net_nodes(.data)
   if(k > n) manynet::snet_abort("`k` cannot exceed the number of nodes.")
   if(is.null(times)) times <- n * k
-  fitness <- function(m) as.numeric(net_by_inconsistency(.data, m, blocks = blocks))
+  # Each tabu step fits every move of one node to another position.
+  if(search == "tabu" && n * (k - 1) > 200)
+    manynet::snet_info("A tabu search fits {n * (k - 1)} candidate partitions",
+                       "at each step, which may take a while on this network.",
+                       "Consider {.code search = \"iterated\"}.")
+  mat <- manynet::as_matrix(manynet::to_unweighted(manynet::to_onemode(.data)))
+  loops <- manynet::is_complex(.data)
+  fitness <- function(m) .block_cost(mat, m, blocks, loops)
   # begin from a random partition into k roughly equal positions
   shuffled <- sample(seq.int(n))
   out <- cut(seq_along(shuffled), k, labels = FALSE)[shuffled]
-  fit <- fitness(out)
-  soln <- out
-  for(t in seq.int(times)){
-    soln <- .weakPerturb(soln)
-    new_fit <- fitness(soln)
-    if(new_fit < fit){
-      out <- soln
-      fit <- new_fit
-    }
-    if(t %% 10 == 0) soln <- .strongPerturb(soln)
-  }
+  out <- run_search(search, fitness, out, times)
   out <- make_node_member(out, .data)
   attr(out, "k") <- k
   out

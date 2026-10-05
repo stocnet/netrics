@@ -13,7 +13,7 @@
 \alias{node_by_distance}
 \alias{node_by_vitality}
 \alias{node_by_randomwalk}
-\title{Measuring nodes closeness-like centrality}
+\title{Measures of node closeness-like centrality}
 \usage{
 node_by_closeness(
   .data,
@@ -139,6 +139,33 @@ so that scores can be compared across networks;
 \code{node_by_randomwalk()} and \code{node_by_distance()} have no such maximum and
 are instead \emph{scaled} against the largest value observed in this network.
 }
+\section{Cognitive social structures}{
+
+A cognitive social structure records each node's report of the ties in
+the whole network, in a \code{by} column that names who reported each tie.
+Counting every report as a tie of its own would count each tie once for
+every perceiver who reports it.
+So the functions here first combine the reports into the locally
+aggregated structure of Krackhardt (1987), with the intersection rule:
+a tie exists if both of its ends report it, and a message says so.
+A tie that names no reporter is kept as it is.
+
+A tie-level function still returns one value for each report,
+so that the result can be added back to the network it was given.
+Each report takes the value of the tie that it reports.
+A report of a tie that is not in the aggregated structure takes \code{NA},
+or \code{FALSE} for a mark.
+\code{tie_is_random()} is the exception, and draws among the reports.
+
+To combine the reports in a different way, do this before the function,
+e.g. with \code{manynet::to_aggregated(over = "by")}.
+
+Krackhardt, David. 1987.
+"Cognitive social structures".
+\emph{Social Networks} 9(2): 109-134.
+\doi{10.1016/0378-8733(87)90009-8}
+}
+
 \section{Signed networks}{
 
 These measures read a tie as a distance, and a negative tie is hostility
@@ -276,6 +303,9 @@ distance from (or to) one named node, rather than summarising its position
 with respect to the network as a whole.
 It is grouped here because the closeness-like centralities are all built
 from the same geodesic distances.
+A node that cannot be reached has an infinite distance, normalised or not.
+The scaled distances divide by the largest finite distance, so that the
+reachable nodes still fall within \eqn{[0,1]}.
 }
 
 \section{Closeness vitality centrality}{
@@ -487,7 +517,9 @@ Other nodal:
 \code{\link{member_cliques}},
 \code{\link{member_community}},
 \code{\link{member_community_hier}},
-\code{\link{member_community_non}},
+\code{\link{member_community_modular}},
+\code{\link{member_community_partition}},
+\code{\link{member_community_spread}},
 \code{\link{member_components}},
 \code{\link{member_core}},
 \code{\link{member_diffusion}},

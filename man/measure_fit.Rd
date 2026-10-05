@@ -5,8 +5,10 @@
 \alias{net_by_core}
 \alias{net_by_factions}
 \alias{net_by_modularity}
+\alias{net_by_linkdensity}
+\alias{net_by_divergence}
 \alias{net_by_inconsistency}
-\title{Measuring how well a structure fits a network}
+\title{Measures of how well a structure fits a network}
 \usage{
 net_by_core(
   .data,
@@ -20,6 +22,16 @@ net_by_core(
 net_by_factions(.data, membership = NULL)
 
 net_by_modularity(.data, membership = NULL, resolution = 1)
+
+net_by_linkdensity(.data, membership = NULL)
+
+net_by_divergence(
+  .data,
+  ideal = manynet::create_core,
+  variant = c("hamming", "jaccard", "portrait"),
+  mark = NULL,
+  membership = NULL
+)
 
 net_by_inconsistency(.data, membership = NULL, blocks = c("nul", "com"))
 }
@@ -61,6 +73,15 @@ By default 1, which returns the original definition of modularity.
 The higher this parameter, the more smaller communities will be privileged.
 The lower this parameter, the fewer larger communities are likely to be found.}
 
+\item{ideal}{The ideal network to compare against. Either a network object,
+or a function that builds one from the network, such as any of the
+\verb{manynet::create_*()} or \verb{manynet::generate_*()} functions.
+A function is called with the network as its first argument, and also
+given \code{mark} or \code{membership} where it takes them.
+By default \code{\link[manynet:create_core]{manynet::create_core()}}.
+For other arguments, pass an anonymous function,
+e.g. \verb{\\(x) manynet::create_lattice(x, width = 4)}.}
+
 \item{blocks}{A character vector of permitted ideal block types,
 or a list-matrix giving the permitted types for each block position.
 By default \code{c("nul", "com")}, which is structural blockmodelling.
@@ -88,6 +109,10 @@ and a core-periphery model with the same dimensions.
 and a component model with the same dimensions.
 \item \code{net_by_modularity()} measures the modularity of a network
 based on nodes' membership in defined clusters.
+\item \code{net_by_linkdensity()} measures the partition density of a network
+based on ties' membership in defined clusters.
+\item \code{net_by_divergence()} measures how far a network is from an ideal
+network, such as a core-periphery, complete, or star network.
 \item \code{net_by_inconsistency()} measures how far a partition's blocks depart from
 ideal block types.
 }
@@ -103,12 +128,41 @@ direction, so they are not interchangeable:\tabular{llll}{
    \code{net_by_core()} \tab a core-periphery model \tab -1 to 1 \tab higher \cr
    \code{net_by_factions()} \tab a components model \tab -1 to 1 \tab higher \cr
    \code{net_by_modularity()} \tab the partition's communities \tab -0.5 to 1 (at the default resolution) \tab higher \cr
+   \code{net_by_linkdensity()} \tab the partition's communities of ties \tab -1/3 to 1 \tab higher \cr
+   \code{net_by_divergence()} \tab an ideal network \tab 0 to 1 \tab \strong{lower} \cr
    \code{net_by_inconsistency()} \tab ideal block types \tab 0 upwards \tab \strong{lower} \cr
 }
 
 
 Compare partitions using one measure at a time.
 }
+\section{Cognitive social structures}{
+
+A cognitive social structure records each node's report of the ties in
+the whole network, in a \code{by} column that names who reported each tie.
+Counting every report as a tie of its own would count each tie once for
+every perceiver who reports it.
+So the functions here first combine the reports into the locally
+aggregated structure of Krackhardt (1987), with the intersection rule:
+a tie exists if both of its ends report it, and a message says so.
+A tie that names no reporter is kept as it is.
+
+A tie-level function still returns one value for each report,
+so that the result can be added back to the network it was given.
+Each report takes the value of the tie that it reports.
+A report of a tie that is not in the aggregated structure takes \code{NA},
+or \code{FALSE} for a mark.
+\code{tie_is_random()} is the exception, and draws among the reports.
+
+To combine the reports in a different way, do this before the function,
+e.g. with \code{manynet::to_aggregated(over = "by")}.
+
+Krackhardt, David. 1987.
+"Cognitive social structures".
+\emph{Social Networks} 9(2): 109-134.
+\doi{10.1016/0378-8733(87)90009-8}
+}
+
 \section{Signed networks}{
 
 \code{net_by_modularity()} counts a tie however it is signed, as a census does,
@@ -175,6 +229,87 @@ To help manage this problem, a \code{resolution} parameter is added.
 Please see the argument definition for more details.
 }
 
+\section{Link density}{
+
+\code{net_by_linkdensity()} measures the partition density of a membership of
+the network's \emph{ties}, such as that from \code{\link[=tie_in_community]{tie_in_community()}},
+which is used where no membership is given.
+Each community's density is the number of its ties beyond those that a
+tree over its nodes needs, as a share of the ties that would make those
+nodes a clique.
+The partition density is the mean of these, weighted by the number of
+ties in each community (Ahn et al. 2010).
+It is 1 where every community is a clique, 0 where every community is a
+tree, and negative only where the ties of a community do not connect.
+Ties between the same two nodes count once, and ties without a
+membership are left out.
+}
+
+\section{Divergence}{
+
+\code{net_by_divergence()} measures how far a network is from some ideal
+network, from 0 where the network \emph{is} the ideal to 1.
+There are three variants:
+\itemize{
+\item \code{"hamming"} (the default) is the share of possible ties on which the
+network and the ideal disagree. This is the graph edit distance, counting
+only tie additions and deletions, normalised by the number of possible ties.
+A missing tie that is also missing in the ideal counts as agreement.
+\item \code{"jaccard"} is one minus the share of ties in either network that are in
+both. Unlike \code{"hamming"}, it ignores ties missing from both, so a sparse
+network does not look close to a sparse ideal just because both are sparse.
+For the same reason it is always 1 against an empty ideal,
+so use \code{"hamming"} there.
+\item \code{"portrait"} is the portrait divergence of Bagrow and Bollt (2019): the
+Jensen-Shannon divergence between the two networks' distributions of how
+many nodes each node reaches at each distance.
+It compares structure at all scales and needs no correspondence between
+the two networks' nodes, so the ideal may even be of a different size.
+}
+
+\code{"hamming"} and \code{"jaccard"} compare the two networks tie by tie, and so
+need the ideal's nodes to correspond to the network's.
+This holds for an ideal network of the same dimensions and node names,
+and for \code{\link[manynet:create_core]{manynet::create_core()}}, \code{\link[manynet:create_components]{manynet::create_components()}},
+\code{\link[manynet:create_filled]{manynet::create_filled()}}, and \code{\link[manynet:create_empty]{manynet::create_empty()}}, which are built
+from the network's own \code{mark} or \code{membership}, or do not depend on the
+order of nodes.
+It does not hold for, e.g., \code{\link[manynet:create_star]{manynet::create_star()}} or
+\code{\link[manynet:create_ring]{manynet::create_ring()}}, where which node is the hub or comes next is
+arbitrary, nor for the random \verb{manynet::generate_*()} functions.
+There the portrait divergence is used instead, and the result reports
+the variant used. Note that an ideal from a \verb{manynet::generate_*()}
+function is random, so it returns a different value on each call.
+
+Where a directed network is compared tie by tie with
+\code{\link[manynet:create_core]{manynet::create_core()}} or \code{\link[manynet:create_components]{manynet::create_components()}}, which build
+one direction only, both are first symmetrised, as in \code{net_by_core()}.
+}
+
+\section{Divergence and inconsistency}{
+
+\code{net_by_divergence()} and \code{net_by_inconsistency()} both return how far a
+network is from an ideal, and both run lower-is-better,
+but they differ in what that ideal is:
+\itemize{
+\item \code{net_by_divergence()} compares against \emph{one} ideal network, and returns
+a value between 0 and 1.
+\item \code{net_by_inconsistency()} compares against the best of a \emph{set} of ideals.
+Each block may take whichever of the permitted types fits it best,
+so the data choose the image. Some of those types, such as \code{reg}, are
+satisfied by many different blocks rather than by one, so there is no
+single network to compare against. Its value runs from 0 upwards.
+}
+
+Where every block of a \code{membership} is best fitted as complete on the
+diagonal and null off it, \code{net_by_inconsistency(blocks = c("nul", "com"))}
+equals the \code{"hamming"} divergence from
+\code{manynet::create_components(membership = membership)}.
+In short, use \code{net_by_divergence()} where you can name the ideal network,
+and \code{net_by_inconsistency()} where you can only name the permitted
+block types.
+}
+
 \section{Blockmodelling}{
 
 A blockmodel proposes that a partition reduces a network to a small number
@@ -208,6 +343,8 @@ case, see \code{\link[=net_by_factions]{net_by_factions()}}. The two are related
 \code{net_by_factions()} fixes the image — complete on the diagonal, null off it
 — whereas \code{net_by_inconsistency(blocks = c("nul", "com"))} lets each block take
 whichever of the two ideals fits it better, and so is more permissive.
+For how it relates to \code{net_by_divergence()}, which also runs
+lower-is-better, see the section on divergence and inconsistency.
 
 The ideal types are:
 \describe{
@@ -245,6 +382,12 @@ net_by_modularity(ison_adolescents,
   node_in_partition(ison_adolescents))
 net_by_modularity(ison_southern_women, 
   node_in_partition(ison_southern_women))
+net_by_linkdensity(ison_adolescents,
+  tie_in_community(ison_adolescents))
+net_by_divergence(ison_adolescents, manynet::create_filled)
+net_by_divergence(ison_adolescents, manynet::create_filled,
+                  variant = "jaccard")
+net_by_divergence(ison_adolescents, manynet::create_star)
 net_by_inconsistency(ison_hightech, node_in_regular(ison_hightech))
 # a regular-equivalence vocabulary instead of a structural one
 net_by_inconsistency(ison_hightech, node_in_structural(ison_hightech), 
@@ -272,6 +415,22 @@ In: Memon, N., Xu, J., Hicks, D., Chen, H. (eds)
 \emph{Data Mining for Social Network Data. Annals of Information Systems}, Vol 12.
 Springer, Boston, MA.
 \doi{10.1007/978-1-4419-6287-4_7}
+}
+
+\subsection{On link density}{
+
+Ahn, Yong-Yeol, James P. Bagrow, and Sune Lehmann. 2010.
+"Link communities reveal multiscale complexity in networks".
+\emph{Nature} 466(7307): 761-764.
+\doi{10.1038/nature09182}
+}
+
+\subsection{On portrait divergence}{
+
+Bagrow, James P., and Erik M. Bollt. 2019.
+"An information-theoretic, all-scales approach to comparing networks".
+\emph{Applied Network Science} 4: 45.
+\doi{10.1007/s41109-019-0156-x}
 }
 
 \subsection{On generalized blockmodelling}{

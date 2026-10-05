@@ -128,14 +128,21 @@ reference:
       Functions for identifying nodes' community, cluster, or class membership,
       recognisable by the `_in_` in the function name.
       They return a character vector the length of the nodes in the network.
+  - subtitle: "Communities"
     contents:
-      - contains("_in_")
-
+      - starts_with("member_community")
+  - subtitle: "Other memberships"
+    contents:
+      - starts_with("member_")
+      - -starts_with("member_community")
+      
   - title: "Motifs"
     desc: |
       Functions for tabulating the subgraphs that nodes or networks participate in,
       recognisable by the `_x_` in the function name.
       They return a matrix or table, with the motif or other property as columns.
+      Nodes are cross-referenced against categories and never against nodes;
+      node-by-node results come from `{manynet}`'s `to_*()` functions.
     contents:
       - contains("_x_")
       

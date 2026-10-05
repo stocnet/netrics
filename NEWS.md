@@ -1,3 +1,107 @@
+# netrics 1.1.0
+
+## Package
+
+- Raised `{manynet}` floor to 2.3.4
+  - Replaced internal signed and multilevel helpers with `{manynet}`'s own
+
+## Marks
+
+- Improved `tie_is_path()`
+  - Fixed erroring on a signed 'stocnet', now runs over the positive ties alone
+  - Fixed erroring where no path exists
+- Improved `tie_is_multiple()` documentation to distinguish from `manynet::tie_is_parallel()`
+
+## Measures
+
+- Fixed `net_by_upperbound()`, `net_x_hierarchy()`, and `node_by_distance()` erroring on a signed 'stocnet'
+  - Now consider only the positive ties
+- Fixed `node_by_distance()` scaling every distance to 0 where some node cannot be reached
+  - The scaled distances now divide by the largest finite distance, and unreachable nodes stay infinite, with a message
+- Fixed `node_by_diversity()` to not include ego when measuring alter diversity (closes #39)
+  - Nodes without alters now return `NA`
+- Fixed twomodes in `node_by_information()`, `net_by_spatial()` etc by 
+  replacing `to_multilevel()` with `manynet::to_onemode()` to create square matrices
+- Added `membership=` to `net_by_diversity()` for mean diversity by group weighted by size
+- Fixed `mode_by_eigenvector()` erroring on multilevel networks (closes #23)
+- Fixed about 40 measures, memberships, marks, and motifs erroring on, or miscounting, CSSs
+  - Now combine reports into locally aggregated structures
+  - Tie-level functions still return one value per report
+- Added `variant=` to `node_by_transitivity()` for Barrat, Onnela, or Zhang-Horvath weighted clustering
+  - Weighted networks now use Barrat's coefficient by default; `variant = "watts"` keeps the unweighted result
+- Improved `node_by_flow()`
+  - Fixed ignoring tie weights and erroring on two-mode networks
+  - Added `from=` and `to=` for the maximum flow from or to a given node
+- `net_by_adhesion()` now reads tie weights as capacities, returning weighted minimum cut
+  - Signed networks now read by their positive ties alone
+- Added `net_by_divergence()` for networks' Hamming, Jaccard, or portrait divergence
+  - `ideal=` takes a network or any `manynet::create_*()` or `manynet::generate_*()` function
+  - Falls back to portrait divergence where the networks' nodes differ
+- Added `net_by_linkdensity()` for the partition density of a tie membership
+
+## Memberships
+
+- Fixed nodetie memberships returning `NA` for groups beyond the 702nd
+- Fixed single community algorithms erroring on a signed 'stocnet' (closes #32)
+- Added `node_in_faction()` for the `k` groups, of any size, that come closest to separate cliques
+  - Uses a tabu search, as the UCINET 'Factions' routine does
+  - `variant=` scores the fit by `"hamming"` (default), `"phi"`, or `"modularity"`
+- Added `search=` to `node_in_block()` for searching by `"tabu"` (default) or `"iterated"`
+  - The tabu search lets positions take any size, where the iterated search held them near equal
+  - Partitions may therefore differ from earlier versions; pass `search = "iterated"` to reproduce them
+- Added `tie_in_community()` for link communities (Ahn et al. 2010), which group ties rather than nodes (closes #20)
+  - A node belongs to every community one of its ties does, so nodes' communities can overlap
+- Fixed twomodes in `node_in_partition()`, `node_in_regular()` etc by 
+  replacing `to_multilevel()` with `manynet::to_onemode()` to create square matrices
+- Improved the equivalence functions to compare nodes' profiles once, rather than twice, thanks @Kaladani (closes #29)
+  - `node_in_equivalence()`, `node_in_structural()`, `node_in_motif()`, and `node_in_automorphic()` now cluster the proximities between nodes' profiles directly, as documented and as `sna::equiv.clust()` does
+  - Memberships may therefore differ from earlier versions; pass `distance = "euclidean"` to reproduce them
+  - Added `proximity=` to choose how profiles are compared, by default `"pearson"`, from any measure in `manynet::to_proximity()`, e.g. `"cosine"`, `"ruzicka"`, or `"overlap"`
+  - `distance=` is now `NULL` by default; naming a distance compares nodes a second time on their dissimilarities, as before
+  - Unbounded proximities such as `"count"` or `"crossmin"` are subtracted from the largest proximity, with a message, rather than returning negative merge heights
+  - A square census is now compared as the profile matrix it is, rather than as a one-mode network
+  - `node_in_regular()` now clusters the `regularity_*()` similarity directly
+  - Deprecated `cluster = "cosine"` and `cluster_cosine()` in favour of `proximity = "cosine"`
+  - `cluster_hierarchical()` now also returns the proximities it clustered as `$proximity`
+- Fixed `node_in_automorphic()` erroring with `k = "elbow"` on weighted or unconnected networks
+  - Nodes that cannot reach each other are now treated as one step further apart than the most distant nodes that can, with a message
+- Improved `node_in_roulette()`, with some implications for `node_in_block()`
+  - Now uses an iterated local search to improve the partition, rather than a single pass of greedy moves
+    - Weak moves now kept only if they improve the partition
+    - Strong perturbation now restarts from the best partition
+  - Improved speed by several times 
+  - Improved `groups=` to accept a vector of group sizes
+  - Added `attribute=` and `balance=` to mix groups by a node attribute
+  - Added `decay=` to discount ties from earlier waves or times, by default uniform
+  - Now stops with a message on a two-mode network
+- Split the documentation of the non-hierarchical community algorithms into three pages, by the idea they share
+  - `?member_community_modular`, `?member_community_spread`, and `?member_community_partition` replace `?member_community_non`
+  - `?member_community` now compares all the algorithms in one table
+
+## Methods
+
+- Added `search_tabu()` and `search_iterated()` for finding membership that minimises a cost
+
+## Motifs
+
+- Fixed `net_x_stability()` miscounting the ties that changed between networks
+  - `==` bound after `*`, so it counted every absent tie, including self-ties, as changed
+  - Now also counts undirected and weighted ties only once
+- Fixed `net_x_correlation()` requiring a second network (closes #27)
+  - Now correlates consecutive waves of a longitudinal network
+- Fixed `net_x_change()` and `net_x_stability()` on networks with missing ties
+- Fixed `node_x_path()` on weighted networks to return shortest path lengths (Opsahl et al. 2010)
+  - Was inverting tie weights, so every dyad without a tie was infinitely far apart
+  - Two-mode weighted networks now return a square matrix
+- Improved `node_x_alters()`, thanks @RWKrause (closes #39)
+  - Added `direction=` for out, in, reciprocated, or all (default) alters
+  - Added `WeightedSum`, each alter's value times the strength of the tie to it
+  - Alters with missing values are now left out of the summary
+  - Nodes without alters of known value now return `NA`, also if categorical
+  - Two-mode attributes on one mode only are now read at distance two
+  - Signed ties now count by their magnitude
+- Added `node_x_percolation()` for overlapping communities by clique percolation (Palla et al. 2005) (closes #21)
+
 # netrics 1.0.3
 
 ## Measures

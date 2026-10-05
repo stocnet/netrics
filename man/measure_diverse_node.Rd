@@ -4,7 +4,7 @@
 \alias{measure_diverse_node}
 \alias{node_by_richness}
 \alias{node_by_diversity}
-\title{Measures of nodes diversity}
+\title{Measures of node diversity}
 \usage{
 node_by_richness(.data, attribute)
 
@@ -49,9 +49,37 @@ across this attribute:
 \item \code{node_by_richness()} measures the number of unique categories
 of an attribute to which each node is connected.
 \item \code{node_by_diversity()} measures the heterogeneity of each node's
-local neighbourhood.
+alters, not including the node itself.
+Nodes without alters return \code{NA}.
 }
 }
+\section{Cognitive social structures}{
+
+A cognitive social structure records each node's report of the ties in
+the whole network, in a \code{by} column that names who reported each tie.
+Counting every report as a tie of its own would count each tie once for
+every perceiver who reports it.
+So the functions here first combine the reports into the locally
+aggregated structure of Krackhardt (1987), with the intersection rule:
+a tie exists if both of its ends report it, and a message says so.
+A tie that names no reporter is kept as it is.
+
+A tie-level function still returns one value for each report,
+so that the result can be added back to the network it was given.
+Each report takes the value of the tie that it reports.
+A report of a tie that is not in the aggregated structure takes \code{NA},
+or \code{FALSE} for a mark.
+\code{tie_is_random()} is the exception, and draws among the reports.
+
+To combine the reports in a different way, do this before the function,
+e.g. with \code{manynet::to_aggregated(over = "by")}.
+
+Krackhardt, David. 1987.
+"Cognitive social structures".
+\emph{Social Networks} 9(2): 109-134.
+\doi{10.1016/0378-8733(87)90009-8}
+}
+
 \examples{
 node_by_richness(ison_networkers, "Discipline")
 marvel_friends <- to_unsigned(to_uniplex(fict_marvel, "relationship"), "positive")
@@ -115,7 +143,9 @@ Other nodal:
 \code{\link{member_cliques}},
 \code{\link{member_community}},
 \code{\link{member_community_hier}},
-\code{\link{member_community_non}},
+\code{\link{member_community_modular}},
+\code{\link{member_community_partition}},
+\code{\link{member_community_spread}},
 \code{\link{member_components}},
 \code{\link{member_core}},
 \code{\link{member_diffusion}},

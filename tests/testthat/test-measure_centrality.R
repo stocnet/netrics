@@ -207,3 +207,74 @@ test_that("node_by_decay respects tie direction", {
   expect_gt(out[1], out[4])
   expect_equal(out[4], 0)
 })
+
+test_that("node_by_flow reads tie weights as capacities", {
+  ring <- igraph::make_ring(5)
+  igraph::E(ring)$weight <- c(1, 5, 2, 9, 3)
+  expect_equal(as.numeric(node_by_flow(ring, normalized = FALSE)),
+               c(6, 6, 9, 10, 10))
+  expect_equal(as.numeric(node_by_flow(manynet::to_unweighted(ring),
+                                       normalized = FALSE)), rep(6, 5))
+  # a two-mode network is measured as one nodeset
+  expect_length(node_by_flow(ison_southern_women), 32)
+})
+
+test_that("node_by_flow measures maximum flow from or to a node", {
+  ring <- igraph::make_ring(5)
+  igraph::E(ring)$weight <- c(1, 5, 2, 9, 3)
+  out <- node_by_flow(ring, from = 1, normalized = FALSE)
+  expect_equal(as.numeric(out), c(NA, 3, 3, 4, 4))
+  expect_equal(attr(out, "measure"), "maximum flow")
+  expect_equal(attr(node_by_flow(ring), "measure"),
+               "flow betweenness centrality")
+  # each flow is bounded by what can leave the source or enter the target
+  expect_equal(as.numeric(node_by_flow(ring, from = 1)),
+               c(NA, 0.75, 0.75, 1, 1))
+  # direction matters where the ties have one
+  dring <- igraph::make_ring(5, directed = TRUE)
+  igraph::E(dring)$weight <- c(1, 5, 2, 9, 3)
+  expect_equal(as.numeric(node_by_flow(dring, from = 1, normalized = FALSE)),
+               c(NA, 1, 1, 1, 1))
+  expect_equal(as.numeric(node_by_flow(dring, to = 1, normalized = FALSE)),
+               c(NA, 2, 2, 3, 3))
+  expect_error(node_by_flow(ring, from = 9), "must name one node")
+})
+
+test_that("node_by_flow reads a signed network's positive ties", {
+  set.seed(1234)
+  s <- manynet::to_signed(manynet::add_node_attribute(create_wheel(12),
+                                                      "name", LETTERS[1:12]))
+  out <- as.numeric(node_by_flow(s, from = "A", normalized = FALSE))
+  pos <- as.numeric(node_by_flow(manynet::to_positive(s), from = "A",
+                                 normalized = FALSE))
+  expect_equal(out, pos)
+  expect_true(all(out[-1] <= 3))
+})
+
+test_that("node_by_distance scales by the largest finite distance", {
+  # a path of three nodes and an isolate that cannot be reached
+  mat <- matrix(0, 4, 4)
+  mat[1, 2] <- mat[2, 1] <- mat[2, 3] <- mat[3, 2] <- 1
+  expect_equal(as.numeric(node_by_distance(mat, from = 1, normalized = FALSE)),
+               c(0, 1, 2, Inf))
+  expect_equal(as.numeric(node_by_distance(mat, from = 1)),
+               c(0, 0.5, 1, Inf))
+  expect_equal(as.numeric(node_by_distance(mat, to = 3)),
+               c(1, 0.5, 0, Inf))
+  # a node with nothing to reach keeps its zero rather than dividing by it
+  expect_equal(as.numeric(node_by_distance(mat, from = 4)),
+               c(Inf, Inf, Inf, 0))
+  local_verbose()
+  expect_message(node_by_distance(mat, from = 1), "cannot be reached")
+})
+
+test_that("node_by_distance reads a signed network's positive ties", {
+  set.seed(1234)
+  s <- manynet::to_signed(manynet::add_node_attribute(create_wheel(12),
+                                                      "name", LETTERS[1:12]))
+  out <- as.numeric(node_by_distance(s, 1))
+  finite <- out[is.finite(out)]
+  expect_true(any(is.infinite(out)))
+  expect_false(anyNA(out))
+  expect_equal(max(finite), 1)
+})

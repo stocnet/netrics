@@ -6,13 +6,13 @@
 \alias{node_by_induced}
 \alias{node_by_flow}
 \alias{node_by_stress}
-\title{Measuring nodes betweenness-like centrality}
+\title{Measures of node betweenness-like centrality}
 \usage{
 node_by_betweenness(.data, normalized = TRUE, cutoff = NULL)
 
 node_by_induced(.data, normalized = TRUE, cutoff = NULL)
 
-node_by_flow(.data, normalized = TRUE)
+node_by_flow(.data, from, to, normalized = TRUE)
 
 node_by_stress(.data, normalized = TRUE)
 }
@@ -28,6 +28,10 @@ By default TRUE.}
 
 \item{cutoff}{The maximum path length to consider when calculating betweenness.
 If negative or NULL (the default), there's no limit to the path lengths considered.}
+
+\item{from, to}{Index or name of a node to measure the maximum flow from or to.
+If neither is given (the default), \code{node_by_flow()} returns flow
+betweenness centrality.}
 }
 \value{
 A \code{node_measure} numeric vector the length of the nodes in the network,
@@ -48,8 +52,10 @@ These functions calculate common betweenness-related centrality measures for one
 \item \code{node_by_betweenness()} measures the betweenness centralities of nodes in a network.
 \item \code{node_by_induced()} measures the induced betweenness centralities of nodes in a network.
 \item \code{node_by_flow()} measures the flow betweenness centralities of nodes in a network,
-which uses an electrical current model for information spreading
+which uses the maximum flow that the ties can carry between other nodes
 in contrast to the shortest paths model used by normal betweenness centrality.
+Given \code{from} or \code{to}, it instead measures the maximum flow between that
+node and each other node.
 \item \code{node_by_stress()} measures the stress centrality of nodes in a network.
 }
 
@@ -73,6 +79,33 @@ first transform the salient properties using e.g. \code{\link[manynet:to_undirec
 All centrality and centralization measures return normalised or scaled
 measures where available, reported when the measure is printed.
 }
+\section{Cognitive social structures}{
+
+A cognitive social structure records each node's report of the ties in
+the whole network, in a \code{by} column that names who reported each tie.
+Counting every report as a tie of its own would count each tie once for
+every perceiver who reports it.
+So the functions here first combine the reports into the locally
+aggregated structure of Krackhardt (1987), with the intersection rule:
+a tie exists if both of its ends report it, and a message says so.
+A tie that names no reporter is kept as it is.
+
+A tie-level function still returns one value for each report,
+so that the result can be added back to the network it was given.
+Each report takes the value of the tie that it reports.
+A report of a tie that is not in the aggregated structure takes \code{NA},
+or \code{FALSE} for a mark.
+\code{tie_is_random()} is the exception, and draws among the reports.
+
+To combine the reports in a different way, do this before the function,
+e.g. with \code{manynet::to_aggregated(over = "by")}.
+
+Krackhardt, David. 1987.
+"Cognitive social structures".
+\emph{Social Networks} 9(2): 109-134.
+\doi{10.1016/0378-8733(87)90009-8}
+}
+
 \section{Signed networks}{
 
 These measures read a tie as a distance, and a negative tie is hostility
@@ -115,6 +148,36 @@ When normalized (by default) this sum of differences is divided by the
 sum of flows \eqn{f(i,j,G)}.
 }
 
+\section{Maximum flow}{
+
+Given \code{from} or \code{to}, \code{node_by_flow()} is not a centrality index but a
+flow query, as \code{\link[=node_by_distance]{node_by_distance()}} is a distance query:
+it reports the maximum flow \eqn{f(i,j,G)} that the ties can carry from
+the named node to each other node (or to the named node from each other).
+By the max-flow min-cut theorem this is also the smallest total capacity
+of ties that would need to be removed to separate the two nodes.
+Flow betweenness is built from this quantity:
+maximum flow says how much can pass \emph{between} two nodes,
+and flow betweenness how much of what passes between others depends on
+a third.
+The named node has no flow to itself, and so is \code{NA}.
+When normalized (by default) each flow is divided by the most that could
+leave its source or enter its target,
+the smaller of the source's out-strength and the target's in-strength.
+The smallest maximum flow between any two nodes in a network is its
+tie connectivity; see \code{\link[=net_by_adhesion]{net_by_adhesion()}}.
+}
+
+\section{Weighted networks}{
+
+\code{node_by_flow()} reads a tie's weight as its capacity:
+how much the tie can carry, so that a heavier tie carries more.
+Note that this is the reverse of the shortest-path measures documented
+here, which read a weight as a distance.
+An unweighted tie has a capacity of one.
+Use \code{\link[manynet:to_unweighted]{manynet::to_unweighted()}} first to treat all ties alike.
+}
+
 \section{Stress centrality}{
 
 Stress centrality is the number of all shortest paths or geodesics, \eqn{g},
@@ -127,6 +190,8 @@ nodes, and thus associated with bridging or spanning boundaries.
 \examples{
 node_by_betweenness(ison_southern_women)
 node_by_induced(ison_adolescents)
+node_by_flow(ison_adolescents)
+node_by_flow(ison_adolescents, from = 1, normalized = FALSE)
 }
 \references{
 \subsection{On betweenness centrality}{
@@ -177,6 +242,14 @@ Koschutzki, D., K.A. Lehmann, L. Peeters, S. Richter, D. Tenfelde-Podehl, and O.
 "Centrality Indices".
 In U. Brandes and T. Erlebach (eds.), \emph{Network Analysis: Methodological Foundations}.
 Berlin: Springer.
+}
+
+\subsection{On maximum flow}{
+
+Ford, Lester R., and Delbert R. Fulkerson. 1956.
+"Maximal flow through a network".
+\emph{Canadian Journal of Mathematics}, 8: 399-404.
+\doi{10.4153/CJM-1956-045-5}
 }
 
 \subsection{On stress centrality}{
@@ -254,7 +327,9 @@ Other nodal:
 \code{\link{member_cliques}},
 \code{\link{member_community}},
 \code{\link{member_community_hier}},
-\code{\link{member_community_non}},
+\code{\link{member_community_modular}},
+\code{\link{member_community_partition}},
+\code{\link{member_community_spread}},
 \code{\link{member_components}},
 \code{\link{member_core}},
 \code{\link{member_diffusion}},
