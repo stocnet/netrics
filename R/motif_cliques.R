@@ -13,6 +13,11 @@
 #'   _overlap_: a node may belong to many cliques at once, or to none.
 #'   That is why this returns an incidence table rather than a membership
 #'   vector.
+#'
+#'   `node_x_percolation()` returns which communities of adjacent cliques
+#'   each node belongs to, by clique percolation.
+#'   These communities also overlap, but there are fewer of them than there
+#'   are cliques, since cliques that share most of their nodes are joined.
 #' @template param_data
 #' @param min_clique_size Integer, the minimum size of clique to return.
 #'   By default 3, since dyads and isolates are trivially cliques.
@@ -29,6 +34,14 @@
 #'   before searching, so that a biclique becomes an ordinary clique,
 #'   and then keeping only those cliques with at least `min_clique_size` nodes 
 #'   from each mode.
+#' @section Clique percolation:
+#'   Clique percolation (Palla et al. 2005) treats two cliques as adjacent
+#'   where they share all but one of `min_clique_size` nodes,
+#'   so with the default of 3 where they share a tie.
+#'   A community is then a set of cliques that can be reached from each other
+#'   through such adjacent cliques,
+#'   and a node belongs to every community that holds a clique it is in.
+#'   A node in no clique of at least `min_clique_size` belongs to none.
 #' @section Signed networks:
 #'   Since a clique is a maximally cohesive subgroup, negative ties cannot
 #'   contribute to one. Where the network is signed, only its positive ties are
@@ -39,11 +52,54 @@
 #' "A method of matrix analysis of group structure".
 #' _Psychometrika_ 14(2): 95-116.
 #' \doi{10.1007/BF02289146}
+#' 
+#' ## On clique percolation
+#' Palla, Gergely, Imre Derényi, Illés Farkas, and Tamás Vicsek. 2005.
+#' "Uncovering the overlapping community structure of complex networks in
+#' nature and society".
+#' _Nature_ 435(7043): 814-818.
+#' \doi{10.1038/nature03607}
 #' @examples
 #' node_x_clique(ison_adolescents)
 #' node_x_clique(ison_southern_women, min_clique_size = c(3, 3))
 #' @export
 node_x_clique <- function(.data, min_clique_size = 3){
+  found <- .find_cliques(.data, min_clique_size)
+  out <- .clique_incidence(found)
+  if(ncol(out) == 0)
+    manynet::snet_info("No cliques of at least this size were found.")
+  make_node_motif(out, found$.data)
+}
+
+#' @rdname motif_clique
+#' @examples
+#' node_x_percolation(ison_adolescents)
+#' @export
+node_x_percolation <- function(.data, min_clique_size = 3){
+  found <- .find_cliques(.data, min_clique_size)
+  inc <- .clique_incidence(found)
+  if(ncol(inc) == 0){
+    manynet::snet_info("No cliques of at least this size were found.")
+    return(make_node_motif(inc, found$.data))
+  }
+  # two cliques are adjacent where they share all but one of the nodes of the
+  # smallest clique admitted, and each component of adjacent cliques is a
+  # community
+  overlap <- crossprod(inc) >= found$smallest - 1
+  diag(overlap) <- FALSE
+  comms <- igraph::components(igraph::graph_from_adjacency_matrix(
+    overlap * 1, mode = "undirected", diag = FALSE))$membership
+  out <- vapply(seq_len(max(comms)), function(k)
+    as.integer(rowSums(inc[, comms == k, drop = FALSE]) > 0),
+    FUN.VALUE = integer(nrow(inc)))
+  out <- matrix(out, nrow = nrow(inc))
+  colnames(out) <- paste0("C", seq_len(ncol(out)))
+  make_node_motif(out, found$.data)
+}
+
+# The maximal cliques of a network, read as `node_x_clique()` documents:
+# positive ties only where signed, and bicliques where two-mode.
+.find_cliques <- function(.data, min_clique_size){
   .data <- manynet::expect_nodes(.data)
   .data <- .to_aggregated_css(.data)
   twomode <- manynet::is_twomode(.data)
@@ -73,12 +129,15 @@ node_x_clique <- function(.data, min_clique_size = 3){
       FUN.VALUE = logical(1))
     cliques <- cliques[keep]
   }
-  out <- matrix(0L, nrow = manynet::net_nodes(.data),
+  list(.data = .data, cliques = cliques, smallest = smallest)
+}
+
+.clique_incidence <- function(found){
+  cliques <- found$cliques
+  out <- matrix(0L, nrow = manynet::net_nodes(found$.data),
                 ncol = length(cliques))
   for(j in seq_along(cliques)) out[as.integer(cliques[[j]]), j] <- 1L
   colnames(out) <- if(length(cliques) > 0)
     paste0("C", seq_along(cliques)) else character(0)
-  if(length(cliques) == 0)
-    manynet::snet_info("No cliques of at least this size were found.")
-  make_node_motif(out, .data)
+  out
 }

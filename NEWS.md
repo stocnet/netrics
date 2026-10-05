@@ -98,6 +98,7 @@
   - Nodes without alters of known value now return `NA`, also if categorical
   - Two-mode attributes on one mode only are now read at distance two
   - Signed ties now count by their magnitude
+- Added `node_x_percolation()` for overlapping communities by clique percolation (Palla et al. 2005) (closes #21)
 
 # netrics 1.0.3
 

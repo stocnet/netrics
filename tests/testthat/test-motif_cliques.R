@@ -41,3 +41,34 @@ test_that("node_x_clique handles networks with no cliques", {
   res <- node_x_clique(create_empty(6))
   expect_equal(dim(res), c(6L, 0L))
 })
+
+test_that("node_x_percolation finds overlapping communities", {
+  # two triangles that share only node 3, and two that share the tie 6-7
+  net <- manynet::as_tidygraph(igraph::graph_from_literal(
+    1-2, 1-3, 2-3, 3-4, 3-5, 4-5,
+    6-7, 6-8, 7-8, 6-9, 7-9, simplify = TRUE))
+  res <- node_x_percolation(net)
+  expect_s3_class(res, "node_motif")
+  expect_equal(nrow(res), c(manynet::net_nodes(net)))
+  # triangles that share a tie are one community, those that share a node two
+  expect_equal(ncol(res), 3)
+  expect_equal(sort(unname(colSums(res))), c(3, 3, 4))
+  # a partition would give every node one community at most
+  expect_equal(unname(rowSums(res)), c(1, 1, 2, 1, 1, 1, 1, 1, 1))
+  # larger cliques must share more nodes to be joined
+  expect_equal(ncol(node_x_percolation(net, min_clique_size = 4)), 0)
+})
+
+test_that("node_x_percolation joins the cliques node_x_clique finds", {
+  cliques <- node_x_clique(ison_adolescents)
+  res <- node_x_percolation(ison_adolescents)
+  expect_lte(ncol(res), ncol(cliques))
+  # the same nodes are covered either way
+  expect_equal(unname(rowSums(res) > 0), unname(rowSums(cliques) > 0))
+  expect_s3_class(node_x_percolation(ison_southern_women), "node_motif")
+})
+
+test_that("node_x_percolation handles networks with no cliques", {
+  res <- node_x_percolation(create_empty(6))
+  expect_equal(dim(res), c(6L, 0L))
+})
