@@ -61,6 +61,10 @@
   - Added `decay=` to discount ties from earlier waves or times, by default uniform
   - Now stops with a message on a two-mode network
 
+## Methods
+
+- Added `search_tabu()` and `search_iterated()` for finding the membership that minimises a cost
+
 ## Motifs
 
 - Fixed `net_x_stability()` miscounting the ties that changed between networks
