@@ -28,6 +28,30 @@ test_that("network adhesion works", {
   expect_equal(as.numeric(net_by_adhesion(ison_southern_women)), 2)
 })
 
+test_that("network adhesion reads tie weights as capacities", {
+  ring <- igraph::make_ring(5)
+  igraph::E(ring)$weight <- c(1, 5, 2, 9, 3)
+  out <- net_by_adhesion(ring)
+  expect_equal(as.numeric(out), 3)
+  expect_equal(attr(out, "measure"), "weighted tie connectivity")
+  expect_equal(as.numeric(net_by_adhesion(manynet::to_unweighted(ring))), 2)
+  # the minimum cut is the smallest maximum flow between any two nodes
+  flows <- vapply(1:5, function(i)
+    min(node_by_flow(ring, from = i, normalized = FALSE), na.rm = TRUE),
+    FUN.VALUE = numeric(1))
+  expect_equal(as.numeric(out), min(flows))
+})
+
+test_that("network adhesion reads a signed network's positive ties", {
+  # a triangle whose one negative tie leaves a path of two positive ties
+  tri <- igraph::make_ring(3)
+  igraph::E(tri)$sign <- c(1, 1, -1)
+  tri <- manynet::as_stocnet(tri)
+  expect_true(manynet::is_signed(tri))
+  expect_equal(as.numeric(net_by_adhesion(tri)), 1)
+  expect_equal(as.numeric(net_by_adhesion(manynet::to_unsigned(tri, keep = "both"))), 2)
+})
+
 test_that("network diameter works", {
   expect_equal(as.numeric(net_by_diameter(ison_southern_women)), 4)
 })

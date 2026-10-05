@@ -225,7 +225,8 @@ net_by_length <- function(.data){
 #'   - `net_by_toughness()` measures the number of nodes that would need to be
 #'   removed from a network to increase its number of components.
 #'   - `net_by_adhesion()` measures the minimum number of ties to remove
-#'   from the network needed to increase the number of components.
+#'   from the network needed to increase the number of components,
+#'   or the minimum total weight of such ties in a weighted network.
 #'   - `net_by_strength()` measures the number of ties that would need to be
 #'   removed from a network to increase its number of components.
 #'   
@@ -269,6 +270,24 @@ net_by_cohesion <- function(.data){
 
 #' @rdname measure_fragmentation 
 #' @importFrom igraph adhesion
+#' @section Weighted networks:
+#'   `net_by_adhesion()` reads a tie's weight as its capacity,
+#'   and so returns the smallest total weight of ties whose removal would
+#'   increase the number of components, the network's minimum cut,
+#'   rather than the smallest number of such ties.
+#'   This is also the smallest maximum flow between any two of its nodes;
+#'   see [node_by_flow()] for the flow between particular nodes.
+#'   Use [manynet::to_unweighted()] first to count ties instead.
+#'   The other measures documented here count nodes or ties whatever
+#'   their weight.
+#' @section Signed networks:
+#'   `net_by_adhesion()` asks what holds a network together,
+#'   and a negative tie is hostility rather than a channel along which
+#'   cohesion travels.
+#'   Where the network is signed, it therefore considers only the positive
+#'   ties, and says so.
+#'   Use [manynet::to_unsigned()] first to control this yourself.
+#'   The other measures documented here use every tie whatever its sign.
 #' @examples 
 #' net_by_adhesion(fict_greys)
 #' net_by_adhesion(to_giant(fict_greys))
@@ -276,9 +295,17 @@ net_by_cohesion <- function(.data){
 net_by_adhesion <- function(.data){
   .data <- manynet::expect_nodes(.data)
   .data <- .to_aggregated_css(.data)
-  make_network_measure(igraph::adhesion(manynet::as_igraph(.data)),
-                       .data, call = deparse(sys.call()),
-                       measure = "tie connectivity", range = c(0, Inf),
+  .data <- manynet::to_positive(.data)
+  if(manynet::is_weighted(.data)){
+    out <- igraph::min_cut(manynet::as_igraph(.data),
+                           capacity = as.numeric(manynet::tie_weights(.data)))
+    meas <- "weighted tie connectivity"
+  } else {
+    out <- igraph::adhesion(manynet::as_igraph(.data))
+    meas <- "tie connectivity"
+  }
+  make_network_measure(out, .data, call = deparse(sys.call()),
+                       measure = meas, range = c(0, Inf),
                        normalization = "none")
 }
 

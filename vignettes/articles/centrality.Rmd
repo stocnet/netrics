@@ -336,9 +336,10 @@ how much the network's _total_ betweenness changes when the node is removed.
 It answers "what would we lose without this node?" rather than
 "how often is this node in between?".
 - `node_by_flow()` measures _flow_ betweenness,
-which models spreading as electrical current across _all_ paths,
-not just the shortest ones —
+which asks how much could pass between other nodes along _all_ paths,
+not just the shortest ones, and how much of that depends on the node —
 useful when whatever flows does not know the shortest route.
+It reads tie weights as capacities.
 - `node_by_stress()` counts the shortest paths through each node without
 weighting them by how many alternatives exist —
 an older, "rawer" cousin of betweenness.
@@ -360,7 +361,7 @@ For formal definitions and references, see `?measure_central_between`.
 `node_by_betweenness()` via shortest paths,
 `tie_by_betweenness()` for ties rather than nodes,
 `node_by_induced()` via a node's contribution to total betweenness,
-`node_by_flow()` via current across all paths,
+`node_by_flow()` via the maximum flow across all paths,
 and `node_by_stress()` via raw path counts.
 :::
 
@@ -839,7 +840,7 @@ Along the way, you have learned to use these functions:
 | `node_by_deg(..., alpha = 1)` | strength: sums tie weights instead of counting ties |
 | `node_by_betweenness()` | betweenness centrality (lying on others' shortest paths) |
 | `tie_by_betweenness()` | shortest paths through each tie (bridges) |
-| `node_by_induced()`, `node_by_flow()`, `node_by_stress()` | betweenness variants: contribution to total, current flow, raw path counts |
+| `node_by_induced()`, `node_by_flow()`, `node_by_stress()` | betweenness variants: contribution to total, maximum flow, raw path counts |
 | `node_by_closeness()` | closeness centrality (short paths to all others) |
 | `node_by_reach()`, `node_by_distance()` | share of network within _k_ steps; distances from a chosen node |
 | `node_by_harmonic()`, `node_by_eccentricity()` | closeness variants for disconnected networks and worst-case distance |
