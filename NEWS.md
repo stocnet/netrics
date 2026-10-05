@@ -20,6 +20,7 @@
 - Fixed twomodes in `node_by_information()`, `net_by_spatial()` etc by 
   replacing `to_multilevel()` with `manynet::to_onemode()` to create square matrices
 - Added `membership=` to `net_by_diversity()` for mean diversity by group weighted by size
+- Fixed `mode_by_eigenvector()` erroring on multilevel networks (closes #23)
 - Fixed about 40 measures, memberships, marks, and motifs erroring on, or miscounting, CSSs
   - Now combine reports into locally aggregated structures
   - Tie-level functions still return one value per report

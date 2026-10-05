@@ -32,6 +32,8 @@ network as a single score.
 \item \code{mode_by_eigenvector()} measures eigenvector centralization separately for
 each mode of a two-mode network (via projection to each mode), returning one
 score per mode (following Borgatti and Everett, 1997).
+A multilevel network cannot be projected, so there each mode's scores
+are read from the whole network.
 }
 
 All measures attempt to use as much information as they are offered,
