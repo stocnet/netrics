@@ -287,8 +287,13 @@ node_in_automorphic <- function(.data,
 #' @param blocks A character vector of permitted ideal block types,
 #'   or a list-matrix giving the permitted types per block position.
 #'   See [net_by_inconsistency()] for the available types.
-#' @param times Integer number of search iterations.
+#' @param times Integer number of steps the search takes.
 #'   By default the number of nodes times the number of positions.
+#'   For `search = "tabu"` this is the most steps that each of its runs may
+#'   take, since a run also ends once it stops improving.
+#' @param search Which method to use to search the space of partitions.
+#'   One of "tabu" (the default) or "iterated";
+#'   see [method_search] for what each does.
 #' @section Direct blockmodelling:
 #'   The other functions here are _indirect_: they build a similarity between
 #'   nodes, cluster it, and read a partition off the result.
@@ -302,9 +307,16 @@ node_in_automorphic <- function(.data,
 #'   `blocks = c("nul", "reg")` searches directly for a regular-equivalence
 #'   blockmodel.
 #'   The cost is that the number of positions `k` must be chosen in advance,
-#'   and that the search is stochastic: it explores by random restarts and
-#'   perturbations, so repeated runs may return different partitions and a
+#'   and that the search is stochastic: it begins from random partitions,
+#'   so repeated runs may return different partitions and a
 #'   longer search is more likely to find a good one.
+#'
+#'   By default the search is a tabu search, [search_tabu()], which lets the
+#'   positions take any size, and so can find a small core or one large
+#'   position where the network has them.
+#'   `search = "iterated"` uses [search_iterated()], the only search available
+#'   prior to version 1.1.0. It is quicker on a large network, but it holds
+#'   the positions at near-equal size.
 #'   Set a seed for reproducibility, and compare runs with [net_by_inconsistency()].
 #' @references
 #' ## On direct blockmodelling
@@ -317,40 +329,29 @@ node_in_automorphic <- function(.data,
 #' net_by_inconsistency(ison_adolescents, nbm)
 #' @export
 node_in_block <- function(.data, k = 2L,
-                               blocks = c("nul", "com"),
-                               times = NULL){
+                          blocks = c("nul", "com"),
+                          times = NULL,
+                          search = c("tabu", "iterated")){
   .data <- manynet::expect_nodes(.data)
   .data <- .to_aggregated_css(.data)
+  search <- match.arg(search)
   if(!is.numeric(k) || k < 2)
     manynet::snet_abort("`k` must be the number of positions sought, at least 2.")
   n <- manynet::net_nodes(.data)
   if(k > n) manynet::snet_abort("`k` cannot exceed the number of nodes.")
   if(is.null(times)) times <- n * k
-  fitness <- function(m) as.numeric(net_by_inconsistency(.data, m, blocks = blocks))
+  # Each tabu step fits every move of one node to another position.
+  if(search == "tabu" && n * (k - 1) > 200)
+    manynet::snet_info("A tabu search fits {n * (k - 1)} candidate partitions",
+                       "at each step, which may take a while on this network.",
+                       "Consider {.code search = \"iterated\"}.")
+  mat <- manynet::as_matrix(manynet::to_unweighted(manynet::to_onemode(.data)))
+  loops <- manynet::is_complex(.data)
+  fitness <- function(m) .block_cost(mat, m, blocks, loops)
   # begin from a random partition into k roughly equal positions
   shuffled <- sample(seq.int(n))
   out <- cut(seq_along(shuffled), k, labels = FALSE)[shuffled]
-  fit <- fitness(out)
-  # An iterated local search: `soln` descends by weak moves that improve it,
-  # and every 10th iteration restarts from a strong perturbation of the best.
-  soln <- out
-  soln_fit <- fit
-  for(t in seq.int(times)){
-    cand <- .weakPerturb(soln)
-    cand_fit <- fitness(cand)
-    if(cand_fit < soln_fit){
-      soln <- cand
-      soln_fit <- cand_fit
-    }
-    if(soln_fit < fit){
-      out <- soln
-      fit <- soln_fit
-    }
-    if(t %% 10 == 0){
-      soln <- .strongPerturb(out)
-      soln_fit <- fitness(soln)
-    }
-  }
+  out <- run_search(search, fitness, out, times)
   out <- make_node_member(out, .data)
   attr(out, "k") <- k
   out

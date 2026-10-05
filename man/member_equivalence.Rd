@@ -66,7 +66,13 @@ node_in_automorphic(
   Kmax = NULL
 )
 
-node_in_block(.data, k = 2L, blocks = c("nul", "com"), times = NULL)
+node_in_block(
+  .data,
+  k = 2L,
+  blocks = c("nul", "com"),
+  times = NULL,
+  search = c("tabu", "iterated")
+)
 }
 \arguments{
 \item{.data}{A network object of class \code{stocnet}, \code{igraph}, \code{tbl_graph}, \code{network}, or similar.
@@ -146,8 +152,14 @@ so each documents its own default.}
 or a list-matrix giving the permitted types per block position.
 See \code{\link[=net_by_inconsistency]{net_by_inconsistency()}} for the available types.}
 
-\item{times}{Integer number of search iterations.
-By default the number of nodes times the number of positions.}
+\item{times}{Integer number of steps the search takes.
+By default the number of nodes times the number of positions.
+For \code{search = "tabu"} this is the most steps that each of its runs may
+take, since a run also ends once it stops improving.}
+
+\item{search}{Which method to use to search the space of partitions.
+One of "tabu" (the default) or "iterated";
+see \link{method_search} for what each does.}
 }
 \value{
 A \code{node_member} character vector the length of the nodes in the network,
@@ -266,9 +278,16 @@ and that ideal types other than "null and complete" become available —
 \code{blocks = c("nul", "reg")} searches directly for a regular-equivalence
 blockmodel.
 The cost is that the number of positions \code{k} must be chosen in advance,
-and that the search is stochastic: it explores by random restarts and
-perturbations, so repeated runs may return different partitions and a
+and that the search is stochastic: it begins from random partitions,
+so repeated runs may return different partitions and a
 longer search is more likely to find a good one.
+
+By default the search is a tabu search, \code{\link[=search_tabu]{search_tabu()}}, which lets the
+positions take any size, and so can find a small core or one large
+position where the network has them.
+\code{search = "iterated"} uses \code{\link[=search_iterated]{search_iterated()}}, the only search available
+prior to version 1.1.0. It is quicker on a large network, but it holds
+the positions at near-equal size.
 Set a seed for reproducibility, and compare runs with \code{\link[=net_by_inconsistency]{net_by_inconsistency()}}.
 }
 
@@ -314,7 +333,9 @@ Other memberships:
 \code{\link{member_cliques}},
 \code{\link{member_community}},
 \code{\link{member_community_hier}},
-\code{\link{member_community_non}},
+\code{\link{member_community_modular}},
+\code{\link{member_community_partition}},
+\code{\link{member_community_spread}},
 \code{\link{member_components}},
 \code{\link{member_core}},
 \code{\link{member_diffusion}}
@@ -340,7 +361,9 @@ Other nodal:
 \code{\link{member_cliques}},
 \code{\link{member_community}},
 \code{\link{member_community_hier}},
-\code{\link{member_community_non}},
+\code{\link{member_community_modular}},
+\code{\link{member_community_partition}},
+\code{\link{member_community_spread}},
 \code{\link{member_components}},
 \code{\link{member_core}},
 \code{\link{member_diffusion}},

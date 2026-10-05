@@ -104,6 +104,33 @@ test_that("node_in_block searches for a fitting partition", {
   expect_error(node_in_block(ison_adolescents, k = 99))
 })
 
+test_that("node_in_block finds positions of unequal size by tabu search", {
+  # Two cliques, of 4 and of 8 nodes, joined by a single tie
+  m <- matrix(0, 12, 12)
+  m[1:4, 1:4] <- 1
+  m[5:12, 5:12] <- 1
+  m[4, 5] <- m[5, 4] <- 1
+  diag(m) <- 0
+  net <- manynet::as_igraph(m)
+  set.seed(1234)
+  tabu <- node_in_block(net, k = 2)
+  expect_equal(sort(c(table(tabu))), c(4, 8), ignore_attr = TRUE)
+  # the iterated search holds the positions at equal size, so it cannot
+  set.seed(1234)
+  iter <- node_in_block(net, k = 2, search = "iterated")
+  expect_equal(c(table(iter)), c(6, 6), ignore_attr = TRUE)
+  expect_lt(as.numeric(net_by_inconsistency(net, tabu)),
+            as.numeric(net_by_inconsistency(net, iter)))
+  expect_error(node_in_block(net, k = 2, search = "annealing"))
+})
+
+test_that("node_in_block preserves its iterated search result", {
+  set.seed(1234)
+  expect_equal(unname(as.character(node_in_block(ison_adolescents, k = 3,
+                                                 search = "iterated"))),
+               c("A","A","B","B","B","A","C","C"))
+})
+
 test_that("equivalence compares nodes once unless a distance is given", {
   n_classes <- function(x) length(unique(c(x)))
   expect_equal(n_classes(node_in_structural(ison_algebra)), 7)

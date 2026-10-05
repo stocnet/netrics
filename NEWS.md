@@ -39,6 +39,9 @@
 - Added `node_in_faction()` for the `k` groups, of any size, that come closest to separate cliques
   - Uses a tabu search, as the UCINET 'Factions' routine does
   - `variant=` scores the fit by `"hamming"` (default), `"phi"`, or `"modularity"`
+- Added `search=` to `node_in_block()` for searching by `"tabu"` (default) or `"iterated"`
+  - The tabu search lets positions take any size, where the iterated search held them near equal
+  - Partitions may therefore differ from earlier versions; pass `search = "iterated"` to reproduce them
 - Fixed twomodes in `node_in_partition()`, `node_in_regular()` etc by 
   replacing `to_multilevel()` with `manynet::to_onemode()` to create square matrices
 - Improved the equivalence functions to compare nodes' profiles once, rather than twice, thanks @Kaladani (closes #29)
