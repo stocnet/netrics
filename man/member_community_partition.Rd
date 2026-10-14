@@ -117,11 +117,18 @@ Krackhardt, David. 1987.
 
 \section{Signed networks}{
 
-\code{\link[=node_in_faction]{node_in_faction()}} reads a tie as a pull into the same community,
-and a negative tie is hostility rather than such a pull.
-Where the network is signed, it therefore considers only the positive
-ties, and says so.
-Use \code{\link[manynet:to_unsigned]{manynet::to_unsigned()}} first to control this yourself.
+Both functions read a sign as a sign.
+For \code{\link[=node_in_partition]{node_in_partition()}}, a negative tie inside a group lowers the
+weight that the swaps maximise, so negative ties are moved between groups.
+For \code{\link[=node_in_faction]{node_in_faction()}}, the ideal is structural balance:
+positive ties within the factions and negative ties between them.
+\code{"hamming"} then counts the errors as Doreian and Mrvar (1996) do,
+the negative ties within factions plus the positive ties between them,
+and an absent tie is no error either way.
+\code{"phi"} correlates the sign of each pair's tie with whether the pair
+shares a faction, and \code{"modularity"} maximises signed modularity
+(see \code{\link[=net_by_modularity]{net_by_modularity()}}).
+Use \code{\link[manynet:to_unsigned]{manynet::to_unsigned()}} first to consider one sign alone.
 }
 
 \section{Partition}{
@@ -192,6 +199,14 @@ node_in_faction(ison_adolescents)
 node_in_faction(ison_adolescents, k = 3, variant = "modularity")
 }
 \references{
+\subsection{On partitioning signed networks}{
+
+Doreian, Patrick, and Andrej Mrvar. 1996.
+"A partitioning approach to structural balance".
+\emph{Social Networks} 18(2): 149-168.
+\doi{10.1016/0378-8733(95)00259-6}
+}
+
 \subsection{On partitioning community detection}{
 
 Kernighan, Brian W., and Shen Lin. 1970.

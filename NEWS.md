@@ -4,6 +4,15 @@
 
 - Added design principles to the README and the contributing guide
 
+## Memberships
+
+- Improved `node_in_community()` to also consider `node_in_leiden()` and `node_in_partition()` for signed networks
+- Improved `node_in_faction()` to read signs rather than set negative ties aside
+  - `"hamming"` counts negative ties within factions and the positive ties between them
+  - `"phi"` correlates each pair's sign with whether it shares a faction
+  - `"modularity"` maximises signed modularity
+- Fixed `node_in_leiden()` taking a negative default resolution on a negative-dominant signed network
+
 # netrics 1.1.0
 
 ## Package

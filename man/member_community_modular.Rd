@@ -110,7 +110,8 @@ Krackhardt, David. 1987.
 strength of a pull into the same community, and a negative tie is
 hostility rather than such a pull.
 Where the network is signed, they therefore consider only the positive
-ties, and say so. \code{\link[=node_in_spinglass]{node_in_spinglass()}} reads a sign as a sign.
+ties, and say so. \code{\link[=node_in_spinglass]{node_in_spinglass()}} and \code{\link[=node_in_leiden]{node_in_leiden()}} read a
+sign as a sign: a negative tie inside a community counts against it.
 Use \code{\link[manynet:to_unsigned]{manynet::to_unsigned()}} first to control this yourself.
 }
 

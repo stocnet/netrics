@@ -179,30 +179,32 @@ poss_algs <- function(k, .data){
   if(!manynet::is_connected(.data, connectivity = "weak"))
     poss <- exclude(poss, c("node_in_spinglass", "node_in_fluid"),
                     "network unconnected")
-  # Every algorithm but spinglass sets the negative ties aside, and spinglass
-  # reads a sign as a sign, so a signed network leaves it alone.
+  # Spinglass, Leiden, and Kernighan-Lin read a negative tie as a push apart,
+  # and the rest set the negative ties aside, so a signed network keeps only
+  # these three.
   if(manynet::is_signed(.data))
-    poss <- exclude(poss, setdiff(poss, "node_in_spinglass"),
-                    "network signed and only {.fn node_in_spinglass} reads signs")
+    poss <- exclude(poss, setdiff(poss, SIGNED_ALGS),
+                    "network signed and these algorithms set negative ties aside")
   if(manynet::is_directed(.data))
     poss <- exclude(poss, c("node_in_louvain",
                             "node_in_leiden",
                             "node_in_labels",
                             "node_in_partition",
                             "node_in_eigen"), "network directed")
-  # The exclusions can empty the list: a signed network keeps only spinglass,
-  # which an unconnected network then drops, and the `k` list holds no
-  # spinglass at all.
+  # The exclusions can empty the list: a signed network keeps only the three
+  # that read signs, and a directed and unconnected one then drops them all.
   if(length(poss) == 0)
     manynet::snet_abort("No available algorithm can partition this network.",
                         `if`(manynet::is_signed(.data),
-                             paste("Only {.fn node_in_spinglass} reads signs,",
-                                   "and it needs a connected network and no",
-                                   "{.arg k}. Try {.fn to_giant}, or",
-                                   "{.fn to_unsigned} to set the signs aside."),
+                             paste("Only {.fn {SIGNED_ALGS}} read signs.",
+                                   "Try {.fn to_giant}, {.fn to_undirected},",
+                                   "or {.fn to_unsigned} to set the signs aside."),
                              "Try {.fn to_giant}."))
   poss
 }
+
+# The algorithms that read a negative tie as a push apart.
+SIGNED_ALGS <- c("node_in_spinglass", "node_in_leiden", "node_in_partition")
 
 # Runs one algorithm by name.
 # Where `k` was requested the algorithm warns when it cannot reach it, which
@@ -332,12 +334,27 @@ consensus_memb <- function(.data, k, max_k, times, threshold = 0.5, iter = 10){
 #'   walks. They are documented as hierarchical because the dendrogram, and
 #'   where it is cut, is what you control.
 #' @section Signed networks:
-#'   Every algorithm but [node_in_spinglass()] sets the negative ties aside,
-#'   and spinglass reads a sign as a sign (Traag and Bruggeman 2009).
-#'   `node_in_community()` therefore considers only spinglass where the network
-#'   is signed. Since spinglass needs a connected network and accepts no `k`,
-#'   a signed network that is unconnected, or a `k` that is given, leaves no
-#'   applicable algorithm and the function stops.
+#'   Three algorithms read a negative tie as a push apart:
+#'   [node_in_spinglass()] (Traag and Bruggeman 2009),
+#'   [node_in_leiden()], and [node_in_partition()].
+#'   The others set the negative ties aside.
+#'   `node_in_community()` therefore considers only these three where the
+#'   network is signed, and selects among them by [net_by_modularity()],
+#'   which on a signed network counts a negative tie inside a group against
+#'   the partition (Gómez, Jensen, and Arenas 2009).
+#'   Spinglass needs a connected network and accepts no `k`,
+#'   and Kernighan-Lin is considered only where `k` is given.
+#' @references
+#' ## On signed modularity
+#' Gómez, Sergio, Pablo Jensen, and Alex Arenas. 2009.
+#' "Analysis of community structure in networks of correlated data".
+#' _Physical Review E_ 80: 016114.
+#' \doi{10.1103/PhysRevE.80.016114}
+#'
+#' Traag, Vincent A., and Jeroen Bruggeman. 2009.
+#' "Community detection in networks with positive and negative links".
+#' _Physical Review E_ 80: 036115.
+#' \doi{10.1103/PhysRevE.80.036115}
 NULL
 
 #' @rdname member_community
@@ -383,7 +400,8 @@ node_in_community <- function(.data, k = NULL, max_k = 8L,
     })
     mods <- unlist(sapply(candidates, "[", 2))
     maxmod <- which.max(mods)
-    manynet::snet_success("{.fn {poss[maxmod]}} returns the highest modularity ({round(mods[maxmod],3)}).")
+    qual <- if(manynet::is_signed(.data)) "signed modularity" else "modularity"
+    manynet::snet_success("{.fn {poss[maxmod]}} returns the highest {qual} ({round(mods[maxmod],3)}).")
     out <- candidates[[maxmod]][[1]]
     if(is.numeric(k) && length(unique(out)) != k)
       manynet::snet_warn("No available algorithm returns {k} communities here.",
@@ -402,7 +420,8 @@ node_in_community <- function(.data, k = NULL, max_k = 8L,
 #'   strength of a pull into the same community, and a negative tie is
 #'   hostility rather than such a pull.
 #'   Where the network is signed, they therefore consider only the positive
-#'   ties, and say so. [node_in_spinglass()] reads a sign as a sign.
+#'   ties, and say so. [node_in_spinglass()] and [node_in_leiden()] read a
+#'   sign as a sign: a negative tie inside a community counts against it.
 #'   Use [manynet::to_unsigned()] first to control this yourself.
 #' @description
 #'   These functions score a partition with a quality function, such as
@@ -457,11 +476,24 @@ NULL
 #' @name member_community_partition
 #' @template section_cognitive
 #' @section Signed networks:
-#'   [node_in_faction()] reads a tie as a pull into the same community,
-#'   and a negative tie is hostility rather than such a pull.
-#'   Where the network is signed, it therefore considers only the positive
-#'   ties, and says so.
-#'   Use [manynet::to_unsigned()] first to control this yourself.
+#'   Both functions read a sign as a sign.
+#'   For [node_in_partition()], a negative tie inside a group lowers the
+#'   weight that the swaps maximise, so negative ties are moved between groups.
+#'   For [node_in_faction()], the ideal is structural balance:
+#'   positive ties within the factions and negative ties between them.
+#'   `"hamming"` then counts the errors as Doreian and Mrvar (1996) do,
+#'   the negative ties within factions plus the positive ties between them,
+#'   and an absent tie is no error either way.
+#'   `"phi"` correlates the sign of each pair's tie with whether the pair
+#'   shares a faction, and `"modularity"` maximises signed modularity
+#'   (see [net_by_modularity()]).
+#'   Use [manynet::to_unsigned()] first to consider one sign alone.
+#' @references
+#' ## On partitioning signed networks
+#' Doreian, Patrick, and Andrej Mrvar. 1996.
+#' "A partitioning approach to structural balance".
+#' _Social Networks_ 18(2): 149-168.
+#' \doi{10.1016/0378-8733(95)00259-6}
 #' @description
 #'   These functions divide the nodes into a number of groups that you set,
 #'   two by default:
@@ -699,14 +731,14 @@ node_in_faction <- function(.data, k = 2L,
   n <- manynet::net_nodes(.data)
   if(k > n) manynet::snet_abort("`k` cannot exceed the number of nodes.")
   if(is.null(times)) times <- n * k
-  .data <- manynet::to_positive(.data)
+  signed <- manynet::is_signed(.data)
   g <- manynet::as_matrix(manynet::to_onemode(.data))
   diag(g) <- 0
   init <- sample(rep(seq_len(k), length.out = n))
   out <- if(variant == "phi"){
-    search_tabu(faction_phi(g), init, times)
+    search_tabu(faction_phi(g, signed), init, times)
   } else {
-    pairs <- faction_pairs(g, variant)
+    pairs <- faction_pairs(g, variant, signed)
     search_tabu(cost = function(m) .clique_cost(m, pairs), init = init,
                 times = times,
                 delta = function(old, new) faction_delta(pairs, old, new))
@@ -723,13 +755,26 @@ node_in_faction <- function(.data, k = 2L,
 # over the pairs that share a group, and with the number of ties added, this
 # is the count of errors, and the number of ties is the same for every
 # partition. For "modularity" it is the negative of the modularity matrix.
-faction_pairs <- function(g, variant){
-  if(variant == "hamming"){
-    pairs <- 1 - 2 * (g != 0)
-  } else {
-    deg <- (rowSums(g) + colSums(g)) / 2
+# Where the network is signed, "hamming" counts the errors as Doreian and
+# Mrvar (1996) do: a negative tie costs 1 within a group and a positive tie
+# costs 1 between groups, so a pair costs the negative of its sign, and an
+# absent tie costs nothing either way. "modularity" subtracts the modularity
+# matrix of the negative ties from that of the positive ties, as signed
+# modularity does.
+faction_pairs <- function(g, variant, signed = FALSE){
+  null_model <- function(W){
+    deg <- (rowSums(W) + colSums(W)) / 2
     total <- sum(deg)
-    pairs <- if(total == 0) g else outer(deg, deg) / total - g
+    if(total == 0) W * 0 else outer(deg, deg) / total
+  }
+  if(variant == "hamming"){
+    pairs <- if(signed) -sign(g) else 1 - 2 * (g != 0)
+  } else if(signed){
+    pos <- pmax(g, 0)
+    neg <- pmax(-g, 0)
+    pairs <- (null_model(pos) - pos) - (null_model(neg) - neg)
+  } else {
+    pairs <- null_model(g) - g
   }
   pairs <- (pairs + t(pairs)) / 2
   diag(pairs) <- 0
@@ -746,10 +791,11 @@ faction_delta <- function(pairs, old, new){
 
 # The cost function for "phi": the negative correlation, over every ordered
 # pair of different nodes, between whether the pair is tied and whether it
-# shares a group.
-faction_phi <- function(g){
+# shares a group. Where the network is signed, a tie is read by its sign,
+# so that a negative tie correlates with the pair being apart.
+faction_phi <- function(g, signed = FALSE){
   offdiag <- which(diag(nrow(g)) == 0)
-  obs <- (g != 0)[offdiag] * 1
+  obs <- if(signed) sign(g)[offdiag] else (g != 0)[offdiag] * 1
   function(m){
     val <- suppressWarnings(stats::cor(obs, outer(m, m, "==")[offdiag]))
     if(!is.finite(val)) return(1)
@@ -979,11 +1025,16 @@ node_in_leiden <- function(.data, k = NULL, max_k = 8L, resolution = NULL, Kmax 
   # resolution above the network density, so a fixed 1 returns singletons on
   # every network that is not near complete. The density is the Traag default,
   # and it holds for an unweighted network too, where each tie weighs 1.
+  # Negative ties can take a signed network's density below zero, and a
+  # negative resolution rewards a pair for sharing a community even where it
+  # is not tied, so the resolution is held at zero or more. At zero, the
+  # partition minimises the negative ties within and the positive ties
+  # between communities, as structural balance partitioning does.
   if(is.null(resolution)){
     n <- manynet::net_nodes(.data)
     pairs <- n*(n - 1)/2
     resolution <- if(pairs > 0)
-      sum(manynet::tie_weights(.data))/pairs else 1
+      max(0, sum(manynet::tie_weights(.data))/pairs) else 1
   }
   gr <- manynet::as_igraph(.data)
   memb <- apply_k(k, max_k, .data,

@@ -127,12 +127,16 @@ where it is cut, is what you control.
 
 \section{Signed networks}{
 
-Every algorithm but \code{\link[=node_in_spinglass]{node_in_spinglass()}} sets the negative ties aside,
-and spinglass reads a sign as a sign (Traag and Bruggeman 2009).
-\code{node_in_community()} therefore considers only spinglass where the network
-is signed. Since spinglass needs a connected network and accepts no \code{k},
-a signed network that is unconnected, or a \code{k} that is given, leaves no
-applicable algorithm and the function stops.
+Three algorithms read a negative tie as a push apart:
+\code{\link[=node_in_spinglass]{node_in_spinglass()}} (Traag and Bruggeman 2009),
+\code{\link[=node_in_leiden]{node_in_leiden()}}, and \code{\link[=node_in_partition]{node_in_partition()}}.
+The others set the negative ties aside.
+\code{node_in_community()} therefore considers only these three where the
+network is signed, and selects among them by \code{\link[=net_by_modularity]{net_by_modularity()}},
+which on a signed network counts a negative tie inside a group against
+the partition (Gómez, Jensen, and Arenas 2009).
+Spinglass needs a connected network and accepts no \code{k},
+and Kernighan-Lin is considered only where \code{k} is given.
 }
 
 \examples{
@@ -150,6 +154,19 @@ Tagarelli, Andrea, Alessia Amelio, and Francesco Gullo. 2017.
 "Ensemble-based Community Detection in Multilayer Networks".
 \emph{Data Mining and Knowledge Discovery} 31: 1506-1543.
 \doi{10.1007/s10618-017-0528-8}
+}
+
+\subsection{On signed modularity}{
+
+Gómez, Sergio, Pablo Jensen, and Alex Arenas. 2009.
+"Analysis of community structure in networks of correlated data".
+\emph{Physical Review E} 80: 016114.
+\doi{10.1103/PhysRevE.80.016114}
+
+Traag, Vincent A., and Jeroen Bruggeman. 2009.
+"Community detection in networks with positive and negative links".
+\emph{Physical Review E} 80: 036115.
+\doi{10.1103/PhysRevE.80.036115}
 }
 }
 \seealso{
