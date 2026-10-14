@@ -15,6 +15,7 @@
 
 ## Measures
 
+- Fixed `node_by_power()` failing in the matrix solver where the exponent has no solution
 - Fixed `net_by_core()` and `net_by_divergence()` comparing the network with an ideal whose core and periphery were swapped
 - Fixed `net_by_smallworld()` to compare clustering with a (ring) lattice of the network's own density
 - Improved `net_by_modularity()` to return signed modularity (Gómez, Jensen, and Arenas 2009) for signed networks
