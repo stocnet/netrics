@@ -78,11 +78,78 @@ GitHub updates the status of the issue automatically.
 
 ## Style
 
-In terms of style, we are aiming for pleasant predictability in terms of user experience.
-To that end, we have a regular syntax that users can rely on producing expected effects.
-Functions in the same family (`node_by_*()`, `node_in_*()`, `node_x_*()`, etc.)
-should share argument order and naming,
-so that behaviour is guessable across the family.
+All `stocnet` packages aim for the same three things:
+declarative simplicity, pleasant predictability, and graceful inclusivity.
+The principles are shared across the packages;
+the rules and examples below are those of `{netrics}`.
+
+### Declarative simplicity
+
+Functions should do one clearly named thing with few arguments.
+
+- **Names describe procedures, not progenitors.**
+  A function is named after what it does, without abbreviations or model acronyms,
+  and the originating authors are credited in its documentation.
+  Example: `node_in_greedy()`, `node_in_walktrap()`, and `node_in_optimal()`
+  say how each community detection algorithm searches,
+  where the literature names the first two after Clauset, Newman, and Moore, and Pons and Latapy.
+- **Few arguments per function, and one word for one thing.**
+  Every argument is something the user must read about before they can trust the result.
+  Before adding one, look for the name the package already uses for that idea
+  (see [Argument names and vocabulary](#argument-names-and-vocabulary)).
+- **Scope is signalled by prefix.**
+  The prefix says which level of the network a result describes:
+  `node_*()`, `tie_*()`, `mode_*()`, and `net_*()` return node-level, tie-level,
+  mode-level, and network-level results respectively.
+- **Features are detected, not declared.**
+  A function finds out whether a network is directed, weighted, signed, or two-mode,
+  and adjusts, so the user does not supply an argument for it.
+  Example: `node_by_degree()` and `node_by_betweenness()` call `manynet::is_twomode()`
+  and normalise a two-mode network against its own maximum.
+
+### Pleasant predictability
+
+Users should be able to guess a function's behaviour from its family.
+
+- **Families share an infix.**
+  After the scope, `_is_` returns a logical mark, `_by_` a numeric measure,
+  `_in_` a membership, and `_x_` a motif census
+  (see [Function family naming](#function-family-naming-the-core-convention)).
+- **One concept takes one stem across families.**
+  Example: `node_is_core()`, `node_by_core()`, and `node_in_core()` are the mark,
+  the measure, and the membership of the same idea.
+- **Arguments follow a consistent order.**
+  The network comes first, as `.data`, then the shared arguments in the same order
+  and under the same names across the family.
+- **Outputs match the prefix.**
+  A `node_*()` function always returns one value or row per node, in the order of the nodes,
+  so results can be bound directly to node attributes.
+  Example: `mutate_nodes(.data, degree = node_by_degree(.data))`.
+
+### Graceful inclusivity
+
+Functions should accept whatever network users bring and return something they can use.
+
+- **Inputs span the common classes.**
+  Every function accepts any network that `{manynet}` can coerce:
+  matrices, edgelists, and `igraph`, `network`, `tidygraph`, and `stocnet` objects.
+  Example: `node_by_degree()` works identically on an `igraph` object and an adjacency matrix.
+- **Only truly unsupported cases fail.**
+  Where a measure is defined for the network at hand, it should return a result
+  rather than an error, which leaves users fewer failures to worry about.
+  Where it really is not defined, the error says why and names the alternative.
+  Example: `mode_by_betweenness()` on a one-mode network points users to `net_by_betweenness()`.
+- **Key steps are reported.**
+  Functions say what they did at the verbosity the user has chosen
+  (see [Console messaging](#console-messaging)).
+  Example: `tie_is_path()` reports that it used only the positive ties of a signed network.
+- **Results describe themselves.**
+  A printed result does not take over the console:
+  it shows as many values as fit the console's width and says how many more there are.
+  Its header carries what the user needs to interpret the values,
+  such as the name of the measure and how it was normalised.
+- **Learning materials meet users where they are.**
+  The tutorials work through each family of functions on the example networks from `{manynet}`.
 
 ## Package architecture
 

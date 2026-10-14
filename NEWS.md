@@ -1,3 +1,9 @@
+# netrics 1.1.1
+
+## Package
+
+- Added design principles to the README and the contributing guide
+
 # netrics 1.1.0
 
 ## Package

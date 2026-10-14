@@ -53,6 +53,7 @@ For graph drawing, see [`{autograph}`](https://stocnet.github.io/autograph/),
 and for further testing and modelling capabilities
 see [`{migraph}`](https://stocnet.github.io/migraph/).
 
+- [Design principles](#design-principles)
 - [Marks](#marks)
 - [Measures](#measures)
 - [Memberships](#memberships)
@@ -63,6 +64,23 @@ see [`{migraph}`](https://stocnet.github.io/migraph/).
   - [Development](#development)
 - [Relationship to other packages](#relationship-to-other-packages)
 - [Funding details](#funding-details)
+
+## Design principles
+
+`{netrics}` and the other [stocnet](https://github.com/stocnet) packages aim for three things:
+
+- **Declarative simplicity**: functions do one clearly named thing with few arguments.
+For example, `node_in_greedy()` and `node_in_walktrap()` are named for how they search for communities,
+rather than for their inventors.
+- **Pleasant predictability**: users can guess a function's behaviour from its family.
+For example, `node_is_core()`, `node_by_core()`, and `node_in_core()` return
+a logical mark, a numeric measure, and a membership for each node.
+- **Graceful inclusivity**: functions accept whatever network users bring and return something they can use.
+For example, `node_by_degree()` works the same on a matrix or an `{igraph}` object,
+and recognises a two-mode network without being told.
+
+See the [contributing guide](https://github.com/stocnet/netrics/blob/main/.github/CONTRIBUTING.md#style)
+for how these principles translate into rules for the package.
 
 ## Marks
 

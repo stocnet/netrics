@@ -38,6 +38,7 @@ drawing, see [`{autograph}`](https://stocnet.github.io/autograph/), and
 for further testing and modelling capabilities see
 [`{migraph}`](https://stocnet.github.io/migraph/).
 
+- [Design principles](#design-principles)
 - [Marks](#marks)
 - [Measures](#measures)
 - [Memberships](#memberships)
@@ -48,6 +49,28 @@ for further testing and modelling capabilities see
   - [Development](#development)
 - [Relationship to other packages](#relationship-to-other-packages)
 - [Funding details](#funding-details)
+
+## Design principles
+
+`{netrics}` and the other [stocnet](https://github.com/stocnet) packages
+aim for three things:
+
+- **Declarative simplicity**: functions do one clearly named thing with
+  few arguments. For example, `node_in_greedy()` and
+  `node_in_walktrap()` are named for how they search for communities,
+  rather than for their inventors.
+- **Pleasant predictability**: users can guess a function’s behaviour
+  from its family. For example, `node_is_core()`, `node_by_core()`, and
+  `node_in_core()` return a logical mark, a numeric measure, and a
+  membership for each node.
+- **Graceful inclusivity**: functions accept whatever network users
+  bring and return something they can use. For example,
+  `node_by_degree()` works the same on a matrix or an `{igraph}` object,
+  and recognises a two-mode network without being told.
+
+See the [contributing
+guide](https://github.com/stocnet/netrics/blob/main/.github/CONTRIBUTING.md#style)
+for how these principles translate into rules for the package.
 
 ## Marks
 
@@ -92,13 +115,14 @@ network, node, and tie level. These include:
   `net_by_cohesion()`, `net_by_compactness()`, `net_by_components()`,
   `net_by_congruency()`, `net_by_connectedness()`, `net_by_core()`,
   `net_by_cyclicality()`, `net_by_decay()`, `net_by_degree()`,
-  `net_by_density()`, `net_by_diameter()`, `net_by_diversity()`,
-  `net_by_efficiency()`, `net_by_eigenvector()`, `net_by_equivalency()`,
-  `net_by_factions()`, `net_by_harmonic()`, `net_by_heterophily()`,
-  `net_by_homophily()`, `net_by_immunity()`, `net_by_inconsistency()`,
-  `net_by_indegree()`, `net_by_independence()`,
-  `net_by_infection_complete()`, `net_by_infection_peak()`,
-  `net_by_infection_total()`, `net_by_integration()`, `net_by_length()`,
+  `net_by_density()`, `net_by_diameter()`, `net_by_divergence()`,
+  `net_by_diversity()`, `net_by_efficiency()`, `net_by_eigenvector()`,
+  `net_by_equivalency()`, `net_by_factions()`, `net_by_harmonic()`,
+  `net_by_heterophily()`, `net_by_homophily()`, `net_by_immunity()`,
+  `net_by_inconsistency()`, `net_by_indegree()`,
+  `net_by_independence()`, `net_by_infection_complete()`,
+  `net_by_infection_peak()`, `net_by_infection_total()`,
+  `net_by_integration()`, `net_by_length()`, `net_by_linkdensity()`,
   `net_by_modularity()`, `net_by_outdegree()`, `net_by_reach()`,
   `net_by_reciprocity()`, `net_by_recovery()`, `net_by_reproduction()`,
   `net_by_richclub()`, `net_by_richness()`, `net_by_scalefree()`,
@@ -146,12 +170,13 @@ member of group “A”, the second in group “B”, etc.
 - `node_in_adopter()`, `node_in_automorphic()`, `node_in_betweenness()`,
   `node_in_block()`, `node_in_brokering()`, `node_in_community()`,
   `node_in_component()`, `node_in_core()`, `node_in_eigen()`,
-  `node_in_equivalence()`, `node_in_fluid()`, `node_in_greedy()`,
-  `node_in_infomap()`, `node_in_labels()`, `node_in_leiden()`,
-  `node_in_louvain()`, `node_in_motif()`, `node_in_optimal()`,
-  `node_in_partition()`, `node_in_regular()`, `node_in_roulette()`,
-  `node_in_spinglass()`, `node_in_strong()`, `node_in_structural()`,
-  `node_in_walktrap()`, `node_in_weak()`
+  `node_in_equivalence()`, `node_in_faction()`, `node_in_fluid()`,
+  `node_in_greedy()`, `node_in_infomap()`, `node_in_labels()`,
+  `node_in_leiden()`, `node_in_louvain()`, `node_in_motif()`,
+  `node_in_optimal()`, `node_in_partition()`, `node_in_regular()`,
+  `node_in_roulette()`, `node_in_spinglass()`, `node_in_strong()`,
+  `node_in_structural()`, `node_in_walktrap()`, `node_in_weak()`,
+  `tie_in_community()`
 
 For example `node_in_brokering()` labels each node a powerhouse, a
 connector, a linchpin, or a sideliner, according to its brokerage
@@ -179,8 +204,8 @@ frequency in various motifs. These include:
   `net_x_homophily()`, `net_x_stability()`, `net_x_tetrad()`,
   `net_x_triad()`, `node_x_alters()`, `node_x_brokerage()`,
   `node_x_clique()`, `node_x_dyad()`, `node_x_exposure()`,
-  `node_x_path()`, `node_x_similarity()`, `node_x_tetrad()`,
-  `node_x_tie()`, `node_x_ties()`, `node_x_triad()`
+  `node_x_path()`, `node_x_percolation()`, `node_x_similarity()`,
+  `node_x_tetrad()`, `node_x_tie()`, `node_x_ties()`, `node_x_triad()`
 
 ## Analysis
 
@@ -199,9 +224,10 @@ about:
   `tie_by_betweenness()`, `tie_by_closeness()`, `tie_by_degree()`,
   `tie_by_eigenvector()`
 - *Cohesion*: `net_by_congruency()`, `net_by_density()`,
-  `net_by_equivalency()`, `net_by_reciprocity()`,
-  `net_by_transitivity()`, `node_by_equivalency()`,
-  `node_by_reciprocity()`, `node_by_transitivity()`
+  `net_by_equivalency()`, `net_by_linkdensity()`,
+  `net_by_reciprocity()`, `net_by_transitivity()`,
+  `node_by_equivalency()`, `node_by_reciprocity()`,
+  `node_by_transitivity()`
 - *Hierarchy*: `net_by_connectedness()`, `net_by_efficiency()`,
   `net_by_reciprocity()`, `net_by_upperbound()`, `net_x_hierarchy()`,
   `node_by_efficiency()`, `node_by_hierarchy()`, `node_by_reciprocity()`
