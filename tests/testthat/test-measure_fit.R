@@ -157,7 +157,6 @@ test_that("net_by_linkdensity scores a tie membership", {
 
 test_that("net_by_linkdensity takes a membership of a CSS's reports", {
   css <- manynet::ison_hightech
-  skip_if_not(manynet::is_cognitive(css))
   memb <- suppressMessages(tie_in_community(css))
   expect_equal(as.numeric(suppressMessages(net_by_linkdensity(css, memb))),
                as.numeric(suppressMessages(net_by_linkdensity(css))))

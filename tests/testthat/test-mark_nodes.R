@@ -8,7 +8,6 @@ for(fn in names(node_marks)) {
         expect_s3_class(node_marks[[fn]](data_objs[[ob]], mark = c(1,3)), 
                         "node_mark")
       } else if(fn == "node_is_core"){
-        skip_if(fn == "node_is_core" && manynet::is_directed(data_objs[[ob]]))
         expect_s3_class(node_marks[[fn]](data_objs[[ob]]), "node_mark")
       } else if(fn == "node_is_neighbor"){
         expect_s3_class(node_marks[[fn]](data_objs[[ob]], node = 1), 

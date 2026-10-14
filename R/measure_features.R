@@ -499,8 +499,8 @@ net_by_core <- function(.data,
   # are therefore symmetrised, and the user is told that direction is not read
   # here even where the assignment in `mark` read it.
   obs <- manynet::as_matrix(.data)
-  # The mark is passed as numbers, with 1 for the core, since earlier versions
-  # of 'manynet' read a logical mark with TRUE as the periphery.
+  # The mark is passed as numbers, with 1 for the core, since 'manynet' 2.4.0
+  # and earlier read a logical mark with TRUE as the periphery.
   ideal <- manynet::as_matrix(manynet::create_core(.data,
                                                    mark = ifelse(mark, 1, 2)))
   if(manynet::is_directed(.data)){

@@ -17,7 +17,7 @@ NULL
 net_by_waves <- function(.data){
   .data <- manynet::expect_nodes(.data)
   # A longitudinal network holds its waves in a `wave` or a `time` tie
-  # attribute, and `manynet::net_waves()` reads both since manynet 2.3.0.
+  # attribute, and `manynet::net_waves()` reads both.
   # A changing network counts its changelist instead.
   tie_waves <- manynet::net_waves(.data)
   if(manynet::is_changing(.data)){

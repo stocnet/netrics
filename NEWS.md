@@ -2,6 +2,7 @@
 
 ## Package
 
+- Raised the 'manynet' floor to 2.4.0
 - Added design principles to the README and the contributing guide
 
 ## Memberships

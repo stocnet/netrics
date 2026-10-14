@@ -117,41 +117,12 @@ seq_nodes <- function(.data){
 # structure, taking the intersection rule: a tie exists where both of its ends
 # report it. The two ends are the nodes that know most about a tie. A tie
 # that names no reporter, such as a formal reporting line, is kept as it is.
-#
-# TODO: `manynet::to_aggregated()` arrived in manynet 2.4.0, but the
-# DESCRIPTION floor is 2.3.5, whose `manynet::as_matrix()` already returns the
-# perceivers' array. The fallback keeps the report of each tie by its sender,
-# where its receiver reports it too, which is the same structure. Remove the
-# fallback and call `manynet::to_aggregated()` directly once the floor is
-# raised to 2.4.0.
 .to_aggregated_css <- function(.data){
   if(!manynet::is_cognitive(.data)) return(.data)
   manynet::snet_info("Combining the perceivers' reports of this cognitive",
                      "social structure into its locally aggregated structure,",
                      "where a tie exists if both of its ends report it.")
-  if("to_aggregated" %in% getNamespaceExports("manynet"))
-    return(getExportedValue("manynet", "to_aggregated")(.data, over = "by",
-                                                        rule = "min",
-                                                        reporters = "both"))
-  .las_intersection(.data)
-}
-
-# The fallback has to return the class it was given, as
-# `manynet::to_aggregated()` does, so it filters the ties in place.
-.las_intersection <- function(.data){
-  g <- manynet::as_igraph(.data)
-  by <- igraph::edge_attr(g, "by")
-  # A network whose ties name no reporter is already its aggregated structure.
-  # Before 'manynet' 2.4.0, coercion could also drop a 'by' column, which would
-  # otherwise leave nothing to filter the ties by.
-  if(is.null(by)) return(.data)
-  ends <- .tie_ends(g)
-  tie <- .tie_keys(g)
-  reported <- paste(tie, by)
-  both <- paste(tie, ends[,1]) %in% reported & paste(tie, ends[,2]) %in% reported
-  keep <- is.na(by) | (by == ends[,1] & both)
-  out <- manynet::filter_ties(.data, keep)
-  manynet::mutate_ties(out, by = NULL)
+  manynet::to_aggregated(.data, over = "by", rule = "min", reporters = "both")
 }
 
 # The two ends of each tie, in the order of `igraph::E()`.
