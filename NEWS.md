@@ -13,6 +13,13 @@
   - `"modularity"` maximises signed modularity
 - Fixed `node_in_leiden()` taking a negative default resolution on a negative-dominant signed network
 
+## Measures
+
+- Fixed `net_by_core()` and `net_by_divergence()` comparing the network with an ideal whose core and periphery were swapped
+- Fixed `net_by_smallworld()` to compare clustering with a (ring) lattice of the network's own density
+- Improved `net_by_modularity()` to return signed modularity (Gómez, Jensen, and Arenas 2009) for signed networks
+  - A negative tie inside a group now counts against the partition
+
 # netrics 1.1.0
 
 ## Package

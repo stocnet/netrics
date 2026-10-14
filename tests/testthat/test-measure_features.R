@@ -13,6 +13,22 @@ test_that("net_richclub works", {
   expect_values(out, 0.833)
 })
 
+test_that("net_by_smallworld places lattices below random networks", {
+  set.seed(1)
+  # a lattice is clustered with long paths, so omega is negative
+  expect_lt(as.numeric(net_by_smallworld(manynet::create_ring(50, width = 2),
+                                         times = 20)), -0.3)
+  # a sparse random network has short paths but little clustering
+  expect_gt(as.numeric(net_by_smallworld(manynet::generate_random(50, 0.1),
+                                         times = 20)), 0.5)
+  # a dense random network is compared with a lattice of its own density
+  expect_gt(as.numeric(net_by_smallworld(manynet::generate_random(60, 0.5),
+                                         times = 20)), 0)
+  sw <- manynet::generate_smallworld(50, 0.025)
+  expect_lt(abs(as.numeric(net_by_smallworld(sw, times = 20))), 0.5)
+  expect_gt(as.numeric(net_by_smallworld(sw, "SWI", times = 20)), 0.3)
+})
+
 test_that("net_scalefree works", {
   out <- net_by_scalefree(ison_adolescents)
   expect_values(out,3.689)

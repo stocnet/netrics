@@ -53,12 +53,46 @@ test_that("net_by_modularity() scores a signed network", {
   expect_length(net_by_modularity(signed_multilevel), 1)
 })
 
-test_that("node_in_community() uses spinglass where the network is signed", {
+test_that("node_in_community() uses the algorithms that read signs", {
   memb <- node_in_community(signed_multilevel)
   expect_length(memb, manynet::net_nodes(signed_multilevel))
-  # spinglass needs a connected network and accepts no `k`, so neither a `k`
-  # nor an unconnected signed network leaves any algorithm to try
-  expect_error(node_in_community(signed_multilevel, k = 3), "signed")
+  # spinglass accepts no `k`, but Leiden and Kernighan-Lin do
+  memb <- suppressWarnings(node_in_community(signed_multilevel, k = 3))
+  expect_length(memb, manynet::net_nodes(signed_multilevel))
+})
+
+test_that("signed modularity counts a negative tie within a group against it", {
+  # a triangle whose a-c tie is negative
+  net <- manynet::as_tidygraph(matrix(c(0, 1, -1,
+                                        1, 0, 1,
+                                        -1, 1, 0), 3,
+                                      dimnames = list(letters[1:3],
+                                                      letters[1:3])))
+  together <- net_by_modularity(net, c(1, 1, 1))
+  apart <- net_by_modularity(net, c(1, 1, 2))
+  expect_lt(together, apart)
+})
+
+test_that("node_in_faction() reads signs as Doreian and Mrvar do", {
+  set.seed(1234)
+  n <- 7
+  M <- matrix(0, n, n, dimnames = list(letters[1:n], letters[1:n]))
+  M[upper.tri(M)] <- sample(c(-1, 0, 1), n*(n - 1)/2, replace = TRUE)
+  M <- M + t(M)
+  net <- manynet::as_tidygraph(M)
+  # every split into two groups, with the first node always in group 1
+  splits <- lapply(0:(2^(n - 1) - 2), function(i)
+    c(1, 1 + as.integer(intToBits(i)[seq_len(n - 1)] == 0)))
+  # negative ties within groups plus positive ties between them
+  errors <- function(m){
+    same <- outer(m, m, "==")
+    sum((M < 0 & same) | (M > 0 & !same))/2
+  }
+  res <- as.integer(factor(c(node_in_faction(net, k = 2))))
+  expect_equal(errors(res), min(sapply(splits, errors)))
+  res <- c(node_in_faction(net, k = 2, variant = "modularity"))
+  expect_equal(c(net_by_modularity(net, res)),
+               max(sapply(splits, function(m) c(net_by_modularity(net, m)))))
 })
 
 # A multilevel network reports itself as two-mode but cannot be projected,

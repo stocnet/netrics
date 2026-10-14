@@ -165,8 +165,16 @@ Krackhardt, David. 1987.
 
 \section{Signed networks}{
 
-\code{net_by_modularity()} counts a tie however it is signed, as a census does,
-so where the network is signed each tie is read by its magnitude.
+Where the network is signed, \code{net_by_modularity()} returns signed
+modularity (Gómez, Jensen, and Arenas 2009).
+The positive and the negative ties are each compared with their own
+random baseline, and the negative score is subtracted,
+so that a negative tie inside a group counts against the partition
+and a negative tie between groups counts for it.
+It ranges between -1 and 1, and is the quality that
+\code{\link[=node_in_spinglass]{node_in_spinglass()}} maximises on a signed network.
+A directed signed network is read as undirected, and a signed two-mode
+network is read by the magnitude of its ties.
 }
 
 \section{Multilevel networks}{
@@ -394,6 +402,14 @@ net_by_inconsistency(ison_hightech, node_in_structural(ison_hightech),
        blocks = c("nul", "reg"))
 }
 \references{
+\subsection{On signed modularity}{
+
+Gómez, Sergio, Pablo Jensen, and Alex Arenas. 2009.
+"Analysis of community structure in networks of correlated data".
+\emph{Physical Review E} 80: 016114.
+\doi{10.1103/PhysRevE.80.016114}
+}
+
 \subsection{On core-periphery}{
 
 Borgatti, Stephen P., and Martin G. Everett. 2000.

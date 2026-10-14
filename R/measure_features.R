@@ -99,15 +99,14 @@ net_by_richclub <- function(.data){
 #'     but this measure is highly sensitive to network size.
 #'  -  "omega" (the default) is an update from Telesford et al. (2011),
 #'     \deqn{\frac{L_r}{L} - \frac{C}{C_l}},
-#'     where \eqn{C_l} is the clustering coefficient for a lattice graph
-#'     with the same dimensions.
+#'     where \eqn{C_l} is the clustering coefficient for a ring lattice
+#'     with the same number of nodes and about the same number of ties.
 #'     \eqn{\omega} ranges between -1 and 1, where values close to 0 are
 #'     as close to a small-world as possible; negative values indicate a
 #'     lattice-like network, and positive values a more random one.
 #'  -  "SWI" is an alternative proposed by Neal (2017),
 #'     \deqn{\frac{L - L_l}{L_r - L_l} \times \frac{C - C_r}{C_l - C_r}},
-#'     where \eqn{L_l} is the average path length for a lattice graph
-#'     with the same dimensions.
+#'     where \eqn{L_l} is the average path length for the same ring lattice.
 #'     \eqn{SWI} ranges between 0 and 1, where 1 is as close to a small-world
 #'     as possible, though there may not be a network for which \eqn{SWI = 1}.
 #' @seealso [net_by_transitivity()] and [net_by_equivalency()]
@@ -146,7 +145,8 @@ net_by_smallworld <- function(.data,
                       function(x) net_by_equivalency(manynet::generate_random(.data)),
                       FUN.VALUE = numeric(1)))
     if(variant %in% c("omega", "SWI")){
-      cl <- net_by_equivalency(manynet::create_ring(.data))
+      lattice <- manynet::create_ring(.data)
+      cl <- net_by_equivalency(lattice)
     }
   } else {
     co <- net_by_transitivity(.data)
@@ -154,7 +154,14 @@ net_by_smallworld <- function(.data,
                             function(x) net_by_transitivity(manynet::generate_random(.data)),
                             FUN.VALUE = numeric(1)))
     if(variant %in% c("omega", "SWI")){
-      cl <- net_by_transitivity(manynet::create_lattice(.data))
+      # The lattice is a ring with about as many ties as the network, so that
+      # it is compared with a lattice of the same density (Telesford et al.
+      # 2011). A ring of width w ties each node to w nodes on each side, so it
+      # has n * w ties, and it needs a width of at least 2 to have triangles.
+      n <- manynet::net_nodes(.data)
+      width <- min(max(round(manynet::net_ties(.data)/n), 2), floor((n - 1)/2))
+      lattice <- manynet::create_ring(.data, width = width)
+      cl <- net_by_transitivity(lattice)
     }
   }
   
@@ -163,7 +170,7 @@ net_by_smallworld <- function(.data,
                          function(x) net_by_length(manynet::generate_random(.data)),
                          FUN.VALUE = numeric(1)))
   if(variant == "SWI"){
-    ll <- net_by_length(manynet::create_ring(.data))
+    ll <- net_by_length(lattice)
   }
   
   out <- switch(variant,
@@ -401,8 +408,22 @@ net_by_balance <- function(.data) {
 #' @family features
 #' @template net_measure
 #' @section Signed networks:
-#'   `net_by_modularity()` counts a tie however it is signed, as a census does,
-#'   so where the network is signed each tie is read by its magnitude.
+#'   Where the network is signed, `net_by_modularity()` returns signed
+#'   modularity (Gómez, Jensen, and Arenas 2009).
+#'   The positive and the negative ties are each compared with their own
+#'   random baseline, and the negative score is subtracted,
+#'   so that a negative tie inside a group counts against the partition
+#'   and a negative tie between groups counts for it.
+#'   It ranges between -1 and 1, and is the quality that
+#'   [node_in_spinglass()] maximises on a signed network.
+#'   A directed signed network is read as undirected, and a signed two-mode
+#'   network is read by the magnitude of its ties.
+#' @references
+#' ## On signed modularity
+#' Gómez, Sergio, Pablo Jensen, and Alex Arenas. 2009.
+#' "Analysis of community structure in networks of correlated data".
+#' _Physical Review E_ 80: 016114.
+#' \doi{10.1103/PhysRevE.80.016114}
 #' @section Multilevel networks:
 #'   `net_by_core()` and `net_by_factions()` fit the network to an ideal built
 #'   by a `manynet::create_*()` function, and those build one layer at a time.
@@ -478,7 +499,10 @@ net_by_core <- function(.data,
   # are therefore symmetrised, and the user is told that direction is not read
   # here even where the assignment in `mark` read it.
   obs <- manynet::as_matrix(.data)
-  ideal <- manynet::as_matrix(manynet::create_core(.data, mark = mark))
+  # The mark is passed as numbers, with 1 for the core, since earlier versions
+  # of 'manynet' read a logical mark with TRUE as the periphery.
+  ideal <- manynet::as_matrix(manynet::create_core(.data,
+                                                   mark = ifelse(mark, 1, 2)))
   if(manynet::is_directed(.data)){
     manynet::snet_info("{.fn net_by_core} compares the network against a",
                        "symmetric ideal, so tie direction is not used in the",
@@ -601,8 +625,6 @@ net_by_modularity <- function(.data,
                               resolution = 1){
   .data <- manynet::expect_nodes(.data)
   .data <- .to_aggregated_css(.data)
-  # modularity counts a tie however it is signed, as a census does
-  .data <- manynet::to_unsigned(.data, keep = "both")
   membership <- .resolve_membership(.data, membership)
   if(is.null(membership)){
     manynet::snet_info("Since no membership argument has been provided,",
@@ -610,6 +632,14 @@ net_by_modularity <- function(.data,
     membership <- node_in_partition(.data)
   }
   if(!is.numeric(membership)) membership <- as.numeric(as.factor(membership))
+  if(manynet::is_signed(.data) && !manynet::is_twomode(.data))
+    return(make_network_measure(.signed_modularity(.data, membership, resolution),
+                                .data, call = deparse(sys.call()),
+                                measure = "signed modularity",
+                                range = c(-1, 1), normalization = "none"))
+  # a signed two-mode network has no signed null model here, so it is read
+  # by the magnitude of its ties
+  .data <- manynet::to_unsigned(.data, keep = "both")
   if(!manynet::is_graph(.data)) .data <- as_igraph(.data)
   if(manynet::is_twomode(.data)){
     make_network_measure(igraph::modularity(manynet::to_multilevel(.data), 
@@ -626,6 +656,28 @@ net_by_modularity <- function(.data,
                               measure = "modularity",
                               range = `if`(resolution == 1, c(-0.5, 1), c(-Inf, 1)),
                               normalization = "none")
+}
+
+# Modularity for a signed network (Gómez, Jensen, and Arenas 2009).
+# The positive and the negative ties are each scored against their own null
+# model, and the negative score is subtracted, so that a negative tie inside a
+# group counts against the partition. This is also the quality that spinglass
+# maximises on a signed network (Traag and Bruggeman 2009).
+# A directed network is read as undirected, as spinglass reads it.
+.signed_modularity <- function(.data, memb, resolution = 1){
+  A <- manynet::as_matrix(manynet::to_onemode(.data))
+  A <- (A + t(A))/2
+  diag(A) <- 0
+  same <- outer(memb, memb, "==")
+  part <- function(W){
+    total <- sum(W)
+    if(total == 0) return(0)
+    deg <- rowSums(W)
+    sum((W - resolution * outer(deg, deg)/total)[same])
+  }
+  pos <- pmax(A, 0)
+  neg <- pmax(-A, 0)
+  (part(pos) - part(neg))/(sum(pos) + sum(neg))
 }
 
 #' @rdname measure_fit
@@ -777,7 +829,8 @@ net_by_divergence <- function(.data, ideal = manynet::create_core,
     args <- list(.data)
     if("mark" %in% fmls){
       if(is.null(mark)) mark <- node_is_core(.data)
-      args$mark <- as.logical(mark)
+      # numbers, with 1 for the core; see `net_by_core()`
+      args$mark <- ifelse(as.logical(mark), 1, 2)
     }
     if("membership" %in% fmls){
       membership <- .resolve_membership(.data, membership)

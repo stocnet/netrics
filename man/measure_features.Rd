@@ -113,15 +113,14 @@ A \eqn{\sigma > 1} is considered to be small-world,
 but this measure is highly sensitive to network size.
 \item "omega" (the default) is an update from Telesford et al. (2011),
 \deqn{\frac{L_r}{L} - \frac{C}{C_l}},
-where \eqn{C_l} is the clustering coefficient for a lattice graph
-with the same dimensions.
+where \eqn{C_l} is the clustering coefficient for a ring lattice
+with the same number of nodes and about the same number of ties.
 \eqn{\omega} ranges between -1 and 1, where values close to 0 are
 as close to a small-world as possible; negative values indicate a
 lattice-like network, and positive values a more random one.
 \item "SWI" is an alternative proposed by Neal (2017),
 \deqn{\frac{L - L_l}{L_r - L_l} \times \frac{C - C_r}{C_l - C_r}},
-where \eqn{L_l} is the average path length for a lattice graph
-with the same dimensions.
+where \eqn{L_l} is the average path length for the same ring lattice.
 \eqn{SWI} ranges between 0 and 1, where 1 is as close to a small-world
 as possible, though there may not be a network for which \eqn{SWI = 1}.
 }
