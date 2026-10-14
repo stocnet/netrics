@@ -132,6 +132,7 @@ By the end of this tutorial, you should be able to:
 - [ ] &nbsp; Judge the fit of _any_ membership assignment with `net_by_modularity()`
 - [ ] &nbsp; Detect communities with the walktrap, edge-betweenness, fast-greedy, and Louvain algorithms, and let `node_in_community()` choose among them for you
 - [ ] &nbsp; Tune how large a community must be to be kept separate with `resolution=`, and say why the resolution limit makes this necessary
+- [ ] &nbsp; Explain why random networks also have communities, and compare an observed modularity with random networks made by `generate_random()`
 
 **Choose your own data**: The worked examples below use `ison_algebra`,
 `ison_southern_women`, and `irps_blogs`,
@@ -700,7 +701,8 @@ and competing groupings can be compared on the same yardstick.
 <span class="page-toc-link" onclick="document.getElementById('section-walktrap').scrollIntoView({behavior:'auto',block:'start'});">Walktrap</span> ·
 <span class="page-toc-link" onclick="document.getElementById('section-edge-betweenness').scrollIntoView({behavior:'auto',block:'start'});">Edge betweenness</span> ·
 <span class="page-toc-link" onclick="document.getElementById('section-fast-greedy').scrollIntoView({behavior:'auto',block:'start'});">Fast greedy</span> ·
-<span class="page-toc-link" onclick="document.getElementById('section-detecting-communities').scrollIntoView({behavior:'auto',block:'start'});">Detecting communities</span></span>
+<span class="page-toc-link" onclick="document.getElementById('section-detecting-communities').scrollIntoView({behavior:'auto',block:'start'});">Detecting communities</span> ·
+<span class="page-toc-link" onclick="document.getElementById('section-random-baselines').scrollIntoView({behavior:'auto',block:'start'});">Random baselines</span></span>
 
 Ok, the friendship network has 3-4 components, but how many 'groups' are there?
 Visually, it looks like there are some denser clusters within the main component.
@@ -947,6 +949,68 @@ and `node_in_eigen()` (spectral).
 See `?member_community` for the full list with definitions and references.
 :::
 
+### Random baselines {#random-baselines}
+
+Every algorithm in this section returned communities,
+and every partition had a positive modularity.
+But would they find communities in a network that has none?
+A `r gloss("random")` network places its ties without any group structure.
+`generate_random()` makes one with the same number of nodes and ties
+as the network you give it.
+Let's make a random version of the friendship network,
+and see what Louvain finds in it.
+
+```{r randfri}
+rand_friends <- generate_random(friends)
+rand_lv <- node_in_louvain(rand_friends)
+rand_friends |> mutate_nodes(rand_comm = rand_lv) |>
+  graphr(node_color = "rand_comm", node_group = "rand_comm")
+net_by_modularity(rand_friends, rand_lv)
+```
+
+Louvain still returns communities, and their modularity is still positive.
+An algorithm always returns a partition,
+and in any one network some nodes are tied a little more to each other
+than chance alone expects.
+The algorithm finds these accidents too.
+
+The effect is larger than you may expect.
+Try a sparse random network of 100 nodes,
+in which each pair of nodes is tied with a probability of 0.05:
+
+```{r randsparse}
+sparse <- generate_random(100, 0.05)
+net_by_modularity(sparse, node_in_louvain(sparse))
+```
+
+This network has no groups, but its modularity is often about 0.4,
+which is as high as that of the real friendship network.
+Modularity increases as a network gets larger and sparser,
+so a modularity score alone is not evidence of groups
+(Guimerà, Sales-Pardo and Amaral 2004).
+
+The answer is to compare like with like.
+Run the algorithm on many random networks
+of the same size and density as the observed network,
+and see whether the observed modularity is higher than theirs.
+
+
+::: {.callout}
+<span class="callout-label">**Try it yourself**:</span> This section includes an interactive quiz in the live tutorial — run `run_tute()` at the R console to try it.
+:::
+
+The friendship network has much higher modularity than its random versions,
+so its communities are not only accidents of chance.
+
+::: {.callout}
+<span class="callout-label">**Going further**:</span>
+`generate_random()` keeps the number of ties but not who has many of them.
+`generate_configuration()` also keeps each node's degree,
+which is the same baseline that modularity itself uses.
+Try it in place of `generate_random()` above:
+does the friendship network still stand out?
+:::
+
 ::: {.callout}
 <span class="callout-label">**In brief**:</span> Community detection algorithms cluster nodes by
 tie density: `node_in_walktrap()` via random walks,
@@ -959,6 +1023,9 @@ which is what makes it fast enough for a large network.
 and returns the assignment that maximises modularity,
 or combines them all with `consensus = TRUE` —
 but always report which algorithm produced the result you analyse.
+Since algorithms find communities even in random networks,
+compare the modularity with that of random networks of the same size
+and density, made with `generate_random()`.
 :::
 
 ## Free play
@@ -1016,6 +1083,7 @@ Along the way, you have learned to use these functions:
 | `node_attribute()` | extracts a nodal attribute, e.g. as an empirical membership |
 | `node_in_walktrap()`, `node_in_betweenness()`, `node_in_greedy()` | community detection via random walks, divisive tie removal, agglomerative merges |
 | `node_in_community()` | surveys applicable algorithms and returns the best assignment by modularity |
+| `generate_random()` | a random network with the same number of nodes and ties, as a baseline |
 | `mutate_nodes()`, `mutate_ties()` | adds measures or memberships to the network for graphing |
 | `graphr(..., node_color = , node_group = , edge_color = )` | maps memberships onto colours and group outlines |
 

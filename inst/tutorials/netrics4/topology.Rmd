@@ -495,28 +495,40 @@ even in enormous, highly clustered social networks.
 
 There is also such a thing as a network's small-world coefficient.
 See the help page for more details,
-but with the default equation ('omega'),
-the coefficient typically ranges between 0 and 1,
-where 1 is as close to a small-world as possible.
+but the default equation ('omega') compares the network's clustering
+with that of a lattice, and its path length with that of a random network.
+The coefficient ranges between -1 and 1:
+values near -1 mean the network is more like a lattice,
+values near 1 mean it is more like a random network,
+and values near 0 are as close to a small-world as possible.
 **Try it now on a small-world generated network,
-but with a rewiring probability of 0.25.**
+with the same rewiring probability of 0.025.**
 
 ```{r smallwtest, exercise = TRUE, purl = FALSE}
 
 ```
 
 ```{r smallwtest-solution}
-net_by_smallworld(generate_smallworld(50, 0.25))
+net_by_smallworld(generate_smallworld(50, 0.025))
 ```
 
-Substantively, a coefficient near 1 says the network offers
+Try it again with a rewiring probability of 0.25,
+and on a lattice and a random network.
+With so many ties rewired, the network loses most of its clustering
+and moves towards the random end of the scale.
+
+Substantively, a coefficient near 0 says the network offers
 the best of both worlds:
 neighbourhoods cohesive enough to sustain trust and local norms,
 yet paths short enough for information or contagion
 to traverse the whole network in a few steps.
-A coefficient near 0 means the network behaves more like
-a pure lattice (clustered but slow) or
+A coefficient near -1 means the network behaves more like
+a pure lattice (clustered but slow),
+and a coefficient near 1 more like
 a pure random graph (fast but unclustered).
+Other equations put these on other scales.
+For example, `variant = "SWI"` ranges between 0 and 1,
+where 1 is as close to a small-world as possible.
 
 ### Scale-free graphs {#scale-free-graphs}
 
@@ -633,7 +645,7 @@ existing ones with a recency bias, the classic model of directed,
 ```{r moregen, exercise = TRUE, fig.width=9}
 set.seed(123)
 graphr(generate_fire(50)) + ggtitle("Forest fire")
-graphr(generate_islands(50, islands = 3, bridges = 2)) + ggtitle("Islands")
+graphr(generate_islands(50, groups = 3, width = 2)) + ggtitle("Islands")
 graphr(generate_citations(50)) + ggtitle("Citations")
 ```
 
@@ -652,7 +664,7 @@ one-directional flow with `net_by_reciprocity()`.
 <span class="callout-label">**Going further**:</span>
 These three are more advanced and we will not dwell on them in class.
 Each takes further arguments controlling its growth
-(e.g. `islands`, `bridges`, or the forest-fire burn probabilities);
+(e.g. `groups`, `width`, or the forest-fire burn probability `p`);
 see `?generate_fire`, `?generate_islands`, and `?generate_citations`,
 and their underlying `igraph` samplers, for the details.
 :::
@@ -785,18 +797,18 @@ question("What can we say about this correlation.",
                 message = learnr::random_encouragement()),
          answer("It is fairly strong",
                 message = learnr::random_encouragement()),
-         answer("It is positive",
-                message = learnr::random_encouragement()),
+         answer("It is positive, but weak", correct = TRUE,
+                message = learnr::random_praise()),
          answer("There is absolutely no correlation",
                 message = learnr::random_encouragement()),
-         answer("None of the above", correct = TRUE,
-                message = learnr::random_praise()),
+         answer("None of the above",
+                message = learnr::random_encouragement()),
          allow_retry = TRUE
 )
 ```
 
 So despite what the eye suggested,
-this friendship network is only weakly — indeed slightly _negatively_ —
+this friendship network is only weakly
 characterised by a single core-periphery structure.
 That is substantively interesting in itself:
 the firm's friendships seem to cluster into groups

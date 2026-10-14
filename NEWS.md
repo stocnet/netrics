@@ -20,6 +20,16 @@
 - Improved `net_by_modularity()` to return signed modularity (Gómez, Jensen, and Arenas 2009) for signed networks
   - A negative tie inside a group now counts against the partition
 
+## Tutorials
+
+- Corrected the "Topology" tutorial on the small-world coefficient
+  - Default 'omega' ranges between -1 and 1, whereas it gave 0 to 1 range of 'SWI'
+  - The exercise now uses a rewiring of 0.025 like elsewhere in the tutorial
+- Updated the "Topology" tutorial with consistent argument naming
+- Updated the "Topology" tutorial's core-periphery question for the fixed `net_by_core()`
+- Updated the "Position" tutorial to use `mutate_nodes()` instead of `mutate()`
+- Added a "Random baselines" section to the "Community" tutorial
+
 # netrics 1.1.0
 
 ## Package
