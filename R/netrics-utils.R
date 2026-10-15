@@ -117,41 +117,12 @@ seq_nodes <- function(.data){
 # structure, taking the intersection rule: a tie exists where both of its ends
 # report it. The two ends are the nodes that know most about a tie. A tie
 # that names no reporter, such as a formal reporting line, is kept as it is.
-#
-# TODO: `manynet::to_aggregated()` arrived in manynet 2.4.0, but the
-# DESCRIPTION floor is 2.3.5, whose `manynet::as_matrix()` already returns the
-# perceivers' array. The fallback keeps the report of each tie by its sender,
-# where its receiver reports it too, which is the same structure. Remove the
-# fallback and call `manynet::to_aggregated()` directly once the floor is
-# raised to 2.4.0.
 .to_aggregated_css <- function(.data){
   if(!manynet::is_cognitive(.data)) return(.data)
   manynet::snet_info("Combining the perceivers' reports of this cognitive",
                      "social structure into its locally aggregated structure,",
                      "where a tie exists if both of its ends report it.")
-  if("to_aggregated" %in% getNamespaceExports("manynet"))
-    return(getExportedValue("manynet", "to_aggregated")(.data, over = "by",
-                                                        rule = "min",
-                                                        reporters = "both"))
-  .las_intersection(.data)
-}
-
-# The fallback has to return the class it was given, as
-# `manynet::to_aggregated()` does, so it filters the ties in place.
-.las_intersection <- function(.data){
-  g <- manynet::as_igraph(.data)
-  by <- igraph::edge_attr(g, "by")
-  # A network whose ties name no reporter is already its aggregated structure.
-  # Before 'manynet' 2.4.0, coercion could also drop a 'by' column, which would
-  # otherwise leave nothing to filter the ties by.
-  if(is.null(by)) return(.data)
-  ends <- .tie_ends(g)
-  tie <- .tie_keys(g)
-  reported <- paste(tie, by)
-  both <- paste(tie, ends[,1]) %in% reported & paste(tie, ends[,2]) %in% reported
-  keep <- is.na(by) | (by == ends[,1] & both)
-  out <- manynet::filter_ties(.data, keep)
-  manynet::mutate_ties(out, by = NULL)
+  manynet::to_aggregated(.data, over = "by", rule = "min", reporters = "both")
 }
 
 # The two ends of each tie, in the order of `igraph::E()`.
@@ -162,6 +133,32 @@ seq_nodes <- function(.data){
     ends <- matrix(c(pmin(ends[,1], ends[,2]), pmax(ends[,1], ends[,2])),
                    ncol = 2)
   ends
+}
+
+# A hypergraph holds the members of each hyperedge, which a coercion to
+# 'igraph' would turn into the nodes of a second mode. So a hypergraph is kept
+# as a 'stocnet' object, and any other network is coerced as usual.
+.expect_tie_members <- function(.data){
+  if(manynet::is_hypergraph(.data)) manynet::as_stocnet(.data) else
+    manynet::expect_ties(.data)
+}
+
+# The nodes that each tie joins, as a list of node indices in the order of the
+# ties. A loop joins one node, and a hyperedge joins its members, which may be
+# any number of nodes. A hypergraph may hold ties between two nodes in some
+# layers, and these hold no members in `with`.
+.tie_members <- function(.data){
+  if(manynet::is_hypergraph(.data)){
+    ties <- .data$ties
+    dyads <- vapply(ties$with, is.null, logical(1))
+    out <- ties$with
+    out[dyads] <- Map(function(f, t) unique(c(f, t)),
+                      ties$from[dyads], ties$to[dyads])
+    return(lapply(out, function(x) unique(as.integer(x))))
+  }
+  g <- manynet::as_igraph(.data)
+  ends <- igraph::ends(g, igraph::E(g), names = FALSE)
+  lapply(seq_len(nrow(ends)), function(i) unique(ends[i,]))
 }
 
 # One key for each tie, which names its ends and its layer but not who

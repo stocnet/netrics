@@ -1,3 +1,65 @@
+# netrics 1.1.1
+
+## Package
+
+- Raised the 'manynet' floor to 2.4.0
+- Added design principles to the README and the contributing guide
+
+## Marks
+
+- Improved `node_is_neighbor()` to take a `cutoff`, marking every node within that distance of the given node
+
+## Memberships
+
+- Improved `node_in_community()` to also consider `node_in_leiden()` and `node_in_partition()` for signed networks
+- Improved `node_in_faction()` to read signs rather than set negative ties aside
+  - `"hamming"` counts negative ties within factions and the positive ties between them
+  - `"phi"` correlates each pair's sign with whether it shares a faction
+  - `"modularity"` maximises signed modularity
+- Fixed `node_in_leiden()` taking a negative default resolution on a negative-dominant signed network
+
+## Motifs
+
+- Improved net and node level motif censuses (closes #24)
+  - For multiplex networks, they now split motifs by layer, e.g. `021D_f.ft`
+  - For signed networks, they now split motifs by sign, e.g. `300_++-`
+  - For attributed networks, they now split motifs by how each pair of positions compares, e.g. `021D_!!=` for categories or `021D_>><` for ordered values
+  - Improved their speed by enumerating only connected node sets and counting the disconnected motifs
+    - For sparse networks (mean degree 6), `net_x_tetrad()` takes 0.05s rather than 7s for 100 nodes, and 0.5s for 1000 nodes, which was not feasible before
+    - For sparse networks, `node_x_tetrad()` takes 0.1s rather than 20s for 100 nodes, and under 1s for 1000 nodes
+    - For sparse networks, `node_x_triad()` takes 0.07s rather than 2.4s for 1000 nodes
+    - Gains are smaller for dense networks, where most node sets are connected, but these are still 2-7 times faster
+    - `net_x_dyad()`, `node_x_dyad()`, and `net_x_triad()` were already fast and remain so
+  - Fixed `*_x_tetrad()` never reporting `U4` lines, which were counted as `D4`
+  - Fixed `net_x_tetrad()` counting each tie twice, which mislabelled and dropped tetrads
+  - Fixed `node_x_dyad()` counting each node's dyad with itself as `Null`
+  - Fixed `node_x_dyad()` dropping ties weighted below 1, which `net_x_dyad()` counted
+  - Deprecated passing a second network to `net_x_triad()`, `net_x_mixed()` defunct
+
+## Measures
+
+- Added `"moran"` to the `assortativity` options of `net_by_homophily()` and `node_by_homophily()`
+  - `net_by_homophily()` returns global Moran's I, which `net_by_spatial()` also gives
+  - `node_by_homophily()` returns local Moran's I (Anselin 1995), which sums to the global value times the total tie weight
+  - A numeric attribute still takes Geary's C where no index is given
+- Added `net_by_meshedness()` for Kansky's alpha index, the number of independent cycles relative to the most a planar network could have
+- Added `tie_by_diversity()` for the diversity of the nodes that each tie joins, with the same `diversity` options as `node_by_diversity()` (closes #44)
+- Fixed `node_by_power()` failing in the matrix solver where the exponent has no solution
+- Fixed `net_by_core()` and `net_by_divergence()` comparing the network with an ideal whose core and periphery were swapped
+- Fixed `net_by_smallworld()` to compare clustering with a (ring) lattice of the network's own density
+- Improved `net_by_modularity()` to return signed modularity (Gómez, Jensen, and Arenas 2009) for signed networks
+  - A negative tie inside a group now counts against the partition
+
+## Tutorials
+
+- Corrected the "Topology" tutorial on the small-world coefficient
+  - Default 'omega' ranges between -1 and 1, whereas it gave 0 to 1 range of 'SWI'
+  - The exercise now uses a rewiring of 0.025 like elsewhere in the tutorial
+- Updated the "Topology" tutorial with consistent argument naming
+- Updated the "Topology" tutorial's core-periphery question for the fixed `net_by_core()`
+- Updated the "Position" tutorial to use `mutate_nodes()` instead of `mutate()`
+- Added a "Random baselines" section to the "Community" tutorial
+
 # netrics 1.1.0
 
 ## Package

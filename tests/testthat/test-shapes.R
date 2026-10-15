@@ -53,12 +53,46 @@ test_that("net_by_modularity() scores a signed network", {
   expect_length(net_by_modularity(signed_multilevel), 1)
 })
 
-test_that("node_in_community() uses spinglass where the network is signed", {
+test_that("node_in_community() uses the algorithms that read signs", {
   memb <- node_in_community(signed_multilevel)
   expect_length(memb, manynet::net_nodes(signed_multilevel))
-  # spinglass needs a connected network and accepts no `k`, so neither a `k`
-  # nor an unconnected signed network leaves any algorithm to try
-  expect_error(node_in_community(signed_multilevel, k = 3), "signed")
+  # spinglass accepts no `k`, but Leiden and Kernighan-Lin do
+  memb <- suppressWarnings(node_in_community(signed_multilevel, k = 3))
+  expect_length(memb, manynet::net_nodes(signed_multilevel))
+})
+
+test_that("signed modularity counts a negative tie within a group against it", {
+  # a triangle whose a-c tie is negative
+  net <- manynet::as_tidygraph(matrix(c(0, 1, -1,
+                                        1, 0, 1,
+                                        -1, 1, 0), 3,
+                                      dimnames = list(letters[1:3],
+                                                      letters[1:3])))
+  together <- net_by_modularity(net, c(1, 1, 1))
+  apart <- net_by_modularity(net, c(1, 1, 2))
+  expect_lt(together, apart)
+})
+
+test_that("node_in_faction() reads signs as Doreian and Mrvar do", {
+  set.seed(1234)
+  n <- 7
+  M <- matrix(0, n, n, dimnames = list(letters[1:n], letters[1:n]))
+  M[upper.tri(M)] <- sample(c(-1, 0, 1), n*(n - 1)/2, replace = TRUE)
+  M <- M + t(M)
+  net <- manynet::as_tidygraph(M)
+  # every split into two groups, with the first node always in group 1
+  splits <- lapply(0:(2^(n - 1) - 2), function(i)
+    c(1, 1 + as.integer(intToBits(i)[seq_len(n - 1)] == 0)))
+  # negative ties within groups plus positive ties between them
+  errors <- function(m){
+    same <- outer(m, m, "==")
+    sum((M < 0 & same) | (M > 0 & !same))/2
+  }
+  res <- as.integer(factor(c(node_in_faction(net, k = 2))))
+  expect_equal(errors(res), min(sapply(splits, errors)))
+  res <- c(node_in_faction(net, k = 2, variant = "modularity"))
+  expect_equal(c(net_by_modularity(net, res)),
+               max(sapply(splits, function(m) c(net_by_modularity(net, m)))))
 })
 
 # A multilevel network reports itself as two-mode but cannot be projected,
@@ -89,11 +123,8 @@ test_that("net_by_core() and net_by_factions() stop on a multilevel network", {
   expect_error(net_by_factions(multilevel), "one layer")
 })
 
-# A cognitive social structure. Since manynet 2.4.0, and before it,
-# `manynet::as_matrix()` returns one from-to-perceiver array per layer here,
-# which these functions once aborted on.
-# `ison_hightech` records the perceivers' reports only since manynet 2.4.0,
-# so the sweeps over it are skipped where an earlier manynet is installed.
+# A cognitive social structure. `manynet::as_matrix()` returns one
+# from-to-perceiver array per layer here, which these functions once aborted on.
 css <- manynet::ison_hightech
 
 # Measures are swept on a CSS by `check_cognitive_contract()`. Marks,
@@ -120,7 +151,6 @@ for (fixture in names(cognitive_fixtures)) {
 test_that(paste("marks, memberships, and motifs read the", fixture,
                 "CSS as its aggregated structure"), {
   css <- cognitive_fixtures[[fixture]]
-  skip_if_not_cognitive(css)
   agg <- suppressMessages(.to_aggregated_css(css))
   report <- match(.tie_keys(css), .tie_keys(agg))
   quietly <- function(fn, .data) {
@@ -153,7 +183,6 @@ test_that(paste("marks, memberships, and motifs read the", fixture,
 }
 
 test_that("regularity methods return a square matrix for a CSS", {
-  skip_if_not_cognitive(css)
   n <- manynet::net_nodes(css)
   expect_equal(dim(suppressMessages(regularity_rolesim(css))), c(n, n))
   # The aggregated network is unweighted and connected, where REGE warns
@@ -166,32 +195,19 @@ test_that("regularity methods return a square matrix for a CSS", {
 test_that(".to_aggregated_css() keeps the ties both ends report", {
   # 1-2 is reported by both its ends, 2-3 by both of its, and 1-3 only by
   # node 3 of its ends, since node 2 is not one of them.
-  # manynet 2.3.4 requires the reporters to be integers, where 2.4.0 coerces
   el <- data.frame(from = c(1, 1, 2, 2, 3, 1), to = c(2, 2, 3, 3, 1, 3),
-                   by = as.integer(c(1, 2, 2, 3, 3, 2)))
+                   by = c(1, 2, 2, 3, 3, 2))
   x <- manynet::as_stocnet(el)
   agg <- suppressMessages(.to_aggregated_css(x))
   expect_false(manynet::is_cognitive(agg))
   expect_equal(manynet::net_ties(agg), 2)
   expect_equal(manynet::net_nodes(agg), 3)
-  # The fallback for manynet before 2.4.0 builds the same structure
-  expect_equal(manynet::as_matrix(.las_intersection(x)),
-               manynet::as_matrix(agg))
   # Networks that are not cognitive pass through unchanged
   expect_identical(.to_aggregated_css(manynet::ison_adolescents),
                    manynet::ison_adolescents)
 })
 
-test_that(".to_aggregated_css() and its fallback agree on a CSS", {
-  skip_if_not_cognitive(css)
-  expect_equal(manynet::as_matrix(.las_intersection(css)),
-               manynet::as_matrix(suppressMessages(.to_aggregated_css(css))))
-})
-
 test_that(".to_aggregated_css() returns the class it was given", {
-  skip_if_not_cognitive(css)
-  for (x in list(css, manynet::as_tidygraph(css), manynet::as_igraph(css))) {
+  for (x in list(css, manynet::as_tidygraph(css), manynet::as_igraph(css)))
     expect_s3_class(suppressMessages(.to_aggregated_css(x)), class(x)[1])
-    expect_s3_class(.las_intersection(x), class(x)[1])
-  }
 })

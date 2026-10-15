@@ -42,7 +42,7 @@ NULL
 #' @examples 
 #' node_is_core(ison_adolescents)
 #' ison_adolescents |> 
-#'    mutate(corep = node_is_core())
+#'    mutate_nodes(corep = node_is_core())
 #' @export
 node_is_core <- function(.data, coreness = NULL,
                          direction = c("all","out","in"),

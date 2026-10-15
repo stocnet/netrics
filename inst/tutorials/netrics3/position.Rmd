@@ -16,9 +16,6 @@ description: >
 ```{r pkgs, include = FALSE, eval=TRUE}
 library(netrics)
 library(autograph)
-# Compatibility shim: manynet renamed `to_blocks()` to `to_blockmodel()` in
-# 2.3.0. Remove once manynet 2.3.x is on CRAN.
-if (!exists("to_blockmodel")) to_blockmodel <- manynet::to_blocks
 ```
 
 ```{r setup, include = FALSE, purl=FALSE, eval=TRUE}
@@ -475,10 +472,10 @@ colouring the least-constrained node.** Build it up through the hints.
 ```
 
 ```{r constraintplot-hint-1, purl = FALSE}
-# First, attach two new node attributes with mutate():
+# First, attach two new node attributes with mutate_nodes():
 # the constraint score itself, and a flag for the minimum.
 tasks <- tasks %>%
-  mutate(constraint = node_by_constraint(____),
+  mutate_nodes(constraint = node_by_constraint(____),
          low_constraint = node_is_min(node_by_constraint(____)))
 # Don't forget, we are still looking at the 'tasks' network.
 ```
@@ -487,7 +484,7 @@ tasks <- tasks %>%
 # node_is_min() turns the numeric scores into a TRUE/FALSE flag,
 # TRUE for whichever node(s) have the lowest constraint:
 tasks <- tasks %>%
-  mutate(constraint = node_by_constraint(tasks),
+  mutate_nodes(constraint = node_by_constraint(tasks),
          low_constraint = node_is_min(node_by_constraint(tasks)))
 ```
 
@@ -502,7 +499,7 @@ graphr(tasks, node_size = "constraint", node_color = "low_constraint")
 
 ```{r constraintplot-solution}
 tasks <- tasks %>%
-  mutate(constraint = node_by_constraint(tasks),
+  mutate_nodes(constraint = node_by_constraint(tasks),
          low_constraint = node_is_min(node_by_constraint(tasks)))
 graphr(tasks, node_size = "constraint", node_color = "low_constraint")
 ```
@@ -932,7 +929,7 @@ the graph by them.**
 node_in_structural(ison_algebra)
 
 ison_algebra %>%
-  mutate(se = node_in_structural(ison_algebra)) %>%
+  mutate_nodes(se = node_in_structural(ison_algebra)) %>%
   graphr(node_color = "se")
 ```
 
@@ -1250,7 +1247,7 @@ We can graph this of course, as we did above.
 ```{r strplot, exercise = TRUE, exercise.setup = "varyclust"}
 alge <- to_named(ison_algebra)
 alge %>%
-  mutate(se = node_in_structural(alge, k = 4)) %>%
+  mutate_nodes(se = node_in_structural(alge, k = 4)) %>%
   graphr(node_color = "se")
 ```
 
@@ -1535,7 +1532,7 @@ and graph it.
 
 ```{r reducedgraph, exercise = TRUE, exercise.setup = "structblock", warning=FALSE}
 bm <- bm %>% as_tidygraph %>%
-  mutate(name = c("Freaks", "Squares", "Nerds", "Geek"))
+  mutate_nodes(name = c("Freaks", "Squares", "Nerds", "Geek"))
 graphr(bm)
 ```
 
@@ -1624,7 +1621,7 @@ node_in_regular(alge)
 plot(node_in_regular(alge))
 
 alge %>%
-  mutate(re = node_in_regular(alge)) %>%
+  mutate_nodes(re = node_in_regular(alge)) %>%
   graphr(node_color = "re")
 ```
 
@@ -1655,7 +1652,7 @@ node_in_automorphic(alge)
 plot(node_in_automorphic(alge))
 
 alge %>%
-  mutate(ae = node_in_automorphic(alge)) %>%
+  mutate_nodes(ae = node_in_automorphic(alge)) %>%
   graphr(node_color = "ae")
 ```
 
@@ -1749,7 +1746,7 @@ node_in_regular(lawfirm_friends)
 ```{r freeplay-hint-3, purl = FALSE}
 # Colour a graph by the classes, and compare with the other two equivalences:
 lawfirm_friends %>%
-  mutate(re = node_in_regular(lawfirm_friends)) %>%
+  mutate_nodes(re = node_in_regular(lawfirm_friends)) %>%
   graphr(node_color = "re")
 node_in_structural(lawfirm_friends)
 node_in_automorphic(lawfirm_friends)

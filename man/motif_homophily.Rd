@@ -108,6 +108,7 @@ Other diversity:
 \code{\link{measure_assort_node}},
 \code{\link{measure_diverse_net}},
 \code{\link{measure_diverse_node}},
+\code{\link{measure_diverse_tie}},
 \code{\link{motif_composition}}
 }
 \concept{diversity}

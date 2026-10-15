@@ -6,9 +6,17 @@ test_that("net_modularity works for two mode networks", {
 
 test_that("net_core works", {
   out <- net_by_core(ison_adolescents)
-  expect_values(out, -0.133)
-  expect_values(net_by_core(ison_adolescents, variant = "ident"), 6.481)
+  expect_values(out, 0.323)
+  expect_values(net_by_core(ison_adolescents, variant = "ident"), 4.899)
   expect_values(net_by_core(ison_adolescents, variant = "diff"), 5.619)
+})
+
+test_that("net_by_core fits an ideal core-periphery network perfectly", {
+  expect_equal(as.numeric(net_by_core(manynet::create_core(10))), 1)
+  core <- c(rep(FALSE, 4), rep(TRUE, 6))
+  expect_equal(as.numeric(net_by_core(manynet::create_core(10, mark = ifelse(core, 1, 2)),
+                                      mark = core)), 1)
+  expect_equal(as.numeric(net_by_divergence(manynet::create_core(10))), 0)
 })
 
 test_that("net_by_inconsistency scores a partition against ideal blocks", {
@@ -149,7 +157,6 @@ test_that("net_by_linkdensity scores a tie membership", {
 
 test_that("net_by_linkdensity takes a membership of a CSS's reports", {
   css <- manynet::ison_hightech
-  skip_if_not(manynet::is_cognitive(css))
   memb <- suppressMessages(tie_in_community(css))
   expect_equal(as.numeric(suppressMessages(net_by_linkdensity(css, memb))),
                as.numeric(suppressMessages(net_by_linkdensity(css))))

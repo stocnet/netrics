@@ -123,7 +123,8 @@ Other tie:
 \code{\link{measure_central_tie_between}},
 \code{\link{measure_central_tie_close}},
 \code{\link{measure_central_tie_degree}},
-\code{\link{measure_central_tie_eigen}}
+\code{\link{measure_central_tie_eigen}},
+\code{\link{measure_diverse_tie}}
 
 Other community:
 \code{\link{member_community}},

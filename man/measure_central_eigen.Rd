@@ -206,6 +206,12 @@ decreases centrality
 When \eqn{\beta = 0}, this is the outdegree.
 \eqn{\alpha} is calculated to make sure the root mean square equals
 the network size.
+
+There is no solution where \eqn{1/\beta} is an eigenvalue of the
+network, as 1 is for any network with a separate pair of nodes,
+so \code{node_by_power()} stops there and says which exponents to use instead.
+An exponent whose absolute value is less than the inverse of the
+largest eigenvalue always has a solution.
 }
 
 \section{Alpha centrality}{
@@ -419,6 +425,7 @@ Other measures:
 \code{\link{measure_diffusion_node}},
 \code{\link{measure_diverse_net}},
 \code{\link{measure_diverse_node}},
+\code{\link{measure_diverse_tie}},
 \code{\link{measure_features}},
 \code{\link{measure_fit}},
 \code{\link{measure_fragmentation}},

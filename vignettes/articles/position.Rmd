@@ -13,9 +13,6 @@ description: >
 ```{r pkgs, include = FALSE, eval=TRUE}
 library(netrics)
 library(autograph)
-# Compatibility shim: manynet renamed `to_blocks()` to `to_blockmodel()` in
-# 2.3.0. Remove once manynet 2.3.x is on CRAN.
-if (!exists("to_blockmodel")) to_blockmodel <- manynet::to_blocks
 ```
 
 ```{r setup, include = FALSE, purl=FALSE, eval=TRUE}
@@ -678,7 +675,7 @@ the graph by them.**
 node_in_structural(ison_algebra)
 
 ison_algebra %>%
-  mutate(se = node_in_structural(ison_algebra)) %>%
+  mutate_nodes(se = node_in_structural(ison_algebra)) %>%
   graphr(node_color = "se")
 ```
 
@@ -945,7 +942,7 @@ We can graph this of course, as we did above.
 ```{r strplot}
 alge <- to_named(ison_algebra)
 alge %>%
-  mutate(se = node_in_structural(alge, k = 4)) %>%
+  mutate_nodes(se = node_in_structural(alge, k = 4)) %>%
   graphr(node_color = "se")
 ```
 
@@ -1159,7 +1156,7 @@ and graph it.
 
 ```{r reducedgraph, warning=FALSE}
 bm <- bm %>% as_tidygraph %>%
-  mutate(name = c("Freaks", "Squares", "Nerds", "Geek"))
+  mutate_nodes(name = c("Freaks", "Squares", "Nerds", "Geek"))
 graphr(bm)
 ```
 
@@ -1238,7 +1235,7 @@ node_in_regular(alge)
 plot(node_in_regular(alge))
 
 alge %>%
-  mutate(re = node_in_regular(alge)) %>%
+  mutate_nodes(re = node_in_regular(alge)) %>%
   graphr(node_color = "re")
 ```
 
@@ -1269,7 +1266,7 @@ node_in_automorphic(alge)
 plot(node_in_automorphic(alge))
 
 alge %>%
-  mutate(ae = node_in_automorphic(alge)) %>%
+  mutate_nodes(ae = node_in_automorphic(alge)) %>%
   graphr(node_color = "ae")
 ```
 

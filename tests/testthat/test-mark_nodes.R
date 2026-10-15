@@ -8,7 +8,6 @@ for(fn in names(node_marks)) {
         expect_s3_class(node_marks[[fn]](data_objs[[ob]], mark = c(1,3)), 
                         "node_mark")
       } else if(fn == "node_is_core"){
-        skip_if(fn == "node_is_core" && manynet::is_directed(data_objs[[ob]]))
         expect_s3_class(node_marks[[fn]](data_objs[[ob]]), "node_mark")
       } else if(fn == "node_is_neighbor"){
         expect_s3_class(node_marks[[fn]](data_objs[[ob]], node = 1), 
@@ -112,4 +111,17 @@ test_that("node infection, exposure, and recovery works", {
   expect_true(which(node_is_latent(.data, time = 2))==5)
 })
 
-
+test_that("node_is_neighbor reaches as far as the cutoff", {
+  # Without a cutoff, as with a cutoff of 1, it marks the nodes tied to
+  expect_equal(as.logical(node_is_neighbor(ison_adolescents, "Betty", cutoff = 1)),
+               as.logical(node_is_neighbor(ison_adolescents, "Betty")))
+  line <- create_explicit(A-B, B-C, C-D)
+  expect_equal(as.logical(node_is_neighbor(line, "A", cutoff = 2)),
+               c(FALSE, TRUE, TRUE, FALSE))
+  # Lengths, where the ties have them, give the distances
+  line <- mutate_ties(line, length = c(1, 5, 1))
+  expect_equal(as.logical(node_is_neighbor(line, "A", cutoff = 2)),
+               c(FALSE, TRUE, FALSE, FALSE))
+  expect_equal(as.logical(node_is_neighbor(line, "A", cutoff = 6)),
+               c(FALSE, TRUE, TRUE, FALSE))
+})

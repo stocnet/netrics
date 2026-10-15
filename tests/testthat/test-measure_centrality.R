@@ -278,3 +278,16 @@ test_that("node_by_distance reads a signed network's positive ties", {
   expect_false(anyNA(out))
   expect_equal(max(finite), 1)
 })
+
+test_that("node_by_power stops where the exponent has no solution", {
+  # a pair and a triangle: the pair has the eigenvalue 1, the triangle 2
+  g <- manynet::as_stocnet(matrix(c(0,1,0,0,0, 1,0,0,0,0, 0,0,0,1,1,
+                                    0,0,1,0,1, 0,0,1,1,0), 5, 5))
+  expect_error(node_by_power(g), "no solution")
+  expect_error(node_by_power(g, exponent = 0.5), "no solution")
+  out <- node_by_power(g, exponent = 0.25)
+  expect_length(out, 5)
+  expect_true(all(is.finite(out)))
+  # an exponent of 0 is degree centrality, which always has a solution
+  expect_length(node_by_power(g, exponent = 0), 5)
+})

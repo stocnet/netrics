@@ -192,6 +192,15 @@ make_tie_measure <- function(out, .data, measure = NULL, range = NULL,
 # Names each tie by the pair of nodes it joins.
 .name_ties <- function(out, .data) {
   if(length(out) == 0) return(out)
+  # A hyperedge joins any number of nodes, so it is named by its label.
+  if(manynet::is_hypergraph(.data)){
+    ties <- manynet::as_stocnet(.data)$ties
+    labs <- if("label" %in% names(ties)) as.character(ties$label) else
+      rep(NA_character_, nrow(ties))
+    labs[is.na(labs)] <- paste0("h", which(is.na(labs)))
+    names(out) <- labs
+    return(out)
+  }
   if(manynet::is_labelled(.data)){
     tie_names <- attr(igraph::E(.data), "vnames")
     if(manynet::is_directed(.data)) 

@@ -134,3 +134,58 @@ test_that("net_by_diversity() measures within the groups of a membership", {
   expect_equal(as.numeric(net_by_diversity(x, "f", membership = "grp")), 0)
   expect_error(net_by_diversity(x, "f", membership = c(1, 2)), "each node")
 })
+
+test_that("tie_by_diversity() measures the diversity of the nodes each tie joins", {
+  x <- igraph::set_vertex_attr(create_ring(4), "f",
+                               value = c("a", "a", "b", "b"))
+  # A tie between two alike nodes has no diversity, and one between two
+  # different nodes has Blau's index of 0.5.
+  expect_equal(as.numeric(tie_by_diversity(x, "f")), c(0, 0.5, 0, 0.5))
+  expect_equal(attr(tie_by_diversity(x, "f"), "measure"), "Blau's index")
+  # A numeric attribute takes the coefficient of variation instead.
+  x <- igraph::set_vertex_attr(x, "n", value = c(1, 3, 3, 1))
+  res <- tie_by_diversity(x, "n")
+  expect_equal(attr(res, "variant"), "variation")
+  expect_equal(as.numeric(res), c(1, 0, 1, 0) * stats::sd(c(1, 3)) / 2)
+  # A hyperedge's diversity is that of its members, as node_by_diversity()
+  # gives it for the hyperedge's node in the two-mode form.
+  hyper <- to_hypergraph(ison_southern_women)
+  sw <- add_node_attribute(ison_southern_women, "Title",
+                           c(node_attribute(ison_southern_women, "Title")[1:18],
+                             rep(NA, 14)))
+  expect_equal(as.numeric(tie_by_diversity(hyper, "Title")),
+               as.numeric(node_by_diversity(sw, "Title"))[19:32])
+  # A hyperedge without members has nothing to describe.
+  odd <- make_stocnet(nodes = data.frame(label = letters[1:3],
+                                         f = c("a", "b", "a")),
+                      ties = dplyr::tibble(from = NA_integer_, to = NA_integer_,
+                                           with = list(1:3, integer(0))))
+  expect_equal(as.numeric(tie_by_diversity(odd, "f")), c(4/9, NA))
+})
+
+test_that("homophily offers Moran's I for numeric attributes", {
+  g <- manynet::ison_lawfirm
+  # The global value is the one net_by_spatial() gives a one-mode network
+  expect_equal(as.numeric(net_by_homophily(g, "age", assortativity = "moran")),
+               as.numeric(net_by_spatial(g, "age")))
+  expect_equal(attr(net_by_homophily(g, "age", "moran"), "measure"), "Moran's I")
+  # A numeric attribute still takes Geary's C where no index is given
+  expect_equal(attr(net_by_homophily(g, "age"), "variant"), "geary")
+  # A categorical attribute cannot take Moran's I
+  expect_equal(attr(net_by_homophily(manynet::ison_adolescents, "name",
+                                     assortativity = "moran"), "variant"), "ie")
+  # The local values sum to W times the global one
+  loc <- node_by_homophily(g, "age", assortativity = "moran")
+  expect_length(loc, manynet::net_nodes(g))
+  expect_equal(sum(loc) / sum(manynet::as_matrix(g)),
+               as.numeric(net_by_homophily(g, "age", "moran")))
+  # A line of increasing values: each node is like its neighbours,
+  # except the one with the mean value, which is neither like nor unlike them
+  line <- manynet::mutate_nodes(manynet::create_explicit(A-B, B-C, C-D, D-E),
+                                v = 1:5)
+  expect_equal(as.numeric(node_by_homophily(line, "v", "moran")),
+               c(1, 1, 0, 1, 1))
+  # A node with a missing value has none
+  line <- manynet::mutate_nodes(line, v = c(1:4, NA))
+  expect_true(is.na(node_by_homophily(line, "v", "moran")[5]))
+})

@@ -6,6 +6,7 @@
 \alias{net_by_smallworld}
 \alias{net_by_scalefree}
 \alias{net_by_bipartivity}
+\alias{net_by_meshedness}
 \alias{net_by_balance}
 \title{Measures of network topological features}
 \source{
@@ -24,6 +25,8 @@ net_by_smallworld(
 net_by_scalefree(.data)
 
 net_by_bipartivity(.data)
+
+net_by_meshedness(.data)
 
 net_by_balance(.data)
 }
@@ -69,6 +72,9 @@ ranging between \code{0} if all triangles are imbalanced and
 \code{1} if all triangles are balanced.
 \item \code{net_by_bipartivity()} measures how close a network is to being
 bipartite, that is, to dividing into two sets with ties only between them.
+\item \code{net_by_meshedness()} measures how many cycles a network has,
+relative to the most that a planar network of its size could have.
+A tree scores 0, and a network of triangles drawn on a plane scores 1.
 }
 }
 \section{Cognitive social structures}{
@@ -113,15 +119,14 @@ A \eqn{\sigma > 1} is considered to be small-world,
 but this measure is highly sensitive to network size.
 \item "omega" (the default) is an update from Telesford et al. (2011),
 \deqn{\frac{L_r}{L} - \frac{C}{C_l}},
-where \eqn{C_l} is the clustering coefficient for a lattice graph
-with the same dimensions.
+where \eqn{C_l} is the clustering coefficient for a ring lattice
+with the same number of nodes and about the same number of ties.
 \eqn{\omega} ranges between -1 and 1, where values close to 0 are
 as close to a small-world as possible; negative values indicate a
 lattice-like network, and positive values a more random one.
 \item "SWI" is an alternative proposed by Neal (2017),
 \deqn{\frac{L - L_l}{L_r - L_l} \times \frac{C - C_r}{C_l - C_r}},
-where \eqn{L_l} is the average path length for a lattice graph
-with the same dimensions.
+where \eqn{L_l} is the average path length for the same ring lattice.
 \eqn{SWI} ranges between 0 and 1, where 1 is as close to a small-world
 as possible, though there may not be a network for which \eqn{SWI = 1}.
 }
@@ -146,6 +151,24 @@ The node-level counterpart is \code{\link[=node_by_subgraph]{node_by_subgraph()}
 \code{walks = "odd"} or \code{"even"}.
 }
 
+\section{Meshedness}{
+
+Meshedness, or Kansky's alpha index, counts a network's independent
+cycles (its circuit rank) relative to the most that a planar network,
+one that can be drawn on a plane without crossing ties,
+of the same number of nodes can have:
+\deqn{\alpha = \frac{m - n + c}{2n - 5}}
+where \eqn{m} is the number of ties, \eqn{n} the number of nodes,
+and \eqn{c} the number of components.
+It is read on the undirected, simple network,
+so that direction, loops, and parallel ties are not counted.
+It distinguishes, for example, tree-like road networks from grids.
+For a planar network it ranges from 0 to 1,
+but a network that is not planar can score above 1,
+so the upper end of its range is declared open.
+It is not defined for fewer than three nodes, where it returns \code{NA}.
+}
+
 \examples{
 net_by_richclub(ison_adolescents)
 net_by_smallworld(ison_brandes)
@@ -156,6 +179,8 @@ net_by_scalefree(create_lattice(100))
 # A two-mode network is bipartite by construction
 net_by_bipartivity(ison_southern_women)
 net_by_bipartivity(ison_adolescents)
+net_by_meshedness(create_tree(12))
+net_by_meshedness(create_lattice(12))
 net_by_balance(to_uniplex(fict_marvel, "relationship"))
 }
 \references{
@@ -216,6 +241,19 @@ Estrada, Ernesto, and Juan A. Rodríguez-Velázquez. 2005.
 \doi{10.1103/PhysRevE.72.046105}
 }
 
+\subsection{On meshedness}{
+
+Kansky, Karel J. 1963.
+\emph{Structure of Transportation Networks}.
+Chicago: University of Chicago, Department of Geography.
+
+Buhl, Jerome, Jacques Gautrais, Ricard V. Solé, Pascale Kuntz,
+Sergi Valverde, Jean-Louis Deneubourg, and Guy Theraulaz. 2004.
+"Efficiency and robustness in ant networks of galleries".
+\emph{The European Physical Journal B} 42(1): 123-129.
+\doi{10.1140/epjb/e2004-00364-9}
+}
+
 \subsection{On balance theory}{
 
 Heider, Fritz. 1946.
@@ -260,6 +298,7 @@ Other measures:
 \code{\link{measure_diffusion_node}},
 \code{\link{measure_diverse_net}},
 \code{\link{measure_diverse_node}},
+\code{\link{measure_diverse_tie}},
 \code{\link{measure_fit}},
 \code{\link{measure_fragmentation}},
 \code{\link{measure_hierarchy}},

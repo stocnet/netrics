@@ -87,7 +87,7 @@ Which ordering the nodes are swept in depends on the method named by
 \examples{
 node_is_core(ison_adolescents)
 ison_adolescents |> 
-   mutate(corep = node_is_core())
+   mutate_nodes(corep = node_is_core())
 }
 \references{
 \subsection{On core-periphery partitioning}{
