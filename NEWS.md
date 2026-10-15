@@ -5,6 +5,10 @@
 - Raised the 'manynet' floor to 2.4.0
 - Added design principles to the README and the contributing guide
 
+## Marks
+
+- Improved `node_is_neighbor()` to take a `cutoff`, marking every node within that distance of the given node
+
 ## Memberships
 
 - Improved `node_in_community()` to also consider `node_in_leiden()` and `node_in_partition()` for signed networks

@@ -17,7 +17,7 @@ node_is_fold(.data)
 
 node_is_mentor(.data, elites = 0.1)
 
-node_is_neighbor(.data, node)
+node_is_neighbor(.data, node, cutoff = 1)
 }
 \arguments{
 \item{.data}{A network object of class \code{stocnet}, \code{igraph}, \code{tbl_graph}, \code{network}, or similar.
@@ -39,6 +39,12 @@ Note that this is a different default behaviour than that
 described in Valente and Davis (1999).}
 
 \item{node}{A node ID or name for which neighbors are to be marked.}
+
+\item{cutoff}{Integer scalar, the maximum path length considered.
+Paths longer than this are ignored, which restricts the measure to a
+node's local neighbourhood.
+Where a measure is defined over all paths by default,
+a negative value or \code{NULL} imposes no limit.}
 }
 \value{
 A \code{node_mark} logical vector the length of the nodes in the network,
@@ -101,10 +107,25 @@ mode as well as between them, so it cannot be projected onto one mode.
 \code{\link[=net_by_independence]{net_by_independence()}} does.
 }
 
+\section{Neighbourhoods}{
+
+By default, \code{node_is_neighbor()} marks the nodes that \code{node} has a tie to.
+Given a \code{cutoff}, it instead marks every node that can be reached from
+\code{node} along a path no longer than \code{cutoff}, but not \code{node} itself.
+Where the ties have a 'length' attribute,
+such as \code{\link[manynet:read_geojson]{manynet::read_geojson()}} measures along each line,
+a path is as long as the sum of the lengths of its ties,
+so that \code{cutoff} can be, for example, a travel distance or time
+(an \emph{isochrone});
+otherwise a path is as long as the number of ties it crosses.
+Weights are strengths and not distances, so they are not read.
+}
+
 \examples{
 node_is_independent(ison_adolescents)
 node_is_cutpoint(ison_brandes)
 node_is_fold(create_explicit(A-B, B-C, A-C, C-D, C-E, D-E))
+node_is_neighbor(ison_adolescents, "Betty", cutoff = 2)
 }
 \references{
 \subsection{On independent sets}{

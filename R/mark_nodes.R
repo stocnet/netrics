@@ -158,12 +158,36 @@ node_is_mentor <- function(.data, elites = 0.1){
 
 #' @rdname mark_nodes
 #' @param node A node ID or name for which neighbors are to be marked.
+#' @template param_cutoff
+#' @section Neighbourhoods:
+#'   By default, `node_is_neighbor()` marks the nodes that `node` has a tie to.
+#'   Given a `cutoff`, it instead marks every node that can be reached from
+#'   `node` along a path no longer than `cutoff`, but not `node` itself.
+#'   Where the ties have a 'length' attribute,
+#'   such as [manynet::read_geojson()] measures along each line,
+#'   a path is as long as the sum of the lengths of its ties,
+#'   so that `cutoff` can be, for example, a travel distance or time
+#'   (an _isochrone_);
+#'   otherwise a path is as long as the number of ties it crosses.
+#'   Weights are strengths and not distances, so they are not read.
+#' @examples
+#' node_is_neighbor(ison_adolescents, "Betty", cutoff = 2)
 #' @export
-node_is_neighbor <- function(.data, node){
+node_is_neighbor <- function(.data, node, cutoff = 1){
   .data <- manynet::expect_nodes(.data)
   .data <- .to_aggregated_css(.data)
   .data <- manynet::as_igraph(.data)
-  out <- igraph::V(.data) %in% igraph::neighbors(.data, v = node)
+  if(missing(cutoff)){
+    out <- igraph::V(.data) %in% igraph::neighbors(.data, v = node)
+  } else {
+    # NA rather than NULL weights, since igraph would otherwise read the
+    # weights as lengths
+    len <- igraph::edge_attr(.data, "length")
+    if(is.null(len)) len <- NA
+    dists <- igraph::distances(.data, v = node, mode = "out",
+                               weights = len)[1,]
+    out <- dists <= cutoff & seq_along(dists) != igraph::V(.data)[node]
+  }
   make_node_mark(out, .data)
 }
 
