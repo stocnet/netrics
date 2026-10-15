@@ -14,6 +14,24 @@
   - `"modularity"` maximises signed modularity
 - Fixed `node_in_leiden()` taking a negative default resolution on a negative-dominant signed network
 
+## Motifs
+
+- Improved net and node level motif censuses (closes #24)
+  - For multiplex networks, they now split motifs by layer, e.g. `021D_f.ft`
+  - For signed networks, they now split motifs by sign, e.g. `300_++-`
+  - For attributed networks, they now split motifs by how each pair of positions compares, e.g. `021D_!!=` for categories or `021D_>><` for ordered values
+  - Improved their speed by enumerating only connected node sets and counting the disconnected motifs
+    - For sparse networks (mean degree 6), `net_x_tetrad()` takes 0.05s rather than 7s for 100 nodes, and 0.5s for 1000 nodes, which was not feasible before
+    - For sparse networks, `node_x_tetrad()` takes 0.1s rather than 20s for 100 nodes, and under 1s for 1000 nodes
+    - For sparse networks, `node_x_triad()` takes 0.07s rather than 2.4s for 1000 nodes
+    - Gains are smaller for dense networks, where most node sets are connected, but these are still 2-7 times faster
+    - `net_x_dyad()`, `node_x_dyad()`, and `net_x_triad()` were already fast and remain so
+  - Fixed `*_x_tetrad()` never reporting `U4` lines, which were counted as `D4`
+  - Fixed `net_x_tetrad()` counting each tie twice, which mislabelled and dropped tetrads
+  - Fixed `node_x_dyad()` counting each node's dyad with itself as `Null`
+  - Fixed `node_x_dyad()` dropping ties weighted below 1, which `net_x_dyad()` counted
+  - Deprecated passing a second network to `net_x_triad()`, `net_x_mixed()` defunct
+
 ## Measures
 
 - Fixed `node_by_power()` failing in the matrix solver where the exponent has no solution

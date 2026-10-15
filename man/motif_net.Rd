@@ -6,24 +6,23 @@
 \alias{net_x_triad}
 \alias{net_x_tetrad}
 \title{Motifs of network cohesion}
-\source{
-Mixed census adapted from Alejandro Espinosa 'netmem'
-}
 \usage{
-net_x_dyad(.data)
+net_x_dyad(.data, attribute = NULL, ...)
 
-net_x_triad(.data, object2 = NULL)
+net_x_triad(.data, attribute = NULL, ...)
 
-net_x_tetrad(.data)
+net_x_tetrad(.data, attribute = NULL, ...)
 }
 \arguments{
 \item{.data}{A network object of class \code{stocnet}, \code{igraph}, \code{tbl_graph}, \code{network}, or similar.
 Internally any of these will be coerced to an efficient implementation.
 For more information on possible coercions, see e.g. \code{\link[manynet:as_stocnet]{manynet::as_stocnet()}}.}
 
-\item{object2}{A second, two-mode network object.
-Only \code{net_x_triad()} uses this, and only to take a multilevel census;
-see its Mixed census section.}
+\item{attribute}{Name of a nodal attribute, mark, measure, or membership vector.}
+
+\item{...}{Only \code{net_x_triad()} reads this, and only to take a second,
+two-mode network for the mixed census, which is deprecated;
+see the section on multiplex and multilevel networks.}
 }
 \value{
 A \code{network_motif} named numeric vector or sometimes a data frame with
@@ -32,7 +31,7 @@ giving the count of each motif in the network.
 This is printed as a tibble to avoid greedy printing of long vectors.
 }
 \description{
-These functions include ways to take a census of the graphlets
+These functions include ways to take a census of the motifs
 in a network:
 \itemize{
 \item \code{net_x_dyad()} returns a census of dyad motifs in a network.
@@ -40,154 +39,177 @@ in a network:
 \item \code{net_x_tetrad()} returns a census of tetrad motifs in a network.
 }
 
-See also \href{https://www.graphclasses.org/smallgraphs.html}{graph classes}.
+The sections below first say how to read each census,
+and then how signs, layers, and attributes add to it.
 }
-\section{Cognitive social structures}{
-
-A cognitive social structure records each node's report of the ties in
-the whole network, in a \code{by} column that names who reported each tie.
-Counting every report as a tie of its own would count each tie once for
-every perceiver who reports it.
-So the functions here first combine the reports into the locally
-aggregated structure of Krackhardt (1987), with the intersection rule:
-a tie exists if both of its ends report it, and a message says so.
-A tie that names no reporter is kept as it is.
-
-A tie-level function still returns one value for each report,
-so that the result can be added back to the network it was given.
-Each report takes the value of the tie that it reports.
-A report of a tie that is not in the aggregated structure takes \code{NA},
-or \code{FALSE} for a mark.
-\code{tie_is_random()} is the exception, and draws among the reports.
-
-To combine the reports in a different way, do this before the function,
-e.g. with \code{manynet::to_aggregated(over = "by")}.
-
-Krackhardt, David. 1987.
-"Cognitive social structures".
-\emph{Social Networks} 9(2): 109-134.
-\doi{10.1016/0378-8733(87)90009-8}
-}
-
-\section{Multiplex networks}{
-
-\code{net_x_triad()} takes the mixed census on a multiplex network,
-splitting it into layers by mode rather than by position.
-To census one layer alone, take it first with \code{\link[manynet:to_uniplex]{manynet::to_uniplex()}}.
-\code{net_x_dyad()} and \code{net_x_tetrad()} count every tie whatever its layer.
-}
-
 \section{Dyad census}{
 
-The dyad census counts the number of mutual, asymmetric, and null dyads
-in a network.
-For directed networks,
+The dyad census counts each pair of nodes by the ties between them,
+using the MAN labels of Holland and Leinhardt (1970):
 \itemize{
-\item Mutual dyads have ties in both directions
-\item Asymmetric dyads have a tie in one direction only
-\item Null dyads have no ties
+\item \code{Mutual}: a tie in both directions
+\item \code{Asymmetric}: a tie in one direction only
+\item \code{Null}: no tie
 }
 
-Note that for undirected and two-mode networks,
-only mutual and null dyads are possible,
-as the concept of an asymmetric dyad does not apply.
+In an undirected or two-mode network every tie is mutual,
+so only \code{Mutual} and \code{Null} are reported.
 }
 
 \section{Triad census}{
 
-The triad census counts the number of three-node configurations in the network.
-The function returns a matrix with a special naming convention:
+The triad census counts each set of three nodes by the ties among them,
+using the labels of Davis and Leinhardt (1967) and Holland and Leinhardt
+(1970).
+The three digits give the number of mutual, asymmetric, and null dyads
+in the triad, and a letter tells apart triads with the same digits:
+D(own), U(p), C(yclic), or T(ransitive).
 \itemize{
-\item 003: This is an empty triad; no ties
-\item 012: This triad includes one tie
-\item 102: This triad includes two ties, but they are not reciprocated
-\item 021D: This triad includes two ties, one of which is reciprocated, and the other is directed towards the reciprocated tie
-\item 021U: This triad includes two ties, one of which is
-reciprocated, and the other is directed away from the reciprocated tie
-\item 021C: This triad includes two ties, one of which is reciprocated, and the other is directed between the two non-reciprocated nodes
-\item 111D: This triad includes three ties, two of which are
-reciprocated, and the other is directed towards the reciprocated ties
-\item 111U: This triad includes three ties, two of which are
-reciprocated, and the other is directed away from the reciprocated ties
-\item 030T: This triad includes three ties, all of which are
-directed in a transitive manner (i.e. A->B, B->C, A->C)
-\item 030C: This triad includes three ties, all of which are
-directed in a cyclic manner (i.e. A->B, B->C
-A->C)
-\item 201: This triad includes three ties, all of which are reciproc
-ated (i.e. A<->B, B<->C, A<->C)
-\item 120D: This triad includes four ties, three of which are
-reciprocated, and the other is directed towards the reciprocated ties
-\item 120U: This triad includes four ties, three of which are
-reciprocated, and the other is directed away from the reciprocated ties
-\item 120C: This triad includes four ties, three of which are
-reciprocated, and the other is directed between the two non-reciprocated
-\item 210: This triad includes five ties, four of which are reciprocated, and the other is directed between the two non-reciprocated
-\item 300: This triad includes six ties, all of which are reciprocated
+\item \code{003}: no ties
+\item \code{012}: one asymmetric tie, A->B
+\item \code{102}: one mutual tie, A<->B
+\item \verb{021D}: A<-B->C, one node sending to the two others
+\item \verb{021U}: A->B<-C, one node receiving from the two others
+\item \verb{021C}: A->B->C, a chain
+\item \verb{111D}: A<->B<-C
+\item \verb{111U}: A<->B->C
+\item \verb{030T}: A->B<-C and A->C, a transitive triad
+\item \verb{030C}: A<-B<-C and A->C, a cycle
+\item \code{201}: A<->B<->C, with A and C not tied
+\item \verb{120D}: A<-B->C and A<->C
+\item \verb{120U}: A->B<-C and A<->C
+\item \verb{120C}: A->B->C and A<->C
+\item \code{210}: A->B<->C and A<->C
+\item \code{300}: A<->B<->C and A<->C, all ties mutual
 }
 
-Note that for undirected and two-mode networks, only 003, 102, and 201 are possible,
-as the other configurations rely on the concept of directionality.
-}
-
-\section{Mixed census}{
-
-Where a one-mode and a two-mode network are given together,
-a multilevel census of the triads that span them is taken instead,
-after Hollway et al. (2017).
-Its ten motifs are labelled by how many ties join the pair of nodes at
-each level, so that \code{"21"} counts triads whose two nodes are reciprocally
-tied in the one-mode network and share a partner in the two-mode network.
-
-There are two ways to ask for it.
-Supply the two networks as \code{.data} and \code{object2},
-the one-mode network first.
-Or give a single multiplex network holding exactly one one-mode layer and
-one two-mode layer, such as \code{fict_marvel},
-and the two layers are used in that order.
-A two-mode network that carries no one-mode layer is not enough,
-and remains unavailable.
-
-Since a census counts configurations, only the presence of a tie counts.
-Weights and signs are set aside, as \code{igraph::triad_census()} also does.
-
-\code{node_x_triad()} reports the same ten motifs for each node.
+In an undirected network every tie is read as mutual,
+so only \code{003}, \code{102}, \code{201}, and \code{300} can occur.
 }
 
 \section{Tetrad census}{
 
-The tetrad census counts the number of four-node configurations in the network.
-The function returns a matrix with a special naming convention:
+The tetrad census counts each set of four nodes by the ties among them.
+Ties are read as undirected. Each label gives a letter whose shape
+recalls the motif, and the number of nodes:
 \itemize{
-\item E4 (aka co-K4): This is an empty set of four nodes; no ties
-\item I4 (aka co-diamond): This is a set of four nodes with just one tie
-\item H4 (aka co-C4): This set of four nodes includes two non-adjacent ties
-\item L4 (aka co-paw): This set of four nodes includes two adjacent ties
-\item D4 (aka co-claw): This set of four nodes includes three adjacent ties,
-in the form of a triangle with one isolate
-\item U4 (aka P4, four-actor line): This set of four nodes includes three ties
-arranged in a line
-\item Y4 (aka claw): This set of four nodes includes three ties all adjacent
-to a single node
-\item P4 (aka paw, kite): This set of four nodes includes four ties arranged
-as a triangle with an extra tie hanging off of one of the nodes
-\item C4 (aka bifan): This is a symmetric box or 4-cycle or set of shared choices
-\item Z4 (aka diamond): This resembles C4 but with an extra tie cutting across the box
-\item X4 (aka K4): This resembles C4 but with two extra ties cutting across the box;
-a realisation of all possible ties
+\item \code{E4} (co-K4): no ties
+\item \code{I4} (co-diamond): one tie
+\item \code{H4} (co-C4): two ties that share no node
+\item \code{L4} (co-paw): two ties that share a node, and an isolate
+\item \code{D4} (co-claw): a triangle, and an isolate
+\item \code{U4} (P4): three ties in a line
+\item \code{Y4} (claw): three ties from one node
+\item \code{P4} (paw): a triangle, with one more tie to the fourth node
+\item \code{C4} (C4): four ties in a cycle
+\item \code{Z4} (diamond): a cycle with one diagonal
+\item \code{X4} (K4): all six ties
 }
 
-Graphs of these motifs can be shown using
-\code{plot(net_x_tetrad(ison_southern_women))}.
+See also \href{https://www.graphclasses.org/smallgraphs.html}{graph classes}
+and McMillan and Felmlee (2020).
+}
+
+\section{Signed networks}{
+
+Where the network is signed, dyads and triads are split by the signs of
+their ties.
+Each label is followed by the signs of the motif's ties, e.g. \verb{300_++-}
+for a triangle with one negative tie, or \verb{Mutual_+-} for a mutual dyad
+whose two ties differ in sign.
+The ties are listed in a fixed order over the motif's positions
+(1-2, 1-3, 2-1, 2-3, 3-1, 3-2 in a directed triad;
+1-2, 1-3, 2-3 in an undirected one), skipping the pairs that are not
+tied, with the positions ordered so that ties, and then positive ties,
+come as early as they can.
+A pair holding both a positive and a negative tie counts as negative.
+The tetrad census sets signs aside.
+
+Only the motifs that occur are reported.
+Summing the variants of a motif gives the unsigned census.
+Use \code{\link[manynet:to_unsigned]{manynet::to_unsigned()}} first for a coarser census.
+}
+
+\section{Multiplex and multilevel networks}{
+
+Where the network holds several one-mode layers, dyads and triads are
+split by the layers of their ties.
+Each layer is given a letter, the first letter of its name where these
+differ, and the letters are kept in the \code{"layers"} attribute of the result.
+Each tie lists the letters of the layers that carry it, separated from the
+next tie by a \code{.}, in the order described for signed networks.
+A lowercase letter marks a positive tie and an uppercase letter a
+negative one, so \verb{201_f.ft} is a two-path, one of whose ties is in the
+\code{friends} layer, and the other in both the \code{friends} and \code{tasks} layers.
+Only the motifs that occur are reported.
+Summing the variants of a motif gives the census of all layers together.
+Use \code{\link[manynet:to_uniplex]{manynet::to_uniplex()}} first for a census of one layer.
+The tetrad census counts every tie whatever its layer.
+
+Where the network holds exactly one one-mode layer and one two-mode
+layer, such as \code{fict_marvel}, the triad census is instead the
+multilevel census of Hollway et al. (2017), over triads of two nodes of
+the first mode and one of the second.
+Its ten motifs are labelled by two digits: first, how many of the two
+first-mode nodes are tied to the second-mode node (2, 1, or 0);
+second, the tie between the two first-mode nodes
+(2 mutual, 1 asymmetric, 0 none):
+\code{22}, \code{21}, \code{20}, \code{12}, \verb{11D}, \verb{11U}, \code{10}, \code{02}, \code{01}, \code{00}.
+So \code{21} counts pairs tied in one direction that share an affiliation.
+Where only one of the pair is affiliated and the tie is asymmetric,
+\verb{11D} has the affiliated node sending the tie, and \verb{11U} receiving it.
+This census sets weights and signs aside, and takes no \code{attribute}.
+Passing the one-mode and two-mode networks separately still works,
+but is deprecated.
+Other combinations of one-mode and two-mode layers are not yet available.
+}
+
+\section{Attributes}{
+
+Where an \code{attribute} is given, each motif is further split by how its
+nodes compare on that attribute, after any signs or layers.
+The comparison is given for each pair of positions in turn
+(1-2 in a dyad; 1-2, 1-3, 2-3 in a triad;
+1-2, 1-3, 1-4, 2-3, 2-4, 3-4 in a tetrad), using the same order of
+positions as the ties.
+For a categorical attribute (character, factor, or logical),
+\code{=} marks a pair that shares a category and \code{!} a pair that does not,
+so \verb{021D_!!=} is a node sending ties to two nodes that share a category
+other than its own.
+Missing values are a category of their own.
+For an ordered attribute (numeric, or an ordered factor),
+\code{<}, \code{=}, and \code{>} mark whether the first of the pair is lower than,
+equal to, or higher than the second, so \verb{021D_>><} is a node sending ties
+to two nodes with lower values than its own.
+Missing values cannot be compared, so are not allowed.
+A numeric attribute that codes categories should be passed through
+\code{as.factor()} first.
+
+Since only these comparisons are kept, an attribute may have any number
+of categories or values.
+Only the motifs that occur are reported, and summing the variants of a
+motif gives the census without the attribute.
+To see which categories take part in which motifs, take a node census
+and summarise its rows by the attribute.
 }
 
 \examples{
 net_x_dyad(manynet::ison_algebra)
 net_x_triad(manynet::ison_adolescents)
+net_x_triad(ison_networkers, attribute = "Discipline")
+net_x_triad(to_uniplex(fict_marvel, "relationship"))
 net_x_triad(fict_marvel)
 net_x_tetrad(ison_southern_women)
 }
 \references{
+\subsection{On signed and attributed censuses}{
+
+Schoch, David. 2023.
+"signnet: An R package for analyzing signed networks".
+\emph{Journal of Open Source Software} 8(81): 4987.
+\doi{10.21105/joss.04987}
+}
+
 \subsection{On the dyad census}{
 
 Holland, Paul W., and Samuel Leinhardt. 1970.
@@ -204,9 +226,11 @@ Cambridge: Cambridge University Press.
 
 Davis, James A., and Samuel Leinhardt. 1967.
 “\href{https://files.eric.ed.gov/fulltext/ED024086.pdf}{The Structure of Positive Interpersonal Relations in Small Groups}.” 55.
-}
 
-\subsection{On the mixed census}{
+Schoch, David. 2023.
+"signnet: An R package for analyzing signed networks".
+\emph{Journal of Open Source Software} 8(81): 4987.
+\doi{10.21105/joss.04987}
 
 Hollway, James, Alessandro Lomi, Francesca Pallotti, and Christoph Stadtfeld. 2017.
 “Multilevel Social Spaces: The Network Dynamics of Organizational Fields.”
