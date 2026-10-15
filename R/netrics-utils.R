@@ -135,6 +135,32 @@ seq_nodes <- function(.data){
   ends
 }
 
+# A hypergraph holds the members of each hyperedge, which a coercion to
+# 'igraph' would turn into the nodes of a second mode. So a hypergraph is kept
+# as a 'stocnet' object, and any other network is coerced as usual.
+.expect_tie_members <- function(.data){
+  if(manynet::is_hypergraph(.data)) manynet::as_stocnet(.data) else
+    manynet::expect_ties(.data)
+}
+
+# The nodes that each tie joins, as a list of node indices in the order of the
+# ties. A loop joins one node, and a hyperedge joins its members, which may be
+# any number of nodes. A hypergraph may hold ties between two nodes in some
+# layers, and these hold no members in `with`.
+.tie_members <- function(.data){
+  if(manynet::is_hypergraph(.data)){
+    ties <- .data$ties
+    dyads <- vapply(ties$with, is.null, logical(1))
+    out <- ties$with
+    out[dyads] <- Map(function(f, t) unique(c(f, t)),
+                      ties$from[dyads], ties$to[dyads])
+    return(lapply(out, function(x) unique(as.integer(x))))
+  }
+  g <- manynet::as_igraph(.data)
+  ends <- igraph::ends(g, igraph::E(g), names = FALSE)
+  lapply(seq_len(nrow(ends)), function(i) unique(ends[i,]))
+}
+
 # One key for each tie, which names its ends and its layer but not who
 # reported it, so that the reports of one tie share a key.
 .tie_keys <- function(g){

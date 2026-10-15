@@ -94,6 +94,7 @@ Other measures:
 \code{\link{measure_diffusion_node}},
 \code{\link{measure_diverse_net}},
 \code{\link{measure_diverse_node}},
+\code{\link{measure_diverse_tie}},
 \code{\link{measure_features}},
 \code{\link{measure_fit}},
 \code{\link{measure_fragmentation}},
@@ -109,6 +110,7 @@ Other tie:
 \code{\link{measure_central_tie_close}},
 \code{\link{measure_central_tie_degree}},
 \code{\link{measure_central_tie_eigen}},
+\code{\link{measure_diverse_tie}},
 \code{\link{member_community_link}}
 }
 \concept{brokerage}

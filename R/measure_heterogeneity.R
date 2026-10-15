@@ -143,37 +143,9 @@ net_by_diversity <- function(.data, attribute,
                         diversity = c("blau","teachman","variation","gini"),
                         membership = NULL){
   .data <- manynet::expect_nodes(.data)
-  blau <- function(features) { 1 - sum((table(features)/length(features))^2) }
-  teachman <- function(features) {
-    p <- table(features)/length(features)
-    -sum(p * log(p))
-  }
-  cv <- function(values) { 
-    stats::sd(values, na.rm = TRUE) / mean(values, na.rm = TRUE) }
-  gini <- function(values) {
-    x <- sort(values)
-    n <- length(x)
-    G <- sum(x * (1:n))
-    return((2 * G) / (n * sum(x)) - (n + 1) / n)
-  }
   attr <- manynet::node_attribute(.data, attribute)
-  diversity <- match.arg(diversity)
-  if(is.numeric(attr) && diversity %in% c("blau","teachman")){
-    manynet::snet_info("{.val {diversity}} index is not appropriate for numeric attributes.")
-    manynet::snet_info("Using {.val variation} coefficient instead",
-              "({.val gini} coefficient also available).")
-    diversity <- "variation"
-  }
-  if(!is.numeric(attr) && diversity %in% c("variation","gini")){
-    manynet::snet_info("{.val {diversity}} coefficient is not appropriate for categorical attributes.")
-    manynet::snet_info("Using {.val blau} index instead",
-              "({.val teachman} index also available).")
-    diversity <- "blau"
-  }
-  
-  index <- switch(diversity,
-                  blau = blau, teachman = teachman,
-                  variation = cv, gini = gini)
+  diversity <- .match_diversity(attr, match.arg(diversity))
+  index <- .diversity_index(diversity)
   if(is.null(membership)){
     out <- index(attr)
   } else {
@@ -243,19 +215,7 @@ node_by_diversity <- function(.data, attribute,
   .data <- manynet::expect_nodes(.data)
   .data <- .to_aggregated_css(.data)
   attr <- manynet::node_attribute(.data, attribute)
-  diversity <- match.arg(diversity)
-  if(is.numeric(attr) && diversity %in% c("blau","teachman")){
-    manynet::snet_info("{.val {diversity}} index is not appropriate for numeric attributes.")
-    manynet::snet_info("Using {.val variation} coefficient instead",
-                       "({.val gini} coefficient also available).")
-    diversity <- "variation"
-  }
-  if(!is.numeric(attr) && diversity %in% c("variation","gini")){
-    manynet::snet_info("{.val {diversity}} coefficient is not appropriate for categorical attributes.")
-    manynet::snet_info("Using {.val blau} index instead",
-                       "({.val teachman} index also available).")
-    diversity <- "blau"
-  }
+  diversity <- .match_diversity(attr, match.arg(diversity))
   # Only the alters are described, as in node_by_richness(), so a node's own
   # value does not enter its index. A node without alters has nothing to
   # describe, and returns NA rather than the index of an empty set.
@@ -268,6 +228,50 @@ node_by_diversity <- function(.data, attribute,
   meta <- .diversity_metadata(diversity)
   make_node_measure(out, .data, measure = meta$measure, range = meta$range,
                     normalization = meta$normalization, variant = meta$variant)
+}
+
+# Tie diversity ####
+
+#' Measures of tie diversity
+#' @name measure_diverse_tie
+#' @template section_cognitive
+#' @description
+#'   - `tie_by_diversity()` measures the heterogeneity of the nodes
+#'   that each tie joins.
+#'   For a tie between two nodes, this is the diversity of its two ends.
+#'   For a hypergraph, it is the diversity of the members of each hyperedge,
+#'   and these are the values that `node_by_diversity()` gives
+#'   the hyperedges in the two-mode form of the hypergraph.
+#'   A tie without members returns `NA`.
+#'   A summary of the tie measure then describes the network as a whole.
+#' @template param_data
+#' @template param_attr
+#' @family diversity
+#' @template tie_measure
+#' @inheritParams measure_diverse_net
+NULL
+
+#' @rdname measure_diverse_tie
+#' @examples
+#' tie_by_diversity(ison_lawfirm, "gender")
+#' tie_by_diversity(to_hypergraph(ison_southern_women), "Title")
+#' @export
+tie_by_diversity <- function(.data, attribute,
+                             diversity = c("blau","teachman","variation","gini")){
+  if(manynet::is_cognitive(.data))
+    return(.map_css_ties(.data, tie_by_diversity, attribute = attribute,
+                         diversity = diversity))
+  .data <- .expect_tie_members(.data)
+  attr <- manynet::node_attribute(.data, attribute)
+  diversity <- .match_diversity(attr, match.arg(diversity))
+  index <- .diversity_index(diversity)
+  out <- vapply(.tie_members(.data),
+                function(x) if(length(x) == 0) NA_real_ else
+                  as.numeric(index(attr[x])),
+                FUN.VALUE = numeric(1))
+  meta <- .diversity_metadata(diversity)
+  make_tie_measure(out, .data, measure = meta$measure, range = meta$range,
+                   normalization = meta$normalization, variant = meta$variant)
 }
 
 # Network assortativity ####
@@ -485,6 +489,40 @@ net_by_homophily <- function(.data, attribute,
 # for, so the metadata is read off the index that actually ran. Blau's and
 # Gini's are bounded proportions; Teachman's entropy grows with the number of
 # categories, and the coefficient of variation is signed and unbounded.
+# The index asked for, or the one that applies where it cannot apply to the
+# attribute's type, with a message saying so.
+.match_diversity <- function(attr, diversity){
+  if(is.numeric(attr) && diversity %in% c("blau","teachman")){
+    manynet::snet_info("{.val {diversity}} index is not appropriate for numeric attributes.")
+    manynet::snet_info("Using {.val variation} coefficient instead",
+                       "({.val gini} coefficient also available).")
+    diversity <- "variation"
+  }
+  if(!is.numeric(attr) && diversity %in% c("variation","gini")){
+    manynet::snet_info("{.val {diversity}} coefficient is not appropriate for categorical attributes.")
+    manynet::snet_info("Using {.val blau} index instead",
+                       "({.val teachman} index also available).")
+    diversity <- "blau"
+  }
+  diversity
+}
+
+.diversity_index <- function(diversity){
+  switch(diversity,
+         blau = function(features) {
+           1 - sum((table(features)/length(features))^2) },
+         teachman = function(features) {
+           p <- table(features)/length(features)
+           -sum(p * log(p)) },
+         variation = function(values) {
+           stats::sd(values, na.rm = TRUE) / mean(values, na.rm = TRUE) },
+         gini = function(values) {
+           x <- sort(values)
+           n <- length(x)
+           G <- sum(x * (1:n))
+           (2 * G) / (n * sum(x)) - (n + 1) / n })
+}
+
 .diversity_metadata <- function(diversity){
   list(measure = switch(diversity,
                         blau = "Blau's index",

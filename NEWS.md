@@ -34,6 +34,7 @@
 
 ## Measures
 
+- Added `tie_by_diversity()` for the diversity of the nodes that each tie joins, with the same `diversity` options as `node_by_diversity()` (closes #44)
 - Fixed `node_by_power()` failing in the matrix solver where the exponent has no solution
 - Fixed `net_by_core()` and `net_by_divergence()` comparing the network with an ideal whose core and periphery were swapped
 - Fixed `net_by_smallworld()` to compare clustering with a (ring) lattice of the network's own density
