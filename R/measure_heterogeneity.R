@@ -290,6 +290,8 @@ tie_by_diversity <- function(.data, attribute,
 #'   - `net_by_assortativity()` measures the degree assortativity in a network.
 #'   - `net_by_spatial()` measures the spatial association/autocorrelation 
 #'   (global Moran's I) in a network.
+#'   It is `net_by_homophily()` with `assortativity = "moran"`,
+#'   but it also reads two-mode networks (see below).
 #'   
 #'   Note that for two-mode networks, 
 #'   homophily is calculated on the mode with the attribute of interest,
@@ -303,8 +305,10 @@ tie_by_diversity <- function(.data, attribute,
 #' @template param_attr
 #' @param assortativity Which method to use for `*_homophily()`.
 #'   Either "ie" (negative E-I index), "ei" (E-I index), 
-#'   "yule" (Yule's Q), or "geary" (Geary's C).
+#'   "yule" (Yule's Q), "geary" (Geary's C), or "moran" (Moran's I).
 #'   Default is "ie".
+#'   The first three are for categorical attributes,
+#'   and the last two for numeric attributes.
 #'   The E-I index is the number of ties between (or _external_) nodes
 #'   grouped in some mutually exclusive categories
 #'   minus the number of ties within (or _internal_) these groups
@@ -337,6 +341,15 @@ tie_by_diversity <- function(.data, attribute,
 #'   Geary's C reads the weights where the network has them,
 #'   and a heavy tie between dissimilar values can then carry the sum past 2,
 #'   so a weighted network declares the upper end open.
+#'   
+#'   Moran's I is a measure of spatial autocorrelation, calculated as:
+#'   \deqn{I = \frac{n}{W} \frac{\sum\limits_{i=1}^n \sum\limits_{j=1}^n
+#'   w_{ij} (x_i - \bar{x})(x_j - \bar{x})}{\sum\limits_{i=1}^n (x_i - \bar{x})^2}}
+#'   with the same terms as Geary's C.
+#'   Positive values indicate that tied nodes hold similar values,
+#'   and negative values that they hold dissimilar ones,
+#'   so it runs the same way as the "ie" index, and the other way to Geary's C.
+#'   See the section on spatial autocorrelation for its range.
 #'   If an incompatible method is chosen for the attribute type,
 #'   a suitable alternative will be used instead with a message.
 #' @family diversity
@@ -392,7 +405,7 @@ net_by_heterophily <- function(.data, attribute){
 #' net_by_homophily(marvel_friends, "Gender")
 #' @export
 net_by_homophily <- function(.data, attribute,
-                             assortativity = c("ie","ei","yule","geary")){
+                             assortativity = c("ie","ei","yule","geary","moran")){
   .data <- manynet::expect_nodes(.data)
   .data <- .to_aggregated_css(.data)
   # mode <- attr_mode(.data, attribute)
@@ -413,21 +426,12 @@ net_by_homophily <- function(.data, attribute,
   if (length(attribute) == 1 && is.character(attribute)) {
     attribute <- manynet::node_attribute(.data, attribute)
   }
-  assortativity <- match.arg(assortativity)
-  if(is.numeric(attribute) && assortativity %in% c("ie","ei","yule")){
-    manynet::snet_info("{.val {assortativity}} index is not appropriate for numeric attributes.")
-    manynet::snet_info("Using {.val geary}'s C instead.")
-    assortativity <- "geary"
-  }
-  if(!is.numeric(attribute) && assortativity == "geary"){
-    manynet::snet_info("{.val {assortativity}} index is not appropriate for categorical attributes.")
-    manynet::snet_info("Using {.val ie} index instead.")
-    assortativity <- "ie"
-  }
+  assortativity <- .match_homophily(attribute, match.arg(assortativity))
   
   # The E-I index and Yule's Q count ties and non-ties, so they read a binary
-  # matrix. Geary's C takes w_ij from the formula, so it keeps the weights.
-  m <- if(assortativity == "geary") manynet::as_matrix(.data) else
+  # matrix. Geary's C and Moran's I take w_ij from the formula, so they keep
+  # the weights.
+  m <- if(assortativity %in% c("geary","moran")) manynet::as_matrix(.data) else
     manynet::as_matrix(manynet::to_unweighted(.data))
   
   ei <- function(m, attribute){
@@ -446,35 +450,12 @@ net_by_homophily <- function(.data, attribute,
     (a*d - b*c)/(a*d + b*c)
   }
   
-  geary <- function(m, attribute){
-    # identify valid nodes
-    valid <- !is.na(attribute)
-    attr_valid <- attribute[valid]
-    m_valid <- m[valid, valid, drop = FALSE]
-    
-    # recompute n and mean on valid nodes
-    n <- length(attr_valid)
-    xbar <- mean(attr_valid, na.rm = TRUE)
-    
-    # pairwise squared differences
-    diffsq <- (outer(attr_valid, attr_valid, "-"))^2
-    
-    # weight sum
-    W <- sum(m_valid, na.rm = TRUE)
-    
-    # numerator and denominator
-    num <- (n - 1) * sum(m_valid * diffsq, na.rm = TRUE)
-    den <- 2 * W * sum((attr_valid - xbar)^2, na.rm = TRUE)
-    
-    if (den == 0) return(NA_real_)
-    num / den
-  }
-  
-  res <- switch(match.arg(assortativity),
+  res <- switch(assortativity,
                 ie = -ei(m, attribute),
                 ei = ei(m, attribute),
                 yule = yule(m, attribute),
-                geary = geary(m, attribute))
+                geary = .geary(m, attribute),
+                moran = .moran(m, attribute))
   
   meta <- .homophily_metadata(assortativity, manynet::is_weighted(.data))
   make_network_measure(res, .data, call = deparse(sys.call()),
@@ -538,18 +519,81 @@ net_by_homophily <- function(.data, attribute,
        variant = diversity)
 }
 
+# The index asked for, or the one that applies where it cannot apply to the
+# attribute's type, with a message saying so. The E-I index and Yule's Q
+# compare categories, and Geary's C and Moran's I compare quantities.
+.match_homophily <- function(attr, assortativity){
+  if(is.numeric(attr) && assortativity %in% c("ie","ei","yule")){
+    manynet::snet_info("{.val {assortativity}} index is not appropriate for numeric attributes.")
+    manynet::snet_info("Using {.val geary}'s C instead",
+                       "({.val moran}'s I also available).")
+    assortativity <- "geary"
+  }
+  if(!is.numeric(attr) && assortativity %in% c("geary","moran")){
+    manynet::snet_info("{.val {assortativity}} index is not appropriate for categorical attributes.")
+    manynet::snet_info("Using {.val ie} index instead.")
+    assortativity <- "ie"
+  }
+  assortativity
+}
+
+# Both statistics drop the nodes with a missing value, along with their ties,
+# and recompute n, W and the mean on those that remain.
+.geary <- function(w, x){
+  valid <- !is.na(x)
+  x <- x[valid]
+  w <- w[valid, valid, drop = FALSE]
+  n <- length(x)
+  W <- sum(w, na.rm = TRUE)
+  num <- (n - 1) * sum(w * outer(x, x, "-")^2, na.rm = TRUE)
+  den <- 2 * W * sum((x - mean(x))^2)
+  if(den == 0) return(NA_real_)
+  num / den
+}
+
+.moran <- function(w, x){
+  valid <- !is.na(x)
+  x <- x[valid]
+  w <- w[valid, valid, drop = FALSE]
+  N <- length(x)
+  z <- x - mean(x)
+  W <- sum(w, na.rm = TRUE)
+  den <- sum(z^2)
+  if(N < 2 || W == 0 || den == 0) return(NA_real_)
+  (N/W) * sum(w * outer(z, z), na.rm = TRUE) / den
+}
+
+# Local Moran's I splits the global statistic among the nodes:
+# I_i = z_i / m_2 * sum_j w_ij z_j, where m_2 = sum(z^2)/N.
+# The local values sum to W times the global one.
+.moran_local <- function(w, x){
+  out <- rep(NA_real_, length(x))
+  valid <- !is.na(x)
+  x <- x[valid]
+  w <- w[valid, valid, drop = FALSE]
+  w[is.na(w)] <- 0
+  z <- x - mean(x)
+  m2 <- sum(z^2) / length(x)
+  if(length(x) < 2 || m2 == 0) return(out)
+  out[valid] <- z / m2 * c(w %*% z)
+  out
+}
+
 # Geary's C reaches 2 only where every tie carries the same weight. Once the
 # weights differ, a heavy tie between dissimilar values can carry the sum past
 # that, so a weighted network declares the upper end open.
+# Moran's I is bounded by the eigenvalues of the weight matrix, not by -1 and 1.
 .homophily_metadata <- function(assortativity, weighted = FALSE){
   list(measure = switch(assortativity,
                         ie = "IE index",
                         ei = "E-I index",
                         yule = "Yule's Q",
-                        geary = "Geary's C"),
+                        geary = "Geary's C",
+                        moran = "Moran's I"),
        range = switch(assortativity,
                       ie = , ei = , yule = c(-1, 1),
-                      geary = `if`(weighted, c(0, Inf), c(0, 2))),
+                      geary = `if`(weighted, c(0, Inf), c(0, 2)),
+                      moran = c(-Inf, Inf)),
        variant = assortativity)
 }
 
@@ -649,20 +693,10 @@ net_by_spatial <- function(.data, attribute){
     }
     x <- manynet::node_attribute(net, attribute)
   }
-  w <- manynet::as_matrix(net)
-  valid <- !is.na(x)
-  if(!all(valid)){
-    manynet::snet_info("Dropping {sum(!valid)} node{?s} with a missing",
+  if(anyNA(x))
+    manynet::snet_info("Dropping {sum(is.na(x))} node{?s} with a missing",
                        "{.val {attribute}}.")
-    x <- x[valid]
-    w <- w[valid, valid, drop = FALSE]
-  }
-  N <- length(x)
-  x_bar <- mean(x)
-  W <- sum(w, na.rm = TRUE)
-  den <- sum((x - x_bar)^2)
-  I <- if(N < 2 || W == 0 || den == 0) NA_real_ else
-    (N/W) * sum(w * outer(x - x_bar, x - x_bar), na.rm = TRUE) / den
+  I <- .moran(manynet::as_matrix(net), x)
   make_network_measure(I, .data,
                        call = deparse(sys.call()),
                        measure = "Moran's I", range = c(-Inf, Inf),
@@ -682,6 +716,22 @@ net_by_spatial <- function(.data, attribute){
 #'   - `node_by_homophily()` measures each node's embeddedness within groups
 #'   of nodes with the same attribute, using a variety of methods.
 #'   
+#'   For most methods, `node_by_homophily()` applies the network measure
+#'   to each node's ego network, the node and its neighbours.
+#'   For `"moran"` it instead returns local Moran's I (Anselin 1995),
+#'   \deqn{I_i = \frac{x_i - \bar{x}}{m_2} \sum\limits_{j} w_{ij} (x_j - \bar{x})}
+#'   where \eqn{m_2 = \sum_i (x_i - \bar{x})^2 / n}.
+#'   A positive value marks a node that holds a value like its neighbours',
+#'   both high or both low, and a negative value a node unlike its neighbours.
+#'   The local values sum to \eqn{W} times the global Moran's I
+#'   of `net_by_homophily()`.
+#'   A node with a missing value is \code{NA}.
+#' @references
+#' ## On local spatial autocorrelation
+#'   Anselin, Luc. 1995.
+#'   "Local indicators of spatial association---LISA".
+#'   _Geographical Analysis_ 27(2): 93-115.
+#'   \doi{10.1111/j.1538-4632.1995.tb00338.x}
 #' @template param_data
 #' @template param_attr
 #' @family diversity
@@ -721,33 +771,27 @@ node_by_heterophily <- function(.data, attribute){
 #' @rdname measure_assort_node
 #' @export
 node_by_homophily <- function(.data, attribute,
-                              assortativity = c("ie","ei","yule","geary")){
+                              assortativity = c("ie","ei","yule","geary","moran")){
   .data <- manynet::expect_nodes(.data)
   .data <- .to_aggregated_css(.data)
   if (length(attribute) == 1 && is.character(attribute)) {
     attribute <- manynet::node_attribute(.data, attribute)
   }
-  assortativity <- match.arg(assortativity)
-  if(is.numeric(attribute) && assortativity %in% c("ie","ei","yule")){
-    manynet::snet_info("{.val {assortativity}} index is not appropriate for numeric attributes.")
-    manynet::snet_info("Using {.val geary}'s C instead.")
-    assortativity <- "geary"
+  assortativity <- .match_homophily(attribute, match.arg(assortativity))
+  if(assortativity == "moran"){
+    out <- .moran_local(manynet::as_matrix(.data), attribute)
+  } else {
+    idat <- manynet::as_igraph(.data)
+    # The attribute is carried on the network rather than subset per ego, since
+    # igraph::ego() lists the ego first while igraph::induced_subgraph() keeps
+    # the original node order, so the two orders do not line up.
+    idat <- igraph::set_vertex_attr(idat, ".homophily", value = attribute)
+    out <- vapply(igraph::ego(idat),
+                  function(x) net_by_homophily(igraph::induced_subgraph(idat, x),
+                                               ".homophily",
+                                               assortativity = assortativity),
+                  FUN.VALUE = numeric(1))
   }
-  if(!is.numeric(attribute) && assortativity == "geary"){
-    manynet::snet_info("{.val {assortativity}} index is not appropriate for categorical attributes.")
-    manynet::snet_info("Using {.val ie} index instead.")
-    assortativity <- "ie"
-  }
-  idat <- manynet::as_igraph(.data)
-  # The attribute is carried on the network rather than subset per ego, since
-  # igraph::ego() lists the ego first while igraph::induced_subgraph() keeps
-  # the original node order, so the two orders do not line up.
-  idat <- igraph::set_vertex_attr(idat, ".homophily", value = attribute)
-  out <- vapply(igraph::ego(idat),
-                function(x) net_by_homophily(igraph::induced_subgraph(idat, x),
-                                             ".homophily",
-                                             assortativity = assortativity),
-                FUN.VALUE = numeric(1))
   meta <- .homophily_metadata(assortativity, manynet::is_weighted(.data))
   make_node_measure(out, .data, measure = meta$measure, range = meta$range,
                     normalization = "none", variant = meta$variant)

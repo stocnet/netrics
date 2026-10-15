@@ -13,7 +13,7 @@ net_by_heterophily(.data, attribute)
 net_by_homophily(
   .data,
   attribute,
-  assortativity = c("ie", "ei", "yule", "geary")
+  assortativity = c("ie", "ei", "yule", "geary", "moran")
 )
 
 net_by_assortativity(.data)
@@ -29,8 +29,10 @@ For more information on possible coercions, see e.g. \code{\link[manynet:as_stoc
 
 \item{assortativity}{Which method to use for \verb{*_homophily()}.
 Either "ie" (negative E-I index), "ei" (E-I index),
-"yule" (Yule's Q), or "geary" (Geary's C).
+"yule" (Yule's Q), "geary" (Geary's C), or "moran" (Moran's I).
 Default is "ie".
+The first three are for categorical attributes,
+and the last two for numeric attributes.
 The E-I index is the number of ties between (or \emph{external}) nodes
 grouped in some mutually exclusive categories
 minus the number of ties within (or \emph{internal}) these groups
@@ -63,6 +65,15 @@ The upper bound of 2 holds where every tie carries the same weight.
 Geary's C reads the weights where the network has them,
 and a heavy tie between dissimilar values can then carry the sum past 2,
 so a weighted network declares the upper end open.
+
+Moran's I is a measure of spatial autocorrelation, calculated as:
+\deqn{I = \frac{n}{W} \frac{\sum\limits_{i=1}^n \sum\limits_{j=1}^n
+w_{ij} (x_i - \bar{x})(x_j - \bar{x})}{\sum\limits_{i=1}^n (x_i - \bar{x})^2}}
+with the same terms as Geary's C.
+Positive values indicate that tied nodes hold similar values,
+and negative values that they hold dissimilar ones,
+so it runs the same way as the "ie" index, and the other way to Geary's C.
+See the section on spatial autocorrelation for its range.
 If an incompatible method is chosen for the attribute type,
 a suitable alternative will be used instead with a message.}
 }
@@ -87,6 +98,8 @@ are within groups of nodes with the same attribute, but with more options for me
 \item \code{net_by_assortativity()} measures the degree assortativity in a network.
 \item \code{net_by_spatial()} measures the spatial association/autocorrelation
 (global Moran's I) in a network.
+It is \code{net_by_homophily()} with \code{assortativity = "moran"},
+but it also reads two-mode networks (see below).
 }
 
 Note that for two-mode networks,

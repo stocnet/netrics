@@ -166,6 +166,12 @@ measure_rosters <- list(
   heterogeneity_spatial = list(
     net_by_spatial = list(attribute = "age")
   ),
+  heterogeneity_moran_net = list(
+    net_by_homophily = list(attribute = "age", assortativity = "moran")
+  ),
+  heterogeneity_moran_node = list(
+    node_by_homophily = list(attribute = "age", assortativity = "moran")
+  ),
 
   holes_node = list(
     node_by_bridges           = list(),

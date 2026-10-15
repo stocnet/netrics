@@ -27,6 +27,12 @@ test_that("spatial autocorrelation meets the measure contract", {
   check_measure_contract(measure_rosters$heterogeneity_spatial,
                          manynet::ison_lawfirm, level = "net")
   expect_declared(measure_rosters$heterogeneity_spatial, manynet::ison_lawfirm)
+  check_measure_contract(measure_rosters$heterogeneity_moran_net,
+                         manynet::ison_lawfirm, level = "net")
+  expect_declared(measure_rosters$heterogeneity_moran_net, manynet::ison_lawfirm)
+  check_measure_contract(measure_rosters$heterogeneity_moran_node,
+                         manynet::ison_lawfirm, level = "node")
+  expect_declared(measure_rosters$heterogeneity_moran_node, manynet::ison_lawfirm)
 })
 
 test_that("measures report the index they actually used", {

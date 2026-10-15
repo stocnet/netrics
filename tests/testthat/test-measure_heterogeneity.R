@@ -162,3 +162,30 @@ test_that("tie_by_diversity() measures the diversity of the nodes each tie joins
                                            with = list(1:3, integer(0))))
   expect_equal(as.numeric(tie_by_diversity(odd, "f")), c(4/9, NA))
 })
+
+test_that("homophily offers Moran's I for numeric attributes", {
+  g <- manynet::ison_lawfirm
+  # The global value is the one net_by_spatial() gives a one-mode network
+  expect_equal(as.numeric(net_by_homophily(g, "age", assortativity = "moran")),
+               as.numeric(net_by_spatial(g, "age")))
+  expect_equal(attr(net_by_homophily(g, "age", "moran"), "measure"), "Moran's I")
+  # A numeric attribute still takes Geary's C where no index is given
+  expect_equal(attr(net_by_homophily(g, "age"), "variant"), "geary")
+  # A categorical attribute cannot take Moran's I
+  expect_equal(attr(net_by_homophily(manynet::ison_adolescents, "name",
+                                     assortativity = "moran"), "variant"), "ie")
+  # The local values sum to W times the global one
+  loc <- node_by_homophily(g, "age", assortativity = "moran")
+  expect_length(loc, manynet::net_nodes(g))
+  expect_equal(sum(loc) / sum(manynet::as_matrix(g)),
+               as.numeric(net_by_homophily(g, "age", "moran")))
+  # A line of increasing values: each node is like its neighbours,
+  # except the one with the mean value, which is neither like nor unlike them
+  line <- manynet::mutate_nodes(manynet::create_explicit(A-B, B-C, C-D, D-E),
+                                v = 1:5)
+  expect_equal(as.numeric(node_by_homophily(line, "v", "moran")),
+               c(1, 1, 0, 1, 1))
+  # A node with a missing value has none
+  line <- manynet::mutate_nodes(line, v = c(1:4, NA))
+  expect_true(is.na(node_by_homophily(line, "v", "moran")[5]))
+})

@@ -11,7 +11,7 @@ node_by_heterophily(.data, attribute)
 node_by_homophily(
   .data,
   attribute,
-  assortativity = c("ie", "ei", "yule", "geary")
+  assortativity = c("ie", "ei", "yule", "geary", "moran")
 )
 }
 \arguments{
@@ -23,8 +23,10 @@ For more information on possible coercions, see e.g. \code{\link[manynet:as_stoc
 
 \item{assortativity}{Which method to use for \verb{*_homophily()}.
 Either "ie" (negative E-I index), "ei" (E-I index),
-"yule" (Yule's Q), or "geary" (Geary's C).
+"yule" (Yule's Q), "geary" (Geary's C), or "moran" (Moran's I).
 Default is "ie".
+The first three are for categorical attributes,
+and the last two for numeric attributes.
 The E-I index is the number of ties between (or \emph{external}) nodes
 grouped in some mutually exclusive categories
 minus the number of ties within (or \emph{internal}) these groups
@@ -57,6 +59,15 @@ The upper bound of 2 holds where every tie carries the same weight.
 Geary's C reads the weights where the network has them,
 and a heavy tie between dissimilar values can then carry the sum past 2,
 so a weighted network declares the upper end open.
+
+Moran's I is a measure of spatial autocorrelation, calculated as:
+\deqn{I = \frac{n}{W} \frac{\sum\limits_{i=1}^n \sum\limits_{j=1}^n
+w_{ij} (x_i - \bar{x})(x_j - \bar{x})}{\sum\limits_{i=1}^n (x_i - \bar{x})^2}}
+with the same terms as Geary's C.
+Positive values indicate that tied nodes hold similar values,
+and negative values that they hold dissimilar ones,
+so it runs the same way as the "ie" index, and the other way to Geary's C.
+See the section on spatial autocorrelation for its range.
 If an incompatible method is chosen for the attribute type,
 a suitable alternative will be used instead with a message.}
 }
@@ -81,6 +92,17 @@ of nodes with the same attribute.
 \item \code{node_by_homophily()} measures each node's embeddedness within groups
 of nodes with the same attribute, using a variety of methods.
 }
+
+For most methods, \code{node_by_homophily()} applies the network measure
+to each node's ego network, the node and its neighbours.
+For \code{"moran"} it instead returns local Moran's I (Anselin 1995),
+\deqn{I_i = \frac{x_i - \bar{x}}{m_2} \sum\limits_{j} w_{ij} (x_j - \bar{x})}
+where \eqn{m_2 = \sum_i (x_i - \bar{x})^2 / n}.
+A positive value marks a node that holds a value like its neighbours',
+both high or both low, and a negative value a node unlike its neighbours.
+The local values sum to \eqn{W} times the global Moran's I
+of \code{net_by_homophily()}.
+A node with a missing value is \code{NA}.
 }
 \section{Cognitive social structures}{
 
@@ -113,6 +135,15 @@ Krackhardt, David. 1987.
 marvel_friends <- to_unsigned(to_uniplex(fict_marvel, "relationship"), "positive")
 node_by_heterophily(marvel_friends, "Gender")
 node_by_heterophily(marvel_friends, "Attractive")
+}
+\references{
+\subsection{On local spatial autocorrelation}{
+
+Anselin, Luc. 1995.
+"Local indicators of spatial association---LISA".
+\emph{Geographical Analysis} 27(2): 93-115.
+\doi{10.1111/j.1538-4632.1995.tb00338.x}
+}
 }
 \seealso{
 Other diversity:
