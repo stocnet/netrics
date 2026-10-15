@@ -8,6 +8,8 @@ are within groups of nodes with the same attribute, but with more options for me
 net_by_assortativity() measures the degree assortativity in a network.
 net_by_spatial() measures the spatial association/autocorrelation
 (global Moran's I) in a network.
+It is net_by_homophily() with assortativity = &quot;moran&quot;,
+but it also reads two-mode networks (see below).
 
 
 Note that for two-mode networks,
@@ -35,7 +37,7 @@ converting the network to a one-mode network."><meta property="og:image" content
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">netrics</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.1.0</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.1.1</span>
       </span>
     </div>
 
@@ -115,7 +117,9 @@ are within groups of nodes with the same attribute.</p></li>
 are within groups of nodes with the same attribute, but with more options for method.</p></li>
 <li><p><code>net_by_assortativity()</code> measures the degree assortativity in a network.</p></li>
 <li><p><code>net_by_spatial()</code> measures the spatial association/autocorrelation
-(global Moran's I) in a network.</p></li>
+(global Moran's I) in a network.
+It is <code>net_by_homophily()</code> with <code>assortativity = "moran"</code>,
+but it also reads two-mode networks (see below).</p></li>
 </ul><p>Note that for two-mode networks,
 homophily is calculated on the mode with the attribute of interest,
 and the other mode is ignored.
@@ -132,7 +136,7 @@ converting the network to a one-mode network.</p>
 <span><span class="fu">net_by_homophily</span><span class="op">(</span></span>
 <span>  <span class="va">.data</span>,</span>
 <span>  <span class="va">attribute</span>,</span>
-<span>  assortativity <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"ie"</span>, <span class="st">"ei"</span>, <span class="st">"yule"</span>, <span class="st">"geary"</span><span class="op">)</span></span>
+<span>  assortativity <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"ie"</span>, <span class="st">"ei"</span>, <span class="st">"yule"</span>, <span class="st">"geary"</span>, <span class="st">"moran"</span><span class="op">)</span></span>
 <span><span class="op">)</span></span>
 <span></span>
 <span><span class="fu">net_by_assortativity</span><span class="op">(</span><span class="va">.data</span><span class="op">)</span></span>
@@ -157,8 +161,10 @@ For more information on possible coercions, see e.g. <code><a href="https://stoc
 <dt id="arg-assortativity">assortativity<a class="anchor" aria-label="anchor" href="#arg-assortativity"></a></dt>
 <dd><p>Which method to use for <code>*_homophily()</code>.
 Either "ie" (negative E-I index), "ei" (E-I index),
-"yule" (Yule's Q), or "geary" (Geary's C).
+"yule" (Yule's Q), "geary" (Geary's C), or "moran" (Moran's I).
 Default is "ie".
+The first three are for categorical attributes,
+and the last two for numeric attributes.
 The E-I index is the number of ties between (or <em>external</em>) nodes
 grouped in some mutually exclusive categories
 minus the number of ties within (or <em>internal</em>) these groups
@@ -188,7 +194,15 @@ to be connected), and a value of 1 indicates no autocorrelation.
 The upper bound of 2 holds where every tie carries the same weight.
 Geary's C reads the weights where the network has them,
 and a heavy tie between dissimilar values can then carry the sum past 2,
-so a weighted network declares the upper end open.
+so a weighted network declares the upper end open.</p>
+<p>Moran's I is a measure of spatial autocorrelation, calculated as:
+$$I = \frac{n}{W} \frac{\sum\limits_{i=1}^n \sum\limits_{j=1}^n
+w_{ij} (x_i - \bar{x})(x_j - \bar{x})}{\sum\limits_{i=1}^n (x_i - \bar{x})^2}$$
+with the same terms as Geary's C.
+Positive values indicate that tied nodes hold similar values,
+and negative values that they hold dissimilar ones,
+so it runs the same way as the "ie" index, and the other way to Geary's C.
+See the section on spatial autocorrelation for its range.
 If an incompatible method is chosen for the attribute type,
 a suitable alternative will be used instead with a message.</p></dd>
 
@@ -311,6 +325,7 @@ Informal networks and organizational crises: an experimental simulation.
 <code><a href="measure_assort_node.html">measure_assort_node</a></code>,
 <code><a href="measure_diverse_net.html">measure_diverse_net</a></code>,
 <code><a href="measure_diverse_node.html">measure_diverse_node</a></code>,
+<code><a href="measure_diverse_tie.html">measure_diverse_tie</a></code>,
 <code><a href="motif_composition.html">motif_composition</a></code>,
 <code><a href="motif_homophily.html">motif_homophily</a></code></p>
 <p>Other measures:
@@ -336,6 +351,7 @@ Informal networks and organizational crises: an experimental simulation.
 <code><a href="measure_diffusion_node.html">measure_diffusion_node</a></code>,
 <code><a href="measure_diverse_net.html">measure_diverse_net</a></code>,
 <code><a href="measure_diverse_node.html">measure_diverse_node</a></code>,
+<code><a href="measure_diverse_tie.html">measure_diverse_tie</a></code>,
 <code><a href="measure_features.html">measure_features</a></code>,
 <code><a href="measure_fit.html">measure_fit</a></code>,
 <code><a href="measure_fragmentation.html">measure_fragmentation</a></code>,

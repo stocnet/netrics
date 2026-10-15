@@ -39,7 +39,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">netrics</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.1.0</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.1.1</span>
       </span>
     </div>
 
@@ -232,6 +232,9 @@ walktrap, edge-betweenness, fast-greedy, and Louvain algorithms, and let
 <li><label><input type="checkbox">  Tune how large a community must be
 to be kept separate with <code>resolution=</code>, and say why the
 resolution limit makes this necessary</label></li>
+<li><label><input type="checkbox">  Explain why random networks also
+have communities, and compare an observed modularity with random
+networks made by <code>generate_random()</code></label></li>
 </ul>
 <p><strong>Choose your own data</strong>: The worked examples below use
 <code>ison_algebra</code>, <code>ison_southern_women</code>, and
@@ -797,7 +800,8 @@ compared on the same yardstick.</p>
 · <span class="page-toc-link" onclick="document.getElementById('section-edge-betweenness').scrollIntoView({behavior:'auto',block:'start'});">Edge
 betweenness</span> · <span class="page-toc-link" onclick="document.getElementById('section-fast-greedy').scrollIntoView({behavior:'auto',block:'start'});">Fast
 greedy</span> · <span class="page-toc-link" onclick="document.getElementById('section-detecting-communities').scrollIntoView({behavior:'auto',block:'start'});">Detecting
-communities</span></span></p>
+communities</span> · <span class="page-toc-link" onclick="document.getElementById('section-random-baselines').scrollIntoView({behavior:'auto',block:'start'});">Random
+baselines</span></span></p>
 <p>Ok, the friendship network has 3-4 components, but how many ‘groups’
 are there? Visually, it looks like there are some denser clusters within
 the main component.</p>
@@ -1016,6 +1020,57 @@ disconnected), <code><a href="../reference/member_community_modular.html">node_i
 <code><a href="../reference/member_community.html">?member_community</a></code> for the full list with definitions and
 references.</p>
 </div>
+</div>
+<div class="section level3">
+<h3 id="random-baselines">Random baselines<a class="anchor" aria-label="anchor" href="#random-baselines"></a>
+</h3>
+<p>Every algorithm in this section returned communities, and every
+partition had a positive modularity. But would they find communities in
+a network that has none? A
+<abbr><dfn title="A random network is one where ties are placed among nodes according to some probability distribution.">
+random </dfn></abbr> network places its ties without any group
+structure. <code>generate_random()</code> makes one with the same number
+of nodes and ties as the network you give it. Let’s make a random
+version of the friendship network, and see what Louvain finds in it.</p>
+<div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">rand_friends</span> <span class="op">&lt;-</span> <span class="fu">generate_random</span><span class="op">(</span><span class="va">friends</span><span class="op">)</span></span>
+<span><span class="va">rand_lv</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/member_community_modular.html">node_in_louvain</a></span><span class="op">(</span><span class="va">rand_friends</span><span class="op">)</span></span>
+<span><span class="va">rand_friends</span> <span class="op">|&gt;</span> <span class="fu">mutate_nodes</span><span class="op">(</span>rand_comm <span class="op">=</span> <span class="va">rand_lv</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu">graphr</span><span class="op">(</span>node_color <span class="op">=</span> <span class="st">"rand_comm"</span>, node_group <span class="op">=</span> <span class="st">"rand_comm"</span><span class="op">)</span></span>
+<span><span class="fu"><a href="../reference/measure_fit.html">net_by_modularity</a></span><span class="op">(</span><span class="va">rand_friends</span>, <span class="va">rand_lv</span><span class="op">)</span></span></code></pre></div>
+<p>Louvain still returns communities, and their modularity is still
+positive. An algorithm always returns a partition, and in any one
+network some nodes are tied a little more to each other than chance
+alone expects. The algorithm finds these accidents too.</p>
+<p>The effect is larger than you may expect. Try a sparse random network
+of 100 nodes, in which each pair of nodes is tied with a probability of
+0.05:</p>
+<div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">sparse</span> <span class="op">&lt;-</span> <span class="fu">generate_random</span><span class="op">(</span><span class="fl">100</span>, <span class="fl">0.05</span><span class="op">)</span></span>
+<span><span class="fu"><a href="../reference/measure_fit.html">net_by_modularity</a></span><span class="op">(</span><span class="va">sparse</span>, <span class="fu"><a href="../reference/member_community_modular.html">node_in_louvain</a></span><span class="op">(</span><span class="va">sparse</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
+<p>This network has no groups, but its modularity is often about 0.4,
+which is as high as that of the real friendship network. Modularity
+increases as a network gets larger and sparser, so a modularity score
+alone is not evidence of groups (Guimerà, Sales-Pardo and Amaral
+2004).</p>
+<p>The answer is to compare like with like. Run the algorithm on many
+random networks of the same size and density as the observed network,
+and see whether the observed modularity is higher than theirs.</p>
+<div class="callout">
+<p><span class="callout-label"><strong>Try it yourself</strong>:</span>
+This section includes an interactive quiz in the live tutorial — run
+<code>run_tute()</code> at the R console to try it.</p>
+</div>
+<p>The friendship network has much higher modularity than its random
+versions, so its communities are not only accidents of chance.</p>
+<div class="callout">
+<p><span class="callout-label"><strong>Going further</strong>:</span>
+<code>generate_random()</code> keeps the number of ties but not who has
+many of them. <code>generate_configuration()</code> also keeps each
+node’s degree, which is the same baseline that modularity itself uses.
+Try it in place of <code>generate_random()</code> above: does the
+friendship network still stand out?</p>
+</div>
 <div class="callout">
 <p><span class="callout-label"><strong>In brief</strong>:</span>
 Community detection algorithms cluster nodes by tie density:
@@ -1028,7 +1083,10 @@ network. <code><a href="../reference/member_community.html">node_in_community()<
 algorithms (exhaustively via <code><a href="../reference/member_community_modular.html">node_in_optimal()</a></code> on small
 networks) and returns the assignment that maximises modularity, or
 combines them all with <code>consensus = TRUE</code> — but always report
-which algorithm produced the result you analyse.</p>
+which algorithm produced the result you analyse. Since algorithms find
+communities even in random networks, compare the modularity with that of
+random networks of the same size and density, made with
+<code>generate_random()</code>.</p>
 </div>
 </div>
 </div>
@@ -1072,7 +1130,7 @@ interactions — how modular is the fellowship around the
 political leaning, as the blogs did?)</td>
 </tr></tbody>
 </table>
-<div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb18"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">irps_books</span></span></code></pre></div>
 </div>
 <div class="section level2">
@@ -1197,12 +1255,17 @@ agglomerative merges</td>
 modularity</td>
 </tr>
 <tr class="even">
+<td><code>generate_random()</code></td>
+<td>a random network with the same number of nodes and ties, as a
+baseline</td>
+</tr>
+<tr class="odd">
 <td>
 <code>mutate_nodes()</code>, <code>mutate_ties()</code>
 </td>
 <td>adds measures or memberships to the network for graphing</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td><code>graphr(..., node_color = , node_group = , edge_color = )</code></td>
 <td>maps memberships onto colours and group outlines</td>
 </tr>
@@ -1344,6 +1407,13 @@ Projection
 <dd>
 A projection reduces a two-mode network to a one-mode network of shared
 ties to the other mode among one set of its nodes.
+</dd>
+<dt>
+Random
+</dt>
+<dd>
+A random network is one where ties are placed among nodes according to
+some probability distribution.
 </dd>
 <dt>
 Reachability

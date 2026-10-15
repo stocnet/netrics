@@ -30,7 +30,7 @@ They are exported and listed here to provide more detailed documentation."><meta
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">netrics</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.1.0</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.1.1</span>
       </span>
     </div>
 
@@ -223,7 +223,7 @@ returns one membership even where several share the lowest cost.</p>
 
     <div id="ref-examples">
     <h2>Examples</h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="va">mat</span> <span class="op">&lt;-</span> <span class="fu">manynet</span><span class="fu">::</span><span class="fu"><a href="https://stocnet.github.io/manynet/reference/coerce_list.html" class="external-link">as_matrix</a></span><span class="op">(</span><span class="va">ison_adolescents</span><span class="op">)</span></span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="va">mat</span> <span class="op">&lt;-</span> <span class="fu">manynet</span><span class="fu">::</span><span class="fu"><a href="https://stocnet.github.io/manynet/reference/coerce_matrix.html" class="external-link">as_matrix</a></span><span class="op">(</span><span class="va">ison_adolescents</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">cost</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">memb</span><span class="op">)</span> <span class="fu"><a href="https://rdrr.io/r/base/sum.html" class="external-link">sum</a></span><span class="op">(</span><span class="va">mat</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/outer.html" class="external-link">outer</a></span><span class="op">(</span><span class="va">memb</span>, <span class="va">memb</span>, <span class="st">"!="</span><span class="op">)</span><span class="op">]</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu">search_iterated</span><span class="op">(</span><span class="va">cost</span>, init <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fl">1</span><span class="op">:</span><span class="fl">2</span>, <span class="fl">4</span><span class="op">)</span>, times <span class="op">=</span> <span class="fl">50</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] 2 1 1 1 1 2 2 2</span>

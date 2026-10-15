@@ -31,7 +31,7 @@ but does not rest the answer on a single run of a single algorithm."><meta prope
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">netrics</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.1.0</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.1.1</span>
       </span>
     </div>
 
@@ -224,12 +224,16 @@ where it is cut, is what you control.</p>
     <h2>Signed networks</h2>
 
 
-<p>Every algorithm but <code><a href="member_community_modular.html">node_in_spinglass()</a></code> sets the negative ties aside,
-and spinglass reads a sign as a sign (Traag and Bruggeman 2009).
-<code>node_in_community()</code> therefore considers only spinglass where the network
-is signed. Since spinglass needs a connected network and accepts no <code>k</code>,
-a signed network that is unconnected, or a <code>k</code> that is given, leaves no
-applicable algorithm and the function stops.</p>
+<p>Three algorithms read a negative tie as a push apart:
+<code><a href="member_community_modular.html">node_in_spinglass()</a></code> (Traag and Bruggeman 2009),
+<code><a href="member_community_modular.html">node_in_leiden()</a></code>, and <code><a href="member_community_partition.html">node_in_partition()</a></code>.
+The others set the negative ties aside.
+<code>node_in_community()</code> therefore considers only these three where the
+network is signed, and selects among them by <code><a href="measure_fit.html">net_by_modularity()</a></code>,
+which on a signed network counts a negative tie inside a group against
+the partition (Gómez, Jensen, and Arenas 2009).
+Spinglass needs a connected network and accepts no <code>k</code>,
+and Kernighan-Lin is considered only where <code>k</code> is given.</p>
     </div>
     <div id="references">
     <h2>References</h2>
@@ -246,6 +250,20 @@ applicable algorithm and the function stops.</p>
 "Ensemble-based Community Detection in Multilayer Networks".
 <em>Data Mining and Knowledge Discovery</em> 31: 1506-1543.
 <a href="https://doi.org/10.1007/s10618-017-0528-8" class="external-link">doi:10.1007/s10618-017-0528-8</a></p>
+</div>
+
+<div class="section">
+<h3 id="on-signed-modularity">On signed modularity<a class="anchor" aria-label="anchor" href="#on-signed-modularity"></a></h3>
+
+
+<p>Gómez, Sergio, Pablo Jensen, and Alex Arenas. 2009.
+"Analysis of community structure in networks of correlated data".
+<em>Physical Review E</em> 80: 016114.
+<a href="https://doi.org/10.1103/PhysRevE.80.016114" class="external-link">doi:10.1103/PhysRevE.80.016114</a></p>
+<p>Traag, Vincent A., and Jeroen Bruggeman. 2009.
+"Community detection in networks with positive and negative links".
+<em>Physical Review E</em> 80: 036115.
+<a href="https://doi.org/10.1103/PhysRevE.80.036115" class="external-link">doi:10.1103/PhysRevE.80.036115</a></p>
 </div>
 
     </div>

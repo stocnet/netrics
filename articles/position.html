@@ -39,7 +39,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">netrics</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.1.0</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.1.1</span>
       </span>
     </div>
 
@@ -788,7 +788,7 @@ classes and colour the graph by them.</strong></p>
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/member_equivalence.html">node_in_structural</a></span><span class="op">(</span><span class="va">ison_algebra</span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">ison_algebra</span> <span class="op">%&gt;%</span></span>
-<span>  <span class="fu">mutate</span><span class="op">(</span>se <span class="op">=</span> <span class="fu"><a href="../reference/member_equivalence.html">node_in_structural</a></span><span class="op">(</span><span class="va">ison_algebra</span><span class="op">)</span><span class="op">)</span> <span class="op">%&gt;%</span></span>
+<span>  <span class="fu">mutate_nodes</span><span class="op">(</span>se <span class="op">=</span> <span class="fu"><a href="../reference/member_equivalence.html">node_in_structural</a></span><span class="op">(</span><span class="va">ison_algebra</span><span class="op">)</span><span class="op">)</span> <span class="op">%&gt;%</span></span>
 <span>  <span class="fu">graphr</span><span class="op">(</span>node_color <span class="op">=</span> <span class="st">"se"</span><span class="op">)</span></span></code></pre></div>
 <p>That is all it takes to <em>get</em> an answer. But a lot is going on
 behind the scenes, and understanding it is what separates running the
@@ -1037,7 +1037,7 @@ class.</strong></p>
 <div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">alge</span> <span class="op">&lt;-</span> <span class="fu">to_named</span><span class="op">(</span><span class="va">ison_algebra</span><span class="op">)</span></span>
 <span><span class="va">alge</span> <span class="op">%&gt;%</span></span>
-<span>  <span class="fu">mutate</span><span class="op">(</span>se <span class="op">=</span> <span class="fu"><a href="../reference/member_equivalence.html">node_in_structural</a></span><span class="op">(</span><span class="va">alge</span>, k <span class="op">=</span> <span class="fl">4</span><span class="op">)</span><span class="op">)</span> <span class="op">%&gt;%</span></span>
+<span>  <span class="fu">mutate_nodes</span><span class="op">(</span>se <span class="op">=</span> <span class="fu"><a href="../reference/member_equivalence.html">node_in_structural</a></span><span class="op">(</span><span class="va">alge</span>, k <span class="op">=</span> <span class="fl">4</span><span class="op">)</span><span class="op">)</span> <span class="op">%&gt;%</span></span>
 <span>  <span class="fu">graphr</span><span class="op">(</span>node_color <span class="op">=</span> <span class="st">"se"</span><span class="op">)</span></span></code></pre></div>
 <p>While this plot adds the structurally equivalent classes information
 to our earlier graph, it doesn’t really help us understand how the
@@ -1244,7 +1244,7 @@ it, name its (class-)nodes something more evocative, and graph it.</p>
 names, and plot it.</strong></p>
 <div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">bm</span> <span class="op">&lt;-</span> <span class="va">bm</span> <span class="op">%&gt;%</span> <span class="va">as_tidygraph</span> <span class="op">%&gt;%</span></span>
-<span>  <span class="fu">mutate</span><span class="op">(</span>name <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Freaks"</span>, <span class="st">"Squares"</span>, <span class="st">"Nerds"</span>, <span class="st">"Geek"</span><span class="op">)</span><span class="op">)</span></span>
+<span>  <span class="fu">mutate_nodes</span><span class="op">(</span>name <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Freaks"</span>, <span class="st">"Squares"</span>, <span class="st">"Nerds"</span>, <span class="st">"Geek"</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="fu">graphr</span><span class="op">(</span><span class="va">bm</span><span class="op">)</span></span></code></pre></div>
 <p>In the reduced graph, the loops show which positions have (on
 average, strong) ties among their own members, while the ties between
@@ -1323,7 +1323,7 @@ class.</strong></p>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="fu"><a href="../reference/member_equivalence.html">node_in_regular</a></span><span class="op">(</span><span class="va">alge</span><span class="op">)</span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">alge</span> <span class="op">%&gt;%</span></span>
-<span>  <span class="fu">mutate</span><span class="op">(</span>re <span class="op">=</span> <span class="fu"><a href="../reference/member_equivalence.html">node_in_regular</a></span><span class="op">(</span><span class="va">alge</span><span class="op">)</span><span class="op">)</span> <span class="op">%&gt;%</span></span>
+<span>  <span class="fu">mutate_nodes</span><span class="op">(</span>re <span class="op">=</span> <span class="fu"><a href="../reference/member_equivalence.html">node_in_regular</a></span><span class="op">(</span><span class="va">alge</span><span class="op">)</span><span class="op">)</span> <span class="op">%&gt;%</span></span>
 <span>  <span class="fu">graphr</span><span class="op">(</span>node_color <span class="op">=</span> <span class="st">"re"</span><span class="op">)</span></span></code></pre></div>
 <p>Regular equivalence lumps almost everyone into a single broad role
 and splits off just one node. Substantively, that lone node is the one
@@ -1354,7 +1354,7 @@ class.</strong></p>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="fu"><a href="../reference/member_equivalence.html">node_in_automorphic</a></span><span class="op">(</span><span class="va">alge</span><span class="op">)</span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">alge</span> <span class="op">%&gt;%</span></span>
-<span>  <span class="fu">mutate</span><span class="op">(</span>ae <span class="op">=</span> <span class="fu"><a href="../reference/member_equivalence.html">node_in_automorphic</a></span><span class="op">(</span><span class="va">alge</span><span class="op">)</span><span class="op">)</span> <span class="op">%&gt;%</span></span>
+<span>  <span class="fu">mutate_nodes</span><span class="op">(</span>ae <span class="op">=</span> <span class="fu"><a href="../reference/member_equivalence.html">node_in_automorphic</a></span><span class="op">(</span><span class="va">alge</span><span class="op">)</span><span class="op">)</span> <span class="op">%&gt;%</span></span>
 <span>  <span class="fu">graphr</span><span class="op">(</span>node_color <span class="op">=</span> <span class="st">"ae"</span><span class="op">)</span></span></code></pre></div>
 <p>Automorphic equivalence here groups most nodes into one large class,
 with a few nodes set apart in small classes of their own: most students

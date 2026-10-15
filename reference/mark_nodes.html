@@ -28,7 +28,7 @@ node_is_neighbor() marks nodes that are neighbours of a given node.
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">netrics</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.1.0</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.1.1</span>
       </span>
     </div>
 
@@ -121,7 +121,7 @@ triangles that are only connected by that node.</p></li>
 <span></span>
 <span><span class="fu">node_is_mentor</span><span class="op">(</span><span class="va">.data</span>, elites <span class="op">=</span> <span class="fl">0.1</span><span class="op">)</span></span>
 <span></span>
-<span><span class="fu">node_is_neighbor</span><span class="op">(</span><span class="va">.data</span>, <span class="va">node</span><span class="op">)</span></span></code></pre></div>
+<span><span class="fu">node_is_neighbor</span><span class="op">(</span><span class="va">.data</span>, <span class="va">node</span>, cutoff <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div id="arguments">
@@ -151,6 +151,14 @@ described in Valente and Davis (1999).</p></dd>
 
 <dt id="arg-node">node<a class="anchor" aria-label="anchor" href="#arg-node"></a></dt>
 <dd><p>A node ID or name for which neighbors are to be marked.</p></dd>
+
+
+<dt id="arg-cutoff">cutoff<a class="anchor" aria-label="anchor" href="#arg-cutoff"></a></dt>
+<dd><p>Integer scalar, the maximum path length considered.
+Paths longer than this are ignored, which restricts the measure to a
+node's local neighbourhood.
+Where a measure is defined over all paths by default,
+a negative value or <code>NULL</code> imposes no limit.</p></dd>
 
 </dl></div>
     <div id="value">
@@ -200,6 +208,21 @@ network is signed it considers only the positive ties.</p>
 mode as well as between them, so it cannot be projected onto one mode.
 <code>node_is_independent()</code> therefore marks a multilevel network whole, as
 <code><a href="measure_cohesion.html">net_by_independence()</a></code> does.</p>
+    </div>
+    <div id="neighbourhoods">
+    <h2>Neighbourhoods</h2>
+
+
+<p>By default, <code>node_is_neighbor()</code> marks the nodes that <code>node</code> has a tie to.
+Given a <code>cutoff</code>, it instead marks every node that can be reached from
+<code>node</code> along a path no longer than <code>cutoff</code>, but not <code>node</code> itself.
+Where the ties have a 'length' attribute,
+such as <code><a href="https://stocnet.github.io/manynet/reference/make_read.html" class="external-link">manynet::read_geojson()</a></code> measures along each line,
+a path is as long as the sum of the lengths of its ties,
+so that <code>cutoff</code> can be, for example, a travel distance or time
+(an <em>isochrone</em>);
+otherwise a path is as long as the number of ties it crosses.
+Weights are strengths and not distances, so they are not read.</p>
     </div>
     <div id="references">
     <h2>References</h2>
@@ -301,6 +324,9 @@ mode as well as between them, so it cannot be projected onto one mode.
 <span class="r-in"><span><span class="fu">node_is_fold</span><span class="op">(</span><span class="fu">create_explicit</span><span class="op">(</span><span class="va">A</span><span class="op">-</span><span class="va">B</span>, <span class="va">B</span><span class="op">-</span><span class="va">C</span>, <span class="va">A</span><span class="op">-</span><span class="va">C</span>, <span class="va">C</span><span class="op">-</span><span class="va">D</span>, <span class="va">C</span><span class="op">-</span><span class="va">E</span>, <span class="va">D</span><span class="op">-</span><span class="va">E</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   A     B     C     D     E    </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">1</span> FALSE FALSE TRUE  FALSE FALSE</span>
+<span class="r-in"><span><span class="fu">node_is_neighbor</span><span class="op">(</span><span class="va">ison_adolescents</span>, <span class="st">"Betty"</span>, cutoff <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   Betty Sue   Alice Jane  Dale  Pam   Carol Tina </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">1</span> FALSE TRUE  TRUE  FALSE TRUE  TRUE  FALSE FALSE</span>
 </code></pre></div>
     </div>
   </div>

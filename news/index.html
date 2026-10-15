@@ -17,7 +17,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">netrics</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.1.0</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.1.1</span>
       </span>
     </div>
 
@@ -89,7 +89,88 @@
     </div>
 
     <div class="section level2">
-<h2 class="page-header" data-toc-text="1.1.0" id="netrics-110">netrics 1.1.0<a class="anchor" aria-label="anchor" href="#netrics-110"></a></h2>
+<h2 class="page-header" data-toc-text="1.1.1" id="netrics-111">netrics 1.1.1<a class="anchor" aria-label="anchor" href="#netrics-111"></a></h2>
+<div class="section level3">
+<h3 id="package-1-1-1">Package<a class="anchor" aria-label="anchor" href="#package-1-1-1"></a></h3>
+<ul><li>Raised the ‘manynet’ floor to 2.4.0</li>
+<li>Added design principles to the README and the contributing guide</li>
+</ul></div>
+<div class="section level3">
+<h3 id="marks-1-1-1">Marks<a class="anchor" aria-label="anchor" href="#marks-1-1-1"></a></h3>
+<ul><li>Improved <code><a href="../reference/mark_nodes.html">node_is_neighbor()</a></code> to take a <code>cutoff</code>, marking every node within that distance of the given node</li>
+</ul></div>
+<div class="section level3">
+<h3 id="memberships-1-1-1">Memberships<a class="anchor" aria-label="anchor" href="#memberships-1-1-1"></a></h3>
+<ul><li>Improved <code><a href="../reference/member_community.html">node_in_community()</a></code> to also consider <code><a href="../reference/member_community_modular.html">node_in_leiden()</a></code> and <code><a href="../reference/member_community_partition.html">node_in_partition()</a></code> for signed networks</li>
+<li>Improved <code><a href="../reference/member_community_partition.html">node_in_faction()</a></code> to read signs rather than set negative ties aside
+<ul><li>
+<code>"hamming"</code> counts negative ties within factions and the positive ties between them</li>
+<li>
+<code>"phi"</code> correlates each pair’s sign with whether it shares a faction</li>
+<li>
+<code>"modularity"</code> maximises signed modularity</li>
+</ul></li>
+<li>Fixed <code><a href="../reference/member_community_modular.html">node_in_leiden()</a></code> taking a negative default resolution on a negative-dominant signed network</li>
+</ul></div>
+<div class="section level3">
+<h3 id="motifs-1-1-1">Motifs<a class="anchor" aria-label="anchor" href="#motifs-1-1-1"></a></h3>
+<ul><li>Improved net and node level motif censuses (closes <a href="https://github.com/stocnet/netrics/issues/24" class="external-link">#24</a>)
+<ul><li>For multiplex networks, they now split motifs by layer, e.g. <code>021D_f.ft</code>
+</li>
+<li>For signed networks, they now split motifs by sign, e.g. <code>300_++-</code>
+</li>
+<li>For attributed networks, they now split motifs by how each pair of positions compares, e.g. <code>021D_!!=</code> for categories or <code>021D_&gt;&gt;&lt;</code> for ordered values</li>
+<li>Improved their speed by enumerating only connected node sets and counting the disconnected motifs
+<ul><li>For sparse networks (mean degree 6), <code><a href="../reference/motif_net.html">net_x_tetrad()</a></code> takes 0.05s rather than 7s for 100 nodes, and 0.5s for 1000 nodes, which was not feasible before</li>
+<li>For sparse networks, <code><a href="../reference/motif_node.html">node_x_tetrad()</a></code> takes 0.1s rather than 20s for 100 nodes, and under 1s for 1000 nodes</li>
+<li>For sparse networks, <code><a href="../reference/motif_node.html">node_x_triad()</a></code> takes 0.07s rather than 2.4s for 1000 nodes</li>
+<li>Gains are smaller for dense networks, where most node sets are connected, but these are still 2-7 times faster</li>
+<li>
+<code><a href="../reference/motif_net.html">net_x_dyad()</a></code>, <code><a href="../reference/motif_node.html">node_x_dyad()</a></code>, and <code><a href="../reference/motif_net.html">net_x_triad()</a></code> were already fast and remain so</li>
+</ul></li>
+<li>Fixed <code>*_x_tetrad()</code> never reporting <code>U4</code> lines, which were counted as <code>D4</code>
+</li>
+<li>Fixed <code><a href="../reference/motif_net.html">net_x_tetrad()</a></code> counting each tie twice, which mislabelled and dropped tetrads</li>
+<li>Fixed <code><a href="../reference/motif_node.html">node_x_dyad()</a></code> counting each node’s dyad with itself as <code>Null</code>
+</li>
+<li>Fixed <code><a href="../reference/motif_node.html">node_x_dyad()</a></code> dropping ties weighted below 1, which <code><a href="../reference/motif_net.html">net_x_dyad()</a></code> counted</li>
+<li>Deprecated passing a second network to <code><a href="../reference/motif_net.html">net_x_triad()</a></code>, <code><a href="../reference/defunct.html">net_x_mixed()</a></code> defunct</li>
+</ul></li>
+</ul></div>
+<div class="section level3">
+<h3 id="measures-1-1-1">Measures<a class="anchor" aria-label="anchor" href="#measures-1-1-1"></a></h3>
+<ul><li>Added <code>"moran"</code> to the <code>assortativity</code> options of <code><a href="../reference/measure_assort_net.html">net_by_homophily()</a></code> and <code><a href="../reference/measure_assort_node.html">node_by_homophily()</a></code>
+<ul><li>
+<code><a href="../reference/measure_assort_net.html">net_by_homophily()</a></code> returns global Moran’s I, which <code><a href="../reference/measure_assort_net.html">net_by_spatial()</a></code> also gives</li>
+<li>
+<code><a href="../reference/measure_assort_node.html">node_by_homophily()</a></code> returns local Moran’s I (Anselin 1995), which sums to the global value times the total tie weight</li>
+<li>A numeric attribute still takes Geary’s C where no index is given</li>
+</ul></li>
+<li>Added <code><a href="../reference/measure_features.html">net_by_meshedness()</a></code> for Kansky’s alpha index, the number of independent cycles relative to the most a planar network could have</li>
+<li>Added <code><a href="../reference/measure_diverse_tie.html">tie_by_diversity()</a></code> for the diversity of the nodes that each tie joins, with the same <code>diversity</code> options as <code><a href="../reference/measure_diverse_node.html">node_by_diversity()</a></code> (closes <a href="https://github.com/stocnet/netrics/issues/44" class="external-link">#44</a>)</li>
+<li>Fixed <code><a href="../reference/measure_central_eigen.html">node_by_power()</a></code> failing in the matrix solver where the exponent has no solution</li>
+<li>Fixed <code><a href="../reference/measure_fit.html">net_by_core()</a></code> and <code><a href="../reference/measure_fit.html">net_by_divergence()</a></code> comparing the network with an ideal whose core and periphery were swapped</li>
+<li>Fixed <code><a href="../reference/measure_features.html">net_by_smallworld()</a></code> to compare clustering with a (ring) lattice of the network’s own density</li>
+<li>Improved <code><a href="../reference/measure_fit.html">net_by_modularity()</a></code> to return signed modularity (Gómez, Jensen, and Arenas 2009) for signed networks
+<ul><li>A negative tie inside a group now counts against the partition</li>
+</ul></li>
+</ul></div>
+<div class="section level3">
+<h3 id="tutorials-1-1-1">Tutorials<a class="anchor" aria-label="anchor" href="#tutorials-1-1-1"></a></h3>
+<ul><li>Corrected the “Topology” tutorial on the small-world coefficient
+<ul><li>Default ‘omega’ ranges between -1 and 1, whereas it gave 0 to 1 range of ‘SWI’</li>
+<li>The exercise now uses a rewiring of 0.025 like elsewhere in the tutorial</li>
+</ul></li>
+<li>Updated the “Topology” tutorial with consistent argument naming</li>
+<li>Updated the “Topology” tutorial’s core-periphery question for the fixed <code><a href="../reference/measure_fit.html">net_by_core()</a></code>
+</li>
+<li>Updated the “Position” tutorial to use <code>mutate_nodes()</code> instead of <code>mutate()</code>
+</li>
+<li>Added a “Random baselines” section to the “Community” tutorial</li>
+</ul></div>
+</div>
+    <div class="section level2">
+<h2 class="page-header" data-toc-text="1.1.0" id="netrics-110">netrics 1.1.0<small>2026-10-05</small><a class="anchor" aria-label="anchor" href="#netrics-110"></a></h2>
 <div class="section level3">
 <h3 id="package-1-1-0">Package<a class="anchor" aria-label="anchor" href="#package-1-1-0"></a></h3>
 <ul><li>Raised <a href="https://stocnet.github.io/manynet/" class="external-link">manynet</a> floor to 2.3.4

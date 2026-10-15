@@ -32,7 +32,7 @@ detection algorithms."><meta property="og:image" content="https://stocnet.github
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">netrics</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.1.0</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.1.1</span>
       </span>
     </div>
 
@@ -219,7 +219,8 @@ e.g. with <code>manynet::to_aggregated(over = "by")</code>.</p>
 strength of a pull into the same community, and a negative tie is
 hostility rather than such a pull.
 Where the network is signed, they therefore consider only the positive
-ties, and say so. <code>node_in_spinglass()</code> reads a sign as a sign.
+ties, and say so. <code>node_in_spinglass()</code> and <code>node_in_leiden()</code> read a
+sign as a sign: a negative tie inside a community counts against it.
 Use <code><a href="https://stocnet.github.io/manynet/reference/modif_weight.html" class="external-link">manynet::to_unsigned()</a></code> first to control this yourself.</p>
     </div>
     <div id="optimal">

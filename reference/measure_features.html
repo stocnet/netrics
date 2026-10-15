@@ -15,6 +15,9 @@ ranging between 0 if all triangles are imbalanced and
 1 if all triangles are balanced.
 net_by_bipartivity() measures how close a network is to being
 bipartite, that is, to dividing into two sets with ties only between them.
+net_by_meshedness() measures how many cycles a network has,
+relative to the most that a planar network of its size could have.
+A tree scores 0, and a network of triangles drawn on a plane scores 1.
 
 "><meta property="og:image" content="https://stocnet.github.io/netrics/logo.png"><!-- mathjax --><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js" integrity="sha256-nvJJv9wWKEm88qvoQl9ekL2J+k/RWIsaSScxxlsrv8k=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/config/TeX-AMS-MML_HTMLorMML.js" integrity="sha256-84DKXVJXs0/F8OTMzX4UR909+jtl4G7SPypPavF+GfA=" crossorigin="anonymous"></script><!--[if lt IE 9]>
 <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
@@ -34,7 +37,7 @@ bipartite, that is, to dividing into two sets with ties only between them.
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">netrics</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.1.0</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.1.1</span>
       </span>
     </div>
 
@@ -122,6 +125,9 @@ ranging between <code>0</code> if all triangles are imbalanced and
 <code>1</code> if all triangles are balanced.</p></li>
 <li><p><code>net_by_bipartivity()</code> measures how close a network is to being
 bipartite, that is, to dividing into two sets with ties only between them.</p></li>
+<li><p><code>net_by_meshedness()</code> measures how many cycles a network has,
+relative to the most that a planar network of its size could have.
+A tree scores 0, and a network of triangles drawn on a plane scores 1.</p></li>
 </ul></div>
 
     <div id="ref-usage">
@@ -137,6 +143,8 @@ bipartite, that is, to dividing into two sets with ties only between them.</p></
 <span><span class="fu">net_by_scalefree</span><span class="op">(</span><span class="va">.data</span><span class="op">)</span></span>
 <span></span>
 <span><span class="fu">net_by_bipartivity</span><span class="op">(</span><span class="va">.data</span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu">net_by_meshedness</span><span class="op">(</span><span class="va">.data</span><span class="op">)</span></span>
 <span></span>
 <span><span class="fu">net_by_balance</span><span class="op">(</span><span class="va">.data</span><span class="op">)</span></span></code></pre></div>
     </div>
@@ -220,15 +228,14 @@ A \(\sigma &gt; 1\) is considered to be small-world,
 but this measure is highly sensitive to network size.</p></li>
 <li><p>"omega" (the default) is an update from Telesford et al. (2011),
 $$\frac{L_r}{L} - \frac{C}{C_l}$$,
-where \(C_l\) is the clustering coefficient for a lattice graph
-with the same dimensions.
+where \(C_l\) is the clustering coefficient for a ring lattice
+with the same number of nodes and about the same number of ties.
 \(\omega\) ranges between -1 and 1, where values close to 0 are
 as close to a small-world as possible; negative values indicate a
 lattice-like network, and positive values a more random one.</p></li>
 <li><p>"SWI" is an alternative proposed by Neal (2017),
 $$\frac{L - L_l}{L_r - L_l} \times \frac{C - C_r}{C_l - C_r}$$,
-where \(L_l\) is the average path length for a lattice graph
-with the same dimensions.
+where \(L_l\) is the average path length for the same ring lattice.
 \(SWI\) ranges between 0 and 1, where 1 is as close to a small-world
 as possible, though there may not be a network for which \(SWI = 1\).</p></li>
 </ul></div>
@@ -251,6 +258,25 @@ whereas <code><a href="https://stocnet.github.io/manynet/reference/mark_format_n
 partitioned into two modes.
 The node-level counterpart is <code><a href="measure_central_eigen.html">node_by_subgraph()</a></code> with
 <code>walks = "odd"</code> or <code>"even"</code>.</p>
+    </div>
+    <div id="meshedness">
+    <h2>Meshedness</h2>
+
+
+<p>Meshedness, or Kansky's alpha index, counts a network's independent
+cycles (its circuit rank) relative to the most that a planar network,
+one that can be drawn on a plane without crossing ties,
+of the same number of nodes can have:
+$$\alpha = \frac{m - n + c}{2n - 5}$$
+where \(m\) is the number of ties, \(n\) the number of nodes,
+and \(c\) the number of components.
+It is read on the undirected, simple network,
+so that direction, loops, and parallel ties are not counted.
+It distinguishes, for example, tree-like road networks from grids.
+For a planar network it ranges from 0 to 1,
+but a network that is not planar can score above 1,
+so the upper end of its range is declared open.
+It is not defined for fewer than three nodes, where it returns <code>NA</code>.</p>
     </div>
     <div id="references">
     <h2>References</h2>
@@ -316,6 +342,20 @@ The node-level counterpart is <code><a href="measure_central_eigen.html">node_by
 </div>
 
 <div class="section">
+<h3 id="on-meshedness">On meshedness<a class="anchor" aria-label="anchor" href="#on-meshedness"></a></h3>
+
+
+<p>Kansky, Karel J. 1963.
+<em>Structure of Transportation Networks</em>.
+Chicago: University of Chicago, Department of Geography.</p>
+<p>Buhl, Jerome, Jacques Gautrais, Ricard V. Solé, Pascale Kuntz,
+Sergi Valverde, Jean-Louis Deneubourg, and Guy Theraulaz. 2004.
+"Efficiency and robustness in ant networks of galleries".
+<em>The European Physical Journal B</em> 42(1): 123-129.
+<a href="https://doi.org/10.1140/epjb/e2004-00364-9" class="external-link">doi:10.1140/epjb/e2004-00364-9</a></p>
+</div>
+
+<div class="section">
 <h3 id="on-balance-theory">On balance theory<a class="anchor" aria-label="anchor" href="#on-balance-theory"></a></h3>
 
 
@@ -360,6 +400,7 @@ for how clustering is calculated</p>
 <code><a href="measure_diffusion_node.html">measure_diffusion_node</a></code>,
 <code><a href="measure_diverse_net.html">measure_diverse_net</a></code>,
 <code><a href="measure_diverse_node.html">measure_diverse_node</a></code>,
+<code><a href="measure_diverse_tie.html">measure_diverse_tie</a></code>,
 <code><a href="measure_fit.html">measure_fit</a></code>,
 <code><a href="measure_fragmentation.html">measure_fragmentation</a></code>,
 <code><a href="measure_hierarchy.html">measure_hierarchy</a></code>,
@@ -373,7 +414,7 @@ for how clustering is calculated</p>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0.833</span>
 <span class="r-in"><span><span class="fu">net_by_smallworld</span><span class="op">(</span><span class="va">ison_brandes</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># Small-world coefficient [-1, 1]</span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] NaN</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0.818</span>
 <span class="r-in"><span><span class="fu">net_by_smallworld</span><span class="op">(</span><span class="va">ison_southern_women</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># Small-world coefficient [-1, 1]</span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] -0.947</span>
@@ -393,6 +434,12 @@ for how clustering is calculated</p>
 <span class="r-in"><span><span class="fu">net_by_bipartivity</span><span class="op">(</span><span class="va">ison_adolescents</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># Bipartivity, normalized [0, 1]</span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0.817</span>
+<span class="r-in"><span><span class="fu">net_by_meshedness</span><span class="op">(</span><span class="fu">create_tree</span><span class="op">(</span><span class="fl">12</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># Meshedness [0, Inf)</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0</span>
+<span class="r-in"><span><span class="fu">net_by_meshedness</span><span class="op">(</span><span class="fu">create_lattice</span><span class="op">(</span><span class="fl">12</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># Meshedness [0, Inf)</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0.632</span>
 <span class="r-in"><span><span class="fu">net_by_balance</span><span class="op">(</span><span class="fu">to_uniplex</span><span class="op">(</span><span class="va">fict_marvel</span>, <span class="st">"relationship"</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># Structural balance, normalized [0, 1]</span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0.668</span>

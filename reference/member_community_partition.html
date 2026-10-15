@@ -29,7 +29,7 @@ detection algorithms."><meta property="og:image" content="https://stocnet.github
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">netrics</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.1.0</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.1.1</span>
       </span>
     </div>
 
@@ -229,11 +229,18 @@ e.g. with <code>manynet::to_aggregated(over = "by")</code>.</p>
     <h2>Signed networks</h2>
 
 
-<p><code>node_in_faction()</code> reads a tie as a pull into the same community,
-and a negative tie is hostility rather than such a pull.
-Where the network is signed, it therefore considers only the positive
-ties, and says so.
-Use <code><a href="https://stocnet.github.io/manynet/reference/modif_weight.html" class="external-link">manynet::to_unsigned()</a></code> first to control this yourself.</p>
+<p>Both functions read a sign as a sign.
+For <code>node_in_partition()</code>, a negative tie inside a group lowers the
+weight that the swaps maximise, so negative ties are moved between groups.
+For <code>node_in_faction()</code>, the ideal is structural balance:
+positive ties within the factions and negative ties between them.
+<code>"hamming"</code> then counts the errors as Doreian and Mrvar (1996) do,
+the negative ties within factions plus the positive ties between them,
+and an absent tie is no error either way.
+<code>"phi"</code> correlates the sign of each pair's tie with whether the pair
+shares a faction, and <code>"modularity"</code> maximises signed modularity
+(see <code><a href="measure_fit.html">net_by_modularity()</a></code>).
+Use <code><a href="https://stocnet.github.io/manynet/reference/modif_weight.html" class="external-link">manynet::to_unsigned()</a></code> first to consider one sign alone.</p>
     </div>
     <div id="partition">
     <h2>Partition</h2>
@@ -293,6 +300,16 @@ nodes multiplied by <code>k</code>.</p>
     </div>
     <div id="references">
     <h2>References</h2>
+
+<div class="section">
+<h3 id="on-partitioning-signed-networks">On partitioning signed networks<a class="anchor" aria-label="anchor" href="#on-partitioning-signed-networks"></a></h3>
+
+
+<p>Doreian, Patrick, and Andrej Mrvar. 1996.
+"A partitioning approach to structural balance".
+<em>Social Networks</em> 18(2): 149-168.
+<a href="https://doi.org/10.1016/0378-8733%2895%2900259-6" class="external-link">doi:10.1016/0378-8733(95)00259-6</a></p>
+</div>
 
 <div class="section">
 <h3 id="on-partitioning-community-detection">On partitioning community detection<a class="anchor" aria-label="anchor" href="#on-partitioning-community-detection"></a></h3>

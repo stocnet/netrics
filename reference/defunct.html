@@ -23,7 +23,7 @@ wherever possible and update your scripts accordingly."><meta property="og:image
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">netrics</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.1.0</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.1.1</span>
       </span>
     </div>
 
@@ -157,10 +157,9 @@ along with a warning to use new function naming in the future.</p>
 Renamed <code><a href="measure_core.html">node_by_core()</a></code>, for symmetry with <code><a href="mark_core.html">node_is_core()</a></code> and
 <code><a href="member_core.html">node_in_core()</a></code>, and so that "coreness" names only the peeling depth
 that <code><a href="measure_core.html">node_by_kcoreness()</a></code> returns.</p></li>
-<li><p><code>net_x_mixed()</code>: Deprecated on 2026-08-28.
-Folded into <code><a href="motif_net.html">net_x_triad()</a></code>, which now takes the multilevel census
-whenever it is given both a one-mode and a two-mode network, rather than
-reporting that no such option exists.</p></li>
+<li><p><code>net_x_mixed()</code>: Deprecated on 2026-08-28, defunct on 2026-10-15.
+Folded into <code><a href="motif_net.html">net_x_triad()</a></code>, which takes the multilevel census
+whenever it is given a network holding a one-mode and a two-mode layer.</p></li>
 <li><p><code>node_in_weak()</code>: Deprecated on 2026-08-28.
 Folded into <code>node_in_component(connectivity = "weak")</code>, which now takes
 the connectivity wanted as an argument rather than splitting the same

@@ -5,7 +5,17 @@ of nodes with the same attribute.
 node_by_homophily() measures each node's embeddedness within groups
 of nodes with the same attribute, using a variety of methods.
 
-"><meta property="og:image" content="https://stocnet.github.io/netrics/logo.png"><!-- mathjax --><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js" integrity="sha256-nvJJv9wWKEm88qvoQl9ekL2J+k/RWIsaSScxxlsrv8k=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/config/TeX-AMS-MML_HTMLorMML.js" integrity="sha256-84DKXVJXs0/F8OTMzX4UR909+jtl4G7SPypPavF+GfA=" crossorigin="anonymous"></script><!--[if lt IE 9]>
+
+For most methods, node_by_homophily() applies the network measure
+to each node's ego network, the node and its neighbours.
+For &quot;moran&quot; it instead returns local Moran's I (Anselin 1995),
+$$I_i = \frac{x_i - \bar{x}}{m_2} \sum\limits_{j} w_{ij} (x_j - \bar{x})$$
+where \(m_2 = \sum_i (x_i - \bar{x})^2 / n\).
+A positive value marks a node that holds a value like its neighbours',
+both high or both low, and a negative value a node unlike its neighbours.
+The local values sum to \(W\) times the global Moran's I
+of net_by_homophily().
+A node with a missing value is NA."><meta property="og:image" content="https://stocnet.github.io/netrics/logo.png"><!-- mathjax --><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js" integrity="sha256-nvJJv9wWKEm88qvoQl9ekL2J+k/RWIsaSScxxlsrv8k=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/config/TeX-AMS-MML_HTMLorMML.js" integrity="sha256-84DKXVJXs0/F8OTMzX4UR909+jtl4G7SPypPavF+GfA=" crossorigin="anonymous"></script><!--[if lt IE 9]>
 <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
 <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
 <![endif]--></head><body data-spy="scroll" data-target="#toc">
@@ -23,7 +33,7 @@ of nodes with the same attribute, using a variety of methods.
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">netrics</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.1.0</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.1.1</span>
       </span>
     </div>
 
@@ -100,7 +110,17 @@ of nodes with the same attribute, using a variety of methods.
 of nodes with the same attribute.</p></li>
 <li><p><code>node_by_homophily()</code> measures each node's embeddedness within groups
 of nodes with the same attribute, using a variety of methods.</p></li>
-</ul></div>
+</ul><p>For most methods, <code>node_by_homophily()</code> applies the network measure
+to each node's ego network, the node and its neighbours.
+For <code>"moran"</code> it instead returns local Moran's I (Anselin 1995),
+$$I_i = \frac{x_i - \bar{x}}{m_2} \sum\limits_{j} w_{ij} (x_j - \bar{x})$$
+where \(m_2 = \sum_i (x_i - \bar{x})^2 / n\).
+A positive value marks a node that holds a value like its neighbours',
+both high or both low, and a negative value a node unlike its neighbours.
+The local values sum to \(W\) times the global Moran's I
+of <code><a href="measure_assort_net.html">net_by_homophily()</a></code>.
+A node with a missing value is <code>NA</code>.</p>
+    </div>
 
     <div id="ref-usage">
     <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">node_by_heterophily</span><span class="op">(</span><span class="va">.data</span>, <span class="va">attribute</span><span class="op">)</span></span>
@@ -108,7 +128,7 @@ of nodes with the same attribute, using a variety of methods.</p></li>
 <span><span class="fu">node_by_homophily</span><span class="op">(</span></span>
 <span>  <span class="va">.data</span>,</span>
 <span>  <span class="va">attribute</span>,</span>
-<span>  assortativity <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"ie"</span>, <span class="st">"ei"</span>, <span class="st">"yule"</span>, <span class="st">"geary"</span><span class="op">)</span></span>
+<span>  assortativity <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"ie"</span>, <span class="st">"ei"</span>, <span class="st">"yule"</span>, <span class="st">"geary"</span>, <span class="st">"moran"</span><span class="op">)</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
 
@@ -129,8 +149,10 @@ For more information on possible coercions, see e.g. <code><a href="https://stoc
 <dt id="arg-assortativity">assortativity<a class="anchor" aria-label="anchor" href="#arg-assortativity"></a></dt>
 <dd><p>Which method to use for <code>*_homophily()</code>.
 Either "ie" (negative E-I index), "ei" (E-I index),
-"yule" (Yule's Q), or "geary" (Geary's C).
+"yule" (Yule's Q), "geary" (Geary's C), or "moran" (Moran's I).
 Default is "ie".
+The first three are for categorical attributes,
+and the last two for numeric attributes.
 The E-I index is the number of ties between (or <em>external</em>) nodes
 grouped in some mutually exclusive categories
 minus the number of ties within (or <em>internal</em>) these groups
@@ -160,7 +182,15 @@ to be connected), and a value of 1 indicates no autocorrelation.
 The upper bound of 2 holds where every tie carries the same weight.
 Geary's C reads the weights where the network has them,
 and a heavy tie between dissimilar values can then carry the sum past 2,
-so a weighted network declares the upper end open.
+so a weighted network declares the upper end open.</p>
+<p>Moran's I is a measure of spatial autocorrelation, calculated as:
+$$I = \frac{n}{W} \frac{\sum\limits_{i=1}^n \sum\limits_{j=1}^n
+w_{ij} (x_i - \bar{x})(x_j - \bar{x})}{\sum\limits_{i=1}^n (x_i - \bar{x})^2}$$
+with the same terms as Geary's C.
+Positive values indicate that tied nodes hold similar values,
+and negative values that they hold dissimilar ones,
+so it runs the same way as the "ie" index, and the other way to Geary's C.
+See the section on spatial autocorrelation for its range.
 If an incompatible method is chosen for the attribute type,
 a suitable alternative will be used instead with a message.</p></dd>
 
@@ -203,12 +233,27 @@ e.g. with <code>manynet::to_aggregated(over = "by")</code>.</p>
 <em>Social Networks</em> 9(2): 109-134.
 <a href="https://doi.org/10.1016/0378-8733%2887%2990009-8" class="external-link">doi:10.1016/0378-8733(87)90009-8</a></p>
     </div>
+    <div id="references">
+    <h2>References</h2>
+
+<div class="section">
+<h3 id="on-local-spatial-autocorrelation">On local spatial autocorrelation<a class="anchor" aria-label="anchor" href="#on-local-spatial-autocorrelation"></a></h3>
+
+
+<p>Anselin, Luc. 1995.
+"Local indicators of spatial association—LISA".
+<em>Geographical Analysis</em> 27(2): 93-115.
+<a href="https://doi.org/10.1111/j.1538-4632.1995.tb00338.x" class="external-link">doi:10.1111/j.1538-4632.1995.tb00338.x</a></p>
+</div>
+
+    </div>
     <div id="see-also">
     <h2>See also</h2>
     <div class="dont-index"><p>Other diversity:
 <code><a href="measure_assort_net.html">measure_assort_net</a></code>,
 <code><a href="measure_diverse_net.html">measure_diverse_net</a></code>,
 <code><a href="measure_diverse_node.html">measure_diverse_node</a></code>,
+<code><a href="measure_diverse_tie.html">measure_diverse_tie</a></code>,
 <code><a href="motif_composition.html">motif_composition</a></code>,
 <code><a href="motif_homophily.html">motif_homophily</a></code></p>
 <p>Other measures:
@@ -234,6 +279,7 @@ e.g. with <code>manynet::to_aggregated(over = "by")</code>.</p>
 <code><a href="measure_diffusion_node.html">measure_diffusion_node</a></code>,
 <code><a href="measure_diverse_net.html">measure_diverse_net</a></code>,
 <code><a href="measure_diverse_node.html">measure_diverse_node</a></code>,
+<code><a href="measure_diverse_tie.html">measure_diverse_tie</a></code>,
 <code><a href="measure_features.html">measure_features</a></code>,
 <code><a href="measure_fit.html">measure_fit</a></code>,
 <code><a href="measure_fragmentation.html">measure_fragmentation</a></code>,

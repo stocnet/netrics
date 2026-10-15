@@ -39,7 +39,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">netrics</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.1.0</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.1.1</span>
       </span>
     </div>
 
@@ -499,17 +499,26 @@ fraction of the ring’s. A handful of rewired ties act as shortcuts
 spanning the circle, which is why “six degrees of separation” can hold
 even in enormous, highly clustered social networks.</p>
 <p>There is also such a thing as a network’s small-world coefficient.
-See the help page for more details, but with the default equation
-(‘omega’), the coefficient typically ranges between 0 and 1, where 1 is
-as close to a small-world as possible. <strong>Try it now on a
-small-world generated network, but with a rewiring probability of
-0.25.</strong></p>
-<p>Substantively, a coefficient near 1 says the network offers the best
+See the help page for more details, but the default equation (‘omega’)
+compares the network’s clustering with that of a lattice, and its path
+length with that of a random network. The coefficient ranges between -1
+and 1: values near -1 mean the network is more like a lattice, values
+near 1 mean it is more like a random network, and values near 0 are as
+close to a small-world as possible. <strong>Try it now on a small-world
+generated network, with the same rewiring probability of
+0.025.</strong></p>
+<p>Try it again with a rewiring probability of 0.25, and on a lattice
+and a random network. With so many ties rewired, the network loses most
+of its clustering and moves towards the random end of the scale.</p>
+<p>Substantively, a coefficient near 0 says the network offers the best
 of both worlds: neighbourhoods cohesive enough to sustain trust and
 local norms, yet paths short enough for information or contagion to
-traverse the whole network in a few steps. A coefficient near 0 means
-the network behaves more like a pure lattice (clustered but slow) or a
-pure random graph (fast but unclustered).</p>
+traverse the whole network in a few steps. A coefficient near -1 means
+the network behaves more like a pure lattice (clustered but slow), and a
+coefficient near 1 more like a pure random graph (fast but unclustered).
+Other equations put these on other scales. For example,
+<code>variant = "SWI"</code> ranges between 0 and 1, where 1 is as close
+to a small-world as possible.</p>
 </div>
 <div class="section level3">
 <h3 id="scale-free-graphs">Scale-free graphs<a class="anchor" aria-label="anchor" href="#scale-free-graphs"></a>
@@ -612,7 +621,7 @@ classic model of directed, (near-)acyclic reference networks.</li>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">123</span><span class="op">)</span></span>
 <span><span class="fu">graphr</span><span class="op">(</span><span class="fu">generate_fire</span><span class="op">(</span><span class="fl">50</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span> <span class="fu">ggtitle</span><span class="op">(</span><span class="st">"Forest fire"</span><span class="op">)</span></span>
-<span><span class="fu">graphr</span><span class="op">(</span><span class="fu">generate_islands</span><span class="op">(</span><span class="fl">50</span>, islands <span class="op">=</span> <span class="fl">3</span>, bridges <span class="op">=</span> <span class="fl">2</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span> <span class="fu">ggtitle</span><span class="op">(</span><span class="st">"Islands"</span><span class="op">)</span></span>
+<span><span class="fu">graphr</span><span class="op">(</span><span class="fu">generate_islands</span><span class="op">(</span><span class="fl">50</span>, groups <span class="op">=</span> <span class="fl">3</span>, width <span class="op">=</span> <span class="fl">2</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span> <span class="fu">ggtitle</span><span class="op">(</span><span class="st">"Islands"</span><span class="op">)</span></span>
 <span><span class="fu">graphr</span><span class="op">(</span><span class="fu">generate_citations</span><span class="op">(</span><span class="fl">50</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span> <span class="fu">ggtitle</span><span class="op">(</span><span class="st">"Citations"</span><span class="op">)</span></span></code></pre></div>
 <p>Each model leaves its own visual fingerprint: the forest-fire network
 grows a few dominant hubs (like a scale-free network, but with more
@@ -628,8 +637,8 @@ citation model’s one-directional flow with
 <p><span class="callout-label"><strong>Going further</strong>:</span>
 These three are more advanced and we will not dwell on them in class.
 Each takes further arguments controlling its growth
-(e.g. <code>islands</code>, <code>bridges</code>, or the forest-fire
-burn probabilities); see <code>?generate_fire</code>,
+(e.g. <code>groups</code>, <code>width</code>, or the forest-fire burn
+probability <code>p</code>); see <code>?generate_fire</code>,
 <code>?generate_islands</code>, and <code>?generate_citations</code>,
 and their underlying <code>igraph</code> samplers, for the details.</p>
 </div>
@@ -719,10 +728,10 @@ This section includes an interactive quiz in the live tutorial — run
 <code>run_tute()</code> at the R console to try it.</p>
 </div>
 <p>So despite what the eye suggested, this friendship network is only
-weakly — indeed slightly <em>negatively</em> — characterised by a single
-core-periphery structure. That is substantively interesting in itself:
-the firm’s friendships seem to cluster into groups (remember the two
-suspected “cores”) rather than stratify into insiders and outsiders.</p>
+weakly characterised by a single core-periphery structure. That is
+substantively interesting in itself: the firm’s friendships seem to
+cluster into groups (remember the two suspected “cores”) rather than
+stratify into insiders and outsiders.</p>
 <p>Note that <code><a href="../reference/mark_core.html">node_is_core()</a></code> also includes a method that
 descends through the rank order of nodes’ eigenvector centralities
 instead of degree centralities. Why might that not be such a good choice

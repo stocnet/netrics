@@ -17,7 +17,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="index.html">netrics</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.1.0</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.1.1</span>
       </span>
     </div>
 
@@ -124,7 +124,45 @@
 </div>
 <div class="section level2">
 <h2 id="style">Style<a class="anchor" aria-label="anchor" href="#style"></a></h2>
-<p>In terms of style, we are aiming for pleasant predictability in terms of user experience. To that end, we have a regular syntax that users can rely on producing expected effects. Functions in the same family (<code>node_by_*()</code>, <code>node_in_*()</code>, <code>node_x_*()</code>, etc.) should share argument order and naming, so that behaviour is guessable across the family.</p>
+<p>All <code>stocnet</code> packages aim for the same three things: declarative simplicity, pleasant predictability, and graceful inclusivity. The principles are shared across the packages; the rules and examples below are those of <a href="https://stocnet.github.io/netrics/">netrics</a>.</p>
+<div class="section level3">
+<h3 id="declarative-simplicity">Declarative simplicity<a class="anchor" aria-label="anchor" href="#declarative-simplicity"></a></h3>
+<p>Functions should do one clearly named thing with few arguments.</p>
+<ul><li>
+<strong>Names describe procedures, not progenitors.</strong> A function is named after what it does, without abbreviations or model acronyms, and the originating authors are credited in its documentation. Example: <code><a href="reference/member_community_hier.html">node_in_greedy()</a></code>, <code><a href="reference/member_community_hier.html">node_in_walktrap()</a></code>, and <code><a href="reference/member_community_modular.html">node_in_optimal()</a></code> say how each community detection algorithm searches, where the literature names the first two after Clauset, Newman, and Moore, and Pons and Latapy.</li>
+<li>
+<strong>Few arguments per function, and one word for one thing.</strong> Every argument is something the user must read about before they can trust the result. Before adding one, look for the name the package already uses for that idea (see <a href="#argument-names-and-vocabulary">Argument names and vocabulary</a>).</li>
+<li>
+<strong>Scope is signalled by prefix.</strong> The prefix says which level of the network a result describes: <code>node_*()</code>, <code>tie_*()</code>, <code>mode_*()</code>, and <code>net_*()</code> return node-level, tie-level, mode-level, and network-level results respectively.</li>
+<li>
+<strong>Features are detected, not declared.</strong> A function finds out whether a network is directed, weighted, signed, or two-mode, and adjusts, so the user does not supply an argument for it. Example: <code><a href="reference/measure_central_degree.html">node_by_degree()</a></code> and <code><a href="reference/measure_central_between.html">node_by_betweenness()</a></code> call <code><a href="https://stocnet.github.io/manynet/reference/mark_format_node.html" class="external-link">manynet::is_twomode()</a></code> and normalise a two-mode network against its own maximum.</li>
+</ul></div>
+<div class="section level3">
+<h3 id="pleasant-predictability">Pleasant predictability<a class="anchor" aria-label="anchor" href="#pleasant-predictability"></a></h3>
+<p>Users should be able to guess a function’s behaviour from its family.</p>
+<ul><li>
+<strong>Families share an infix.</strong> After the scope, <code>_is_</code> returns a logical mark, <code>_by_</code> a numeric measure, <code>_in_</code> a membership, and <code>_x_</code> a motif census (see <a href="#function-family-naming-the-core-convention">Function family naming</a>).</li>
+<li>
+<strong>One concept takes one stem across families.</strong> Example: <code><a href="reference/mark_core.html">node_is_core()</a></code>, <code><a href="reference/measure_core.html">node_by_core()</a></code>, and <code><a href="reference/member_core.html">node_in_core()</a></code> are the mark, the measure, and the membership of the same idea.</li>
+<li>
+<strong>Arguments follow a consistent order.</strong> The network comes first, as <code>.data</code>, then the shared arguments in the same order and under the same names across the family.</li>
+<li>
+<strong>Outputs match the prefix.</strong> A <code>node_*()</code> function always returns one value or row per node, in the order of the nodes, so results can be bound directly to node attributes. Example: <code>mutate_nodes(.data, degree = node_by_degree(.data))</code>.</li>
+</ul></div>
+<div class="section level3">
+<h3 id="graceful-inclusivity">Graceful inclusivity<a class="anchor" aria-label="anchor" href="#graceful-inclusivity"></a></h3>
+<p>Functions should accept whatever network users bring and return something they can use.</p>
+<ul><li>
+<strong>Inputs span the common classes.</strong> Every function accepts any network that <a href="https://stocnet.github.io/manynet/" class="external-link">manynet</a> can coerce: matrices, edgelists, and <code>igraph</code>, <code>network</code>, <code>tidygraph</code>, and <code>stocnet</code> objects. Example: <code><a href="reference/measure_central_degree.html">node_by_degree()</a></code> works identically on an <code>igraph</code> object and an adjacency matrix.</li>
+<li>
+<strong>Only truly unsupported cases fail.</strong> Where a measure is defined for the network at hand, it should return a result rather than an error, which leaves users fewer failures to worry about. Where it really is not defined, the error says why and names the alternative. Example: <code><a href="reference/measure_centralisation_between.html">mode_by_betweenness()</a></code> on a one-mode network points users to <code><a href="reference/measure_centralisation_between.html">net_by_betweenness()</a></code>.</li>
+<li>
+<strong>Key steps are reported.</strong> Functions say what they did at the verbosity the user has chosen (see <a href="#console-messaging">Console messaging</a>). Example: <code><a href="reference/mark_ties.html">tie_is_path()</a></code> reports that it used only the positive ties of a signed network.</li>
+<li>
+<strong>Results describe themselves.</strong> A printed result does not take over the console: it shows as many values as fit the console’s width and says how many more there are. Its header carries what the user needs to interpret the values, such as the name of the measure and how it was normalised.</li>
+<li>
+<strong>Learning materials meet users where they are.</strong> The tutorials work through each family of functions on the example networks from <a href="https://stocnet.github.io/manynet/" class="external-link">manynet</a>.</li>
+</ul></div>
 </div>
 <div class="section level2">
 <h2 id="package-architecture">Package architecture<a class="anchor" aria-label="anchor" href="#package-architecture"></a></h2>

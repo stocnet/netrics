@@ -46,7 +46,7 @@ give scores that are comparable between networks."><meta property="og:image" con
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">netrics</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.1.0</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.1.1</span>
       </span>
     </div>
 
@@ -335,6 +335,11 @@ decreases centrality
 When \(\beta = 0\), this is the outdegree.
 \(\alpha\) is calculated to make sure the root mean square equals
 the network size.</p>
+<p>There is no solution where \(1/\beta\) is an eigenvalue of the
+network, as 1 is for any network with a separate pair of nodes,
+so <code>node_by_power()</code> stops there and says which exponents to use instead.
+An exponent whose absolute value is less than the inverse of the
+largest eigenvalue always has a solution.</p>
     </div>
     <div id="alpha-centrality">
     <h2>Alpha centrality</h2>
@@ -560,6 +565,7 @@ positive and negative ties, and those below 1 disadvantaged.</p>
 <code><a href="measure_diffusion_node.html">measure_diffusion_node</a></code>,
 <code><a href="measure_diverse_net.html">measure_diverse_net</a></code>,
 <code><a href="measure_diverse_node.html">measure_diverse_node</a></code>,
+<code><a href="measure_diverse_tie.html">measure_diverse_tie</a></code>,
 <code><a href="measure_features.html">measure_features</a></code>,
 <code><a href="measure_fit.html">measure_fit</a></code>,
 <code><a href="measure_fragmentation.html">measure_fragmentation</a></code>,
