@@ -133,6 +133,7 @@ measure_rosters <- list(
     net_by_richclub    = list(),
     net_by_scalefree   = list(),
     net_by_bipartivity = list(),
+    net_by_meshedness  = list(),
     net_by_smallworld  = list(times = 20)
   ),
   features_balance = list(

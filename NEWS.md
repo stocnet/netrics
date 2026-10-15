@@ -42,6 +42,7 @@
   - `net_by_homophily()` returns global Moran's I, which `net_by_spatial()` also gives
   - `node_by_homophily()` returns local Moran's I (Anselin 1995), which sums to the global value times the total tie weight
   - A numeric attribute still takes Geary's C where no index is given
+- Added `net_by_meshedness()` for Kansky's alpha index, the number of independent cycles relative to the most a planar network could have
 - Added `tie_by_diversity()` for the diversity of the nodes that each tie joins, with the same `diversity` options as `node_by_diversity()` (closes #44)
 - Fixed `node_by_power()` failing in the matrix solver where the exponent has no solution
 - Fixed `net_by_core()` and `net_by_divergence()` comparing the network with an ideal whose core and periphery were swapped

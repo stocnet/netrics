@@ -57,3 +57,16 @@ test_that("net_by_waves counts waves held in a `time` attribute", {
   expect_values(net_by_waves(ison_monks), 3)
   expect_values(net_by_waves(ison_adolescents), 1)
 })
+
+test_that("net_by_meshedness counts cycles against the planar maximum", {
+  # A tree has no cycles
+  expect_values(net_by_meshedness(create_tree(12)), 0)
+  # A triangle has as many as a planar network of three nodes can have
+  expect_values(net_by_meshedness(create_filled(3)), 1)
+  # (m - n + c) / (2n - 5): 4 ties, 4 nodes, 1 component
+  expect_values(net_by_meshedness(create_ring(4)), 1/3)
+  # Direction and parallel ties do not add cycles
+  expect_values(net_by_meshedness(create_ring(4, directed = TRUE)), 1/3)
+  # Too few nodes for the measure to be defined
+  expect_true(is.na(net_by_meshedness(create_filled(2))))
+})

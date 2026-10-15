@@ -21,6 +21,9 @@
 #'   `1` if all triangles are balanced.
 #'   - `net_by_bipartivity()` measures how close a network is to being
 #'   bipartite, that is, to dividing into two sets with ties only between them.
+#'   - `net_by_meshedness()` measures how many cycles a network has,
+#'   relative to the most that a planar network of its size could have.
+#'   A tree scores 0, and a network of triangles drawn on a plane scores 1.
 #'
 #' @template param_data
 #' @family features
@@ -267,6 +270,50 @@ net_by_bipartivity <- function(.data) {
   make_network_measure(out, .data, call = deparse(sys.call()),
                        measure = "bipartivity", range = c(0, 1),
                        normalization = "normalized")
+}
+
+#' @rdname measure_features
+#' @section Meshedness:
+#'   Meshedness, or Kansky's alpha index, counts a network's independent
+#'   cycles (its circuit rank) relative to the most that a planar network,
+#'   one that can be drawn on a plane without crossing ties,
+#'   of the same number of nodes can have:
+#'   \deqn{\alpha = \frac{m - n + c}{2n - 5}}
+#'   where \eqn{m} is the number of ties, \eqn{n} the number of nodes,
+#'   and \eqn{c} the number of components.
+#'   It is read on the undirected, simple network,
+#'   so that direction, loops, and parallel ties are not counted.
+#'   It distinguishes, for example, tree-like road networks from grids.
+#'   For a planar network it ranges from 0 to 1,
+#'   but a network that is not planar can score above 1,
+#'   so the upper end of its range is declared open.
+#'   It is not defined for fewer than three nodes, where it returns `NA`.
+#' @references
+#' ## On meshedness
+#' Kansky, Karel J. 1963.
+#' _Structure of Transportation Networks_.
+#' Chicago: University of Chicago, Department of Geography.
+#'
+#' Buhl, Jerome, Jacques Gautrais, Ricard V. Solé, Pascale Kuntz,
+#' Sergi Valverde, Jean-Louis Deneubourg, and Guy Theraulaz. 2004.
+#' "Efficiency and robustness in ant networks of galleries".
+#' _The European Physical Journal B_ 42(1): 123-129.
+#' \doi{10.1140/epjb/e2004-00364-9}
+#' @examples
+#' net_by_meshedness(create_tree(12))
+#' net_by_meshedness(create_lattice(12))
+#' @export
+net_by_meshedness <- function(.data) {
+  .data <- manynet::expect_nodes(.data)
+  .data <- .to_aggregated_css(.data)
+  g <- igraph::simplify(igraph::as_undirected(manynet::as_igraph(.data),
+                                              mode = "collapse"))
+  n <- igraph::vcount(g)
+  out <- if(n < 3) NA_real_ else
+    (igraph::ecount(g) - n + igraph::components(g)$no) / (2*n - 5)
+  make_network_measure(out, .data, call = deparse(sys.call()),
+                       measure = "meshedness", range = c(0, Inf),
+                       normalization = "none")
 }
 
 #' @rdname measure_features
