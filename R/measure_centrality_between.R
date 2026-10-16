@@ -2,7 +2,6 @@
 
 #' Measures of node betweenness-like centrality
 #' @name measure_central_between
-#' @template section_cognitive
 #' @description
 #'   These functions calculate common betweenness-related centrality measures for one- and two-mode networks:
 #'   
@@ -41,11 +40,11 @@
 #' @template node_measure
 #' @param cutoff The maximum path length to consider when calculating betweenness.
 #'   If negative or NULL (the default), there's no limit to the path lengths considered.
-#' @section Signed networks:
-#'   These measures read a tie as a distance, and a negative tie is hostility
+#' @details
+#'   For signed networks, these measures consider only the positive ties,
+#'   and say so.
+#'   They read a tie as a distance, and a negative tie is hostility
 #'   rather than a channel along which cohesion travels.
-#'   Where the network is signed, they therefore consider only the positive
-#'   ties, and say so.
 #'   Use [manynet::to_unsigned()] first to control this yourself.
 
 NULL
@@ -183,8 +182,8 @@ node_by_induced <- function(.data, normalized = TRUE,
 #'   the smaller of the source's out-strength and the target's in-strength.
 #'   The smallest maximum flow between any two nodes in a network is its
 #'   tie connectivity; see [net_by_adhesion()].
-#' @section Weighted networks:
-#'   `node_by_flow()` reads a tie's weight as its capacity:
+#'
+#'   For weighted networks, `node_by_flow()` reads a tie's weight as its capacity:
 #'   how much the tie can carry, so that a heavier tie carries more.
 #'   Note that this is the reverse of the shortest-path measures documented
 #'   here, which read a weight as a distance.
@@ -293,7 +292,6 @@ node_by_stress <- function(.data, normalized = TRUE){
 
 #' Measures of tie betweenness-like centrality
 #' @name measure_central_tie_between
-#' @template section_cognitive
 #' @description
 #'   `tie_by_betweenness()` measures the number of shortest paths going through a tie.
 #'   
@@ -308,13 +306,6 @@ node_by_stress <- function(.data, normalized = TRUE){
 #' @family betweenness
 #' @family centrality
 #' @template tie_measure
-#' @section Signed networks:
-#'   A tie measure holds one value per tie, so `tie_by_betweenness()` cannot
-#'   drop the negative ties as the distance measures at the node and network
-#'   level do. It reads each tie by its magnitude instead, which is what
-#'   [node_by_betweenness()] in effect does for a network whose ties are signed
-#'   but not weighted. Use [manynet::to_unsigned()] first to control this
-#'   yourself.
 NULL
 
 #' @rdname measure_central_tie_between
@@ -324,6 +315,14 @@ NULL
 #'   It is best known as the quantity iteratively recomputed by the
 #'   Girvan-Newman community detection algorithm, where the ties with the
 #'   highest betweenness are removed first; see [node_in_betweenness()].
+#'
+#'   For signed networks, `tie_by_betweenness()` reads each tie by its magnitude.
+#'   A tie measure holds one value per tie, so it cannot
+#'   drop the negative ties as the distance measures at the node and network
+#'   level do. This is what
+#'   [node_by_betweenness()] in effect does for a network whose ties are signed
+#'   but not weighted. Use [manynet::to_unsigned()] first to control this
+#'   yourself.
 #' @references
 #' ## On edge betweenness centrality
 #' Girvan, Michelle, and Mark E.J. Newman. 2002.
@@ -367,7 +366,6 @@ tie_by_betweenness <- function(.data, normalized = TRUE){
 
 #' Measures of network betweenness-like centralisation
 #' @name measure_centralisation_between
-#' @template section_cognitive
 #' @description
 #'   - `net_by_betweenness()` measures the betweenness centralization for a
 #'   network as a single score.
@@ -410,11 +408,11 @@ tie_by_betweenness <- function(.data, normalized = TRUE){
 #'   against the other nodes of its own mode. Since a two-mode incidence
 #'   structure gives these no distinct "out" counterpart,
 #'   `mode_by_betweenness()` accepts only `"all"` and `"in"`.
-#' @section Signed networks:
-#'   These measures read a tie as a distance, and a negative tie is hostility
+#'
+#'   For signed networks, these measures consider only the positive ties,
+#'   and say so.
+#'   They read a tie as a distance, and a negative tie is hostility
 #'   rather than a channel along which cohesion travels.
-#'   Where the network is signed, they therefore consider only the positive
-#'   ties, and say so.
 #'   Use [manynet::to_unsigned()] first to control this yourself.
 
 NULL

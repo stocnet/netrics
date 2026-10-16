@@ -51,8 +51,8 @@
 #'
 #'   See also \href{https://www.graphclasses.org/smallgraphs.html}{graph classes}
 #'   and McMillan and Felmlee (2020).
-#' @section Signed networks:
-#'   Where the network is signed, dyads and triads are split by the signs of
+#' @section Splitting motifs:
+#'   For signed networks, dyads and triads are split by the signs of
 #'   their ties.
 #'   Each label is followed by the signs of the motif's ties, e.g. `300_++-`
 #'   for a triangle with one negative tie, or `Mutual_+-` for a mutual dyad
@@ -68,9 +68,9 @@
 #'   Only the motifs that occur are reported.
 #'   Summing the variants of a motif gives the unsigned census.
 #'   Use [manynet::to_unsigned()] first for a coarser census.
-#' @section Multiplex and multilevel networks:
-#'   Where the network holds several one-mode layers, dyads and triads are
-#'   split by the layers of their ties.
+#'
+#'   For multiplex networks, which hold several one-mode layers,
+#'   dyads and triads are split by the layers of their ties.
 #'   Each layer is given a letter, the first letter of its name where these
 #'   differ, and the letters are kept in the `"layers"` attribute of the result.
 #'   Each tie lists the letters of the layers that carry it, separated from the
@@ -83,23 +83,6 @@
 #'   Use [manynet::to_uniplex()] first for a census of one layer.
 #'   The tetrad census counts every tie whatever its layer.
 #'
-#'   Where the network holds exactly one one-mode layer and one two-mode
-#'   layer, such as `fict_marvel`, the triad census is instead the
-#'   multilevel census of Hollway et al. (2017), over triads of two nodes of
-#'   the first mode and one of the second.
-#'   Its ten motifs are labelled by two digits: first, how many of the two
-#'   first-mode nodes are tied to the second-mode node (2, 1, or 0);
-#'   second, the tie between the two first-mode nodes
-#'   (2 mutual, 1 asymmetric, 0 none):
-#'   `22`, `21`, `20`, `12`, `11D`, `11U`, `10`, `02`, `01`, `00`.
-#'   So `21` counts pairs tied in one direction that share an affiliation.
-#'   Where only one of the pair is affiliated and the tie is asymmetric,
-#'   `11D` has the affiliated node sending the tie, and `11U` receiving it.
-#'   This census sets weights and signs aside, and takes no `attribute`.
-#'   Passing the one-mode and two-mode networks separately still works,
-#'   but is deprecated.
-#'   Other combinations of one-mode and two-mode layers are not yet available.
-#' @section Attributes:
 #'   Where an `attribute` is given, each motif is further split by how its
 #'   nodes compare on that attribute, after any signs or layers.
 #'   The comparison is given for each pair of positions in turn
@@ -125,3 +108,20 @@
 #'   motif gives the census without the attribute.
 #'   To see which categories take part in which motifs, take a node census
 #'   and summarise its rows by the attribute.
+#' @section Multilevel triad census:
+#'   For multilevel networks that hold exactly one one-mode layer and one
+#'   two-mode layer, such as `fict_marvel`, the triad census is instead the
+#'   multilevel census of Hollway et al. (2017), over triads of two nodes of
+#'   the first mode and one of the second.
+#'   Its ten motifs are labelled by two digits: first, how many of the two
+#'   first-mode nodes are tied to the second-mode node (2, 1, or 0);
+#'   second, the tie between the two first-mode nodes
+#'   (2 mutual, 1 asymmetric, 0 none):
+#'   `22`, `21`, `20`, `12`, `11D`, `11U`, `10`, `02`, `01`, `00`.
+#'   So `21` counts pairs tied in one direction that share an affiliation.
+#'   Where only one of the pair is affiliated and the tie is asymmetric,
+#'   `11D` has the affiliated node sending the tie, and `11U` receiving it.
+#'   This census sets weights and signs aside, and takes no `attribute`.
+#'   Passing the one-mode and two-mode networks separately still works,
+#'   but is deprecated.
+#'   Other combinations of one-mode and two-mode layers are not yet available.

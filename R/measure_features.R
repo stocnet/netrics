@@ -2,7 +2,6 @@
 
 #' Measures of network topological features
 #' @name measure_features
-#' @template section_cognitive
 #' @description
 #'   These functions measure topological features that are intrinsic to a
 #'   network, in the sense that they require nothing of the user beyond the
@@ -411,7 +410,6 @@ net_by_balance <- function(.data) {
 
 #' Measures of how well a structure fits a network
 #' @name measure_fit
-#' @template section_cognitive
 #' @description
 #'   These functions measure how well some proposed structure describes a
 #'   network. Unlike the intrinsic properties in [measure_features], each takes
@@ -454,28 +452,18 @@ net_by_balance <- function(.data) {
 #' @template param_memb
 #' @family features
 #' @template net_measure
-#' @section Signed networks:
-#'   Where the network is signed, `net_by_modularity()` returns signed
-#'   modularity (Gómez, Jensen, and Arenas 2009).
-#'   The positive and the negative ties are each compared with their own
-#'   random baseline, and the negative score is subtracted,
-#'   so that a negative tie inside a group counts against the partition
-#'   and a negative tie between groups counts for it.
-#'   It ranges between -1 and 1, and is the quality that
-#'   [node_in_spinglass()] maximises on a signed network.
-#'   A directed signed network is read as undirected, and a signed two-mode
-#'   network is read by the magnitude of its ties.
 #' @references
 #' ## On signed modularity
 #' Gómez, Sergio, Pablo Jensen, and Alex Arenas. 2009.
 #' "Analysis of community structure in networks of correlated data".
 #' _Physical Review E_ 80: 016114.
 #' \doi{10.1103/PhysRevE.80.016114}
-#' @section Multilevel networks:
-#'   `net_by_core()` and `net_by_factions()` fit the network to an ideal built
+#' @details
+#'   For multilevel networks, `net_by_core()` and `net_by_factions()` stop
+#'   rather than compare unlike shapes.
+#'   They fit the network to an ideal built
 #'   by a `manynet::create_*()` function, and those build one layer at a time.
-#'   A multilevel network holds two, so there is no single ideal to fit it to
-#'   and both stop rather than compare unlike shapes.
+#'   A multilevel network holds two, so there is no single ideal to fit it to.
 #'   Take one layer first, e.g. with [manynet::to_mode1()] or
 #'   [manynet::to_uniplex()].
 NULL
@@ -642,8 +630,19 @@ net_by_factions <- function(.data,
 #'   can miss small clusters that 'hide' inside larger clusters.
 #'   In the extreme case, this can be where they are only connected
 #'   to the rest of the network through a single tie.
-#'   To help manage this problem, a `resolution` parameter is added. 
+#'   To help manage this problem, a `resolution` parameter is added.
 #'   Please see the argument definition for more details.
+#'
+#'   For signed networks, `net_by_modularity()` returns signed
+#'   modularity (Gómez, Jensen, and Arenas 2009).
+#'   The positive and the negative ties are each compared with their own
+#'   random baseline, and the negative score is subtracted,
+#'   so that a negative tie inside a group counts against the partition
+#'   and a negative tie between groups counts for it.
+#'   It ranges between -1 and 1, and is the quality that
+#'   [node_in_spinglass()] maximises on a signed network.
+#'   A directed signed network is read as undirected, and a signed two-mode
+#'   network is read by the magnitude of its ties.
 #' @param resolution A proportion indicating the resolution scale.
 #'   By default 1, which returns the original definition of modularity.
 #'   The higher this parameter, the more smaller communities will be privileged.

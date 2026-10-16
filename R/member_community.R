@@ -333,13 +333,13 @@ consensus_memb <- function(.data, k, max_k, times, threshold = 0.5, iter = 10){
 #'   also optimise modularity, and [node_in_walktrap()] also follows random
 #'   walks. They are documented as hierarchical because the dendrogram, and
 #'   where it is cut, is what you control.
-#' @section Signed networks:
-#'   Three algorithms read a negative tie as a push apart:
+#'
+#'   For signed networks, `node_in_community()` considers only the three
+#'   algorithms that read a negative tie as a push apart:
 #'   [node_in_spinglass()] (Traag and Bruggeman 2009),
 #'   [node_in_leiden()], and [node_in_partition()].
 #'   The others set the negative ties aside.
-#'   `node_in_community()` therefore considers only these three where the
-#'   network is signed, and selects among them by [net_by_modularity()],
+#'   It selects among these three by [net_by_modularity()],
 #'   which on a signed network counts a negative tie inside a group against
 #'   the partition (Gómez, Jensen, and Arenas 2009).
 #'   Spinglass needs a connected network and accepts no `k`,
@@ -414,13 +414,13 @@ node_in_community <- function(.data, k = NULL, max_k = 8L,
 
 #' Memberships in communities that optimise a quality function
 #' @name member_community_modular
-#' @template section_cognitive
-#' @section Signed networks:
-#'   [node_in_optimal()] and [node_in_louvain()] read a tie's weight as the
+#' @details
+#'   For signed networks, [node_in_optimal()] and [node_in_louvain()]
+#'   consider only the positive ties, and say so.
+#'   They read a tie's weight as the
 #'   strength of a pull into the same community, and a negative tie is
 #'   hostility rather than such a pull.
-#'   Where the network is signed, they therefore consider only the positive
-#'   ties, and say so. [node_in_spinglass()] and [node_in_leiden()] read a
+#'   [node_in_spinglass()] and [node_in_leiden()] read a
 #'   sign as a sign: a negative tie inside a community counts against it.
 #'   Use [manynet::to_unsigned()] first to control this yourself.
 #' @description
@@ -449,8 +449,13 @@ NULL
 
 #' Memberships in communities that follow a spreading process
 #' @name member_community_spread
-#' @template section_cognitive
-#' @template section_signed
+#' @details
+#'   For signed networks, these algorithms consider only the positive ties,
+#'   and say so.
+#'   They read a tie's weight as the strength of a pull into the
+#'   same community, and a negative tie is hostility rather than such a pull.
+#'   Only [node_in_spinglass()] reads a sign as a sign.
+#'   Use [manynet::to_unsigned()] first to control this yourself.
 #' @description
 #'   These functions follow a process as it spreads over the network,
 #'   and read the communities off where it settles:
@@ -474,20 +479,6 @@ NULL
 
 #' Memberships in communities that fill a set number of groups
 #' @name member_community_partition
-#' @template section_cognitive
-#' @section Signed networks:
-#'   Both functions read a sign as a sign.
-#'   For [node_in_partition()], a negative tie inside a group lowers the
-#'   weight that the swaps maximise, so negative ties are moved between groups.
-#'   For [node_in_faction()], the ideal is structural balance:
-#'   positive ties within the factions and negative ties between them.
-#'   `"hamming"` then counts the errors as Doreian and Mrvar (1996) do,
-#'   the negative ties within factions plus the positive ties between them,
-#'   and an absent tie is no error either way.
-#'   `"phi"` correlates the sign of each pair's tie with whether the pair
-#'   shares a faction, and `"modularity"` maximises signed modularity
-#'   (see [net_by_modularity()]).
-#'   Use [manynet::to_unsigned()] first to consider one sign alone.
 #' @references
 #' ## On partitioning signed networks
 #' Doreian, Patrick, and Andrej Mrvar. 1996.
@@ -563,6 +554,11 @@ node_in_optimal <- function(.data){
 #'   Note that this algorithm is only applicable to undirected, unipartite networks, 
 #'   and returns `k` communities of equal size (or as close to equal as possible).
 #'   For `k` groups that are free to take any size, see `node_in_faction()`.
+#'
+#'   For signed networks, `node_in_partition()` reads a sign as a sign:
+#'   a negative tie inside a group lowers the
+#'   weight that the swaps maximise, so negative ties are moved between groups.
+#'   Use [manynet::to_unsigned()] first to consider one sign alone.
 #' @param start One of `"order"` (the default) or `"random"`,
 #'   naming how the nodes are dealt into the groups to begin with.
 #'   `"order"` deals them in node order, which makes the algorithm
@@ -703,6 +699,17 @@ kl_partition <- function(g, n, k, rounds = 50, start = "order"){
 #'   Note that `k` must be an integer here, since the search needs to know
 #'   how many groups to fill, and that `times` is by default the number of
 #'   nodes multiplied by `k`.
+#'
+#'   For signed networks, `node_in_faction()` reads a sign as a sign,
+#'   and the ideal is structural balance:
+#'   positive ties within the factions and negative ties between them.
+#'   `"hamming"` then counts the errors as Doreian and Mrvar (1996) do,
+#'   the negative ties within factions plus the positive ties between them,
+#'   and an absent tie is no error either way.
+#'   `"phi"` correlates the sign of each pair's tie with whether the pair
+#'   shares a faction, and `"modularity"` maximises signed modularity
+#'   (see [net_by_modularity()]).
+#'   Use [manynet::to_unsigned()] first to consider one sign alone.
 #' @param variant Which measure of fit the factions should optimise.
 #'   One of "hamming" (the default), "phi", or "modularity".
 #' @template param_times
@@ -1112,8 +1119,13 @@ node_in_labels <- function(.data, k = NULL, max_k = 8L, Kmax = NULL){
 
 #' Memberships in communities that form a hierarchy
 #' @name member_community_hier
-#' @template section_cognitive
-#' @template section_signed
+#' @details
+#'   For signed networks, these algorithms consider only the positive ties,
+#'   and say so.
+#'   They read a tie's weight as the strength of a pull into the
+#'   same community, and a negative tie is hostility rather than such a pull.
+#'   Only [node_in_spinglass()] reads a sign as a sign.
+#'   Use [manynet::to_unsigned()] first to control this yourself.
 #' @description
 #'   These functions offer algorithms for hierarchically clustering
 #'   networks into communities. Since all of the following are hierarchical,

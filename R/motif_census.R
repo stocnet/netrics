@@ -2,7 +2,6 @@
 
 #' Motifs of node pathing
 #' @name motif_path
-#' @template section_cognitive
 #' @description
 #'   These functions include ways to take a census of the positions of nodes
 #'   in a network: 
@@ -16,19 +15,20 @@
 #'   each tie costs the mean tie weight divided by its own weight.
 #'   Nodes that cannot reach each other are an infinite distance apart.
 #'   
-#' @section Multiplex networks:
-#'   `node_x_tie()` binds the layers together, giving one block of columns
+#' @details
+#'   For multiplex networks, `node_x_tie()` binds the layers together,
+#'   giving one block of columns
 #'   per layer, whatever attribute the network is multiplexed on.
 #'   Each block stays the length of the whole nodeset.
 #'   To census one layer alone, take it first with [manynet::to_uniplex()].
+#'
+#'   For signed networks, `node_x_path()` considers only the positive ties.
+#'   It reads a tie as a distance, and a negative tie is
+#'   hostility rather than a channel along which cohesion travels.
+#'   Use [manynet::to_unsigned()] first to control this yourself.
 #' @template param_data
 #' @template node_motif
 #' @importFrom igraph vcount make_ego_graph delete_vertices triad_census
-#' @section Signed networks:
-#'   `node_x_path()` reads a tie as a distance, and a negative tie is
-#'   hostility rather than a channel along which cohesion travels.
-#'   Where the network is signed, it therefore considers only the positive
-#'   ties. Use [manynet::to_unsigned()] first to control this yourself.
 
 NULL
 

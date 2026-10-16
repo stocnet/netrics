@@ -53,33 +53,6 @@ alongside three weighted clustering coefficients.
 For two-mode networks, \code{node_by_equivalency} calculates the proportion of three-paths in the network
 that are closed by fourth tie to establish a "shared four-cycle" structure.
 }
-\section{Cognitive social structures}{
-
-A cognitive social structure records each node's report of the ties in
-the whole network, in a \code{by} column that names who reported each tie.
-Counting every report as a tie of its own would count each tie once for
-every perceiver who reports it.
-So the functions here first combine the reports into the locally
-aggregated structure of Krackhardt (1987), with the intersection rule:
-a tie exists if both of its ends report it, and a message says so.
-A tie that names no reporter is kept as it is.
-
-A tie-level function still returns one value for each report,
-so that the result can be added back to the network it was given.
-Each report takes the value of the tie that it reports.
-A report of a tie that is not in the aggregated structure takes \code{NA},
-or \code{FALSE} for a mark.
-\code{tie_is_random()} is the exception, and draws among the reports.
-
-To combine the reports in a different way, do this before the function,
-e.g. with \code{manynet::to_aggregated(over = "by")}.
-
-Krackhardt, David. 1987.
-"Cognitive social structures".
-\emph{Social Networks} 9(2): 109-134.
-\doi{10.1016/0378-8733(87)90009-8}
-}
-
 \section{Node reciprocity}{
 
 A node's reciprocity is the proportion of its ties that are returned.
@@ -123,33 +96,24 @@ use \code{variant = "watts"} to ignore the weights.
 A node with fewer than two ties has no pair of neighbours to close,
 and scores \code{NaN} in every variant.
 A two-mode network contains no triangles, so every node scores 0 or \code{NaN}.
-}
 
-\section{Directed networks}{
-
-Transitivity here ignores the direction of ties.
+For directed networks, transitivity here ignores the direction of ties.
 The weighted variants add the weights of the two directions of a tie,
 following Fagiolo (2007).
 Every weighted variant is unchanged when all weights are multiplied by the
 same number, so this gives the same result as their mean.
 To combine the two directions differently, use \code{manynet::to_undirected()}
 first.
-}
 
-\section{Multiplex networks}{
-
-The \code{"watts"} variant counts a pair of nodes as tied if they are tied in
-any layer.
+For multiplex networks, the \code{"watts"} variant counts a pair of nodes as
+tied if they are tied in any layer.
 The weighted variants add the weights of the parallel ties between two
 nodes, so that, in an unweighted multiplex network, a tie is weighted by
 the number of layers it appears in.
 To measure one layer alone, use \code{manynet::to_uniplex()} first.
-}
 
-\section{Signed networks}{
-
-A tie counts here however it is signed, so each tie is read by the
-magnitude of its weight.
+For signed networks, each tie is read by the magnitude of its weight,
+since a tie counts here however it is signed.
 To consider only the positive ties, use
 \code{manynet::to_unsigned(keep = "positive")} first.
 }

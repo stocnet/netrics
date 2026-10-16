@@ -2,7 +2,6 @@
 
 #' Measures of node closeness-like centrality
 #' @name measure_central_close
-#' @template section_cognitive
 #' @description
 #'   These functions calculate common closeness-related centrality measures 
 #'   that rely on path-length for one- and two-mode networks:
@@ -51,11 +50,11 @@
 #' @family closeness
 #' @family centrality
 #' @template node_measure
-#' @section Signed networks:
-#'   These measures read a tie as a distance, and a negative tie is hostility
+#' @details
+#'   For signed networks, these measures consider only the positive ties,
+#'   and say so.
+#'   They read a tie as a distance, and a negative tie is hostility
 #'   rather than a channel along which cohesion travels.
-#'   Where the network is signed, they therefore consider only the positive
-#'   ties, and say so.
 #'   Use [manynet::to_unsigned()] first to control this yourself.
 
 NULL
@@ -586,7 +585,6 @@ node_by_randomwalk <- function(.data, normalized = TRUE){
 
 #' Measures of tie closeness-like centrality
 #' @name measure_central_tie_close
-#' @template section_cognitive
 #' @description
 #'   `tie_by_closeness()` measures the closeness of each tie to other ties 
 #'   in the network.
@@ -625,7 +623,6 @@ tie_by_closeness <- function(.data, normalized = TRUE){
 
 #' Measures of network closeness-like centralisation
 #' @name measure_centralisation_close
-#' @template section_cognitive
 #' @description
 #'   - `net_by_closeness()` measures a network's closeness centralization as a
 #'   single score.
@@ -663,11 +660,11 @@ tie_by_closeness <- function(.data, normalized = TRUE){
 #'   `net_by_*()` functions return a `network_measure` scalar;
 #'   `mode_by_closeness()` returns a `mode_measure` numeric vector of length two,
 #'   giving one centralization score per mode.
-#' @section Signed networks:
-#'   These measures read a tie as a distance, and a negative tie is hostility
+#' @details
+#'   For signed networks, these measures consider only the positive ties,
+#'   and say so.
+#'   They read a tie as a distance, and a negative tie is hostility
 #'   rather than a channel along which cohesion travels.
-#'   Where the network is signed, they therefore consider only the positive
-#'   ties, and say so.
 #'   Use [manynet::to_unsigned()] first to control this yourself.
 
 NULL

@@ -88,49 +88,6 @@ e.g. with \code{\link[=net_by_modularity]{net_by_modularity()}}.
 See \link{member_community} for a comparison with the other community
 detection algorithms.
 }
-\section{Cognitive social structures}{
-
-A cognitive social structure records each node's report of the ties in
-the whole network, in a \code{by} column that names who reported each tie.
-Counting every report as a tie of its own would count each tie once for
-every perceiver who reports it.
-So the functions here first combine the reports into the locally
-aggregated structure of Krackhardt (1987), with the intersection rule:
-a tie exists if both of its ends report it, and a message says so.
-A tie that names no reporter is kept as it is.
-
-A tie-level function still returns one value for each report,
-so that the result can be added back to the network it was given.
-Each report takes the value of the tie that it reports.
-A report of a tie that is not in the aggregated structure takes \code{NA},
-or \code{FALSE} for a mark.
-\code{tie_is_random()} is the exception, and draws among the reports.
-
-To combine the reports in a different way, do this before the function,
-e.g. with \code{manynet::to_aggregated(over = "by")}.
-
-Krackhardt, David. 1987.
-"Cognitive social structures".
-\emph{Social Networks} 9(2): 109-134.
-\doi{10.1016/0378-8733(87)90009-8}
-}
-
-\section{Signed networks}{
-
-Both functions read a sign as a sign.
-For \code{\link[=node_in_partition]{node_in_partition()}}, a negative tie inside a group lowers the
-weight that the swaps maximise, so negative ties are moved between groups.
-For \code{\link[=node_in_faction]{node_in_faction()}}, the ideal is structural balance:
-positive ties within the factions and negative ties between them.
-\code{"hamming"} then counts the errors as Doreian and Mrvar (1996) do,
-the negative ties within factions plus the positive ties between them,
-and an absent tie is no error either way.
-\code{"phi"} correlates the sign of each pair's tie with whether the pair
-shares a faction, and \code{"modularity"} maximises signed modularity
-(see \code{\link[=net_by_modularity]{net_by_modularity()}}).
-Use \code{\link[manynet:to_unsigned]{manynet::to_unsigned()}} first to consider one sign alone.
-}
-
 \section{Partition}{
 
 The general idea is to assign nodes to two groups, and then iteratively
@@ -153,6 +110,11 @@ modularity, and since it holds the groups at equal size.
 Note that this algorithm is only applicable to undirected, unipartite networks,
 and returns \code{k} communities of equal size (or as close to equal as possible).
 For \code{k} groups that are free to take any size, see \code{node_in_faction()}.
+
+For signed networks, \code{node_in_partition()} reads a sign as a sign:
+a negative tie inside a group lowers the
+weight that the swaps maximise, so negative ties are moved between groups.
+Use \code{\link[manynet:to_unsigned]{manynet::to_unsigned()}} first to consider one sign alone.
 }
 
 \section{Faction}{
@@ -190,6 +152,17 @@ Set a seed to repeat a result.
 Note that \code{k} must be an integer here, since the search needs to know
 how many groups to fill, and that \code{times} is by default the number of
 nodes multiplied by \code{k}.
+
+For signed networks, \code{node_in_faction()} reads a sign as a sign,
+and the ideal is structural balance:
+positive ties within the factions and negative ties between them.
+\code{"hamming"} then counts the errors as Doreian and Mrvar (1996) do,
+the negative ties within factions plus the positive ties between them,
+and an absent tie is no error either way.
+\code{"phi"} correlates the sign of each pair's tie with whether the pair
+shares a faction, and \code{"modularity"} maximises signed modularity
+(see \code{\link[=net_by_modularity]{net_by_modularity()}}).
+Use \code{\link[manynet:to_unsigned]{manynet::to_unsigned()}} first to consider one sign alone.
 }
 
 \examples{

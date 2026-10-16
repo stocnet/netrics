@@ -49,7 +49,6 @@
 #' @template param_data
 #' @template node_member
 #' @name member_cliques
-#' @template section_cognitive
 NULL
 
 #' @rdname member_cliques

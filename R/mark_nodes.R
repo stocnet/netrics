@@ -2,7 +2,6 @@
 
 #' Marks of nodes based on structural properties
 #' @name mark_nodes
-#' @template section_cognitive
 #' @description 
 #'   These functions return logical vectors the length of the 
 #'   nodes in a network identifying which hold certain properties or positions in the network.
@@ -17,15 +16,15 @@
 #'   - `node_is_neighbor()` marks nodes that are neighbours of a given node.
 #' @template param_data
 #' @template node_mark
-#' @section Signed networks:
-#'   `node_is_fold()` reads a tie as a distance, and a negative tie is
-#'   hostility rather than a channel along which cohesion travels, so where the
-#'   network is signed it considers only the positive ties.
-#' @section Multilevel networks:
+#' @details
+#'   For signed networks, `node_is_fold()` considers only the positive ties.
+#'   It reads a tie as a distance, and a negative tie is
+#'   hostility rather than a channel along which cohesion travels.
+#'
+#'   For multilevel networks, `node_is_independent()` marks the network whole,
+#'   as [net_by_independence()] does.
 #'   A multilevel network reports itself as two-mode, but holds ties within a
 #'   mode as well as between them, so it cannot be projected onto one mode.
-#'   `node_is_independent()` therefore marks a multilevel network whole, as
-#'   [net_by_independence()] does.
 NULL
 
 #' @rdname mark_nodes
@@ -195,7 +194,6 @@ node_is_neighbor <- function(.data, node, cutoff = 1){
 
 #' Marks of nodes based on degree properties
 #' @name mark_degree
-#' @template section_cognitive
 #' @description
 #'   These functions return logical vectors the length of the 
 #'   nodes in a network identifying which hold certain properties or positions in the network.
@@ -277,7 +275,6 @@ node_is_universal <- function(.data){
 #' @template node_mark
 #' @family diffusion
 #' @name mark_diff
-#' @template section_cognitive
 NULL
 
 #' @rdname mark_diff 

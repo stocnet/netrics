@@ -1,5 +1,9 @@
 # netrics 1.1.2
 
+## Package
+
+- Updated function documentation sections to be about the outputs not the inputs
+
 ## Motifs
 
 - Added `node_x_accuracy()` for the confusion matrix of each reporter's view 

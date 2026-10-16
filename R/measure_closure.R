@@ -2,7 +2,6 @@
 
 #' Measures of network closure
 #' @name measure_closure
-#' @template section_cognitive
 #' @description
 #'   These functions offer methods for summarising the closure in configurations 
 #'   in one-, two-, and three-mode networks:
@@ -210,7 +209,6 @@ net_by_congruency <- function(.data, object2){
 
 #' Measures of node closure
 #' @name measure_closure_node
-#' @template section_cognitive
 #' @description
 #'   These functions offer methods for summarising the closure in configurations 
 #'   in one- and two-mode networks:
@@ -295,24 +293,24 @@ node_by_reciprocity <- function(.data) {
 #'   A node with fewer than two ties has no pair of neighbours to close,
 #'   and scores `NaN` in every variant.
 #'   A two-mode network contains no triangles, so every node scores 0 or `NaN`.
-#' @section Directed networks:
-#'   Transitivity here ignores the direction of ties.
+#'
+#'   For directed networks, transitivity here ignores the direction of ties.
 #'   The weighted variants add the weights of the two directions of a tie,
 #'   following Fagiolo (2007).
 #'   Every weighted variant is unchanged when all weights are multiplied by the
 #'   same number, so this gives the same result as their mean.
 #'   To combine the two directions differently, use `manynet::to_undirected()`
 #'   first.
-#' @section Multiplex networks:
-#'   The `"watts"` variant counts a pair of nodes as tied if they are tied in
-#'   any layer.
+#'
+#'   For multiplex networks, the `"watts"` variant counts a pair of nodes as
+#'   tied if they are tied in any layer.
 #'   The weighted variants add the weights of the parallel ties between two
 #'   nodes, so that, in an unweighted multiplex network, a tie is weighted by
 #'   the number of layers it appears in.
 #'   To measure one layer alone, use `manynet::to_uniplex()` first.
-#' @section Signed networks:
-#'   A tie counts here however it is signed, so each tie is read by the
-#'   magnitude of its weight.
+#'
+#'   For signed networks, each tie is read by the magnitude of its weight,
+#'   since a tie counts here however it is signed.
 #'   To consider only the positive ties, use
 #'   `manynet::to_unsigned(keep = "positive")` first.
 #' @references

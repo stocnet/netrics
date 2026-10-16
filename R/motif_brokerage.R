@@ -6,7 +6,6 @@
 #'   roles played by nodes in a network.
 #'   
 #' @name motif_brokerage_node
-#' @template section_cognitive
 #' @template param_data
 #' @template param_memb
 #' @family brokerage
@@ -57,7 +56,6 @@ node_x_brokerage <- function(.data, membership, standardized = FALSE){
 #'   roles in a network.
 #'   
 #' @name motif_brokerage_net
-#' @template section_cognitive
 #' @template param_data
 #' @template param_memb
 #' @family brokerage
@@ -101,7 +99,6 @@ net_x_brokerage <- function(.data, membership, standardized = FALSE){
 #'   - `node_by_brokering_exclusivity()` measures nodes' brokerage exclusivity. 
 #'   
 #' @name measure_brokerage
-#' @template section_cognitive
 #' @template param_data
 #' @template param_memb
 #' @template node_measure
@@ -188,7 +185,6 @@ node_by_brokering_exclusivity <- function(.data, membership){
 #'   connector, linchpin, or sideliner according to Hamilton et al. (2020).
 #'   
 #' @name member_brokerage
-#' @template section_cognitive
 #' @template param_data
 #' @template param_memb
 #' @family brokerage

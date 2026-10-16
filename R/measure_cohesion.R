@@ -2,7 +2,6 @@
 
 #' Measures of network cohesion
 #' @name measure_cohesion
-#' @template section_cognitive
 #' @description
 #'   These functions return values or vectors relating to how cohesive a network is:
 #'   
@@ -19,19 +18,19 @@
 #' @template param_connectivity
 #' @family cohesion
 #' @template net_measure
-#' @section Signed networks:
-#'   `net_by_compactness()` measures distance, and a negative tie is hostility
+#' @details
+#'   For signed networks, `net_by_compactness()` considers only the positive ties.
+#'   It measures distance, and a negative tie is hostility
 #'   rather than a channel along which cohesion travels.
-#'   Where the network is signed, it therefore considers only the positive ties.
 #'   Use [manynet::to_unsigned()] first to control this yourself.
 #'   The other measures in this topic do not depend on distance,
 #'   and so use every tie whatever its sign.
-#' @section Multilevel networks:
+#'
+#'   For multilevel networks, `net_by_independence()` measures the network whole,
+#'   which is the quantity wanted in any case.
 #'   A multilevel network reports itself as two-mode,
 #'   but holds ties within a mode as well as between them,
 #'   so it cannot be projected onto one mode.
-#'   `net_by_independence()` therefore measures a multilevel network whole,
-#'   which is the quantity wanted in any case.
 #'   The projection remains for genuine two-mode networks,
 #'   where no two nodes of one mode are ever tied
 #'   and the unprojected answer would be trivially the larger mode.
@@ -157,7 +156,6 @@ net_by_independence <- function(.data){
 
 #' Measures of network breadth
 #' @name measure_breadth
-#' @template section_cognitive
 #' @description
 #'   These functions return values or vectors relating to how broad a network is.
 #'   
@@ -167,13 +165,12 @@ net_by_independence <- function(.data){
 #' @template param_data
 #' @family cohesion
 #' @template net_measure
-#' @section Signed networks:
-#'   Both measures count path lengths, and a negative tie is hostility rather
+#' @details
+#'   For signed networks, both measures consider only the positive ties.
+#'   They count path lengths, and a negative tie is hostility rather
 #'   than a channel along which cohesion travels.
-#'   Where the network is signed, they therefore consider only the positive
-#'   ties. Use [manynet::to_unsigned()] first to control this yourself.
-#'   
-#'   Note that dropping the negative ties can disconnect the network,
+#'   Use [manynet::to_unsigned()] first to control this yourself.
+#'   Dropping the negative ties can disconnect the network,
 #'   in which case the measure covers the reachable pairs only.
 NULL
 
@@ -215,7 +212,6 @@ net_by_length <- function(.data){
 
 #' Measures of network fragmentation
 #' @name measure_fragmentation
-#' @template section_cognitive
 #' @description
 #'   These functions return values relating to how connected a network is
 #'   and the number of nodes or edges to remove that would increase fragmentation.
@@ -273,8 +269,8 @@ net_by_cohesion <- function(.data){
 
 #' @rdname measure_fragmentation 
 #' @importFrom igraph adhesion
-#' @section Weighted networks:
-#'   `net_by_adhesion()` reads a tie's weight as its capacity,
+#' @details
+#'   For weighted networks, `net_by_adhesion()` reads a tie's weight as its capacity,
 #'   and so returns the smallest total weight of ties whose removal would
 #'   increase the number of components, the network's minimum cut,
 #'   rather than the smallest number of such ties.
@@ -283,13 +279,14 @@ net_by_cohesion <- function(.data){
 #'   Use [manynet::to_unweighted()] first to count ties instead.
 #'   The other measures documented here count nodes or ties whatever
 #'   their weight.
-#' @section Signed networks:
-#'   `net_by_adhesion()` asks what holds a network together,
+#'
+#'   For signed networks, `net_by_adhesion()` considers only the positive
+#'   ties, and says so.
+#'   It asks what holds a network together,
 #'   and a negative tie is hostility rather than a channel along which
 #'   cohesion travels.
-#'   Where the network is signed, it therefore considers only the positive
-#'   ties, and says so.
 #'   Use [manynet::to_unsigned()] first to control this yourself.
+#'   `net_by_robustness()` also considers only the positive ties.
 #'   The other measures documented here use every tie whatever its sign.
 #' @examples 
 #' net_by_adhesion(fict_greys)

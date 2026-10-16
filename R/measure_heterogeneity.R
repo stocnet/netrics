@@ -169,7 +169,6 @@ net_by_diversity <- function(.data, attribute,
 
 #' Measures of node diversity
 #' @name measure_diverse_node
-#' @template section_cognitive
 #' @description
 #'   These functions offer ways to measure the heterogeneity of an attribute
 #'   across a network, within groups of a network, or the distribution of ties
@@ -234,7 +233,6 @@ node_by_diversity <- function(.data, attribute,
 
 #' Measures of tie diversity
 #' @name measure_diverse_tie
-#' @template section_cognitive
 #' @description
 #'   - `tie_by_diversity()` measures the heterogeneity of the nodes
 #'   that each tie joins.
@@ -278,7 +276,6 @@ tie_by_diversity <- function(.data, attribute,
 
 #' Measures of network assortativity
 #' @name measure_assort_net
-#' @template section_cognitive
 #' @description
 #'   These functions offer ways to measure the distribution or assortativity 
 #'   of ties in a network:
@@ -707,7 +704,6 @@ net_by_spatial <- function(.data, attribute){
 
 #' Measures of node assortativity
 #' @name measure_assort_node
-#' @template section_cognitive
 #' @description
 #'   These functions offer ways to measure nodes' assortativity in a network:
 #'   

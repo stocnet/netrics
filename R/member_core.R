@@ -2,7 +2,6 @@
 
 #' Marks of nodes as core or periphery
 #' @name mark_core
-#' @template section_cognitive
 #' @description
 #'   `node_is_core()` identifies whether nodes belong to the core of the 
 #'   network, as opposed to the periphery.
@@ -59,7 +58,6 @@ node_is_core <- function(.data, coreness = NULL,
 
 #' Measures of node coreness
 #' @name measure_core
-#' @template section_cognitive
 #' @description
 #'   These functions identify nodes belonging to (some level of) the core of a network:
 #'   
@@ -141,7 +139,6 @@ node_by_core <- function(.data, coreness = NULL,
 
 #' Memberships in core-periphery categories
 #' @name member_core
-#' @template section_cognitive
 #' @description
 #'   `node_in_core()` categorizes nodes into two or more core/periphery
 #'   categories based on their coreness.

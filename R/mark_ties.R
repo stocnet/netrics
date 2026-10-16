@@ -15,7 +15,6 @@
 #' @template param_data
 #' @template tie_mark
 #' @name mark_ties
-#' @template section_cognitive
 NULL
 
 #' @rdname mark_ties
@@ -138,7 +137,6 @@ tie_is_path <- function(.data, from, to, all_paths = FALSE){
 #' @template param_data
 #' @template tie_mark
 #' @name mark_dyads
-#' @template section_cognitive
 NULL
 
 #' @rdname mark_dyads
@@ -188,12 +186,11 @@ tie_is_reciprocated <- function(.data){
 #' @template tie_mark
 #' @family cohesion
 #' @name mark_triangles
-#' @template section_cognitive
-#' @section Signed networks:
+#' @details
+#'   For signed networks, each tie is read by its magnitude,
+#'   and every tie keeps its place in the returned vector.
 #'   These marks ask only whether a two-path exists, as a census does, so a tie
-#'   counts however it is signed. Where the network is signed, each tie is
-#'   therefore read by its magnitude, and every tie keeps its place in the
-#'   returned vector.
+#'   counts however it is signed.
 NULL
 
 #' @rdname mark_triangles
