@@ -1,3 +1,16 @@
+# netrics 1.1.2
+
+## Motifs
+
+- Added `node_x_accuracy()` for the confusion matrix of each reporter's view 
+  of a cognitive social structure against an ideal, by default its LAS (closes #37)
+
+## Measures
+
+- Added `node_by_accuracy()` and `net_by_accuracy()` for how well each reporter's view 
+  of a cognitive social structure, and all of them on average, agree with an ideal, 
+  with the `"hamming"` and `"jaccard"` variants of `net_by_divergence()` (closes #37)
+
 # netrics 1.1.1
 
 ## Package

@@ -925,16 +925,7 @@ net_by_divergence <- function(.data, ideal = manynet::create_core,
       ide <- pmax(ide, t(ide))
     }
     keep <- .valid_cells(.data, obs)
-    obs <- obs[keep] != 0
-    ide <- ide[keep] != 0
-    if(variant == "hamming"){
-      # two networks without any possible ties are identical
-      out <- if(length(obs) == 0) 0 else mean(obs != ide)
-    } else {
-      union <- sum(obs | ide)
-      # two networks without any ties are identical
-      out <- if(union == 0) 0 else 1 - sum(obs & ide)/union
-    }
+    out <- 1 - .agreement(.confusion(obs[keep] != 0, ide[keep] != 0), variant)
   }
   make_network_measure(out, .data, call = deparse(sys.call()),
                        measure = switch(variant,
@@ -943,6 +934,183 @@ net_by_divergence <- function(.data, ideal = manynet::create_core,
                                         portrait = "portrait divergence"),
                        range = c(0, 1), normalization = "normalized",
                        variant = variant)
+}
+
+# The confusion matrix of a network against a reference, as four counts over
+# the same cells, each read as a tie present or absent.
+.confusion <- function(obs, ref){
+  c(true_positives = sum(obs & ref), false_positives = sum(obs & !ref),
+    false_negatives = sum(!obs & ref), true_negatives = sum(!obs & !ref))
+}
+
+# How far a network agrees with a reference, from its confusion matrix:
+# the share of cells that agree ("hamming"), or the share of ties in either
+# that are in both ("jaccard"). Two networks without any cells, or without
+# any ties, are identical.
+.agreement <- function(cm, variant = c("hamming", "jaccard")){
+  variant <- match.arg(variant)
+  if(variant == "hamming"){
+    total <- sum(cm)
+    if(isTRUE(total == 0)) 1 else
+      (cm[["true_positives"]] + cm[["true_negatives"]]) / total
+  } else {
+    union <- sum(cm[c("true_positives", "false_positives", "false_negatives")])
+    if(isTRUE(union == 0)) 1 else cm[["true_positives"]] / union
+  }
+}
+
+# Accuracy ####
+
+# The confusion matrix of each reporter's slice of a cognitive social structure
+# against an ideal network, with one row for each node. Each layer of reports
+# is compared with the same layer of the ideal, by default its own locally
+# aggregated structure, and the counts are summed over the layers. A layer
+# whose ties name no reporter, such as a formal reporting line, holds no
+# reports to compare. A cell that is missing in either network is left out.
+.css_confusion <- function(.data, ideal = NULL){
+  .data <- manynet::expect_nodes(.data)
+  if(!manynet::is_cognitive(.data))
+    manynet::snet_abort("Accuracy compares each reporter's view of a network",
+                        "with an ideal, and this network names no reporters.",
+                        "To compare two networks, use {.fn net_by_divergence}.")
+  ties <- manynet::as_stocnet(.data)$ties
+  layers <- if(manynet::is_multiplex(.data))
+    unique(as.character(ties$layer[!is.na(ties$by)])) else NA
+  out <- NULL
+  for(layer in layers){
+    css <- if(is.na(layer)) .data else manynet::to_uniplex(.data, layer)
+    ref <- if(is.null(ideal)) css else manynet::expect_nodes(ideal)
+    if(!is.na(layer) && manynet::is_multiplex(ref))
+      ref <- manynet::to_uniplex(ref, layer)
+    reports <- manynet::as_matrix(css)
+    ref <- manynet::as_matrix(.to_aggregated_css(ref))
+    if(!identical(dim(ref), dim(reports)[1:2]))
+      manynet::snet_abort("The ideal must hold the same nodes as the network.")
+    keep <- .valid_cells(.data, ref) & !is.na(ref)
+    counts <- t(vapply(seq_len(dim(reports)[3]), function(r){
+      obs <- reports[, , r]
+      cells <- keep & !is.na(obs)
+      .confusion(obs[cells] != 0, ref[cells] != 0)
+    }, FUN.VALUE = numeric(4)))
+    out <- if(is.null(out)) counts else out + counts
+  }
+  out
+}
+
+#' Measures of reporter accuracy
+#' @name measure_accuracy_node
+#' @description
+#'   `node_by_accuracy()` measures how well each node's report of a cognitive
+#'   social structure agrees with an ideal network, from 0 to 1 where the
+#'   report _is_ the ideal.
+#'
+#'   A cognitive social structure (Krackhardt 1987) asks each node to report
+#'   the ties of the whole network.
+#'   Each report is compared with the ideal tie by tie.
+#'   By default, the ideal is the locally aggregated structure, where a tie
+#'   exists if both of its ends report it.
+#'   Note that this ideal uses each node's reports of its own ties, so a node
+#'   agrees with it on part of its own dyads.
+#'   For a different ideal, such as a consensus structure, give it as `ideal`,
+#'   e.g. `manynet::to_flat(.data, attribute = "by")`.
+#'   Where the network holds several layers of reports, each layer is
+#'   compared with the same layer of the ideal, and the cells are pooled.
+#'
+#'   There are two variants:
+#'
+#'   - `"hamming"` (the default) is the share of possible ties on which the
+#'   report and the ideal agree, whether on a tie or on its absence.
+#'   This is the classic accuracy.
+#'   Most possible ties are absent in a sparse network, so a node that
+#'   reports few ties can still score high.
+#'   - `"jaccard"` is the share of ties in either the report or the ideal
+#'   that are in both. It ignores ties absent from both.
+#'
+#'   These are one minus the `"hamming"` and `"jaccard"` variants of
+#'   [net_by_divergence()] between each node's report and the ideal.
+#'   For the counts of each kind of agreement and error,
+#'   see [node_x_accuracy()].
+#' @template param_data
+#' @param ideal The ideal network to compare each report against,
+#'   with the same nodes as the network.
+#'   By default, the locally aggregated structure of the network itself.
+#' @template param_variant
+#' @family features
+#' @template node_measure
+#' @references
+#' ## On cognitive social structures
+#' Krackhardt, David. 1987.
+#' "Cognitive social structures".
+#' _Social Networks_ 9(2): 109-134.
+#' \doi{10.1016/0378-8733(87)90009-8}
+#' @examples
+#' node_by_accuracy(ison_hightech)
+#' node_by_accuracy(ison_hightech, variant = "jaccard")
+#' @export
+node_by_accuracy <- function(.data, ideal = NULL,
+                             variant = c("hamming", "jaccard")){
+  variant <- match.arg(variant)
+  cm <- .css_confusion(.data, ideal)
+  out <- apply(cm, 1, .agreement, variant = variant)
+  make_node_measure(out, .data,
+                    measure = switch(variant,
+                                     hamming = "Hamming accuracy",
+                                     jaccard = "Jaccard accuracy"),
+                    range = c(0, 1), normalization = "normalized",
+                    variant = variant)
+}
+
+#' Measures of network accuracy
+#' @name measure_accuracy_net
+#' @description
+#'   `net_by_accuracy()` measures how well the nodes' reports of a cognitive
+#'   social structure agree with an ideal network, on average.
+#'   It is the mean of [node_by_accuracy()] over the nodes,
+#'   from 0 to 1 where every report _is_ the ideal.
+#' @inheritParams measure_accuracy_node
+#' @family features
+#' @template net_measure
+#' @examples
+#' net_by_accuracy(ison_hightech)
+#' @export
+net_by_accuracy <- function(.data, ideal = NULL,
+                            variant = c("hamming", "jaccard")){
+  variant <- match.arg(variant)
+  out <- mean(node_by_accuracy(.data, ideal, variant))
+  make_network_measure(out, .data, call = deparse(sys.call()),
+                       measure = switch(variant,
+                                        hamming = "mean Hamming accuracy",
+                                        jaccard = "mean Jaccard accuracy"),
+                       range = c(0, 1), normalization = "normalized",
+                       variant = variant)
+}
+
+#' Motifs of reporter accuracy
+#' @name motif_accuracy_node
+#' @description
+#'   `node_x_accuracy()` counts, for each node's report of a cognitive social
+#'   structure, the possible ties on which it agrees or disagrees with an
+#'   ideal network.
+#'   The four columns are the confusion matrix of the report:
+#'
+#'   - `true_positives`: ties in both the report and the ideal.
+#'   - `false_positives`: ties in the report but not in the ideal.
+#'   - `false_negatives`: ties in the ideal but not in the report.
+#'   - `true_negatives`: ties in neither.
+#'
+#'   From these, e.g. a node's sensitivity is
+#'   `true_positives / (true_positives + false_negatives)`,
+#'   and its specificity is
+#'   `true_negatives / (true_negatives + false_positives)`.
+#'   For the ideal, see [node_by_accuracy()].
+#' @inheritParams measure_accuracy_node
+#' @family features
+#' @template node_motif
+#' @examples
+#' node_x_accuracy(ison_hightech)
+#' @export
+node_x_accuracy <- function(.data, ideal = NULL){
+  make_node_motif(.css_confusion(.data, ideal), .data)
 }
 
 # A network's portrait (Bagrow and Bollt 2019): the matrix whose entry in row

@@ -225,6 +225,8 @@ Other diversity:
 \code{\link{motif_homophily}}
 
 Other measures:
+\code{\link{measure_accuracy_net}},
+\code{\link{measure_accuracy_node}},
 \code{\link{measure_assort_node}},
 \code{\link{measure_breadth}},
 \code{\link{measure_broker_node}},

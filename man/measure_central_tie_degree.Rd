@@ -90,6 +90,8 @@ Other centrality:
 \code{\link{measure_centralisation_eigen}}
 
 Other measures:
+\code{\link{measure_accuracy_net}},
+\code{\link{measure_accuracy_node}},
 \code{\link{measure_assort_net}},
 \code{\link{measure_assort_node}},
 \code{\link{measure_breadth}},

@@ -22,6 +22,10 @@ for(fn in names(net_meas)) {
         if(ob == "weighted")
           expect_s3_class(net_meas[[fn]](data_objs[[ob]]), "network_measure") else
             succeed("Testing only once because slow")
+      } else if(grepl("accuracy", fn)){
+        # Accuracy compares the reports of a cognitive social structure,
+        # which none of these fixtures hold; see test-measure_fit.R.
+        expect_snet_abort(net_meas[[fn]](data_objs[[ob]]), "reporters")
       } else if(grepl("infection|immunity|recovery|reproduction|transmiss", fn)){
         if(ob == "diffusion")
           expect_s3_class(net_meas[[fn]](data_objs[[ob]]), "network_measure") else

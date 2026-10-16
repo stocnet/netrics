@@ -272,9 +272,14 @@ Cartwright, D., and Frank Harary. 1956.
 for how clustering is calculated
 
 Other features:
-\code{\link{measure_fit}}
+\code{\link{measure_accuracy_net}},
+\code{\link{measure_accuracy_node}},
+\code{\link{measure_fit}},
+\code{\link{motif_accuracy_node}}
 
 Other measures:
+\code{\link{measure_accuracy_net}},
+\code{\link{measure_accuracy_node}},
 \code{\link{measure_assort_net}},
 \code{\link{measure_assort_node}},
 \code{\link{measure_breadth}},

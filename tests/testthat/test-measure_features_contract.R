@@ -44,3 +44,12 @@ test_that("measures on several scales report which one they are on", {
   expect_equal(attr(net_by_modularity(g, memb, resolution = 2), "range"),
                c(-Inf, 1))
 })
+
+test_that("reporter accuracy meets the measure contract", {
+  check_measure_contract(measure_rosters$accuracy_node, sparse_css,
+                         level = "node")
+  expect_declared(measure_rosters$accuracy_node, sparse_css)
+  check_measure_contract(measure_rosters$accuracy_net, sparse_css,
+                         level = "net")
+  expect_declared(measure_rosters$accuracy_net, sparse_css)
+})

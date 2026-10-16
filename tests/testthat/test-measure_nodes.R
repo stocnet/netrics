@@ -18,6 +18,10 @@ for(fn in names(node_meas)) {
         if(ob == "diffusion")
           expect_s3_class(node_meas[[fn]](data_objs[[ob]]), "node_measure") else
             succeed("Only used for diffusion objects")
+      } else if(grepl("accuracy", fn)){
+        # Accuracy compares the reports of a cognitive social structure,
+        # which none of these fixtures hold; see test-measure_fit.R.
+        expect_snet_abort(node_meas[[fn]](data_objs[[ob]]), "reporters")
       } else if(grepl("posneg",fn)){
         if(ob == "signed")
           expect_s3_class(node_meas[[fn]](data_objs[[ob]]), "node_measure") else

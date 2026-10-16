@@ -205,6 +205,14 @@ measure_rosters <- list(
   ),
   change_net = list(
     net_by_waves = list()
+  ),
+  # Accuracy compares the reports of a cognitive social structure, so it runs
+  # against a CSS fixture, and does not apply to the aggregated network.
+  accuracy_node = list(
+    node_by_accuracy = list()
+  ),
+  accuracy_net = list(
+    net_by_accuracy = list()
   )
 )
 

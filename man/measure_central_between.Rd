@@ -279,6 +279,8 @@ Other centrality:
 \code{\link{measure_centralisation_eigen}}
 
 Other measures:
+\code{\link{measure_accuracy_net}},
+\code{\link{measure_accuracy_node}},
 \code{\link{measure_assort_net}},
 \code{\link{measure_assort_node}},
 \code{\link{measure_breadth}},
@@ -314,6 +316,7 @@ Other nodal:
 \code{\link{mark_diff}},
 \code{\link{mark_nodes}},
 \code{\link{mark_select_node}},
+\code{\link{measure_accuracy_node}},
 \code{\link{measure_assort_node}},
 \code{\link{measure_broker_node}},
 \code{\link{measure_brokerage}},
@@ -335,6 +338,7 @@ Other nodal:
 \code{\link{member_core}},
 \code{\link{member_diffusion}},
 \code{\link{member_equivalence}},
+\code{\link{motif_accuracy_node}},
 \code{\link{motif_brokerage_node}},
 \code{\link{motif_clique}},
 \code{\link{motif_composition}},
