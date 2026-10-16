@@ -20,7 +20,6 @@
 #'   of the hierarchical cluster and showing the returned cluster
 #'   assignment.
 #' @name member_equivalence
-#' @template section_cognitive
 #' @template param_data
 #' @template param_motf
 #' @template node_member

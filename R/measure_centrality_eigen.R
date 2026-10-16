@@ -2,7 +2,6 @@
 
 #' Measures of node eigenvector-like centrality
 #' @name measure_central_eigen
-#' @template section_cognitive
 #' @description
 #'   These functions calculate common eigenvector-related centrality 
 #'   measures, or walk-based eigenmeasures, for one- and two-mode networks:
@@ -45,16 +44,17 @@
 #' @family eigenvector
 #' @family centrality
 #' @template node_measure
-#' @section Signed networks:
-#'   These measures do not read a tie as a distance, so where the network is
-#'   signed each tie is read by its magnitude rather than the negative ties
-#'   being dropped. Use [manynet::to_unsigned()] first to control this
-#'   yourself.
-#' @section Multilevel networks:
+#' @details
+#'   For signed networks, these measures read each tie by its magnitude,
+#'   rather than drop the negative ties,
+#'   since they do not read a tie as a distance.
+#'   Use [manynet::to_unsigned()] first to control this yourself.
+#'
+#'   For multilevel networks, these measures score the network whole, as
+#'   [net_by_independence()] does.
 #'   A multilevel network reports itself as two-mode, but holds ties within a
 #'   mode as well as between them, so it cannot be projected onto one mode.
-#'   These measures therefore score a multilevel network whole, as
-#'   [net_by_independence()] does. The projection remains for genuine two-mode
+#'   The projection remains for genuine two-mode
 #'   networks, where no two nodes of one mode are ever tied.
 NULL
 
@@ -496,7 +496,6 @@ node_by_posneg <- function(.data){
 
 #' Measures of tie eigenvector-like centrality
 #' @name measure_central_tie_eigen
-#' @template section_cognitive
 #' @description
 #'   `tie_by_eigenvector()` measures the eigenvector centrality of ties in a 
 #'   network.
@@ -533,7 +532,6 @@ tie_by_eigenvector <- function(.data, normalized = TRUE){
 
 #' Measures of network eigenvector-like centralisation
 #' @name measure_centralisation_eigen
-#' @template section_cognitive
 #' @description
 #'   - `net_by_eigenvector()` measures the eigenvector centralization for a
 #'   network as a single score.

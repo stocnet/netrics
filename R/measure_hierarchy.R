@@ -2,7 +2,6 @@
 
 #' Motifs of network hierarchy
 #' @name motif_hierarchy
-#' @template section_cognitive
 #' @description
 #'   `net_x_hierarchy()` collects the measures of hierarchy into a single motif,
 #'   which can be used to compare the relative hierarchy of different networks.
@@ -51,7 +50,6 @@ net_x_hierarchy <- function(.data){
 
 #' Measures of hierarchy
 #' @name measure_hierarchy
-#' @template section_cognitive
 #' @description
 #'   These functions, together with `net_reciprocity()`, are used jointly to
 #'   measure how hierarchical a network is:
@@ -81,11 +79,11 @@ net_x_hierarchy <- function(.data){
 #' 1 - net_by_reciprocity(ison_networkers)
 #' net_by_efficiency(ison_networkers)
 #' net_by_upperbound(ison_networkers)
-#' @section Signed networks:
-#'   These measures read a tie as a distance, and a negative tie is hostility
+#' @details
+#'   For signed networks, these measures consider only the positive ties,
+#'   and say so.
+#'   They read a tie as a distance, and a negative tie is hostility
 #'   rather than a channel along which cohesion travels.
-#'   Where the network is signed, they therefore consider only the positive
-#'   ties, and say so.
 #'   Use [manynet::to_unsigned()] first to control this yourself.
 
 NULL

@@ -136,57 +136,15 @@ direction, so they are not interchangeable:\tabular{llll}{
 
 Compare partitions using one measure at a time.
 }
-\section{Cognitive social structures}{
-
-A cognitive social structure records each node's report of the ties in
-the whole network, in a \code{by} column that names who reported each tie.
-Counting every report as a tie of its own would count each tie once for
-every perceiver who reports it.
-So the functions here first combine the reports into the locally
-aggregated structure of Krackhardt (1987), with the intersection rule:
-a tie exists if both of its ends report it, and a message says so.
-A tie that names no reporter is kept as it is.
-
-A tie-level function still returns one value for each report,
-so that the result can be added back to the network it was given.
-Each report takes the value of the tie that it reports.
-A report of a tie that is not in the aggregated structure takes \code{NA},
-or \code{FALSE} for a mark.
-\code{tie_is_random()} is the exception, and draws among the reports.
-
-To combine the reports in a different way, do this before the function,
-e.g. with \code{manynet::to_aggregated(over = "by")}.
-
-Krackhardt, David. 1987.
-"Cognitive social structures".
-\emph{Social Networks} 9(2): 109-134.
-\doi{10.1016/0378-8733(87)90009-8}
-}
-
-\section{Signed networks}{
-
-Where the network is signed, \code{net_by_modularity()} returns signed
-modularity (Gómez, Jensen, and Arenas 2009).
-The positive and the negative ties are each compared with their own
-random baseline, and the negative score is subtracted,
-so that a negative tie inside a group counts against the partition
-and a negative tie between groups counts for it.
-It ranges between -1 and 1, and is the quality that
-\code{\link[=node_in_spinglass]{node_in_spinglass()}} maximises on a signed network.
-A directed signed network is read as undirected, and a signed two-mode
-network is read by the magnitude of its ties.
-}
-
-\section{Multilevel networks}{
-
-\code{net_by_core()} and \code{net_by_factions()} fit the network to an ideal built
+\details{
+For multilevel networks, \code{net_by_core()} and \code{net_by_factions()} stop
+rather than compare unlike shapes.
+They fit the network to an ideal built
 by a \verb{manynet::create_*()} function, and those build one layer at a time.
-A multilevel network holds two, so there is no single ideal to fit it to
-and both stop rather than compare unlike shapes.
+A multilevel network holds two, so there is no single ideal to fit it to.
 Take one layer first, e.g. with \code{\link[manynet:to_mode1]{manynet::to_mode1()}} or
 \code{\link[manynet:to_uniplex]{manynet::to_uniplex()}}.
 }
-
 \section{Core-periphery fit variants}{
 
 For \code{net_by_core()}, which of the following to use to calculate the fit of
@@ -235,6 +193,17 @@ In the extreme case, this can be where they are only connected
 to the rest of the network through a single tie.
 To help manage this problem, a \code{resolution} parameter is added.
 Please see the argument definition for more details.
+
+For signed networks, \code{net_by_modularity()} returns signed
+modularity (Gómez, Jensen, and Arenas 2009).
+The positive and the negative ties are each compared with their own
+random baseline, and the negative score is subtracted,
+so that a negative tie inside a group counts against the partition
+and a negative tie between groups counts for it.
+It ranges between -1 and 1, and is the quality that
+\code{\link[=node_in_spinglass]{node_in_spinglass()}} maximises on a signed network.
+A directed signed network is read as undirected, and a signed two-mode
+network is read by the magnitude of its ties.
 }
 
 \section{Link density}{
@@ -459,9 +428,14 @@ Cambridge: Cambridge University Press.
 }
 \seealso{
 Other features:
-\code{\link{measure_features}}
+\code{\link{measure_accuracy_net}},
+\code{\link{measure_accuracy_node}},
+\code{\link{measure_features}},
+\code{\link{motif_accuracy_node}}
 
 Other measures:
+\code{\link{measure_accuracy_net}},
+\code{\link{measure_accuracy_node}},
 \code{\link{measure_assort_net}},
 \code{\link{measure_assort_node}},
 \code{\link{measure_breadth}},

@@ -335,8 +335,8 @@ a multiplex, a multilevel and a longitudinal network, and decide each case delib
   call `manynet::to_unsigned(keep = "both")`, which keeps every tie and reads each by
   its magnitude. A tie-level function takes this branch even where it measures
   distance, since `manynet::to_positive()` drops ties and a tie measure must hold one
-  value per tie; `tie_by_betweenness()` is the case, and says so in its
-  `@section Signed networks:`.
+  value per tie; `tie_by_betweenness()` is the case, and says so in a
+  "For signed networks, ..." paragraph of its section.
 - **Multiplex.** Take one layer at a time with `manynet::to_uniplex()`.
   That drops nodes holding none of the retained ties, so results of different lengths
   would otherwise be recycled against each other; `uniplex_degree()`
@@ -348,10 +348,14 @@ a multiplex, a multilevel and a longitudinal network, and decide each case delib
 - **Longitudinal and diffusion.** Nodes may change over waves while the ties do not,
   so do not assume a nodeset and a tieset of matching length or wave.
 
-Document each decision in the roxygen block with an `@section` named for the shape,
-e.g. `@section Signed networks:` or `@section Multilevel networks:`.
+Document each decision where the function is documented,
+as a paragraph beginning "For signed networks, ..." or "For multilevel networks, ..."
+in the section about that function (see [Documentation](#documentation)).
 Say what the function does with such a network,
 and how the user can control it themselves, e.g. with `manynet::to_unsigned()`.
+Where a whole family treats a shape alike, as a measure treats a cognitive social structure,
+say so once on the package help page ([R/netrics-package.R](../R/netrics-package.R))
+rather than on every topic.
 
 ### Adding a measure
 
@@ -514,6 +518,16 @@ Run `devtools::document()` after changing any roxygen comment.
   just use `decay=` as the argument.
 - Related functions share one roxygen block via `@name`/`@rdname`,
   matching the file organisation above.
+- Name each `@section` for a function or a method, such as `Closeness centrality:`
+  or `Robustness:`, and say in it what the function does and how to read its result.
+  Do not name a section for a kind of network, such as `Signed networks:`.
+  Where the function behaves differently for a kind of network,
+  add a paragraph to its own section that begins "For signed networks, this function ...".
+  This keeps everything about one function in one place,
+  and keeps generic descriptions of network types off the topic:
+  `{manynet}` documents what a signed or a multilevel network is.
+  Where a topic documents several functions that share such a behaviour,
+  put the paragraph in `@details` instead.
 - Every exported function needs a runnable `@examples` block:
   examples are run by R CMD check, and they are also the fastest documentation for users.
   Prefer the bundled `ison_*`/`fict_*` networks over ad hoc constructions,

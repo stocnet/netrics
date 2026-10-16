@@ -2,7 +2,6 @@
 
 #' Measures of node degree-like centrality
 #' @name measure_central_degree
-#' @template section_cognitive
 #' @description
 #'   These functions calculate common degree-related centrality measures for one- and two-mode networks:
 #'   
@@ -29,13 +28,6 @@
 #'   `node_by_multidegree()` is the one measure here that is not reached by
 #'   dispatch: a multiplex network does not itself say _which_ two types of
 #'   tie to contrast, so `tie1` and `tie2` must be named.
-#' @section Multiplex networks:
-#'   `node_by_degree()` counts every tie a node holds, whatever its layer,
-#'   so a node tied twice to the same alter on two layers scores 2.
-#'   To score one layer at a time, take it first with
-#'   [manynet::to_uniplex()], or use `node_by_multidegree()` to contrast two.
-#'   Note that `to_uniplex()` drops the nodes that hold none of the retained
-#'   ties, so scores from two layers are of different lengths.
 #' @template param_data
 #' @template param_norm
 #' @template param_dir
@@ -101,6 +93,14 @@ NULL
 #'   Directed networks discriminate between
 #'   outdegree (degree of outgoing ties) and
 #'   indegree (degree of incoming ties).
+#'
+#'   For multiplex networks, `node_by_degree()` counts every tie a node holds,
+#'   whatever its layer,
+#'   so a node tied twice to the same alter on two layers scores 2.
+#'   To score one layer at a time, take it first with
+#'   [manynet::to_uniplex()], or use `node_by_multidegree()` to contrast two.
+#'   Note that `to_uniplex()` drops the nodes that hold none of the retained
+#'   ties, so scores from two layers are of different lengths.
 #' @section Strength centrality:
 #'   Given a weighted network, `node_by_degree()` sums tie weights rather than
 #'   counting ties, which is also known as _strength centrality_ or _weighted
@@ -244,7 +244,6 @@ node_by_leverage <- function(.data){
 
 #' Measures of tie degree-like centrality
 #' @name measure_central_tie_degree
-#' @template section_cognitive
 #' @description
 #'   `tie_by_degree()` measures the degree centrality of ties in a network
 #'   
@@ -281,7 +280,6 @@ tie_by_degree <- function(.data, normalized = TRUE){
 
 #' Measures of network degree-like centralisation
 #' @name measure_centralisation_degree
-#' @template section_cognitive
 #' @description
 #'   - `net_by_degree()` measures a network's degree centralization as a single
 #'   score; there are several related shortcut functions:

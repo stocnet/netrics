@@ -6,6 +6,7 @@
 \alias{net_by_adhesion}
 \alias{net_by_strength}
 \alias{net_by_toughness}
+\alias{net_by_robustness}
 \title{Measures of network fragmentation}
 \usage{
 net_by_cohesion(.data)
@@ -15,6 +16,8 @@ net_by_adhesion(.data)
 net_by_strength(.data, limit = 20)
 
 net_by_toughness(.data, limit = 20)
+
+net_by_robustness(.data, node_measure = NULL, times = 100)
 }
 \arguments{
 \item{.data}{A network object of class \code{stocnet}, \code{igraph}, \code{tbl_graph}, \code{network}, or similar.
@@ -25,6 +28,27 @@ For more information on possible coercions, see e.g. \code{\link[manynet:as_stoc
 \code{net_by_toughness()} will enumerate: the number of ties for the first and
 of nodes for the second. By default 20. Above this each stops rather than
 running for hours. Raise it to measure a larger network anyway.}
+
+\item{node_measure}{How the nodes to remove are chosen.
+By default \code{NULL}, which removes nodes at random,
+so that the network suffers failure rather than attack.
+Otherwise, at each step the node that \code{\link[=node_is_max]{node_is_max()}} marks is removed,
+choosing at random among any tied for the maximum.
+Give a \verb{node_by_*()} function, such as \code{node_by_degree},
+to recompute the measure on the network remaining after each removal,
+which is an adaptive attack.
+Give a \code{node_measure} object, such as \code{node_by_degree(.data)},
+to remove nodes in the order of the scores the intact network gives them,
+which is a static attack.
+To pass further arguments, give a function of the network,
+e.g. \verb{\\(x) node_by_closeness(x, normalized = FALSE)}.}
+
+\item{times}{Integer scalar, how many times the algorithm repeats its work.
+Where the algorithm is stochastic, this is how many times it runs,
+and the best or the most frequent result is kept.
+Where the algorithm searches, this is how many steps the search takes.
+More repetitions give a more reliable result and take longer,
+so each function documents its own default.}
 }
 \value{
 A \code{network_measure} numeric score.
@@ -49,35 +73,31 @@ from the network needed to increase the number of components,
 or the minimum total weight of such ties in a weighted network.
 \item \code{net_by_strength()} measures the number of ties that would need to be
 removed from a network to increase its number of components.
+\item \code{net_by_robustness()} measures how slowly the network's largest component
+shrinks as its nodes are removed one at a time,
+either at random or in order of some node measure.
 }
 }
-\section{Cognitive social structures}{
+\details{
+For weighted networks, \code{net_by_adhesion()} reads a tie's weight as its capacity,
+and so returns the smallest total weight of ties whose removal would
+increase the number of components, the network's minimum cut,
+rather than the smallest number of such ties.
+This is also the smallest maximum flow between any two of its nodes;
+see \code{\link[=node_by_flow]{node_by_flow()}} for the flow between particular nodes.
+Use \code{\link[manynet:to_unweighted]{manynet::to_unweighted()}} first to count ties instead.
+The other measures documented here count nodes or ties whatever
+their weight.
 
-A cognitive social structure records each node's report of the ties in
-the whole network, in a \code{by} column that names who reported each tie.
-Counting every report as a tie of its own would count each tie once for
-every perceiver who reports it.
-So the functions here first combine the reports into the locally
-aggregated structure of Krackhardt (1987), with the intersection rule:
-a tie exists if both of its ends report it, and a message says so.
-A tie that names no reporter is kept as it is.
-
-A tie-level function still returns one value for each report,
-so that the result can be added back to the network it was given.
-Each report takes the value of the tie that it reports.
-A report of a tie that is not in the aggregated structure takes \code{NA},
-or \code{FALSE} for a mark.
-\code{tie_is_random()} is the exception, and draws among the reports.
-
-To combine the reports in a different way, do this before the function,
-e.g. with \code{manynet::to_aggregated(over = "by")}.
-
-Krackhardt, David. 1987.
-"Cognitive social structures".
-\emph{Social Networks} 9(2): 109-134.
-\doi{10.1016/0378-8733(87)90009-8}
+For signed networks, \code{net_by_adhesion()} considers only the positive
+ties, and says so.
+It asks what holds a network together,
+and a negative tie is hostility rather than a channel along which
+cohesion travels.
+Use \code{\link[manynet:to_unsigned]{manynet::to_unsigned()}} first to control this yourself.
+\code{net_by_robustness()} also considers only the positive ties.
+The other measures documented here use every tie whatever its sign.
 }
-
 \section{Cost of the enumerated measures}{
 
 \code{net_by_cohesion()} and \code{net_by_adhesion()} are connectivity problems that
@@ -89,28 +109,43 @@ nodes takes about 8 seconds, one of 20 over two minutes, and one of 30
 more than a day. \code{limit} stops each before it becomes a hang.
 }
 
-\section{Weighted networks}{
+\section{Robustness}{
 
-\code{net_by_adhesion()} reads a tie's weight as its capacity,
-and so returns the smallest total weight of ties whose removal would
-increase the number of components, the network's minimum cut,
-rather than the smallest number of such ties.
-This is also the smallest maximum flow between any two of its nodes;
-see \code{\link[=node_by_flow]{node_by_flow()}} for the flow between particular nodes.
-Use \code{\link[manynet:to_unweighted]{manynet::to_unweighted()}} first to count ties instead.
-The other measures documented here count nodes or ties whatever
-their weight.
-}
+\code{net_by_robustness()} removes the nodes of a network one at a time,
+recording after each removal the share of the original nodes that
+remain in the largest weak component.
+It returns the mean of these shares over all \eqn{N} removals,
+Schneider et al.'s \eqn{R}.
+A star attacked at its hub falls apart at once, scoring about \eqn{1/N},
+while a complete network loses only one node with each removal,
+scoring \eqn{(N-1)/2N}, which approaches the maximum of 0.5.
+Comparing a random failure against an attack shows, as Albert, Jeong and
+Barabási found, that a network with a few hubs tolerates failure
+but is fragile under attack.
 
-\section{Signed networks}{
+The share remaining after each number of removals is kept as the
+\code{curve} attribute of the result, a table with columns
+\code{removed}, the share of the nodes removed, and \code{giant},
+the share of the original nodes in the largest component,
+averaged over the \code{times} runs.
+Retrieve it with \code{attr(x, "curve")}.
 
-\code{net_by_adhesion()} asks what holds a network together,
-and a negative tie is hostility rather than a channel along which
-cohesion travels.
-Where the network is signed, it therefore considers only the positive
-ties, and says so.
-Use \code{\link[manynet:to_unsigned]{manynet::to_unsigned()}} first to control this yourself.
-The other measures documented here use every tie whatever its sign.
+Nodes are chosen at random wherever several are tied,
+so the result is averaged over \code{times} runs, by default 100.
+Where an attack meets no ties, every run would be the same,
+so it runs once.
+Each run computes the measure once per node removed,
+so an adaptive attack by an expensive measure, such as betweenness,
+on a network of several hundred nodes can take some minutes.
+Lower \code{times}, or attack with a \code{node_measure} object, to go faster.
+
+For signed networks,
+\code{net_by_robustness()} considers only the positive ties,
+since a negative tie does not hold a component together.
+
+For two-mode networks,
+\code{\link[=node_is_max]{node_is_max()}} marks the highest-scoring node in each mode,
+so an attack on a two-mode network chooses at random between the two.
 }
 
 \examples{
@@ -120,6 +155,9 @@ net_by_adhesion(fict_greys)
 net_by_adhesion(to_giant(fict_greys))
 net_by_strength(ison_adolescents)
 net_by_toughness(ison_adolescents)
+sf <- generate_scalefree(50, 0.5)
+net_by_robustness(sf)
+net_by_robustness(sf, node_measure = node_by_degree)
 }
 \references{
 \subsection{On cohesion}{
@@ -128,6 +166,20 @@ White, Douglas R and Frank Harary. 2001.
 "The Cohesiveness of Blocks In Social Networks: Node Connectivity and Conditional Density."
 \emph{Sociological Methodology} 31(1): 305-59.
 \doi{10.1111/0081-1750.00098}
+}
+
+\subsection{On robustness}{
+
+Albert, Réka, Hawoong Jeong, and Albert-László Barabási. 2000.
+"Error and attack tolerance of complex networks."
+\emph{Nature} 406: 378-82.
+\doi{10.1038/35019019}
+
+Schneider, Christian M., André A. Moreira, José S. Andrade, Shlomo Havlin,
+and Hans J. Herrmann. 2011.
+"Mitigation of malicious attacks on networks."
+\emph{Proceedings of the National Academy of Sciences} 108(10): 3838-41.
+\doi{10.1073/pnas.1009440108}
 }
 }
 \seealso{
@@ -139,6 +191,8 @@ Other cohesion:
 \code{\link{motif_node}}
 
 Other measures:
+\code{\link{measure_accuracy_net}},
+\code{\link{measure_accuracy_node}},
 \code{\link{measure_assort_net}},
 \code{\link{measure_assort_node}},
 \code{\link{measure_breadth}},

@@ -64,12 +64,12 @@
 #' _Proceedings of the Royal Society A_ 476(2241): 20190783.
 #' \doi{10.1098/rspa.2019.0783}
 #' @family methods
-#' @section Multilevel networks:
+#' @details
+#'   For multilevel networks, these methods read the network as a one-mode one,
+#'   which is the shape its matrix already has.
 #'   A multilevel network reports itself as two-mode, but holds ties within a
 #'   mode as well as between them, so `manynet::as_matrix()` returns one square
 #'   matrix over every node rather than a rectangular incidence matrix.
-#'   These methods therefore read a multilevel network as a one-mode one, which
-#'   is the shape its matrix already has.
 NULL
 
 # A multilevel network reports itself as two-mode, but holds ties within a mode

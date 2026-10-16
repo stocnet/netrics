@@ -1,3 +1,24 @@
+# netrics 1.1.2
+
+## Package
+
+- Updated function documentation sections to be about the outputs not the inputs
+
+## Motifs
+
+- Added `node_x_accuracy()` for the confusion matrix of each reporter's view 
+  of a CSS against an ideal, by default its LAS (closes #37)
+
+## Measures
+
+- Added `node_by_accuracy()` and `net_by_accuracy()` for how well reporters' views 
+  of a CSS on average agree with an ideal (closes #37)
+- Added `net_by_robustness()` for how the giant component shrinks as nodes are removed (closes #42)
+  - By default nodes fail at random
+  - Passing `node_measure` a vector will target nodes by these values
+  - An adaptive attack can be simulated by passing `node_measure` to `attack=`
+  - Share remaining after each removal is kept as a `curve` attribute
+
 # netrics 1.1.1
 
 ## Package

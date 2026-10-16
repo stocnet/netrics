@@ -1,10 +1,12 @@
+#' @keywords internal
 #' @section Cognitive social structures:
 #'   A cognitive social structure records each node's report of the ties in
 #'   the whole network, in a `by` column that names who reported each tie.
 #'   Counting every report as a tie of its own would count each tie once for
 #'   every perceiver who reports it.
-#'   So the functions here first combine the reports into the locally
-#'   aggregated structure of Krackhardt (1987), with the intersection rule:
+#'   So the functions in this package first combine the reports into the
+#'   locally aggregated structure of Krackhardt (1987),
+#'   with the intersection rule:
 #'   a tie exists if both of its ends report it, and a message says so.
 #'   A tie that names no reporter is kept as it is.
 #'
@@ -17,8 +19,11 @@
 #'
 #'   To combine the reports in a different way, do this before the function,
 #'   e.g. with `manynet::to_aggregated(over = "by")`.
-#'
-#'   Krackhardt, David. 1987.
-#'   "Cognitive social structures".
-#'   _Social Networks_ 9(2): 109-134.
-#'   \doi{10.1016/0378-8733(87)90009-8}
+#'   The functions that compare the reports with one another,
+#'   such as [node_by_accuracy()], read them before they are combined.
+#' @references
+#' Krackhardt, David. 1987.
+#' "Cognitive social structures".
+#' _Social Networks_ 9(2): 109-134.
+#' \doi{10.1016/0378-8733(87)90009-8}
+"_PACKAGE"

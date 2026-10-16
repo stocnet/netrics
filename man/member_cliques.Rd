@@ -122,33 +122,6 @@ and a numeric attribute costs a pair their absolute difference over its maximum.
 0 considers only the ties, and 1 only the attribute.
 }
 
-\section{Cognitive social structures}{
-
-A cognitive social structure records each node's report of the ties in
-the whole network, in a \code{by} column that names who reported each tie.
-Counting every report as a tie of its own would count each tie once for
-every perceiver who reports it.
-So the functions here first combine the reports into the locally
-aggregated structure of Krackhardt (1987), with the intersection rule:
-a tie exists if both of its ends report it, and a message says so.
-A tie that names no reporter is kept as it is.
-
-A tie-level function still returns one value for each report,
-so that the result can be added back to the network it was given.
-Each report takes the value of the tie that it reports.
-A report of a tie that is not in the aggregated structure takes \code{NA},
-or \code{FALSE} for a mark.
-\code{tie_is_random()} is the exception, and draws among the reports.
-
-To combine the reports in a different way, do this before the function,
-e.g. with \code{manynet::to_aggregated(over = "by")}.
-
-Krackhardt, David. 1987.
-"Cognitive social structures".
-\emph{Social Networks} 9(2): 109-134.
-\doi{10.1016/0378-8733(87)90009-8}
-}
-
 \examples{
 node_in_roulette(ison_adolescents, groups = 3)
 # Mix the groups on an attribute
@@ -197,6 +170,7 @@ Other nodal:
 \code{\link{mark_diff}},
 \code{\link{mark_nodes}},
 \code{\link{mark_select_node}},
+\code{\link{measure_accuracy_node}},
 \code{\link{measure_assort_node}},
 \code{\link{measure_broker_node}},
 \code{\link{measure_brokerage}},
@@ -218,6 +192,7 @@ Other nodal:
 \code{\link{member_core}},
 \code{\link{member_diffusion}},
 \code{\link{member_equivalence}},
+\code{\link{motif_accuracy_node}},
 \code{\link{motif_brokerage_node}},
 \code{\link{motif_clique}},
 \code{\link{motif_composition}},

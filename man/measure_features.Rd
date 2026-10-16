@@ -77,33 +77,6 @@ relative to the most that a planar network of its size could have.
 A tree scores 0, and a network of triangles drawn on a plane scores 1.
 }
 }
-\section{Cognitive social structures}{
-
-A cognitive social structure records each node's report of the ties in
-the whole network, in a \code{by} column that names who reported each tie.
-Counting every report as a tie of its own would count each tie once for
-every perceiver who reports it.
-So the functions here first combine the reports into the locally
-aggregated structure of Krackhardt (1987), with the intersection rule:
-a tie exists if both of its ends report it, and a message says so.
-A tie that names no reporter is kept as it is.
-
-A tie-level function still returns one value for each report,
-so that the result can be added back to the network it was given.
-Each report takes the value of the tie that it reports.
-A report of a tie that is not in the aggregated structure takes \code{NA},
-or \code{FALSE} for a mark.
-\code{tie_is_random()} is the exception, and draws among the reports.
-
-To combine the reports in a different way, do this before the function,
-e.g. with \code{manynet::to_aggregated(over = "by")}.
-
-Krackhardt, David. 1987.
-"Cognitive social structures".
-\emph{Social Networks} 9(2): 109-134.
-\doi{10.1016/0378-8733(87)90009-8}
-}
-
 \section{Small-world variants}{
 
 For \code{net_by_smallworld()} there are three small-world measures
@@ -272,9 +245,14 @@ Cartwright, D., and Frank Harary. 1956.
 for how clustering is calculated
 
 Other features:
-\code{\link{measure_fit}}
+\code{\link{measure_accuracy_net}},
+\code{\link{measure_accuracy_node}},
+\code{\link{measure_fit}},
+\code{\link{motif_accuracy_node}}
 
 Other measures:
+\code{\link{measure_accuracy_net}},
+\code{\link{measure_accuracy_node}},
 \code{\link{measure_assort_net}},
 \code{\link{measure_assort_node}},
 \code{\link{measure_breadth}},

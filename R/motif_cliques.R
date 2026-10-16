@@ -2,7 +2,6 @@
 
 #' Motifs of clique participation
 #' @name motif_clique
-#' @template section_cognitive
 #' @description
 #'   `node_x_clique()` returns which maximal cliques each node belongs to.
 #'
@@ -42,10 +41,11 @@
 #'   through such adjacent cliques,
 #'   and a node belongs to every community that holds a clique it is in.
 #'   A node in no clique of at least `min_clique_size` belongs to none.
-#' @section Signed networks:
+#' @details
+#'   For signed networks, only the positive ties are considered.
 #'   Since a clique is a maximally cohesive subgroup, negative ties cannot
-#'   contribute to one. Where the network is signed, only its positive ties are
-#'   considered. Use [manynet::to_unsigned()] first to control this yourself.
+#'   contribute to one.
+#'   Use [manynet::to_unsigned()] first to control this yourself.
 #' @references
 #' ## On cliques
 #' Luce, R. Duncan, and Albert D. Perry. 1949.

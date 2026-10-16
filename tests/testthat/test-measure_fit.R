@@ -161,3 +161,43 @@ test_that("net_by_linkdensity takes a membership of a CSS's reports", {
   expect_equal(as.numeric(suppressMessages(net_by_linkdensity(css, memb))),
                as.numeric(suppressMessages(net_by_linkdensity(css))))
 })
+
+test_that("accuracy compares each report with the aggregated structure", {
+  css <- manynet::to_uniplex(manynet::ison_hightech, "advice")
+  ref <- manynet::to_aggregated(css, over = "by", rule = "min",
+                                reporters = "both")
+  counts <- suppressMessages(node_x_accuracy(css))
+  expect_s3_class(counts, "node_motif")
+  expect_equal(colnames(counts), c("true_positives", "false_positives",
+                                   "false_negatives", "true_negatives"))
+  # every report covers every possible tie of a directed network
+  expect_true(all(rowSums(counts) == 21 * 20))
+  # every report finds or misses each tie of the reference
+  expect_true(all(counts[, "true_positives"] + counts[, "false_negatives"] ==
+                    manynet::net_ties(ref)))
+  for(v in c("hamming", "jaccard"))
+    expect_equal(as.numeric(suppressMessages(node_by_accuracy(css, variant = v))),
+                 1 - unname(vapply(manynet::to_reporters(css), function(r)
+                   as.numeric(net_by_divergence(r, ref, v)), numeric(1))))
+  expect_equal(as.numeric(suppressMessages(net_by_accuracy(css))),
+               mean(suppressMessages(node_by_accuracy(css))))
+})
+
+test_that("accuracy is 1 where a report is the ideal", {
+  css <- manynet::to_uniplex(manynet::ison_hightech, "advice")
+  ideal <- manynet::to_reporter(css, 1)
+  expect_equal(as.numeric(suppressMessages(node_by_accuracy(css, ideal)))[1], 1)
+})
+
+test_that("accuracy pools the layers of a multiplex CSS", {
+  css <- manynet::ison_hightech
+  both <- suppressMessages(node_x_accuracy(css))
+  layers <- lapply(c("advice", "friends"), function(l)
+    unclass(suppressMessages(node_x_accuracy(manynet::to_uniplex(css, l)))))
+  expect_equal(unclass(both), layers[[1]] + layers[[2]],
+               ignore_attr = TRUE)
+})
+
+test_that("accuracy needs a cognitive social structure", {
+  expect_error(node_by_accuracy(ison_adolescents), "net_by_divergence")
+})

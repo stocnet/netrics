@@ -2,7 +2,6 @@
 
 #' Measures of network cohesion
 #' @name measure_cohesion
-#' @template section_cognitive
 #' @description
 #'   These functions return values or vectors relating to how cohesive a network is:
 #'   
@@ -19,19 +18,19 @@
 #' @template param_connectivity
 #' @family cohesion
 #' @template net_measure
-#' @section Signed networks:
-#'   `net_by_compactness()` measures distance, and a negative tie is hostility
+#' @details
+#'   For signed networks, `net_by_compactness()` considers only the positive ties.
+#'   It measures distance, and a negative tie is hostility
 #'   rather than a channel along which cohesion travels.
-#'   Where the network is signed, it therefore considers only the positive ties.
 #'   Use [manynet::to_unsigned()] first to control this yourself.
 #'   The other measures in this topic do not depend on distance,
 #'   and so use every tie whatever its sign.
-#' @section Multilevel networks:
+#'
+#'   For multilevel networks, `net_by_independence()` measures the network whole,
+#'   which is the quantity wanted in any case.
 #'   A multilevel network reports itself as two-mode,
 #'   but holds ties within a mode as well as between them,
 #'   so it cannot be projected onto one mode.
-#'   `net_by_independence()` therefore measures a multilevel network whole,
-#'   which is the quantity wanted in any case.
 #'   The projection remains for genuine two-mode networks,
 #'   where no two nodes of one mode are ever tied
 #'   and the unprojected answer would be trivially the larger mode.
@@ -157,7 +156,6 @@ net_by_independence <- function(.data){
 
 #' Measures of network breadth
 #' @name measure_breadth
-#' @template section_cognitive
 #' @description
 #'   These functions return values or vectors relating to how broad a network is.
 #'   
@@ -167,13 +165,12 @@ net_by_independence <- function(.data){
 #' @template param_data
 #' @family cohesion
 #' @template net_measure
-#' @section Signed networks:
-#'   Both measures count path lengths, and a negative tie is hostility rather
+#' @details
+#'   For signed networks, both measures consider only the positive ties.
+#'   They count path lengths, and a negative tie is hostility rather
 #'   than a channel along which cohesion travels.
-#'   Where the network is signed, they therefore consider only the positive
-#'   ties. Use [manynet::to_unsigned()] first to control this yourself.
-#'   
-#'   Note that dropping the negative ties can disconnect the network,
+#'   Use [manynet::to_unsigned()] first to control this yourself.
+#'   Dropping the negative ties can disconnect the network,
 #'   in which case the measure covers the reachable pairs only.
 NULL
 
@@ -215,7 +212,6 @@ net_by_length <- function(.data){
 
 #' Measures of network fragmentation
 #' @name measure_fragmentation
-#' @template section_cognitive
 #' @description
 #'   These functions return values relating to how connected a network is
 #'   and the number of nodes or edges to remove that would increase fragmentation.
@@ -229,7 +225,10 @@ net_by_length <- function(.data){
 #'   or the minimum total weight of such ties in a weighted network.
 #'   - `net_by_strength()` measures the number of ties that would need to be
 #'   removed from a network to increase its number of components.
-#'   
+#'   - `net_by_robustness()` measures how slowly the network's largest component
+#'   shrinks as its nodes are removed one at a time,
+#'   either at random or in order of some node measure.
+#'
 #' @template param_data
 #' @family cohesion
 #' @template net_measure
@@ -270,8 +269,8 @@ net_by_cohesion <- function(.data){
 
 #' @rdname measure_fragmentation 
 #' @importFrom igraph adhesion
-#' @section Weighted networks:
-#'   `net_by_adhesion()` reads a tie's weight as its capacity,
+#' @details
+#'   For weighted networks, `net_by_adhesion()` reads a tie's weight as its capacity,
 #'   and so returns the smallest total weight of ties whose removal would
 #'   increase the number of components, the network's minimum cut,
 #'   rather than the smallest number of such ties.
@@ -280,13 +279,14 @@ net_by_cohesion <- function(.data){
 #'   Use [manynet::to_unweighted()] first to count ties instead.
 #'   The other measures documented here count nodes or ties whatever
 #'   their weight.
-#' @section Signed networks:
-#'   `net_by_adhesion()` asks what holds a network together,
+#'
+#'   For signed networks, `net_by_adhesion()` considers only the positive
+#'   ties, and says so.
+#'   It asks what holds a network together,
 #'   and a negative tie is hostility rather than a channel along which
 #'   cohesion travels.
-#'   Where the network is signed, it therefore considers only the positive
-#'   ties, and says so.
 #'   Use [manynet::to_unsigned()] first to control this yourself.
+#'   `net_by_robustness()` also considers only the positive ties.
 #'   The other measures documented here use every tie whatever its sign.
 #' @examples 
 #' net_by_adhesion(fict_greys)
@@ -358,5 +358,152 @@ net_by_toughness <- function(.data, limit = 20){
   make_network_measure(min(out), .data, call = deparse(sys.call()),
                        measure = "toughness", range = c(0, Inf),
                        normalization = "none")
+}
+
+#' @rdname measure_fragmentation
+#' @param node_measure How the nodes to remove are chosen.
+#'   By default `NULL`, which removes nodes at random,
+#'   so that the network suffers failure rather than attack.
+#'   Otherwise, at each step the node that [node_is_max()] marks is removed,
+#'   choosing at random among any tied for the maximum.
+#'   Give a `node_by_*()` function, such as `node_by_degree`,
+#'   to recompute the measure on the network remaining after each removal,
+#'   which is an adaptive attack.
+#'   Give a `node_measure` object, such as `node_by_degree(.data)`,
+#'   to remove nodes in the order of the scores the intact network gives them,
+#'   which is a static attack.
+#'   To pass further arguments, give a function of the network,
+#'   e.g. `\(x) node_by_closeness(x, normalized = FALSE)`.
+#' @template param_times
+#' @section Robustness:
+#'   `net_by_robustness()` removes the nodes of a network one at a time,
+#'   recording after each removal the share of the original nodes that
+#'   remain in the largest weak component.
+#'   It returns the mean of these shares over all \eqn{N} removals,
+#'   Schneider et al.'s \eqn{R}.
+#'   A star attacked at its hub falls apart at once, scoring about \eqn{1/N},
+#'   while a complete network loses only one node with each removal,
+#'   scoring \eqn{(N-1)/2N}, which approaches the maximum of 0.5.
+#'   Comparing a random failure against an attack shows, as Albert, Jeong and
+#'   Barabási found, that a network with a few hubs tolerates failure
+#'   but is fragile under attack.
+#'
+#'   The share remaining after each number of removals is kept as the
+#'   `curve` attribute of the result, a table with columns
+#'   `removed`, the share of the nodes removed, and `giant`,
+#'   the share of the original nodes in the largest component,
+#'   averaged over the `times` runs.
+#'   Retrieve it with `attr(x, "curve")`.
+#'
+#'   Nodes are chosen at random wherever several are tied,
+#'   so the result is averaged over `times` runs, by default 100.
+#'   Where an attack meets no ties, every run would be the same,
+#'   so it runs once.
+#'   Each run computes the measure once per node removed,
+#'   so an adaptive attack by an expensive measure, such as betweenness,
+#'   on a network of several hundred nodes can take some minutes.
+#'   Lower `times`, or attack with a `node_measure` object, to go faster.
+#'
+#'   For signed networks, 
+#'   `net_by_robustness()` considers only the positive ties,
+#'   since a negative tie does not hold a component together.
+#' 
+#'   For two-mode networks, 
+#'   [node_is_max()] marks the highest-scoring node in each mode,
+#'   so an attack on a two-mode network chooses at random between the two.
+#' @references
+#' ## On robustness
+#' Albert, Réka, Hawoong Jeong, and Albert-László Barabási. 2000.
+#' "Error and attack tolerance of complex networks."
+#' _Nature_ 406: 378-82.
+#' \doi{10.1038/35019019}
+#'
+#' Schneider, Christian M., André A. Moreira, José S. Andrade, Shlomo Havlin,
+#' and Hans J. Herrmann. 2011.
+#' "Mitigation of malicious attacks on networks."
+#' _Proceedings of the National Academy of Sciences_ 108(10): 3838-41.
+#' \doi{10.1073/pnas.1009440108}
+#' @examples
+#' sf <- generate_scalefree(50, 0.5)
+#' net_by_robustness(sf)
+#' net_by_robustness(sf, node_measure = node_by_degree)
+#' @export
+net_by_robustness <- function(.data, node_measure = NULL, times = 100){
+  .data <- manynet::expect_nodes(.data)
+  .data <- .to_aggregated_css(.data)
+  .data <- manynet::to_positive(.data)
+  if(!is.numeric(times) || length(times) != 1 || times < 1)
+    manynet::snet_abort("{.arg times} must be a single positive number.")
+  n <- manynet::net_nodes(.data)
+  g <- manynet::as_igraph(.data)
+  igraph::V(g)$.id <- seq_len(n)
+  # Whether any choice was random, since where none was every run is the same.
+  drawn <- FALSE
+  pick_one <- function(cand){
+    if(length(cand) > 1) drawn <<- TRUE
+    cand[sample.int(length(cand), 1)]
+  }
+  if(is.null(node_measure)){
+    attack <- "random failure"
+    pick <- function(g) pick_one(seq_len(igraph::vcount(g)))
+  } else if(is.function(node_measure)){
+    attack <- "adaptive attack"
+    pick <- function(g){
+      scores <- node_measure(g)
+      if(!inherits(scores, "node_measure"))
+        manynet::snet_abort("{.arg node_measure} must return a {.cls node_measure},",
+                            "as the {.fn node_by_*} functions do.")
+      pick_one(which(node_is_max(scores)))
+    }
+  } else if(inherits(node_measure, "node_measure")){
+    if(length(node_measure) != n)
+      manynet::snet_abort("{.arg node_measure} holds {length(node_measure)}",
+                          "scores, but the network has {n} nodes.")
+    attack <- "static attack"
+    pick <- function(g){
+      alive <- igraph::V(g)$.id
+      scores <- structure(as.numeric(node_measure)[alive],
+                          mode = attr(node_measure, "mode")[alive],
+                          class = class(node_measure))
+      pick_one(which(node_is_max(scores)))
+    }
+  } else manynet::snet_abort("{.arg node_measure} must be NULL,",
+                             "a {.fn node_by_*} function,",
+                             "or a {.cls node_measure} object.")
+  runs <- matrix(NA_real_, times, n + 1)
+  for(i in seq_len(times)){
+    runs[i,] <- .robustness_run(g, n, pick)
+    if(!drawn){
+      runs <- runs[i, , drop = FALSE]
+      break
+    }
+  }
+  curve <- colMeans(runs)
+  out <- make_network_measure(mean(curve[-1]), .data,
+                              call = deparse(sys.call()),
+                              measure = paste("robustness to", attack),
+                              range = c(0, 0.5),
+                              normalization = "normalized")
+  attr(out, "curve") <- dplyr::tibble(removed = (0:n)/n, giant = curve)
+  out
+}
+
+# The share of the original n nodes in the largest weak component after each
+# of 0 to n removals. Once no ties remain, every node is its own component, so
+# the share is 1/n until the last node goes; this is filled in directly rather
+# than asking a measure to rank nodes in an empty network.
+.robustness_run <- function(g, n, pick){
+  giant <- function(g) max(igraph::components(g, mode = "weak")$csize)/n
+  out <- numeric(n + 1)
+  out[1] <- giant(g)
+  for(q in seq_len(n)){
+    if(igraph::ecount(g) == 0){
+      out[(q + 1):(n + 1)] <- c(rep(1/n, n - q), 0)
+      break
+    }
+    g <- igraph::delete_vertices(g, pick(g))
+    out[q + 1] <- if(igraph::vcount(g) > 0) giant(g) else 0
+  }
+  out
 }
 

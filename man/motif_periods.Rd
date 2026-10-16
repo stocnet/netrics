@@ -47,6 +47,7 @@ Other change:
 \code{\link{measure_periods}}
 
 Other motifs:
+\code{\link{motif_accuracy_node}},
 \code{\link{motif_brokerage_net}},
 \code{\link{motif_brokerage_node}},
 \code{\link{motif_clique}},

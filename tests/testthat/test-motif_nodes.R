@@ -7,6 +7,10 @@ for(fn in names(node_motifs)) {
         if(ob == "attribute")
           expect_s3_class(node_motifs[[fn]](data_objs[[ob]], "group"), "node_motif") else
             succeed("Only used for attribute objects")
+      } else if(grepl("accuracy", fn)){
+        # Accuracy compares the reports of a cognitive social structure,
+        # which none of these fixtures hold; see test-measure_fit.R.
+        expect_snet_abort(node_motifs[[fn]](data_objs[[ob]]), "reporters")
       } else if(grepl("exposure", fn)){
         if(ob == "diffusion")
           expect_s3_class(node_motifs[[fn]](data_objs[[ob]]), "node_motif") else

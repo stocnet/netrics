@@ -1217,7 +1217,8 @@ network is hierarchical. A directed tree scores perfectly on all four.
 <span class="page-toc">On this page:
 <span class="page-toc-link" onclick="document.getElementById('section-how-cohesive-is-the-network').scrollIntoView({behavior:'auto',block:'start'});">Cohesion</span> ·
 <span class="page-toc-link" onclick="document.getElementById('section-identifying-cutpoints').scrollIntoView({behavior:'auto',block:'start'});">Cutpoints</span> ·
-<span class="page-toc-link" onclick="document.getElementById('section-identifying-bridges').scrollIntoView({behavior:'auto',block:'start'});">Bridges</span></span>
+<span class="page-toc-link" onclick="document.getElementById('section-identifying-bridges').scrollIntoView({behavior:'auto',block:'start'});">Bridges</span> ·
+<span class="page-toc-link" onclick="document.getElementById('section-failure-or-attack').scrollIntoView({behavior:'auto',block:'start'});">Robustness</span></span>
 
 ### How cohesive is the network? {#how-cohesive-is-the-network}
 
@@ -1275,7 +1276,7 @@ question("The result of this function represents...",
          answer("the number of strong components in the network.",
                 message = learnr::random_encouragement()),
          answer("the minimum number of ties necessary to remove from the network to increase the number of components.",
-                message = "This is actually the definition of `node_adhesion()`."),
+                message = "This is actually the definition of `net_by_adhesion()`."),
          random_answer_order = TRUE,
          allow_retry = TRUE
 )
@@ -1383,13 +1384,62 @@ the map of bridges and cutpoints shows where redundancy is missing:
 adding even one tie between the far sides of a bridge
 would rob both the bridge and its cutpoints of their fragility.
 
+### Failure or attack? {#failure-or-attack}
+
+Cohesion and adhesion ask when a network _first_ breaks.
+But a network that loses one pendant node has hardly suffered.
+A different question is how quickly a network falls apart
+as it loses one node after another.
+`net_by_robustness()` removes the nodes one at a time,
+and averages the share of the original nodes still in the largest component.
+By default it removes nodes at random, as in a failure.
+Give it a node measure, such as `node_by_degree`,
+and it instead removes the highest-scoring node each time, as in an attack.
+
+Here are two networks of the same size and the same number of ties:
+a scale-free network and a regular tree.
+**Compare the robustness of each to a random failure and to a degree attack.**
+
+```{r robust, exercise = TRUE, purl=FALSE}
+sf <- generate_scalefree(50, 1)
+tr <- create_tree(50)
+```
+
+```{r robust-solution}
+sf <- generate_scalefree(50, 1)
+tr <- create_tree(50)
+net_by_robustness(sf)
+net_by_robustness(tr)
+net_by_robustness(sf, node_measure = node_by_degree)
+net_by_robustness(tr, node_measure = node_by_degree)
+```
+
+```{r robust-qa, echo=FALSE, purl = FALSE}
+question("Which network would an attacker, who can see the network, rather face?",
+         answer("The scale-free network", correct = TRUE,
+                message = paste("Right. Its hubs hold it together,",
+                                "so it tolerates the random loss of its many",
+                                "small nodes but falls apart once its hubs are targeted.")),
+         answer("The tree",
+                message = paste("Not quite. The tree has no hubs,",
+                                "so targeting its best-connected nodes",
+                                "does little more damage than random failure.")),
+         random_answer_order = TRUE,
+         allow_retry = TRUE
+)
+```
+
+The curve of the largest component's share after each removal is kept
+with the result, and can be retrieved with `attr(x, "curve")`.
+
 ::: {.callout}
 <span class="callout-label">**In brief**:</span> `net_by_connectedness()`, `net_by_cohesion()`, and
 `net_by_adhesion()` summarise how hard a network is to fragment — the share
 of dyads that can reach each other, and the minimum nodes or ties whose
 removal would fragment it. `node_is_cutpoint()` and `tie_is_bridge()` point
 to _where_ it would break, and `tie_by_cohesion()` shows which ties are
-buttressed by triangles.
+buttressed by triangles. `net_by_robustness()` shows how quickly it falls
+apart under failure or attack.
 :::
 
 ## Free play

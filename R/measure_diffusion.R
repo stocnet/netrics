@@ -297,7 +297,6 @@ net_by_infection_peak <- function(.data){
 
 #' Measures of nodes in a diffusion
 #' @name measure_diffusion_node
-#' @template section_cognitive
 #' @description
 #'   These functions allow measurement of various features of
 #'   a diffusion process:

@@ -2,7 +2,6 @@
 
 #' Methods for calculating regularity
 #' @name method_regularity
-#' @template section_cognitive
 #' @description
 #'   These functions calculate how regularly equivalent each pair of nodes is,
 #'   returning a similarity matrix that [node_in_regular()] then clusters.

@@ -105,10 +105,12 @@ measure_rosters <- list(
     net_by_adhesion     = list()
   ),
   # Strength and toughness enumerate every subset of ties or nodes, so they get
-  # a small fixture of their own.
+  # a small fixture of their own. Robustness shares their documentation, and
+  # repeats its removals `times` over, so it takes the small fixture too.
   fragmentation_net = list(
-    net_by_strength  = list(),
-    net_by_toughness = list()
+    net_by_strength   = list(),
+    net_by_toughness  = list(),
+    net_by_robustness = list()
   ),
 
   diffusion_net = list(
@@ -205,6 +207,14 @@ measure_rosters <- list(
   ),
   change_net = list(
     net_by_waves = list()
+  ),
+  # Accuracy compares the reports of a cognitive social structure, so it runs
+  # against a CSS fixture, and does not apply to the aggregated network.
+  accuracy_node = list(
+    node_by_accuracy = list()
+  ),
+  accuracy_net = list(
+    net_by_accuracy = list()
   )
 )
 

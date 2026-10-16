@@ -2,7 +2,6 @@
 
 #' Measures of node brokerage
 #' @name measure_broker_node
-#' @template section_cognitive
 #' @description
 #'   These function provide different measures of the degree to which nodes
 #'   fill structural holes, as outlined in Burt (1992):
@@ -31,6 +30,12 @@
 #'   where \eqn{t} is the sum of ties and \eqn{n} the sum of nodes in each node's neighbourhood,
 #'   and effective size is calculated as \eqn{n - \frac{2t}{n}}.
 #'   Node efficiency is the node's effective size divided by its degree.
+#'
+#'   For multilevel networks, `node_by_effsize()` and `node_by_efficiency()`
+#'   measure the network whole, as [net_by_independence()] does.
+#'   A multilevel network reports itself as two-mode, but holds ties within a
+#'   mode as well as between them, so it cannot be projected onto one mode.
+#'   The projection remains for genuine two-mode networks.
 #' @references 
 #' ## On structural holes
 #' Burt, Ronald S. 1992. 
@@ -39,12 +44,6 @@
 #' @template param_data
 #' @family brokerage
 #' @template node_measure
-#' @section Multilevel networks:
-#'   A multilevel network reports itself as two-mode, but holds ties within a
-#'   mode as well as between them, so it cannot be projected onto one mode.
-#'   `node_by_effsize()` and `node_by_efficiency()` therefore measure a
-#'   multilevel network whole, as [net_by_independence()] does. The projection
-#'   remains for genuine two-mode networks.
 NULL
 
 #' @rdname measure_broker_node 
@@ -263,7 +262,6 @@ node_by_neighbours_degree <- function(.data){
 
 #' Measures of tie brokerage
 #' @name measure_broker_tie
-#' @template section_cognitive
 #' @description
 #'   `tie_by_cohesion()` measures the ratio between common neighbors to ties'
 #'   adjacent nodes and the total number of adjacent nodes,

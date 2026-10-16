@@ -2,7 +2,6 @@
 
 #' Memberships of ties in link communities
 #' @name member_community_link
-#' @template section_cognitive
 #' @description
 #'   `tie_in_community()` assigns each tie to a link community.
 #'
@@ -36,10 +35,11 @@
 #'   Ties between the same two nodes, whatever their direction,
 #'   are placed in the same community, and tie weights are not used.
 #'   A tie from a node to itself joins no two nodes, and returns `NA`.
-#' @section Signed networks:
+#'
+#'   For signed networks, only the positive ties are clustered,
+#'   and negative ties return `NA`.
 #'   A community is a cohesive subgroup, and negative ties do not carry
-#'   cohesion. Where the network is signed, only its positive ties are
-#'   clustered, and negative ties return `NA`.
+#'   cohesion.
 #'   Use [manynet::to_unsigned()] first to control this yourself.
 #' @section Large networks:
 #'   Every tie is compared with every other tie,
