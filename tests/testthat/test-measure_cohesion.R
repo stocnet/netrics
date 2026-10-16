@@ -81,6 +81,84 @@ test_that("net_by_strength() and net_by_toughness() guard their size", {
 test_that("net_toughness works", {
   expect_values(net_by_toughness(ison_adolescents), 0.5)
 })
+
+test_that("net_by_robustness keeps a curve that only falls", {
+  set.seed(1234)
+  sf <- generate_scalefree(30, 0.5)
+  for (nm in list(NULL, node_by_degree, node_by_degree(sf))) {
+    out <- net_by_robustness(sf, node_measure = nm, times = 5)
+    curve <- attr(out, "curve")
+    expect_equal(nrow(curve), 31)
+    expect_equal(range(curve$removed), c(0, 1))
+    expect_true(all(diff(curve$giant) <= 0))
+    expect_equal(curve$giant[31], 0)
+    # R is the mean share over the removals, excluding the intact network
+    expect_equal(as.numeric(out), mean(curve$giant[-1]))
+    expect_gt(as.numeric(out), 0)
+    expect_lte(as.numeric(out), 0.5)
+  }
+})
+
+test_that("net_by_robustness matches its known extremes", {
+  # a star attacked at its hub leaves only isolates, scoring (N-1)/N^2
+  expect_equal(as.numeric(net_by_robustness(create_star(20), node_by_degree)),
+               19/400)
+  # a complete network loses one node per removal, scoring (N-1)/2N
+  expect_equal(as.numeric(net_by_robustness(create_filled(10))), 9/20)
+})
+
+test_that("net_by_robustness separates failure from attack", {
+  set.seed(1234)
+  sf <- generate_scalefree(50, 0.5)
+  expect_gt(as.numeric(net_by_robustness(sf, times = 20)),
+            as.numeric(net_by_robustness(sf, node_by_degree, times = 20)))
+  expect_match(attr(net_by_robustness(sf, times = 2), "measure"), "failure")
+  expect_match(attr(net_by_robustness(sf, node_by_degree, times = 2), "measure"),
+               "adaptive")
+  expect_match(attr(net_by_robustness(sf, node_by_degree(sf), times = 2),
+                    "measure"), "static")
+})
+
+test_that("net_by_robustness is reproducible with a seed", {
+  set.seed(1)
+  a <- net_by_robustness(ison_adolescents, times = 10)
+  set.seed(1)
+  b <- net_by_robustness(ison_adolescents, times = 10)
+  expect_equal(a, b)
+})
+
+test_that("net_by_robustness reads weak components and positive ties", {
+  # a one-way chain has no strong component larger than a node, but holds
+  # together weakly, so it scores as the undirected path would
+  # (the same seed for both, so that tied nodes are chosen alike)
+  chain <- create_tree(6, directed = TRUE)
+  set.seed(1)
+  a <- net_by_robustness(chain, node_by_degree(chain))
+  set.seed(1)
+  b <- net_by_robustness(to_undirected(chain), node_by_degree(chain))
+  expect_equal(as.numeric(a), as.numeric(b))
+  # a negative tie holds no component together
+  tri <- igraph::make_ring(3)
+  igraph::E(tri)$sign <- c(1, 1, -1)
+  tri <- manynet::as_stocnet(tri)
+  set.seed(1)
+  a <- net_by_robustness(tri)
+  set.seed(1)
+  b <- net_by_robustness(manynet::to_unsigned(tri, keep = "positive"))
+  expect_equal(as.numeric(a), as.numeric(b))
+})
+
+test_that("net_by_robustness refuses what it cannot rank by", {
+  expect_error(net_by_robustness(ison_adolescents, node_measure = "degree"),
+               "node_measure")
+  expect_error(net_by_robustness(ison_adolescents,
+                                 node_measure = node_by_degree(ison_karateka)),
+               "scores")
+  expect_error(net_by_robustness(ison_adolescents,
+                                 node_measure = \(x) rep(1, net_nodes(x))),
+               "must return")
+  expect_error(net_by_robustness(ison_adolescents, times = 0), "times")
+})
 test_that("network compactness works", {
   expect_equal(as.numeric(net_by_compactness(create_filled(10))), 1)
   expect_equal(as.numeric(net_by_compactness(create_empty(10))), 0)
