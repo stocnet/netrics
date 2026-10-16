@@ -1,3 +1,9 @@
+# netrics 1.1.3
+
+## Package
+
+- Fixed website deployment by adding the accuracy measures to the pkgdown reference index
+
 # netrics 1.1.2
 
 ## Package
