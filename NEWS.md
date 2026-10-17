@@ -8,6 +8,11 @@
 
 - Fixed `node_is_mentor()` on two-mode networks by selecting the elites within each mode
 
+
+## Methods
+
+- Fixed `coreness_hub()` on two-mode networks by reading the degrees over all nodes
+
 # netrics 1.1.2
 
 ## Package

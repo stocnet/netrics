@@ -72,6 +72,13 @@ test_that("every coreness method returns a coreness and a core", {
   }
 })
 
+test_that("coreness_hub works on a two-mode network", {
+  # the degrees used to be summed over a non-square matrix, which errored
+  out <- coreness_hub(ison_southern_women)
+  expect_length(out$coreness, 32)
+  expect_length(out$core, 32)
+})
+
 test_that("the square methods refuse a two-mode network", {
   expect_error(coreness_correlation(ison_southern_women))
   expect_error(coreness_transition(ison_southern_women))
