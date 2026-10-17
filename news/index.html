@@ -17,7 +17,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">netrics</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.1.1</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.1.3</span>
       </span>
     </div>
 
@@ -88,6 +88,56 @@
       <small>Source: <a href="https://github.com/stocnet/netrics/blob/main/NEWS.md" class="external-link"><code>NEWS.md</code></a></small>
     </div>
 
+    <div class="section level2">
+<h2 class="page-header" data-toc-text="1.1.3" id="netrics-113">netrics 1.1.3<a class="anchor" aria-label="anchor" href="#netrics-113"></a></h2>
+<div class="section level3">
+<h3 id="package-1-1-3">Package<a class="anchor" aria-label="anchor" href="#package-1-1-3"></a></h3>
+<ul><li>Fixed website deployment by adding the accuracy measures to the pkgdown reference index</li>
+</ul></div>
+<div class="section level3">
+<h3 id="marks-1-1-3">Marks<a class="anchor" aria-label="anchor" href="#marks-1-1-3"></a></h3>
+<ul><li>Fixed <code><a href="../reference/mark_nodes.html">node_is_mentor()</a></code> on two-mode networks by selecting the elites within each mode</li>
+</ul></div>
+<div class="section level3">
+<h3 id="measures-1-1-3">Measures<a class="anchor" aria-label="anchor" href="#measures-1-1-3"></a></h3>
+<ul><li>Accelerated <code><a href="../reference/measure_broker_node.html">node_by_constraint()</a></code> on 2mode via matrix algebra (90x faster on n=1000)
+<ul><li>This also speeds up <code><a href="../reference/measure_broker_node.html">node_by_hierarchy()</a></code>
+</li>
+</ul></li>
+<li>Accelerated <code><a href="../reference/measure_broker_node.html">node_by_redundancy()</a></code>, <code><a href="../reference/measure_broker_node.html">node_by_effsize()</a></code>, and <code><a href="../reference/measure_broker_node.html">node_by_efficiency()</a></code> on 2mode by vectorising the redundancy (10-20x faster on n=1000)</li>
+<li>Fixed <code><a href="../reference/measure_broker_node.html">node_by_constraint()</a></code>, <code><a href="../reference/measure_broker_node.html">node_by_hierarchy()</a></code>, and <code><a href="../reference/measure_broker_node.html">node_by_redundancy()</a></code> on multilevel networks, by treating them as one-mode as <code><a href="../reference/measure_broker_node.html">node_by_effsize()</a></code> does</li>
+</ul></div>
+<div class="section level3">
+<h3 id="methods-1-1-3">Methods<a class="anchor" aria-label="anchor" href="#methods-1-1-3"></a></h3>
+<ul><li>Fixed <code><a href="../reference/method_coreness.html">coreness_hub()</a></code> on two-mode networks by reading the degrees over all nodes</li>
+</ul></div>
+<div class="section level3">
+<h3 id="motifs-1-1-3">Motifs<a class="anchor" aria-label="anchor" href="#motifs-1-1-3"></a></h3>
+<ul><li>Improved <code><a href="../reference/motif_clique.html">node_x_clique()</a></code> and <code><a href="../reference/motif_clique.html">node_x_percolation()</a></code> by finding 2mode cliques and their incidence without a loop over cliques</li>
+</ul></div>
+</div>
+    <div class="section level2">
+<h2 class="page-header" data-toc-text="1.1.2" id="netrics-112">netrics 1.1.2<a class="anchor" aria-label="anchor" href="#netrics-112"></a></h2>
+<div class="section level3">
+<h3 id="package-1-1-2">Package<a class="anchor" aria-label="anchor" href="#package-1-1-2"></a></h3>
+<ul><li>Updated function documentation sections to be about the outputs not the inputs</li>
+</ul></div>
+<div class="section level3">
+<h3 id="motifs-1-1-2">Motifs<a class="anchor" aria-label="anchor" href="#motifs-1-1-2"></a></h3>
+<ul><li>Added <code><a href="../reference/motif_accuracy_node.html">node_x_accuracy()</a></code> for the confusion matrix of each reporter’s view of a CSS against an ideal, by default its LAS (closes <a href="https://github.com/stocnet/netrics/issues/37" class="external-link">#37</a>)</li>
+</ul></div>
+<div class="section level3">
+<h3 id="measures-1-1-2">Measures<a class="anchor" aria-label="anchor" href="#measures-1-1-2"></a></h3>
+<ul><li>Added <code><a href="../reference/measure_accuracy_node.html">node_by_accuracy()</a></code> and <code><a href="../reference/measure_accuracy_net.html">net_by_accuracy()</a></code> for how well reporters’ views of a CSS on average agree with an ideal (closes <a href="https://github.com/stocnet/netrics/issues/37" class="external-link">#37</a>)</li>
+<li>Added <code><a href="../reference/measure_fragmentation.html">net_by_robustness()</a></code> for how the giant component shrinks as nodes are removed (closes <a href="https://github.com/stocnet/netrics/issues/42" class="external-link">#42</a>)
+<ul><li>By default nodes fail at random</li>
+<li>Passing <code>node_measure</code> a vector will target nodes by these values</li>
+<li>An adaptive attack can be simulated by passing <code>node_measure</code> to <code>attack=</code>
+</li>
+<li>Share remaining after each removal is kept as a <code>curve</code> attribute</li>
+</ul></li>
+</ul></div>
+</div>
     <div class="section level2">
 <h2 class="page-header" data-toc-text="1.1.1" id="netrics-111">netrics 1.1.1<a class="anchor" aria-label="anchor" href="#netrics-111"></a></h2>
 <div class="section level3">

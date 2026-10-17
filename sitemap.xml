@@ -24,6 +24,8 @@
 <url><loc>https://stocnet.github.io/netrics/reference/mark_select_tie.html</loc></url>
 <url><loc>https://stocnet.github.io/netrics/reference/mark_ties.html</loc></url>
 <url><loc>https://stocnet.github.io/netrics/reference/mark_triangles.html</loc></url>
+<url><loc>https://stocnet.github.io/netrics/reference/measure_accuracy_net.html</loc></url>
+<url><loc>https://stocnet.github.io/netrics/reference/measure_accuracy_node.html</loc></url>
 <url><loc>https://stocnet.github.io/netrics/reference/measure_assort_net.html</loc></url>
 <url><loc>https://stocnet.github.io/netrics/reference/measure_assort_node.html</loc></url>
 <url><loc>https://stocnet.github.io/netrics/reference/measure_breadth.html</loc></url>
@@ -75,6 +77,7 @@
 <url><loc>https://stocnet.github.io/netrics/reference/method_regularity.html</loc></url>
 <url><loc>https://stocnet.github.io/netrics/reference/method_search.html</loc></url>
 <url><loc>https://stocnet.github.io/netrics/reference/method_split.html</loc></url>
+<url><loc>https://stocnet.github.io/netrics/reference/motif_accuracy_node.html</loc></url>
 <url><loc>https://stocnet.github.io/netrics/reference/motif_brokerage_net.html</loc></url>
 <url><loc>https://stocnet.github.io/netrics/reference/motif_brokerage_node.html</loc></url>
 <url><loc>https://stocnet.github.io/netrics/reference/motif_clique.html</loc></url>
@@ -87,5 +90,6 @@
 <url><loc>https://stocnet.github.io/netrics/reference/motif_node.html</loc></url>
 <url><loc>https://stocnet.github.io/netrics/reference/motif_path.html</loc></url>
 <url><loc>https://stocnet.github.io/netrics/reference/motif_periods.html</loc></url>
+<url><loc>https://stocnet.github.io/netrics/reference/netrics-package.html</loc></url>
 </urlset>
 

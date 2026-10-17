@@ -25,7 +25,7 @@ and then how signs, layers, and attributes add to it."><meta property="og:image"
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">netrics</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.1.1</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.1.3</span>
       </span>
     </div>
 
@@ -200,11 +200,11 @@ recalls the motif, and the number of nodes:</p><ul><li><p><code>E4</code> (co-K4
 </ul><p>See also <a href="https://www.graphclasses.org/smallgraphs.html" class="external-link">graph classes</a>
 and McMillan and Felmlee (2020).</p>
     </div>
-    <div id="signed-networks">
-    <h2>Signed networks</h2>
+    <div id="splitting-motifs">
+    <h2>Splitting motifs</h2>
 
 
-<p>Where the network is signed, dyads and triads are split by the signs of
+<p>For signed networks, dyads and triads are split by the signs of
 their ties.
 Each label is followed by the signs of the motif's ties, e.g. <code>300_++-</code>
 for a triangle with one negative tie, or <code>Mutual_+-</code> for a mutual dyad
@@ -219,13 +219,8 @@ The tetrad census sets signs aside.</p>
 <p>Only the motifs that occur are reported.
 Summing the variants of a motif gives the unsigned census.
 Use <code><a href="https://stocnet.github.io/manynet/reference/modif_weight.html" class="external-link">manynet::to_unsigned()</a></code> first for a coarser census.</p>
-    </div>
-    <div id="multiplex-and-multilevel-networks">
-    <h2>Multiplex and multilevel networks</h2>
-
-
-<p>Where the network holds several one-mode layers, dyads and triads are
-split by the layers of their ties.
+<p>For multiplex networks, which hold several one-mode layers,
+dyads and triads are split by the layers of their ties.
 Each layer is given a letter, the first letter of its name where these
 differ, and the letters are kept in the <code>"layers"</code> attribute of the result.
 Each tie lists the letters of the layers that carry it, separated from the
@@ -237,27 +232,6 @@ Only the motifs that occur are reported.
 Summing the variants of a motif gives the census of all layers together.
 Use <code><a href="https://stocnet.github.io/manynet/reference/modif_plexity.html" class="external-link">manynet::to_uniplex()</a></code> first for a census of one layer.
 The tetrad census counts every tie whatever its layer.</p>
-<p>Where the network holds exactly one one-mode layer and one two-mode
-layer, such as <code>fict_marvel</code>, the triad census is instead the
-multilevel census of Hollway et al. (2017), over triads of two nodes of
-the first mode and one of the second.
-Its ten motifs are labelled by two digits: first, how many of the two
-first-mode nodes are tied to the second-mode node (2, 1, or 0);
-second, the tie between the two first-mode nodes
-(2 mutual, 1 asymmetric, 0 none):
-<code>22</code>, <code>21</code>, <code>20</code>, <code>12</code>, <code>11D</code>, <code>11U</code>, <code>10</code>, <code>02</code>, <code>01</code>, <code>00</code>.
-So <code>21</code> counts pairs tied in one direction that share an affiliation.
-Where only one of the pair is affiliated and the tie is asymmetric,
-<code>11D</code> has the affiliated node sending the tie, and <code>11U</code> receiving it.
-This census sets weights and signs aside, and takes no <code>attribute</code>.
-Passing the one-mode and two-mode networks separately still works,
-but is deprecated.
-Other combinations of one-mode and two-mode layers are not yet available.</p>
-    </div>
-    <div id="attributes">
-    <h2>Attributes</h2>
-
-
 <p>Where an <code>attribute</code> is given, each motif is further split by how its
 nodes compare on that attribute, after any signs or layers.
 The comparison is given for each pair of positions in turn
@@ -282,6 +256,27 @@ Only the motifs that occur are reported, and summing the variants of a
 motif gives the census without the attribute.
 To see which categories take part in which motifs, take a node census
 and summarise its rows by the attribute.</p>
+    </div>
+    <div id="multilevel-triad-census">
+    <h2>Multilevel triad census</h2>
+
+
+<p>For multilevel networks that hold exactly one one-mode layer and one
+two-mode layer, such as <code>fict_marvel</code>, the triad census is instead the
+multilevel census of Hollway et al. (2017), over triads of two nodes of
+the first mode and one of the second.
+Its ten motifs are labelled by two digits: first, how many of the two
+first-mode nodes are tied to the second-mode node (2, 1, or 0);
+second, the tie between the two first-mode nodes
+(2 mutual, 1 asymmetric, 0 none):
+<code>22</code>, <code>21</code>, <code>20</code>, <code>12</code>, <code>11D</code>, <code>11U</code>, <code>10</code>, <code>02</code>, <code>01</code>, <code>00</code>.
+So <code>21</code> counts pairs tied in one direction that share an affiliation.
+Where only one of the pair is affiliated and the tie is asymmetric,
+<code>11D</code> has the affiliated node sending the tie, and <code>11U</code> receiving it.
+This census sets weights and signs aside, and takes no <code>attribute</code>.
+Passing the one-mode and two-mode networks separately still works,
+but is deprecated.
+Other combinations of one-mode and two-mode layers are not yet available.</p>
     </div>
     <div id="references">
     <h2>References</h2>
@@ -350,6 +345,7 @@ Cambridge: Cambridge University Press.</p>
 <code><a href="measure_fragmentation.html">measure_fragmentation</a></code>,
 <code><a href="motif_node.html">motif_node</a></code></p>
 <p>Other motifs:
+<code><a href="motif_accuracy_node.html">motif_accuracy_node</a></code>,
 <code><a href="motif_brokerage_net.html">motif_brokerage_net</a></code>,
 <code><a href="motif_brokerage_node.html">motif_brokerage_node</a></code>,
 <code><a href="motif_clique.html">motif_clique</a></code>,

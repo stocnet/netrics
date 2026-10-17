@@ -32,7 +32,7 @@ so in the chain A-&amp;gt;B-&amp;gt;C all three nodes count one 021C."><meta pro
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">netrics</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.1.1</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.1.3</span>
       </span>
     </div>
 
@@ -214,11 +214,11 @@ recalls the motif, and the number of nodes:</p><ul><li><p><code>E4</code> (co-K4
 </ul><p>See also <a href="https://www.graphclasses.org/smallgraphs.html" class="external-link">graph classes</a>
 and McMillan and Felmlee (2020).</p>
     </div>
-    <div id="signed-networks">
-    <h2>Signed networks</h2>
+    <div id="splitting-motifs">
+    <h2>Splitting motifs</h2>
 
 
-<p>Where the network is signed, dyads and triads are split by the signs of
+<p>For signed networks, dyads and triads are split by the signs of
 their ties.
 Each label is followed by the signs of the motif's ties, e.g. <code>300_++-</code>
 for a triangle with one negative tie, or <code>Mutual_+-</code> for a mutual dyad
@@ -233,13 +233,8 @@ The tetrad census sets signs aside.</p>
 <p>Only the motifs that occur are reported.
 Summing the variants of a motif gives the unsigned census.
 Use <code><a href="https://stocnet.github.io/manynet/reference/modif_weight.html" class="external-link">manynet::to_unsigned()</a></code> first for a coarser census.</p>
-    </div>
-    <div id="multiplex-and-multilevel-networks">
-    <h2>Multiplex and multilevel networks</h2>
-
-
-<p>Where the network holds several one-mode layers, dyads and triads are
-split by the layers of their ties.
+<p>For multiplex networks, which hold several one-mode layers,
+dyads and triads are split by the layers of their ties.
 Each layer is given a letter, the first letter of its name where these
 differ, and the letters are kept in the <code>"layers"</code> attribute of the result.
 Each tie lists the letters of the layers that carry it, separated from the
@@ -251,27 +246,6 @@ Only the motifs that occur are reported.
 Summing the variants of a motif gives the census of all layers together.
 Use <code><a href="https://stocnet.github.io/manynet/reference/modif_plexity.html" class="external-link">manynet::to_uniplex()</a></code> first for a census of one layer.
 The tetrad census counts every tie whatever its layer.</p>
-<p>Where the network holds exactly one one-mode layer and one two-mode
-layer, such as <code>fict_marvel</code>, the triad census is instead the
-multilevel census of Hollway et al. (2017), over triads of two nodes of
-the first mode and one of the second.
-Its ten motifs are labelled by two digits: first, how many of the two
-first-mode nodes are tied to the second-mode node (2, 1, or 0);
-second, the tie between the two first-mode nodes
-(2 mutual, 1 asymmetric, 0 none):
-<code>22</code>, <code>21</code>, <code>20</code>, <code>12</code>, <code>11D</code>, <code>11U</code>, <code>10</code>, <code>02</code>, <code>01</code>, <code>00</code>.
-So <code>21</code> counts pairs tied in one direction that share an affiliation.
-Where only one of the pair is affiliated and the tie is asymmetric,
-<code>11D</code> has the affiliated node sending the tie, and <code>11U</code> receiving it.
-This census sets weights and signs aside, and takes no <code>attribute</code>.
-Passing the one-mode and two-mode networks separately still works,
-but is deprecated.
-Other combinations of one-mode and two-mode layers are not yet available.</p>
-    </div>
-    <div id="attributes">
-    <h2>Attributes</h2>
-
-
 <p>Where an <code>attribute</code> is given, each motif is further split by how its
 nodes compare on that attribute, after any signs or layers.
 The comparison is given for each pair of positions in turn
@@ -296,6 +270,27 @@ Only the motifs that occur are reported, and summing the variants of a
 motif gives the census without the attribute.
 To see which categories take part in which motifs, take a node census
 and summarise its rows by the attribute.</p>
+    </div>
+    <div id="multilevel-triad-census">
+    <h2>Multilevel triad census</h2>
+
+
+<p>For multilevel networks that hold exactly one one-mode layer and one
+two-mode layer, such as <code>fict_marvel</code>, the triad census is instead the
+multilevel census of Hollway et al. (2017), over triads of two nodes of
+the first mode and one of the second.
+Its ten motifs are labelled by two digits: first, how many of the two
+first-mode nodes are tied to the second-mode node (2, 1, or 0);
+second, the tie between the two first-mode nodes
+(2 mutual, 1 asymmetric, 0 none):
+<code>22</code>, <code>21</code>, <code>20</code>, <code>12</code>, <code>11D</code>, <code>11U</code>, <code>10</code>, <code>02</code>, <code>01</code>, <code>00</code>.
+So <code>21</code> counts pairs tied in one direction that share an affiliation.
+Where only one of the pair is affiliated and the tie is asymmetric,
+<code>11D</code> has the affiliated node sending the tie, and <code>11U</code> receiving it.
+This census sets weights and signs aside, and takes no <code>attribute</code>.
+Passing the one-mode and two-mode networks separately still works,
+but is deprecated.
+Other combinations of one-mode and two-mode layers are not yet available.</p>
     </div>
     <div id="references">
     <h2>References</h2>
@@ -351,6 +346,7 @@ and summarise its rows by the attribute.</p>
 <code><a href="measure_fragmentation.html">measure_fragmentation</a></code>,
 <code><a href="motif_net.html">motif_net</a></code></p>
 <p>Other motifs:
+<code><a href="motif_accuracy_node.html">motif_accuracy_node</a></code>,
 <code><a href="motif_brokerage_net.html">motif_brokerage_net</a></code>,
 <code><a href="motif_brokerage_node.html">motif_brokerage_node</a></code>,
 <code><a href="motif_clique.html">motif_clique</a></code>,
@@ -368,6 +364,7 @@ and summarise its rows by the attribute.</p>
 <code><a href="mark_diff.html">mark_diff</a></code>,
 <code><a href="mark_nodes.html">mark_nodes</a></code>,
 <code><a href="mark_select_node.html">mark_select_node</a></code>,
+<code><a href="measure_accuracy_node.html">measure_accuracy_node</a></code>,
 <code><a href="measure_assort_node.html">measure_assort_node</a></code>,
 <code><a href="measure_broker_node.html">measure_broker_node</a></code>,
 <code><a href="measure_brokerage.html">measure_brokerage</a></code>,
@@ -390,6 +387,7 @@ and summarise its rows by the attribute.</p>
 <code><a href="member_core.html">member_core</a></code>,
 <code><a href="member_diffusion.html">member_diffusion</a></code>,
 <code><a href="member_equivalence.html">member_equivalence</a></code>,
+<code><a href="motif_accuracy_node.html">motif_accuracy_node</a></code>,
 <code><a href="motif_brokerage_node.html">motif_brokerage_node</a></code>,
 <code><a href="motif_clique.html">motif_clique</a></code>,
 <code><a href="motif_composition.html">motif_composition</a></code>,
@@ -426,12 +424,12 @@ and summarise its rows by the attribute.</p>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># A tibble: 16 × 17</span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   names   X003  X012  X102 X021D X021U X021C X111D X111U X030T X030C  X201 X120D</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>  <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">1</span> Antho…    23    11    39     0     0     0     2     2     0     0    17     0</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">2</span> Betha…    21     6    47     0     0     0     5     6     0     0    10     0</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">3</span> Carole    34     3    46     0     0     0     2     1     0     0    13     0</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">4</span> Darla     52     6    28     0     0     0     0     0     0     0    18     0</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">5</span> Emmett    17    11    37     1     0     1     6     7     0     0    15     1</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">6</span> Flore…    23     8    40     1     0     0     3     3     0     0    18     1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">1</span> Abrah…    23    11    39     0     0     0     2     2     0     0    17     0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">2</span> Belle     21     6    47     0     0     0     5     6     0     0    10     0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">3</span> Charl…    34     3    46     0     0     0     2     1     0     0    13     0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">4</span> Dawson    52     6    28     0     0     0     0     0     0     0    18     0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">5</span> Eileen    17    11    37     1     0     1     6     7     0     0    15     1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">6</span> Franc…    23     8    40     1     0     0     3     3     0     0    18     1</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># ℹ 10 more rows</span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># ℹ 4 more variables: X120U &lt;dbl&gt;, X120C &lt;dbl&gt;, X210 &lt;dbl&gt;, X300 &lt;dbl&gt;</span></span>
 <span class="r-in"><span><span class="fu">node_x_tetrad</span><span class="op">(</span><span class="va">ison_southern_women</span><span class="op">)</span></span></span>

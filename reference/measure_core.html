@@ -22,7 +22,7 @@ node_by_kcoreness() assigns nodes to their level of k-coreness.
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">netrics</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.1.1</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.1.3</span>
       </span>
     </div>
 
@@ -145,31 +145,6 @@ Where a measure offers a choice between several ways of counting the
 same thing, it also carries the <code>variant</code> it used.
 All can be retrieved with <code><a href="https://rdrr.io/r/base/attr.html" class="external-link">attr()</a></code>.</p>
     </div>
-    <div id="cognitive-social-structures">
-    <h2>Cognitive social structures</h2>
-
-
-<p>A cognitive social structure records each node's report of the ties in
-the whole network, in a <code>by</code> column that names who reported each tie.
-Counting every report as a tie of its own would count each tie once for
-every perceiver who reports it.
-So the functions here first combine the reports into the locally
-aggregated structure of Krackhardt (1987), with the intersection rule:
-a tie exists if both of its ends report it, and a message says so.
-A tie that names no reporter is kept as it is.</p>
-<p>A tie-level function still returns one value for each report,
-so that the result can be added back to the network it was given.
-Each report takes the value of the tie that it reports.
-A report of a tie that is not in the aggregated structure takes <code>NA</code>,
-or <code>FALSE</code> for a mark.
-<code><a href="mark_select_tie.html">tie_is_random()</a></code> is the exception, and draws among the reports.</p>
-<p>To combine the reports in a different way, do this before the function,
-e.g. with <code>manynet::to_aggregated(over = "by")</code>.</p>
-<p>Krackhardt, David. 1987.
-"Cognitive social structures".
-<em>Social Networks</em> 9(2): 109-134.
-<a href="https://doi.org/10.1016/0378-8733%2887%2990009-8" class="external-link">doi:10.1016/0378-8733(87)90009-8</a></p>
-    </div>
     <div id="k-coreness">
     <h2>k-coreness</h2>
 
@@ -224,6 +199,8 @@ continuous score here, and the peeling depth of <code>node_by_kcoreness()</code>
 <code><a href="mark_core.html">mark_core</a></code>,
 <code><a href="member_core.html">member_core</a></code></p>
 <p>Other measures:
+<code><a href="measure_accuracy_net.html">measure_accuracy_net</a></code>,
+<code><a href="measure_accuracy_node.html">measure_accuracy_node</a></code>,
 <code><a href="measure_assort_net.html">measure_assort_net</a></code>,
 <code><a href="measure_assort_node.html">measure_assort_node</a></code>,
 <code><a href="measure_breadth.html">measure_breadth</a></code>,
@@ -258,6 +235,7 @@ continuous score here, and the peeling depth of <code>node_by_kcoreness()</code>
 <code><a href="mark_diff.html">mark_diff</a></code>,
 <code><a href="mark_nodes.html">mark_nodes</a></code>,
 <code><a href="mark_select_node.html">mark_select_node</a></code>,
+<code><a href="measure_accuracy_node.html">measure_accuracy_node</a></code>,
 <code><a href="measure_assort_node.html">measure_assort_node</a></code>,
 <code><a href="measure_broker_node.html">measure_broker_node</a></code>,
 <code><a href="measure_brokerage.html">measure_brokerage</a></code>,
@@ -279,6 +257,7 @@ continuous score here, and the peeling depth of <code>node_by_kcoreness()</code>
 <code><a href="member_core.html">member_core</a></code>,
 <code><a href="member_diffusion.html">member_diffusion</a></code>,
 <code><a href="member_equivalence.html">member_equivalence</a></code>,
+<code><a href="motif_accuracy_node.html">motif_accuracy_node</a></code>,
 <code><a href="motif_brokerage_node.html">motif_brokerage_node</a></code>,
 <code><a href="motif_clique.html">motif_clique</a></code>,
 <code><a href="motif_composition.html">motif_composition</a></code>,

@@ -10,6 +10,9 @@ from the network needed to increase the number of components,
 or the minimum total weight of such ties in a weighted network.
 net_by_strength() measures the number of ties that would need to be
 removed from a network to increase its number of components.
+net_by_robustness() measures how slowly the network's largest component
+shrinks as its nodes are removed one at a time,
+either at random or in order of some node measure.
 
 "><meta property="og:image" content="https://stocnet.github.io/netrics/logo.png"><!-- mathjax --><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js" integrity="sha256-nvJJv9wWKEm88qvoQl9ekL2J+k/RWIsaSScxxlsrv8k=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/config/TeX-AMS-MML_HTMLorMML.js" integrity="sha256-84DKXVJXs0/F8OTMzX4UR909+jtl4G7SPypPavF+GfA=" crossorigin="anonymous"></script><!--[if lt IE 9]>
 <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
@@ -29,7 +32,7 @@ removed from a network to increase its number of components.
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">netrics</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.1.1</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.1.3</span>
       </span>
     </div>
 
@@ -112,6 +115,9 @@ from the network needed to increase the number of components,
 or the minimum total weight of such ties in a weighted network.</p></li>
 <li><p><code>net_by_strength()</code> measures the number of ties that would need to be
 removed from a network to increase its number of components.</p></li>
+<li><p><code>net_by_robustness()</code> measures how slowly the network's largest component
+shrinks as its nodes are removed one at a time,
+either at random or in order of some node measure.</p></li>
 </ul></div>
 
     <div id="ref-usage">
@@ -121,7 +127,9 @@ removed from a network to increase its number of components.</p></li>
 <span></span>
 <span><span class="fu">net_by_strength</span><span class="op">(</span><span class="va">.data</span>, limit <span class="op">=</span> <span class="fl">20</span><span class="op">)</span></span>
 <span></span>
-<span><span class="fu">net_by_toughness</span><span class="op">(</span><span class="va">.data</span>, limit <span class="op">=</span> <span class="fl">20</span><span class="op">)</span></span></code></pre></div>
+<span><span class="fu">net_by_toughness</span><span class="op">(</span><span class="va">.data</span>, limit <span class="op">=</span> <span class="fl">20</span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu">net_by_robustness</span><span class="op">(</span><span class="va">.data</span>, node_measure <span class="op">=</span> <span class="cn">NULL</span>, times <span class="op">=</span> <span class="fl">100</span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div id="arguments">
@@ -140,6 +148,31 @@ For more information on possible coercions, see e.g. <code><a href="https://stoc
 of nodes for the second. By default 20. Above this each stops rather than
 running for hours. Raise it to measure a larger network anyway.</p></dd>
 
+
+<dt id="arg-node-measure">node_measure<a class="anchor" aria-label="anchor" href="#arg-node-measure"></a></dt>
+<dd><p>How the nodes to remove are chosen.
+By default <code>NULL</code>, which removes nodes at random,
+so that the network suffers failure rather than attack.
+Otherwise, at each step the node that <code><a href="mark_select_node.html">node_is_max()</a></code> marks is removed,
+choosing at random among any tied for the maximum.
+Give a <code>node_by_*()</code> function, such as <code>node_by_degree</code>,
+to recompute the measure on the network remaining after each removal,
+which is an adaptive attack.
+Give a <code>node_measure</code> object, such as <code>node_by_degree(.data)</code>,
+to remove nodes in the order of the scores the intact network gives them,
+which is a static attack.
+To pass further arguments, give a function of the network,
+e.g. <code>\(x) node_by_closeness(x, normalized = FALSE)</code>.</p></dd>
+
+
+<dt id="arg-times">times<a class="anchor" aria-label="anchor" href="#arg-times"></a></dt>
+<dd><p>Integer scalar, how many times the algorithm repeats its work.
+Where the algorithm is stochastic, this is how many times it runs,
+and the best or the most frequent result is kept.
+Where the algorithm searches, this is how many steps the search takes.
+More repetitions give a more reliable result and take longer,
+so each function documents its own default.</p></dd>
+
 </dl></div>
     <div id="value">
     <h2>Value</h2>
@@ -151,30 +184,25 @@ Where a measure offers a choice between several ways of counting the
 same thing, it also carries the <code>variant</code> it used.
 All can be retrieved with <code><a href="https://rdrr.io/r/base/attr.html" class="external-link">attr()</a></code>.</p>
     </div>
-    <div id="cognitive-social-structures">
-    <h2>Cognitive social structures</h2>
-
-
-<p>A cognitive social structure records each node's report of the ties in
-the whole network, in a <code>by</code> column that names who reported each tie.
-Counting every report as a tie of its own would count each tie once for
-every perceiver who reports it.
-So the functions here first combine the reports into the locally
-aggregated structure of Krackhardt (1987), with the intersection rule:
-a tie exists if both of its ends report it, and a message says so.
-A tie that names no reporter is kept as it is.</p>
-<p>A tie-level function still returns one value for each report,
-so that the result can be added back to the network it was given.
-Each report takes the value of the tie that it reports.
-A report of a tie that is not in the aggregated structure takes <code>NA</code>,
-or <code>FALSE</code> for a mark.
-<code><a href="mark_select_tie.html">tie_is_random()</a></code> is the exception, and draws among the reports.</p>
-<p>To combine the reports in a different way, do this before the function,
-e.g. with <code>manynet::to_aggregated(over = "by")</code>.</p>
-<p>Krackhardt, David. 1987.
-"Cognitive social structures".
-<em>Social Networks</em> 9(2): 109-134.
-<a href="https://doi.org/10.1016/0378-8733%2887%2990009-8" class="external-link">doi:10.1016/0378-8733(87)90009-8</a></p>
+    <div id="details">
+    <h2>Details</h2>
+    <p>For weighted networks, <code>net_by_adhesion()</code> reads a tie's weight as its capacity,
+and so returns the smallest total weight of ties whose removal would
+increase the number of components, the network's minimum cut,
+rather than the smallest number of such ties.
+This is also the smallest maximum flow between any two of its nodes;
+see <code><a href="measure_central_between.html">node_by_flow()</a></code> for the flow between particular nodes.
+Use <code><a href="https://stocnet.github.io/manynet/reference/modif_weight.html" class="external-link">manynet::to_unweighted()</a></code> first to count ties instead.
+The other measures documented here count nodes or ties whatever
+their weight.</p>
+<p>For signed networks, <code>net_by_adhesion()</code> considers only the positive
+ties, and says so.
+It asks what holds a network together,
+and a negative tie is hostility rather than a channel along which
+cohesion travels.
+Use <code><a href="https://stocnet.github.io/manynet/reference/modif_weight.html" class="external-link">manynet::to_unsigned()</a></code> first to control this yourself.
+<code>net_by_robustness()</code> also considers only the positive ties.
+The other measures documented here use every tie whatever its sign.</p>
     </div>
     <div id="cost-of-the-enumerated-measures">
     <h2>Cost of the enumerated measures</h2>
@@ -188,31 +216,41 @@ Their cost therefore quadruples for every two nodes added: a ring of 16
 nodes takes about 8 seconds, one of 20 over two minutes, and one of 30
 more than a day. <code>limit</code> stops each before it becomes a hang.</p>
     </div>
-    <div id="weighted-networks">
-    <h2>Weighted networks</h2>
+    <div id="robustness">
+    <h2>Robustness</h2>
 
 
-<p><code>net_by_adhesion()</code> reads a tie's weight as its capacity,
-and so returns the smallest total weight of ties whose removal would
-increase the number of components, the network's minimum cut,
-rather than the smallest number of such ties.
-This is also the smallest maximum flow between any two of its nodes;
-see <code><a href="measure_central_between.html">node_by_flow()</a></code> for the flow between particular nodes.
-Use <code><a href="https://stocnet.github.io/manynet/reference/modif_weight.html" class="external-link">manynet::to_unweighted()</a></code> first to count ties instead.
-The other measures documented here count nodes or ties whatever
-their weight.</p>
-    </div>
-    <div id="signed-networks">
-    <h2>Signed networks</h2>
-
-
-<p><code>net_by_adhesion()</code> asks what holds a network together,
-and a negative tie is hostility rather than a channel along which
-cohesion travels.
-Where the network is signed, it therefore considers only the positive
-ties, and says so.
-Use <code><a href="https://stocnet.github.io/manynet/reference/modif_weight.html" class="external-link">manynet::to_unsigned()</a></code> first to control this yourself.
-The other measures documented here use every tie whatever its sign.</p>
+<p><code>net_by_robustness()</code> removes the nodes of a network one at a time,
+recording after each removal the share of the original nodes that
+remain in the largest weak component.
+It returns the mean of these shares over all \(N\) removals,
+Schneider et al.'s \(R\).
+A star attacked at its hub falls apart at once, scoring about \(1/N\),
+while a complete network loses only one node with each removal,
+scoring \((N-1)/2N\), which approaches the maximum of 0.5.
+Comparing a random failure against an attack shows, as Albert, Jeong and
+Barabási found, that a network with a few hubs tolerates failure
+but is fragile under attack.</p>
+<p>The share remaining after each number of removals is kept as the
+<code>curve</code> attribute of the result, a table with columns
+<code>removed</code>, the share of the nodes removed, and <code>giant</code>,
+the share of the original nodes in the largest component,
+averaged over the <code>times</code> runs.
+Retrieve it with <code>attr(x, "curve")</code>.</p>
+<p>Nodes are chosen at random wherever several are tied,
+so the result is averaged over <code>times</code> runs, by default 100.
+Where an attack meets no ties, every run would be the same,
+so it runs once.
+Each run computes the measure once per node removed,
+so an adaptive attack by an expensive measure, such as betweenness,
+on a network of several hundred nodes can take some minutes.
+Lower <code>times</code>, or attack with a <code>node_measure</code> object, to go faster.</p>
+<p>For signed networks,
+<code>net_by_robustness()</code> considers only the positive ties,
+since a negative tie does not hold a component together.</p>
+<p>For two-mode networks,
+<code><a href="mark_select_node.html">node_is_max()</a></code> marks the highest-scoring node in each mode,
+so an attack on a two-mode network chooses at random between the two.</p>
     </div>
     <div id="references">
     <h2>References</h2>
@@ -227,6 +265,21 @@ The other measures documented here use every tie whatever its sign.</p>
 <a href="https://doi.org/10.1111/0081-1750.00098" class="external-link">doi:10.1111/0081-1750.00098</a></p>
 </div>
 
+<div class="section">
+<h3 id="on-robustness">On robustness<a class="anchor" aria-label="anchor" href="#on-robustness"></a></h3>
+
+
+<p>Albert, Réka, Hawoong Jeong, and Albert-László Barabási. 2000.
+"Error and attack tolerance of complex networks."
+<em>Nature</em> 406: 378-82.
+<a href="https://doi.org/10.1038/35019019" class="external-link">doi:10.1038/35019019</a></p>
+<p>Schneider, Christian M., André A. Moreira, José S. Andrade, Shlomo Havlin,
+and Hans J. Herrmann. 2011.
+"Mitigation of malicious attacks on networks."
+<em>Proceedings of the National Academy of Sciences</em> 108(10): 3838-41.
+<a href="https://doi.org/10.1073/pnas.1009440108" class="external-link">doi:10.1073/pnas.1009440108</a></p>
+</div>
+
     </div>
     <div id="see-also">
     <h2>See also</h2>
@@ -237,6 +290,8 @@ The other measures documented here use every tie whatever its sign.</p>
 <code><a href="motif_net.html">motif_net</a></code>,
 <code><a href="motif_node.html">motif_node</a></code></p>
 <p>Other measures:
+<code><a href="measure_accuracy_net.html">measure_accuracy_net</a></code>,
+<code><a href="measure_accuracy_node.html">measure_accuracy_node</a></code>,
 <code><a href="measure_assort_net.html">measure_assort_net</a></code>,
 <code><a href="measure_assort_node.html">measure_assort_node</a></code>,
 <code><a href="measure_breadth.html">measure_breadth</a></code>,
@@ -287,6 +342,13 @@ The other measures documented here use every tie whatever its sign.</p>
 <span class="r-in"><span><span class="fu">net_by_toughness</span><span class="op">(</span><span class="va">ison_adolescents</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># Toughness [0, Inf)</span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0.5</span>
+<span class="r-in"><span><span class="va">sf</span> <span class="op">&lt;-</span> <span class="fu">generate_scalefree</span><span class="op">(</span><span class="fl">50</span>, <span class="fl">0.5</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu">net_by_robustness</span><span class="op">(</span><span class="va">sf</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># Robustness to random failure, normalized [0, 0.5]</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0.247</span>
+<span class="r-in"><span><span class="fu">net_by_robustness</span><span class="op">(</span><span class="va">sf</span>, node_measure <span class="op">=</span> <span class="va">node_by_degree</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># Robustness to adaptive attack, normalized [0, 0.5]</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0.0675</span>
 </code></pre></div>
     </div>
   </div>
