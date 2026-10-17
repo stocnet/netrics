@@ -77,6 +77,10 @@ test_that("additional node mark functions work", {
   expect_mark(node_is_independent(ison_adolescents), c(TRUE,FALSE,F))
   expect_mark(node_is_core(ison_adolescents), c(F,T,T))
   expect_mark(node_is_mentor(ison_adolescents), c(F,T,T))
+  # the elites of a two-mode network are chosen within each mode
+  mentors <- node_is_mentor(ison_southern_women)
+  expect_length(mentors, 32)
+  expect_true(any(mentors[1:18]) && any(mentors[19:32]))
   expect_mark(node_is_latent(play_diffusion(create_tree(6), latency = 1), time = 1),
                c(F,T,T))
   expect_mark(node_is_infected(play_diffusion(create_tree(6)), time = 1),
