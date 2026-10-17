@@ -130,7 +130,8 @@ node_is_fold <- function(.data){
 #'   This means that the top 10% of nodes in terms of degree,
 #'   or those equal to the highest rank degree in the network,
 #'   whichever is the higher, will be used to select the mentors.
-#'   
+#'   In a two-mode network the mentors are selected within each mode.
+#'
 #'   Note that if nodes are equidistant from two mentors,
 #'   they will choose one at random.
 #'   If a node is without a path to a mentor,
@@ -147,12 +148,25 @@ node_is_fold <- function(.data){
 node_is_mentor <- function(.data, elites = 0.1){
   .data <- manynet::expect_nodes(.data)
   .data <- .to_aggregated_css(.data)
-  indegs <- colSums(manynet::as_matrix(.data)) # get rank order of indegrees
+  # get rank order of indegrees, over all nodes of a two-mode network
+  indegs <- colSums(manynet::as_matrix(manynet::to_onemode(.data)))
+  # but the elites of a two-mode network are chosen within each mode
+  modes <- if(manynet::is_twomode(.data))
+    as.logical(manynet::node_is_mode(.data)) else rep(FALSE, length(indegs))
+  out <- logical(length(indegs))
+  for(m in unique(modes))
+    out[modes == m] <- .mentors(indegs[modes == m], elites)
+  make_node_mark(out, .data)
+}
+
+# The nodes with the highest indegree, or the top `elites` share of nodes by
+# indegree where that is more.
+.mentors <- function(indegs, elites){
   out <- indegs == max(indegs)
   if(sum(out) < length(indegs)*elites){
     out <- indegs %in% unique(sort(indegs, decreasing=TRUE)[seq_len(length(indegs)*elites)])
   }
-  make_node_mark(out, .data)
+  out
 }
 
 #' @rdname mark_nodes

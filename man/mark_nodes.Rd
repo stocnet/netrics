@@ -29,6 +29,7 @@ By default this is set at 0.1.
 This means that the top 10\% of nodes in terms of degree,
 or those equal to the highest rank degree in the network,
 whichever is the higher, will be used to select the mentors.
+In a two-mode network the mentors are selected within each mode.
 
 Note that if nodes are equidistant from two mentors,
 they will choose one at random.

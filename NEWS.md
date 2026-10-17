@@ -4,6 +4,10 @@
 
 - Fixed website deployment by adding the accuracy measures to the pkgdown reference index
 
+## Marks
+
+- Fixed `node_is_mentor()` on two-mode networks by selecting the elites within each mode
+
 # netrics 1.1.2
 
 ## Package
