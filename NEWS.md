@@ -8,6 +8,14 @@
 
 - Fixed `node_is_mentor()` on two-mode networks by selecting the elites within each mode
 
+## Measures
+
+- Accelerated `node_by_constraint()` on 2mode via matrix algebra (90x faster on n=1000)
+  - This also speeds up `node_by_hierarchy()`
+- Accelerated `node_by_redundancy()`, `node_by_effsize()`, and `node_by_efficiency()` 
+  on 2mode by vectorising the redundancy (10-20x faster on n=1000)
+- Fixed `node_by_constraint()`, `node_by_hierarchy()`, and `node_by_redundancy()` 
+  on multilevel networks, by treating them as one-mode as `node_by_effsize()` does
 
 ## Methods
 

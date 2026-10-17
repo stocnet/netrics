@@ -28,6 +28,12 @@ test_that("constraint scores are reported correctly for two-mode networks",{
   # expect_named(node_constraint(ison_southern_women)[1:3], c("Evelyn", "Laura", "Theresa"))
 })
 
+test_that("constraint and redundancy give one score per node of a multilevel network",{
+  # a multilevel network is square over every node, so it is not split by mode
+  expect_length(node_by_constraint(fict_actually), net_nodes(fict_actually))
+  expect_length(node_by_redundancy(fict_actually), net_nodes(fict_actually))
+})
+
 test_that("constraint scores are reported correctly for one-mode notworks",{
   res <- node_by_constraint(ison_adolescents)
   expect_equal(round(unname(res[1:3]),2), c(1, .43, .57))
