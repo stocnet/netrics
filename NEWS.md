@@ -21,6 +21,11 @@
 
 - Fixed `coreness_hub()` on two-mode networks by reading the degrees over all nodes
 
+## Motifs
+
+- Improved `node_x_clique()` and `node_x_percolation()` by finding 2mode cliques 
+  and their incidence without a loop over cliques
+
 # netrics 1.1.2
 
 ## Package
