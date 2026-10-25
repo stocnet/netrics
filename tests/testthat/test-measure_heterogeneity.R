@@ -189,3 +189,31 @@ test_that("homophily offers Moran's I for numeric attributes", {
   line <- manynet::mutate_nodes(line, v = c(1:4, NA))
   expect_true(is.na(node_by_homophily(line, "v", "moran")[5]))
 })
+test_that("domains summarise the values that each node can reach", {
+  chain <- manynet::mutate_nodes(manynet::create_explicit(A-+B, B-+C, C-+D),
+                                 v = c(4, 1, 3, 2))
+  expect_equal(as.numeric(node_by_domain(chain, "v")), c(4, 3, 3, 2))
+  expect_equal(as.numeric(node_by_domain(chain, "v", direction = "in")),
+               c(4, 4, 4, 4))
+  expect_equal(as.numeric(node_by_domain(chain, "v", statistic = "min")),
+               c(1, 1, 2, 2))
+  expect_equal(as.numeric(node_by_domain(chain, "v", statistic = "sum")),
+               c(10, 6, 5, 2))
+  expect_equal(as.numeric(node_by_domain(chain, "v", cutoff = 1)),
+               c(4, 3, 3, 2))
+  expect_equal(as.numeric(node_by_domain(chain, "v", cutoff = 1,
+                                         statistic = "min")),
+               c(1, 1, 2, 2))
+  # Without the node itself, a node that reaches nothing has no value
+  expect_equal(as.numeric(node_by_domain(chain, "v", self = FALSE)),
+               c(3, 3, 2, NA))
+  expect_equal(attr(node_by_domain(chain, "v"), "measure"),
+               "maximum of the output domain")
+  # Missing values are left out
+  chain <- manynet::mutate_nodes(chain, v = c(4, NA, 3, 2))
+  expect_equal(as.numeric(node_by_domain(chain, "v", statistic = "min")),
+               c(2, 2, 2, 2))
+  # A categorical attribute cannot be summarised
+  expect_error(node_by_domain(manynet::ison_adolescents, "name"),
+               "numeric or logical attribute")
+})

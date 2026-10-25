@@ -14,6 +14,11 @@ for(fn in names(node_meas)) {
         if(ob == "attribute")
           expect_s3_class(node_meas[[fn]](data_objs[[ob]], "group"), "node_measure") else
             succeed("Only used for attribute objects")
+      } else if(grepl("domain", fn)){
+        # A domain summarises a numeric attribute, which no fixture holds
+        num <- manynet::add_node_attribute(data_objs[[ob]], "num",
+                                           seq_len(manynet::net_nodes(data_objs[[ob]])))
+        expect_s3_class(node_meas[[fn]](num, "num"), "node_measure")
       } else if(grepl("adopt|recovery|exposure",fn)){
         if(ob == "diffusion")
           expect_s3_class(node_meas[[fn]](data_objs[[ob]]), "node_measure") else

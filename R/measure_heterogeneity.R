@@ -229,6 +229,99 @@ node_by_diversity <- function(.data, attribute,
                     normalization = meta$normalization, variant = meta$variant)
 }
 
+# Nodal domains ####
+
+#' Measures of the values in each node's domain
+#' @name measure_domain
+#' @description
+#'   `node_by_domain()` summarises the values of a numeric attribute
+#'   over the domain of each node,
+#'   that is the nodes that it can reach, or that can reach it.
+#'   By default, it returns the highest value that each node can reach.
+#'
+#'   For example, in a network of package dependencies,
+#'   the highest minimum version of R in the output domain of a package
+#'   is the minimum version of R that the package needs,
+#'   together with all the packages that it depends upon.
+#' @details
+#'   The output domain of a node is the set of nodes that it can reach
+#'   along directed paths, and its input domain is the set of nodes
+#'   that can reach it (Lin 1976; Wasserman and Faust 1994).
+#'   The same sets are also called the out-component and the in-component
+#'   of the node.
+#'   In an undirected network the two are the same,
+#'   and are the component of the node.
+#'
+#'   Missing values of the attribute are left out.
+#'   A node whose domain holds no values returns `NA`.
+#' @template param_data
+#' @param attribute Name of a numeric or logical nodal attribute.
+#' @param statistic The statistic to summarise the values in each domain with,
+#'   one of "max" (the default), "min", "mean", "median", or "sum".
+#' @param direction Whether to use the output domain of each node, "out"
+#'   (the default), the nodes that it can reach;
+#'   the input domain, "in", the nodes that can reach it;
+#'   or "all", the nodes that it can reach in either direction.
+#'   This makes no difference in an undirected network.
+#' @param cutoff The maximum length of the paths that define the domain.
+#'   By default `Inf`, so the domain holds every node that can be reached.
+#'   A cutoff of 1 gives the neighbourhood of each node.
+#' @param self Logical, whether the node itself is part of its own domain.
+#'   By default `TRUE`, so that the result for a node never ignores
+#'   its own value.
+#' @template node_measure
+#' @references
+#' ## On domains
+#' Lin, Nan. 1976.
+#' _Foundations of Social Research_.
+#' New York: McGraw-Hill.
+#'
+#' Wasserman, Stanley, and Katherine Faust. 1994.
+#' "Social Network Analysis: Methods and Applications".
+#' Cambridge: Cambridge University Press.
+#'
+#' de Nooy, Wouter, Andrej Mrvar, and Vladimir Batagelj. 2018.
+#' _Exploratory Social Network Analysis with Pajek_.
+#' 3rd edition. Cambridge: Cambridge University Press.
+#' \doi{10.1017/9781108565691}
+#' @examples
+#' marvel_friends <- to_unsigned(to_uniplex(fict_marvel, "relationship"), "positive")
+#' node_by_domain(marvel_friends, "Appearances")
+#' node_by_domain(marvel_friends, "Appearances", statistic = "mean", cutoff = 1)
+#' @export
+node_by_domain <- function(.data, attribute,
+                           statistic = c("max", "min", "mean", "median", "sum"),
+                           direction = c("out", "in", "all"),
+                           cutoff = Inf, self = TRUE){
+  .data <- manynet::expect_nodes(.data)
+  .data <- .to_aggregated_css(.data)
+  statistic <- match.arg(statistic)
+  direction <- match.arg(direction)
+  vals <- manynet::node_attribute(.data, attribute)
+  if(!is.numeric(vals) && !is.logical(vals))
+    manynet::snet_abort("`node_by_domain()` needs a numeric or logical attribute.")
+  vals <- as.numeric(vals)
+  g <- manynet::as_igraph(.data)
+  order <- if(is.infinite(cutoff)) igraph::vcount(g) else cutoff
+  doms <- igraph::ego(g, order = order, mode = direction,
+                      mindist = if(self) 0 else 1)
+  summarise <- match.fun(statistic)
+  out <- vapply(doms, function(x) {
+    v <- vals[as.integer(x)]
+    v <- v[!is.na(v)]
+    if(length(v) == 0) NA_real_ else as.numeric(summarise(v))
+  }, FUN.VALUE = numeric(1))
+  # Every statistic but the sum stays within the values of the attribute.
+  rng <- if(statistic == "sum" || all(is.na(vals))) c(-Inf, Inf) else
+    range(vals, na.rm = TRUE)
+  domain <- switch(direction, out = "output domain", `in` = "input domain",
+                   all = "domain")
+  label <- switch(statistic, max = "maximum", min = "minimum", mean = "mean",
+                  median = "median", sum = "sum")
+  make_node_measure(out, .data, measure = paste(label, "of the", domain),
+                    range = rng, normalization = "none", variant = statistic)
+}
+
 # Tie diversity ####
 
 #' Measures of tie diversity

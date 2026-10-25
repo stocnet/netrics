@@ -166,6 +166,9 @@ measure_rosters <- list(
   heterogeneity_tie = list(
     tie_by_diversity = list(attribute = "Gender")
   ),
+  heterogeneity_domain = list(
+    node_by_domain = list(attribute = "Appearances")
+  ),
   heterogeneity_spatial = list(
     net_by_spatial = list(attribute = "age")
   ),
@@ -403,6 +406,7 @@ cognitive_arguments <- list(
   node_by_heterophily  = list(attribute = "dept"),
   node_by_homophily    = list(attribute = "dept"),
   tie_by_diversity     = list(attribute = "dept"),
+  node_by_domain       = list(attribute = "age"),
   net_by_spatial       = list(attribute = "age"),
   node_by_brokering_activity    = list(membership = "dept"),
   node_by_brokering_exclusivity = list(membership = "dept")
