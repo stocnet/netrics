@@ -182,6 +182,7 @@ Other nodal:
 \code{\link{measure_core}},
 \code{\link{measure_diffusion_node}},
 \code{\link{measure_diverse_node}},
+\code{\link{measure_domain}},
 \code{\link{member_brokerage}},
 \code{\link{member_community}},
 \code{\link{member_community_hier}},

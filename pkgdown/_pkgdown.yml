@@ -119,6 +119,7 @@ reference:
     contents:
       - starts_with("measure_assort")
       - starts_with("measure_diverse")
+      - measure_domain
   - subtitle: "Dynamics"
     contents:
       - measure_periods

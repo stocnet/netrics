@@ -1,3 +1,9 @@
+# netrics 1.1.4
+
+## Measures
+
+- Added `node_by_domain()` to summarise an attribute over each node's domain
+
 # netrics 1.1.3
 
 ## Package

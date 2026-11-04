@@ -23,6 +23,12 @@ test_that("tie heterogeneities meet the measure contract", {
   expect_declared(measure_rosters$heterogeneity_tie, marvel_friends)
 })
 
+test_that("node domains meet the measure contract", {
+  check_measure_contract(measure_rosters$heterogeneity_domain, marvel_friends,
+                         level = "node")
+  expect_declared(measure_rosters$heterogeneity_domain, marvel_friends)
+})
+
 test_that("spatial autocorrelation meets the measure contract", {
   check_measure_contract(measure_rosters$heterogeneity_spatial,
                          manynet::ison_lawfirm, level = "net")
