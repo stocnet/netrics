@@ -5,6 +5,9 @@
 - Added `node_by_domain()` to summarise an attribute over each node's domain
 - Improved attribute-based measures to run without an `attribute=` argument
   where there is only one available attribute, and error where there are several
+- Added `normalized=` to `net_by_diversity()`, `node_by_diversity()`, and `tie_by_diversity()`
+  - Blau's index is divided by its maximum, 1 - 1/k, by default
+  - `normalized = FALSE` gives the previous values
 
 ## Motifs
 

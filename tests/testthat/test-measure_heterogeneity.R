@@ -1,17 +1,38 @@
 #*************** Test the heterogeneity family of functions ******************#
 
 test_that("diversity functions works", {
-  expect_equal(as.numeric(net_by_diversity(to_uniplex(fict_marvel,"relationship"), "Gender")), 
+  expect_equal(as.numeric(net_by_diversity(to_uniplex(fict_marvel,"relationship"),
+                                           "Gender", normalized = FALSE)),
                0.306, tolerance = 0.001)
-  expect_equal(top3(node_by_diversity(ison_lawfirm, "gender")),
+  expect_equal(top3(node_by_diversity(ison_lawfirm, "gender", normalized = FALSE)),
                c(0.293, 0.384, 0), tolerance = 0.01)
+})
+
+test_that("Blau's index is normalised by its maximum for the categories", {
+  # The raw index cannot pass 1 - 1/k, so a binary attribute is doubled,
+  # and only the normalised index declares itself normalised.
+  marvel <- to_uniplex(fict_marvel, "relationship")
+  expect_equal(as.numeric(net_by_diversity(marvel, "Gender")),
+               2 * as.numeric(net_by_diversity(marvel, "Gender",
+                                               normalized = FALSE)))
+  expect_equal(attr(net_by_diversity(marvel, "Gender"), "normalization"),
+               "normalized")
+  expect_equal(attr(net_by_diversity(marvel, "Gender", normalized = FALSE),
+                    "normalization"), "none")
+  # Nodes are scaled by the network's categories, not their alters', so a
+  # node whose alters all share a category stays at 0.
+  expect_equal(as.numeric(node_by_diversity(ison_lawfirm, "gender")),
+               2 * as.numeric(node_by_diversity(ison_lawfirm, "gender",
+                                                normalized = FALSE)))
+  one <- manynet::add_node_attribute(manynet::create_ring(4), "f", rep("a", 4))
+  expect_equal(as.numeric(net_by_diversity(one, "f")), 0)
 })
 
 test_that("node diversity describes alters only", {
   star <- manynet::as_tidygraph(igraph::add_vertices(
     igraph::make_star(4, mode = "undirected"), 1))
   star <- manynet::add_node_attribute(star, "grp", c("a","a","a","b","a"))
-  expect_equal(as.numeric(node_by_diversity(star, "grp")),
+  expect_equal(as.numeric(node_by_diversity(star, "grp", normalized = FALSE)),
                c(4/9, 0, 0, 0, NA))
 })
 
@@ -37,7 +58,8 @@ test_that("attribute measures use a network's only attribute", {
   # list, which the Blau index once measured as -17 here.
   ring <- manynet::add_node_attribute(manynet::create_ring(6), "att",
                                       c("A","A","A","B","B","B"))
-  expect_equal(as.numeric(net_by_diversity(ring)), 0.5)
+  expect_equal(as.numeric(net_by_diversity(ring, normalized = FALSE)), 0.5)
+  expect_equal(as.numeric(net_by_diversity(ring)), 1)
   expect_equal(as.numeric(net_by_richness(ring)), 2)
   expect_equal(as.numeric(net_by_heterophily(ring)),
                as.numeric(net_by_heterophily(ring, "att")))
@@ -143,9 +165,11 @@ test_that("net_by_diversity() substitutes Blau's index for a factor attribute", 
                                  value = factor(c("a", "a", "b", "b", "c", "c")))
   # A factor is neither numeric nor character, and used to reach `gini()`,
   # which errors on one.
-  res <- net_by_diversity(fct, "f", diversity = "gini")
+  res <- net_by_diversity(fct, "f", diversity = "gini", normalized = FALSE)
   expect_equal(attr(res, "measure"), "Blau's index")
   expect_values(res, 0.667)
+  # Three even categories are as diverse as three categories can be.
+  expect_values(net_by_diversity(fct, "f", diversity = "gini"), 1)
 })
 
 test_that("net_by_diversity() measures within the groups of a membership", {
@@ -154,8 +178,13 @@ test_that("net_by_diversity() measures within the groups of a membership", {
   expect_equal(as.numeric(net_by_diversity(x, "f",
                                            membership = c(1, 1, 2, 2, 3, 3))), 0)
   expect_equal(as.numeric(net_by_diversity(x, "f",
-                                           membership = c(1, 2, 3, 1, 2, 3))),
+                                           membership = c(1, 2, 3, 1, 2, 3),
+                                           normalized = FALSE)),
                0.5)
+  # Groups are scaled by the network's three categories, 1 - 1/3.
+  expect_equal(as.numeric(net_by_diversity(x, "f",
+                                           membership = c(1, 2, 3, 1, 2, 3))),
+               0.75)
   x <- igraph::set_vertex_attr(x, "grp", value = c(1, 1, 2, 2, 3, 3))
   expect_equal(as.numeric(net_by_diversity(x, "f", membership = "grp")), 0)
   expect_error(net_by_diversity(x, "f", membership = c(1, 2)), "each node")
@@ -165,8 +194,10 @@ test_that("tie_by_diversity() measures the diversity of the nodes each tie joins
   x <- igraph::set_vertex_attr(create_ring(4), "f",
                                value = c("a", "a", "b", "b"))
   # A tie between two alike nodes has no diversity, and one between two
-  # different nodes has Blau's index of 0.5.
-  expect_equal(as.numeric(tie_by_diversity(x, "f")), c(0, 0.5, 0, 0.5))
+  # different nodes has Blau's index of 0.5, which is the most for two.
+  expect_equal(as.numeric(tie_by_diversity(x, "f", normalized = FALSE)),
+               c(0, 0.5, 0, 0.5))
+  expect_equal(as.numeric(tie_by_diversity(x, "f")), c(0, 1, 0, 1))
   expect_equal(attr(tie_by_diversity(x, "f"), "measure"), "Blau's index")
   # A numeric attribute takes the coefficient of variation instead.
   x <- igraph::set_vertex_attr(x, "n", value = c(1, 3, 3, 1))
@@ -186,7 +217,8 @@ test_that("tie_by_diversity() measures the diversity of the nodes each tie joins
                                          f = c("a", "b", "a")),
                       ties = dplyr::tibble(from = NA_integer_, to = NA_integer_,
                                            with = list(1:3, integer(0))))
-  expect_equal(as.numeric(tie_by_diversity(odd, "f")), c(4/9, NA))
+  expect_equal(as.numeric(tie_by_diversity(odd, "f", normalized = FALSE)),
+               c(4/9, NA))
 })
 
 test_that("homophily offers Moran's I for numeric attributes", {

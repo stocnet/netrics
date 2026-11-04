@@ -12,7 +12,8 @@ net_by_diversity(
   .data,
   attribute,
   diversity = c("blau", "teachman", "variation", "gini"),
-  membership = NULL
+  membership = NULL,
+  normalized = TRUE
 )
 }
 \arguments{
@@ -37,6 +38,14 @@ nodes in the network where each element indicates the group membership of
 the corresponding node.
 While this may often be a vector created using \verb{node_in_*()} functions,
 it can be any character vector that assigns nodes to groups or categories.}
+
+\item{normalized}{Logical scalar, whether Blau's index is divided by its
+maximum for the attribute, \eqn{1 - 1/k},
+where \eqn{k} is the number of categories the attribute holds in the network.
+The index then runs from 0 to 1 whatever the number of categories,
+as the index of qualitative variation does (Agresti and Agresti 1978).
+The other indices are left as they are.
+By default TRUE.}
 }
 \value{
 A \code{network_measure} numeric score.
@@ -81,11 +90,17 @@ randomly selected from a group would be from different categories.
 This index finds its minimum value (0) when there is no variety,
 i.e. when all individuals are classified in the same category.
 The maximum value depends on the number of categories and
-whether nodes can be evenly distributed across categories.
+whether nodes can be evenly distributed across categories:
+it is \eqn{1 - 1/k}, where the nodes are spread evenly over them,
+so 0.5 for a binary attribute.
+With \code{normalized = TRUE}, the default, the index is divided by that
+maximum, so that attributes with different numbers of categories
+can be compared.
 
 The Herfindahl-Hirschman index (HHI) is the complement of Blau's index,
 \eqn{\sum\limits_{i = 1}^k {p_i^2}},
-and so \code{1 - net_by_diversity(.data, attribute)} returns it.
+and so \code{1 - net_by_diversity(.data, attribute, normalized = FALSE)}
+returns it.
 Where shares are stated as percentages rather than proportions,
 as in the \code{{hhi}} package,
 the index runs from 0 to 10000 and equals \code{(1 - blau) * 10000}.
@@ -156,6 +171,10 @@ Princeton: Princeton University Press.
 Blau, Peter M. 1977.
 \emph{Inequality and heterogeneity}.
 New York: Free Press.
+
+Agresti, Alan, and Barbara F. Agresti. 1978.
+"Statistical analysis of qualitative variation".
+\emph{Sociological Methodology}, 9: 204-237.
 
 Teachman, Jay D. 1980.
 Analysis of population diversity: Measures of qualitative variation.

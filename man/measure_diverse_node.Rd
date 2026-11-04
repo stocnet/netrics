@@ -11,7 +11,8 @@ node_by_richness(.data, attribute)
 node_by_diversity(
   .data,
   attribute,
-  diversity = c("blau", "teachman", "variation", "gini")
+  diversity = c("blau", "teachman", "variation", "gini"),
+  normalized = TRUE
 )
 }
 \arguments{
@@ -29,6 +30,14 @@ or "variation" (coefficient of variation) or "gini" (Gini coefficient) for numer
 Default is "blau".
 If an incompatible method is chosen for the attribute type,
 a suitable alternative will be used instead with a message.}
+
+\item{normalized}{Logical scalar, whether Blau's index is divided by its
+maximum for the attribute, \eqn{1 - 1/k},
+where \eqn{k} is the number of categories the attribute holds in the network.
+The index then runs from 0 to 1 whatever the number of categories,
+as the index of qualitative variation does (Agresti and Agresti 1978).
+The other indices are left as they are.
+By default TRUE.}
 }
 \value{
 A \code{node_measure} numeric vector the length of the nodes in the network,

@@ -25,6 +25,13 @@
 #'   Default is "blau". 
 #'   If an incompatible method is chosen for the attribute type,
 #'   a suitable alternative will be used instead with a message.
+#' @param normalized Logical scalar, whether Blau's index is divided by its
+#'   maximum for the attribute, \eqn{1 - 1/k},
+#'   where \eqn{k} is the number of categories the attribute holds in the network.
+#'   The index then runs from 0 to 1 whatever the number of categories,
+#'   as the index of qualitative variation does (Agresti and Agresti 1978).
+#'   The other indices are left as they are.
+#'   By default TRUE.
 NULL
 
 #' @rdname measure_diverse_net
@@ -63,11 +70,17 @@ net_by_richness <- function(.data, attribute){
 #'    This index finds its minimum value (0) when there is no variety,
 #'    i.e. when all individuals are classified in the same category.
 #'    The maximum value depends on the number of categories and
-#'    whether nodes can be evenly distributed across categories.
+#'    whether nodes can be evenly distributed across categories:
+#'    it is \eqn{1 - 1/k}, where the nodes are spread evenly over them,
+#'    so 0.5 for a binary attribute.
+#'    With `normalized = TRUE`, the default, the index is divided by that
+#'    maximum, so that attributes with different numbers of categories
+#'    can be compared.
 #'
 #'    The Herfindahl-Hirschman index (HHI) is the complement of Blau's index,
 #'    \eqn{\sum\limits_{i = 1}^k {p_i^2}},
-#'    and so `1 - net_by_diversity(.data, attribute)` returns it.
+#'    and so `1 - net_by_diversity(.data, attribute, normalized = FALSE)`
+#'    returns it.
 #'    Where shares are stated as percentages rather than proportions,
 #'    as in the `{hhi}` package,
 #'    the index runs from 0 to 10000 and equals `(1 - blau) * 10000`.
@@ -116,10 +129,14 @@ net_by_richness <- function(.data, attribute){
 #'    divided by the total area under the line of equality.
 #' @references 
 #' ## On diversity
-#'   Blau, Peter M. 1977. 
-#'   _Inequality and heterogeneity_. 
+#'   Blau, Peter M. 1977.
+#'   _Inequality and heterogeneity_.
 #'   New York: Free Press.
-#'   
+#'
+#'   Agresti, Alan, and Barbara F. Agresti. 1978.
+#'   "Statistical analysis of qualitative variation".
+#'   _Sociological Methodology_, 9: 204-237.
+#'
 #'   Teachman, Jay D. 1980. 
 #'   Analysis of population diversity: Measures of qualitative variation. 
 #'   _Sociological Methods & Research_, 8:341-362.
@@ -142,12 +159,12 @@ net_by_richness <- function(.data, attribute){
 #' @export
 net_by_diversity <- function(.data, attribute, 
                         diversity = c("blau","teachman","variation","gini"),
-                        membership = NULL){
+                        membership = NULL, normalized = TRUE){
   .data <- manynet::expect_nodes(.data)
   attribute <- .pick_attribute(.data, attribute)
   attr <- manynet::node_attribute(.data, attribute)
   diversity <- .match_diversity(attr, match.arg(diversity))
-  index <- .diversity_index(diversity)
+  index <- .diversity_index(diversity, attr, normalized)
   if(is.null(membership)){
     out <- index(attr)
   } else {
@@ -160,7 +177,7 @@ net_by_diversity <- function(.data, attribute,
     out <- stats::weighted.mean(vapply(within, index, numeric(1)),
                                 lengths(within), na.rm = TRUE)
   }
-  meta <- .diversity_metadata(diversity)
+  meta <- .diversity_metadata(diversity, normalized)
   make_network_measure(out, .data, call = deparse(sys.call()),
                        measure = meta$measure, range = meta$range,
                        normalization = meta$normalization,
@@ -212,8 +229,9 @@ node_by_richness <- function(.data, attribute){
 #' node_by_diversity(marvel_friends, "Gender")
 #' node_by_diversity(marvel_friends, "Attractive")
 #' @export
-node_by_diversity <- function(.data, attribute, 
-                              diversity = c("blau","teachman","variation","gini")){
+node_by_diversity <- function(.data, attribute,
+                              diversity = c("blau","teachman","variation","gini"),
+                              normalized = TRUE){
   .data <- manynet::expect_nodes(.data)
   .data <- .to_aggregated_css(.data)
   attribute <- .pick_attribute(.data, attribute)
@@ -222,13 +240,14 @@ node_by_diversity <- function(.data, attribute,
   # Only the alters are described, as in node_by_richness(), so a node's own
   # value does not enter its index. A node without alters has nothing to
   # describe, and returns NA rather than the index of an empty set.
-  g <- manynet::as_igraph(.data)
-  out <- vapply(igraph::ego(g, mindist = 1),
+  # The maximum is that of the whole network's categories, not the alters',
+  # so that the nodes' values can be compared.
+  index <- .diversity_index(diversity, attr, normalized)
+  out <- vapply(igraph::ego(manynet::as_igraph(.data), mindist = 1),
                 function(x) if(length(x) == 0) NA_real_ else
-                  as.numeric(net_by_diversity(igraph::induced_subgraph(g, x),
-                                              attribute, diversity = diversity)),
+                  as.numeric(index(attr[as.integer(x)])),
                 FUN.VALUE = numeric(1))
-  meta <- .diversity_metadata(diversity)
+  meta <- .diversity_metadata(diversity, normalized)
   make_node_measure(out, .data, measure = meta$measure, range = meta$range,
                     normalization = meta$normalization, variant = meta$variant)
 }
@@ -355,20 +374,21 @@ NULL
 #' tie_by_diversity(to_hypergraph(ison_southern_women), "Title")
 #' @export
 tie_by_diversity <- function(.data, attribute,
-                             diversity = c("blau","teachman","variation","gini")){
+                             diversity = c("blau","teachman","variation","gini"),
+                             normalized = TRUE){
   attribute <- .pick_attribute(.data, attribute)
   if(manynet::is_cognitive(.data))
     return(.map_css_ties(.data, tie_by_diversity, attribute = attribute,
-                         diversity = diversity))
+                         diversity = diversity, normalized = normalized))
   .data <- .expect_tie_members(.data)
   attr <- manynet::node_attribute(.data, attribute)
   diversity <- .match_diversity(attr, match.arg(diversity))
-  index <- .diversity_index(diversity)
+  index <- .diversity_index(diversity, attr, normalized)
   out <- vapply(.tie_members(.data),
                 function(x) if(length(x) == 0) NA_real_ else
                   as.numeric(index(attr[x])),
                 FUN.VALUE = numeric(1))
-  meta <- .diversity_metadata(diversity)
+  meta <- .diversity_metadata(diversity, normalized)
   make_tie_measure(out, .data, measure = meta$measure, range = meta$range,
                    normalization = meta$normalization, variant = meta$variant)
 }
@@ -615,10 +635,17 @@ net_by_homophily <- function(.data, attribute,
   diversity
 }
 
-.diversity_index <- function(diversity){
+# The index as a function of the values it describes. `attr` holds the whole
+# network's values, so that a normalised Blau's index divides by the maximum
+# of all the attribute's categories, 1 - 1/k, even where it describes a subset
+# of the nodes, such as a node's alters or a tie's members. An attribute of one
+# category can hold no variety, so its index stays 0.
+.diversity_index <- function(diversity, attr = NULL, normalized = FALSE){
+  k <- length(unique(stats::na.omit(attr)))
+  most <- `if`(normalized && k > 1, 1 - 1/k, 1)
   switch(diversity,
          blau = function(features) {
-           1 - sum((table(features)/length(features))^2) },
+           (1 - sum((table(features)/length(features))^2)) / most },
          teachman = function(features) {
            p <- table(features)/length(features)
            -sum(p * log(p)) },
@@ -631,7 +658,7 @@ net_by_homophily <- function(.data, attribute,
            (2 * G) / (n * sum(x)) - (n + 1) / n })
 }
 
-.diversity_metadata <- function(diversity){
+.diversity_metadata <- function(diversity, normalized = FALSE){
   list(measure = switch(diversity,
                         blau = "Blau's index",
                         teachman = "Teachman's index",
@@ -641,7 +668,10 @@ net_by_homophily <- function(.data, attribute,
                       blau = , gini = c(0, 1),
                       teachman = c(0, Inf),
                       variation = c(-Inf, Inf)),
-       normalization = `if`(diversity %in% c("blau", "gini"),
+       # Blau's index without normalisation stays below 1 - 1/k, so it is
+       # bounded by [0, 1] but cannot reach 1, and is not declared normalised.
+       normalization = `if`(diversity == "gini" ||
+                              (diversity == "blau" && normalized),
                             "normalized", "none"),
        variant = diversity)
 }
