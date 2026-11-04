@@ -26,7 +26,9 @@ For more information on possible coercions, see e.g. \code{\link[manynet:as_stoc
 “in” on incoming ties, and "all" on either/the sum of the two.
 By default "all".}
 
-\item{attribute}{Name of a nodal attribute, mark, measure, or membership vector.}
+\item{attribute}{Name of a nodal attribute, mark, measure, or membership vector.
+Where none is named and the network holds only one nodal attribute
+besides the reserved ones, such as "label" and "mode", that one is used.}
 }
 \value{
 A \code{node_motif} matrix with one row for each node in the network and

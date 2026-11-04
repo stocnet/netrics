@@ -19,7 +19,9 @@ node_by_homophily(
 Internally any of these will be coerced to an efficient implementation.
 For more information on possible coercions, see e.g. \code{\link[manynet:as_stocnet]{manynet::as_stocnet()}}.}
 
-\item{attribute}{Name of a nodal attribute, mark, measure, or membership vector.}
+\item{attribute}{Name of a nodal attribute, mark, measure, or membership vector.
+Where none is named and the network holds only one nodal attribute
+besides the reserved ones, such as "label" and "mode", that one is used.}
 
 \item{assortativity}{Which method to use for \verb{*_homophily()}.
 Either "ie" (negative E-I index), "ei" (E-I index),

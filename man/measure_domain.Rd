@@ -19,7 +19,9 @@ node_by_domain(
 Internally any of these will be coerced to an efficient implementation.
 For more information on possible coercions, see e.g. \code{\link[manynet:as_stocnet]{manynet::as_stocnet()}}.}
 
-\item{attribute}{Name of a numeric or logical nodal attribute.}
+\item{attribute}{Name of a numeric or logical nodal attribute.
+Where none is named and the network holds only one nodal attribute
+besides the reserved ones, such as "label" and "mode", that one is used.}
 
 \item{statistic}{The statistic to summarise the values in each domain with,
 one of "max" (the default), "min", "mean", "median", or "sum".}

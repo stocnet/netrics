@@ -27,9 +27,35 @@ test_that("assortativity function works", {
 })
 
 test_that("richness function works", {
-  expect_length(net_by_richness(ison_networkers), 1)
-  expect_equal(as.numeric(net_by_richness(ison_networkers)), 3)
-  expect_length(node_by_richness(ison_networkers, "type"), 32)
+  expect_length(net_by_richness(ison_networkers, "Discipline"), 1)
+  expect_equal(as.numeric(net_by_richness(ison_networkers, "Discipline")), 4)
+  expect_length(node_by_richness(ison_networkers, "Discipline"), 32)
+})
+
+test_that("attribute measures use a network's only attribute", {
+  # Without an attribute, `manynet::node_attribute()` returns them all as a
+  # list, which the Blau index once measured as -17 here.
+  ring <- manynet::add_node_attribute(manynet::create_ring(6), "att",
+                                      c("A","A","A","B","B","B"))
+  expect_equal(as.numeric(net_by_diversity(ring)), 0.5)
+  expect_equal(as.numeric(net_by_richness(ring)), 2)
+  expect_equal(as.numeric(net_by_heterophily(ring)),
+               as.numeric(net_by_heterophily(ring, "att")))
+  expect_equal(tie_by_diversity(ring), tie_by_diversity(ring, "att"))
+  expect_equal(node_x_similarity(ring), node_x_similarity(ring, "att"))
+  old <- options(snet_verbosity = "verbose")
+  on.exit(options(old))
+  expect_message(net_by_diversity(ring), "only nodal attribute")
+})
+
+test_that("attribute measures name the attributes to choose from", {
+  expect_error(net_by_diversity(ison_networkers), "Discipline")
+  expect_error(node_by_heterophily(ison_networkers), "Citations")
+  expect_error(net_by_diversity(manynet::create_ring(6)), "no nodal attribute")
+  expect_error(net_by_diversity(ison_networkers, "Gender"),
+               "not a nodal attribute")
+  expect_error(net_by_richness(manynet::create_ring(6), "Gender"),
+               "holds none")
 })
 
 test_that("net_spatial works", {

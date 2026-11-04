@@ -4,7 +4,7 @@ for(fn in names(net_meas)) {
     test_that(paste(fn, "works on", ob), {
       skip_if(grepl("core|spatial", fn))
       skip_if(grepl("net_by_factions", fn) && ob == "twomode")
-      if(grepl("diversity|heterophily|homophily", fn)){
+      if(grepl("richness|diversity|heterophily|homophily", fn)){
         if(ob == "attribute")
           expect_s3_class(net_meas[[fn]](data_objs[[ob]], "group"), "network_measure") else
             succeed("Only used for attribute objects")

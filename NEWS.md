@@ -3,6 +3,13 @@
 ## Measures
 
 - Added `node_by_domain()` to summarise an attribute over each node's domain
+- Improved attribute-based measures to run without an `attribute=` argument
+  where there is only one available attribute, and error where there are several
+
+## Motifs
+
+- Improved attribute-based motifs to run without an `attribute=` argument
+  where there is only one available attribute, and error where there are several
 
 # netrics 1.1.3
 

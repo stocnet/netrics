@@ -15,7 +15,7 @@
 #'   such as for the groups from `node_in_roulette()`.
 #'   
 #' @template param_data
-#' @template param_attr
+#' @template param_attr_pick
 #' @template param_memb
 #' @family diversity
 #' @template net_measure
@@ -38,10 +38,11 @@ NULL
 #'   Princeton: Princeton University Press.
 #'   \doi{10.1007/978-94-015-7358-0}
 #' @examples
-#' net_by_richness(ison_networkers)
+#' net_by_richness(ison_networkers, "Discipline")
 #' @export
 net_by_richness <- function(.data, attribute){
   .data <- manynet::expect_nodes(.data)
+  attribute <- .pick_attribute(.data, attribute)
   make_network_measure(length(unique(manynet::node_attribute(.data, attribute))),
                        .data, call = deparse(sys.call()),
                        measure = "richness", range = c(1, Inf),
@@ -143,6 +144,7 @@ net_by_diversity <- function(.data, attribute,
                         diversity = c("blau","teachman","variation","gini"),
                         membership = NULL){
   .data <- manynet::expect_nodes(.data)
+  attribute <- .pick_attribute(.data, attribute)
   attr <- manynet::node_attribute(.data, attribute)
   diversity <- .match_diversity(attr, match.arg(diversity))
   index <- .diversity_index(diversity)
@@ -181,7 +183,7 @@ net_by_diversity <- function(.data, attribute,
 #'   Nodes without alters return `NA`.
 #'   
 #' @template param_data
-#' @template param_attr
+#' @template param_attr_pick
 #' @family diversity
 #' @template node_measure
 #' @inheritParams measure_diverse_net
@@ -194,6 +196,7 @@ NULL
 node_by_richness <- function(.data, attribute){
   .data <- manynet::expect_nodes(.data)
   .data <- .to_aggregated_css(.data)
+  attribute <- .pick_attribute(.data, attribute)
   out <- vapply(manynet::to_egos(.data, min_dist = 1), 
                 function(x) length(unique(manynet::node_attribute(x, attribute))),
                 FUN.VALUE = numeric(1))
@@ -213,6 +216,7 @@ node_by_diversity <- function(.data, attribute,
                               diversity = c("blau","teachman","variation","gini")){
   .data <- manynet::expect_nodes(.data)
   .data <- .to_aggregated_css(.data)
+  attribute <- .pick_attribute(.data, attribute)
   attr <- manynet::node_attribute(.data, attribute)
   diversity <- .match_diversity(attr, match.arg(diversity))
   # Only the alters are described, as in node_by_richness(), so a node's own
@@ -256,6 +260,8 @@ node_by_diversity <- function(.data, attribute,
 #'   A node whose domain holds no values returns `NA`.
 #' @template param_data
 #' @param attribute Name of a numeric or logical nodal attribute.
+#'   Where none is named and the network holds only one nodal attribute
+#'   besides the reserved ones, such as "label" and "mode", that one is used.
 #' @param statistic The statistic to summarise the values in each domain with,
 #'   one of "max" (the default), "min", "mean", "median", or "sum".
 #' @param direction Whether to use the output domain of each node, "out"
@@ -297,6 +303,7 @@ node_by_domain <- function(.data, attribute,
   .data <- .to_aggregated_css(.data)
   statistic <- match.arg(statistic)
   direction <- match.arg(direction)
+  attribute <- .pick_attribute(.data, attribute)
   vals <- manynet::node_attribute(.data, attribute)
   if(!is.numeric(vals) && !is.logical(vals))
     manynet::snet_abort("`node_by_domain()` needs a numeric or logical attribute.")
@@ -336,7 +343,7 @@ node_by_domain <- function(.data, attribute,
 #'   A tie without members returns `NA`.
 #'   A summary of the tie measure then describes the network as a whole.
 #' @template param_data
-#' @template param_attr
+#' @template param_attr_pick
 #' @family diversity
 #' @template tie_measure
 #' @inheritParams measure_diverse_net
@@ -349,6 +356,7 @@ NULL
 #' @export
 tie_by_diversity <- function(.data, attribute,
                              diversity = c("blau","teachman","variation","gini")){
+  attribute <- .pick_attribute(.data, attribute)
   if(manynet::is_cognitive(.data))
     return(.map_css_ties(.data, tie_by_diversity, attribute = attribute,
                          diversity = diversity))
@@ -392,7 +400,7 @@ tie_by_diversity <- function(.data, attribute,
 #'   other mode instead by subsetting the attribute vector and 
 #'   converting the network to a one-mode network.
 #' @template param_data
-#' @template param_attr
+#' @template param_attr_pick
 #' @param assortativity Which method to use for `*_homophily()`.
 #'   Either "ie" (negative E-I index), "ei" (E-I index), 
 #'   "yule" (Yule's Q), "geary" (Geary's C), or "moran" (Moran's I).
@@ -475,6 +483,7 @@ net_by_heterophily <- function(.data, attribute){
   .data <- manynet::expect_nodes(.data)
   .data <- .to_aggregated_css(.data)
   m <- manynet::as_matrix(.data)
+  attribute <- .pick_attribute(.data, attribute)
   if (length(attribute) == 1 && is.character(attribute)) {
     attribute <- manynet::node_attribute(.data, attribute)
   }
@@ -513,6 +522,7 @@ net_by_homophily <- function(.data, attribute,
   #   }
   #   .data <- manynet::to_mode(.data, mode = mode)
   # }
+  attribute <- .pick_attribute(.data, attribute)
   if (length(attribute) == 1 && is.character(attribute)) {
     attribute <- manynet::node_attribute(.data, attribute)
   }
@@ -560,6 +570,33 @@ net_by_homophily <- function(.data, attribute,
 # for, so the metadata is read off the index that actually ran. Blau's and
 # Gini's are bounded proportions; Teachman's entropy grows with the number of
 # categories, and the coefficient of variation is signed and unbounded.
+# The nodal attribute to measure. Where none is named, a network holding just
+# one attribute besides the reserved ones uses that one, and says so. Without
+# this, `manynet::node_attribute()` returns every attribute as a list, or none
+# for a name the network does not hold, and either is measured into a number
+# that looks like an answer. A vector, such as a membership, passes through.
+.pick_attribute <- function(.data, attribute){
+  held <- manynet::net_node_attributes(.data)
+  own <- setdiff(held, c("name", "label", "type", "mode", "active", "na"))
+  if(missing(attribute) || is.null(attribute)){
+    if(length(own) == 1){
+      manynet::snet_info("Using {.val {own}}, the only nodal attribute.")
+      return(own)
+    }
+    if(length(own) == 0)
+      manynet::snet_abort("This network holds no nodal attribute to measure.",
+                          "Add one with {.fn manynet::add_node_attribute}.")
+    manynet::snet_abort("Name the nodal attribute to measure with {.arg attribute}.",
+                        "This network holds {.val {own}}.")
+  }
+  if(is.character(attribute) && length(attribute) == 1 &&
+     !attribute %in% held)
+    manynet::snet_abort("{.val {attribute}} is not a nodal attribute of this network.",
+                        `if`(length(own) == 0, "It holds none to measure.",
+                             "It holds {.val {own}}."))
+  attribute
+}
+
 # The index asked for, or the one that applies where it cannot apply to the
 # attribute's type, with a message saying so.
 .match_diversity <- function(attr, diversity){
@@ -756,6 +793,7 @@ net_by_assortativity <- function(.data){
 net_by_spatial <- function(.data, attribute){
   .data <- manynet::expect_nodes(.data)
   .data <- .to_aggregated_css(.data)
+  attribute <- .pick_attribute(.data, attribute)
   x <- manynet::node_attribute(.data, attribute)
   # Moran's I is the correlation of a value with itself across ties, so the
   # attribute has to hold a quantity rather than a category
@@ -822,7 +860,7 @@ net_by_spatial <- function(.data, attribute){
 #'   _Geographical Analysis_ 27(2): 93-115.
 #'   \doi{10.1111/j.1538-4632.1995.tb00338.x}
 #' @template param_data
-#' @template param_attr
+#' @template param_attr_pick
 #' @family diversity
 #' @template node_measure
 #' @inheritParams measure_assort_net
@@ -838,6 +876,7 @@ node_by_heterophily <- function(.data, attribute){
   .data <- manynet::expect_nodes(.data)
   .data <- .to_aggregated_css(.data)
   m <- manynet::as_matrix(.data)
+  attribute <- .pick_attribute(.data, attribute)
   if (length(attribute) == 1 && is.character(attribute)) {
     attribute <- manynet::node_attribute(.data, attribute)
   }
@@ -863,6 +902,7 @@ node_by_homophily <- function(.data, attribute,
                               assortativity = c("ie","ei","yule","geary","moran")){
   .data <- manynet::expect_nodes(.data)
   .data <- .to_aggregated_css(.data)
+  attribute <- .pick_attribute(.data, attribute)
   if (length(attribute) == 1 && is.character(attribute)) {
     attribute <- manynet::node_attribute(.data, attribute)
   }

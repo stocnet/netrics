@@ -20,7 +20,9 @@ net_by_diversity(
 Internally any of these will be coerced to an efficient implementation.
 For more information on possible coercions, see e.g. \code{\link[manynet:as_stocnet]{manynet::as_stocnet()}}.}
 
-\item{attribute}{Name of a nodal attribute, mark, measure, or membership vector.}
+\item{attribute}{Name of a nodal attribute, mark, measure, or membership vector.
+Where none is named and the network holds only one nodal attribute
+besides the reserved ones, such as "label" and "mode", that one is used.}
 
 \item{diversity}{Which method to use for \verb{*_diversity()}.
 Either "blau" (Blau's index) or "teachman" (Teachman's index) for categorical attributes,
@@ -133,7 +135,7 @@ divided by the total area under the line of equality.
 }
 
 \examples{
-net_by_richness(ison_networkers)
+net_by_richness(ison_networkers, "Discipline")
 marvel_friends <- to_unsigned(to_uniplex(fict_marvel, "relationship"), "positive")
 net_by_diversity(marvel_friends, "Gender")
 net_by_diversity(marvel_friends, "Appearances")
