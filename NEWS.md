@@ -1,18 +1,25 @@
-# netrics 1.1.4
+# netrics 1.2.0
+
 
 ## Measures
 
-- Added `node_by_domain()` to summarise an attribute over each node's domain
 - Improved attribute-based measures to run without an `attribute=` argument
   where there is only one available attribute, and error where there are several
 - Added `normalized=` to `net_by_diversity()`, `node_by_diversity()`, and `tie_by_diversity()`
   - Blau's index is divided by its maximum, 1 - 1/k, by default
   - `normalized = FALSE` gives the previous values
+- Added `node_by_indeg()` and `node_by_outdeg()` as unnormalised degree shortcuts
 
 ## Motifs
 
 - Improved attribute-based motifs to run without an `attribute=` argument
   where there is only one available attribute, and error where there are several
+
+# netrics 1.1.4
+
+## Measures
+
+- Added `node_by_domain()` to summarise an attribute over each node's domain
 
 # netrics 1.1.3
 

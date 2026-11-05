@@ -172,6 +172,22 @@ node_by_deg <- function (.data, alpha = 0, direction = c("all","out","in")){
 
 #' @rdname measure_central_degree
 #' @export
+node_by_outdeg <- function (.data, alpha = 0){
+  .data <- manynet::expect_nodes(.data)
+  .data <- .to_aggregated_css(.data)
+  node_by_degree(.data, normalized = FALSE, alpha = alpha, direction = "out")
+}
+
+#' @rdname measure_central_degree
+#' @export
+node_by_indeg <- function (.data, alpha = 0){
+  .data <- manynet::expect_nodes(.data)
+  .data <- .to_aggregated_css(.data)
+  node_by_degree(.data, normalized = FALSE, alpha = alpha, direction = "in")
+}
+
+#' @rdname measure_central_degree
+#' @export
 node_by_outdegree <- function (.data, normalized = TRUE, alpha = 0){
   .data <- manynet::expect_nodes(.data)
   .data <- .to_aggregated_css(.data)

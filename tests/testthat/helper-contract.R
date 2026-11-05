@@ -23,6 +23,8 @@ measure_rosters <- list(
     node_by_deg           = list(),
     node_by_indegree      = list(),
     node_by_outdegree     = list(),
+    node_by_indeg         = list(),
+    node_by_outdeg        = list(),
     node_by_leverage      = list(),
     node_by_closeness     = list(),
     node_by_harmonic      = list(),

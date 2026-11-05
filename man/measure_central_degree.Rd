@@ -4,6 +4,8 @@
 \alias{measure_central_degree}
 \alias{node_by_degree}
 \alias{node_by_deg}
+\alias{node_by_outdeg}
+\alias{node_by_indeg}
 \alias{node_by_outdegree}
 \alias{node_by_indegree}
 \alias{node_by_multidegree}
@@ -18,6 +20,10 @@ node_by_degree(
 )
 
 node_by_deg(.data, alpha = 0, direction = c("all", "out", "in"))
+
+node_by_outdeg(.data, alpha = 0)
+
+node_by_indeg(.data, alpha = 0)
 
 node_by_outdegree(.data, normalized = TRUE, alpha = 0)
 
