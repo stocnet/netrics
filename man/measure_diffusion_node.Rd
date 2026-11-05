@@ -10,11 +10,21 @@
 \usage{
 node_by_adopt_time(.data)
 
-node_by_adopt_threshold(.data, normalized = TRUE, lag = 1)
+node_by_adopt_threshold(
+  .data,
+  normalized = TRUE,
+  lag = 1,
+  direction = c("in", "out", "all")
+)
 
 node_by_adopt_recovery(.data)
 
-node_by_adopt_exposure(.data, mark, time = 0)
+node_by_adopt_exposure(
+  .data,
+  mark,
+  time = 0,
+  direction = c("in", "out", "all")
+)
 }
 \arguments{
 \item{.data}{A network object of class \code{stocnet}, \code{igraph}, \code{tbl_graph}, \code{network}, or similar.
@@ -27,7 +37,17 @@ whether the object is one-mode or two-mode, and other arguments.
 By default TRUE.}
 
 \item{lag}{The number of time steps back upon which the thresholds are
-inferred.}
+inferred.
+By default \code{lag = 1}, which counts only the alters that adopted
+before the node did.
+\code{lag = 0} also counts the alters that adopted at the same time step.}
+
+\item{direction}{Character string, "in" counts the exposure that arrives
+along ties from adopters to the node,
+"out" along ties from the node to adopters,
+and "all" along both.
+By default "in", so contagion travels in the direction of the arcs.
+Undirected networks give the same result for every direction.}
 
 \item{mark}{A valid 'node_mark' object or
 logical vector (TRUE/FALSE) of length equal to
@@ -86,6 +106,23 @@ Where a fractional threshold is used, the equation is
 \eqn{\frac{\sum_{j:\text{active}} w_{ji}}{\sum_{j} w_{ji}} \geq \theta_i}.
 That is, \eqn{theta} is now a proportion,
 and works regardless of whether \eqn{w} is weighted or not.
+The \code{normalized} thresholds divide by the in-, out-, or total degree
+(or strength, where the network is weighted) that matches \code{direction}.
+Nodes with no ties in that direction that adopt have a threshold of 0.
+
+Seeds have a missing threshold,
+since their adoption says nothing about their exposure,
+and so they do not bring down an average threshold.
+Nodes that never adopt have an infinite threshold,
+since their threshold was never reached.
+\verb{lag = 0, direction = "out"} reproduces
+\code{netdiffuseR::threshold(valued = TRUE)}, and \verb{lag = 1, direction = "in"}
+reproduces \code{netdiffuseR::threshold(lags = 1, outgoing = FALSE, valued = TRUE)},
+except that \code{{netdiffuseR}} reports non-adopters as missing
+and gives seeds a value where there is no lag,
+and counts cumulative rather than current adopters.
+By default, \code{{netdiffuseR}} ignores tie weights,
+so the results differ from it on weighted networks.
 }
 
 \section{Recovery}{
@@ -104,6 +141,7 @@ It usually expects network data and
 an index or mark (TRUE/FALSE) vector of those nodes which are currently infected,
 but if a diff_model is supplied instead it will return
 nodes exposure at \eqn{t = 0}.
+Nodes in the mark have an exposure of 0.
 }
 
 \examples{

@@ -297,7 +297,8 @@ NULL
 #'   node_is_latent(play_diffusion(create_tree(6), latency = 1), time = 1)
 #' @export
 node_is_latent <- function(.data, time = 0){
-  .data <- manynet::expect_nodes(.data)
+  # A diff_model would lose its diffusion if coerced to a network here
+  if(!inherits(.data, "diff_model")) .data <- manynet::expect_nodes(.data)
   if(manynet::is_changing(.data)){
     t <- time
     latent <- manynet::as_changelist(.data) |> 
@@ -340,7 +341,8 @@ node_is_latent <- function(.data, time = 0){
 #'   node_is_infected(play_diffusion(create_tree(6)), time = 1)
 #' @export
 node_is_infected <- function(.data, time = 0) {
-  .data <- manynet::expect_nodes(.data)
+  # A diff_model would lose its diffusion if coerced to a network here
+  if(!inherits(.data, "diff_model")) .data <- manynet::expect_nodes(.data)
   if(manynet::is_changing(.data)){
     t <- time
     infected <- manynet::as_changelist(.data) |> 
@@ -382,7 +384,8 @@ node_is_infected <- function(.data, time = 0) {
 #'   node_is_recovered(play_diffusion(create_tree(6), recovery = 0.5), time = 3)
 #' @export
 node_is_recovered <- function(.data, time = 0){
-  .data <- manynet::expect_nodes(.data)
+  # A diff_model would lose its diffusion if coerced to a network here
+  if(!inherits(.data, "diff_model")) .data <- manynet::expect_nodes(.data)
   if(manynet::is_changing(.data)){
     t <- time
     recovered <- manynet::as_changelist(.data) |> 
@@ -439,7 +442,8 @@ node_is_recovered <- function(.data, time = 0){
 #'   which(expos)
 #' @export
 node_is_exposed <- function(.data, mark, time = 0){
-  .data <- manynet::expect_nodes(.data)
+  # A diff_model would lose its diffusion if coerced to a network here
+  if(!inherits(.data, "diff_model")) .data <- manynet::expect_nodes(.data)
   .data <- .to_aggregated_css(.data)
   if (missing(mark)){
     if(manynet::is_changing(.data)){

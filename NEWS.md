@@ -1,5 +1,9 @@
 # netrics 1.2.0
 
+## Marks
+
+- Fixed diffusion marks losing the diffusion of `diff_model` objects
+  - `node_is_infected()`, `node_is_latent()`, `node_is_recovered()`, `node_is_exposed()`
 
 ## Measures
 
