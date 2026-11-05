@@ -13,6 +13,17 @@
   - Blau's index is divided by its maximum, 1 - 1/k, by default
   - `normalized = FALSE` gives the previous values
 - Added `node_by_indeg()` and `node_by_outdeg()` as unnormalised degree shortcuts
+- Improved `node_by_adopt_exposure()`
+  - Added `direction=`; "in" by default as before
+  - Fixed `diff_model` objects losing their diffusion
+- Improved `node_by_adopt_threshold()`
+  - Added `direction=` for exposure along arcs "in", "out", or "all"
+  - Fixed `lag = 0` returning only zeros
+  - Fixed directed networks normalising by total degree rather than by `direction=`
+  - Fixed adopters without ties returning `NaN` rather than 0
+  - Fixed `diff_model` objects ignoring `lag=` and `direction=`
+  - Improved seeds to return `NA` rather than 0, so they do not lower averages
+  - Updated the documentation on reproducing `netdiffuseR::threshold()`
 
 ## Motifs
 

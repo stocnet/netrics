@@ -379,6 +379,15 @@ node_by_adopt_time <- function(.data){
 #' @rdname measure_diffusion_node 
 #' @param lag The number of time steps back upon which the thresholds are
 #'   inferred.
+#'   By default `lag = 1`, which counts only the alters that adopted
+#'   before the node did.
+#'   `lag = 0` also counts the alters that adopted at the same time step.
+#' @param direction Character string, "in" counts the exposure that arrives
+#'   along ties from adopters to the node,
+#'   "out" along ties from the node to adopters,
+#'   and "all" along both.
+#'   By default "in", so contagion travels in the direction of the arcs.
+#'   Undirected networks give the same result for every direction.
 #' @section Thresholds:
 #'   `node_by_adopt_threshold()` infers nodes' thresholds based on how much
 #'   exposure they had when they were infected.
@@ -394,66 +403,61 @@ node_by_adopt_time <- function(.data){
 #'   \eqn{\frac{\sum_{j:\text{active}} w_{ji}}{\sum_{j} w_{ji}} \geq \theta_i}.
 #'   That is, \eqn{theta} is now a proportion,
 #'   and works regardless of whether \eqn{w} is weighted or not.
+#'   The `normalized` thresholds divide by the in-, out-, or total degree
+#'   (or strength, where the network is weighted) that matches `direction`.
+#'   Nodes with no ties in that direction that adopt have a threshold of 0.
+#'
+#'   Seeds have a missing threshold,
+#'   since their adoption says nothing about their exposure,
+#'   and so they do not bring down an average threshold.
+#'   Nodes that never adopt have an infinite threshold,
+#'   since their threshold was never reached.
+#'   `lag = 0, direction = "out"` reproduces
+#'   `netdiffuseR::threshold(valued = TRUE)`, and `lag = 1, direction = "in"`
+#'   reproduces `netdiffuseR::threshold(lags = 1, outgoing = FALSE, valued = TRUE)`,
+#'   except that `{netdiffuseR}` reports non-adopters as missing
+#'   and gives seeds a value where there is no lag,
+#'   and counts cumulative rather than current adopters.
+#'   By default, `{netdiffuseR}` ignores tie weights,
+#'   so the results differ from it on weighted networks.
 #' @examples
 #'   # To infer nodes' thresholds
 #'   node_by_adopt_threshold(smeg_diff)
 #' @export
-node_by_adopt_threshold <- function(.data, normalized = TRUE, lag = 1){
+node_by_adopt_threshold <- function(.data, normalized = TRUE, lag = 1,
+                                    direction = c("in", "out", "all")){
+  direction <- match.arg(direction)
   if(inherits(.data, "diff_model")){
     net <- attr(.data, "network") 
-    diff_model <- manynet::as_diffusion(.data)
-    out <- summary(diff_model)
-    if(!"exposure" %in% names(out)){
-      out[,'exposure'] <- NA_integer_
-      for(v in unique(out$t)){
-        out$exposure[out$t == v] <- node_by_adopt_exposure(diff_model, 
-                                                  time = v-lag)[out$nodes[out$t == v]]
-      }
-    }
-    if(any(out$event == "E")) 
-      out <- out |> dplyr::filter(event == "E") else 
-        out <- out |> dplyr::filter(event == "I")
-    out <- out |> dplyr::distinct(nodes, .keep_all = TRUE) |> 
-      dplyr::select(nodes, exposure)
-    if(manynet::is_labelled(net))
-      out <- stats::setNames(out$exposure, manynet::node_names(net)[out$nodes]) else
-        out <- stats::setNames(out$exposure, out$nodes)
+    events <- summary(manynet::as_diffusion(.data))
+    events <- data.frame(node = events$nodes, time = events$t,
+                         value = events$event)
   } else {
+    if(!manynet::is_changing(.data))
+      manynet::snet_abort("{.fn node_by_adopt_threshold} needs a diffusion.")
     net <- .data
-    diff_model <- manynet::as_diffusion(.data)
-    out <- manynet::as_changelist(.data)
-    if(!"exposure" %in% names(out)){
-      out[,'exposure'] <- NA_integer_
-      for(v in unique(out$time)){
-        out$exposure[out$time == v] <- node_by_adopt_exposure(.data, 
-                                                  time = v-lag)[out$node[out$time == v]]
-      }
-    }
-    if(any(out$value == "E")) 
-      out <- out |> dplyr::filter(value == "E") else 
-        out <- out |> dplyr::filter(value == "I")
-    out <- out |> dplyr::distinct(node, .keep_all = TRUE) |> 
-      dplyr::select(node, exposure)
-    if(manynet::is_labelled(net))
-      out <- stats::setNames(out$exposure, manynet::node_names(net)[out$node]) else
-        out <- stats::setNames(out$exposure, out$node)
+    events <- as.data.frame(manynet::as_changelist(.data))
   }
-  if(length(out) != manynet::net_nodes(net)){
-    if(manynet::is_labelled(net)){
-      full <- stats::setNames(rep(Inf, manynet::net_nodes(net)), 
-                              manynet::node_names(net))
-    } else {
-      full <- stats::setNames(rep(Inf, manynet::net_nodes(net)), 
-                              1:manynet::net_nodes(net))
-    } 
-    full[match(names(out), names(full))] <- out
-    out <- full
+  seeds <- events$node[events$time == min(events$time) & events$value == "I"]
+  events <- events[events$value == `if`(any(events$value == "E"), "E", "I"), ]
+  events <- events[!duplicated(events$node), ]
+  out <- rep(Inf, manynet::net_nodes(net))
+  for(v in unique(events$time)){
+    adopters <- events$node[events$time == v]
+    mk <- node_is_infected(.data, time = v - lag)
+    # Adopters are not excluded from their own exposure here,
+    # so that alters adopting at the same time step count where lag = 0
+    out[adopters] <- `if`(manynet::is_twomode(net),
+                          node_by_adopt_exposure(.data, time = v - lag),
+                          .adopt_exposure(net, mk, direction))[adopters]
   }
-  if(manynet::is_labelled(net))
-    out <- out[match(manynet::node_names(net), names(out))] else {
-      out <- unname(out[order(as.numeric(names(out)))])
-    }
-  if(normalized) out <- out / node_by_deg(net)
+  out[seeds] <- NA
+  if(normalized){
+    out <- out / `if`(manynet::is_twomode(net), node_by_deg(net),
+                      .adopt_exposure(net, rep(TRUE, length(out)), direction))
+    out[is.nan(out)] <- 0
+  }
+  if(manynet::is_labelled(net)) names(out) <- manynet::node_names(net)
   make_node_measure(out, net, measure = "adoption threshold",
                     range = `if`(normalized, c(0, 1), c(0, Inf)),
                     normalization = `if`(normalized, "normalized", "none"))
@@ -508,14 +512,18 @@ node_by_adopt_recovery <- function(.data){
 #'   an index or mark (TRUE/FALSE) vector of those nodes which are currently infected,
 #'   but if a diff_model is supplied instead it will return
 #'   nodes exposure at \eqn{t = 0}.
+#'   Nodes in the mark have an exposure of 0.
 #' @examples
 #'   # To measure how much exposure nodes have to a given mark
 #'   node_by_adopt_exposure(smeg, mark = c(1,3))
 #'   node_by_adopt_exposure(smeg_diff)
 #' @export
-node_by_adopt_exposure <- function(.data, mark, time = 0){
-  .data <- manynet::expect_nodes(.data)
+node_by_adopt_exposure <- function(.data, mark, time = 0,
+                                   direction = c("in", "out", "all")){
+  # A diff_model would lose its diffusion if coerced to a network here
+  if(!inherits(.data, "diff_model")) .data <- manynet::expect_nodes(.data)
   .data <- .to_aggregated_css(.data)
+  direction <- match.arg(direction)
   if(missing(mark)){ 
     if(inherits(.data, "diff_model")){
       mark <- node_is_infected(.data, time = time)
@@ -525,33 +533,30 @@ node_by_adopt_exposure <- function(.data, mark, time = 0){
     }
   }
   .data <- manynet::as_tidygraph(.data)
-  if(manynet::is_weighted(.data) || manynet::is_signed(.data)){
-    if(is.numeric(mark)){
-      mk <- rep(FALSE, manynet::net_nodes(.data))
-      mk[mark] <- TRUE
-    } else mk <- mark
+  if(is.numeric(mark)){
+    mk <- rep(FALSE, manynet::net_nodes(.data))
+    mk[mark] <- TRUE
+  } else mk <- as.logical(mark)
+  if(!manynet::is_twomode(.data)){
+    out <- .adopt_exposure(.data, mk, direction)
+    out[mk] <- 0
+  } else if(manynet::is_weighted(.data) || manynet::is_signed(.data)){
     out <- manynet::as_matrix(.data)
     out <- colSums(out * matrix(mk, nrow(out), ncol(out)) * 
                      matrix(!mk, nrow(out), ncol(out), byrow = TRUE))
   } else {
-    if(is.logical(mark)) mark <- which(mark)
-    if(manynet::is_twomode(.data)){
-      if(mark[1]>manynet::net_dims(.data)[1]){ 
-        dat <- manynet::to_mode2(.data)
-        mark <- mark - manynet::net_dims(.data)[1]
-        contacts <- unlist(lapply(igraph::neighborhood(dat, nodes = mark, mode = "out"),
-                                  function(x) setdiff(x, mark)))
-        contacts <- contacts + manynet::net_dims(.data)[1]
-      } else {
-        dat <- manynet::to_mode1(.data)
-        contacts <- unlist(lapply(igraph::neighborhood(dat),
-                                  function(x) setdiff(x, mark)))
-        contacts <- contacts + manynet::net_dims(.data)[2]
-      }
-    } else {
-      dat <- .data
+    mark <- which(mk)
+    if(mark[1]>manynet::net_dims(.data)[1]){ 
+      dat <- manynet::to_mode2(.data)
+      mark <- mark - manynet::net_dims(.data)[1]
       contacts <- unlist(lapply(igraph::neighborhood(dat, nodes = mark, mode = "out"),
                                 function(x) setdiff(x, mark)))
+      contacts <- contacts + manynet::net_dims(.data)[1]
+    } else {
+      dat <- manynet::to_mode1(.data)
+      contacts <- unlist(lapply(igraph::neighborhood(dat),
+                                function(x) setdiff(x, mark)))
+      contacts <- contacts + manynet::net_dims(.data)[2]
     }
     # count exposures for each node:
     tabcontact <- table(contacts)
@@ -560,6 +565,16 @@ node_by_adopt_exposure <- function(.data, mark, time = 0){
   }
   make_node_measure(out, .data, measure = "exposure", range = c(0, Inf),
                     normalization = "none")
+}
+
+# Sums the (weighted) ties between each node and the marked nodes
+# in the given direction, including any tie a marked node has to itself
+.adopt_exposure <- function(.data, mark, direction = "in"){
+  mat <- as.matrix(manynet::as_matrix(.data))
+  ins <- colSums(mat * mark)
+  if(!manynet::is_directed(.data) || direction == "in") return(ins)
+  outs <- rowSums(mat * rep(mark, each = nrow(mat)))
+  `if`(direction == "out", outs, ins + outs)
 }
 
 # Diffusion membership ####
