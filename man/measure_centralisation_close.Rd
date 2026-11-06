@@ -64,7 +64,8 @@ mode of a two-mode network, returning one score per mode
 (following Borgatti and Everett, 1997).
 \item \code{net_by_reach()} measures a network's reach centralization.
 \item \code{net_by_decay()} measures a network's decay centralization.
-\item \code{net_by_harmonic()} measures a network's harmonic centralization.
+\item \code{net_by_harmonic()} measures a network's harmonic centralization,
+or its straightness centralization where the nodes have positions.
 \item \code{net_by_integration()} measures a network's integration centralization.
 }
 

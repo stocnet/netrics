@@ -105,6 +105,7 @@ network.
 \item \code{node_by_harmonic()} measures nodes' harmonic centrality or valued
 centrality, which is thought to behave better than reach centrality
 for disconnected networks.
+Where the nodes have positions, it measures their straightness centrality.
 \item \code{node_by_reach()} measures nodes' reach centrality,
 or how many nodes they can reach within \emph{k} steps.
 \item \code{node_by_decay()} measures nodes' decay centrality,
@@ -173,6 +174,33 @@ such function, \eqn{\delta^d}, giving decay centrality (see below).
 Note that \code{node_by_closeness()} cannot be reached this way: it sums the
 distances and inverts once, \eqn{1/\sum_j d(i,j)}, which is a different
 order of aggregation that no choice of decay function reproduces.
+}
+
+\section{Straightness centrality}{
+
+Where the nodes have positions (see \code{\link[manynet:is_spatial]{manynet::is_spatial()}}),
+\code{node_by_harmonic()} returns straightness centrality
+(Crucitti, Latora and Porta 2006) and says so.
+This is harmonic centrality with each term multiplied by the
+straight-line distance, \eqn{d^E}, between the two nodes:
+\deqn{C_S(i) = \sum_{j, j \neq i} \frac{d^E(i,j)}{d(i,j)}}
+A ratio of 1 means that the network gives a direct route,
+and a smaller ratio means a longer detour.
+Unreachable nodes contribute nothing, and normalization is by \eqn{N-1}.
+
+Positions are read from the nodal attributes \code{x} and \code{y},
+or \code{lon} and \code{lat}.
+The straight-line distance is Euclidean for \code{x} and \code{y},
+and the great-circle distance in metres for \code{lon} and \code{lat}.
+The network distance \eqn{d} sums the \code{length} of the ties along the
+shortest path, which must be in the same units.
+Where the ties have no \code{length}, each tie is a straight line between its
+nodes, and tie weights are not used.
+\code{cutoff} is then also in these units.
+A \code{cutoff} shorter than every tie is ignored,
+and \code{net_by_harmonic()} uses no cutoff unless one is given.
+To get plain harmonic centrality, remove the positions from the nodes.
+Setting \code{decay} gives decay centrality, which does not use the positions.
 }
 
 \section{Reach centrality}{
@@ -352,6 +380,14 @@ Boldi, Paolo, and Sebastiano Vigna. 2014.
 "Axioms for Centrality".
 \emph{Internet Mathematics} 10(3-4): 222-262.
 \doi{10.1080/15427951.2013.865686}
+}
+
+\subsection{On straightness centrality}{
+
+Crucitti, Paolo, Vito Latora, and Sergio Porta. 2006.
+"Centrality measures in spatial networks of urban streets".
+\emph{Physical Review E} 73(3): 036125.
+\doi{10.1103/PhysRevE.73.036125}
 }
 
 \subsection{On reach centrality}{

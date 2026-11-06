@@ -11,6 +11,7 @@
 #'   - `node_by_harmonic()` measures nodes' harmonic centrality or valued 
 #'   centrality, which is thought to behave better than reach centrality 
 #'   for disconnected networks.
+#'   Where the nodes have positions, it measures their straightness centrality.
 #'   - `node_by_reach()` measures nodes' reach centrality,
 #'   or how many nodes they can reach within _k_ steps.
 #'   - `node_by_decay()` measures nodes' decay centrality,
@@ -132,6 +133,30 @@ node_by_closeness <- function(.data, normalized = TRUE,
 #'   Note that `node_by_closeness()` cannot be reached this way: it sums the
 #'   distances and inverts once, \eqn{1/\sum_j d(i,j)}, which is a different
 #'   order of aggregation that no choice of decay function reproduces.
+#' @section Straightness centrality:
+#'   Where the nodes have positions (see [manynet::is_spatial()]),
+#'   `node_by_harmonic()` returns straightness centrality
+#'   (Crucitti, Latora and Porta 2006) and says so.
+#'   This is harmonic centrality with each term multiplied by the
+#'   straight-line distance, \eqn{d^E}, between the two nodes:
+#'   \deqn{C_S(i) = \sum_{j, j \neq i} \frac{d^E(i,j)}{d(i,j)}}
+#'   A ratio of 1 means that the network gives a direct route,
+#'   and a smaller ratio means a longer detour.
+#'   Unreachable nodes contribute nothing, and normalization is by \eqn{N-1}.
+#'
+#'   Positions are read from the nodal attributes `x` and `y`,
+#'   or `lon` and `lat`.
+#'   The straight-line distance is Euclidean for `x` and `y`,
+#'   and the great-circle distance in metres for `lon` and `lat`.
+#'   The network distance \eqn{d} sums the `length` of the ties along the
+#'   shortest path, which must be in the same units.
+#'   Where the ties have no `length`, each tie is a straight line between its
+#'   nodes, and tie weights are not used.
+#'   `cutoff` is then also in these units.
+#'   A `cutoff` shorter than every tie is ignored,
+#'   and `net_by_harmonic()` uses no cutoff unless one is given.
+#'   To get plain harmonic centrality, remove the positions from the nodes.
+#'   Setting `decay` gives decay centrality, which does not use the positions.
 #' @references
 #'   ## On harmonic centrality
 #'   Marchiori, Massimo, and Vito Latora. 2000. 
@@ -147,6 +172,12 @@ node_by_closeness <- function(.data, normalized = TRUE,
 #'   "Axioms for Centrality".
 #'   _Internet Mathematics_ 10(3-4): 222-262.
 #'   \doi{10.1080/15427951.2013.865686}
+#'
+#'   ## On straightness centrality
+#'   Crucitti, Paolo, Vito Latora, and Sergio Porta. 2006.
+#'   "Centrality measures in spatial networks of urban streets".
+#'   _Physical Review E_ 73(3): 036125.
+#'   \doi{10.1103/PhysRevE.73.036125}
 #' @export
 node_by_harmonic <- function(.data, normalized = TRUE, cutoff = -1,
                              decay = NULL, direction = c("out", "in")){
@@ -154,7 +185,14 @@ node_by_harmonic <- function(.data, normalized = TRUE, cutoff = -1,
   .data <- .to_aggregated_css(.data)
   .data <- manynet::to_positive(.data)
   direction <- match.arg(direction)
-  if(is.null(decay)){
+  if(is.null(decay) && manynet::is_spatial(.data)){
+    manynet::snet_info("The nodes have positions, so calculating",
+                       "straightness centrality, harmonic centrality",
+                       "weighted by the straight-line distance between nodes.")
+    out <- .straightness(.data, direction = direction, cutoff = cutoff)
+    if(normalized) out <- out/(manynet::net_nodes(.data)-1)
+    meas <- "straightness centrality"
+  } else if(is.null(decay)){
     out <- igraph::harmonic_centrality(as_igraph(.data), # weighted if present
                                        mode = direction,
                                        normalized = normalized, cutoff = cutoff)
@@ -631,7 +669,8 @@ tie_by_closeness <- function(.data, normalized = TRUE){
 #'   (following Borgatti and Everett, 1997).
 #'   - `net_by_reach()` measures a network's reach centralization.
 #'   - `net_by_decay()` measures a network's decay centralization.
-#'   - `net_by_harmonic()` measures a network's harmonic centralization.
+#'   - `net_by_harmonic()` measures a network's harmonic centralization,
+#'   or its straightness centralization where the nodes have positions.
 #'   - `net_by_integration()` measures a network's integration centralization.
 #'
 #'   All measures attempt to use as much information as they are offered,
@@ -834,12 +873,87 @@ net_by_integration <- function(.data, normalized = TRUE,
 net_by_harmonic <- function(.data, normalized = TRUE, cutoff = 2){
   .data <- manynet::expect_nodes(.data)
   .data <- .to_aggregated_css(.data)
+  # The default counts steps, which mean nothing where distances are in space
+  if(missing(cutoff) && manynet::is_spatial(.data)) cutoff <- -1
   harm <- node_by_harmonic(.data, normalized = FALSE, cutoff = cutoff)
   out <- sum(max(harm) - harm)
   if(normalized) out <- out / sum(manynet::net_nodes(.data) - harm)
   make_network_measure(out, .data, call = deparse(sys.call()),
-                       measure = "harmonic centralisation",
+                       measure = sub("centrality", "centralisation",
+                                     attr(harm, "measure")),
                        range = `if`(normalized, c(0, 1), c(0, Inf)),
                        normalization = `if`(normalized, "normalized", "none"))
 }
 
+
+# Straightness ####
+
+# The unnormalised straightness of each node: the sum, over the other nodes,
+# of the straight-line distance divided by the network distance.
+# `cutoff` drops the pairs that are further apart along the network.
+.straightness <- function(.data, direction = "out", cutoff = -1){
+  straight <- .straight_distance(.node_positions(.data))
+  g <- manynet::as_igraph(.data)
+  len <- igraph::edge_attr(g, "length")
+  # Without lengths, each tie runs in a straight line between its nodes.
+  # `matrix()` keeps the ends as a matrix where there is only one tie.
+  if(!is.numeric(len))
+    len <- straight[matrix(igraph::ends(g, igraph::E(g), names = FALSE),
+                           ncol = 2)]
+  len <- as.numeric(len)
+  # A cutoff shorter than every tie would drop every pair
+  if(!is.null(cutoff) && cutoff >= 0 && length(len) && cutoff < min(len)){
+    manynet::snet_info("Ignoring `cutoff = {cutoff}`, which is shorter than",
+                       "every tie.")
+    cutoff <- -1
+  }
+  along <- igraph::distances(g, mode = direction, weights = len)
+  ratio <- straight / along
+  ratio[is.infinite(along)] <- 0
+  # Two nodes at the same position, joined by a tie of no length,
+  # are as directly connected as they can be
+  ratio[along == 0] <- 1
+  if(!is.null(cutoff) && cutoff >= 0) ratio[along > cutoff] <- 0
+  diag(ratio) <- 0
+  rowSums(ratio)
+}
+
+# The positions of the nodes, or NULL where the nodes have none.
+# These follow the names that manynet::is_spatial() reads:
+# 'x' and 'y' on a plane, or 'lon' and 'lat' (or their variants) on the globe.
+# `as.numeric()` removes the class of the attribute, without which `outer()`
+# loses the matrix dimensions.
+.node_positions <- function(.data){
+  attrs <- manynet::net_node_attributes(.data)
+  find <- function(aka) attrs[tolower(attrs) %in% aka][1]
+  numbers <- function(var){
+    if(is.na(var)) return(NULL)
+    val <- manynet::node_attribute(.data, var)
+    if(is.numeric(val)) as.numeric(val) else NULL
+  }
+  pairs <- list(list(x = "x", y = "y", geographic = FALSE),
+                list(x = c("lon", "long", "lng", "longitude"),
+                     y = c("lat", "latitude"), geographic = TRUE))
+  for(pair in pairs){
+    x <- numbers(find(pair$x))
+    y <- numbers(find(pair$y))
+    if(!is.null(x) && !is.null(y))
+      return(list(x = x, y = y, geographic = pair$geographic))
+  }
+  NULL
+}
+
+# Node-by-node straight-line distances between positions:
+# Euclidean on a plane, and great-circle (haversine) in metres on the globe,
+# with the mean radius of the earth that manynet::read_geojson() also uses.
+# `pmin()` takes its attributes from its first argument,
+# so `sqrt(a)` comes first to keep the matrix dimensions.
+.straight_distance <- function(pos){
+  if(!pos$geographic)
+    return(sqrt(outer(pos$x, pos$x, "-")^2 + outer(pos$y, pos$y, "-")^2))
+  lon <- pos$x * pi / 180
+  lat <- pos$y * pi / 180
+  a <- sin(outer(lat, lat, "-") / 2)^2 +
+    outer(cos(lat), cos(lat)) * sin(outer(lon, lon, "-") / 2)^2
+  2 * 6371008.8 * asin(pmin(sqrt(a), 1))
+}

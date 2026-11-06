@@ -13,6 +13,7 @@
   - Blau's index is divided by its maximum, 1 - 1/k, by default
   - `normalized = FALSE` gives the previous values
 - Added `node_by_indeg()` and `node_by_outdeg()` as unnormalised degree shortcuts
+- Improved `*_by_harmonic()` to return straightness centrality for spatial networks (closes #49)
 - Improved `node_by_adopt_exposure()`
   - Added `direction=`; "in" by default as before
   - Fixed `diff_model` objects losing their diffusion

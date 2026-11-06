@@ -7,6 +7,19 @@ test_that("node centralities meet the measure contract", {
   expect_declared(measure_rosters$centrality_node, manynet::ison_adolescents)
 })
 
+test_that("straightness meets the measure contract", {
+  # Eight nodes placed unevenly around a circle, so the scores are not all equal
+  ring <- manynet::mutate_nodes(manynet::create_ring(8),
+                                x = cos(c(1:7, 7.5) * pi/4),
+                                y = sin(c(1:7, 7.5) * pi/4))
+  roster <- measure_rosters$centrality_node["node_by_harmonic"]
+  check_measure_contract(roster, ring, level = "node")
+  expect_declared(roster, ring)
+  roster <- measure_rosters$centrality_net["net_by_harmonic"]
+  check_measure_contract(roster, ring, level = "net")
+  expect_declared(roster, ring)
+})
+
 test_that("multidegree meets the measure contract", {
   check_measure_contract(measure_rosters$centrality_multiplex,
                          manynet::fict_marvel, level = "node")

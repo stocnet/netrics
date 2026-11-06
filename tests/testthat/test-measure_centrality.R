@@ -194,6 +194,49 @@ test_that("decay and integration centralization works", {
   expect_output(print(net_by_decay(ison_adolescents)))
 })
 
+test_that("node_by_harmonic gives straightness where the nodes have positions", {
+  # The end nodes are 5 apart in a straight line and 7 apart along the network
+  p <- mutate_nodes(create_explicit(A-B, B-C), x = c(0, 3, 3), y = c(0, 0, 4))
+  expect_equal(as.numeric(node_by_harmonic(p)), c(1 + 5/7, 2, 1 + 5/7) / 2)
+  expect_equal(attr(node_by_harmonic(p), "measure"), "straightness centrality")
+  expect_equal(as.numeric(node_by_harmonic(p, normalized = FALSE)),
+               c(1 + 5/7, 2, 1 + 5/7))
+  # Tie lengths replace the straight lines between the nodes
+  expect_equal(as.numeric(node_by_harmonic(mutate_ties(p, length = c(3, 8)))),
+               c(1 + 5/11, 1 + 4/8, 4/8 + 5/11) / 2)
+  # The cutoff is a distance along the network
+  expect_equal(as.numeric(node_by_harmonic(p, cutoff = 4)), c(1, 2, 1) / 2)
+  # Unreachable nodes add nothing
+  apart <- mutate_nodes(create_explicit(A-B, C), x = c(0, 1, 2), y = 0)
+  expect_equal(as.numeric(node_by_harmonic(apart)), c(1, 1, 0) / 2)
+  # On the globe, the straight line is the great circle
+  geo <- mutate_nodes(create_explicit(A-B, B-C), lon = c(0, 1, 1),
+                      lat = c(0, 0, 1))
+  expect_lt(as.numeric(node_by_harmonic(geo))[1], 1)
+  expect_equal(as.numeric(node_by_harmonic(geo))[2], 1)
+  # A cutoff shorter than every tie is ignored
+  expect_equal(as.numeric(node_by_harmonic(geo, cutoff = 2)),
+               as.numeric(node_by_harmonic(geo)))
+  # Decay centrality does not use the positions
+  expect_equal(as.numeric(node_by_harmonic(p, decay = 0.5)),
+               as.numeric(node_by_decay(create_explicit(A-B, B-C))))
+  local_verbose()
+  expect_message(node_by_harmonic(p), "straightness")
+  expect_message(node_by_harmonic(geo, cutoff = 2), "Ignoring")
+})
+
+test_that("net_by_harmonic gives straightness centralisation where the nodes have positions", {
+  line <- mutate_nodes(create_explicit(A-B, B-C, C-D), x = 1:4, y = 0)
+  expect_equal(as.numeric(node_by_harmonic(line)), rep(1, 4))
+  # The default cutoff is not used, but a given one is
+  expect_equal(as.numeric(net_by_harmonic(line)), 0)
+  expect_gt(as.numeric(net_by_harmonic(line, cutoff = 2)), 0)
+  expect_equal(attr(net_by_harmonic(line), "measure"),
+               "straightness centralisation")
+  expect_equal(attr(net_by_harmonic(ison_adolescents), "measure"),
+               "harmonic centralisation")
+})
+
 test_that("node_by_decay respects tie direction", {
   dir <- to_unweighted(ison_networkers)
   # reaching out is not the same as being reached
