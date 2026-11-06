@@ -31,6 +31,10 @@
 - Improved attribute-based motifs to run without an `attribute=` argument
   where there is only one available attribute, and error where there are several
 
+## Tutorials
+
+- Fixed the "Position and Equivalence" tutorial to offer to install `{sna}`
+
 # netrics 1.1.4
 
 ## Measures

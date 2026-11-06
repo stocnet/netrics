@@ -16,6 +16,10 @@ description: >
 ```{r pkgs, include = FALSE, eval=TRUE}
 library(netrics)
 library(autograph)
+# {netrics} only suggests {sna}, which `node_x_brokerage()` needs.
+# Naming it here lets `learnr::run_tutorial()` offer to install it at the start,
+# because an exercise cannot install a package itself.
+requireNamespace("sna", quietly = TRUE)
 ```
 
 ```{r setup, include = FALSE, purl=FALSE, eval=TRUE}
