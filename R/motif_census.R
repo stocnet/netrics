@@ -43,6 +43,8 @@ node_x_tie <- function(.data){
   object <- manynet::as_igraph(.data)
   # Only tie-level waves split the census; a diffusion model's ties do not change
   waved <- "wave" %in% manynet::net_tie_attributes(object)
+  # one network for each wave, in the order of the waves
+  if (waved) waves <- manynet::to_times(object)
   if (manynet::is_multiplex(.data)) {
     # The layers are stacked into one census, which needs them to share a
     # node set. `to_uniplex()` drops the nodes a layer does not tie, so a
@@ -66,9 +68,9 @@ node_x_tie <- function(.data){
                                      rbind(rc, t(rc))
                                    }))
     } else if (waved){
-      mat <- do.call(rbind, lapply(unique(manynet::tie_attribute(object, "wave")), 
+      mat <- do.call(rbind, lapply(waves,
                                    function(x){
-                                     rc <- manynet::as_matrix(manynet::to_waves(object)[[x]])
+                                     rc <- manynet::as_matrix(x)
                                      rbind(rc, t(rc))
                                    }))
       
@@ -83,10 +85,8 @@ node_x_tie <- function(.data){
                                      manynet::as_matrix(manynet::to_uniplex(object, x))
                                    }))
     } else if (waved){
-      mat <- do.call(rbind, lapply(unique(manynet::tie_attribute(object, "wave")), 
-                                   function(x){
-                                     manynet::as_matrix(manynet::to_waves(object)[[x]])
-                                   }))
+      mat <- do.call(rbind, lapply(waves,
+                                   manynet::as_matrix))
     } else if (manynet::is_twomode(.data)) {
       mat <- manynet::as_matrix(manynet::to_onemode(object))
     } else {
@@ -102,7 +102,7 @@ node_x_tie <- function(.data){
     } else if (waved){
       rownames(mat) <- apply(expand.grid(c(paste0("from", manynet::node_names(object)),
                                            paste0("to", manynet::node_names(object))),
-                                         unique(manynet::tie_attribute(object, "wave"))), 
+                                         names(waves)), 
                              1, paste, collapse = "_wave")
     } else {
       rownames(mat) <- rep(c(paste0("from", manynet::node_names(object)),

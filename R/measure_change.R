@@ -56,7 +56,7 @@ NULL
   if(!missing(object2)){
     net <- list(net, object2)
   } else if(manynet::is_longitudinal(net)){
-    net <- manynet::to_waves(net)
+    net <- manynet::to_times(net)
   }
   if(!manynet::is_list(net))
     manynet::snet_abort("`.data` must be a list of networks or a second network must be provided.")
