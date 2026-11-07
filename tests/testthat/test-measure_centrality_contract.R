@@ -32,6 +32,12 @@ test_that("tie centralities meet the measure contract", {
   expect_declared(measure_rosters$centrality_tie, manynet::ison_adolescents)
 })
 
+test_that("main path traversal counts meet the measure contract", {
+  check_measure_contract(measure_rosters$centrality_tie_dag,
+                         hummon_doreian, level = "tie")
+  expect_declared(measure_rosters$centrality_tie_dag, hummon_doreian)
+})
+
 test_that("network centralisations meet the measure contract", {
   check_measure_contract(measure_rosters$centrality_net,
                          manynet::ison_adolescents, level = "net")

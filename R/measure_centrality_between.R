@@ -294,7 +294,9 @@ node_by_stress <- function(.data, normalized = TRUE){
 #' @name measure_central_tie_between
 #' @description
 #'   `tie_by_betweenness()` measures the number of shortest paths going through a tie.
-#'   
+#'   `tie_by_mainpath()` measures the number of all paths going through a tie
+#'   in a directed acyclic network, such as a citation network.
+#'
 #'   All measures attempt to use as much information as they are offered,
 #'   including whether the networks are directed, weighted, or multimodal.
 #'   If this would produce unintended results, 
@@ -360,6 +362,140 @@ tie_by_betweenness <- function(.data, normalized = TRUE){
   make_tie_measure(out, .data, measure = "betweenness centrality",
                    range = `if`(normalized, c(0, 1), c(0, Inf)),
                    normalization = `if`(normalized, "normalized", "none"))
+}
+
+#' @rdname measure_central_tie_between
+#' @section Main path traversal counts:
+#'   Main path analysis traces the most important lines of development
+#'   through a directed acyclic network, such as a network of citations,
+#'   patents, or judgments that cite earlier ones (Hummon and Doreian 1989).
+#'   Each tie gets a traversal count: the number of paths through the network
+#'   that run along it.
+#'   A tie that many paths must use is a critical step in the flow of
+#'   knowledge from earlier to later nodes.
+#'   [tie_is_mainpath()] then marks the main path itself.
+#'
+#'   The counts are like edge betweenness, except that they count every path,
+#'   not only the shortest ones.
+#'   This is possible because a network without cycles holds a finite number
+#'   of paths.
+#'   The number of paths through a tie from \eqn{u} to \eqn{v} is
+#'   the number of paths that arrive at \eqn{u}
+#'   multiplied by the number of paths that leave from \eqn{v},
+#'   and both are counted in one pass through a topological order of the nodes
+#'   (Batagelj 2003).
+#'
+#'   The variants differ in where a path can start and end:
+#'
+#'   - "spc", the search path count (Batagelj 2003), counts the paths from
+#'   a source, a node with no incoming ties, to a sink, a node with no
+#'   outgoing ties.
+#'   This is the usual choice, and does not change if all ties are reversed.
+#'   - "splc", the search path link count (Hummon and Doreian 1989), counts
+#'   the paths from any node to a sink, so every node can start a line of
+#'   development.
+#'   - "spnp", the search path node pair count (Hummon and Doreian 1989),
+#'   counts the paths from any node to any other node,
+#'   so ties in the middle of long chains count more than ties at either end.
+#'
+#'   Normalised counts are divided by the number of paths that the variant
+#'   counts, so a tie that every such path runs along scores 1.
+#'
+#'   "splc" depends on the direction of the ties.
+#'   For a citation network, the ties should point from the cited work to the
+#'   citing work, as knowledge flows; use [manynet::to_redirected()]
+#'   to reverse ties that point from the citing work to the cited one.
+#'
+#'   For networks with cycles, `tie_by_mainpath()` stops with an error.
+#'   Use [manynet::to_acyclic()] first, and [tie_is_feedback()] to see the
+#'   ties that it would remove.
+#'   For undirected networks, `tie_by_mainpath()` also stops,
+#'   since a main path needs a direction.
+#'   For weighted or signed networks, `tie_by_mainpath()` counts paths along
+#'   every tie however it is weighted or signed.
+#' @param variant Which traversal count to compute:
+#'   "spc" (the default), "splc", or "spnp".
+#'   See the section on main path traversal counts.
+#'   The variant chosen is reported when the result is printed.
+#' @references
+#' ## On main path analysis
+#' Hummon, Norman P., and Patrick Doreian. 1989.
+#' "Connectivity in a citation network: The development of DNA theory".
+#' _Social Networks_ 11(1): 39-63.
+#' \doi{10.1016/0378-8733(89)90017-8}
+#'
+#' Batagelj, Vladimir. 2003.
+#' "Efficient algorithms for citation network analysis".
+#' _arXiv_ cs/0309023.
+#' \doi{10.48550/arXiv.cs/0309023}
+#'
+#' Liu, John S., and Louis Y.Y. Lu. 2012.
+#' "An integrated approach for main path analysis:
+#' Development of the Hirsch index as an example".
+#' _Journal of the American Society for Information Science and Technology_
+#' 63(3): 528-542.
+#' \doi{10.1002/asi.21692}
+#' @importFrom igraph topo_sort is_dag
+#' @examples
+#' citations <- create_explicit(A-+C, B-+C, B-+D, C-+E, D-+E, E-+F, D-+F)
+#' tie_by_mainpath(citations)
+#' tie_by_mainpath(citations, variant = "splc", normalized = FALSE)
+#' @export
+tie_by_mainpath <- function(.data, variant = c("spc", "splc", "spnp"),
+                            normalized = TRUE){
+  .data <- manynet::expect_ties(.data)
+  variant <- match.arg(variant)
+  if(manynet::is_cognitive(.data))
+    return(.map_css_ties(.data, tie_by_mainpath, variant = variant,
+                         normalized = normalized))
+  counts <- .traversal_counts(manynet::as_igraph(.data), variant)
+  out <- counts$ties
+  if(normalized && counts$total > 0) out <- out / counts$total
+  make_tie_measure(out, .data,
+                   measure = switch(variant,
+                                    spc = "search path count",
+                                    splc = "search path link count",
+                                    spnp = "search path node pair count"),
+                   range = `if`(normalized, c(0, 1), c(0, Inf)),
+                   normalization = `if`(normalized, "normalized", "none"),
+                   variant = variant)
+}
+
+# The traversal counts of every tie, after Batagelj (2003).
+# `before[v]` counts the paths that arrive at v, and `after[v]` the paths that
+# leave from v, each including the path of length zero at v where v may start
+# (or end) a path. A path may start at a source only ("spc"), or at any node
+# ("splc", "spnp"), and end at a sink only ("spc", "splc") or at any node
+# ("spnp"). The count of a tie u->v is then before[u] * after[v].
+# Hummon and Doreian (1989: 51) print SPNP counts for their Figure 3 that
+# follow no one rule: six of the nine match this definition, and eight match
+# a sum over the source-sink paths, which gives 7 rather than their 6 for the
+# last tie. We follow Batagelj's definition, which later work uses.
+.traversal_counts <- function(g, variant){
+  if(!igraph::is_directed(g))
+    manynet::snet_abort("{.fn tie_by_mainpath} needs a directed network,",
+                        "since a main path follows the direction of the ties.",
+                        "Use e.g. {.fn manynet::to_directed} first.")
+  if(!igraph::is_dag(g))
+    manynet::snet_abort("{.fn tie_by_mainpath} needs a network without cycles.",
+                        "Use {.fn manynet::to_acyclic} first,",
+                        "and {.fn tie_is_feedback} to see the ties it removes.")
+  n <- igraph::vcount(g)
+  ties <- igraph::as_edgelist(g, names = FALSE)
+  from <- ties[, 1]
+  to <- ties[, 2]
+  ord <- as.integer(igraph::topo_sort(g, mode = "out"))
+  starts <- `if`(variant == "spc", tabulate(to, n) == 0, rep(TRUE, n))
+  ends <- `if`(variant == "spnp", rep(TRUE, n), tabulate(from, n) == 0)
+  ins <- split(from, factor(to, levels = seq_len(n)))
+  outs <- split(to, factor(from, levels = seq_len(n)))
+  before <- after <- numeric(n)
+  for(v in ord) before[v] <- starts[v] + sum(before[ins[[v]]])
+  for(v in rev(ord)) after[v] <- ends[v] + sum(after[outs[[v]]])
+  # Paths of length zero run along no tie, so they are not counted.
+  list(ties = before[from] * after[to],
+       total = sum(starts * after) - sum(starts & ends),
+       before = before, after = after)
 }
 
 # Betweenness centralisation ####

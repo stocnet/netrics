@@ -334,3 +334,62 @@ test_that("node_by_power stops where the exponent has no solution", {
   # an exponent of 0 is degree centrality, which always has a solution
   expect_length(node_by_power(g, exponent = 0), 5)
 })
+
+# Main path traversal counts ####
+
+# Counts every path along each tie by listing the paths, for small networks.
+brute_traversal <- function(g, variant){
+  g <- manynet::as_igraph(g)
+  n <- igraph::vcount(g)
+  ties <- igraph::as_edgelist(g, names = FALSE)
+  sources <- which(igraph::degree(g, mode = "in") == 0)
+  sinks <- which(igraph::degree(g, mode = "out") == 0)
+  starts <- if(variant == "spc") sources else seq_len(n)
+  out <- numeric(nrow(ties))
+  for(s in starts){
+    for(p in igraph::all_simple_paths(g, s, mode = "out")){
+      p <- as.integer(p)
+      if(variant != "spnp" && !(p[length(p)] %in% sinks)) next
+      steps <- paste(p[-length(p)], p[-1])
+      out <- out + (paste(ties[,1], ties[,2]) %in% steps)
+    }
+  }
+  out
+}
+
+test_that("tie_by_mainpath reproduces Hummon and Doreian's SPLC counts", {
+  # Hummon and Doreian (1989: 51), Figure 3
+  expect_equal(as.numeric(tie_by_mainpath(hummon_doreian, "splc",
+                                          normalized = FALSE)),
+               c(3, 1, 6, 3, 6, 4, 4, 4, 6))
+})
+
+test_that("tie_by_mainpath counts every path along each tie", {
+  g <- manynet::create_explicit(A-+C, B-+C, B-+D, C-+E, D-+E, E-+F, D-+F,
+                                A-+F)
+  for(variant in c("spc", "splc", "spnp")){
+    expect_equal(as.numeric(tie_by_mainpath(g, variant, normalized = FALSE)),
+                 brute_traversal(g, variant))
+    expect_equal(as.numeric(tie_by_mainpath(hummon_doreian, variant,
+                                            normalized = FALSE)),
+                 brute_traversal(hummon_doreian, variant))
+  }
+})
+
+test_that("tie_by_mainpath normalises by the number of paths counted", {
+  spc <- tie_by_mainpath(hummon_doreian)
+  # four paths run from the source, 3, to the sink, 22
+  expect_equal(as.numeric(spc),
+               as.numeric(tie_by_mainpath(hummon_doreian, normalized = FALSE)) / 4)
+  expect_equal(attr(spc, "variant"), "spc")
+  expect_true(all(spc >= 0 & spc <= 1))
+  # SPC is the same with every tie reversed
+  rev <- tie_by_mainpath(manynet::to_redirected(hummon_doreian))
+  expect_equal(sort(as.numeric(rev)), sort(as.numeric(spc)))
+})
+
+test_that("tie_by_mainpath stops on cyclic or undirected networks", {
+  expect_snet_abort(tie_by_mainpath(manynet::create_ring(5, directed = TRUE)),
+                    "without cycles")
+  expect_snet_abort(tie_by_mainpath(manynet::ison_adolescents), "directed")
+})

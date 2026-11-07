@@ -210,12 +210,14 @@ export(tie_by_cohesion)
 export(tie_by_degree)
 export(tie_by_diversity)
 export(tie_by_eigenvector)
+export(tie_by_mainpath)
 export(tie_in_community)
 export(tie_is_bridge)
 export(tie_is_cyclical)
 export(tie_is_feedback)
 export(tie_is_imbalanced)
 export(tie_is_loop)
+export(tie_is_mainpath)
 export(tie_is_max)
 export(tie_is_min)
 export(tie_is_multiple)
@@ -253,6 +255,7 @@ importFrom(igraph,
   fit_power_law,
   graph_from_incidence_matrix,
   is_bipartite,
+  is_dag,
   ivs_size,
   knn,
   largest_ivs,
@@ -260,6 +263,7 @@ importFrom(igraph,
   mean_distance,
   power_centrality,
   reciprocity,
+  topo_sort,
   transitivity,
   triad_census,
   triangles,

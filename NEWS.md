@@ -8,6 +8,8 @@
 
 ## Measures
 
+- Added `tie_by_mainpath()` for the traversal counts of main path analysis
+  - `variant=` "spc" (default), "splc", or "spnp"
 - Improved attribute-based measures to run without an `attribute=` argument
   where there is only one available attribute, and error where there are several
 - Added `normalized=` to `net_by_diversity()`, `node_by_diversity()`, and `tie_by_diversity()`
