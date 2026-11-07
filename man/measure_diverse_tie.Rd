@@ -8,8 +8,9 @@
 tie_by_diversity(
   .data,
   attribute,
-  diversity = c("blau", "teachman", "variation", "gini"),
-  normalized = TRUE
+  diversity = c("blau", "teachman", "variation", "gini", "rao"),
+  normalized = TRUE,
+  distance = NULL
 )
 }
 \arguments{
@@ -22,7 +23,8 @@ Where none is named and the network holds only one nodal attribute
 besides the reserved ones, such as "label" and "mode", that one is used.}
 
 \item{diversity}{Which method to use for \verb{*_diversity()}.
-Either "blau" (Blau's index) or "teachman" (Teachman's index) for categorical attributes,
+Either "blau" (Blau's index), "teachman" (Teachman's index),
+or "rao" (Rao-Stirling diversity) for categorical attributes,
 or "variation" (coefficient of variation) or "gini" (Gini coefficient) for numeric attributes.
 Default is "blau".
 If an incompatible method is chosen for the attribute type,
@@ -35,6 +37,12 @@ The index then runs from 0 to 1 whatever the number of categories,
 as the index of qualitative variation does (Agresti and Agresti 1978).
 The other indices are left as they are.
 By default TRUE.}
+
+\item{distance}{For \code{diversity = "rao"}, the distances among the
+categories of the attribute: a matrix whose row and column names are the
+categories, or a one-mode network of the categories,
+with values between 0 (the same) and 1 (the most different).
+By default NULL, so every two categories are 1 apart.}
 }
 \value{
 A \code{tie_measure} numeric vector the length of the ties in the network,

@@ -11,9 +11,10 @@ net_by_richness(.data, attribute)
 net_by_diversity(
   .data,
   attribute,
-  diversity = c("blau", "teachman", "variation", "gini"),
+  diversity = c("blau", "teachman", "variation", "gini", "rao"),
   membership = NULL,
-  normalized = TRUE
+  normalized = TRUE,
+  distance = NULL
 )
 }
 \arguments{
@@ -26,7 +27,8 @@ Where none is named and the network holds only one nodal attribute
 besides the reserved ones, such as "label" and "mode", that one is used.}
 
 \item{diversity}{Which method to use for \verb{*_diversity()}.
-Either "blau" (Blau's index) or "teachman" (Teachman's index) for categorical attributes,
+Either "blau" (Blau's index), "teachman" (Teachman's index),
+or "rao" (Rao-Stirling diversity) for categorical attributes,
 or "variation" (coefficient of variation) or "gini" (Gini coefficient) for numeric attributes.
 Default is "blau".
 If an incompatible method is chosen for the attribute type,
@@ -46,6 +48,12 @@ The index then runs from 0 to 1 whatever the number of categories,
 as the index of qualitative variation does (Agresti and Agresti 1978).
 The other indices are left as they are.
 By default TRUE.}
+
+\item{distance}{For \code{diversity = "rao"}, the distances among the
+categories of the attribute: a matrix whose row and column names are the
+categories, or a one-mode network of the categories,
+with values between 0 (the same) and 1 (the most different).
+By default NULL, so every two categories are 1 apart.}
 }
 \value{
 A \code{network_measure} numeric score.
@@ -147,6 +155,21 @@ that is cumulatively earned by the bottom x\% of the population.
 The Gini coefficient is defined as the area between the line of equality
 and the Lorenz curve,
 divided by the total area under the line of equality.
+
+Rao-Stirling diversity (Rao 1982; Stirling 2007) also counts how
+different the categories are from each other:
+\deqn{\sum\limits_{i \neq j} d_{ij} p_i p_j}
+where \eqn{d_{ij}} is the distance between categories \eqn{i} and
+\eqn{j}, given as \code{distance}.
+It is the expected distance between the categories of two members
+selected at random.
+A group that spans distant categories, such as distant disciplines,
+is thus more diverse than one that spans close categories,
+which is why it is used to measure interdisciplinarity
+(Porter and Rafols 2009).
+Where every two categories are 1 apart, it is Blau's index.
+It runs from 0 to 1, and is not normalised:
+\code{normalized} has no effect on it.
 }
 
 \examples{
@@ -189,6 +212,22 @@ Princeton: Princeton University Press.
 Hirschman, Albert O. 1964.
 "The paternity of an index".
 \emph{The American Economic Review}, 54(5): 761.
+
+Rao, C. Radhakrishna. 1982.
+"Diversity and dissimilarity coefficients: A unified approach".
+\emph{Theoretical Population Biology}, 21(1): 24-43.
+\doi{10.1016/0040-5809(82)90004-1}
+
+Stirling, Andy. 2007.
+"A general framework for analysing diversity in science, technology and society".
+\emph{Journal of the Royal Society Interface}, 4(15): 707-719.
+\doi{10.1098/rsif.2007.0213}
+
+Porter, Alan L., and Ismael Rafols. 2009.
+"Is science becoming more interdisciplinary? Measuring and mapping six
+research fields over time".
+\emph{Scientometrics}, 81(3): 719-745.
+\doi{10.1007/s11192-008-2197-2}
 }
 }
 \seealso{

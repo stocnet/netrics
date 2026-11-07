@@ -20,7 +20,8 @@
 #' @family diversity
 #' @template net_measure
 #' @param diversity Which method to use for `*_diversity()`.
-#'   Either "blau" (Blau's index) or "teachman" (Teachman's index) for categorical attributes, 
+#'   Either "blau" (Blau's index), "teachman" (Teachman's index),
+#'   or "rao" (Rao-Stirling diversity) for categorical attributes,
 #'   or "variation" (coefficient of variation) or "gini" (Gini coefficient) for numeric attributes.
 #'   Default is "blau". 
 #'   If an incompatible method is chosen for the attribute type,
@@ -32,6 +33,11 @@
 #'   as the index of qualitative variation does (Agresti and Agresti 1978).
 #'   The other indices are left as they are.
 #'   By default TRUE.
+#' @param distance For `diversity = "rao"`, the distances among the
+#'   categories of the attribute: a matrix whose row and column names are the
+#'   categories, or a one-mode network of the categories,
+#'   with values between 0 (the same) and 1 (the most different).
+#'   By default NULL, so every two categories are 1 apart.
 NULL
 
 #' @rdname measure_diverse_net
@@ -127,6 +133,21 @@ net_by_richness <- function(.data, attribute){
 #'    The Gini coefficient is defined as the area between the line of equality
 #'    and the Lorenz curve,
 #'    divided by the total area under the line of equality.
+#'
+#'    Rao-Stirling diversity (Rao 1982; Stirling 2007) also counts how
+#'    different the categories are from each other:
+#'    \deqn{\sum\limits_{i \neq j} d_{ij} p_i p_j}
+#'    where \eqn{d_{ij}} is the distance between categories \eqn{i} and
+#'    \eqn{j}, given as `distance`.
+#'    It is the expected distance between the categories of two members
+#'    selected at random.
+#'    A group that spans distant categories, such as distant disciplines,
+#'    is thus more diverse than one that spans close categories,
+#'    which is why it is used to measure interdisciplinarity
+#'    (Porter and Rafols 2009).
+#'    Where every two categories are 1 apart, it is Blau's index.
+#'    It runs from 0 to 1, and is not normalised:
+#'    `normalized` has no effect on it.
 #' @references 
 #' ## On diversity
 #'   Blau, Peter M. 1977.
@@ -150,6 +171,22 @@ net_by_richness <- function(.data, attribute){
 #'   Hirschman, Albert O. 1964.
 #'   "The paternity of an index".
 #'   _The American Economic Review_, 54(5): 761.
+#'
+#'   Rao, C. Radhakrishna. 1982.
+#'   "Diversity and dissimilarity coefficients: A unified approach".
+#'   _Theoretical Population Biology_, 21(1): 24-43.
+#'   \doi{10.1016/0040-5809(82)90004-1}
+#'
+#'   Stirling, Andy. 2007.
+#'   "A general framework for analysing diversity in science, technology and society".
+#'   _Journal of the Royal Society Interface_, 4(15): 707-719.
+#'   \doi{10.1098/rsif.2007.0213}
+#'
+#'   Porter, Alan L., and Ismael Rafols. 2009.
+#'   "Is science becoming more interdisciplinary? Measuring and mapping six
+#'   research fields over time".
+#'   _Scientometrics_, 81(3): 719-745.
+#'   \doi{10.1007/s11192-008-2197-2}
 #' @examples
 #' marvel_friends <- to_unsigned(to_uniplex(fict_marvel, "relationship"), "positive")
 #' net_by_diversity(marvel_friends, "Gender")
@@ -158,13 +195,14 @@ net_by_richness <- function(.data, attribute){
 #'   membership = node_in_roulette(marvel_friends, groups = 3, attribute = "Gender"))
 #' @export
 net_by_diversity <- function(.data, attribute, 
-                        diversity = c("blau","teachman","variation","gini"),
-                        membership = NULL, normalized = TRUE){
+                        diversity = c("blau","teachman","variation","gini","rao"),
+                        membership = NULL, normalized = TRUE,
+                        distance = NULL){
   .data <- manynet::expect_nodes(.data)
   attribute <- .pick_attribute(.data, attribute)
   attr <- manynet::node_attribute(.data, attribute)
   diversity <- .match_diversity(attr, match.arg(diversity))
-  index <- .diversity_index(diversity, attr, normalized)
+  index <- .diversity_index(diversity, attr, normalized, distance)
   if(is.null(membership)){
     out <- index(attr)
   } else {
@@ -230,8 +268,8 @@ node_by_richness <- function(.data, attribute){
 #' node_by_diversity(marvel_friends, "Attractive")
 #' @export
 node_by_diversity <- function(.data, attribute,
-                              diversity = c("blau","teachman","variation","gini"),
-                              normalized = TRUE){
+                              diversity = c("blau","teachman","variation","gini","rao"),
+                              normalized = TRUE, distance = NULL){
   .data <- manynet::expect_nodes(.data)
   .data <- .to_aggregated_css(.data)
   attribute <- .pick_attribute(.data, attribute)
@@ -242,7 +280,7 @@ node_by_diversity <- function(.data, attribute,
   # describe, and returns NA rather than the index of an empty set.
   # The maximum is that of the whole network's categories, not the alters',
   # so that the nodes' values can be compared.
-  index <- .diversity_index(diversity, attr, normalized)
+  index <- .diversity_index(diversity, attr, normalized, distance)
   out <- vapply(igraph::ego(manynet::as_igraph(.data), mindist = 1),
                 function(x) if(length(x) == 0) NA_real_ else
                   as.numeric(index(attr[as.integer(x)])),
@@ -374,16 +412,17 @@ NULL
 #' tie_by_diversity(to_hypergraph(ison_southern_women), "Title")
 #' @export
 tie_by_diversity <- function(.data, attribute,
-                             diversity = c("blau","teachman","variation","gini"),
-                             normalized = TRUE){
+                             diversity = c("blau","teachman","variation","gini","rao"),
+                             normalized = TRUE, distance = NULL){
   attribute <- .pick_attribute(.data, attribute)
   if(manynet::is_cognitive(.data))
     return(.map_css_ties(.data, tie_by_diversity, attribute = attribute,
-                         diversity = diversity, normalized = normalized))
+                         diversity = diversity, normalized = normalized,
+                         distance = distance))
   .data <- .expect_tie_members(.data)
   attr <- manynet::node_attribute(.data, attribute)
   diversity <- .match_diversity(attr, match.arg(diversity))
-  index <- .diversity_index(diversity, attr, normalized)
+  index <- .diversity_index(diversity, attr, normalized, distance)
   out <- vapply(.tie_members(.data),
                 function(x) if(length(x) == 0) NA_real_ else
                   as.numeric(index(attr[x])),
@@ -620,7 +659,7 @@ net_by_homophily <- function(.data, attribute,
 # The index asked for, or the one that applies where it cannot apply to the
 # attribute's type, with a message saying so.
 .match_diversity <- function(attr, diversity){
-  if(is.numeric(attr) && diversity %in% c("blau","teachman")){
+  if(is.numeric(attr) && diversity %in% c("blau","teachman","rao")){
     manynet::snet_info("{.val {diversity}} index is not appropriate for numeric attributes.")
     manynet::snet_info("Using {.val variation} coefficient instead",
                        "({.val gini} coefficient also available).")
@@ -640,10 +679,16 @@ net_by_homophily <- function(.data, attribute,
 # of all the attribute's categories, 1 - 1/k, even where it describes a subset
 # of the nodes, such as a node's alters or a tie's members. An attribute of one
 # category can hold no variety, so its index stays 0.
-.diversity_index <- function(diversity, attr = NULL, normalized = FALSE){
+.diversity_index <- function(diversity, attr = NULL, normalized = FALSE,
+                             distance = NULL){
   k <- length(unique(stats::na.omit(attr)))
   most <- `if`(normalized && k > 1, 1 - 1/k, 1)
+  if(diversity == "rao") dist <- .rao_distance(distance, attr)
   switch(diversity,
+         rao = function(features) {
+           p <- table(factor(features, levels = rownames(dist))) /
+             length(features)
+           sum(dist * outer(as.numeric(p), as.numeric(p))) },
          blau = function(features) {
            (1 - sum((table(features)/length(features))^2)) / most },
          teachman = function(features) {
@@ -663,9 +708,10 @@ net_by_homophily <- function(.data, attribute,
                         blau = "Blau's index",
                         teachman = "Teachman's index",
                         variation = "coefficient of variation",
-                        gini = "Gini coefficient"),
+                        gini = "Gini coefficient",
+                        rao = "Rao-Stirling diversity"),
        range = switch(diversity,
-                      blau = , gini = c(0, 1),
+                      blau = , gini = , rao = c(0, 1),
                       teachman = c(0, Inf),
                       variation = c(-Inf, Inf)),
        # Blau's index without normalisation stays below 1 - 1/k, so it is
@@ -674,6 +720,32 @@ net_by_homophily <- function(.data, attribute,
                               (diversity == "blau" && normalized),
                             "normalized", "none"),
        variant = diversity)
+}
+
+# The distances among the categories of an attribute, ordered as the
+# categories, with zeros on the diagonal. Without a distance, every two
+# categories are 1 apart, which gives Blau's index.
+.rao_distance <- function(distance, attr){
+  cats <- sort(unique(as.character(stats::na.omit(attr))))
+  if(is.null(distance)){
+    manynet::snet_info("No {.arg distance} given, so every two categories",
+                       "are 1 apart, and Rao-Stirling diversity is",
+                       "Blau's index.")
+    dist <- 1 - diag(length(cats))
+    dimnames(dist) <- list(cats, cats)
+    return(dist)
+  }
+  if(!is.matrix(distance)) distance <- manynet::as_matrix(distance)
+  missing <- setdiff(cats, intersect(rownames(distance), colnames(distance)))
+  if(length(missing) > 0)
+    manynet::snet_abort("{.arg distance} must name every category of the",
+                        "attribute in its row and column names,",
+                        "but {.val {missing}} {?is/are} missing.")
+  dist <- distance[cats, cats, drop = FALSE]
+  if(any(is.na(dist)) || any(dist < 0) || any(dist > 1))
+    manynet::snet_abort("{.arg distance} must hold values between 0 and 1.")
+  diag(dist) <- 0
+  dist
 }
 
 # The index asked for, or the one that applies where it cannot apply to the
