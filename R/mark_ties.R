@@ -9,7 +9,9 @@
 #'   - `tie_is_feedback()` marks ties that are feedback arcs causing the network to not be acyclic.
 #'   - `tie_is_bridge()` marks ties that cut or act as articulation points in a network.
 #'   - `tie_is_path()` marks ties on a path from one node to another.
-#'   
+#'   - `tie_is_mainpath()` marks ties on the main path of a directed acyclic
+#'   network, such as a citation network.
+#'
 #'   They are most useful in highlighting parts of the network that
 #'   are particularly well- or poorly-connected.
 #' @template param_data
@@ -102,6 +104,111 @@ tie_is_path <- function(.data, from, to, all_paths = FALSE){
   on <- if(all_paths || length(out) == 0) unique(unlist(out)) else
     as.numeric(out[[sample(length(out),1)]])
   out <- seq_len(igraph::ecount(graph)) %in% keep[on]
+  make_tie_mark(out, .data)
+}
+
+#' @rdname mark_ties
+#' @section Main path:
+#'   `tie_is_mainpath()` marks the main path through a directed acyclic network,
+#'   using the traversal counts of [tie_by_mainpath()].
+#'   Use `filter_ties(.data, tie_is_mainpath())` to keep only the ties of the
+#'   main path, and then [manynet::delete_isolates()] to keep only its nodes.
+#'
+#'   The local main path (Hummon and Doreian 1989) starts at the tie
+#'   with the largest count that leaves a source, a node with no incoming ties.
+#'   From the node at the end of that tie, it follows the outgoing tie with the
+#'   largest count, and so on until it arrives at a sink,
+#'   a node with no outgoing ties.
+#'   Where two or more ties have the same largest count, all of them are kept
+#'   (Liu and Lu 2012), so the main path can branch.
+#'
+#'   The global main path (Liu and Lu 2012) is the path from a source to a sink
+#'   with the largest sum of traversal counts.
+#'   The local main path takes the best tie at each step, and so can miss
+#'   the path that is best overall.
+#'
+#'   For networks with cycles, or undirected networks,
+#'   `tie_is_mainpath()` stops with an error, as [tie_by_mainpath()] does.
+#' @inheritParams measure_central_tie_between
+#' @param global Logical, whether to mark the global main path
+#'   rather than the local main path.
+#'   By default FALSE, the local main path.
+#' @references
+#' ## On main path analysis
+#' Hummon, Norman P., and Patrick Doreian. 1989.
+#' "Connectivity in a citation network: The development of DNA theory".
+#' _Social Networks_ 11(1): 39-63.
+#' \doi{10.1016/0378-8733(89)90017-8}
+#'
+#' Liu, John S., and Louis Y.Y. Lu. 2012.
+#' "An integrated approach for main path analysis:
+#' Development of the Hirsch index as an example".
+#' _Journal of the American Society for Information Science and Technology_
+#' 63(3): 528-542.
+#' \doi{10.1002/asi.21692}
+#' @examples
+#' citations <- create_explicit(A-+C, B-+C, B-+D, C-+E, D-+E, E-+F, D-+F)
+#' tie_is_mainpath(citations)
+#' tie_is_mainpath(citations, global = TRUE)
+#' citations |> filter_ties(tie_is_mainpath()) |> delete_isolates()
+#' @export
+tie_is_mainpath <- function(.data, variant = c("spc", "splc", "spnp"),
+                            global = FALSE){
+  .data <- manynet::expect_ties(.data)
+  variant <- match.arg(variant)
+  if(manynet::is_cognitive(.data))
+    return(.map_css_ties(.data, tie_is_mainpath, variant = variant,
+                         global = global))
+  g <- manynet::as_igraph(.data)
+  counts <- .traversal_counts(g, variant)$ties
+  ties <- igraph::as_edgelist(g, names = FALSE)
+  from <- ties[, 1]
+  to <- ties[, 2]
+  n <- igraph::vcount(g)
+  sources <- which(tabulate(to, n) == 0 & tabulate(from, n) > 0)
+  out <- logical(length(counts))
+  # Ties of equal count are kept together, within a tolerance for the
+  # rounding of large counts.
+  .best <- function(x) abs(x - max(x)) <= 1e-9 * max(1, abs(max(x)))
+  if(!global){
+    leaving <- which(from %in% sources)
+    if(length(leaving) == 0) return(make_tie_mark(out, .data))
+    chosen <- leaving[.best(counts[leaving])]
+    visited <- integer(0)
+    while(length(chosen) > 0){
+      out[chosen] <- TRUE
+      heads <- setdiff(unique(to[chosen]), visited)
+      visited <- c(visited, heads)
+      # Each node on the path follows its own best outgoing tie(s).
+      chosen <- unlist(lapply(heads, function(v){
+        leaving <- which(from == v)
+        if(length(leaving) == 0) return(integer(0))
+        leaving[.best(counts[leaving])]
+      }))
+    }
+  } else {
+    # The best sum of counts from each node to a sink, in reverse
+    # topological order, so each node's successors are done first.
+    ord <- as.integer(igraph::topo_sort(g, mode = "out"))
+    best <- numeric(n)
+    for(v in rev(ord)){
+      leaving <- which(from == v)
+      if(length(leaving) > 0) best[v] <- max(counts[leaving] + best[to[leaving]])
+    }
+    if(length(sources) == 0) return(make_tie_mark(out, .data))
+    starts <- sources[.best(best[sources])]
+    visited <- integer(0)
+    while(length(starts) > 0){
+      visited <- c(visited, starts)
+      chosen <- unlist(lapply(starts, function(v){
+        leaving <- which(from == v)
+        if(length(leaving) == 0) return(integer(0))
+        leaving[.best(counts[leaving] + best[to[leaving]])]
+      }))
+      out[chosen] <- TRUE
+      starts <- setdiff(unique(to[chosen]), visited)
+    }
+  }
   make_tie_mark(out, .data)
 }
 

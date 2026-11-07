@@ -2,6 +2,7 @@
 
 ## Marks
 
+- Added `tie_is_mainpath()` for the local or global main path of an acyclic network
 - Fixed diffusion marks losing the diffusion of `diff_model` objects
   - `node_is_infected()`, `node_is_latent()`, `node_is_recovered()`, `node_is_exposed()`
 
