@@ -201,3 +201,66 @@ test_that("accuracy pools the layers of a multiplex CSS", {
 test_that("accuracy needs a cognitive social structure", {
   expect_error(node_by_accuracy(ison_adolescents), "net_by_divergence")
 })
+
+# Two camps that agree inside and oppose each other between
+polarised <- manynet::create_explicit(A-B, A-C, B-C, D-E, D-F, E-F, A-D, B-E,
+                                      C-F) |>
+  manynet::mutate_ties(sign = c(1, 1, 1, 1, 1, 1, -1, -1, -1))
+camps <- c("x", "x", "x", "y", "y", "y")
+
+test_that("net_by_factions measures the polarisation of a signed network", {
+  expect_equal(as.numeric(net_by_factions(polarised, camps)), 1)
+  # the default split finds the two camps
+  expect_equal(as.numeric(net_by_factions(polarised)), 1)
+  # a partition across the camps fits worse
+  expect_lt(as.numeric(net_by_factions(polarised, rep(c("x", "y"), 3))), 1)
+})
+
+test_that("net_by_factions gives Esteban and Ray's polarisation", {
+  er <- net_by_factions(polarised, camps, variant = "esteban")
+  expect_equal(as.numeric(er), 1)
+  expect_equal(attr(er, "variant"), "esteban")
+  # unequal groups are less polarised than equal ones
+  uneven <- net_by_factions(polarised, c("x", "x", "x", "x", "y", "y"),
+                            variant = "esteban")
+  expect_lt(as.numeric(uneven), 1)
+  expect_gte(as.numeric(uneven), 0)
+  # an unsigned network holds no opposition
+  expect_equal(as.numeric(net_by_factions(manynet::ison_adolescents,
+                                          variant = "esteban")), 0)
+  expect_snet_abort(net_by_factions(polarised, camps, variant = "esteban",
+                                    sensitivity = 2), "between")
+})
+
+test_that("Esteban and Ray's polarisation is never above its maximum", {
+  set.seed(1)
+  g <- manynet::to_signed(manynet::generate_random(20, 0.4))
+  for(i in 1:20){
+    memb <- sample(letters[1:sample(2:6, 1)], 20, replace = TRUE)
+    for(a in c(1, 1.3, 1.6)){
+      er <- as.numeric(net_by_factions(g, memb, "esteban", sensitivity = a))
+      expect_true(er >= 0 && er <= 1)
+    }
+  }
+})
+
+test_that("net_by_factions projects a signed two-mode network", {
+  corr <- net_by_factions(manynet::irps_nuclear)
+  expect_true(as.numeric(corr) > -1 && as.numeric(corr) <= 1)
+  er <- net_by_factions(manynet::irps_nuclear, variant = "esteban")
+  expect_true(as.numeric(er) >= 0 && as.numeric(er) <= 1)
+  # a membership of all the nodes is cut to the first mode
+  memb <- rep(c("x", "y"), length.out = manynet::net_nodes(manynet::irps_nuclear))
+  expect_s3_class(net_by_factions(manynet::irps_nuclear, memb),
+                  "network_measure")
+})
+
+test_that("the signed projection shim gives the signs of manynet's rule", {
+  skip_if_not("signed" %in% eval(formals(manynet::to_mode)$similarity))
+  # the fallback, as it runs with a 'manynet' before 2.5.0
+  fallback <- .to_signed_mode1
+  body(fallback)[[3]] <- quote(NULL)
+  expect_equal(unname(sign(manynet::as_matrix(fallback(manynet::irps_nuclear)))),
+               unname(sign(manynet::as_matrix(
+                 manynet::to_mode(manynet::irps_nuclear, 1, "signed")))))
+})

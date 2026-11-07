@@ -148,6 +148,12 @@ data_objs <- list(directed = generate_random(12, directed = TRUE),
                                              steps = 5, latency = 0.75, 
                                              recovery = 0.25))
 
+# The citation network of Hummon and Doreian's (1989: 50) Figure 3, a small
+# directed acyclic network with one source, 3, and one sink, 22.
+hummon_doreian <- manynet::create_explicit(`3`-+`5`, `3`-+`21`, `5`-+`12`,
+                                           `12`-+`15`, `12`-+`20`, `15`-+`22`,
+                                           `20`-+`21`, `20`-+`22`, `21`-+`22`)
+
 # `net_by_congruency()` needs two two-mode networks that share a mode: the
 # second mode of the first must match the first mode of the second. The
 # sweeping fixture cannot be paired with itself once its modes differ in size.

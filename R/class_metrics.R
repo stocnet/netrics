@@ -174,6 +174,18 @@ check_decay <- function(decay, arg = "decay") {
   decay
 }
 
+# Esteban and Ray's (1994) sensitivity to polarisation. Below 1 the index
+# behaves like an index of inequality, and above 1.6 their axioms fail,
+# so the bound is theirs.
+check_sensitivity <- function(sensitivity) {
+  if(!is.numeric(sensitivity) || length(sensitivity) != 1L ||
+     !is.finite(sensitivity) || sensitivity < 1 || sensitivity > 1.6)
+    manynet::snet_abort("{.arg sensitivity} must be a single number between",
+                        "1 and 1.6, the range in which Esteban and Ray's",
+                        "index measures polarisation.")
+  sensitivity
+}
+
 make_node_measure <- function(out, .data, measure = NULL, range = NULL,
                               normalization = NULL, variant = NULL) {
   if(manynet::is_labelled(.data)) names(out) <- manynet::node_names(.data)

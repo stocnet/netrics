@@ -202,3 +202,35 @@ seq_nodes <- function(.data){
   }
   keep
 }
+
+# The first mode of a signed two-mode network, tied by "agreement" minus
+# "disagreement", as `manynet::to_mode(.data, 1, "signed")` gives it.
+# That rule is new in 'manynet' 2.5.0. Until the minimum is raised past it,
+# the same signs come from the stances directly: with D the summed stances of
+# each node of the first mode on each node of the second, agreement minus
+# disagreement between two nodes is D %*% t(D). Only the signs of the result
+# are used by `net_by_factions()`, so the size of each stance is not read.
+# Delete this shim once the minimum 'manynet' is 2.5.0.
+.to_signed_mode1 <- function(.data){
+  rules <- eval(formals(manynet::to_mode)$similarity)
+  if("signed" %in% rules) return(manynet::to_mode(.data, 1, "signed"))
+  g <- manynet::as_igraph(.data)
+  first <- !igraph::V(g)$type
+  ties <- igraph::as_edgelist(g, names = FALSE)
+  signs <- as.numeric(manynet::tie_signs(.data))
+  # each tie is one statement, so repeated statements all count
+  from <- ifelse(first[ties[, 1]], ties[, 1], ties[, 2])
+  to <- ifelse(first[ties[, 1]], ties[, 2], ties[, 1])
+  rows <- which(first)
+  cols <- which(!first)
+  stance <- matrix(0, length(rows), length(cols))
+  idx <- cbind(match(from, rows), match(to, cols))
+  for(k in seq_len(nrow(idx)))
+    stance[idx[k, 1], idx[k, 2]] <- stance[idx[k, 1], idx[k, 2]] + signs[k]
+  out <- stance %*% t(stance)
+  diag(out) <- 0
+  if(manynet::is_labelled(.data))
+    dimnames(out) <- list(manynet::node_names(.data)[rows],
+                          manynet::node_names(.data)[rows])
+  manynet::as_igraph(out)
+}

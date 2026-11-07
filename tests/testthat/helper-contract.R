@@ -57,6 +57,11 @@ measure_rosters <- list(
   centrality_multiplex = list(
     node_by_multidegree = list(tie1 = "relationship", tie2 = "affiliation")
   ),
+  # Main path analysis needs a directed acyclic network, so it runs against
+  # the citation network of Hummon and Doreian's Figure 3.
+  centrality_tie_dag = list(
+    tie_by_mainpath = list()
+  ),
   centrality_tie = list(
     tie_by_degree      = list(),
     tie_by_closeness   = list(),

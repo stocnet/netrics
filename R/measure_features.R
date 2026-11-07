@@ -470,7 +470,6 @@ NULL
 
 #' @rdname measure_fit
 #' @param mark A logical vector indicating which nodes belong to the core.
-#' @template param_variant
 #' @param method Deprecated. The former spelling of `variant`.
 #'   Still accepted, but warns; please use `variant` instead.
 #' @section Core-periphery fit variants:
@@ -583,14 +582,79 @@ net_by_core <- function(.data,
                        normalization = "none", variant = variant)
 }
 
-#' @rdname measure_fit 
-#' @examples 
+#' @rdname measure_fit
+#' @section Factions:
+#'   `net_by_factions()` measures how far a network is divided into factions.
+#'   By default, with `variant = "correlation"`, it correlates the network
+#'   with an ideal of factions: every tie inside each group, and none between
+#'   the groups.
+#'
+#'   For signed networks, `net_by_factions()` measures polarisation.
+#'   The ideal is then a positive tie between every two nodes in the same
+#'   group, and a negative tie between every two nodes in different groups,
+#'   as in a network of two or more opposed camps.
+#'   The correlation is between the sign of each tie and this ideal.
+#'   A pair of nodes without a tie neither agrees nor opposes,
+#'   so only the pairs with a tie are compared.
+#'   1 means agreement inside every group and opposition between every two
+#'   groups.
+#'   Where no membership is given, a signed network is split into two camps
+#'   by the signs of the leading eigenvector of its signed ties, read as
+#'   undirected.
+#'
+#'   For signed two-mode networks, such as a network of actors and the
+#'   concepts they support or oppose, `net_by_factions()` measures the
+#'   first mode.
+#'   It projects the network with `manynet::to_mode(.data, 1, "signed")`,
+#'   so two actors are tied positively where they agree on more of the
+#'   concepts they share than they disagree on, and negatively otherwise.
+#'   A membership may give the groups of the first mode only, or of all the
+#'   nodes.
+#'   Project the network yourself with [manynet::to_mode()] to use another
+#'   rule.
+#'
+#'   With `variant = "esteban"`, `net_by_factions()` instead returns the
+#'   polarisation index of Esteban and Ray (1994):
+#'   \deqn{P = \sum_g \sum_h \pi_g^{1 + \alpha} \pi_h d_{gh}}
+#'   where \eqn{\pi_g} is the share of the nodes in group \eqn{g},
+#'   \eqn{d_{gh}} is the distance between groups \eqn{g} and \eqn{h},
+#'   and \eqn{\alpha} is the `sensitivity`.
+#'   The distance is \eqn{(1 - s_{gh})/2}, where \eqn{s_{gh}} is the mean
+#'   sign of the ties between the two groups, so it is 0 where all those ties
+#'   are positive and 1 where all are negative.
+#'   Pairs of groups with no ties between them are left out.
+#'   Unlike the correlation, this index gives weight to the size of the groups:
+#'   two large opposed groups are more polarised than one large group and
+#'   a small group that opposes it.
+#'   The index is divided by its maximum, \eqn{(1/2)^{1+\alpha}},
+#'   that of two groups of equal size at the largest distance,
+#'   so it runs from 0 to 1.
+#'   For unsigned networks, every tie is positive, so the index is 0.
+#' @param variant For `net_by_core()`, see the section on core-periphery fit
+#'   variants. For `net_by_factions()`, "correlation" (the default)
+#'   correlates the network with an ideal of factions, and "esteban" returns
+#'   Esteban and Ray's index of polarisation. See the section on factions.
+#' @param sensitivity For `net_by_factions(variant = "esteban")`,
+#'   Esteban and Ray's \eqn{\alpha}: how much the index rewards large groups.
+#'   A number between 1, the default, and 1.6.
+#' @references
+#' ## On polarisation
+#' Esteban, Joan-Maria, and Debraj Ray. 1994.
+#' "On the measurement of polarization".
+#' _Econometrica_ 62(4): 819-851.
+#' \doi{10.2307/2951734}
+#' @examples
 #'   net_by_factions(ison_southern_women)
+#'   net_by_factions(irps_nuclear)
+#'   net_by_factions(irps_nuclear, variant = "esteban")
 #' @export
 net_by_factions <- function(.data,
-                            membership = NULL){
+                            membership = NULL,
+                            variant = c("correlation", "esteban"),
+                            sensitivity = 1){
   .data <- manynet::expect_nodes(.data)
   .data <- .to_aggregated_css(.data)
+  variant <- match.arg(variant)
   # `manynet::create_components()` builds one layer; see `net_by_core()`
   if(manynet::is_multilevel(.data))
     manynet::snet_abort("{.fn net_by_factions} fits the network to a",
@@ -598,17 +662,105 @@ net_by_factions <- function(.data,
                         "two. Take one layer first, e.g. with",
                         "{.fn to_mode1} or {.fn to_uniplex}.")
   membership <- .resolve_membership(.data, membership)
-  if(is.null(membership)){
-    manynet::snet_info("No membership vector assigned.",
-                       "Partitioning the network using {.fn node_in_partition}.")
-    membership <- node_in_partition(.data)
+  signed <- manynet::is_signed(.data)
+  if(signed && manynet::is_twomode(.data)){
+    manynet::snet_info("Measuring the first mode, projected with",
+                       "{.code to_mode(.data, 1, \"signed\")}.")
+    # A membership of all the nodes is cut to the first mode's.
+    first <- manynet::net_dims(.data)[1]
+    if(!is.null(membership) && length(membership) == manynet::net_nodes(.data))
+      membership <- membership[seq_len(first)]
+    .data <- .to_signed_mode1(.data)
   }
-  out <- stats::cor(c(manynet::as_matrix(.data)), 
-                    c(manynet::as_matrix(manynet::create_components(.data,
-                                                                    membership = membership))))
+  if(is.null(membership)){
+    if(signed){
+      manynet::snet_info("No membership vector assigned.",
+                         "Splitting the network into two camps by the",
+                         "leading eigenvector of its signed ties.")
+      membership <- .signed_camps(.data)
+    } else {
+      manynet::snet_info("No membership vector assigned.",
+                         "Partitioning the network using {.fn node_in_partition}.")
+      membership <- node_in_partition(.data)
+    }
+  }
+  if(length(membership) != manynet::net_nodes(.data))
+    manynet::snet_abort("{.arg membership} must give one group for each node,",
+                        "{manynet::net_nodes(.data)} in all.")
+  if(variant == "esteban"){
+    sensitivity <- check_sensitivity(sensitivity)
+    out <- .esteban_ray(.data, membership, sensitivity, signed)
+    return(make_network_measure(out, .data, call = deparse(sys.call()),
+                                measure = "Esteban-Ray polarisation",
+                                range = c(0, 1), normalization = "normalized",
+                                variant = variant))
+  }
+  if(signed){
+    obs <- sign(manynet::as_matrix(.data))
+    groups <- as.character(membership)
+    ideal <- ifelse(outer(groups, groups, "=="), 1, -1)
+    # A pair without a tie neither agrees nor opposes, so only the pairs
+    # with a tie are compared.
+    off <- row(obs) != col(obs) & obs != 0
+    out <- stats::cor(obs[off], ideal[off])
+  } else {
+    out <- stats::cor(c(manynet::as_matrix(.data)),
+                      c(manynet::as_matrix(manynet::create_components(.data,
+                                                                      membership = membership))))
+  }
   make_network_measure(out, .data, call = deparse(sys.call()),
                        measure = "factional correlation", range = c(-1, 1),
-                       normalization = "none")
+                       normalization = "none", variant = variant)
+}
+
+# Two camps by the sign of the leading eigenvector of the signed ties, read
+# as undirected. Unlike `node_in_spinglass()`, this needs no connected
+# network: a node with no ties takes the first camp.
+.signed_camps <- function(.data){
+  mat <- sign(manynet::as_matrix(.data))
+  mat <- (mat + t(mat)) / 2
+  diag(mat) <- 0
+  lead <- eigen(mat, symmetric = TRUE)$vectors[, 1]
+  ifelse(lead >= 0, "A", "B")
+}
+
+# Esteban and Ray's (1994) index of polarisation, with the distance between
+# two groups read from the signs of the ties between them, and divided by its
+# maximum, that of two equal groups at distance 1.
+.esteban_ray <- function(.data, membership, sensitivity, signed){
+  groups <- as.character(membership)
+  shares <- table(groups) / length(groups)
+  if(!signed){
+    manynet::snet_info("Every tie in an unsigned network is positive,",
+                       "so no two groups are apart.")
+    return(0)
+  }
+  ties <- manynet::as_edgelist(manynet::to_unnamed(.data))
+  signs <- as.numeric(manynet::tie_signs(.data))
+  from <- groups[ties$from]
+  to <- groups[ties$to]
+  between <- from != to
+  if(!any(between)){
+    manynet::snet_info("No ties run between the groups,",
+                       "so no two groups are apart.")
+    return(0)
+  }
+  # A pair of groups is read the same in either direction.
+  pair <- ifelse(from < to, paste(from, to, sep = "\r"),
+                 paste(to, from, sep = "\r"))[between]
+  distance <- (1 - tapply(signs[between], pair, mean)) / 2
+  ends <- strsplit(names(distance), "\r", fixed = TRUE)
+  g <- vapply(ends, `[`, character(1), 1)
+  h <- vapply(ends, `[`, character(1), 2)
+  apart <- sum(choose(length(shares), 2))
+  if(length(distance) < apart)
+    manynet::snet_info("{apart - length(distance)} pair{?s} of groups",
+                       "{?has/have} no ties between {?it/them}, and {?is/are}",
+                       "left out.")
+  # Each unordered pair enters the sum twice, once from each side.
+  out <- sum((shares[g]^(1 + sensitivity) * shares[h] +
+                shares[h]^(1 + sensitivity) * shares[g]) * distance)
+  as.numeric(out / (1/2)^(1 + sensitivity))
 }
 
 #' @rdname measure_fit
