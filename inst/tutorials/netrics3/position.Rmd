@@ -1007,7 +1007,7 @@ as.matrix((node_x_tie(ison_algebra)>0)+0)
 # A tidier way: simplify the network first by dropping the tie-type distinction,
 # then take the census.
 ison_algebra %>%
-  select_ties(-type) %>%
+  select_ties(-layer) %>%
   node_x_tie()
 ```
 
@@ -1015,7 +1015,7 @@ ison_algebra %>%
 # But it's easier to simplify the network by removing the classification into different types of ties.
 # Note that this also reduces the total number of possible paths between nodes
 ison_algebra %>%
-  select_ties(-type) %>%
+  select_ties(-layer) %>%
   node_x_tie()
 ```
 

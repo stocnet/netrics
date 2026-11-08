@@ -47,7 +47,7 @@ learnr::random_phrases_add(language = "en",
                                       "Well done!",
                                       "Awesome!"),
                            encouragement = c("Good effort"))
-ison_brandes2 <- ison_brandes %>% rename_nodes(type = twomode_type)
+ison_brandes2 <- ison_brandes %>% rename_nodes(mode = twomode_type)
 ```
 
 
@@ -140,7 +140,7 @@ This dataset is in a 'tidygraph' format,
 but `manynet` makes it easy to coerce this into other forms
 to be compatible with other packages.
 We can create a `r gloss("two-mode","twomode")` version of the dataset
-by renaming the nodal attribute "twomode_type" to just "type".
+by renaming the nodal attribute "twomode_type" to "mode".
 Let's begin by graphing these datasets using `graphr()`.
 
 

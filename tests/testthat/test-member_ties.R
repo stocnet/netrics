@@ -32,8 +32,8 @@ test_that("tie_in_community keeps a place for every tie", {
   res <- tie_in_community(directed)
   expect_length(res, c(manynet::net_ties(directed)))
   expect_match(names(res)[1], "->")
-  ends <- igraph::ends(manynet::as_igraph(directed),
-                       igraph::E(manynet::as_igraph(directed)), names = FALSE)
+  directed_ig <- manynet::as_igraph(directed)
+  ends <- igraph::ends(directed_ig, igraph::E(directed_ig), names = FALSE)
   keys <- paste(pmin(ends[,1], ends[,2]), pmax(ends[,1], ends[,2]))
   # ties between the same two nodes share a community
   expect_true(all(tapply(unclass(res), keys,
