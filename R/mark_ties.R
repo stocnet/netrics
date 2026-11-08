@@ -48,7 +48,7 @@ tie_is_feedback <- function(.data){
 #' @rdname mark_ties
 #' @importFrom igraph decompose delete_edges
 #' @examples 
-#' tie_is_bridge(ison_brandes)
+#' tie_is_bridge(ison_centrality)
 #' @export
 tie_is_bridge <- function(.data){
   .data <- manynet::expect_ties(.data)  
@@ -544,7 +544,7 @@ tie_is_random <- function(.data, select = 1){
 #' @param tie_measure An object created by a `tie_` measure,
 #'   or a plain numeric vector holding one value per tie.
 #' @examples 
-#' tie_is_max(tie_by_betweenness(ison_brandes))
+#' tie_is_max(tie_by_betweenness(ison_centrality))
 #' @export
 tie_is_max <- function(tie_measure){
   tie_measure <- .check_tie_measure(tie_measure, "tie_is_max")
@@ -555,7 +555,7 @@ tie_is_max <- function(tie_measure){
 
 #' @rdname mark_select_tie
 #' @examples 
-#' tie_is_min(tie_by_betweenness(ison_brandes))
+#' tie_is_min(tie_by_betweenness(ison_centrality))
 #' @export
 tie_is_min <- function(tie_measure){
   tie_measure <- .check_tie_measure(tie_measure, "tie_is_min")

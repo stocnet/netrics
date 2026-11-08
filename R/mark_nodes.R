@@ -80,7 +80,7 @@ node_is_independent <- function(.data){
 #' _SIAM Journal on Computing_ 14(4): 862-874.
 #' \doi{10.1137/0214061}
 #' @examples 
-#' node_is_cutpoint(ison_brandes)
+#' node_is_cutpoint(ison_centrality)
 #' @export
 node_is_cutpoint <- function(.data){
   .data <- manynet::expect_nodes(.data)
@@ -225,7 +225,7 @@ NULL
 
 #' @rdname mark_degree
 #' @examples 
-#' node_is_isolate(ison_brandes)
+#' node_is_isolate(ison_centrality)
 #' @export
 node_is_isolate <- function(.data){
   .data <- manynet::expect_nodes(.data)
@@ -484,7 +484,7 @@ NULL
 #' @rdname mark_select_node
 #' @template param_select
 #' @examples 
-#' node_is_random(ison_brandes, 2)
+#' node_is_random(ison_centrality, 2)
 #' @export
 node_is_random <- function(.data, select = 1){
   .data <- manynet::expect_nodes(.data)
@@ -502,7 +502,7 @@ node_is_random <- function(.data, select = 1){
 #'   three scores.
 #'   By default, `ranks = 1`.
 #' @examples 
-#' node_is_max(node_by_degree(ison_brandes))
+#' node_is_max(node_by_degree(ison_centrality))
 #' @export
 node_is_max <- function(node_measure, ranks = 1){
   if(!inherits(node_measure, "node_measure"))
@@ -528,7 +528,7 @@ node_is_max <- function(node_measure, ranks = 1){
 
 #' @rdname mark_select_node
 #' @examples 
-#' node_is_min(node_by_degree(ison_brandes))
+#' node_is_min(node_by_degree(ison_centrality))
 #' @export
 node_is_min <- function(node_measure, ranks = 1){
   if(!inherits(node_measure, "node_measure"))
@@ -554,7 +554,7 @@ node_is_min <- function(node_measure, ranks = 1){
 
 #' @rdname mark_select_node
 #' @examples 
-#' node_is_mean(node_by_degree(ison_brandes))
+#' node_is_mean(node_by_degree(ison_centrality))
 #' @export
 node_is_mean <- function(node_measure, ranks = 1){
   if(!inherits(node_measure, "node_measure"))

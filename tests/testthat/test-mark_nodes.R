@@ -33,9 +33,9 @@ test_that("node_is_cutpoint", {
 
 test_that("node_is_isolate", {
   f <- node_is_isolate
-  test <- f(ison_brandes)
+  test <- f(ison_centrality)
   test_that("returns correct values", {
-    expect_equal(length(test), c(net_nodes(ison_brandes)))
+    expect_equal(length(test), c(net_nodes(ison_centrality)))
   })
   test_that("returns correct type", {
     expect_s3_class(test, "logical")
@@ -54,23 +54,23 @@ test_that("node_is_neighbor works", {
 test_that("node_is_max works", {
   # skip_on_cran()
   # skip_on_ci()
-  expect_equal(length(node_is_max(node_by_betweenness(ison_brandes))),
-               c(net_nodes(ison_brandes)))
-  expect_equal(sum(node_is_max(node_by_betweenness(ison_brandes)) == TRUE), 1)
-  expect_s3_class(node_is_max(node_by_betweenness(ison_brandes)), "logical")
+  expect_equal(length(node_is_max(node_by_betweenness(ison_centrality))),
+               c(net_nodes(ison_centrality)))
+  expect_equal(sum(node_is_max(node_by_betweenness(ison_centrality)) == TRUE), 1)
+  expect_s3_class(node_is_max(node_by_betweenness(ison_centrality)), "logical")
 })
 
 test_that("node_is_min works", {
   # skip_on_cran()
   # skip_on_ci()
-  expect_equal(length(node_is_min(node_by_betweenness(ison_brandes))),
-               c(net_nodes(ison_brandes)))
-  expect_equal(sum(node_is_min(node_by_betweenness(ison_brandes)) == TRUE), 4)
-  expect_s3_class(node_is_min(node_by_betweenness(ison_brandes)), "logical")
+  expect_equal(length(node_is_min(node_by_betweenness(ison_centrality))),
+               c(net_nodes(ison_centrality)))
+  expect_equal(sum(node_is_min(node_by_betweenness(ison_centrality)) == TRUE), 4)
+  expect_s3_class(node_is_min(node_by_betweenness(ison_centrality)), "logical")
 })
 
 test_that("node_is_mean works", {
-  expect_s3_class(node_is_mean(node_by_betweenness(ison_brandes)), "logical")
+  expect_s3_class(node_is_mean(node_by_betweenness(ison_centrality)), "logical")
 })
 
 test_that("additional node mark functions work", {

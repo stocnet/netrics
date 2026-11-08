@@ -51,7 +51,7 @@ learnr::random_phrases_add(language = "en",
                                       "Well done!",
                                       "Awesome!"),
                            encouragement = c("Good effort"))
-ison_brandes2 <- ison_brandes %>% rename_nodes(mode = twomode_type)
+ison_centrality2 <- ison_centrality %>% rename_nodes(mode = twomode_type)
 ```
 
 ```{r detect-language, context="server-start", purl=FALSE}
@@ -130,7 +130,7 @@ By the end of this tutorial, you should be able to:
 - [ ] &nbsp; Read a measure's `r gloss("distribution")` with `plot()`, and see how its shape drives a network's `r gloss("centralisation","centralization")`, computed with `net_by_*()`
 - [ ] &nbsp; Know when scores are normalised, and how to obtain the raw scores
 
-**Choose your own data**: The worked examples below use `ison_brandes`,
+**Choose your own data**: The worked examples below use `ison_centrality`,
 a small, tidy teaching network bundled with `{manynet}`.
 But wherever there is an exercise box, you are encouraged to swap in
 a network that interests _you_.
@@ -142,7 +142,7 @@ and that you can browse the full list with `table_data()`.
 
 ### Setting up {#setting-up}
 
-For this exercise, we'll use the `ison_brandes` dataset in `{manynet}`.
+For this exercise, we'll use the `ison_centrality` dataset in `{manynet}`.
 This dataset is in a 'tidygraph' format,
 but `manynet` makes it easy to coerce this into other forms
 to be compatible with other packages.
@@ -160,17 +160,17 @@ graphr(____)
 ```
 
 ```{r coercion-hint-2, purl = FALSE}
-# Now, let's create a two-mode version 'ison_brandes2' and graph it.
-ison_brandes2 <- ison_brandes |> rename_nodes(mode = twomode_type)
+# Now, let's create a two-mode version 'ison_centrality2' and graph it.
+ison_centrality2 <- ison_centrality |> rename_nodes(mode = twomode_type)
 graphr(____)
 ```
 
 ```{r coercion-solution}
 # plot the one-mode version
-graphr(ison_brandes)
-ison_brandes2 <- ison_brandes |> rename_nodes(mode = twomode_type)
+graphr(ison_centrality)
+ison_centrality2 <- ison_centrality |> rename_nodes(mode = twomode_type)
 # plot the two-mode version
-graphr(ison_brandes2, layout = "bipartite")
+graphr(ison_centrality2, layout = "bipartite")
 ```
 
 The network is anonymous, but I think it would be nice to add some names,
@@ -179,18 +179,18 @@ Luckily, `{manynet}` has a function for this: `to_named()`.
 This makes plotting the network just a wee bit more accessible and interpretable:
 
 ```{r addingnames, exercise = TRUE, purl = FALSE}
-ison_brandes <- to_named(ison_brandes)
+ison_centrality <- to_named(ison_centrality)
 ```
 
 ```{r addingnames-hint-1, purl = FALSE}
-# Now, let's graph using the object names: "ison_brandes"
+# Now, let's graph using the object names: "ison_centrality"
 graphr(____)
 ```
 
 ```{r addingnames-solution}
-ison_brandes <- to_named(ison_brandes)
+ison_centrality <- to_named(ison_centrality)
 # plot network with names
-graphr(ison_brandes)
+graphr(ison_centrality)
 ```
 
 Note that you will likely get a different set of names (though still alphabetical),
@@ -216,27 +216,27 @@ Just sum the rows or columns of the matrix!
 
 ```{r degreesum-hint-1, purl = FALSE}
 # We can calculate degree centrality like this:
-(mat <- as_matrix(ison_brandes))
+(mat <- as_matrix(ison_centrality))
 (degrees <- rowSums(mat))
 rowSums(mat) == colSums(mat)
 ```
 
 ```{r degreesum-hint-2, purl = FALSE}
 # Or by using a built in command in netrics like this:
-node_by_degree(ison_brandes, normalized = FALSE)
+node_by_degree(ison_centrality, normalized = FALSE)
 # node_by_deg() is a shortcut for exactly this unnormalised version:
-node_by_deg(ison_brandes)
+node_by_deg(ison_centrality)
 ```
 
 ```{r degreesum-solution}
 # manually calculate degree centrality
-mat <- as_matrix(ison_brandes)
+mat <- as_matrix(ison_centrality)
 degrees <- rowSums(mat)
 rowSums(mat) == colSums(mat)
 # You can also just use a built in command in netrics though:
-node_by_degree(ison_brandes, normalized = FALSE)
+node_by_degree(ison_centrality, normalized = FALSE)
 # node_by_deg() is a shortcut for exactly this unnormalised version:
-node_by_deg(ison_brandes)
+node_by_deg(ison_centrality)
 ```
 
 ```{r degreesum-Q, echo=FALSE, purl = FALSE}
@@ -285,7 +285,7 @@ which is an alias for the unnormalised version.
 
 ### Degrees of direction {#degrees-of-direction}
 
-So far each node has had a single degree, because `ison_brandes` is
+So far each node has had a single degree, because `ison_centrality` is
 `r gloss("undirected")`. In a `r gloss("directed")` network, ties are sent
 _from_ one node _to_ another, so every node has two degrees:
 an _in-degree_ (ties received) and an _out-degree_ (ties sent).
@@ -293,17 +293,17 @@ These can tell quite different stories:
 in an advice network, for example, a high in-degree suggests a sought-after
 source of advice, while a high out-degree marks an eager asker.
 
-`ison_brandes` has no natural direction, but `{manynet}`'s `to_directed()`
+`ison_centrality` has no natural direction, but `{manynet}`'s `to_directed()`
 will assign a random direction to each tie —
 just as `to_named()` assigned random names —
 which is all we need for a worked comparison.
 **Run the code, and check whether the row and column sums still agree.**
 
 ```{r directing, exercise = TRUE, exercise.setup = "addingnames"}
-ison_brandes_dir <- to_directed(ison_brandes)
-node_by_indegree(ison_brandes_dir, normalized = FALSE)
-node_by_outdegree(ison_brandes_dir, normalized = FALSE)
-mat <- as_matrix(ison_brandes_dir)
+ison_centrality_dir <- to_directed(ison_centrality)
+node_by_indegree(ison_centrality_dir, normalized = FALSE)
+node_by_outdegree(ison_centrality_dir, normalized = FALSE)
+mat <- as_matrix(ison_centrality_dir)
 rowSums(mat) == colSums(mat)
 ```
 
@@ -334,9 +334,9 @@ and values in between mix the two.
 **Compare the two extremes.**
 
 ```{r weighting, exercise = TRUE, exercise.setup = "addingnames"}
-ison_brandes_wtd <- to_weighted(ison_brandes)
-node_by_deg(ison_brandes_wtd)             # alpha = 0: count ties
-node_by_deg(ison_brandes_wtd, alpha = 1)  # alpha = 1: sum tie weights
+ison_centrality_wtd <- to_weighted(ison_centrality)
+node_by_deg(ison_centrality_wtd)             # alpha = 0: count ties
+node_by_deg(ison_centrality_wtd, alpha = 1)  # alpha = 1: sum tie weights
 ```
 
 Note that on a weighted network, `node_by_degree()` itself defaults to
@@ -385,7 +385,7 @@ shortest paths (`r gloss("geodesics","geodesic")`) between other pairs of nodes.
 A node with high betweenness sits at a crossroads: whatever passes between
 otherwise-distant parts of the network has to go through it, giving it the
 _opportunity_ to broker, filter, or bottleneck that flow.
-**Calculate the betweenness centralities for `ison_brandes`.**
+**Calculate the betweenness centralities for `ison_centrality`.**
 
 ```{r betcalc, exercise = TRUE, exercise.setup = "addingnames", purl = FALSE}
 
@@ -398,7 +398,7 @@ node_by_betweenness(____)
 ```
 
 ```{r betcalc-solution}
-node_by_betweenness(ison_brandes)
+node_by_betweenness(ison_centrality)
 ```
 
 ```{r betinterpQ, purl = FALSE}
@@ -427,8 +427,8 @@ indeed this score is the basis of a famous community-detection algorithm
 **Map tie betweenness onto tie width to see the network's main thoroughfares.**
 
 ```{r tiebet, exercise = TRUE, exercise.setup = "addingnames"}
-ison_brandes %>%
-  mutate_ties(bridgeness = tie_by_betweenness(ison_brandes)) %>%
+ison_centrality %>%
+  mutate_ties(bridgeness = tie_by_betweenness(ison_centrality)) %>%
   graphr(edge_size = "bridgeness")
 ```
 
@@ -456,8 +456,8 @@ an older, "rawer" cousin of betweenness.
 **Compare classic and induced betweenness — do they agree here?**
 
 ```{r induced, exercise = TRUE, exercise.setup = "addingnames"}
-node_by_betweenness(ison_brandes, normalized = FALSE)
-node_by_induced(ison_brandes, normalized = FALSE)
+node_by_betweenness(ison_centrality, normalized = FALSE)
+node_by_induced(ison_centrality, normalized = FALSE)
 ```
 
 For this network the rankings broadly agree, but on networks with more
@@ -494,7 +494,7 @@ given range.
 _all_ other nodes — the smaller the total `r gloss("geodesic")` distance, the
 higher the closeness. A node with high closeness can reach the rest of the
 network in few steps, so it is well placed to spread (or hear) something quickly.
-**Calculate the closeness centralities for `ison_brandes`.**
+**Calculate the closeness centralities for `ison_centrality`.**
 
 ```{r closecalc, exercise = TRUE, exercise.setup = "addingnames", purl = FALSE}
 
@@ -507,7 +507,7 @@ node_by_closeness(____)
 ```
 
 ```{r closecalc-solution}
-node_by_closeness(ison_brandes)
+node_by_closeness(ison_centrality)
 ```
 
 ```{r closeinterpQ, purl = FALSE}
@@ -540,8 +540,8 @@ from (or to) a given node — the network equivalent of dropping a pin on a map.
 **Try both: how far does the first-named node's reach extend?**
 
 ```{r reach, exercise = TRUE, exercise.setup = "addingnames"}
-node_by_reach(ison_brandes)
-node_by_distance(ison_brandes, from = node_names(ison_brandes)[1])
+node_by_reach(ison_centrality)
+node_by_distance(ison_centrality, from = node_names(ison_centrality)[1])
 ```
 
 Note that `node_by_reach()` takes a `cutoff` argument to change the number of
@@ -597,7 +597,7 @@ central its neighbours are: you are important if you are connected to important
 others. It captures influence rather than mere activity — a node with only a
 few ties, but to very well-connected nodes, can outscore a node with many ties
 to peripheral ones.
-**Calculate the eigenvector centralities for `ison_brandes`.**
+**Calculate the eigenvector centralities for `ison_centrality`.**
 
 ```{r eigencalc, exercise = TRUE, exercise.setup = "addingnames", purl = FALSE}
 
@@ -610,7 +610,7 @@ node_by_eigenvector(____)
 ```
 
 ```{r eigencalc-solution}
-node_by_eigenvector(ison_brandes)
+node_by_eigenvector(ison_centrality)
 ```
 
 ```{r eiginterpQ, purl = FALSE}
@@ -650,8 +650,8 @@ while a negative one rewards _dependent_, poorly-connected neighbours (power).
 **Compare the two.**
 
 ```{r power, exercise = TRUE, exercise.setup = "addingnames"}
-node_by_power(ison_brandes, exponent = 1)
-node_by_power(ison_brandes, exponent = -1)
+node_by_power(ison_centrality, exponent = 1)
+node_by_power(ison_centrality, exponent = -1)
 ```
 
 Try to answer the following questions for yourself:
@@ -682,10 +682,10 @@ see `?measure_central_eigen` for details on the whole family.
 **Try these on a directed version of our network.**
 
 ```{r pagerank, exercise = TRUE, exercise.setup = "addingnames"}
-ison_brandes_dir <- to_directed(ison_brandes)
-node_by_pagerank(ison_brandes_dir)
-node_by_hub(ison_brandes_dir)
-node_by_authority(ison_brandes_dir)
+ison_centrality_dir <- to_directed(ison_centrality)
+node_by_pagerank(ison_centrality_dir)
+node_by_hub(ison_centrality_dir)
+node_by_authority(ison_centrality_dir)
 ```
 
 Since the directions are again assigned at random,
@@ -835,19 +835,19 @@ we can highlight which node or nodes hold the maximum score in a different colou
 
 ```{r ggid-solution}
 # plot the network, highlighting the node with the highest centrality score with a different color
-ison_brandes %>%
+ison_centrality %>%
   mutate_nodes(color = node_is_max(node_by_degree())) %>%
   graphr(node_color = "color")
 
-ison_brandes %>%
+ison_centrality %>%
   mutate_nodes(color = node_is_max(node_by_betweenness())) %>%
   graphr(node_color = "color")
 
-ison_brandes %>%
+ison_centrality %>%
   mutate_nodes(color = node_is_max(node_by_closeness())) %>%
   graphr(node_color = "color")
 
-ison_brandes %>%
+ison_centrality %>%
   mutate_nodes(color = node_is_max(node_by_eigenvector())) %>%
   graphr(node_color = "color")
 ```
@@ -862,25 +862,25 @@ Try it with the two-mode version.
 What can you see?
 
 ```{r ggid_twomode, exercise = TRUE, purl = FALSE}
-# Instead of "ison_brandes", use "ison_brandes2"
+# Instead of "ison_centrality", use "ison_centrality2"
 
 ```
 
 ```{r ggid_twomode-solution}
-ison_brandes2 %>%
-  add_node_attribute("color", node_is_max(node_by_degree(ison_brandes2))) %>%
+ison_centrality2 %>%
+  add_node_attribute("color", node_is_max(node_by_degree(ison_centrality2))) %>%
   graphr(node_color = "color", layout = "bipartite")
 
-ison_brandes2 %>%
-  add_node_attribute("color", node_is_max(node_by_betweenness(ison_brandes2))) %>%
+ison_centrality2 %>%
+  add_node_attribute("color", node_is_max(node_by_betweenness(ison_centrality2))) %>%
   graphr(node_color = "color", layout = "bipartite")
 
-ison_brandes2 %>%
-  add_node_attribute("color", node_is_max(node_by_closeness(ison_brandes2))) %>%
+ison_centrality2 %>%
+  add_node_attribute("color", node_is_max(node_by_closeness(ison_centrality2))) %>%
   graphr(node_color = "color", layout = "bipartite")
 
-ison_brandes2 %>%
-  add_node_attribute("color", node_is_max(node_by_eigenvector(ison_brandes2))) %>%
+ison_centrality2 %>%
+  add_node_attribute("color", node_is_max(node_by_eigenvector(ison_centrality2))) %>%
   graphr(node_color = "color", layout = "bipartite")
 ```
 
@@ -923,7 +923,7 @@ Rather than reduce a measure to a single summary number,
 we can look at its whole `r gloss("distribution")` across the nodes.
 `{autograph}` offers a way to get a pretty good first look at this,
 though there are more elaborate ways to do this in base and grid graphics.
-**Plot the degree distribution of `ison_brandes`.**
+**Plot the degree distribution of `ison_centrality`.**
 
 ```{r distrib, exercise = TRUE, exercise.setup = "addingnames", purl = FALSE}
 
@@ -931,7 +931,7 @@ though there are more elaborate ways to do this in base and grid graphics.
 
 ```{r distrib-solution}
 # distribution of degree centrality scores of nodes
-plot(node_by_degree(ison_brandes))
+plot(node_by_degree(ison_centrality))
 ```
 
 What's plotted here by default is both the degree distribution as a histogram,
@@ -977,9 +977,9 @@ The same works for _any_ node measure, not just degree.
 ```
 
 ```{r otherdist-solution}
-plot(node_by_betweenness(ison_brandes))
-plot(node_by_closeness(ison_brandes))
-plot(node_by_eigenvector(ison_brandes))
+plot(node_by_betweenness(ison_centrality))
+plot(node_by_closeness(ison_centrality))
+plot(node_by_eigenvector(ison_centrality))
 ```
 
 ### From distribution to centralisation {#from-distribution-to-centralisation}
@@ -1012,7 +1012,7 @@ The random network's degrees pile up in a bell, and its degree centralisation
 is low — no node is far above the crowd.
 The scale-free network's degrees trail off into a long tail, and its
 centralisation is several times higher — a few hubs carry the network.
-Our `ison_brandes` example sits somewhere between these two extremes.
+Our `ison_centrality` example sits somewhere between these two extremes.
 
 ```{r shapecentQ, purl = FALSE}
 question("A network's degree distribution is a symmetric bell around its average. What can you say about its degree centralisation?",
@@ -1047,10 +1047,10 @@ so the syntax replaces `node_` with `net_`:
 ```
 
 ```{r centzn-solution}
-net_by_degree(ison_brandes)
-net_by_betweenness(ison_brandes)
-net_by_closeness(ison_brandes)
-print(net_by_eigenvector(ison_brandes), digits = 5)
+net_by_degree(ison_centrality)
+net_by_betweenness(ison_centrality)
+net_by_closeness(ison_centrality)
+print(net_by_eigenvector(ison_centrality), digits = 5)
 ```
 
 By default, scores are printed up to 3 decimal places,
@@ -1078,25 +1078,25 @@ and `ggtitle()` to record each measure's centralisation score as a subtitle.
 ```
 
 ```{r multiplot-solution}
-ison_brandes <- ison_brandes |>
-  add_node_attribute("degree", node_is_max(node_by_degree(ison_brandes)))  |>
-  add_node_attribute("betweenness", node_is_max(node_by_betweenness(ison_brandes))) |>
-  add_node_attribute("closeness", node_is_max(node_by_closeness(ison_brandes)))  |>
-  add_node_attribute("eigenvector", node_is_max(node_by_eigenvector(ison_brandes)))
-gd <- graphr(ison_brandes, node_color = "degree") +
-  ggtitle("Degree", subtitle = round(net_by_degree(ison_brandes), 2))
-gc <- graphr(ison_brandes, node_color = "closeness") +
-  ggtitle("Closeness", subtitle = round(net_by_closeness(ison_brandes), 2))
-gb <- graphr(ison_brandes, node_color = "betweenness") +
-  ggtitle("Betweenness", subtitle = round(net_by_betweenness(ison_brandes), 2))
-ge <- graphr(ison_brandes, node_color = "eigenvector") +
-  ggtitle("Eigenvector", subtitle = round(net_by_eigenvector(ison_brandes), 2))
+ison_centrality <- ison_centrality |>
+  add_node_attribute("degree", node_is_max(node_by_degree(ison_centrality)))  |>
+  add_node_attribute("betweenness", node_is_max(node_by_betweenness(ison_centrality))) |>
+  add_node_attribute("closeness", node_is_max(node_by_closeness(ison_centrality)))  |>
+  add_node_attribute("eigenvector", node_is_max(node_by_eigenvector(ison_centrality)))
+gd <- graphr(ison_centrality, node_color = "degree") +
+  ggtitle("Degree", subtitle = round(net_by_degree(ison_centrality), 2))
+gc <- graphr(ison_centrality, node_color = "closeness") +
+  ggtitle("Closeness", subtitle = round(net_by_closeness(ison_centrality), 2))
+gb <- graphr(ison_centrality, node_color = "betweenness") +
+  ggtitle("Betweenness", subtitle = round(net_by_betweenness(ison_centrality), 2))
+ge <- graphr(ison_centrality, node_color = "eigenvector") +
+  ggtitle("Eigenvector", subtitle = round(net_by_eigenvector(ison_centrality), 2))
 (gd | gb) / (gc | ge)
 # ggsave("brandes-centralities.pdf")
 ```
 
 ```{r centzdq, purl = FALSE}
-question("How centralized is the ison_brandes network? Select all that apply.",
+question("How centralized is the ison_centrality network? Select all that apply.",
          answer("It is more degree centralised than betweenness centralised.",
                 message = "Degree centralisation is at 0.18 for this network whereas betweenness centralisation is at 0.32. In other words, the network is better characterised as having 1 or 2 nodes lying on the shortest paths between others than one where 1 or 2 nodes have many more ties than the others."),
          answer("It is more closeness centralised than betweenness centralised.",

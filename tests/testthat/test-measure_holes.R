@@ -1,14 +1,14 @@
 test_that("redundancy is reported correctly", {
-  expect_equal(as.numeric(length(node_by_redundancy(ison_brandes))),
-               as.numeric(net_nodes(ison_brandes)))
+  expect_equal(as.numeric(length(node_by_redundancy(ison_centrality))),
+               as.numeric(net_nodes(ison_centrality)))
   expect_equal(as.numeric(length(node_by_redundancy(ison_southern_women))),
                as.numeric(net_nodes(ison_southern_women)))
   expect_named(node_by_redundancy(ison_southern_women))
 })
 
 test_that("effective size is calculated and reported correctly", {
-  expect_equal(as.numeric(length(node_by_effsize(ison_brandes))),
-               as.numeric(net_nodes(ison_brandes)))
+  expect_equal(as.numeric(length(node_by_effsize(ison_centrality))),
+               as.numeric(net_nodes(ison_centrality)))
   expect_equal(length(node_by_effsize(ison_southern_women)),
                c(net_nodes(ison_southern_women)))
   expect_named(node_by_effsize(ison_southern_women))
@@ -16,7 +16,7 @@ test_that("effective size is calculated and reported correctly", {
 })
 
 test_that("efficiency is reported correctly", {
-  expect_equal(length(node_by_efficiency(ison_brandes)), c(net_nodes(ison_brandes)))
+  expect_equal(length(node_by_efficiency(ison_centrality)), c(net_nodes(ison_centrality)))
   expect_equal(length(node_by_efficiency(ison_southern_women)),
                c(net_nodes(ison_southern_women)))
 })
@@ -41,9 +41,9 @@ test_that("constraint scores are reported correctly for one-mode notworks",{
 })
 
 test_that("hierarchy is reported correctly", {
-  expect_s3_class(node_by_hierarchy(ison_brandes), "node_measure")
+  expect_s3_class(node_by_hierarchy(ison_centrality), "node_measure")
   expect_s3_class(node_by_hierarchy(ison_southern_women), "node_measure")
-  expect_equal(length(node_by_hierarchy(ison_brandes)), c(net_nodes(ison_brandes)))
+  expect_equal(length(node_by_hierarchy(ison_centrality)), c(net_nodes(ison_centrality)))
   expect_equal(length(node_by_hierarchy(ison_southern_women)),
                c(net_nodes(ison_southern_women)))
   expect_named(node_by_hierarchy(ison_southern_women))

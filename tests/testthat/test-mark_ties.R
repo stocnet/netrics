@@ -72,10 +72,10 @@ test_that("tie_is_max works", {
 test_that("tie_is_min works", {
   skip_on_ci()
   skip_on_cran()
-  expect_equal(length(tie_is_min(tie_by_betweenness(ison_brandes))),
-               c(net_ties(ison_brandes)))
-  expect_equal(sum(tie_is_min(tie_by_betweenness(ison_brandes)) == TRUE), 1)
-  expect_s3_class(tie_is_min(tie_by_betweenness(ison_brandes)), "logical")
+  expect_equal(length(tie_is_min(tie_by_betweenness(ison_centrality))),
+               c(net_ties(ison_centrality)))
+  expect_equal(sum(tie_is_min(tie_by_betweenness(ison_centrality)) == TRUE), 1)
+  expect_s3_class(tie_is_min(tie_by_betweenness(ison_centrality)), "logical")
 })
 
 test_that("tie_is_feedback() mark functions work", {

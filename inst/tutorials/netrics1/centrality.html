@@ -203,7 +203,7 @@ centralisation </dfn></abbr>, computed with
 and how to obtain the raw scores</label></li>
 </ul>
 <p><strong>Choose your own data</strong>: The worked examples below use
-<code>ison_brandes</code>, a small, tidy teaching network bundled with
+<code>ison_centrality</code>, a small, tidy teaching network bundled with
 <code>{manynet}</code>. But wherever there is an exercise box, you are
 encouraged to swap in a network that interests <em>you</em>. Remember
 the three flavours of bundled data as a rough difficulty ladder —
@@ -215,7 +215,7 @@ realistic) — and that you can browse the full list with
 </div>
 <div id="section-setting-up" class="section level3">
 <h3>Setting up</h3>
-<p>For this exercise, we’ll use the <code>ison_brandes</code> dataset in
+<p>For this exercise, we’ll use the <code>ison_centrality</code> dataset in
 <code>{manynet}</code>. This dataset is in a ‘tidygraph’ format, but
 <code>manynet</code> makes it easy to coerce this into other forms to be
 compatible with other packages. We can create a
@@ -237,18 +237,18 @@ graphr(____)</code></pre>
 <div class="tutorial-exercise-support" data-label="coercion-hint-2"
 data-completion="1" data-diagnostics="1" data-startover="1"
 data-lines="0" data-pipe="|&gt;">
-<pre class="text"><code># Now, let&#39;s create a two-mode version &#39;ison_brandes2&#39; and graph it.
-ison_brandes2 &lt;- ison_brandes |&gt; rename_nodes(mode = twomode_type)
+<pre class="text"><code># Now, let&#39;s create a two-mode version &#39;ison_centrality2&#39; and graph it.
+ison_centrality2 &lt;- ison_centrality |&gt; rename_nodes(mode = twomode_type)
 graphr(____)</code></pre>
 </div>
 <div class="tutorial-exercise-support" data-label="coercion-solution"
 data-completion="1" data-diagnostics="1" data-startover="1"
 data-lines="0" data-pipe="|&gt;">
 <pre class="text"><code># plot the one-mode version
-graphr(ison_brandes)
-ison_brandes2 &lt;- ison_brandes |&gt; rename_nodes(mode = twomode_type)
+graphr(ison_centrality)
+ison_centrality2 &lt;- ison_centrality |&gt; rename_nodes(mode = twomode_type)
 # plot the two-mode version
-graphr(ison_brandes2, layout = &quot;bipartite&quot;)</code></pre>
+graphr(ison_centrality2, layout = &quot;bipartite&quot;)</code></pre>
 </div>
 <p>The network is anonymous, but I think it would be nice to add some
 names, even if it’s just pretend. Luckily, <code>{manynet}</code> has a
@@ -257,21 +257,21 @@ network just a wee bit more accessible and interpretable:</p>
 <div class="tutorial-exercise" data-label="addingnames"
 data-completion="1" data-diagnostics="1" data-startover="1"
 data-lines="0" data-pipe="|&gt;">
-<pre class="text"><code>ison_brandes &lt;- to_named(ison_brandes)</code></pre>
+<pre class="text"><code>ison_centrality &lt;- to_named(ison_centrality)</code></pre>
 <script type="application/json" data-ui-opts="1">{"engine":"r","has_checker":false,"caption":"<span data-i18n=\"text.enginecap\" data-i18n-opts=\"{&quot;engine&quot;:&quot;R&quot;}\">R Code<\/span>"}</script>
 </div>
 <div class="tutorial-exercise-support" data-label="addingnames-hint-1"
 data-completion="1" data-diagnostics="1" data-startover="1"
 data-lines="0" data-pipe="|&gt;">
-<pre class="text"><code># Now, let&#39;s graph using the object names: &quot;ison_brandes&quot;
+<pre class="text"><code># Now, let&#39;s graph using the object names: &quot;ison_centrality&quot;
 graphr(____)</code></pre>
 </div>
 <div class="tutorial-exercise-support" data-label="addingnames-solution"
 data-completion="1" data-diagnostics="1" data-startover="1"
 data-lines="0" data-pipe="|&gt;">
-<pre class="text"><code>ison_brandes &lt;- to_named(ison_brandes)
+<pre class="text"><code>ison_centrality &lt;- to_named(ison_centrality)
 # plot network with names
-graphr(ison_brandes)</code></pre>
+graphr(ison_centrality)</code></pre>
 </div>
 <p>Note that you will likely get a different set of names (though still
 alphabetical), as they are assigned randomly from a pool of (American)
@@ -302,7 +302,7 @@ data-lines="0" data-pipe="|&gt;">
 data-completion="1" data-diagnostics="1" data-startover="1"
 data-lines="0" data-pipe="|&gt;">
 <pre class="text"><code># We can calculate degree centrality like this:
-(mat &lt;- as_matrix(ison_brandes))
+(mat &lt;- as_matrix(ison_centrality))
 (degrees &lt;- rowSums(mat))
 rowSums(mat) == colSums(mat)</code></pre>
 </div>
@@ -310,21 +310,21 @@ rowSums(mat) == colSums(mat)</code></pre>
 data-completion="1" data-diagnostics="1" data-startover="1"
 data-lines="0" data-pipe="|&gt;">
 <pre class="text"><code># Or by using a built in command in netrics like this:
-node_by_degree(ison_brandes, normalized = FALSE)
+node_by_degree(ison_centrality, normalized = FALSE)
 # node_by_deg() is a shortcut for exactly this unnormalised version:
-node_by_deg(ison_brandes)</code></pre>
+node_by_deg(ison_centrality)</code></pre>
 </div>
 <div class="tutorial-exercise-support" data-label="degreesum-solution"
 data-completion="1" data-diagnostics="1" data-startover="1"
 data-lines="0" data-pipe="|&gt;">
 <pre class="text"><code># manually calculate degree centrality
-mat &lt;- as_matrix(ison_brandes)
+mat &lt;- as_matrix(ison_centrality)
 degrees &lt;- rowSums(mat)
 rowSums(mat) == colSums(mat)
 # You can also just use a built in command in netrics though:
-node_by_degree(ison_brandes, normalized = FALSE)
+node_by_degree(ison_centrality, normalized = FALSE)
 # node_by_deg() is a shortcut for exactly this unnormalised version:
-node_by_deg(ison_brandes)</code></pre>
+node_by_deg(ison_centrality)</code></pre>
 </div>
 <div class="panel panel-default tutorial-question-container">
 <div data-label="degreesum-Q" class="tutorial-question panel-body">
@@ -364,7 +364,7 @@ alias for the unnormalised version.</p>
 <div id="section-degrees-of-direction" class="section level3">
 <h3>Degrees of direction</h3>
 <p>So far each node has had a single degree, because
-<code>ison_brandes</code> is
+<code>ison_centrality</code> is
 <abbr><dfn title='An undirected or line network is one in which tie direction is undefined.'>
 undirected </dfn></abbr>. In a
 <abbr><dfn title='A directed network is a network where the ties have a direction, from a sender to a receiver.'>
@@ -374,7 +374,7 @@ directed </dfn></abbr> network, ties are sent <em>from</em> one node
 sent). These can tell quite different stories: in an advice network, for
 example, a high in-degree suggests a sought-after source of advice,
 while a high out-degree marks an eager asker.</p>
-<p><code>ison_brandes</code> has no natural direction, but
+<p><code>ison_centrality</code> has no natural direction, but
 <code>{manynet}</code>’s <code>to_directed()</code> will assign a random
 direction to each tie — just as <code>to_named()</code> assigned random
 names — which is all we need for a worked comparison. <strong>Run the
@@ -383,10 +383,10 @@ agree.</strong></p>
 <div class="tutorial-exercise" data-label="directing"
 data-completion="1" data-diagnostics="1" data-startover="1"
 data-lines="0" data-pipe="|&gt;">
-<pre class="text"><code>ison_brandes_dir &lt;- to_directed(ison_brandes)
-node_by_indegree(ison_brandes_dir, normalized = FALSE)
-node_by_outdegree(ison_brandes_dir, normalized = FALSE)
-mat &lt;- as_matrix(ison_brandes_dir)
+<pre class="text"><code>ison_centrality_dir &lt;- to_directed(ison_centrality)
+node_by_indegree(ison_centrality_dir, normalized = FALSE)
+node_by_outdegree(ison_centrality_dir, normalized = FALSE)
+mat &lt;- as_matrix(ison_centrality_dir)
 rowSums(mat) == colSums(mat)</code></pre>
 <script type="application/json" data-ui-opts="1">{"engine":"r","has_checker":false,"caption":"<span data-i18n=\"text.enginecap\" data-i18n-opts=\"{&quot;engine&quot;:&quot;R&quot;}\">R Code<\/span>"}</script>
 </div>
@@ -421,9 +421,9 @@ extremes.</strong></p>
 <div class="tutorial-exercise" data-label="weighting"
 data-completion="1" data-diagnostics="1" data-startover="1"
 data-lines="0" data-pipe="|&gt;">
-<pre class="text"><code>ison_brandes_wtd &lt;- to_weighted(ison_brandes)
-node_by_deg(ison_brandes_wtd)             # alpha = 0: count ties
-node_by_deg(ison_brandes_wtd, alpha = 1)  # alpha = 1: sum tie weights</code></pre>
+<pre class="text"><code>ison_centrality_wtd &lt;- to_weighted(ison_centrality)
+node_by_deg(ison_centrality_wtd)             # alpha = 0: count ties
+node_by_deg(ison_centrality_wtd, alpha = 1)  # alpha = 1: sum tie weights</code></pre>
 <script type="application/json" data-ui-opts="1">{"engine":"r","has_checker":false,"caption":"<span data-i18n=\"text.enginecap\" data-i18n-opts=\"{&quot;engine&quot;:&quot;R&quot;}\">R Code<\/span>"}</script>
 </div>
 <p>Note that on a weighted network, <code>node_by_degree()</code> itself
@@ -479,7 +479,7 @@ betweenness sits at a crossroads: whatever passes between
 otherwise-distant parts of the network has to go through it, giving it
 the <em>opportunity</em> to broker, filter, or bottleneck that flow.
 <strong>Calculate the betweenness centralities for
-<code>ison_brandes</code>.</strong></p>
+<code>ison_centrality</code>.</strong></p>
 <div class="tutorial-exercise" data-label="betcalc" data-completion="1"
 data-diagnostics="1" data-startover="1" data-lines="0"
 data-pipe="|&gt;">
@@ -495,7 +495,7 @@ node_by_betweenness(____)</code></pre>
 <div class="tutorial-exercise-support" data-label="betcalc-solution"
 data-completion="1" data-diagnostics="1" data-startover="1"
 data-lines="0" data-pipe="|&gt;">
-<pre class="text"><code>node_by_betweenness(ison_brandes)</code></pre>
+<pre class="text"><code>node_by_betweenness(ison_centrality)</code></pre>
 </div>
 <div class="panel panel-default tutorial-question-container">
 <div data-label="betinterpQ" class="tutorial-question panel-body">
@@ -520,8 +520,8 @@ thoroughfares.</strong></p>
 <div class="tutorial-exercise" data-label="tiebet" data-completion="1"
 data-diagnostics="1" data-startover="1" data-lines="0"
 data-pipe="|&gt;">
-<pre class="text"><code>ison_brandes %&gt;%
-  mutate_ties(bridgeness = tie_by_betweenness(ison_brandes)) %&gt;%
+<pre class="text"><code>ison_centrality %&gt;%
+  mutate_ties(bridgeness = tie_by_betweenness(ison_centrality)) %&gt;%
   graphr(edge_size = &quot;bridgeness&quot;)</code></pre>
 <script type="application/json" data-ui-opts="1">{"engine":"r","has_checker":false,"caption":"<span data-i18n=\"text.enginecap\" data-i18n-opts=\"{&quot;engine&quot;:&quot;R&quot;}\">R Code<\/span>"}</script>
 </div>
@@ -552,8 +552,8 @@ here?</strong></p>
 <div class="tutorial-exercise" data-label="induced" data-completion="1"
 data-diagnostics="1" data-startover="1" data-lines="0"
 data-pipe="|&gt;">
-<pre class="text"><code>node_by_betweenness(ison_brandes, normalized = FALSE)
-node_by_induced(ison_brandes, normalized = FALSE)</code></pre>
+<pre class="text"><code>node_by_betweenness(ison_centrality, normalized = FALSE)
+node_by_induced(ison_centrality, normalized = FALSE)</code></pre>
 <script type="application/json" data-ui-opts="1">{"engine":"r","has_checker":false,"caption":"<span data-i18n=\"text.enginecap\" data-i18n-opts=\"{&quot;engine&quot;:&quot;R&quot;}\">R Code<\/span>"}</script>
 </div>
 <p>For this network the rankings broadly agree, but on networks with
@@ -594,7 +594,7 @@ Closeness </dfn></abbr> measures how short a node’s paths are to
 geodesic </dfn></abbr> distance, the higher the closeness. A node with
 high closeness can reach the rest of the network in few steps, so it is
 well placed to spread (or hear) something quickly. <strong>Calculate the
-closeness centralities for <code>ison_brandes</code>.</strong></p>
+closeness centralities for <code>ison_centrality</code>.</strong></p>
 <div class="tutorial-exercise" data-label="closecalc"
 data-completion="1" data-diagnostics="1" data-startover="1"
 data-lines="0" data-pipe="|&gt;">
@@ -610,7 +610,7 @@ node_by_closeness(____)</code></pre>
 <div class="tutorial-exercise-support" data-label="closecalc-solution"
 data-completion="1" data-diagnostics="1" data-startover="1"
 data-lines="0" data-pipe="|&gt;">
-<pre class="text"><code>node_by_closeness(ison_brandes)</code></pre>
+<pre class="text"><code>node_by_closeness(ison_centrality)</code></pre>
 </div>
 <div class="panel panel-default tutorial-question-container">
 <div data-label="closeinterpQ" class="tutorial-question panel-body">
@@ -637,8 +637,8 @@ the first-named node’s reach extend?</strong></p>
 <div class="tutorial-exercise" data-label="reach" data-completion="1"
 data-diagnostics="1" data-startover="1" data-lines="0"
 data-pipe="|&gt;">
-<pre class="text"><code>node_by_reach(ison_brandes)
-node_by_distance(ison_brandes, from = node_names(ison_brandes)[1])</code></pre>
+<pre class="text"><code>node_by_reach(ison_centrality)
+node_by_distance(ison_centrality, from = node_names(ison_centrality)[1])</code></pre>
 <script type="application/json" data-ui-opts="1">{"engine":"r","has_checker":false,"caption":"<span data-i18n=\"text.enginecap\" data-i18n-opts=\"{&quot;engine&quot;:&quot;R&quot;}\">R Code<\/span>"}</script>
 </div>
 <p>Note that <code>node_by_reach()</code> takes a <code>cutoff</code>
@@ -701,7 +701,7 @@ central its neighbours are: you are important if you are connected to
 important others. It captures influence rather than mere activity — a
 node with only a few ties, but to very well-connected nodes, can
 outscore a node with many ties to peripheral ones. <strong>Calculate the
-eigenvector centralities for <code>ison_brandes</code>.</strong></p>
+eigenvector centralities for <code>ison_centrality</code>.</strong></p>
 <div class="tutorial-exercise" data-label="eigencalc"
 data-completion="1" data-diagnostics="1" data-startover="1"
 data-lines="0" data-pipe="|&gt;">
@@ -717,7 +717,7 @@ node_by_eigenvector(____)</code></pre>
 <div class="tutorial-exercise-support" data-label="eigencalc-solution"
 data-completion="1" data-diagnostics="1" data-startover="1"
 data-lines="0" data-pipe="|&gt;">
-<pre class="text"><code>node_by_eigenvector(ison_brandes)</code></pre>
+<pre class="text"><code>node_by_eigenvector(ison_centrality)</code></pre>
 </div>
 <div class="panel panel-default tutorial-question-container">
 <div data-label="eiginterpQ" class="tutorial-question panel-body">
@@ -755,8 +755,8 @@ two.</strong></p>
 <div class="tutorial-exercise" data-label="power" data-completion="1"
 data-diagnostics="1" data-startover="1" data-lines="0"
 data-pipe="|&gt;">
-<pre class="text"><code>node_by_power(ison_brandes, exponent = 1)
-node_by_power(ison_brandes, exponent = -1)</code></pre>
+<pre class="text"><code>node_by_power(ison_centrality, exponent = 1)
+node_by_power(ison_centrality, exponent = -1)</code></pre>
 <script type="application/json" data-ui-opts="1">{"engine":"r","has_checker":false,"caption":"<span data-i18n=\"text.enginecap\" data-i18n-opts=\"{&quot;engine&quot;:&quot;R&quot;}\">R Code<\/span>"}</script>
 </div>
 <p>Try to answer the following questions for yourself:</p>
@@ -796,10 +796,10 @@ family.</li>
 <div class="tutorial-exercise" data-label="pagerank" data-completion="1"
 data-diagnostics="1" data-startover="1" data-lines="0"
 data-pipe="|&gt;">
-<pre class="text"><code>ison_brandes_dir &lt;- to_directed(ison_brandes)
-node_by_pagerank(ison_brandes_dir)
-node_by_hub(ison_brandes_dir)
-node_by_authority(ison_brandes_dir)</code></pre>
+<pre class="text"><code>ison_centrality_dir &lt;- to_directed(ison_centrality)
+node_by_pagerank(ison_centrality_dir)
+node_by_hub(ison_centrality_dir)
+node_by_authority(ison_centrality_dir)</code></pre>
 <script type="application/json" data-ui-opts="1">{"engine":"r","has_checker":false,"caption":"<span data-i18n=\"text.enginecap\" data-i18n-opts=\"{&quot;engine&quot;:&quot;R&quot;}\">R Code<\/span>"}</script>
 </div>
 <p>Since the directions are again assigned at random, run the code a few
@@ -1001,19 +1001,19 @@ data-pipe="|&gt;">
 data-completion="1" data-diagnostics="1" data-startover="1"
 data-lines="0" data-pipe="|&gt;">
 <pre class="text"><code># plot the network, highlighting the node with the highest centrality score with a different color
-ison_brandes %&gt;%
+ison_centrality %&gt;%
   mutate_nodes(color = node_is_max(node_by_degree())) %&gt;%
   graphr(node_color = &quot;color&quot;)
 
-ison_brandes %&gt;%
+ison_centrality %&gt;%
   mutate_nodes(color = node_is_max(node_by_betweenness())) %&gt;%
   graphr(node_color = &quot;color&quot;)
 
-ison_brandes %&gt;%
+ison_centrality %&gt;%
   mutate_nodes(color = node_is_max(node_by_closeness())) %&gt;%
   graphr(node_color = &quot;color&quot;)
 
-ison_brandes %&gt;%
+ison_centrality %&gt;%
   mutate_nodes(color = node_is_max(node_by_eigenvector())) %&gt;%
   graphr(node_color = &quot;color&quot;)</code></pre>
 </div>
@@ -1028,27 +1028,27 @@ unremarkable on another.</p>
 <div class="tutorial-exercise" data-label="ggid_twomode"
 data-completion="1" data-diagnostics="1" data-startover="1"
 data-lines="0" data-pipe="|&gt;">
-<pre class="text"><code># Instead of &quot;ison_brandes&quot;, use &quot;ison_brandes2&quot;</code></pre>
+<pre class="text"><code># Instead of &quot;ison_centrality&quot;, use &quot;ison_centrality2&quot;</code></pre>
 <script type="application/json" data-ui-opts="1">{"engine":"r","has_checker":false,"caption":"<span data-i18n=\"text.enginecap\" data-i18n-opts=\"{&quot;engine&quot;:&quot;R&quot;}\">R Code<\/span>"}</script>
 </div>
 <div class="tutorial-exercise-support"
 data-label="ggid_twomode-solution" data-completion="1"
 data-diagnostics="1" data-startover="1" data-lines="0"
 data-pipe="|&gt;">
-<pre class="text"><code>ison_brandes2 %&gt;%
-  add_node_attribute(&quot;color&quot;, node_is_max(node_by_degree(ison_brandes2))) %&gt;%
+<pre class="text"><code>ison_centrality2 %&gt;%
+  add_node_attribute(&quot;color&quot;, node_is_max(node_by_degree(ison_centrality2))) %&gt;%
   graphr(node_color = &quot;color&quot;, layout = &quot;bipartite&quot;)
 
-ison_brandes2 %&gt;%
-  add_node_attribute(&quot;color&quot;, node_is_max(node_by_betweenness(ison_brandes2))) %&gt;%
+ison_centrality2 %&gt;%
+  add_node_attribute(&quot;color&quot;, node_is_max(node_by_betweenness(ison_centrality2))) %&gt;%
   graphr(node_color = &quot;color&quot;, layout = &quot;bipartite&quot;)
 
-ison_brandes2 %&gt;%
-  add_node_attribute(&quot;color&quot;, node_is_max(node_by_closeness(ison_brandes2))) %&gt;%
+ison_centrality2 %&gt;%
+  add_node_attribute(&quot;color&quot;, node_is_max(node_by_closeness(ison_centrality2))) %&gt;%
   graphr(node_color = &quot;color&quot;, layout = &quot;bipartite&quot;)
 
-ison_brandes2 %&gt;%
-  add_node_attribute(&quot;color&quot;, node_is_max(node_by_eigenvector(ison_brandes2))) %&gt;%
+ison_centrality2 %&gt;%
+  add_node_attribute(&quot;color&quot;, node_is_max(node_by_eigenvector(ison_centrality2))) %&gt;%
   graphr(node_color = &quot;color&quot;, layout = &quot;bipartite&quot;)</code></pre>
 </div>
 <div class="panel panel-default tutorial-question-container">
@@ -1092,7 +1092,7 @@ at its whole
 distribution </dfn></abbr> across the nodes. <code>{autograph}</code>
 offers a way to get a pretty good first look at this, though there are
 more elaborate ways to do this in base and grid graphics. <strong>Plot
-the degree distribution of <code>ison_brandes</code>.</strong></p>
+the degree distribution of <code>ison_centrality</code>.</strong></p>
 <div class="tutorial-exercise" data-label="distrib" data-completion="1"
 data-diagnostics="1" data-startover="1" data-lines="0"
 data-pipe="|&gt;">
@@ -1102,7 +1102,7 @@ data-pipe="|&gt;">
 data-completion="1" data-diagnostics="1" data-startover="1"
 data-lines="0" data-pipe="|&gt;">
 <pre class="text"><code># distribution of degree centrality scores of nodes
-plot(node_by_degree(ison_brandes))</code></pre>
+plot(node_by_degree(ison_centrality))</code></pre>
 </div>
 <p>What’s plotted here by default is both the degree distribution as a
 histogram, as well as a density plot overlaid on it in red. Reading a
@@ -1136,9 +1136,9 @@ data-lines="0" data-pipe="|&gt;">
 <div class="tutorial-exercise-support" data-label="otherdist-solution"
 data-completion="1" data-diagnostics="1" data-startover="1"
 data-lines="0" data-pipe="|&gt;">
-<pre class="text"><code>plot(node_by_betweenness(ison_brandes))
-plot(node_by_closeness(ison_brandes))
-plot(node_by_eigenvector(ison_brandes))</code></pre>
+<pre class="text"><code>plot(node_by_betweenness(ison_centrality))
+plot(node_by_closeness(ison_centrality))
+plot(node_by_eigenvector(ison_centrality))</code></pre>
 </div>
 </div>
 <div id="section-from-distribution-to-centralisation"
@@ -1173,7 +1173,7 @@ net_by_degree(scaf)   # much higher centralisation</code></pre>
 centralisation is low — no node is far above the crowd. The scale-free
 network’s degrees trail off into a long tail, and its centralisation is
 several times higher — a few hubs carry the network. Our
-<code>ison_brandes</code> example sits somewhere between these two
+<code>ison_centrality</code> example sits somewhere between these two
 extremes.</p>
 <div class="panel panel-default tutorial-question-container">
 <div data-label="shapecentQ" class="tutorial-question panel-body">
@@ -1207,10 +1207,10 @@ data-pipe="|&gt;">
 <div class="tutorial-exercise-support" data-label="centzn-solution"
 data-completion="1" data-diagnostics="1" data-startover="1"
 data-lines="0" data-pipe="|&gt;">
-<pre class="text"><code>net_by_degree(ison_brandes)
-net_by_betweenness(ison_brandes)
-net_by_closeness(ison_brandes)
-print(net_by_eigenvector(ison_brandes), digits = 5)</code></pre>
+<pre class="text"><code>net_by_degree(ison_centrality)
+net_by_betweenness(ison_centrality)
+net_by_closeness(ison_centrality)
+print(net_by_eigenvector(ison_centrality), digits = 5)</code></pre>
 </div>
 <p>By default, scores are printed up to 3 decimal places, but this can
 be modified and, in any case, the unrounded values are retained
@@ -1241,19 +1241,19 @@ data-lines="0" data-pipe="|&gt;">
 <div class="tutorial-exercise-support" data-label="multiplot-solution"
 data-completion="1" data-diagnostics="1" data-startover="1"
 data-lines="0" data-pipe="|&gt;">
-<pre class="text"><code>ison_brandes &lt;- ison_brandes |&gt;
-  add_node_attribute(&quot;degree&quot;, node_is_max(node_by_degree(ison_brandes)))  |&gt;
-  add_node_attribute(&quot;betweenness&quot;, node_is_max(node_by_betweenness(ison_brandes))) |&gt;
-  add_node_attribute(&quot;closeness&quot;, node_is_max(node_by_closeness(ison_brandes)))  |&gt;
-  add_node_attribute(&quot;eigenvector&quot;, node_is_max(node_by_eigenvector(ison_brandes)))
-gd &lt;- graphr(ison_brandes, node_color = &quot;degree&quot;) +
-  ggtitle(&quot;Degree&quot;, subtitle = round(net_by_degree(ison_brandes), 2))
-gc &lt;- graphr(ison_brandes, node_color = &quot;closeness&quot;) +
-  ggtitle(&quot;Closeness&quot;, subtitle = round(net_by_closeness(ison_brandes), 2))
-gb &lt;- graphr(ison_brandes, node_color = &quot;betweenness&quot;) +
-  ggtitle(&quot;Betweenness&quot;, subtitle = round(net_by_betweenness(ison_brandes), 2))
-ge &lt;- graphr(ison_brandes, node_color = &quot;eigenvector&quot;) +
-  ggtitle(&quot;Eigenvector&quot;, subtitle = round(net_by_eigenvector(ison_brandes), 2))
+<pre class="text"><code>ison_centrality &lt;- ison_centrality |&gt;
+  add_node_attribute(&quot;degree&quot;, node_is_max(node_by_degree(ison_centrality)))  |&gt;
+  add_node_attribute(&quot;betweenness&quot;, node_is_max(node_by_betweenness(ison_centrality))) |&gt;
+  add_node_attribute(&quot;closeness&quot;, node_is_max(node_by_closeness(ison_centrality)))  |&gt;
+  add_node_attribute(&quot;eigenvector&quot;, node_is_max(node_by_eigenvector(ison_centrality)))
+gd &lt;- graphr(ison_centrality, node_color = &quot;degree&quot;) +
+  ggtitle(&quot;Degree&quot;, subtitle = round(net_by_degree(ison_centrality), 2))
+gc &lt;- graphr(ison_centrality, node_color = &quot;closeness&quot;) +
+  ggtitle(&quot;Closeness&quot;, subtitle = round(net_by_closeness(ison_centrality), 2))
+gb &lt;- graphr(ison_centrality, node_color = &quot;betweenness&quot;) +
+  ggtitle(&quot;Betweenness&quot;, subtitle = round(net_by_betweenness(ison_centrality), 2))
+ge &lt;- graphr(ison_centrality, node_color = &quot;eigenvector&quot;) +
+  ggtitle(&quot;Eigenvector&quot;, subtitle = round(net_by_eigenvector(ison_centrality), 2))
 (gd | gb) / (gc | ge)
 # ggsave(&quot;brandes-centralities.pdf&quot;)</code></pre>
 </div>
@@ -1621,7 +1621,7 @@ learnr::random_phrases_add(language = "en",
                                       "Well done!",
                                       "Awesome!"),
                            encouragement = c("Good effort"))
-ison_brandes2 <- ison_brandes %>% rename_nodes(mode = twomode_type)
+ison_centrality2 <- ison_centrality %>% rename_nodes(mode = twomode_type)
 </script>
  
 <script type="application/shiny-prerendered" data-context="server">
@@ -1683,14 +1683,14 @@ learnr:::store_exercise_cache(structure(list(label = "coercion", global_setup = 
 "learnr::random_phrases_add(language = \"en\",", "                           praise = c(\"That's brilliant!\",", 
 "                                      \"Great work!\",", "                                      \"Well done!\",", 
 "                                      \"Awesome!\"),", "                           encouragement = c(\"Good effort\"))", 
-"ison_brandes2 <- ison_brandes %>% rename_nodes(mode = twomode_type)"
+"ison_centrality2 <- ison_centrality %>% rename_nodes(mode = twomode_type)"
 ), chunk_opts = list(label = "setup", include = FALSE, purl = FALSE, 
     eval = TRUE)), setup = NULL, chunks = list(list(label = "coercion", 
     code = "", opts = list(label = "\"coercion\"", exercise = "TRUE", 
         purl = "FALSE"), engine = "r")), code_check = NULL, error_check = NULL, 
     check = NULL, solution = structure(c("# plot the one-mode version", 
-    "graphr(ison_brandes)", "ison_brandes2 <- ison_brandes |> rename_nodes(mode = twomode_type)", 
-    "# plot the two-mode version", "graphr(ison_brandes2, layout = \"bipartite\")"
+    "graphr(ison_centrality)", "ison_centrality2 <- ison_centrality |> rename_nodes(mode = twomode_type)", 
+    "# plot the two-mode version", "graphr(ison_centrality2, layout = \"bipartite\")"
     ), chunk_opts = list(label = "coercion-solution")), tests = NULL, 
     options = list(eval = FALSE, echo = TRUE, results = "markup", 
         tidy = FALSE, tidy.opts = NULL, collapse = FALSE, prompt = FALSE, 
@@ -1745,14 +1745,14 @@ learnr:::store_exercise_cache(structure(list(label = "addingnames", global_setup
 "learnr::random_phrases_add(language = \"en\",", "                           praise = c(\"That's brilliant!\",", 
 "                                      \"Great work!\",", "                                      \"Well done!\",", 
 "                                      \"Awesome!\"),", "                           encouragement = c(\"Good effort\"))", 
-"ison_brandes2 <- ison_brandes %>% rename_nodes(mode = twomode_type)"
+"ison_centrality2 <- ison_centrality %>% rename_nodes(mode = twomode_type)"
 ), chunk_opts = list(label = "setup", include = FALSE, purl = FALSE, 
     eval = TRUE)), setup = NULL, chunks = list(list(label = "addingnames", 
-    code = "ison_brandes <- to_named(ison_brandes)", opts = list(
+    code = "ison_centrality <- to_named(ison_centrality)", opts = list(
         label = "\"addingnames\"", exercise = "TRUE", purl = "FALSE"), 
     engine = "r")), code_check = NULL, error_check = NULL, check = NULL, 
-    solution = structure(c("ison_brandes <- to_named(ison_brandes)", 
-    "# plot network with names", "graphr(ison_brandes)"), chunk_opts = list(
+    solution = structure(c("ison_centrality <- to_named(ison_centrality)", 
+    "# plot network with names", "graphr(ison_centrality)"), chunk_opts = list(
         label = "addingnames-solution")), tests = NULL, options = list(
         eval = FALSE, echo = TRUE, results = "markup", tidy = FALSE, 
         tidy.opts = NULL, collapse = FALSE, prompt = FALSE, comment = NA, 
@@ -1770,7 +1770,7 @@ learnr:::store_exercise_cache(structure(list(label = "addingnames", global_setup
         error = FALSE, message = TRUE, render = NULL, ref.label = NULL, 
         child = NULL, engine = "r", split = FALSE, include = TRUE, 
         purl = FALSE, max.print = 1000, label = "addingnames", 
-        exercise = TRUE, code = "ison_brandes <- to_named(ison_brandes)", 
+        exercise = TRUE, code = "ison_centrality <- to_named(ison_centrality)", 
         out.width.px = 624, out.height.px = 384, params.src = "addingnames, exercise = TRUE, purl = FALSE", 
         fig.num = 0, exercise.df_print = "paged", exercise.checker = "NULL"), 
     engine = "r", version = "4"), class = c("r", "tutorial_exercise"
@@ -1807,20 +1807,20 @@ learnr:::store_exercise_cache(structure(list(label = "degreesum", global_setup =
 "learnr::random_phrases_add(language = \"en\",", "                           praise = c(\"That's brilliant!\",", 
 "                                      \"Great work!\",", "                                      \"Well done!\",", 
 "                                      \"Awesome!\"),", "                           encouragement = c(\"Good effort\"))", 
-"ison_brandes2 <- ison_brandes %>% rename_nodes(mode = twomode_type)"
+"ison_centrality2 <- ison_centrality %>% rename_nodes(mode = twomode_type)"
 ), chunk_opts = list(label = "setup", include = FALSE, purl = FALSE, 
-    eval = TRUE)), setup = "ison_brandes <- to_named(ison_brandes)", 
-    chunks = list(list(label = "addingnames", code = "ison_brandes <- to_named(ison_brandes)", 
+    eval = TRUE)), setup = "ison_centrality <- to_named(ison_centrality)", 
+    chunks = list(list(label = "addingnames", code = "ison_centrality <- to_named(ison_centrality)", 
         opts = list(label = "\"addingnames\"", exercise = "TRUE", 
             purl = "FALSE"), engine = "r"), list(label = "degreesum", 
         code = "", opts = list(label = "\"degreesum\"", exercise = "TRUE", 
             exercise.setup = "\"addingnames\"", purl = "FALSE"), 
         engine = "r")), code_check = NULL, error_check = NULL, 
     check = NULL, solution = structure(c("# manually calculate degree centrality", 
-    "mat <- as_matrix(ison_brandes)", "degrees <- rowSums(mat)", 
+    "mat <- as_matrix(ison_centrality)", "degrees <- rowSums(mat)", 
     "rowSums(mat) == colSums(mat)", "# You can also just use a built in command in netrics though:", 
-    "node_by_degree(ison_brandes, normalized = FALSE)", "# node_by_deg() is a shortcut for exactly this unnormalised version:", 
-    "node_by_deg(ison_brandes)"), chunk_opts = list(label = "degreesum-solution")), 
+    "node_by_degree(ison_centrality, normalized = FALSE)", "# node_by_deg() is a shortcut for exactly this unnormalised version:", 
+    "node_by_deg(ison_centrality)"), chunk_opts = list(label = "degreesum-solution")), 
     tests = NULL, options = list(eval = FALSE, echo = TRUE, results = "markup", 
         tidy = FALSE, tidy.opts = NULL, collapse = FALSE, prompt = FALSE, 
         comment = NA, highlight = FALSE, size = "normalsize", 
@@ -1936,13 +1936,13 @@ learnr:::store_exercise_cache(structure(list(label = "directing", global_setup =
 "learnr::random_phrases_add(language = \"en\",", "                           praise = c(\"That's brilliant!\",", 
 "                                      \"Great work!\",", "                                      \"Well done!\",", 
 "                                      \"Awesome!\"),", "                           encouragement = c(\"Good effort\"))", 
-"ison_brandes2 <- ison_brandes %>% rename_nodes(mode = twomode_type)"
+"ison_centrality2 <- ison_centrality %>% rename_nodes(mode = twomode_type)"
 ), chunk_opts = list(label = "setup", include = FALSE, purl = FALSE, 
-    eval = TRUE)), setup = "ison_brandes <- to_named(ison_brandes)", 
-    chunks = list(list(label = "addingnames", code = "ison_brandes <- to_named(ison_brandes)", 
+    eval = TRUE)), setup = "ison_centrality <- to_named(ison_centrality)", 
+    chunks = list(list(label = "addingnames", code = "ison_centrality <- to_named(ison_centrality)", 
         opts = list(label = "\"addingnames\"", exercise = "TRUE", 
             purl = "FALSE"), engine = "r"), list(label = "directing", 
-        code = "ison_brandes_dir <- to_directed(ison_brandes)\nnode_by_indegree(ison_brandes_dir, normalized = FALSE)\nnode_by_outdegree(ison_brandes_dir, normalized = FALSE)\nmat <- as_matrix(ison_brandes_dir)\nrowSums(mat) == colSums(mat)", 
+        code = "ison_centrality_dir <- to_directed(ison_centrality)\nnode_by_indegree(ison_centrality_dir, normalized = FALSE)\nnode_by_outdegree(ison_centrality_dir, normalized = FALSE)\nmat <- as_matrix(ison_centrality_dir)\nrowSums(mat) == colSums(mat)", 
         opts = list(label = "\"directing\"", exercise = "TRUE", 
             exercise.setup = "\"addingnames\""), engine = "r")), 
     code_check = NULL, error_check = NULL, check = NULL, solution = NULL, 
@@ -1963,10 +1963,10 @@ learnr:::store_exercise_cache(structure(list(label = "directing", global_setup =
         error = FALSE, message = TRUE, render = NULL, ref.label = NULL, 
         child = NULL, engine = "r", split = FALSE, include = TRUE, 
         purl = TRUE, max.print = 1000, label = "directing", exercise = TRUE, 
-        exercise.setup = "addingnames", code = c("ison_brandes_dir <- to_directed(ison_brandes)", 
-        "node_by_indegree(ison_brandes_dir, normalized = FALSE)", 
-        "node_by_outdegree(ison_brandes_dir, normalized = FALSE)", 
-        "mat <- as_matrix(ison_brandes_dir)", "rowSums(mat) == colSums(mat)"
+        exercise.setup = "addingnames", code = c("ison_centrality_dir <- to_directed(ison_centrality)", 
+        "node_by_indegree(ison_centrality_dir, normalized = FALSE)", 
+        "node_by_outdegree(ison_centrality_dir, normalized = FALSE)", 
+        "mat <- as_matrix(ison_centrality_dir)", "rowSums(mat) == colSums(mat)"
         ), out.width.px = 624, out.height.px = 384, params.src = "directing, exercise = TRUE, exercise.setup = \"addingnames\"", 
         fig.num = 0, exercise.df_print = "paged", exercise.checker = "NULL"), 
     engine = "r", version = "4"), class = c("r", "tutorial_exercise"
@@ -2003,13 +2003,13 @@ learnr:::store_exercise_cache(structure(list(label = "weighting", global_setup =
 "learnr::random_phrases_add(language = \"en\",", "                           praise = c(\"That's brilliant!\",", 
 "                                      \"Great work!\",", "                                      \"Well done!\",", 
 "                                      \"Awesome!\"),", "                           encouragement = c(\"Good effort\"))", 
-"ison_brandes2 <- ison_brandes %>% rename_nodes(mode = twomode_type)"
+"ison_centrality2 <- ison_centrality %>% rename_nodes(mode = twomode_type)"
 ), chunk_opts = list(label = "setup", include = FALSE, purl = FALSE, 
-    eval = TRUE)), setup = "ison_brandes <- to_named(ison_brandes)", 
-    chunks = list(list(label = "addingnames", code = "ison_brandes <- to_named(ison_brandes)", 
+    eval = TRUE)), setup = "ison_centrality <- to_named(ison_centrality)", 
+    chunks = list(list(label = "addingnames", code = "ison_centrality <- to_named(ison_centrality)", 
         opts = list(label = "\"addingnames\"", exercise = "TRUE", 
             purl = "FALSE"), engine = "r"), list(label = "weighting", 
-        code = "ison_brandes_wtd <- to_weighted(ison_brandes)\nnode_by_deg(ison_brandes_wtd)             # alpha = 0: count ties\nnode_by_deg(ison_brandes_wtd, alpha = 1)  # alpha = 1: sum tie weights", 
+        code = "ison_centrality_wtd <- to_weighted(ison_centrality)\nnode_by_deg(ison_centrality_wtd)             # alpha = 0: count ties\nnode_by_deg(ison_centrality_wtd, alpha = 1)  # alpha = 1: sum tie weights", 
         opts = list(label = "\"weighting\"", exercise = "TRUE", 
             exercise.setup = "\"addingnames\""), engine = "r")), 
     code_check = NULL, error_check = NULL, check = NULL, solution = NULL, 
@@ -2030,9 +2030,9 @@ learnr:::store_exercise_cache(structure(list(label = "weighting", global_setup =
         error = FALSE, message = TRUE, render = NULL, ref.label = NULL, 
         child = NULL, engine = "r", split = FALSE, include = TRUE, 
         purl = TRUE, max.print = 1000, label = "weighting", exercise = TRUE, 
-        exercise.setup = "addingnames", code = c("ison_brandes_wtd <- to_weighted(ison_brandes)", 
-        "node_by_deg(ison_brandes_wtd)             # alpha = 0: count ties", 
-        "node_by_deg(ison_brandes_wtd, alpha = 1)  # alpha = 1: sum tie weights"
+        exercise.setup = "addingnames", code = c("ison_centrality_wtd <- to_weighted(ison_centrality)", 
+        "node_by_deg(ison_centrality_wtd)             # alpha = 0: count ties", 
+        "node_by_deg(ison_centrality_wtd, alpha = 1)  # alpha = 1: sum tie weights"
         ), out.width.px = 624, out.height.px = 384, params.src = "weighting, exercise = TRUE, exercise.setup = \"addingnames\"", 
         fig.num = 0, exercise.df_print = "paged", exercise.checker = "NULL"), 
     engine = "r", version = "4"), class = c("r", "tutorial_exercise"
@@ -2069,16 +2069,16 @@ learnr:::store_exercise_cache(structure(list(label = "betcalc", global_setup = s
 "learnr::random_phrases_add(language = \"en\",", "                           praise = c(\"That's brilliant!\",", 
 "                                      \"Great work!\",", "                                      \"Well done!\",", 
 "                                      \"Awesome!\"),", "                           encouragement = c(\"Good effort\"))", 
-"ison_brandes2 <- ison_brandes %>% rename_nodes(mode = twomode_type)"
+"ison_centrality2 <- ison_centrality %>% rename_nodes(mode = twomode_type)"
 ), chunk_opts = list(label = "setup", include = FALSE, purl = FALSE, 
-    eval = TRUE)), setup = "ison_brandes <- to_named(ison_brandes)", 
-    chunks = list(list(label = "addingnames", code = "ison_brandes <- to_named(ison_brandes)", 
+    eval = TRUE)), setup = "ison_centrality <- to_named(ison_centrality)", 
+    chunks = list(list(label = "addingnames", code = "ison_centrality <- to_named(ison_centrality)", 
         opts = list(label = "\"addingnames\"", exercise = "TRUE", 
             purl = "FALSE"), engine = "r"), list(label = "betcalc", 
         code = "", opts = list(label = "\"betcalc\"", exercise = "TRUE", 
             exercise.setup = "\"addingnames\"", purl = "FALSE"), 
         engine = "r")), code_check = NULL, error_check = NULL, 
-    check = NULL, solution = structure("node_by_betweenness(ison_brandes)", chunk_opts = list(
+    check = NULL, solution = structure("node_by_betweenness(ison_centrality)", chunk_opts = list(
         label = "betcalc-solution")), tests = NULL, options = list(
         eval = FALSE, echo = TRUE, results = "markup", tidy = FALSE, 
         tidy.opts = NULL, collapse = FALSE, prompt = FALSE, comment = NA, 
@@ -2171,13 +2171,13 @@ learnr:::store_exercise_cache(structure(list(label = "tiebet", global_setup = st
 "learnr::random_phrases_add(language = \"en\",", "                           praise = c(\"That's brilliant!\",", 
 "                                      \"Great work!\",", "                                      \"Well done!\",", 
 "                                      \"Awesome!\"),", "                           encouragement = c(\"Good effort\"))", 
-"ison_brandes2 <- ison_brandes %>% rename_nodes(mode = twomode_type)"
+"ison_centrality2 <- ison_centrality %>% rename_nodes(mode = twomode_type)"
 ), chunk_opts = list(label = "setup", include = FALSE, purl = FALSE, 
-    eval = TRUE)), setup = "ison_brandes <- to_named(ison_brandes)", 
-    chunks = list(list(label = "addingnames", code = "ison_brandes <- to_named(ison_brandes)", 
+    eval = TRUE)), setup = "ison_centrality <- to_named(ison_centrality)", 
+    chunks = list(list(label = "addingnames", code = "ison_centrality <- to_named(ison_centrality)", 
         opts = list(label = "\"addingnames\"", exercise = "TRUE", 
             purl = "FALSE"), engine = "r"), list(label = "tiebet", 
-        code = "ison_brandes %>%\n  mutate_ties(bridgeness = tie_by_betweenness(ison_brandes)) %>%\n  graphr(edge_size = \"bridgeness\")", 
+        code = "ison_centrality %>%\n  mutate_ties(bridgeness = tie_by_betweenness(ison_centrality)) %>%\n  graphr(edge_size = \"bridgeness\")", 
         opts = list(label = "\"tiebet\"", exercise = "TRUE", 
             exercise.setup = "\"addingnames\""), engine = "r")), 
     code_check = NULL, error_check = NULL, check = NULL, solution = NULL, 
@@ -2198,8 +2198,8 @@ learnr:::store_exercise_cache(structure(list(label = "tiebet", global_setup = st
         error = FALSE, message = TRUE, render = NULL, ref.label = NULL, 
         child = NULL, engine = "r", split = FALSE, include = TRUE, 
         purl = TRUE, max.print = 1000, label = "tiebet", exercise = TRUE, 
-        exercise.setup = "addingnames", code = c("ison_brandes %>%", 
-        "  mutate_ties(bridgeness = tie_by_betweenness(ison_brandes)) %>%", 
+        exercise.setup = "addingnames", code = c("ison_centrality %>%", 
+        "  mutate_ties(bridgeness = tie_by_betweenness(ison_centrality)) %>%", 
         "  graphr(edge_size = \"bridgeness\")"), out.width.px = 624, 
         out.height.px = 384, params.src = "tiebet, exercise = TRUE, exercise.setup = \"addingnames\"", 
         fig.num = 0, exercise.df_print = "paged", exercise.checker = "NULL"), 
@@ -2237,13 +2237,13 @@ learnr:::store_exercise_cache(structure(list(label = "induced", global_setup = s
 "learnr::random_phrases_add(language = \"en\",", "                           praise = c(\"That's brilliant!\",", 
 "                                      \"Great work!\",", "                                      \"Well done!\",", 
 "                                      \"Awesome!\"),", "                           encouragement = c(\"Good effort\"))", 
-"ison_brandes2 <- ison_brandes %>% rename_nodes(mode = twomode_type)"
+"ison_centrality2 <- ison_centrality %>% rename_nodes(mode = twomode_type)"
 ), chunk_opts = list(label = "setup", include = FALSE, purl = FALSE, 
-    eval = TRUE)), setup = "ison_brandes <- to_named(ison_brandes)", 
-    chunks = list(list(label = "addingnames", code = "ison_brandes <- to_named(ison_brandes)", 
+    eval = TRUE)), setup = "ison_centrality <- to_named(ison_centrality)", 
+    chunks = list(list(label = "addingnames", code = "ison_centrality <- to_named(ison_centrality)", 
         opts = list(label = "\"addingnames\"", exercise = "TRUE", 
             purl = "FALSE"), engine = "r"), list(label = "induced", 
-        code = "node_by_betweenness(ison_brandes, normalized = FALSE)\nnode_by_induced(ison_brandes, normalized = FALSE)", 
+        code = "node_by_betweenness(ison_centrality, normalized = FALSE)\nnode_by_induced(ison_centrality, normalized = FALSE)", 
         opts = list(label = "\"induced\"", exercise = "TRUE", 
             exercise.setup = "\"addingnames\""), engine = "r")), 
     code_check = NULL, error_check = NULL, check = NULL, solution = NULL, 
@@ -2264,8 +2264,8 @@ learnr:::store_exercise_cache(structure(list(label = "induced", global_setup = s
         error = FALSE, message = TRUE, render = NULL, ref.label = NULL, 
         child = NULL, engine = "r", split = FALSE, include = TRUE, 
         purl = TRUE, max.print = 1000, label = "induced", exercise = TRUE, 
-        exercise.setup = "addingnames", code = c("node_by_betweenness(ison_brandes, normalized = FALSE)", 
-        "node_by_induced(ison_brandes, normalized = FALSE)"), 
+        exercise.setup = "addingnames", code = c("node_by_betweenness(ison_centrality, normalized = FALSE)", 
+        "node_by_induced(ison_centrality, normalized = FALSE)"), 
         out.width.px = 624, out.height.px = 384, params.src = "induced, exercise = TRUE, exercise.setup = \"addingnames\"", 
         fig.num = 0, exercise.df_print = "paged", exercise.checker = "NULL"), 
     engine = "r", version = "4"), class = c("r", "tutorial_exercise"
@@ -2302,16 +2302,16 @@ learnr:::store_exercise_cache(structure(list(label = "closecalc", global_setup =
 "learnr::random_phrases_add(language = \"en\",", "                           praise = c(\"That's brilliant!\",", 
 "                                      \"Great work!\",", "                                      \"Well done!\",", 
 "                                      \"Awesome!\"),", "                           encouragement = c(\"Good effort\"))", 
-"ison_brandes2 <- ison_brandes %>% rename_nodes(mode = twomode_type)"
+"ison_centrality2 <- ison_centrality %>% rename_nodes(mode = twomode_type)"
 ), chunk_opts = list(label = "setup", include = FALSE, purl = FALSE, 
-    eval = TRUE)), setup = "ison_brandes <- to_named(ison_brandes)", 
-    chunks = list(list(label = "addingnames", code = "ison_brandes <- to_named(ison_brandes)", 
+    eval = TRUE)), setup = "ison_centrality <- to_named(ison_centrality)", 
+    chunks = list(list(label = "addingnames", code = "ison_centrality <- to_named(ison_centrality)", 
         opts = list(label = "\"addingnames\"", exercise = "TRUE", 
             purl = "FALSE"), engine = "r"), list(label = "closecalc", 
         code = "", opts = list(label = "\"closecalc\"", exercise = "TRUE", 
             exercise.setup = "\"addingnames\"", purl = "FALSE"), 
         engine = "r")), code_check = NULL, error_check = NULL, 
-    check = NULL, solution = structure("node_by_closeness(ison_brandes)", chunk_opts = list(
+    check = NULL, solution = structure("node_by_closeness(ison_centrality)", chunk_opts = list(
         label = "closecalc-solution")), tests = NULL, options = list(
         eval = FALSE, echo = TRUE, results = "markup", tidy = FALSE, 
         tidy.opts = NULL, collapse = FALSE, prompt = FALSE, comment = NA, 
@@ -2404,13 +2404,13 @@ learnr:::store_exercise_cache(structure(list(label = "reach", global_setup = str
 "learnr::random_phrases_add(language = \"en\",", "                           praise = c(\"That's brilliant!\",", 
 "                                      \"Great work!\",", "                                      \"Well done!\",", 
 "                                      \"Awesome!\"),", "                           encouragement = c(\"Good effort\"))", 
-"ison_brandes2 <- ison_brandes %>% rename_nodes(mode = twomode_type)"
+"ison_centrality2 <- ison_centrality %>% rename_nodes(mode = twomode_type)"
 ), chunk_opts = list(label = "setup", include = FALSE, purl = FALSE, 
-    eval = TRUE)), setup = "ison_brandes <- to_named(ison_brandes)", 
-    chunks = list(list(label = "addingnames", code = "ison_brandes <- to_named(ison_brandes)", 
+    eval = TRUE)), setup = "ison_centrality <- to_named(ison_centrality)", 
+    chunks = list(list(label = "addingnames", code = "ison_centrality <- to_named(ison_centrality)", 
         opts = list(label = "\"addingnames\"", exercise = "TRUE", 
             purl = "FALSE"), engine = "r"), list(label = "reach", 
-        code = "node_by_reach(ison_brandes)\nnode_by_distance(ison_brandes, from = node_names(ison_brandes)[1])", 
+        code = "node_by_reach(ison_centrality)\nnode_by_distance(ison_centrality, from = node_names(ison_centrality)[1])", 
         opts = list(label = "\"reach\"", exercise = "TRUE", exercise.setup = "\"addingnames\""), 
         engine = "r")), code_check = NULL, error_check = NULL, 
     check = NULL, solution = NULL, tests = NULL, options = list(
@@ -2430,8 +2430,8 @@ learnr:::store_exercise_cache(structure(list(label = "reach", global_setup = str
         error = FALSE, message = TRUE, render = NULL, ref.label = NULL, 
         child = NULL, engine = "r", split = FALSE, include = TRUE, 
         purl = TRUE, max.print = 1000, label = "reach", exercise = TRUE, 
-        exercise.setup = "addingnames", code = c("node_by_reach(ison_brandes)", 
-        "node_by_distance(ison_brandes, from = node_names(ison_brandes)[1])"
+        exercise.setup = "addingnames", code = c("node_by_reach(ison_centrality)", 
+        "node_by_distance(ison_centrality, from = node_names(ison_centrality)[1])"
         ), out.width.px = 624, out.height.px = 384, params.src = "reach, exercise = TRUE, exercise.setup = \"addingnames\"", 
         fig.num = 0, exercise.df_print = "paged", exercise.checker = "NULL"), 
     engine = "r", version = "4"), class = c("r", "tutorial_exercise"
@@ -2468,16 +2468,16 @@ learnr:::store_exercise_cache(structure(list(label = "eigencalc", global_setup =
 "learnr::random_phrases_add(language = \"en\",", "                           praise = c(\"That's brilliant!\",", 
 "                                      \"Great work!\",", "                                      \"Well done!\",", 
 "                                      \"Awesome!\"),", "                           encouragement = c(\"Good effort\"))", 
-"ison_brandes2 <- ison_brandes %>% rename_nodes(mode = twomode_type)"
+"ison_centrality2 <- ison_centrality %>% rename_nodes(mode = twomode_type)"
 ), chunk_opts = list(label = "setup", include = FALSE, purl = FALSE, 
-    eval = TRUE)), setup = "ison_brandes <- to_named(ison_brandes)", 
-    chunks = list(list(label = "addingnames", code = "ison_brandes <- to_named(ison_brandes)", 
+    eval = TRUE)), setup = "ison_centrality <- to_named(ison_centrality)", 
+    chunks = list(list(label = "addingnames", code = "ison_centrality <- to_named(ison_centrality)", 
         opts = list(label = "\"addingnames\"", exercise = "TRUE", 
             purl = "FALSE"), engine = "r"), list(label = "eigencalc", 
         code = "", opts = list(label = "\"eigencalc\"", exercise = "TRUE", 
             exercise.setup = "\"addingnames\"", purl = "FALSE"), 
         engine = "r")), code_check = NULL, error_check = NULL, 
-    check = NULL, solution = structure("node_by_eigenvector(ison_brandes)", chunk_opts = list(
+    check = NULL, solution = structure("node_by_eigenvector(ison_centrality)", chunk_opts = list(
         label = "eigencalc-solution")), tests = NULL, options = list(
         eval = FALSE, echo = TRUE, results = "markup", tidy = FALSE, 
         tidy.opts = NULL, collapse = FALSE, prompt = FALSE, comment = NA, 
@@ -2570,13 +2570,13 @@ learnr:::store_exercise_cache(structure(list(label = "power", global_setup = str
 "learnr::random_phrases_add(language = \"en\",", "                           praise = c(\"That's brilliant!\",", 
 "                                      \"Great work!\",", "                                      \"Well done!\",", 
 "                                      \"Awesome!\"),", "                           encouragement = c(\"Good effort\"))", 
-"ison_brandes2 <- ison_brandes %>% rename_nodes(mode = twomode_type)"
+"ison_centrality2 <- ison_centrality %>% rename_nodes(mode = twomode_type)"
 ), chunk_opts = list(label = "setup", include = FALSE, purl = FALSE, 
-    eval = TRUE)), setup = "ison_brandes <- to_named(ison_brandes)", 
-    chunks = list(list(label = "addingnames", code = "ison_brandes <- to_named(ison_brandes)", 
+    eval = TRUE)), setup = "ison_centrality <- to_named(ison_centrality)", 
+    chunks = list(list(label = "addingnames", code = "ison_centrality <- to_named(ison_centrality)", 
         opts = list(label = "\"addingnames\"", exercise = "TRUE", 
             purl = "FALSE"), engine = "r"), list(label = "power", 
-        code = "node_by_power(ison_brandes, exponent = 1)\nnode_by_power(ison_brandes, exponent = -1)", 
+        code = "node_by_power(ison_centrality, exponent = 1)\nnode_by_power(ison_centrality, exponent = -1)", 
         opts = list(label = "\"power\"", exercise = "TRUE", exercise.setup = "\"addingnames\""), 
         engine = "r")), code_check = NULL, error_check = NULL, 
     check = NULL, solution = NULL, tests = NULL, options = list(
@@ -2596,8 +2596,8 @@ learnr:::store_exercise_cache(structure(list(label = "power", global_setup = str
         error = FALSE, message = TRUE, render = NULL, ref.label = NULL, 
         child = NULL, engine = "r", split = FALSE, include = TRUE, 
         purl = TRUE, max.print = 1000, label = "power", exercise = TRUE, 
-        exercise.setup = "addingnames", code = c("node_by_power(ison_brandes, exponent = 1)", 
-        "node_by_power(ison_brandes, exponent = -1)"), out.width.px = 624, 
+        exercise.setup = "addingnames", code = c("node_by_power(ison_centrality, exponent = 1)", 
+        "node_by_power(ison_centrality, exponent = -1)"), out.width.px = 624, 
         out.height.px = 384, params.src = "power, exercise = TRUE, exercise.setup = \"addingnames\"", 
         fig.num = 0, exercise.df_print = "paged", exercise.checker = "NULL"), 
     engine = "r", version = "4"), class = c("r", "tutorial_exercise"
@@ -2634,13 +2634,13 @@ learnr:::store_exercise_cache(structure(list(label = "pagerank", global_setup = 
 "learnr::random_phrases_add(language = \"en\",", "                           praise = c(\"That's brilliant!\",", 
 "                                      \"Great work!\",", "                                      \"Well done!\",", 
 "                                      \"Awesome!\"),", "                           encouragement = c(\"Good effort\"))", 
-"ison_brandes2 <- ison_brandes %>% rename_nodes(mode = twomode_type)"
+"ison_centrality2 <- ison_centrality %>% rename_nodes(mode = twomode_type)"
 ), chunk_opts = list(label = "setup", include = FALSE, purl = FALSE, 
-    eval = TRUE)), setup = "ison_brandes <- to_named(ison_brandes)", 
-    chunks = list(list(label = "addingnames", code = "ison_brandes <- to_named(ison_brandes)", 
+    eval = TRUE)), setup = "ison_centrality <- to_named(ison_centrality)", 
+    chunks = list(list(label = "addingnames", code = "ison_centrality <- to_named(ison_centrality)", 
         opts = list(label = "\"addingnames\"", exercise = "TRUE", 
             purl = "FALSE"), engine = "r"), list(label = "pagerank", 
-        code = "ison_brandes_dir <- to_directed(ison_brandes)\nnode_by_pagerank(ison_brandes_dir)\nnode_by_hub(ison_brandes_dir)\nnode_by_authority(ison_brandes_dir)", 
+        code = "ison_centrality_dir <- to_directed(ison_centrality)\nnode_by_pagerank(ison_centrality_dir)\nnode_by_hub(ison_centrality_dir)\nnode_by_authority(ison_centrality_dir)", 
         opts = list(label = "\"pagerank\"", exercise = "TRUE", 
             exercise.setup = "\"addingnames\""), engine = "r")), 
     code_check = NULL, error_check = NULL, check = NULL, solution = NULL, 
@@ -2661,9 +2661,9 @@ learnr:::store_exercise_cache(structure(list(label = "pagerank", global_setup = 
         error = FALSE, message = TRUE, render = NULL, ref.label = NULL, 
         child = NULL, engine = "r", split = FALSE, include = TRUE, 
         purl = TRUE, max.print = 1000, label = "pagerank", exercise = TRUE, 
-        exercise.setup = "addingnames", code = c("ison_brandes_dir <- to_directed(ison_brandes)", 
-        "node_by_pagerank(ison_brandes_dir)", "node_by_hub(ison_brandes_dir)", 
-        "node_by_authority(ison_brandes_dir)"), out.width.px = 624, 
+        exercise.setup = "addingnames", code = c("ison_centrality_dir <- to_directed(ison_centrality)", 
+        "node_by_pagerank(ison_centrality_dir)", "node_by_hub(ison_centrality_dir)", 
+        "node_by_authority(ison_centrality_dir)"), out.width.px = 624, 
         out.height.px = 384, params.src = "pagerank, exercise = TRUE, exercise.setup = \"addingnames\"", 
         fig.num = 0, exercise.df_print = "paged", exercise.checker = "NULL"), 
     engine = "r", version = "4"), class = c("r", "tutorial_exercise"
@@ -2730,22 +2730,22 @@ learnr:::store_exercise_cache(structure(list(label = "ggid", global_setup = stru
 "learnr::random_phrases_add(language = \"en\",", "                           praise = c(\"That's brilliant!\",", 
 "                                      \"Great work!\",", "                                      \"Well done!\",", 
 "                                      \"Awesome!\"),", "                           encouragement = c(\"Good effort\"))", 
-"ison_brandes2 <- ison_brandes %>% rename_nodes(mode = twomode_type)"
+"ison_centrality2 <- ison_centrality %>% rename_nodes(mode = twomode_type)"
 ), chunk_opts = list(label = "setup", include = FALSE, purl = FALSE, 
-    eval = TRUE)), setup = "ison_brandes <- to_named(ison_brandes)", 
-    chunks = list(list(label = "addingnames", code = "ison_brandes <- to_named(ison_brandes)", 
+    eval = TRUE)), setup = "ison_centrality <- to_named(ison_centrality)", 
+    chunks = list(list(label = "addingnames", code = "ison_centrality <- to_named(ison_centrality)", 
         opts = list(label = "\"addingnames\"", exercise = "TRUE", 
             purl = "FALSE"), engine = "r"), list(label = "ggid", 
         code = "", opts = list(label = "\"ggid\"", exercise = "TRUE", 
             exercise.setup = "\"addingnames\"", purl = "FALSE"), 
         engine = "r")), code_check = NULL, error_check = NULL, 
     check = NULL, solution = structure(c("# plot the network, highlighting the node with the highest centrality score with a different color", 
-    "ison_brandes %>%", "  mutate_nodes(color = node_is_max(node_by_degree())) %>%", 
-    "  graphr(node_color = \"color\")", "", "ison_brandes %>%", 
+    "ison_centrality %>%", "  mutate_nodes(color = node_is_max(node_by_degree())) %>%", 
+    "  graphr(node_color = \"color\")", "", "ison_centrality %>%", 
     "  mutate_nodes(color = node_is_max(node_by_betweenness())) %>%", 
-    "  graphr(node_color = \"color\")", "", "ison_brandes %>%", 
+    "  graphr(node_color = \"color\")", "", "ison_centrality %>%", 
     "  mutate_nodes(color = node_is_max(node_by_closeness())) %>%", 
-    "  graphr(node_color = \"color\")", "", "ison_brandes %>%", 
+    "  graphr(node_color = \"color\")", "", "ison_centrality %>%", 
     "  mutate_nodes(color = node_is_max(node_by_eigenvector())) %>%", 
     "  graphr(node_color = \"color\")"), chunk_opts = list(label = "ggid-solution")), 
     tests = NULL, options = list(eval = FALSE, echo = TRUE, results = "markup", 
@@ -2802,20 +2802,20 @@ learnr:::store_exercise_cache(structure(list(label = "ggid_twomode", global_setu
 "learnr::random_phrases_add(language = \"en\",", "                           praise = c(\"That's brilliant!\",", 
 "                                      \"Great work!\",", "                                      \"Well done!\",", 
 "                                      \"Awesome!\"),", "                           encouragement = c(\"Good effort\"))", 
-"ison_brandes2 <- ison_brandes %>% rename_nodes(mode = twomode_type)"
+"ison_centrality2 <- ison_centrality %>% rename_nodes(mode = twomode_type)"
 ), chunk_opts = list(label = "setup", include = FALSE, purl = FALSE, 
     eval = TRUE)), setup = NULL, chunks = list(list(label = "ggid_twomode", 
-    code = "# Instead of \"ison_brandes\", use \"ison_brandes2\"\n", 
+    code = "# Instead of \"ison_centrality\", use \"ison_centrality2\"\n", 
     opts = list(label = "\"ggid_twomode\"", exercise = "TRUE", 
         purl = "FALSE"), engine = "r")), code_check = NULL, error_check = NULL, 
-    check = NULL, solution = structure(c("ison_brandes2 %>%", 
-    "  add_node_attribute(\"color\", node_is_max(node_by_degree(ison_brandes2))) %>%", 
+    check = NULL, solution = structure(c("ison_centrality2 %>%", 
+    "  add_node_attribute(\"color\", node_is_max(node_by_degree(ison_centrality2))) %>%", 
     "  graphr(node_color = \"color\", layout = \"bipartite\")", 
-    "", "ison_brandes2 %>%", "  add_node_attribute(\"color\", node_is_max(node_by_betweenness(ison_brandes2))) %>%", 
+    "", "ison_centrality2 %>%", "  add_node_attribute(\"color\", node_is_max(node_by_betweenness(ison_centrality2))) %>%", 
     "  graphr(node_color = \"color\", layout = \"bipartite\")", 
-    "", "ison_brandes2 %>%", "  add_node_attribute(\"color\", node_is_max(node_by_closeness(ison_brandes2))) %>%", 
+    "", "ison_centrality2 %>%", "  add_node_attribute(\"color\", node_is_max(node_by_closeness(ison_centrality2))) %>%", 
     "  graphr(node_color = \"color\", layout = \"bipartite\")", 
-    "", "ison_brandes2 %>%", "  add_node_attribute(\"color\", node_is_max(node_by_eigenvector(ison_brandes2))) %>%", 
+    "", "ison_centrality2 %>%", "  add_node_attribute(\"color\", node_is_max(node_by_eigenvector(ison_centrality2))) %>%", 
     "  graphr(node_color = \"color\", layout = \"bipartite\")"
     ), chunk_opts = list(label = "ggid_twomode-solution")), tests = NULL, 
     options = list(eval = FALSE, echo = TRUE, results = "markup", 
@@ -2835,7 +2835,7 @@ learnr:::store_exercise_cache(structure(list(label = "ggid_twomode", global_setu
         error = FALSE, message = TRUE, render = NULL, ref.label = NULL, 
         child = NULL, engine = "r", split = FALSE, include = TRUE, 
         purl = FALSE, max.print = 1000, label = "ggid_twomode", 
-        exercise = TRUE, code = c("# Instead of \"ison_brandes\", use \"ison_brandes2\"", 
+        exercise = TRUE, code = c("# Instead of \"ison_centrality\", use \"ison_centrality2\"", 
         ""), out.width.px = 624, out.height.px = 384, params.src = "ggid_twomode, exercise = TRUE, purl = FALSE", 
         fig.num = 0, exercise.df_print = "paged", exercise.checker = "NULL"), 
     engine = "r", version = "4"), class = c("r", "tutorial_exercise"
@@ -2905,17 +2905,17 @@ learnr:::store_exercise_cache(structure(list(label = "distrib", global_setup = s
 "learnr::random_phrases_add(language = \"en\",", "                           praise = c(\"That's brilliant!\",", 
 "                                      \"Great work!\",", "                                      \"Well done!\",", 
 "                                      \"Awesome!\"),", "                           encouragement = c(\"Good effort\"))", 
-"ison_brandes2 <- ison_brandes %>% rename_nodes(mode = twomode_type)"
+"ison_centrality2 <- ison_centrality %>% rename_nodes(mode = twomode_type)"
 ), chunk_opts = list(label = "setup", include = FALSE, purl = FALSE, 
-    eval = TRUE)), setup = "ison_brandes <- to_named(ison_brandes)", 
-    chunks = list(list(label = "addingnames", code = "ison_brandes <- to_named(ison_brandes)", 
+    eval = TRUE)), setup = "ison_centrality <- to_named(ison_centrality)", 
+    chunks = list(list(label = "addingnames", code = "ison_centrality <- to_named(ison_centrality)", 
         opts = list(label = "\"addingnames\"", exercise = "TRUE", 
             purl = "FALSE"), engine = "r"), list(label = "distrib", 
         code = "", opts = list(label = "\"distrib\"", exercise = "TRUE", 
             exercise.setup = "\"addingnames\"", purl = "FALSE"), 
         engine = "r")), code_check = NULL, error_check = NULL, 
     check = NULL, solution = structure(c("# distribution of degree centrality scores of nodes", 
-    "plot(node_by_degree(ison_brandes))"), chunk_opts = list(
+    "plot(node_by_degree(ison_centrality))"), chunk_opts = list(
         label = "distrib-solution")), tests = NULL, options = list(
         eval = FALSE, echo = TRUE, results = "markup", tidy = FALSE, 
         tidy.opts = NULL, collapse = FALSE, prompt = FALSE, comment = NA, 
@@ -3040,17 +3040,17 @@ learnr:::store_exercise_cache(structure(list(label = "otherdist", global_setup =
 "learnr::random_phrases_add(language = \"en\",", "                           praise = c(\"That's brilliant!\",", 
 "                                      \"Great work!\",", "                                      \"Well done!\",", 
 "                                      \"Awesome!\"),", "                           encouragement = c(\"Good effort\"))", 
-"ison_brandes2 <- ison_brandes %>% rename_nodes(mode = twomode_type)"
+"ison_centrality2 <- ison_centrality %>% rename_nodes(mode = twomode_type)"
 ), chunk_opts = list(label = "setup", include = FALSE, purl = FALSE, 
-    eval = TRUE)), setup = "ison_brandes <- to_named(ison_brandes)", 
-    chunks = list(list(label = "addingnames", code = "ison_brandes <- to_named(ison_brandes)", 
+    eval = TRUE)), setup = "ison_centrality <- to_named(ison_centrality)", 
+    chunks = list(list(label = "addingnames", code = "ison_centrality <- to_named(ison_centrality)", 
         opts = list(label = "\"addingnames\"", exercise = "TRUE", 
             purl = "FALSE"), engine = "r"), list(label = "otherdist", 
         code = "", opts = list(label = "\"otherdist\"", exercise = "TRUE", 
             exercise.setup = "\"addingnames\"", purl = "FALSE"), 
         engine = "r")), code_check = NULL, error_check = NULL, 
-    check = NULL, solution = structure(c("plot(node_by_betweenness(ison_brandes))", 
-    "plot(node_by_closeness(ison_brandes))", "plot(node_by_eigenvector(ison_brandes))"
+    check = NULL, solution = structure(c("plot(node_by_betweenness(ison_centrality))", 
+    "plot(node_by_closeness(ison_centrality))", "plot(node_by_eigenvector(ison_centrality))"
     ), chunk_opts = list(label = "otherdist-solution")), tests = NULL, 
     options = list(eval = FALSE, echo = TRUE, results = "markup", 
         tidy = FALSE, tidy.opts = NULL, collapse = FALSE, prompt = FALSE, 
@@ -3106,7 +3106,7 @@ learnr:::store_exercise_cache(structure(list(label = "distcent", global_setup = 
 "learnr::random_phrases_add(language = \"en\",", "                           praise = c(\"That's brilliant!\",", 
 "                                      \"Great work!\",", "                                      \"Well done!\",", 
 "                                      \"Awesome!\"),", "                           encouragement = c(\"Good effort\"))", 
-"ison_brandes2 <- ison_brandes %>% rename_nodes(mode = twomode_type)"
+"ison_centrality2 <- ison_centrality %>% rename_nodes(mode = twomode_type)"
 ), chunk_opts = list(label = "setup", include = FALSE, purl = FALSE, 
     eval = TRUE)), setup = NULL, chunks = list(list(label = "distcent", 
     code = "set.seed(7)\nrand <- generate_random(50, 0.1)     # bell-shaped degree distribution\nscaf <- generate_scalefree(50, 1.3)  # heavy-tailed degree distribution\nplot(node_by_degree(rand)) + plot(node_by_degree(scaf))\nnet_by_degree(rand)   # low centralisation\nnet_by_degree(scaf)   # much higher centralisation", 
@@ -3199,18 +3199,18 @@ learnr:::store_exercise_cache(structure(list(label = "centzn", global_setup = st
 "learnr::random_phrases_add(language = \"en\",", "                           praise = c(\"That's brilliant!\",", 
 "                                      \"Great work!\",", "                                      \"Well done!\",", 
 "                                      \"Awesome!\"),", "                           encouragement = c(\"Good effort\"))", 
-"ison_brandes2 <- ison_brandes %>% rename_nodes(mode = twomode_type)"
+"ison_centrality2 <- ison_centrality %>% rename_nodes(mode = twomode_type)"
 ), chunk_opts = list(label = "setup", include = FALSE, purl = FALSE, 
-    eval = TRUE)), setup = "ison_brandes <- to_named(ison_brandes)", 
-    chunks = list(list(label = "addingnames", code = "ison_brandes <- to_named(ison_brandes)", 
+    eval = TRUE)), setup = "ison_centrality <- to_named(ison_centrality)", 
+    chunks = list(list(label = "addingnames", code = "ison_centrality <- to_named(ison_centrality)", 
         opts = list(label = "\"addingnames\"", exercise = "TRUE", 
             purl = "FALSE"), engine = "r"), list(label = "centzn", 
         code = "", opts = list(label = "\"centzn\"", exercise = "TRUE", 
             exercise.setup = "\"addingnames\"", purl = "FALSE"), 
         engine = "r")), code_check = NULL, error_check = NULL, 
-    check = NULL, solution = structure(c("net_by_degree(ison_brandes)", 
-    "net_by_betweenness(ison_brandes)", "net_by_closeness(ison_brandes)", 
-    "print(net_by_eigenvector(ison_brandes), digits = 5)"), chunk_opts = list(
+    check = NULL, solution = structure(c("net_by_degree(ison_centrality)", 
+    "net_by_betweenness(ison_centrality)", "net_by_closeness(ison_centrality)", 
+    "print(net_by_eigenvector(ison_centrality), digits = 5)"), chunk_opts = list(
         label = "centzn-solution")), tests = NULL, options = list(
         eval = FALSE, echo = TRUE, results = "markup", tidy = FALSE, 
         tidy.opts = NULL, collapse = FALSE, prompt = FALSE, comment = NA, 
@@ -3265,28 +3265,28 @@ learnr:::store_exercise_cache(structure(list(label = "multiplot", global_setup =
 "learnr::random_phrases_add(language = \"en\",", "                           praise = c(\"That's brilliant!\",", 
 "                                      \"Great work!\",", "                                      \"Well done!\",", 
 "                                      \"Awesome!\"),", "                           encouragement = c(\"Good effort\"))", 
-"ison_brandes2 <- ison_brandes %>% rename_nodes(mode = twomode_type)"
+"ison_centrality2 <- ison_centrality %>% rename_nodes(mode = twomode_type)"
 ), chunk_opts = list(label = "setup", include = FALSE, purl = FALSE, 
-    eval = TRUE)), setup = "ison_brandes <- to_named(ison_brandes)", 
-    chunks = list(list(label = "addingnames", code = "ison_brandes <- to_named(ison_brandes)", 
+    eval = TRUE)), setup = "ison_centrality <- to_named(ison_centrality)", 
+    chunks = list(list(label = "addingnames", code = "ison_centrality <- to_named(ison_centrality)", 
         opts = list(label = "\"addingnames\"", exercise = "TRUE", 
             purl = "FALSE"), engine = "r"), list(label = "multiplot", 
         code = "", opts = list(label = "\"multiplot\"", exercise = "TRUE", 
             exercise.setup = "\"addingnames\"", purl = "FALSE", 
             fig.width = "9"), engine = "r")), code_check = NULL, 
-    error_check = NULL, check = NULL, solution = structure(c("ison_brandes <- ison_brandes |>", 
-    "  add_node_attribute(\"degree\", node_is_max(node_by_degree(ison_brandes)))  |>", 
-    "  add_node_attribute(\"betweenness\", node_is_max(node_by_betweenness(ison_brandes))) |>", 
-    "  add_node_attribute(\"closeness\", node_is_max(node_by_closeness(ison_brandes)))  |>", 
-    "  add_node_attribute(\"eigenvector\", node_is_max(node_by_eigenvector(ison_brandes)))", 
-    "gd <- graphr(ison_brandes, node_color = \"degree\") +", 
-    "  ggtitle(\"Degree\", subtitle = round(net_by_degree(ison_brandes), 2))", 
-    "gc <- graphr(ison_brandes, node_color = \"closeness\") +", 
-    "  ggtitle(\"Closeness\", subtitle = round(net_by_closeness(ison_brandes), 2))", 
-    "gb <- graphr(ison_brandes, node_color = \"betweenness\") +", 
-    "  ggtitle(\"Betweenness\", subtitle = round(net_by_betweenness(ison_brandes), 2))", 
-    "ge <- graphr(ison_brandes, node_color = \"eigenvector\") +", 
-    "  ggtitle(\"Eigenvector\", subtitle = round(net_by_eigenvector(ison_brandes), 2))", 
+    error_check = NULL, check = NULL, solution = structure(c("ison_centrality <- ison_centrality |>", 
+    "  add_node_attribute(\"degree\", node_is_max(node_by_degree(ison_centrality)))  |>", 
+    "  add_node_attribute(\"betweenness\", node_is_max(node_by_betweenness(ison_centrality))) |>", 
+    "  add_node_attribute(\"closeness\", node_is_max(node_by_closeness(ison_centrality)))  |>", 
+    "  add_node_attribute(\"eigenvector\", node_is_max(node_by_eigenvector(ison_centrality)))", 
+    "gd <- graphr(ison_centrality, node_color = \"degree\") +", 
+    "  ggtitle(\"Degree\", subtitle = round(net_by_degree(ison_centrality), 2))", 
+    "gc <- graphr(ison_centrality, node_color = \"closeness\") +", 
+    "  ggtitle(\"Closeness\", subtitle = round(net_by_closeness(ison_centrality), 2))", 
+    "gb <- graphr(ison_centrality, node_color = \"betweenness\") +", 
+    "  ggtitle(\"Betweenness\", subtitle = round(net_by_betweenness(ison_centrality), 2))", 
+    "ge <- graphr(ison_centrality, node_color = \"eigenvector\") +", 
+    "  ggtitle(\"Eigenvector\", subtitle = round(net_by_eigenvector(ison_centrality), 2))", 
     "(gd | gb) / (gc | ge)", "# ggsave(\"brandes-centralities.pdf\")"
     ), chunk_opts = list(label = "multiplot-solution")), tests = NULL, 
     options = list(eval = FALSE, echo = TRUE, results = "markup", 
@@ -3315,7 +3315,7 @@ learnr:::store_exercise_cache(structure(list(label = "multiplot", global_setup =
 
 
 <script type="application/shiny-prerendered" data-context="server">
-learnr:::question_prerendered_chunk(structure(list(type = "learnr_radio", label = "centzdq", question = structure("How centralized is the ison_brandes network? Select all that apply.", html = TRUE, class = c("html", 
+learnr:::question_prerendered_chunk(structure(list(type = "learnr_radio", label = "centzdq", question = structure("How centralized is the ison_centrality network? Select all that apply.", html = TRUE, class = c("html", 
 "character")), answers = list(structure(list(id = "lnr_ans_c9d6e0a", 
     option = "It is more degree centralised than betweenness centralised.", 
     value = "It is more degree centralised than betweenness centralised.", 
@@ -3414,7 +3414,7 @@ learnr:::store_exercise_cache(structure(list(label = "freeplayend", global_setup
 "learnr::random_phrases_add(language = \"en\",", "                           praise = c(\"That's brilliant!\",", 
 "                                      \"Great work!\",", "                                      \"Well done!\",", 
 "                                      \"Awesome!\"),", "                           encouragement = c(\"Good effort\"))", 
-"ison_brandes2 <- ison_brandes %>% rename_nodes(mode = twomode_type)"
+"ison_centrality2 <- ison_centrality %>% rename_nodes(mode = twomode_type)"
 ), chunk_opts = list(label = "setup", include = FALSE, purl = FALSE, 
     eval = TRUE)), setup = NULL, chunks = list(list(label = "freeplayend", 
     code = "", opts = list(label = "\"freeplayend\"", exercise = "TRUE", 
