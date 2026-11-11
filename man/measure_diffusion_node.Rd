@@ -8,28 +8,34 @@
 \alias{node_by_adopt_exposure}
 \title{Measures of nodes in a diffusion}
 \usage{
-node_by_adopt_time(.data)
+node_by_adopt_time(.data, attribute = "diffusion")
 
 node_by_adopt_threshold(
   .data,
   normalized = TRUE,
   lag = 1,
-  direction = c("in", "out", "all")
+  direction = c("in", "out", "all"),
+  attribute = "diffusion"
 )
 
-node_by_adopt_recovery(.data)
+node_by_adopt_recovery(.data, attribute = "diffusion")
 
 node_by_adopt_exposure(
   .data,
   mark,
   time = 0,
-  direction = c("in", "out", "all")
+  direction = c("in", "out", "all"),
+  attribute = "diffusion"
 )
 }
 \arguments{
 \item{.data}{A network object of class \code{stocnet}, \code{igraph}, \code{tbl_graph}, \code{network}, or similar.
 Internally any of these will be coerced to an efficient implementation.
 For more information on possible coercions, see e.g. \code{\link[manynet:as_stocnet]{manynet::as_stocnet()}}.}
+
+\item{attribute}{Name of the nodal attribute that holds the diffusion,
+as its start state on the nodes and as its changes.
+By default "diffusion", as in \code{play_diffusion()}.}
 
 \item{normalized}{Logical scalar, whether scores are normalized.
 Different denominators may be used depending on the measure,

@@ -87,7 +87,7 @@ For networks with cycles, or undirected networks,
 \examples{
 tie_is_loop(fict_marvel)
 tie_is_feedback(ison_algebra)
-tie_is_bridge(ison_brandes)
+tie_is_bridge(ison_centrality)
 ison_adolescents |>
   mutate_ties(route = tie_is_path(from = "Jane", to = 7)) 
 citations <- create_explicit(A-+C, B-+C, B-+D, C-+E, D-+E, E-+F, D-+F)

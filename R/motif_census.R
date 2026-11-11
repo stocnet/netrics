@@ -1577,6 +1577,7 @@ net_x_tetrad <- function(.data, attribute = NULL, ...){
 # Exposure ####
 
 #' Motifs of node exposure
+#' @template param_attr_diff
 #' @name motif_exposure
 #' @description
 #'   `node_x_exposure()` produces a motif matrix of nodes' exposure to 
@@ -1591,30 +1592,21 @@ NULL
 #' @examples
 #' node_x_exposure(play_diffusion(create_tree(12)))
 #' @export
-node_x_exposure <- function(.data){
-  if(inherits(.data, "diff_model")){
-    diff_model <- manynet::as_tidygraph(.data)
-    times <- diff_model$t
-    out <- sapply(times, function(x){
-      inf <- node_is_infected(diff_model, time = x)
-      if(sum(inf)==1) manynet::as_matrix(.data)[inf,] else
-        colSums(manynet::as_matrix(.data)[inf,])
-    })
-  } else {
-    times <- manynet::as_diffusion(.data)$time
-    out <- sapply(times, function(x){
-      inf <- node_is_infected(.data, time = x)
-      if(sum(inf)==1) manynet::as_matrix(.data)[inf,] else
-        colSums(manynet::as_matrix(.data)[inf,])
-    })
-  }
-  colnames(out) <- paste0("t",times)
-  make_node_motif(out, .data)
+node_x_exposure <- function(.data, attribute = "diffusion"){
+  states <- .diffusion_states(.data, attribute)
+  infected <- matrix(states$states %in% "I", nrow(states$states))
+  mat <- .exposure_ties(states$net, rowSums(infected) > 0)
+  directed <- manynet::is_directed(states$net)
+  out <- apply(infected, 2, function(mk) .adopt_exposure(mat, mk, "in", directed))
+  out <- matrix(out, nrow = nrow(mat))
+  colnames(out) <- paste0("t", states$times)
+  make_node_motif(out, states$net)
 }
 
 # Hazard ####
 
 #' Motifs of network hazard
+#' @template param_attr_diff
 #' @name motif_hazard
 #' @description
 #'   `net_x_hazard()` measures the hazard rate or instantaneous probability that
@@ -1682,14 +1674,16 @@ NULL
 #'   smeg <- generate_smallworld(15, 0.025)
 #' net_x_hazard(play_diffusion(smeg, transmissibility = 0.3))
 #' @export
-net_x_hazard <- function(.data){
-  diff_model <- manynet::as_diffusion(.data)
+net_x_hazard <- function(.data, attribute = "diffusion"){
+  diff_model <- manynet::as_diffusion(.data, attribute = attribute)
   out <- (diff_model$I - dplyr::lag(diff_model$I)) / 
     (diff_model$n - dplyr::lag(diff_model$I))
   if(inherits(.data, "diff_model")) 
     net <- attr(.data, "network") else 
       net <- .data
-  names(out) <- paste0("t", diff_model$t)
+  # the reports of the old diff_model name their time column `t`
+  names(out) <- paste0("t", diff_model[[`if`("time" %in% names(diff_model),
+                                              "time", "t")]])
   make_network_motif(out, net)
 }
 

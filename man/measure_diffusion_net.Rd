@@ -8,19 +8,23 @@
 \alias{net_by_immunity}
 \title{Measures of network diffusion}
 \usage{
-net_by_transmissibility(.data)
+net_by_transmissibility(.data, attribute = "diffusion")
 
-net_by_recovery(.data, censor = TRUE)
+net_by_recovery(.data, censor = TRUE, attribute = "diffusion")
 
-net_by_reproduction(.data)
+net_by_reproduction(.data, attribute = "diffusion")
 
-net_by_immunity(.data, normalized = TRUE)
+net_by_immunity(.data, normalized = TRUE, attribute = "diffusion")
 }
 \arguments{
 \item{.data}{Network data with nodal changes,
 as created by \code{play_diffusion()},
 or a valid network diffusion model,
 as created by \code{as_diffusion()}.}
+
+\item{attribute}{Name of the nodal attribute that holds the diffusion,
+as its start state on the nodes and as its changes.
+By default "diffusion", as in \code{play_diffusion()}.}
 
 \item{censor}{Where some nodes have not yet recovered by the end
 of the simulation, right censored values can be replaced by the number of steps.

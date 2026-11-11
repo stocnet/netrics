@@ -85,9 +85,9 @@ test_that("additional node mark functions work", {
                c(F,T,T))
   expect_mark(node_is_infected(play_diffusion(create_tree(6)), time = 1),
                c(T,T,T,F,F,F), top = 6)
-  set.seed(123)
-  expect_mark(node_is_recovered(play_diffusion(create_tree(12), recovery = 0.3), time = 3),
-               c(T,T,T,F,F,F), top = 6)
+  # with certain recovery, the seed recovers before it can infect anyone
+  expect_mark(node_is_recovered(play_diffusion(create_tree(12), recovery = 1), time = 1),
+               c(T,F,F,F,F,F), top = 6)
   expect_mark(node_is_exposed(manynet::create_tree(6), mark = c(1,3)),
                c(F,T,F))
   set.seed(1234)

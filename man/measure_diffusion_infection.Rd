@@ -7,17 +7,21 @@
 \alias{net_by_infection_peak}
 \title{Measures of network infection}
 \usage{
-net_by_infection_complete(.data)
+net_by_infection_complete(.data, attribute = "diffusion")
 
-net_by_infection_total(.data, normalized = TRUE)
+net_by_infection_total(.data, normalized = TRUE, attribute = "diffusion")
 
-net_by_infection_peak(.data)
+net_by_infection_peak(.data, attribute = "diffusion")
 }
 \arguments{
 \item{.data}{Network data with nodal changes,
 as created by \code{play_diffusion()},
 or a valid network diffusion model,
 as created by \code{as_diffusion()}.}
+
+\item{attribute}{Name of the nodal attribute that holds the diffusion,
+as its start state on the nodes and as its changes.
+By default "diffusion", as in \code{play_diffusion()}.}
 
 \item{normalized}{Logical scalar, whether scores are normalized.
 Different denominators may be used depending on the measure,

@@ -5,12 +5,16 @@
 \alias{node_x_exposure}
 \title{Motifs of node exposure}
 \usage{
-node_x_exposure(.data)
+node_x_exposure(.data, attribute = "diffusion")
 }
 \arguments{
 \item{.data}{A network object of class \code{stocnet}, \code{igraph}, \code{tbl_graph}, \code{network}, or similar.
 Internally any of these will be coerced to an efficient implementation.
 For more information on possible coercions, see e.g. \code{\link[manynet:as_stocnet]{manynet::as_stocnet()}}.}
+
+\item{attribute}{Name of the nodal attribute that holds the diffusion,
+as its start state on the nodes and as its changes.
+By default "diffusion", as in \code{play_diffusion()}.}
 }
 \value{
 A \code{node_motif} matrix with one row for each node in the network and

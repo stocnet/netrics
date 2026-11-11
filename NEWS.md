@@ -2,6 +2,7 @@
 
 ## Marks
 
+- Added `attribute="diffusion"` to diffusion marks, measures, memberships, and motifs
 - Added `tie_is_mainpath()` for the local or global main path of an acyclic network
 - Fixed diffusion marks losing the diffusion of `diff_model` objects
   - `node_is_infected()`, `node_is_latent()`, `node_is_recovered()`, `node_is_exposed()`
@@ -23,6 +24,7 @@
 - Improved `node_by_adopt_exposure()`
   - Added `direction=`; "in" by default as before
   - Fixed `diff_model` objects losing their diffusion
+  - Fixed two-mode networks, which failed or counted the wrong nodes
 - Improved `node_by_adopt_threshold()`
   - Added `direction=` for exposure along arcs "in", "out", or "all"
   - Fixed `lag = 0` returning only zeros
@@ -31,9 +33,11 @@
   - Fixed `diff_model` objects ignoring `lag=` and `direction=`
   - Improved seeds to return `NA` rather than 0, so they do not lower averages
   - Updated the documentation on reproducing `netdiffuseR::threshold()`
+  - Fixed two-mode networks normalising by degree rather than by co-affiliation
 
 ## Motifs
 
+- Fixed `node_x_exposure()` on `diff_model` objects and two-mode diffusions
 - Improved attribute-based motifs to run without an `attribute=` argument
   where there is only one available attribute, and error where there are several
 

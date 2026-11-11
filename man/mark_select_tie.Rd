@@ -39,8 +39,8 @@ are key because they minimise or, more often, maximise some measure.
 }
 }
 \examples{
-tie_is_max(tie_by_betweenness(ison_brandes))
-tie_is_min(tie_by_betweenness(ison_brandes))
+tie_is_max(tie_by_betweenness(ison_centrality))
+tie_is_min(tie_by_betweenness(ison_centrality))
 }
 \seealso{
 Other marks:

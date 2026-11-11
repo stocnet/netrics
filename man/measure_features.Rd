@@ -144,7 +144,7 @@ It is not defined for fewer than three nodes, where it returns \code{NA}.
 
 \examples{
 net_by_richclub(ison_adolescents)
-net_by_smallworld(ison_brandes)
+net_by_smallworld(ison_centrality)
 net_by_smallworld(ison_southern_women)
 net_by_scalefree(ison_adolescents)
 net_by_scalefree(generate_scalefree(50, 1.5))

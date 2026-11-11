@@ -92,7 +92,7 @@ Weights are strengths and not distances, so they are not read.
 
 \examples{
 node_is_independent(ison_adolescents)
-node_is_cutpoint(ison_brandes)
+node_is_cutpoint(ison_centrality)
 node_is_fold(create_explicit(A-B, B-C, A-C, C-D, C-E, D-E))
 node_is_neighbor(ison_adolescents, "Betty", cutoff = 2)
 }
