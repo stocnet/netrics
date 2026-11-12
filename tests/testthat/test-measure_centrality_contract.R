@@ -66,7 +66,9 @@ test_that("centralities dispatch on the information they are given", {
   exempt <- c("node_by_power", "node_by_leverage",
               "node_by_reach", "node_by_deg", "node_by_indegree",
               "node_by_outdegree", "node_by_degree",
-              "node_by_indeg", "node_by_outdeg")
+              "node_by_indeg", "node_by_outdeg",
+              # a threshold counts the neighbours that adopted, not their weight
+              "node_by_contagion")
   roster <- measure_rosters$centrality_node
   for (fn in setdiff(names(roster), exempt)) {
     unw <- as.numeric(call_measure(fn, roster[[fn]], g))

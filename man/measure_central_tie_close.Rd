@@ -70,7 +70,6 @@ Other measures:
 \code{\link{measure_assort_node}},
 \code{\link{measure_breadth}},
 \code{\link{measure_broker_node}},
-\code{\link{measure_broker_tie}},
 \code{\link{measure_brokerage}},
 \code{\link{measure_central_between}},
 \code{\link{measure_central_close}},
@@ -86,6 +85,7 @@ Other measures:
 \code{\link{measure_diffusion_infection}},
 \code{\link{measure_diffusion_net}},
 \code{\link{measure_diffusion_node}},
+\code{\link{measure_diverse_dispersion}},
 \code{\link{measure_diverse_net}},
 \code{\link{measure_diverse_node}},
 \code{\link{measure_diverse_tie}},
@@ -94,19 +94,21 @@ Other measures:
 \code{\link{measure_fit}},
 \code{\link{measure_fragmentation}},
 \code{\link{measure_hierarchy}},
-\code{\link{measure_periods}}
+\code{\link{measure_opinion}},
+\code{\link{measure_periods}},
+\code{\link[=tie_by_width]{tie_by_width()}}
 
 Other tie:
 \code{\link{mark_dyads}},
 \code{\link{mark_select_tie}},
 \code{\link{mark_ties}},
 \code{\link{mark_triangles}},
-\code{\link{measure_broker_tie}},
 \code{\link{measure_central_tie_between}},
 \code{\link{measure_central_tie_degree}},
 \code{\link{measure_central_tie_eigen}},
 \code{\link{measure_diverse_tie}},
-\code{\link{member_community_link}}
+\code{\link{member_community_link}},
+\code{\link[=tie_by_width]{tie_by_width()}}
 }
 \concept{centrality}
 \concept{closeness}

@@ -47,7 +47,8 @@ measure_rosters <- list(
     node_by_hub           = list(),
     node_by_authority     = list(),
     node_by_subgraph      = list(),
-    node_by_distance      = list(from = 1)
+    node_by_distance      = list(from = 1),
+    node_by_contagion     = list()
   ),
   # PN centrality is defined on signed data, so it runs against its own fixture.
   centrality_signed = list(
@@ -185,6 +186,12 @@ measure_rosters <- list(
   heterogeneity_moran_node = list(
     node_by_homophily = list(attribute = "age", assortativity = "moran")
   ),
+  heterogeneity_concentration_net = list(
+    net_by_concentration = list(attribute = "age")
+  ),
+  heterogeneity_concentration_node = list(
+    node_by_concentration = list(attribute = "age")
+  ),
   heterogeneity_dispersion = list(
     net_by_polarisation = list(attribute = "age"),
     net_by_disagreement = list(attribute = "age")
@@ -201,7 +208,8 @@ measure_rosters <- list(
     node_by_neighbours_degree = list()
   ),
   holes_tie = list(
-    tie_by_cohesion = list()
+    tie_by_cohesion = list(),
+    tie_by_width    = list()
   ),
 
   hierarchy_net = list(
@@ -421,6 +429,8 @@ cognitive_arguments <- list(
   node_by_domain       = list(attribute = "age"),
   net_by_spatial       = list(attribute = "age"),
   net_by_polarisation  = list(attribute = "age"),
+  net_by_concentration = list(attribute = "age"),
+  node_by_concentration = list(attribute = "age"),
   net_by_disagreement  = list(attribute = "age"),
   node_by_brokering_activity    = list(membership = "dept"),
   node_by_brokering_exclusivity = list(membership = "dept")

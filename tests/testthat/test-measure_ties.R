@@ -4,6 +4,9 @@ for(fn in names(tie_meas)) {
     test_that(paste(fn, "works on", ob), {
       if(grepl("mainpath", fn)){
         succeed("Only used for directed acyclic objects")
+      } else if(grepl("width", fn) && ob == "twomode"){
+        # The width of a bridge needs a one-mode network
+        expect_snet_abort(tie_meas[[fn]](data_objs[[ob]]), "one-mode")
       } else if(grepl("diversity", fn)){
         if(ob == "attribute")
           expect_s3_class(tie_meas[[fn]](data_objs[[ob]], "group"), "tie_measure") else

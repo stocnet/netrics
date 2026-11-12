@@ -82,13 +82,13 @@ Other tie:
 \code{\link{mark_dyads}},
 \code{\link{mark_select_tie}},
 \code{\link{mark_ties}},
-\code{\link{measure_broker_tie}},
 \code{\link{measure_central_tie_between}},
 \code{\link{measure_central_tie_close}},
 \code{\link{measure_central_tie_degree}},
 \code{\link{measure_central_tie_eigen}},
 \code{\link{measure_diverse_tie}},
-\code{\link{member_community_link}}
+\code{\link{member_community_link}},
+\code{\link[=tie_by_width]{tie_by_width()}}
 
 Other cohesion:
 \code{\link{measure_breadth}},

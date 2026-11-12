@@ -14,6 +14,9 @@
   - `variant=` "spc" (default), "splc", or "spnp"
 - Added `net_by_polarisation()` and `net_by_disagreement()` for numeric heterogeneity
 - Added `node_by_concentration()` and `net_by_concentration()` for Getis–Ord hot spots
+- Added complex contagion measures
+  - Added `tie_by_width()` for the width of the bridge that each tie is in
+  - Added `node_by_contagion()` for complex centrality (Guilbeault and Centola 2021)
 - Improved `net_by_factions()` to handle signed networks, measuring polarisation
   - Added `variant = "esteban"` for Esteban–Ray polarisation
 - Added "rao" and `distance=` to `*_by_diversity()` for Rao–Stirling diversity

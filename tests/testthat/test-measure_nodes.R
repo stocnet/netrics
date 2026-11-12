@@ -19,6 +19,19 @@ for(fn in names(node_meas)) {
         num <- manynet::add_node_attribute(data_objs[[ob]], "num",
                                            seq_len(manynet::net_nodes(data_objs[[ob]])))
         expect_s3_class(node_meas[[fn]](num, "num"), "node_measure")
+      } else if(grepl("contagion", fn)){
+        # Complex centrality needs a one-mode network
+        if(ob == "twomode")
+          expect_snet_abort(node_meas[[fn]](data_objs[[ob]]), "one-mode") else
+            expect_s3_class(node_meas[[fn]](data_objs[[ob]]), "node_measure")
+      } else if(grepl("influence|opinion", fn)){
+        # An influence matrix needs a one-mode network with no negative
+        # ties, and the first opinions a numeric nodal attribute "opinions"
+        net <- manynet::add_node_attribute(data_objs[[ob]], "opinions",
+                                           seq_len(manynet::net_nodes(data_objs[[ob]])))
+        if(ob %in% c("twomode", "labelled"))
+          expect_snet_abort(node_meas[[fn]](net), "one-mode|negative") else
+            expect_s3_class(suppressWarnings(node_meas[[fn]](net)), "node_measure")
       } else if(grepl("adopt|recovery|exposure",fn)){
         if(ob == "diffusion")
           expect_s3_class(node_meas[[fn]](data_objs[[ob]]), "node_measure") else
