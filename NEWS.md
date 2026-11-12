@@ -12,6 +12,10 @@
 
 ## Measures
 
+- Improved `net_by_reproduction()` to estimate R0 as the chance of transmission over a tie times the excess degree
+  - Fixed the old estimate, which mixed the contagion with the network and was often on the wrong side of 1
+  - Added a warning and `NA` where no susceptible node was exposed
+- Fixed `net_by_immunity()` ignoring the structure of the network, through `net_by_reproduction()`
 - Added `tie_by_mainpath()` for the traversal counts of main path analysis
   - `variant=` "spc" (default), "splc", or "spnp"
 - Added `net_by_polarisation()` and `net_by_disagreement()` for numeric heterogeneity

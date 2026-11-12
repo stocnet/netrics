@@ -96,3 +96,28 @@ test_that("diffusions read their start state and their attribute", {
   expect_equal(as.numeric(node_is_exposed(still)), c(0, 1, 1, 0, 0, 0))
   expect_error(node_is_infected(flu), "no diffusion")
 })
+
+test_that("the reproduction number is the transmission times the excess degree", {
+  # with certain infection and no recovery, T = 1, so R0 is the excess degree
+  star <- play_diffusion(create_star(5), seeds = 1, steps = 3)
+  expect_equal(as.numeric(net_by_reproduction(star)), 12/8)
+  ring <- play_diffusion(create_ring(8), seeds = 1, steps = 3)
+  expect_equal(as.numeric(net_by_reproduction(ring)), 1)
+  # a seed that recovers before it can infect leaves no exposure to estimate
+  gone <- play_diffusion(create_ring(8), seeds = 1, steps = 3, recovery = 1)
+  expect_warning(out <- net_by_reproduction(gone), "exposed")
+  expect_true(is.na(as.numeric(out)))
+})
+
+test_that("the reproduction number recovers the chances that were played", {
+  set.seed(5)
+  net <- generate_random(300, p = 0.02)
+  played <- play_diffusion(net, seeds = 1:5, steps = 300,
+                           transmissibility = 0.3, recovery = 0.4)
+  parts <- .reproduction_parts(played)
+  expect_equal(parts$tau, 0.3, tolerance = 0.1)
+  expect_equal(parts$gamma, 0.4, tolerance = 0.1)
+  k <- node_by_deg(net)
+  truth <- 0.6 * 0.3 / (0.4 + 0.3 - 0.12) * sum(k * (k - 1)) / sum(k)
+  expect_equal(as.numeric(net_by_reproduction(played)), truth, tolerance = 0.15)
+})

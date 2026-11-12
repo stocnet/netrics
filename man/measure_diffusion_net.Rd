@@ -55,9 +55,9 @@ in a diffusion simulation, or the number of new infections over
 the number of susceptible nodes.
 \item \code{net_by_recovery()} measures the average number of time steps
 nodes remain infected once they become infected.
-\item \code{net_by_reproduction()} measures the observed reproductive number
-in a diffusion simulation as the network's transmissibility over
-the network's average infection length.
+\item \code{net_by_reproduction()} estimates the basic reproduction number
+from the chances of infection and recovery in a diffusion,
+and from the structure of the network.
 \item \code{net_by_immunity()} measures the proportion of nodes that would need
 to be protected through vaccination, isolation, or recovery for herd immunity to be reached.
 }
@@ -88,17 +88,50 @@ The longer nodes remain infected, the longer they can infect others.
 
 \section{Reproduction number}{
 
-\code{net_reproduction()} measures a given diffusion's reproductive number.
-Here it is calculated as:
-\deqn{R = \min\left(\frac{T}{1/L}, \bar{k}\right)}
-where \eqn{T} is the observed transmissibility in a diffusion
-and \eqn{L} is the observed recovery length in a diffusion.
-Since \eqn{L} can be infinite where there is no recovery
-or there is right censoring,
-and since network structure places an upper limit on how many
-nodes each node may further infect (their degree),
-this function returns the minimum of \eqn{R_0}
-and the network's average degree.
+\code{net_by_reproduction()} estimates the basic reproduction number
+\eqn{R_0} of a diffusion: the number of nodes that one typical case
+infects when all other nodes are susceptible.
+On a network this is
+\deqn{R_0 = T \kappa}
+where \eqn{T} is the chance that an infectious node infects a susceptible
+neighbour before it recovers,
+and \eqn{\kappa} is the mean number of other neighbours of a node
+that a tie reaches.
+So the estimate separates the contagion, \eqn{T}, from the network,
+\eqn{\kappa}.
+
+\eqn{T} comes from two chances per step, which are estimated from the
+states of the nodes in each step:
+\eqn{\hat\tau}, the share of the exposed susceptible nodes that are
+infected, and \eqn{\hat\gamma}, the share of the infectious nodes that
+recover or die.
+A node is exposed when it has a tie from a node that is infectious at
+the start and the end of the step.
+As in \code{manynet::play_diffusion()}, a node recovers before it can infect
+in a step, so
+\deqn{T = \frac{(1 - \gamma) \tau}{\gamma + \tau - \gamma \tau}}
+With no recovery, \eqn{T = 1}.
+Where no susceptible node was exposed, for example where the seeds
+recover in the first step, \eqn{\tau} cannot be estimated,
+and the result is \code{NA} with a warning.
+A small outbreak gives a noisy estimate, so where possible pool several
+diffusions or use more seeds.
+
+\eqn{\kappa} is the mean excess degree of the network of the nodes that
+are not recovered or dead at the start,
+\eqn{\sum_i k_i (k_i - 1) / \sum_i k_i},
+or \eqn{\sum_i k^{in}_i k^{out}_i / \sum_i k^{in}_i} on a directed network.
+It is larger than the mean degree where the degrees are unequal,
+because a tie is more likely to reach a node with many ties.
+
+The estimate assumes a simple contagion:
+a threshold of 1, with ties that expose the node they go to
+(\code{direction = "in"}), and a chance of infection that does not grow with
+the number of infectious neighbours.
+It also assumes that the degrees are not correlated, as in a random
+network; in a clustered network, such as a lattice, it is too high,
+because the neighbours of a case share neighbours.
+A two-mode network is not yet available.
 
 Interpretation of the reproduction number is oriented around R = 1.
 Where \eqn{R > 1}, the 'disease' will 'infect' more and more
@@ -116,15 +149,16 @@ that need to be protected from infection for herd immunity
 to be achieved.
 This is known as the Herd Immunity Threshold or HIT:
 \deqn{1 - \frac{1}{R}}
-where \eqn{R} is the reproduction number from \code{net_reproduction()}.
+where \eqn{R} is the reproduction number from \code{net_by_reproduction()}.
 The HIT indicates the threshold at which
 the reduction of susceptible members of the network means
 that infections will no longer keep increasing.
 Note that there may still be more infections after this threshold has been reached,
 but there should be fewer and fewer.
 These excess infections are called the \emph{overshoot}.
-This function does \emph{not} take into account the structure
-of the network, instead using the average degree.
+With \eqn{R} from \code{net_by_reproduction()}, which uses the structure of
+the network, this is the share of nodes to protect at random.
+Protecting the nodes with the most ties needs fewer.
 
 Interpretation is quite straightforward.
 A HIT or immunity score of 0.75 would mean that 75\% of the nodes in the network
@@ -173,6 +207,11 @@ Kenah, Eben, and James M. Robins. 2007.
 "Second look at the spread of epidemics on networks".
 \emph{Physical Review E}, 76(3 Pt 2): 036113.
 \doi{10.1103/PhysRevE.76.036113}
+
+Newman, Mark E.J. 2002.
+"Spread of epidemic disease on networks".
+\emph{Physical Review E}, 66(1): 016128.
+\doi{10.1103/PhysRevE.66.016128}
 }
 
 \subsection{On herd immunity}{
