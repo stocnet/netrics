@@ -29,7 +29,7 @@ NULL
 #' node_x_brokerage(ison_networkers, "Discipline")
 #' @export
 node_x_brokerage <- function(.data, membership, standardized = FALSE){
-  thisRequires("sna")
+  manynet::snet_requires("sna")
   .data <- manynet::expect_nodes(.data)
   .data <- .to_aggregated_css(.data)
   membership <- .resolve_membership(.data, membership)
@@ -68,7 +68,7 @@ NULL
 #' net_x_brokerage(ison_networkers, "Discipline")
 #' @export
 net_x_brokerage <- function(.data, membership, standardized = FALSE){
-  thisRequires("sna")
+  manynet::snet_requires("sna")
   .data <- manynet::expect_nodes(.data)
   .data <- .to_aggregated_css(.data)
   membership <- .resolve_membership(.data, membership)

@@ -218,7 +218,7 @@ node_by_flow <- function(.data, from, to, normalized = TRUE){
   # one nodeset, keeping any tie weights to serve as capacities.
   onemode <- manynet::to_onemode(.data)
   if(missing(from) && missing(to)){
-    thisRequires("sna")
+    manynet::snet_requires("sna")
     out <- sna::flowbet(manynet::as_matrix(onemode),
                         gmode = ifelse(manynet::is_directed(.data), "digraph", "graph"),
                         diag = manynet::is_looped(.data),
@@ -276,7 +276,7 @@ node_by_flow <- function(.data, from, to, normalized = TRUE){
 node_by_stress <- function(.data, normalized = TRUE){
   .data <- manynet::expect_nodes(.data)
   .data <- .to_aggregated_css(.data)
-  thisRequires("sna")
+  manynet::snet_requires("sna")
   out <- sna::stresscent(manynet::as_network(.data),
                          gmode = ifelse(manynet::is_directed(.data), "digraph", "graph"),
                          diag = manynet::is_looped(.data),

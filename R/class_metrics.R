@@ -61,11 +61,8 @@ set_measure_attributes <- function(out, measure = NULL, range = NULL,
 # named for symmetry with `normalized`. Accepts the old spelling and warns.
 resolve_scaled <- function(scaled, scale = NULL) {
   if(!is.null(scale)) {
-    # A real warning rather than `snet_warn()`, which is quiet by default:
-    # a renamed argument is something the user needs to act on.
-    warning("The `scale` argument has been renamed `scaled`, ",
-            "for symmetry with `normalized`. Please use `scaled` instead.",
-            call. = FALSE)
+    manynet::snet_deprecated("scale", "scaled", type = "argument",
+                             why = "It was renamed for symmetry with {.arg normalized}.")
     scaled <- scale
   }
   scaled
@@ -78,9 +75,8 @@ resolve_scaled <- function(scaled, scale = NULL) {
 # and warns, as `resolve_scaled()` does.
 resolve_max_k <- function(max_k, Kmax = NULL) {
   if(!is.null(Kmax)) {
-    warning("The `Kmax` argument has been renamed `max_k`, ",
-            "for consistency with the rest of the package. ",
-            "Please use `max_k` instead.", call. = FALSE)
+    manynet::snet_deprecated("Kmax", "max_k", type = "argument",
+                             why = "It was renamed for consistency with the rest of the package.")
     max_k <- Kmax
   }
   max_k
@@ -93,9 +89,9 @@ resolve_cluster <- function(cluster, proximity) {
   # Only the whole word is the old value, so that fewer letters, such as "c",
   # still name an algorithm.
   if(identical(cluster, "cosine")) {
-    warning("`cluster = \"cosine\"` is deprecated, ",
-            "since cosine is a proximity and not a clustering algorithm. ",
-            "Please use `proximity = \"cosine\"` instead.", call. = FALSE)
+    manynet::snet_deprecated('cluster = "cosine"', 'proximity = "cosine"',
+                             type = "value",
+                             why = "Cosine is a proximity, not a clustering algorithm.")
     cluster <- "hierarchical"
     proximity <- "cosine"
   } else {
@@ -108,9 +104,8 @@ resolve_cluster <- function(cluster, proximity) {
 # `groups`, as `node_in_core()` calls it. Accepts the old spelling and warns.
 resolve_groups <- function(groups, num_groups = NULL) {
   if(!is.null(num_groups)) {
-    warning("The `num_groups` argument has been renamed `groups`, ",
-            "the name this package uses for a fixed number of groups. ",
-            "Please use `groups` instead.", call. = FALSE)
+    manynet::snet_deprecated("num_groups", "groups", type = "argument",
+                             why = "It was renamed to the name this package uses for a fixed number of groups.")
     groups <- num_groups
   }
   groups
@@ -123,9 +118,8 @@ resolve_groups <- function(groups, num_groups = NULL) {
 # became `walks`. Accepts the old spelling and warns.
 resolve_method <- function(new, method = NULL, new_name) {
   if(!is.null(method)) {
-    warning("The `method` argument has been renamed `", new_name, "`, ",
-            "since `method` named several different things in this package. ",
-            "Please use `", new_name, "` instead.", call. = FALSE)
+    manynet::snet_deprecated("method", new_name, type = "argument",
+                             why = "It was renamed, since {.arg method} named several different things in this package.")
     new <- method
   }
   new
@@ -137,9 +131,8 @@ resolve_method <- function(new, method = NULL, new_name) {
 # they return. Accepts the old spelling and warns.
 resolve_split <- function(split, cluster_by = NULL) {
   if(!is.null(cluster_by)) {
-    warning("The `cluster_by` argument has been renamed `split`, ",
-            "which names the `split_*()` methods it chooses between. ",
-            "Please use `split` instead.", call. = FALSE)
+    manynet::snet_deprecated("cluster_by", "split", type = "argument",
+                             why = "It was renamed for the {.fn split_*} methods it chooses between.")
     split <- cluster_by
   }
   split
@@ -155,9 +148,8 @@ resolve_split <- function(split, cluster_by = NULL) {
 # Accepts a superseded spelling and warns, as `resolve_scaled()` does.
 resolve_decay <- function(decay, old = NULL, old_name) {
   if(!is.null(old)) {
-    warning("The `", old_name, "` argument has been renamed `decay`, ",
-            "the name this package uses for a per-step discount. ",
-            "Please use `decay` instead.", call. = FALSE)
+    manynet::snet_deprecated(old_name, "decay", type = "argument",
+                             why = "It was renamed to the name this package uses for a per-step discount.")
     decay <- old
   }
   decay
@@ -299,9 +291,8 @@ make_network_motif <- function(out, .data) {
 # old spelling and warns, as `resolve_scaled()` does.
 resolve_coreness <- function(coreness, centrality = NULL) {
   if(!is.null(centrality)) {
-    warning("The `centrality` argument has been replaced by `coreness`, ",
-            "which names the method rather than the ranking it happens to ",
-            "use. Please use `coreness` instead.", call. = FALSE)
+    manynet::snet_deprecated("centrality", "coreness", type = "argument",
+                             why = "{.arg coreness} names the method, not the ranking it happens to use.")
     if(is.null(coreness)) coreness <- "correlation"
   }
   coreness

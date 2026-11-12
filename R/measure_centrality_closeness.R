@@ -394,7 +394,7 @@ node_by_radiality <- function(.data, normalized = TRUE){
 node_by_information <- function(.data, normalized = TRUE){
   .data <- manynet::expect_nodes(.data)
   .data <- .to_aggregated_css(.data)
-  thisRequires("sna")
+  manynet::snet_requires("sna")
   # `sna` needs a square sociomatrix, but `as_network()` hands it the
   # rectangular incidence matrix of a two-mode network. Flattening to one
   # mode first gives every node a row and a column, which is

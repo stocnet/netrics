@@ -24,18 +24,6 @@ available_methods <- function(fun_vctr) {
   manynet::as_matrix(out)
 }
 
-# Helper function for checking and downloading packages
-thisRequires <- function(pkgname){
-  if (!requireNamespace(pkgname, quietly = TRUE) & interactive()) {
-    if(utils::askYesNo(msg = paste("The", pkgname, 
-                                   "package is required to run this function. Would you like to install", pkgname, "from CRAN?"))) {
-      utils::install.packages(pkgname)
-    } else {
-      manynet::snet_abort(paste("Please install", pkgname, "from CRAN to run this function."))
-    }
-  }
-}
-
 seq_nodes <- function(.data){
   seq.int(manynet::net_nodes(.data))
 }

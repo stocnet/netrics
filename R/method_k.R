@@ -91,7 +91,7 @@ k_strict <- function(hc, .data){
 #' @export
 k_elbow <- function(hc, .data, motif, max_k){
   
-  thisRequires("sna")
+  manynet::snet_requires("sna")
   
   clusterCorr <- function(observed_cor_matrix, cluster_vector) {
     num_vertices = nrow(observed_cor_matrix)
