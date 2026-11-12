@@ -5,6 +5,8 @@
 - Renamed `tie_is_multiple()` to `tie_is_repeated()`, apart from `manynet::tie_is_parallel()` (closes #38)
 - Added `attribute="diffusion"` to diffusion marks, measures, memberships, and motifs
 - Added `tie_is_mainpath()` for the local or global main path of an acyclic network
+- Added `tie_is_long()` for the ties whose two ends have no common neighbour (Centola and Macy 2007)
+- Fixed `tie_is_bridge()` returning an invisible vector without the `tie_mark` class
 - Fixed diffusion marks losing the diffusion of `diff_model` objects
   - `node_is_infected()`, `node_is_latent()`, `node_is_recovered()`, `node_is_exposed()`
 

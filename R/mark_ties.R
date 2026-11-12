@@ -7,7 +7,8 @@
 #'   
 #'   - `tie_is_loop()` marks ties that are loops.
 #'   - `tie_is_feedback()` marks ties that are feedback arcs causing the network to not be acyclic.
-#'   - `tie_is_bridge()` marks ties that cut or act as articulation points in a network.
+#'   - `tie_is_bridge()` marks ties whose removal disconnects the network.
+#'   - `tie_is_long()` marks ties whose two ends have no common neighbour.
 #'   - `tie_is_path()` marks ties on a path from one node to another.
 #'   - `tie_is_mainpath()` marks ties on the main path of a directed acyclic
 #'   network, such as a citation network.
@@ -46,7 +47,28 @@ tie_is_feedback <- function(.data){
 }
 
 #' @rdname mark_ties
-#' @importFrom igraph decompose delete_edges
+#' @section Bridges and long ties:
+#'   `tie_is_bridge()` marks a tie whose removal disconnects the network,
+#'   so that its two ends are in different components.
+#'   Direction is ignored, and a repeated tie is not a bridge.
+#'
+#'   `tie_is_long()` marks a long tie, after Centola and Macy (2007):
+#'   a tie whose two ends have no common neighbour.
+#'   Without the tie, its ends are at a distance of 3 or more,
+#'   or in different components.
+#'   Granovetter calls such a tie a local bridge.
+#'   Every bridge is a long tie, but a long tie can have other paths around it.
+#'   Direction and repeated ties are ignored, and a loop is never long.
+#'   See `tie_by_width()` for how wide the bridge is that each tie is in.
+#'   A two-mode network is not yet available, because no two nodes of
+#'   different modes share a neighbour.
+#' @references
+#' ## On long ties
+#'   Centola, Damon, and Michael Macy. 2007.
+#'   "Complex contagions and the weakness of long ties".
+#'   _American Journal of Sociology_ 113(3): 702-734.
+#'   \doi{10.1086/521848}
+#' @importFrom igraph bridges
 #' @examples 
 #' tie_is_bridge(ison_centrality)
 #' @export
@@ -54,13 +76,28 @@ tie_is_bridge <- function(.data){
   .data <- manynet::expect_ties(.data)  
   if(manynet::is_cognitive(.data))
     return(.map_css_ties(.data, tie_is_bridge))
-  num_comp <- length( igraph::decompose(manynet::as_igraph(.data)) )
-  out <- vapply(seq_len(manynet::net_ties(.data)), function(x){
-    length( igraph::decompose(igraph::delete_edges(.data, x)) ) > num_comp
-  }, FUN.VALUE = logical(1))
-  if(manynet::is_labelled(.data)) 
-    names(out) <- attr(igraph::E(.data), "vnames")
-  make_tie_mark(out, .data)
+  g <- manynet::as_igraph(.data)
+  out <- seq_len(igraph::ecount(g)) %in% as.numeric(igraph::bridges(g))
+  make_tie_mark(out, g)
+}
+
+#' @rdname mark_ties
+#' @examples 
+#' tie_is_long(manynet::create_ring(8))
+#' tie_is_long(ison_adolescents)
+#' @export
+tie_is_long <- function(.data){
+  .data <- manynet::expect_ties(.data)  
+  if(manynet::is_cognitive(.data))
+    return(.map_css_ties(.data, tie_is_long))
+  if(manynet::is_twomode(.data))
+    manynet::snet_unavailable("A long tie needs a one-mode network.")
+  g <- manynet::as_igraph(.data)
+  adj <- .contagion_adjacency(.data)
+  common <- adj %*% adj
+  ends <- igraph::ends(g, igraph::E(g), names = FALSE)
+  out <- ends[, 1] != ends[, 2] & common[ends] == 0
+  make_tie_mark(out, g)
 }
 
 #' @rdname mark_ties

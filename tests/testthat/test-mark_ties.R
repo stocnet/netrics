@@ -3,6 +3,8 @@ for(fn in names(tie_marks)) {
   for (ob in names(data_objs)) { 
     test_that(paste(fn, "works on", ob), {
       skip_if(grepl("tie_is_imbalanced", fn) && ob == "twomode")
+      if(fn == "tie_is_long" && ob == "twomode")
+        return(expect_error(tie_marks[[fn]](data_objs[[ob]]), "one-mode"))
       if(fn == "tie_is_mainpath"){
         succeed("Only used for directed acyclic objects")
       } else if(fn == "tie_is_path"){
@@ -44,6 +46,22 @@ test_that("tie_is_loop works", {
 
 test_that("tie_is_bridge works", {
   expect_equal(length(tie_is_bridge(graph1)), c(net_ties(graph1)))
+  expect_s3_class(tie_is_bridge(graph1), "tie_mark")
+  # on a tree every tie is a bridge, and on a ring none is
+  expect_true(all(tie_is_bridge(create_tree(10))))
+  expect_false(any(tie_is_bridge(create_ring(8))))
+})
+
+test_that("tie_is_long marks ties whose ends share no neighbour", {
+  expect_s3_class(tie_is_long(ison_adolescents), "tie_mark")
+  expect_true(all(tie_is_long(create_ring(8))))
+  expect_false(any(tie_is_long(create_filled(5))))
+  # a shortcut across a lattice is the only long tie, and the narrowest
+  lattice <- add_ties(create_ring(20, width = 2), c(1, 11))
+  expect_equal(sum(tie_is_long(lattice)), 1)
+  expect_equal(unname(c(tie_by_width(lattice)[tie_is_long(lattice)])), 1)
+  # every bridge is a long tie
+  expect_true(all(tie_is_long(ison_centrality)[tie_is_bridge(ison_centrality)]))
 })
 
 test_that("tie_is_path works", {

@@ -226,6 +226,7 @@ export(tie_is_bridge)
 export(tie_is_cyclical)
 export(tie_is_feedback)
 export(tie_is_imbalanced)
+export(tie_is_long)
 export(tie_is_loop)
 export(tie_is_mainpath)
 export(tie_is_max)
@@ -252,11 +253,10 @@ importFrom(igraph,
   alpha_centrality,
   articulation_points,
   assortativity_degree,
+  bridges,
   cohesion,
   components,
-  decompose,
   degree,
-  delete_edges,
   delete_vertices,
   diameter,
   distances,

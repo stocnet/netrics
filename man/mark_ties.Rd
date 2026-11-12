@@ -5,6 +5,7 @@
 \alias{tie_is_loop}
 \alias{tie_is_feedback}
 \alias{tie_is_bridge}
+\alias{tie_is_long}
 \alias{tie_is_path}
 \alias{tie_is_mainpath}
 \title{Marks of ties based on structural properties}
@@ -14,6 +15,8 @@ tie_is_loop(.data)
 tie_is_feedback(.data)
 
 tie_is_bridge(.data)
+
+tie_is_long(.data)
 
 tie_is_path(.data, from, to, all_paths = FALSE)
 
@@ -51,7 +54,8 @@ in a network identifying which hold certain properties or positions in the netwo
 \itemize{
 \item \code{tie_is_loop()} marks ties that are loops.
 \item \code{tie_is_feedback()} marks ties that are feedback arcs causing the network to not be acyclic.
-\item \code{tie_is_bridge()} marks ties that cut or act as articulation points in a network.
+\item \code{tie_is_bridge()} marks ties whose removal disconnects the network.
+\item \code{tie_is_long()} marks ties whose two ends have no common neighbour.
 \item \code{tie_is_path()} marks ties on a path from one node to another.
 \item \code{tie_is_mainpath()} marks ties on the main path of a directed acyclic
 network, such as a citation network.
@@ -60,6 +64,24 @@ network, such as a citation network.
 They are most useful in highlighting parts of the network that
 are particularly well- or poorly-connected.
 }
+\section{Bridges and long ties}{
+
+\code{tie_is_bridge()} marks a tie whose removal disconnects the network,
+so that its two ends are in different components.
+Direction is ignored, and a repeated tie is not a bridge.
+
+\code{tie_is_long()} marks a long tie, after Centola and Macy (2007):
+a tie whose two ends have no common neighbour.
+Without the tie, its ends are at a distance of 3 or more,
+or in different components.
+Granovetter calls such a tie a local bridge.
+Every bridge is a long tie, but a long tie can have other paths around it.
+Direction and repeated ties are ignored, and a loop is never long.
+See \code{tie_by_width()} for how wide the bridge is that each tie is in.
+A two-mode network is not yet available, because no two nodes of
+different modes share a neighbour.
+}
+
 \section{Main path}{
 
 \code{tie_is_mainpath()} marks the main path through a directed acyclic network,
@@ -88,6 +110,8 @@ For networks with cycles, or undirected networks,
 tie_is_loop(fict_marvel)
 tie_is_feedback(ison_algebra)
 tie_is_bridge(ison_centrality)
+tie_is_long(manynet::create_ring(8))
+tie_is_long(ison_adolescents)
 ison_adolescents |>
   mutate_ties(route = tie_is_path(from = "Jane", to = 7)) 
 citations <- create_explicit(A-+C, B-+C, B-+D, C-+E, D-+E, E-+F, D-+F)
@@ -96,6 +120,14 @@ tie_is_mainpath(citations, global = TRUE)
 citations |> filter_ties(tie_is_mainpath()) |> delete_isolates()
 }
 \references{
+\subsection{On long ties}{
+
+Centola, Damon, and Michael Macy. 2007.
+"Complex contagions and the weakness of long ties".
+\emph{American Journal of Sociology} 113(3): 702-734.
+\doi{10.1086/521848}
+}
+
 \subsection{On main path analysis}{
 
 Hummon, Norman P., and Patrick Doreian. 1989.

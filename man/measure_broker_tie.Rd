@@ -44,15 +44,28 @@ neighbourhoods at its ends.
 For a tie between \eqn{i} and \eqn{j}, it counts the ties with one end in
 \eqn{N[i] \setminus \{j\}} and the other in \eqn{N[j] \setminus \{i\}},
 where \eqn{N[i]} is \eqn{i} with its neighbours.
-The tie itself is one of them, so a long tie, between two neighbourhoods
-with nothing else in common, has a width of 1,
+The tie itself is one of them, so the smallest width is 1,
 and a tie inside a cluster has a large width.
+A tie with a width of 1 is the narrowest long tie (see \code{tie_is_long()}):
+no other tie joins the two neighbourhoods, so without it the two ends are
+at a distance of 4 or more.
+A long tie whose ends are at a distance of 3 without it has a width of 2
+or more.
 A complex contagion, which needs several sources to spread,
 passes only along bridges that are wide enough.
 
 This is not the bridge of \code{tie_is_bridge()}, which marks a tie whose
 removal disconnects the network.
-A tie in a wide bridge is never such a tie.
+Every tie that \code{tie_is_bridge()} marks has a width of 1,
+but a long tie can have other paths around it.
+
+Guilbeault and Centola (2021) count the nodes that join the two
+neighbourhoods, not the ties, so their widths are higher,
+and their narrowest width is 2.
+A width is a total, so it does not show whether one node gets
+enough signals to adopt: a width of 3 from three different nodes does
+not pass a \code{threshold} of 2.
+For the spread itself, use \code{node_by_contagion()}.
 Direction is ignored, and a two-mode network is not yet available.
 }
 
