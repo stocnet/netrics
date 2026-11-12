@@ -1111,3 +1111,139 @@ net_by_disagreement <- function(.data, attribute){
   as.numeric(x)
 }
 
+# Concentration ####
+
+#' @rdname measure_assort_node
+#' @section Concentration:
+#'   `node_by_concentration()` measures whether each node sits in a hot spot
+#'   or a cold spot of a numeric attribute, with the \eqn{G_i^*} statistic of
+#'   Getis and Ord (1992) and Ord and Getis (1995).
+#'   It compares the sum of the values in the neighbourhood of a node,
+#'   the node included, with what that sum would be by chance:
+#'   \deqn{G_i^* = \frac{\sum_j w_{ij} x_j - \bar{x} \sum_j w_{ij}}
+#'   {s \sqrt{(n \sum_j w_{ij}^2 - (\sum_j w_{ij})^2) / (n - 1)}}}
+#'   where \eqn{w_{ii} = 1}, and \eqn{\bar{x}} and \eqn{s} are the mean and
+#'   standard deviation over all nodes.
+#'   It is a z-score: a large positive value is a hot spot, a neighbourhood
+#'   of high values, and a large negative value is a cold spot, a neighbourhood
+#'   of low values.
+#'
+#'   This differs from local Moran's I (`node_by_homophily(assortativity = "moran")`).
+#'   Moran's I asks whether a node is like its neighbours,
+#'   so a cluster of low values gives a positive value, just as a cluster of
+#'   high values does. \eqn{G_i^*} gives a cluster of low values a negative value.
+#'   "Concentration" here is the concentration of high or low values in a
+#'   neighbourhood, and not a Herfindahl index of shares.
+#'   The weights are the tie weights, and a two-mode network is projected
+#'   as for `net_by_spatial()`.
+#' @references
+#' ## On concentration
+#'   Getis, Arthur, and J. Keith Ord. 1992.
+#'   "The analysis of spatial association by use of distance statistics".
+#'   _Geographical Analysis_ 24(3): 189-206.
+#'   \doi{10.1111/j.1538-4632.1992.tb00261.x}
+#'
+#'   Ord, J. Keith, and Arthur Getis. 1995.
+#'   "Local spatial autocorrelation statistics: distributional issues and an application".
+#'   _Geographical Analysis_ 27(4): 286-306.
+#'   \doi{10.1111/j.1538-4632.1995.tb00912.x}
+#' @examples
+#' node_by_concentration(ison_lawfirm, "age")
+#' @export
+node_by_concentration <- function(.data, attribute){
+  .data <- manynet::expect_nodes(.data)
+  .data <- .to_aggregated_css(.data)
+  input <- .concentration_input(.data, attribute)
+  w <- input$w
+  diag(w) <- 1
+  x <- input$x
+  out <- rep(NA_real_, length(x))
+  valid <- !is.na(x)
+  xv <- x[valid]
+  wv <- w[valid, valid, drop = FALSE]
+  n <- length(xv)
+  s <- sqrt(sum(xv^2) / n - mean(xv)^2)
+  if(n > 1 && s > 0){
+    sw <- rowSums(wv)
+    den <- s * sqrt(pmax(n * rowSums(wv^2) - sw^2, 0) / (n - 1))
+    gi <- (c(wv %*% xv) - mean(xv) * sw) / den
+    gi[den == 0] <- 0
+    out[valid] <- gi
+  }
+  if(input$projected) out <- .unproject(out, .data, input)
+  make_node_measure(out, .data, measure = "Getis-Ord Gi*",
+                    range = c(-Inf, Inf), normalization = "none")
+}
+
+#' @rdname measure_assort_net
+#' @section Concentration:
+#'   `net_by_concentration()` measures whether high values of a positive
+#'   numeric attribute sit together in a network, with the general \eqn{G}
+#'   statistic of Getis and Ord (1992):
+#'   \deqn{G = \frac{\sum_{i \neq j} w_{ij} x_i x_j}{\sum_{i \neq j} x_i x_j}}
+#'   On a network without weights it runs from 0 to 1, and is the share of
+#'   all the products of two values that fall on ties.
+#'   Compare it with the density: a value above the density means that high
+#'   values sit together, and a value below it that low values sit together.
+#'   See `node_by_concentration()` for the hot spots and cold spots.
+#' @examples
+#' net_by_concentration(ison_lawfirm, "age")
+#' @export
+net_by_concentration <- function(.data, attribute){
+  .data <- manynet::expect_nodes(.data)
+  .data <- .to_aggregated_css(.data)
+  input <- .concentration_input(.data, attribute)
+  x <- input$x
+  valid <- !is.na(x)
+  x <- x[valid]
+  w <- input$w[valid, valid, drop = FALSE]
+  if(any(x < 0))
+    manynet::snet_abort("The general G statistic needs values of 0 or more,",
+                        "but the attribute holds negative values.")
+  xx <- outer(x, x)
+  diag(xx) <- 0
+  diag(w) <- 0
+  out <- `if`(sum(xx) > 0, sum(w * xx) / sum(xx), NA_real_)
+  make_network_measure(out, .data, call = deparse(sys.call()),
+                       measure = "Getis-Ord G",
+                       range = `if`(manynet::is_weighted(.data), c(0, Inf), c(0, 1)),
+                       normalization = "none")
+}
+
+# The weight matrix and the values of a numeric attribute. A two-mode network
+# has no ties within a mode, so it is projected as in `net_by_spatial()`.
+.concentration_input <- function(.data, attribute){
+  attribute <- .pick_attribute(.data, attribute)
+  if(!(is.character(attribute) && length(attribute) == 1))
+    manynet::snet_abort("Please name a numeric nodal attribute with {.arg attribute}.")
+  x <- manynet::node_attribute(.data, attribute)
+  if(is.logical(x)) x <- x * 1
+  if(!is.numeric(x))
+    manynet::snet_abort("This measure needs a numeric attribute,",
+                        "but {.val {attribute}} is {.cls {class(x)[1]}}.")
+  net <- .data
+  mode <- NULL
+  projected <- FALSE
+  if(manynet::is_twomode(net)){
+    mode <- attr_mode(net, attribute)
+    if(is.null(mode)){
+      net <- manynet::to_onemode(net)
+    } else {
+      net <- manynet::to_mode(net, mode = `if`(mode, 2, 1))
+      projected <- TRUE
+    }
+    x <- as.numeric(manynet::node_attribute(net, attribute))
+  }
+  w <- manynet::as_matrix(net)
+  dimnames(w) <- NULL
+  w[is.na(w)] <- 0
+  list(w = w, x = as.numeric(x), mode = mode, projected = projected)
+}
+
+# Puts the values of a projected mode back among all the nodes,
+# with NA for the nodes of the other mode
+.unproject <- function(out, .data, input){
+  full <- rep(NA_real_, manynet::net_nodes(.data))
+  full[manynet::node_is_mode(.data) == input$mode] <- out
+  full
+}
