@@ -34,8 +34,8 @@ test_that("net_x_triad takes a mixed census over a multilevel network", {
   # fict_marvel holds as negative weights must not reach the arithmetic
   expect_true(all(as.numeric(res) >= 0))
   # the same census, asked for by supplying the two networks directly
-  one <- manynet::to_uniplex(fict_marvel, "relationship")
-  two <- manynet::to_uniplex(fict_marvel, "affiliation")
+  one <- manynet::to_layer(fict_marvel, "relationship")
+  two <- manynet::to_layer(fict_marvel, "affiliation")
   expect_equal(as.numeric(net_x_triad(one, two)), as.numeric(res))
 })
 
@@ -57,8 +57,8 @@ test_that("net_x_mixed is defunct in favour of net_x_triad", {
 
 test_that("net_x_triad still takes a second network, with a message", {
   local_verbose()
-  one <- manynet::to_uniplex(fict_marvel, "relationship")
-  two <- manynet::to_uniplex(fict_marvel, "affiliation")
+  one <- manynet::to_layer(fict_marvel, "relationship")
+  two <- manynet::to_layer(fict_marvel, "affiliation")
   res <- as.numeric(suppressMessages(net_x_triad(fict_marvel)))
   # positionally, where `attribute` now sits, and by its old name
   expect_message(pos <- net_x_triad(one, two), "deprecated")

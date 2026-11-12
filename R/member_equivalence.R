@@ -345,7 +345,7 @@ node_in_block <- function(.data, k = 2L,
                        "at each step, which may take a while on this network.",
                        "Consider {.code search = \"iterated\"}.")
   mat <- manynet::as_matrix(manynet::to_unweighted(manynet::to_onemode(.data)))
-  loops <- manynet::is_complex(.data)
+  loops <- manynet::is_looped(.data)
   fitness <- function(m) .block_cost(mat, m, blocks, loops)
   # begin from a random partition into k roughly equal positions
   shuffled <- sample(seq.int(n))

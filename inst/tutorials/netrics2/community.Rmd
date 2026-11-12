@@ -51,9 +51,9 @@ learnr::random_phrases_add(language = "en",
                                       "Well done!",
                                       "Awesome!"),
                            encouragement = c("Good effort"))
-friends <- to_uniplex(ison_algebra, "friends")
-social <- to_uniplex(ison_algebra, "social")
-tasks <- to_uniplex(ison_algebra, "tasks")
+friends <- to_layer(ison_algebra, "friends")
+social <- to_layer(ison_algebra, "social")
+tasks <- to_layer(ison_algebra, "tasks")
 ```
 
 ```{r detect-language, context="server-start", purl=FALSE}
@@ -221,28 +221,28 @@ as they are assigned randomly from a pool of (American) first names.
 As a multiplex network,
 there are actually three different types of ties (friends, social, and tasks)
 in this network.
-We can extract them and graph them separately using `to_uniplex()`:
+We can extract them and graph them separately using `to_layer()`:
 
 ```{r separatingnets, exercise=TRUE, exercise.setup = "data", purl = FALSE}
 
 ```
 
 ```{r separatingnets-hint-1, purl = FALSE}
-# to_uniplex extracts ties of a single type,
+# to_layer extracts ties of a single type,
 # focusing on the 'friends' tie attribute here
-friends <- to_uniplex(ison_algebra, "friends")
+friends <- to_layer(ison_algebra, "friends")
 gfriend <- graphr(friends) + ggtitle("Friendship")
 ```
 
 ```{r separatingnets-hint-2, purl = FALSE}
 # now let's focus on the 'social' tie attribute
-social <- to_uniplex(ison_algebra, "social")
+social <- to_layer(ison_algebra, "social")
 gsocial <- graphr(social) + ggtitle("Social")
 ```
 
 ```{r separatingnets-hint-3, purl = FALSE}
 # and the 'tasks' tie attribute
-tasks <- to_uniplex(ison_algebra, "tasks")
+tasks <- to_layer(ison_algebra, "tasks")
 gtask <- graphr(tasks) + ggtitle("Task")
 ```
 
@@ -256,13 +256,13 @@ gfriend + gsocial + gtask
 ```
 
 ```{r separatingnets-solution}
-friends <- to_uniplex(ison_algebra, "friends")
+friends <- to_layer(ison_algebra, "friends")
 gfriend <- graphr(friends) + ggtitle("Friendship")
 
-social <- to_uniplex(ison_algebra, "social")
+social <- to_layer(ison_algebra, "social")
 gsocial <- graphr(social) + ggtitle("Social")
 
-tasks <- to_uniplex(ison_algebra, "tasks")
+tasks <- to_layer(ison_algebra, "tasks")
 gtask <- graphr(tasks) + ggtitle("Task")
 
 # We now have three separate networks depicting each type of tie from the ison_algebra network:
@@ -580,7 +580,7 @@ women_graph <- to_mode1(ison_southern_women)
 graphr(women_graph)
 
 # note that projection `to_mode1` involves keeping one type of nodes
-# this is different from to_uniplex above, which keeps one type of ties in the network
+# this is different from to_layer above, which keeps one type of ties in the network
 
 # event-graph
 # to_mode2(): Results in a weighted one-mode object that retains the column nodes from
@@ -1645,7 +1645,7 @@ Along the way, you have learned to use these functions:
 | `tie_is_reciprocated()` | flags each tie as reciprocated or not, for mapping with `edge_color` |
 | `net_by_indegree()` | centralisation of incoming ties, to see how unequal participation is |
 | `net_by_transitivity()` | how often two-paths close into triangles |
-| `to_uniplex()`, `to_named()`, `to_undirected()`, `to_giant()` | extracts one tie type, adds names, drops direction, keeps the giant component |
+| `to_layer()`, `to_named()`, `to_undirected()`, `to_giant()` | extracts one tie type, adds names, drops direction, keeps the giant component |
 | `as_matrix()` | coerces a network to a matrix, e.g. for manual projection |
 | `to_mode1()`, `to_mode2()` | projects a two-mode network onto its row or column nodes, with a `similarity` option |
 | `tie_weights()` | extracts the tie weights, e.g. of a projection |

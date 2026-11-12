@@ -153,7 +153,7 @@ A missing tie counts as no tie.
 }
 
 \examples{
-marvel_friends <- to_unsigned(to_uniplex(fict_marvel, "relationship"), "positive")
+marvel_friends <- to_unsigned(to_layer(fict_marvel, "relationship"), "positive")
 net_by_heterophily(marvel_friends, "Gender")
 net_by_heterophily(marvel_friends, "Attractive")
 net_by_homophily(marvel_friends, "Gender")

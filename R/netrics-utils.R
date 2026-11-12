@@ -197,7 +197,7 @@ seq_nodes <- function(.data){
 .valid_cells <- function(.data, mat){
   keep <- matrix(TRUE, nrow(mat), ncol(mat))
   if(!manynet::is_twomode(.data)){
-    if(!manynet::is_complex(.data)) diag(keep) <- FALSE
+    if(!manynet::is_looped(.data)) diag(keep) <- FALSE
     if(!manynet::is_directed(.data)) keep[upper.tri(keep)] <- FALSE
   }
   keep

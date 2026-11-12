@@ -124,8 +124,8 @@ For multiplex networks, \code{node_by_degree()} counts every tie a node holds,
 whatever its layer,
 so a node tied twice to the same alter on two layers scores 2.
 To score one layer at a time, take it first with
-\code{\link[manynet:to_uniplex]{manynet::to_uniplex()}}, or use \code{node_by_multidegree()} to contrast two.
-Note that \code{to_uniplex()} drops the nodes that hold none of the retained
+\code{\link[manynet:to_layer]{manynet::to_layer()}}, or use \code{node_by_multidegree()} to contrast two.
+Note that \code{to_layer()} drops the nodes that hold none of the retained
 ties, so scores from two layers are of different lengths.
 }
 

@@ -77,7 +77,7 @@ Missing values of the attribute are left out.
 A node whose domain holds no values returns \code{NA}.
 }
 \examples{
-marvel_friends <- to_unsigned(to_uniplex(fict_marvel, "relationship"), "positive")
+marvel_friends <- to_unsigned(to_layer(fict_marvel, "relationship"), "positive")
 node_by_domain(marvel_friends, "Appearances")
 node_by_domain(marvel_friends, "Appearances", statistic = "mean", cutoff = 1)
 }

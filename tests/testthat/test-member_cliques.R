@@ -72,7 +72,7 @@ test_that("node_in_roulette discounts older waves and times", {
 })
 
 test_that("node_in_roulette mixes the groups on an attribute", {
-  x <- to_unsigned(to_uniplex(fict_marvel, "relationship"), "positive")
+  x <- to_unsigned(to_layer(fict_marvel, "relationship"), "positive")
   set.seed(1)
   mixed <- node_in_roulette(x, groups = 3, attribute = "Gender", balance = 1)
   apart <- node_in_roulette(x, groups = 3, attribute = "Gender", balance = 0)

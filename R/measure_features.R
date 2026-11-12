@@ -329,7 +329,7 @@ net_by_meshedness <- function(.data) {
 #' _Psychological Review_, 63(5): 277-293.
 #' \doi{10.1037/h0046049}
 #' @examples
-#' net_by_balance(to_uniplex(fict_marvel, "relationship"))
+#' net_by_balance(to_layer(fict_marvel, "relationship"))
 #' @export
 net_by_balance <- function(.data) {
   
@@ -465,7 +465,7 @@ net_by_balance <- function(.data) {
 #'   by a `manynet::create_*()` function, and those build one layer at a time.
 #'   A multilevel network holds two, so there is no single ideal to fit it to.
 #'   Take one layer first, e.g. with [manynet::to_mode1()] or
-#'   [manynet::to_uniplex()].
+#'   [manynet::to_layer()].
 NULL
 
 #' @rdname measure_fit
@@ -522,7 +522,7 @@ net_by_core <- function(.data,
     manynet::snet_abort("{.fn net_by_core} fits the network to a",
                         "core-periphery ideal of one layer, and this network",
                         "holds two. Take one layer first, e.g. with",
-                        "{.fn to_mode1} or {.fn to_uniplex}.")
+                        "{.fn to_mode1} or {.fn to_layer}.")
   if(is.null(mark)) mark <- node_is_core(.data, coreness = coreness,
                                          direction = direction)
   
@@ -660,7 +660,7 @@ net_by_factions <- function(.data,
     manynet::snet_abort("{.fn net_by_factions} fits the network to a",
                         "factional ideal of one layer, and this network holds",
                         "two. Take one layer first, e.g. with",
-                        "{.fn to_mode1} or {.fn to_uniplex}.")
+                        "{.fn to_mode1} or {.fn to_layer}.")
   membership <- .resolve_membership(.data, membership)
   signed <- manynet::is_signed(.data)
   if(signed && manynet::is_twomode(.data)){
@@ -1021,7 +1021,7 @@ net_by_divergence <- function(.data, ideal = manynet::create_core,
     if(manynet::is_multilevel(.data))
       manynet::snet_abort("{.fn net_by_divergence} builds an ideal of one",
                           "layer, and this network holds two. Take one layer",
-                          "first, e.g. with {.fn to_mode1} or {.fn to_uniplex},",
+                          "first, e.g. with {.fn to_mode1} or {.fn to_layer},",
                           "or pass an ideal network instead.")
     fmls <- names(formals(ideal))
     args <- list(.data)
@@ -1129,10 +1129,10 @@ net_by_divergence <- function(.data, ideal = manynet::create_core,
     unique(as.character(ties$layer[!is.na(ties$by)])) else NA
   out <- NULL
   for(layer in layers){
-    css <- if(is.na(layer)) .data else manynet::to_uniplex(.data, layer)
+    css <- if(is.na(layer)) .data else manynet::to_layer(.data, layer)
     ref <- if(is.null(ideal)) css else manynet::expect_nodes(ideal)
     if(!is.na(layer) && manynet::is_multiplex(ref))
-      ref <- manynet::to_uniplex(ref, layer)
+      ref <- manynet::to_layer(ref, layer)
     reports <- manynet::as_matrix(css)
     ref <- manynet::as_matrix(.to_aggregated_css(ref))
     if(!identical(dim(ref), dim(reports)[1:2]))
@@ -1163,7 +1163,7 @@ net_by_divergence <- function(.data, ideal = manynet::create_core,
 #'   Note that this ideal uses each node's reports of its own ties, so a node
 #'   agrees with it on part of its own dyads.
 #'   For a different ideal, such as a consensus structure, give it as `ideal`,
-#'   e.g. `manynet::to_flat(.data, attribute = "by")`.
+#'   e.g. `manynet::to_aggregated(.data, over = "by")`.
 #'   Where the network holds several layers of reports, each layer is
 #'   compared with the same layer of the ideal, and the cells are pooled.
 #'
@@ -1387,7 +1387,7 @@ net_by_inconsistency <- function(.data, membership = NULL,
   }
   mat <- manynet::as_matrix(manynet::to_unweighted(manynet::to_onemode(.data)))
   memb <- as.numeric(as.factor(membership))
-  loops <- manynet::is_complex(.data)
+  loops <- manynet::is_looped(.data)
   total <- .block_cost(mat, memb, blocks, loops)
   cells <- if(loops) length(mat) else length(mat) - nrow(mat)
   make_network_measure(total/cells, .data, call = deparse(sys.call()),

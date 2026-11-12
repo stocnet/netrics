@@ -110,7 +110,7 @@ tied if they are tied in any layer.
 The weighted variants add the weights of the parallel ties between two
 nodes, so that, in an unweighted multiplex network, a tie is weighted by
 the number of layers it appears in.
-To measure one layer alone, use \code{manynet::to_uniplex()} first.
+To measure one layer alone, use \code{manynet::to_layer()} first.
 
 For signed networks, each tie is read by the magnitude of its weight,
 since a tie counts here however it is signed.

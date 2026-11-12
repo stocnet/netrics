@@ -46,7 +46,7 @@ exists if both of its ends report it.
 Note that this ideal uses each node's reports of its own ties, so a node
 agrees with it on part of its own dyads.
 For a different ideal, such as a consensus structure, give it as \code{ideal},
-e.g. \code{manynet::to_flat(.data, attribute = "by")}.
+e.g. \code{manynet::to_aggregated(.data, over = "by")}.
 Where the network holds several layers of reports, each layer is
 compared with the same layer of the ideal, and the cells are pooled.
 

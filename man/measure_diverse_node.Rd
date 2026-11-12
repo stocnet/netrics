@@ -74,7 +74,7 @@ Nodes without alters return \code{NA}.
 }
 \examples{
 node_by_richness(ison_networkers, "Discipline")
-marvel_friends <- to_unsigned(to_uniplex(fict_marvel, "relationship"), "positive")
+marvel_friends <- to_unsigned(to_layer(fict_marvel, "relationship"), "positive")
 node_by_diversity(marvel_friends, "Gender")
 node_by_diversity(marvel_friends, "Attractive")
 }

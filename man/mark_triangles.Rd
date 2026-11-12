@@ -55,7 +55,7 @@ These marks ask only whether a two-path exists, as a census does, so a tie
 counts however it is signed.
 }
 \examples{
-ison_monks |> to_uniplex("like") |> 
+ison_monks |> to_layer("like") |> 
   mutate_ties(tri = tie_is_triangular())
 ison_adolescents |> to_directed() |> 
   mutate_ties(trans = tie_is_transitive())
@@ -63,9 +63,9 @@ ison_adolescents |> to_directed() |>
   mutate_ties(trip = tie_is_triplet())
 ison_adolescents |> to_directed() |> 
   mutate_ties(cyc = tie_is_cyclical())
-ison_monks |> to_uniplex("like") |> 
+ison_monks |> to_layer("like") |> 
   mutate_ties(simmel = tie_is_simmelian())
-fict_marvel |> to_uniplex("relationship") |> tie_is_imbalanced()
+fict_marvel |> to_layer("relationship") |> tie_is_imbalanced()
 }
 \seealso{
 Other marks:

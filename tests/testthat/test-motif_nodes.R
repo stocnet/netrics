@@ -24,7 +24,7 @@ for(fn in names(node_motifs)) {
 
 # # Census function family tests
 set.seed(123)
-task_eg <- to_named(to_uniplex(ison_algebra, "tasks"))
+task_eg <- to_named(to_layer(ison_algebra, "tasks"))
 
 test_that("node_x_tie census works", {
   test <- node_x_tie(task_eg)
@@ -43,7 +43,7 @@ test_that("node_x_dyad census works", {
 
 test_that("split node censuses sum to each node's plain census", {
   grp <- rep(c("A", "B", "C"), length.out = 16)
-  task_eg <- to_uniplex(ison_algebra, "tasks")
+  task_eg <- to_layer(ison_algebra, "tasks")
   for(fn in c("node_x_dyad", "node_x_triad", "node_x_tetrad")){
     f <- get(fn)
     plain <- f(task_eg)
@@ -89,19 +89,19 @@ test_that("node_x_tetrad census works", {
 })
 
 test_that("net_mixed census works", {
-  marvel_friends <- to_unsigned(to_uniplex(fict_marvel, "relationship"), "positive")
+  marvel_friends <- to_unsigned(to_layer(fict_marvel, "relationship"), "positive")
   # passing the second network separately is deprecated, but still works
   test <- suppressMessages(net_x_triad(marvel_friends,
-                                       to_uniplex(fict_marvel, "affiliation")))
+                                       to_layer(fict_marvel, "affiliation")))
   expect_equal(unname(test[1]), 1137)
   expect_equal(names(test[1]), "22")
   # Errors
   expect_error(net_x_triad(ison_southern_women,
-                            to_uniplex(fict_marvel, "affiliation")))
-  expect_error(net_x_triad(to_uniplex(fict_marvel, "affiliation"),
+                            to_layer(fict_marvel, "affiliation")))
+  expect_error(net_x_triad(to_layer(fict_marvel, "affiliation"),
                                     ison_southern_women))
   expect_error(net_x_triad(ison_karateka,
-                            to_uniplex(fict_marvel, "affiliation")))
+                            to_layer(fict_marvel, "affiliation")))
 })
 
 test <- node_x_path(ison_southern_women)

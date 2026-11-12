@@ -42,7 +42,7 @@ For multiplex networks, \code{node_x_tie()} binds the layers together,
 giving one block of columns
 per layer, whatever attribute the network is multiplexed on.
 Each block stays the length of the whole nodeset.
-To census one layer alone, take it first with \code{\link[manynet:to_uniplex]{manynet::to_uniplex()}}.
+To census one layer alone, take it first with \code{\link[manynet:to_layer]{manynet::to_layer()}}.
 
 For signed networks, \code{node_x_path()} considers only the positive ties.
 It reads a tie as a distance, and a negative tie is
@@ -50,7 +50,7 @@ hostility rather than a channel along which cohesion travels.
 Use \code{\link[manynet:to_unsigned]{manynet::to_unsigned()}} first to control this yourself.
 }
 \examples{
-task_eg <- to_named(to_uniplex(ison_algebra, "tasks"))
+task_eg <- to_named(to_layer(ison_algebra, "tasks"))
 (tie_cen <- node_x_tie(task_eg))
 node_x_path(ison_adolescents)
 node_x_path(ison_southern_women)

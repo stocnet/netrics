@@ -3,7 +3,7 @@
 # substitution testable.
 
 marvel_friends <- manynet::to_unsigned(
-  manynet::to_uniplex(manynet::fict_marvel, "relationship"), "positive")
+  manynet::to_layer(manynet::fict_marvel, "relationship"), "positive")
 
 test_that("network heterogeneities meet the measure contract", {
   check_measure_contract(measure_rosters$heterogeneity_net, marvel_friends,

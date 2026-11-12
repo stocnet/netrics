@@ -98,8 +98,8 @@ NULL
 #'   whatever its layer,
 #'   so a node tied twice to the same alter on two layers scores 2.
 #'   To score one layer at a time, take it first with
-#'   [manynet::to_uniplex()], or use `node_by_multidegree()` to contrast two.
-#'   Note that `to_uniplex()` drops the nodes that hold none of the retained
+#'   [manynet::to_layer()], or use `node_by_multidegree()` to contrast two.
+#'   Note that `to_layer()` drops the nodes that hold none of the retained
 #'   ties, so scores from two layers are of different lengths.
 #' @section Strength centrality:
 #'   Given a weighted network, `node_by_degree()` sums tie weights rather than
@@ -107,7 +107,7 @@ NULL
 #'   degree centrality_. The `alpha` argument tunes between the two, following
 #'   Opsahl et al. (2010), and the measure reports itself as
 #'   "strength centrality" whenever `alpha` is not zero.
-#' @importFrom manynet as_igraph is_weighted tie_weights is_twomode is_complex
+#' @importFrom manynet as_igraph is_weighted tie_weights is_twomode is_looped
 #' @export
 node_by_degree <- function (.data, normalized = TRUE, alpha = 0,
                          direction = c("all","out","in")){
@@ -123,7 +123,7 @@ node_by_degree <- function (.data, normalized = TRUE, alpha = 0,
     degrees <- igraph::degree(graph = graph,
                               v = igraph::V(graph),
                               mode = direction,
-                              loops = manynet::is_complex(.data))
+                              loops = manynet::is_looped(.data))
     other_set_size <- ifelse(igraph::V(graph)$type,
                              sum(!igraph::V(graph)$type),
                              sum(igraph::V(graph)$type))
@@ -135,7 +135,7 @@ node_by_degree <- function (.data, normalized = TRUE, alpha = 0,
     if (all(is.na(weights))) {
       out <- igraph::degree(graph = graph, v = igraph::V(graph),
                      mode = direction,
-                     loops = manynet::is_complex(.data),
+                     loops = manynet::is_looped(.data),
                      normalized = normalized)
       meas <- "degree centrality"
       rng <- `if`(normalized, c(0, 1), c(0, Inf))
@@ -144,10 +144,10 @@ node_by_degree <- function (.data, normalized = TRUE, alpha = 0,
     else {
       ki <- igraph::degree(graph = graph, v = igraph::V(graph),
                      mode = direction,
-                     loops = manynet::is_complex(.data))
+                     loops = manynet::is_looped(.data))
       si <- igraph::strength(graph = graph, vids = igraph::V(graph),
                        mode = direction,
-                       loops = manynet::is_complex(.data), weights = weights)
+                       loops = manynet::is_looped(.data), weights = weights)
       out <- ki * (si/ki)^alpha
       out[is.nan(out)] <- 0
       # Strength has no theoretical maximum, so `normalized` here divides by
@@ -217,13 +217,13 @@ node_by_multidegree <- function (.data, tie1, tie2){
 }
 
 # Degree in one layer of a multiplex network, kept at the length of the
-# whole nodeset. `to_uniplex()` drops nodes that hold none of the retained
+# whole nodeset. `to_layer()` drops nodes that hold none of the retained
 # ties (e.g. a whole mode of a twomode layer), so the two layers' degrees
 # would otherwise be of different lengths and get recycled.
 # `node_x_ties()` calls this too, which is why the normalisation and the
 # direction are arguments. Their defaults are `node_by_degree()`'s own.
 uniplex_degree <- function(.data, tie, normalized = TRUE, direction = "all") {
-  layer <- manynet::to_uniplex(.data, tie)
+  layer <- manynet::to_layer(.data, tie)
   deg <- as.numeric(node_by_degree(layer, normalized = normalized,
                                    direction = direction))
   if (length(deg) == manynet::net_nodes(.data)) return(deg)

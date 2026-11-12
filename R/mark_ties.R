@@ -303,7 +303,7 @@ NULL
 #' @rdname mark_triangles
 #' @importFrom igraph triangles
 #' @examples 
-#' ison_monks |> to_uniplex("like") |> 
+#' ison_monks |> to_layer("like") |> 
 #'   mutate_ties(tri = tie_is_triangular())
 #' @export
 tie_is_triangular <- function(.data){
@@ -389,7 +389,7 @@ tie_is_cyclical <- function(.data){
 
 #' @rdname mark_triangles
 #' @examples 
-#' ison_monks |> to_uniplex("like") |> 
+#' ison_monks |> to_layer("like") |> 
 #'   mutate_ties(simmel = tie_is_simmelian())
 #' @export
 tie_is_simmelian <- function(.data){
@@ -439,7 +439,7 @@ tie_is_simmelian <- function(.data){
 
 #' @rdname mark_triangles
 #' @examples
-#' fict_marvel |> to_uniplex("relationship") |> tie_is_imbalanced()
+#' fict_marvel |> to_layer("relationship") |> tie_is_imbalanced()
 #' @export
 tie_is_imbalanced <- function(.data){
   .data <- manynet::expect_ties(.data)  

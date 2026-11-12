@@ -193,7 +193,7 @@ test_that("node_x_ties finds layers whatever the tie attribute is called", {
 })
 
 test_that("node_x_ties keeps every node where a layer drops some", {
-  # `to_uniplex()` reduces fict_marvel's relationship layer to 53 of its 194
+  # `to_layer()` reduces fict_marvel's relationship layer to 53 of its 194
   # nodes, so the layers must be padded back to the whole nodeset
   res <- node_x_ties(fict_marvel)
   expect_s3_class(res, "node_motif")

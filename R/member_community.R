@@ -926,10 +926,10 @@ node_in_fluid <- function(.data, k = NULL, max_k = 8L, Kmax = NULL) {
                         "to select the largest component.")
   }
   {
-    if(manynet::is_complex(.data)){
+    if(manynet::is_looped(.data)){
       manynet::snet_info("This algorithm only works for simple networks.", 
                       "Converting to simplex.")
-      .data <- manynet::to_simplex(.data)
+      .data <- manynet::to_unlooped(.data)
     }
     if(manynet::is_directed(.data)){
       manynet::snet_info("This algorithm only works for undirected networks.", 

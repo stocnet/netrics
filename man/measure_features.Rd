@@ -154,7 +154,7 @@ net_by_bipartivity(ison_southern_women)
 net_by_bipartivity(ison_adolescents)
 net_by_meshedness(create_tree(12))
 net_by_meshedness(create_lattice(12))
-net_by_balance(to_uniplex(fict_marvel, "relationship"))
+net_by_balance(to_layer(fict_marvel, "relationship"))
 }
 \references{
 \subsection{On the rich-club coefficient}{

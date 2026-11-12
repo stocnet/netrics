@@ -274,7 +274,7 @@ importFrom(igraph,
 )
 importFrom(manynet,
   as_igraph,
-  is_complex,
+  is_looped,
   is_twomode,
   is_weighted,
   tie_weights

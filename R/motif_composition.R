@@ -75,7 +75,7 @@ node_x_ties <- function(.data, direction = c("all", "out", "in")){
     # all and only the Diversity column
     layers <- manynet::layer_names(.data)
     # `uniplex_degree()` keeps each layer at the length of the whole nodeset,
-    # which `to_uniplex()` does not
+    # which `to_layer()` does not
     out <- vapply(layers, function(l)
       uniplex_degree(.data, l, normalized = FALSE, direction = direction),
       FUN.VALUE = numeric(manynet::net_nodes(.data)))

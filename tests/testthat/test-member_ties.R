@@ -28,7 +28,7 @@ test_that("tie_in_community keeps a place for every tie", {
   expect_length(res, c(manynet::net_ties(ison_adolescents)))
   expect_false(anyNA(res))
   # directed and reciprocated ties
-  directed <- manynet::to_uniplex(ison_algebra, "friends")
+  directed <- manynet::to_layer(ison_algebra, "friends")
   res <- tie_in_community(directed)
   expect_length(res, c(manynet::net_ties(directed)))
   expect_match(names(res)[1], "->")
@@ -39,7 +39,7 @@ test_that("tie_in_community keeps a place for every tie", {
   expect_true(all(tapply(unclass(res), keys,
                          function(x) length(unique(x))) == 1))
   # negative ties belong to none
-  signed <- manynet::to_uniplex(manynet::fict_marvel, "relationship")
+  signed <- manynet::to_layer(manynet::fict_marvel, "relationship")
   res <- suppressMessages(tie_in_community(signed))
   expect_length(res, c(manynet::net_ties(signed)))
   expect_equal(unname(is.na(unclass(res))),

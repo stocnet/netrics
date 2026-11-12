@@ -107,7 +107,7 @@ of \code{net_by_homophily()}.
 A node with a missing value is \code{NA}.
 }
 \examples{
-marvel_friends <- to_unsigned(to_uniplex(fict_marvel, "relationship"), "positive")
+marvel_friends <- to_unsigned(to_layer(fict_marvel, "relationship"), "positive")
 node_by_heterophily(marvel_friends, "Gender")
 node_by_heterophily(marvel_friends, "Attractive")
 }

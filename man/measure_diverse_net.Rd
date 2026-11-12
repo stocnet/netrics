@@ -174,7 +174,7 @@ It runs from 0 to 1, and is not normalised:
 
 \examples{
 net_by_richness(ison_networkers, "Discipline")
-marvel_friends <- to_unsigned(to_uniplex(fict_marvel, "relationship"), "positive")
+marvel_friends <- to_unsigned(to_layer(fict_marvel, "relationship"), "positive")
 net_by_diversity(marvel_friends, "Gender")
 net_by_diversity(marvel_friends, "Appearances")
 net_by_diversity(marvel_friends, "Gender",

@@ -45,9 +45,9 @@ Weakly connected components consist of subgraphs where there is a path
 in either direction between member nodes.
 }
 \examples{
-ison_monks |> to_uniplex("esteem") |>
+ison_monks |> to_layer("esteem") |>
   mutate_nodes(comp = node_in_component())
-ison_monks |> to_uniplex("esteem") |>
+ison_monks |> to_layer("esteem") |>
   mutate_nodes(comp = node_in_component(connectivity = "weak"))
 }
 \seealso{

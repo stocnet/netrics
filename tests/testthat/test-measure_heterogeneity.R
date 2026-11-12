@@ -1,7 +1,7 @@
 #*************** Test the heterogeneity family of functions ******************#
 
 test_that("diversity functions works", {
-  expect_equal(as.numeric(net_by_diversity(to_uniplex(fict_marvel,"relationship"),
+  expect_equal(as.numeric(net_by_diversity(to_layer(fict_marvel,"relationship"),
                                            "Gender", normalized = FALSE)),
                0.306, tolerance = 0.001)
   expect_equal(top3(node_by_diversity(ison_lawfirm, "gender", normalized = FALSE)),
@@ -11,7 +11,7 @@ test_that("diversity functions works", {
 test_that("Blau's index is normalised by its maximum for the categories", {
   # The raw index cannot pass 1 - 1/k, so a binary attribute is doubled,
   # and only the normalised index declares itself normalised.
-  marvel <- to_uniplex(fict_marvel, "relationship")
+  marvel <- to_layer(fict_marvel, "relationship")
   expect_equal(as.numeric(net_by_diversity(marvel, "Gender")),
                2 * as.numeric(net_by_diversity(marvel, "Gender",
                                                normalized = FALSE)))
@@ -277,7 +277,7 @@ test_that("domains summarise the values that each node can reach", {
 })
 
 test_that("Rao-Stirling diversity is Blau's index with unit distances", {
-  marvel_friends <- to_unsigned(to_uniplex(fict_marvel, "relationship"), "positive")
+  marvel_friends <- to_unsigned(to_layer(fict_marvel, "relationship"), "positive")
   expect_equal(as.numeric(net_by_diversity(marvel_friends, "Gender", "rao")),
                as.numeric(net_by_diversity(marvel_friends, "Gender",
                                            normalized = FALSE)))

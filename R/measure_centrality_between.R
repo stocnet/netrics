@@ -221,7 +221,7 @@ node_by_flow <- function(.data, from, to, normalized = TRUE){
     thisRequires("sna")
     out <- sna::flowbet(manynet::as_matrix(onemode),
                         gmode = ifelse(manynet::is_directed(.data), "digraph", "graph"),
-                        diag = manynet::is_complex(.data),
+                        diag = manynet::is_looped(.data),
                         cmode = ifelse(normalized, "normflow", "rawflow"))
     # `sna`'s "normflow" divides each node's mediated flow by the total flow,
     # bounding the result by one.
@@ -279,7 +279,7 @@ node_by_stress <- function(.data, normalized = TRUE){
   thisRequires("sna")
   out <- sna::stresscent(manynet::as_network(.data),
                          gmode = ifelse(manynet::is_directed(.data), "digraph", "graph"),
-                         diag = manynet::is_complex(.data),
+                         diag = manynet::is_looped(.data),
                          rescale = normalized)
   # `sna::stresscent(rescale = TRUE)` divides by the sum of all scores,
   # so the result is a set of shares rather than a [0,1] normalisation.

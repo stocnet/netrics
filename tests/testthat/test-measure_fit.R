@@ -163,7 +163,7 @@ test_that("net_by_linkdensity takes a membership of a CSS's reports", {
 })
 
 test_that("accuracy compares each report with the aggregated structure", {
-  css <- manynet::to_uniplex(manynet::ison_hightech, "advice")
+  css <- manynet::to_layer(manynet::ison_hightech, "advice")
   ref <- manynet::to_aggregated(css, over = "by", rule = "min",
                                 reporters = "both")
   counts <- suppressMessages(node_x_accuracy(css))
@@ -184,7 +184,7 @@ test_that("accuracy compares each report with the aggregated structure", {
 })
 
 test_that("accuracy is 1 where a report is the ideal", {
-  css <- manynet::to_uniplex(manynet::ison_hightech, "advice")
+  css <- manynet::to_layer(manynet::ison_hightech, "advice")
   ideal <- manynet::to_reporter(css, 1)
   expect_equal(as.numeric(suppressMessages(node_by_accuracy(css, ideal)))[1], 1)
 })
@@ -193,7 +193,7 @@ test_that("accuracy pools the layers of a multiplex CSS", {
   css <- manynet::ison_hightech
   both <- suppressMessages(node_x_accuracy(css))
   layers <- lapply(c("advice", "friends"), function(l)
-    unclass(suppressMessages(node_x_accuracy(manynet::to_uniplex(css, l)))))
+    unclass(suppressMessages(node_x_accuracy(manynet::to_layer(css, l)))))
   expect_equal(unclass(both), layers[[1]] + layers[[2]],
                ignore_attr = TRUE)
 })

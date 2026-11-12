@@ -401,7 +401,7 @@ node_by_information <- function(.data, normalized = TRUE){
   # how the other path-based measures in this file handle two modes.
   out <- sna::infocent(manynet::as_network(manynet::to_onemode(.data)),
                        gmode = ifelse(manynet::is_directed(.data), "digraph", "graph"),
-                       diag = manynet::is_complex(.data),
+                       diag = manynet::is_looped(.data),
                        rescale = normalized)
   # `sna::infocent(rescale = TRUE)` divides by the sum of all scores,
   # so the result is a set of shares rather than a [0,1] normalisation.

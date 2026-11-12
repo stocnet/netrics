@@ -188,7 +188,7 @@ net_by_richness <- function(.data, attribute){
 #'   _Scientometrics_, 81(3): 719-745.
 #'   \doi{10.1007/s11192-008-2197-2}
 #' @examples
-#' marvel_friends <- to_unsigned(to_uniplex(fict_marvel, "relationship"), "positive")
+#' marvel_friends <- to_unsigned(to_layer(fict_marvel, "relationship"), "positive")
 #' net_by_diversity(marvel_friends, "Gender")
 #' net_by_diversity(marvel_friends, "Appearances")
 #' net_by_diversity(marvel_friends, "Gender",
@@ -263,7 +263,7 @@ node_by_richness <- function(.data, attribute){
 
 #' @rdname measure_diverse_node 
 #' @examples 
-#' marvel_friends <- to_unsigned(to_uniplex(fict_marvel, "relationship"), "positive")
+#' marvel_friends <- to_unsigned(to_layer(fict_marvel, "relationship"), "positive")
 #' node_by_diversity(marvel_friends, "Gender")
 #' node_by_diversity(marvel_friends, "Attractive")
 #' @export
@@ -348,7 +348,7 @@ node_by_diversity <- function(.data, attribute,
 #' 3rd edition. Cambridge: Cambridge University Press.
 #' \doi{10.1017/9781108565691}
 #' @examples
-#' marvel_friends <- to_unsigned(to_uniplex(fict_marvel, "relationship"), "positive")
+#' marvel_friends <- to_unsigned(to_layer(fict_marvel, "relationship"), "positive")
 #' node_by_domain(marvel_friends, "Appearances")
 #' node_by_domain(marvel_friends, "Appearances", statistic = "mean", cutoff = 1)
 #' @export
@@ -534,7 +534,7 @@ NULL
 #'   _Annual Review of Sociology_, 27(1): 415-444.
 #'   \doi{10.1146/annurev.soc.27.1.415}
 #' @examples 
-#' marvel_friends <- to_unsigned(to_uniplex(fict_marvel, "relationship"), "positive")
+#' marvel_friends <- to_unsigned(to_layer(fict_marvel, "relationship"), "positive")
 #' net_by_heterophily(marvel_friends, "Gender")
 #' net_by_heterophily(marvel_friends, "Attractive")
 #' @export
@@ -970,7 +970,7 @@ NULL
 
 #' @rdname measure_assort_node 
 #' @examples 
-#' marvel_friends <- to_unsigned(to_uniplex(fict_marvel, "relationship"), "positive")
+#' marvel_friends <- to_unsigned(to_layer(fict_marvel, "relationship"), "positive")
 #' node_by_heterophily(marvel_friends, "Gender")
 #' node_by_heterophily(marvel_friends, "Attractive")
 #' @export

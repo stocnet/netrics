@@ -153,7 +153,7 @@ They fit the network to an ideal built
 by a \verb{manynet::create_*()} function, and those build one layer at a time.
 A multilevel network holds two, so there is no single ideal to fit it to.
 Take one layer first, e.g. with \code{\link[manynet:to_mode1]{manynet::to_mode1()}} or
-\code{\link[manynet:to_uniplex]{manynet::to_uniplex()}}.
+\code{\link[manynet:to_layer]{manynet::to_layer()}}.
 }
 \section{Core-periphery fit variants}{
 
