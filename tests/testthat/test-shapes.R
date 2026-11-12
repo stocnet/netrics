@@ -3,8 +3,17 @@
 # again silently. See the "Input shapes" section of .github/CONTRIBUTING.md.
 #
 # `fict_marvel` is signed and multilevel; `fict_actually` is multilevel alone.
+# Only the shape matters here, so `fict_marvel` is cut down to fifteen of its
+# characters and the teams they belong to, which is still signed and
+# multilevel but makes the slowest of these functions some twenty times faster.
 
-signed_multilevel <- manynet::fict_marvel
+signed_multilevel <- local({
+  marvel <- manynet::fict_marvel
+  teams <- manynet::node_is_mode(marvel)
+  keep <- c(which(!teams)[1:15], which(teams))
+  out <- manynet::delete_nodes(marvel, setdiff(seq_along(teams), keep))
+  manynet::delete_nodes(out, which(igraph::degree(manynet::as_igraph(out)) == 0))
+})
 multilevel <- manynet::fict_actually
 
 # Functions that read a tie as a distance, and so drop to the positive ties.

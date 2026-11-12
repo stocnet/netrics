@@ -441,11 +441,14 @@ sparse_css <- local({
   out <- manynet::add_node_attribute(out, "dept", c(1, 1, 2, 2, 1, 2, 1))
   manynet::add_node_attribute(out, "age", c(30, 40, 35, 50, 45, 25, 55))
 })
-cognitive_fixtures <- list(hightech = manynet::ison_hightech,
+# Ten of the twenty-one managers keep the three layers, the departments, and
+# a report from every reporter, and make the sweeps several times faster.
+hightech_css <- manynet::delete_nodes(manynet::ison_hightech, 11:21)
+cognitive_fixtures <- list(hightech = hightech_css,
                            sparse = sparse_css)
 
 check_cognitive_contract <- function(roster,
-                                     css = manynet::ison_hightech) {
+                                     css = hightech_css) {
   agg <- suppressMessages(.to_aggregated_css(css))
   report <- match(.tie_keys(css), .tie_keys(agg))
   quietly <- function(fn, args, .data) {
