@@ -185,6 +185,11 @@ measure_rosters <- list(
   heterogeneity_moran_node = list(
     node_by_homophily = list(attribute = "age", assortativity = "moran")
   ),
+  heterogeneity_dispersion = list(
+    net_by_polarisation = list(attribute = "age"),
+    net_by_disagreement = list(attribute = "age")
+  ),
+
 
   holes_node = list(
     node_by_bridges           = list(),
@@ -415,6 +420,8 @@ cognitive_arguments <- list(
   tie_by_diversity     = list(attribute = "dept"),
   node_by_domain       = list(attribute = "age"),
   net_by_spatial       = list(attribute = "age"),
+  net_by_polarisation  = list(attribute = "age"),
+  net_by_disagreement  = list(attribute = "age"),
   node_by_brokering_activity    = list(membership = "dept"),
   node_by_brokering_exclusivity = list(membership = "dept")
 )

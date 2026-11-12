@@ -12,6 +12,7 @@
 
 - Added `tie_by_mainpath()` for the traversal counts of main path analysis
   - `variant=` "spc" (default), "splc", or "spnp"
+- Added `net_by_polarisation()` and `net_by_disagreement()` for numeric heterogeneity
 - Improved `net_by_factions()` to handle signed networks, measuring polarisation
   - Added `variant = "esteban"` for Esteban–Ray polarisation
 - Added "rao" and `distance=` to `*_by_diversity()` for Rao–Stirling diversity

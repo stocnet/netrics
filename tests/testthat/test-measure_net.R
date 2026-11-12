@@ -26,6 +26,11 @@ for(fn in names(net_meas)) {
         # Accuracy compares the reports of a cognitive social structure,
         # which none of these fixtures hold; see test-measure_fit.R.
         expect_snet_abort(net_meas[[fn]](data_objs[[ob]]), "reporters")
+      } else if(grepl("polarisation|disagreement|concentration", fn)){
+        # These measure a numeric attribute, which no fixture holds
+        num <- manynet::add_node_attribute(data_objs[[ob]], "num",
+                                           seq_len(manynet::net_nodes(data_objs[[ob]])))
+        expect_s3_class(net_meas[[fn]](num, "num"), "network_measure")
       } else if(grepl("infection|immunity|recovery|reproduction|transmiss", fn)){
         if(ob == "diffusion")
           expect_s3_class(net_meas[[fn]](data_objs[[ob]]), "network_measure") else

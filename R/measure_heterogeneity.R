@@ -1028,3 +1028,86 @@ node_by_homophily <- function(.data, attribute,
                     normalization = "none", variant = meta$variant)
 }
 
+
+# Dispersion ####
+
+#' Measures of the dispersion of a numeric attribute
+#' @name measure_diverse_dispersion
+#' @description
+#'   These functions measure how far apart the values of a numeric nodal
+#'   attribute are, such as the opinions at the end of an opinion dynamic:
+#'
+#'   - `net_by_polarisation()` measures how far the values are from their mean,
+#'   as the mean of the squared differences from the mean,
+#'   \eqn{\frac{1}{n} \sum_i (x_i - \bar{x})^2}.
+#'   - `net_by_disagreement()` measures how much tied nodes differ,
+#'   as the mean over the ties of the weighted squared differences
+#'   between the two ends, \eqn{\frac{1}{m} \sum_{ij} w_{ij} (x_i - x_j)^2}.
+#'
+#'   These follow the definitions of Musco, Musco and Tsourakakis (2018),
+#'   divided by the number of nodes or ties so that networks of different
+#'   sizes can be compared.
+#'   A network can be polarised with little disagreement, where each camp
+#'   keeps to itself, or disagree much with little polarisation.
+#'
+#'   They measure the spread of a numeric attribute.
+#'   For the polarisation of a structure, into groups and the ties between
+#'   them, see `net_by_factions()`.
+#'   The values can be observed opinions, the opinions from
+#'   `node_by_opinion()`, or the result of `manynet::play_opinion()`.
+#' @template param_data
+#' @template param_attr_pick
+#' @family diversity
+#' @template net_measure
+#' @references
+#' ## On polarisation and disagreement
+#'   Musco, Cameron, Christopher Musco, and Charalampos E. Tsourakakis. 2018.
+#'   "Minimizing polarization and disagreement in social networks".
+#'   _Proceedings of the 2018 World Wide Web Conference_: 369-378.
+#'   \doi{10.1145/3178876.3186103}
+#' @examples
+#' net_by_polarisation(ison_lawfirm, "age")
+#' net_by_disagreement(ison_lawfirm, "age")
+NULL
+
+#' @rdname measure_diverse_dispersion
+#' @export
+net_by_polarisation <- function(.data, attribute){
+  .data <- manynet::expect_nodes(.data)
+  .data <- .to_aggregated_css(.data)
+  x <- .numeric_attribute(.data, attribute)
+  out <- mean((x - mean(x, na.rm = TRUE))^2, na.rm = TRUE)
+  make_network_measure(out, .data, call = deparse(sys.call()),
+                       measure = "polarisation",
+                       range = c(0, Inf), normalization = "none")
+}
+
+#' @rdname measure_diverse_dispersion
+#' @export
+net_by_disagreement <- function(.data, attribute){
+  .data <- manynet::expect_nodes(.data)
+  .data <- .to_aggregated_css(.data)
+  x <- .numeric_attribute(.data, attribute)
+  g <- manynet::as_igraph(.data)
+  ends <- igraph::ends(g, igraph::E(g), names = FALSE)
+  w <- `if`(manynet::is_weighted(.data), igraph::E(g)$weight,
+            rep(1, nrow(ends)))
+  diffs <- w * (x[ends[, 1]] - x[ends[, 2]])^2
+  out <- `if`(length(diffs), mean(diffs, na.rm = TRUE), 0)
+  make_network_measure(out, .data, call = deparse(sys.call()),
+                       measure = "disagreement",
+                       range = c(0, Inf), normalization = "none")
+}
+
+# A numeric nodal attribute, picked as the other attribute measures pick one
+.numeric_attribute <- function(.data, attribute){
+  attribute <- .pick_attribute(.data, attribute)
+  x <- `if`(is.character(attribute) && length(attribute) == 1,
+            manynet::node_attribute(.data, attribute), attribute)
+  if(is.logical(x)) x <- x * 1
+  if(!is.numeric(x))
+    manynet::snet_abort("This measure needs a numeric attribute.",
+                        "Please name a numeric nodal attribute with {.arg attribute}.")
+  as.numeric(x)
+}
+
