@@ -220,17 +220,17 @@ tie_is_mainpath <- function(.data, variant = c("spc", "splc", "spnp"),
 #'   These functions return logical vectors the length of the ties
 #'   in a network identifying which are embedded within particular dyads.
 #'   
-#'   - `tie_is_multiple()` marks ties that repeat an earlier tie between
+#'   - `tie_is_repeated()` marks ties that repeat an earlier tie between
 #'   the same two nodes.
 #'   - `tie_is_reciprocated()` marks ties that are mutual/reciprocated.
 #'
 #'   They are most useful in highlighting parts of the network where
 #'   relationships are denser.
-#' @section Multiple and parallel ties:
-#'   `tie_is_multiple()` and [manynet::tie_is_parallel()] answer different
+#' @section Repeated and parallel ties:
+#'   `tie_is_repeated()` and [manynet::tie_is_parallel()] answer different
 #'   questions, and can give different answers on the same network.
 #'
-#'   `tie_is_multiple()` marks only the repeats, as [igraph::which_multiple()]
+#'   `tie_is_repeated()` marks only the repeats, as [igraph::which_multiple()]
 #'   does: the first tie between two nodes is `FALSE`, and each further tie
 #'   between them is `TRUE`.
 #'   It reads nothing but the two nodes a tie joins, so ties at different
@@ -249,12 +249,12 @@ NULL
 #' @rdname mark_dyads
 #' @importFrom igraph which_multiple
 #' @examples 
-#' tie_is_multiple(fict_marvel)
+#' tie_is_repeated(fict_marvel)
 #' @export
-tie_is_multiple <- function(.data){
+tie_is_repeated <- function(.data){
   .data <- manynet::expect_ties(.data)  
   if(manynet::is_cognitive(.data))
-    return(.map_css_ties(.data, tie_is_multiple))
+    return(.map_css_ties(.data, tie_is_repeated))
   make_tie_mark(igraph::which_multiple(manynet::as_igraph(.data)), .data)
 }
 

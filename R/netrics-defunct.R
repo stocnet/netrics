@@ -1,9 +1,10 @@
 # nocov start
 #' Functions that have been renamed, superseded, or are no longer working
 #' 
-#' `r lifecycle::badge("deprecated")`
 #' Generally these functions have been superseded or renamed.
-#' Upon using them, a message is provided directing the user to the new function.
+#' Upon using them, a warning directs the user to the new function.
+#' A function that is only superseded still works without a warning
+#' for one minor release.
 #' However, at this stage of package development,
 #' we generally clear older defunct functions at each minor release,
 #' and so you are strongly encouraged to use the new functions/names/syntax
@@ -59,6 +60,17 @@ node_in_strong <- function(.data) {
   manynet::snet_deprecated("node_in_strong", "node_in_component",
                            why = "Give it {.code connectivity = \"strong\"}.")
   node_in_component(.data, connectivity = "strong")
+}
+
+#' @describeIn defunct Superseded by `tie_is_repeated()` on 2026-11-12.
+#'   "Multiple" did not say whether a tie repeats an earlier one or coexists
+#'   with it, which `manynet::tie_is_parallel()` marks (#38).
+#'   This name gives a warning from the next minor release.
+#' @template param_data
+#' @export
+tie_is_multiple <- function(.data) {
+  manynet::snet_deprecated("tie_is_multiple", "tie_is_repeated", "superseded")
+  tie_is_repeated(.data)
 }
 
 # nocov end

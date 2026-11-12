@@ -2,6 +2,7 @@
 
 ## Marks
 
+- Renamed `tie_is_multiple()` to `tie_is_repeated()`, apart from `manynet::tie_is_parallel()` (closes #38)
 - Added `attribute="diffusion"` to diffusion marks, measures, memberships, and motifs
 - Added `tie_is_mainpath()` for the local or global main path of an acyclic network
 - Fixed diffusion marks losing the diffusion of `diff_model` objects

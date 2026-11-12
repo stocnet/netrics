@@ -28,8 +28,13 @@ test_that("tie_is_reciprocated works", {
   expect_true(tie_is_reciprocated(graph1)[2], tie_is_reciprocated(graph1)[7])
 })
 
-test_that("tie_is_multiple works", {
-  expect_true(tie_is_multiple(graph2)[5])
+test_that("tie_is_repeated works", {
+  expect_true(tie_is_repeated(graph2)[5])
+})
+
+test_that("tie_is_multiple is a silent alias of tie_is_repeated (#38)", {
+  expect_no_warning(old <- tie_is_multiple(graph2))
+  expect_equal(old, tie_is_repeated(graph2))
 })
 
 test_that("tie_is_loop works", {

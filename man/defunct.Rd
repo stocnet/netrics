@@ -6,6 +6,7 @@
 \alias{net_x_mixed}
 \alias{node_in_weak}
 \alias{node_in_strong}
+\alias{tie_is_multiple}
 \title{Functions that have been renamed, superseded, or are no longer working}
 \usage{
 node_by_coreness(.data, coreness = NULL, direction = c("all", "out", "in"))
@@ -15,6 +16,8 @@ net_x_mixed(.data, object2)
 node_in_weak(.data)
 
 node_in_strong(.data)
+
+tie_is_multiple(.data)
 }
 \arguments{
 \item{.data}{A network object of class \code{stocnet}, \code{igraph}, \code{tbl_graph}, \code{network}, or similar.
@@ -40,9 +43,10 @@ Results as expected
 along with a warning to use new function naming in the future.
 }
 \description{
-\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#deprecated}{\figure{lifecycle-deprecated.svg}{options: alt='[Deprecated]'}}}{\strong{[Deprecated]}}
 Generally these functions have been superseded or renamed.
-Upon using them, a message is provided directing the user to the new function.
+Upon using them, a warning directs the user to the new function.
+A function that is only superseded still works without a warning
+for one minor release.
 However, at this stage of package development,
 we generally clear older defunct functions at each minor release,
 and so you are strongly encouraged to use the new functions/names/syntax
@@ -67,6 +71,11 @@ calculation across three function names.
 \item \code{node_in_strong()}: Deprecated on 2026-08-28.
 Folded into \code{node_in_component(connectivity = "strong")}, which is also
 what \code{node_in_component()} does by default.
+
+\item \code{tie_is_multiple()}: Superseded by \code{tie_is_repeated()} on 2026-11-12.
+"Multiple" did not say whether a tie repeats an earlier one or coexists
+with it, which \code{manynet::tie_is_parallel()} marks (#38).
+This name gives a warning from the next minor release.
 
 }}
 \keyword{internal}
