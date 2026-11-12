@@ -14,6 +14,10 @@
   - `variant=` "spc" (default), "splc", or "spnp"
 - Added `net_by_polarisation()` and `net_by_disagreement()` for numeric heterogeneity
 - Added `node_by_concentration()` and `net_by_concentration()` for Getis–Ord hot spots
+- Added opinion measures on `manynet::to_influence()`, with any "stubbornness" attribute
+  - Added `node_by_influence()` and `net_by_influence()` for social power and wise crowds
+  - Added `node_by_opinion()` for the opinions where an opinion dynamic settles
+  - Added `net_by_convergence()` for the speed at which the opinions settle
 - Added complex contagion measures
   - Added `tie_by_width()` for the width of the bridge that each tie is in
   - Added `node_by_contagion()` for complex centrality (Guilbeault and Centola 2021)

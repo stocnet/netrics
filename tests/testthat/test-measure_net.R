@@ -26,6 +26,12 @@ for(fn in names(net_meas)) {
         # Accuracy compares the reports of a cognitive social structure,
         # which none of these fixtures hold; see test-measure_fit.R.
         expect_snet_abort(net_meas[[fn]](data_objs[[ob]]), "reporters")
+      } else if(grepl("influence|convergence", fn)){
+        # An influence matrix needs a one-mode network with no negative ties
+        if(ob %in% c("twomode", "labelled"))
+          expect_snet_abort(net_meas[[fn]](data_objs[[ob]]), "one-mode|negative") else
+            expect_s3_class(suppressMessages(net_meas[[fn]](data_objs[[ob]])),
+                            "network_measure")
       } else if(grepl("polarisation|disagreement|concentration", fn)){
         # These measure a numeric attribute, which no fixture holds
         num <- manynet::add_node_attribute(data_objs[[ob]], "num",

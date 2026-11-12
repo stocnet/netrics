@@ -43,10 +43,10 @@ net_x_brokerage(ison_networkers, "Discipline")
 \seealso{
 Other brokerage:
 \code{\link{measure_broker_node}},
-\code{\link{measure_broker_tie}},
 \code{\link{measure_brokerage}},
 \code{\link{member_brokerage}},
-\code{\link{motif_brokerage_node}}
+\code{\link{motif_brokerage_node}},
+\code{\link[=tie_by_width]{tie_by_width()}}
 
 Other motifs:
 \code{\link{motif_accuracy_node}},

@@ -45,10 +45,10 @@ and their application to multi-level environmental governance networks"
 \seealso{
 Other brokerage:
 \code{\link{measure_broker_node}},
-\code{\link{measure_broker_tie}},
 \code{\link{measure_brokerage}},
 \code{\link{motif_brokerage_net}},
-\code{\link{motif_brokerage_node}}
+\code{\link{motif_brokerage_node}},
+\code{\link[=tie_by_width]{tie_by_width()}}
 
 Other memberships:
 \code{\link{member_cliques}},
@@ -82,6 +82,7 @@ Other nodal:
 \code{\link{measure_diffusion_node}},
 \code{\link{measure_diverse_node}},
 \code{\link{measure_domain}},
+\code{\link{measure_opinion}},
 \code{\link{member_cliques}},
 \code{\link{member_community}},
 \code{\link{member_community_hier}},

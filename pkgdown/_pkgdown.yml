@@ -124,6 +124,7 @@ reference:
     contents:
       - measure_periods
       - starts_with("measure_diffusion")
+      - measure_opinion
     
   - title: "Memberships"
     desc: |

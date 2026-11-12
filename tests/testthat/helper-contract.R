@@ -197,6 +197,14 @@ measure_rosters <- list(
     net_by_disagreement = list(attribute = "age")
   ),
 
+  opinion_node = list(
+    node_by_influence = list(),
+    node_by_opinion   = list()
+  ),
+  opinion_net = list(
+    net_by_influence   = list(),
+    net_by_convergence = list()
+  ),
 
   holes_node = list(
     node_by_bridges           = list(),
