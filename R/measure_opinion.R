@@ -203,6 +203,21 @@ net_by_convergence <- function(.data){
 #'
 #'   By default the scores are divided by the largest score.
 #'   With `normalized = FALSE` they are shares that sum to one.
+#'
+#'   Where the network has negative ties, which repel
+#'   (see `manynet::to_influence()`), the weight of a first opinion in the
+#'   opinion at the end of another node can be negative:
+#'   it pulls that node away from it.
+#'   This is influence too, so the score is the mean of the absolute weights.
+#'   The mean of the signed weights would let a pull towards and a pull away
+#'   cancel. In a balanced network of two camps, for example, the first
+#'   opinion of each node has the same weight in every opinion at the end,
+#'   positive in its own camp and negative in the other, so every node has
+#'   the same influence and not none.
+#'   Without negative ties, the two means are the same.
+#'   Where the opinions all go to 0, as in a signed network that is not
+#'   balanced, no first opinion has any weight at the end,
+#'   and every score is 0.
 #' @references
 #' ## On influence centrality
 #'   Friedkin, Noah E. 1991.
@@ -220,11 +235,24 @@ net_by_convergence <- function(.data){
 node_by_influence <- function(.data, normalized = TRUE){
   .data <- manynet::expect_nodes(.data)
   .data <- .to_aggregated_css(.data)
-  out <- pmax(colMeans(.opinion_limit(.data)$M), 0)
-  if(normalized) out <- out / max(out)
+  out <- .influence_shares(.data)
+  if(normalized && max(out) > 0) out <- out / max(out)
   make_node_measure(out, .data, measure = "influence centrality",
                     range = c(0, 1),
                     normalization = `if`(normalized, "scaled", "proportional"))
+}
+
+# The share of influence of each node: the mean of the absolute weights that
+# its first opinion has in the opinions at the end, as a share of their sum.
+# Absolute weights, so that a pull away along a negative tie counts as
+# influence, and does not cancel a pull towards. Weights below 1e-10 are
+# rounding noise and are set to 0, so that scaling does not make them large.
+.influence_shares <- function(.data){
+  M <- abs(.opinion_limit(.data)$M)
+  M[M < 1e-10] <- 0
+  out <- colMeans(M)
+  total <- sum(out)
+  if(total > 0) out / total else out
 }
 
 #' @rdname measure_centralisation_eigen
@@ -239,6 +267,9 @@ node_by_influence <- function(.data, normalized = TRUE){
 #'   which is 0 where every node has the same influence
 #'   and 1 where one node has all of it.
 #'   With `normalized = FALSE` it is the largest share itself.
+#'   As for `node_by_influence()`, a negative weight counts by its absolute
+#'   value, and where no first opinion has any weight at the end,
+#'   the value is 0.
 #' @examples
 #' net_by_influence(manynet::create_ring(6))
 #' net_by_influence(manynet::create_star(6))
@@ -246,7 +277,7 @@ node_by_influence <- function(.data, normalized = TRUE){
 net_by_influence <- function(.data, normalized = TRUE){
   .data <- manynet::expect_nodes(.data)
   .data <- .to_aggregated_css(.data)
-  shares <- colMeans(.opinion_limit(.data)$M)
+  shares <- .influence_shares(.data)
   n <- length(shares)
   out <- max(shares)
   if(normalized) out <- `if`(n > 1, (out - 1/n) / (1 - 1/n), 0)

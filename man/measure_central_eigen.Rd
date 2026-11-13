@@ -301,6 +301,21 @@ from every node.
 
 By default the scores are divided by the largest score.
 With \code{normalized = FALSE} they are shares that sum to one.
+
+Where the network has negative ties, which repel
+(see \code{manynet::to_influence()}), the weight of a first opinion in the
+opinion at the end of another node can be negative:
+it pulls that node away from it.
+This is influence too, so the score is the mean of the absolute weights.
+The mean of the signed weights would let a pull towards and a pull away
+cancel. In a balanced network of two camps, for example, the first
+opinion of each node has the same weight in every opinion at the end,
+positive in its own camp and negative in the other, so every node has
+the same influence and not none.
+Without negative ties, the two means are the same.
+Where the opinions all go to 0, as in a signed network that is not
+balanced, no first opinion has any weight at the end,
+and every score is 0.
 }
 
 \examples{

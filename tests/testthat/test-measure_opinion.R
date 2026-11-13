@@ -46,6 +46,25 @@ test_that("influence centralisation is 0 on a ring and higher on a star", {
                                            normalized = FALSE)), 0.5)
 })
 
+test_that("influence counts a pull away along a negative tie", {
+  skip_if(utils::packageVersion("manynet") < "2.5.0",
+          "manynet before 2.5.0 has no negative ties in to_influence()")
+  # two balanced camps of three: positive ties inside, negative between
+  camps <- matrix(-1, 6, 6)
+  camps[1:3, 1:3] <- camps[4:6, 4:6] <- 1
+  diag(camps) <- 0
+  balanced <- manynet::as_tidygraph(camps)
+  expect_equal(as.numeric(node_by_influence(balanced, normalized = FALSE)),
+               rep(1/6, 6))
+  expect_equal(as.numeric(node_by_influence(balanced)), rep(1, 6))
+  expect_equal(as.numeric(net_by_influence(balanced)), 0)
+  # one more negative tie inside a camp: the opinions all go to 0
+  camps[1, 2] <- camps[2, 1] <- -1
+  unbalanced <- manynet::as_tidygraph(camps)
+  expect_equal(as.numeric(node_by_influence(unbalanced)), rep(0, 6))
+  expect_equal(as.numeric(net_by_influence(unbalanced)), 0)
+})
+
 test_that("convergence is the speed at which opinions settle", {
   expect_equal(as.numeric(net_by_convergence(manynet::create_filled(6))), 0.8)
   half <- manynet::add_node_attribute(path, "stubbornness", rep(0.5, 3))

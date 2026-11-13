@@ -25,11 +25,13 @@ for(fn in names(node_meas)) {
           expect_snet_abort(node_meas[[fn]](data_objs[[ob]]), "one-mode") else
             expect_s3_class(node_meas[[fn]](data_objs[[ob]]), "node_measure")
       } else if(grepl("influence|opinion", fn)){
-        # An influence matrix needs a one-mode network with no negative
-        # ties, and the first opinions a numeric nodal attribute "opinions"
+        # An influence matrix needs a one-mode network, and before
+        # manynet 2.5.0 no negative ties; the first opinions are a numeric
+        # nodal attribute "opinions"
         net <- manynet::add_node_attribute(data_objs[[ob]], "opinions",
                                            seq_len(manynet::net_nodes(data_objs[[ob]])))
-        if(ob %in% c("twomode", "labelled"))
+        if(ob == "twomode" ||
+           (ob == "labelled" && utils::packageVersion("manynet") < "2.5.0"))
           expect_snet_abort(node_meas[[fn]](net), "one-mode|negative") else
             expect_s3_class(suppressWarnings(node_meas[[fn]](net)), "node_measure")
       } else if(grepl("adopt|recovery|exposure",fn)){

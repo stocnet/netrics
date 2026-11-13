@@ -27,8 +27,10 @@ for(fn in names(net_meas)) {
         # which none of these fixtures hold; see test-measure_fit.R.
         expect_snet_abort(net_meas[[fn]](data_objs[[ob]]), "reporters")
       } else if(grepl("influence|convergence", fn)){
-        # An influence matrix needs a one-mode network with no negative ties
-        if(ob %in% c("twomode", "labelled"))
+        # An influence matrix needs a one-mode network, and before
+        # manynet 2.5.0 no negative ties
+        if(ob == "twomode" ||
+           (ob == "labelled" && utils::packageVersion("manynet") < "2.5.0"))
           expect_snet_abort(net_meas[[fn]](data_objs[[ob]]), "one-mode|negative") else
             expect_s3_class(suppressMessages(net_meas[[fn]](data_objs[[ob]])),
                             "network_measure")

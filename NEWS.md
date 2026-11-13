@@ -22,6 +22,7 @@
 - Added `node_by_concentration()` and `net_by_concentration()` for Getis–Ord hot spots
 - Added opinion measures on `manynet::to_influence()`, with any "stubbornness" attribute
   - Added `node_by_influence()` and `net_by_influence()` for social power and wise crowds
+  - Added absolute weights to the influence measures, so a pull away along a negative tie counts
   - Added `node_by_opinion()` for the opinions where an opinion dynamic settles
   - Added `net_by_convergence()` for the speed at which the opinions settle
 - Added complex contagion measures
@@ -41,7 +42,7 @@
   - Added `direction=`; "in" by default as before
   - Fixed `diff_model` objects losing their diffusion
   - Fixed two-mode networks, which failed or counted the wrong nodes
-- Improved `node_by_adopt_threshold()`
+- Improved `node_by_adopt_threshold()` (closes #1, thanks @henriquesposito)
   - Added `direction=` for exposure along arcs "in", "out", or "all"
   - Fixed `lag = 0` returning only zeros
   - Fixed directed networks normalising by total degree rather than by `direction=`

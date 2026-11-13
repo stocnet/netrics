@@ -64,6 +64,9 @@ By default the share is normalised as \eqn{(\max - 1/n) / (1 - 1/n)},
 which is 0 where every node has the same influence
 and 1 where one node has all of it.
 With \code{normalized = FALSE} it is the largest share itself.
+As for \code{node_by_influence()}, a negative weight counts by its absolute
+value, and where no first opinion has any weight at the end,
+the value is 0.
 }
 
 \examples{
