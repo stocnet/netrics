@@ -119,6 +119,10 @@ Nodes with no ties in that direction that adopt have a threshold of 0.
 Seeds have a missing threshold,
 since their adoption says nothing about their exposure,
 and so they do not bring down an average threshold.
+A node that is never \code{active} is out of the diffusion,
+as in \code{manynet::play_diffusion()}:
+its ties count neither for nor against the exposure of its contacts,
+and its own threshold, time, and exposure are missing.
 Nodes that never adopt have an infinite threshold,
 since their threshold was never reached.
 \verb{lag = 0, direction = "out"} reproduces

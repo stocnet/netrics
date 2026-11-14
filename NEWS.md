@@ -42,6 +42,7 @@
   - Added `direction=`; "in" by default as before
   - Fixed `diff_model` objects losing their diffusion
   - Fixed two-mode networks, which failed or counted the wrong nodes
+  - Fixed nodes that are never `active` counting as contacts
 - Improved `node_by_adopt_threshold()` (closes #1, thanks @henriquesposito)
   - Added `direction=` for exposure along arcs "in", "out", or "all"
   - Fixed `lag = 0` returning only zeros
@@ -51,6 +52,8 @@
   - Improved seeds to return `NA` rather than 0, so they do not lower averages
   - Updated the documentation on reproducing `netdiffuseR::threshold()`
   - Fixed two-mode networks normalising by degree rather than by co-affiliation
+  - Fixed nodes that are never `active` counting as contacts that had not adopted
+- Fixed `node_by_adopt_time()` and `node_in_adopter()` categorising inactive nodes
 
 ## Motifs
 

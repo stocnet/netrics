@@ -145,7 +145,7 @@ data_objs <- list(directed = generate_random(12, directed = TRUE),
                   weighted = add_tie_attribute(create_ring(12), "weight", 
                                                rep(c(1,2), each = 6)),
                   diffusion = play_diffusion(create_ring(12), seeds = 1, 
-                                             steps = 5, latency = 0.75, 
+                                             steps = 5, onset = 0.25, 
                                              recovery = 0.25))
 
 # The citation network of Hummon and Doreian's (1989: 50) Figure 3, a small

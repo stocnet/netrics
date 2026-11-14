@@ -295,7 +295,7 @@ NULL
 #' @rdname mark_diff 
 #' @examples
 #'   # To mark nodes that are latent by a particular time point
-#'   node_is_latent(play_diffusion(create_tree(6), latency = 1), time = 1)
+#'   node_is_latent(play_diffusion(create_tree(6), onset = 0), time = 1)
 #' @export
 node_is_latent <- function(.data, time = 0, attribute = "diffusion"){
   .diffusion_mark(.data, time, attribute, "E")

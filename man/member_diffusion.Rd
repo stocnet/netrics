@@ -25,7 +25,7 @@ then the assignments will be labelled with the nodes' names.
 \description{
 \code{node_in_adopter()} classifies membership of nodes into diffusion categories
 by where on the distribution of adopters they fell.
-Valente (1995) defines five memberships:
+Valente (1995), after Rogers (2003), uses five memberships:
 \itemize{
 \item \emph{Early adopter}: those with an adoption time less than
 the average adoption time minus one standard deviation of adoptions times
@@ -40,6 +40,12 @@ the average adoption time plus one standard deviation of adoptions times
 \item \emph{Non-adopter}: those without an adoption time,
 i.e. never adopted
 }
+
+A node that is never \code{active} is out of the diffusion and has no
+membership (\code{NA}).
+These are the categories of Rogers (2003) by time of adoption,
+without \emph{innovators}, whom the seeds stand in for:
+the seeds (time 0) are always early adopters.
 }
 \examples{
   smeg <- generate_smallworld(15, 0.025)
@@ -50,6 +56,9 @@ i.e. never adopted
 }
 \references{
 \subsection{On adopter classes}{
+
+Rogers, Everett M. 2003.
+\emph{Diffusion of innovations} (5th ed.). New York: Free Press.
 
 Valente, Tom W. 1995.
 \emph{Network models of the diffusion of innovations}

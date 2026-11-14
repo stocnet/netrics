@@ -121,3 +121,17 @@ test_that("the reproduction number recovers the chances that were played", {
   truth <- 0.6 * 0.3 / (0.4 + 0.3 - 0.12) * sum(k * (k - 1)) / sum(k)
   expect_equal(as.numeric(net_by_reproduction(played)), truth, tolerance = 0.15)
 })
+
+test_that("adoption measures leave out the nodes that are not active", {
+  # a path 1-2-3-4, where node 3 is out of the diffusion
+  net <- manynet::mutate_nodes(manynet::create_ring(4),
+                               active = c(TRUE, TRUE, FALSE, TRUE))
+  events <- data.frame(time = c(0, 1, 2), node = c(1, 2, 4),
+                       var = "diffusion", value = "I")
+  diff <- manynet::bind_changes(net, events)
+  # node 4 has two contacts, 1 and 3; only 1 counts, and it had adopted
+  expect_equal(as.numeric(node_by_adopt_threshold(diff)), c(NA, 1, NA, 1))
+  expect_equal(as.numeric(node_by_adopt_time(diff)), c(0, 1, NA, 2))
+  expect_true(is.na(node_in_adopter(diff)[3]))
+  expect_true(is.na(node_by_adopt_exposure(diff)[3]))
+})

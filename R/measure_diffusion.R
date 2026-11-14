@@ -415,6 +415,7 @@ node_by_adopt_time <- function(.data, attribute = "diffusion"){
   first <- .state_first(states, "I")
   out <- rep(Inf, length(first))
   out[!is.na(first)] <- as.numeric(states$times[first[!is.na(first)]])
+  out[.diffusion_inactive(net)] <- NA
   if(manynet::is_labelled(net)) names(out) <- manynet::node_names(net)
   make_node_measure(out, net, measure = "adoption time", range = c(0, Inf),
                     normalization = "none")
@@ -454,6 +455,10 @@ node_by_adopt_time <- function(.data, attribute = "diffusion"){
 #'   Seeds have a missing threshold,
 #'   since their adoption says nothing about their exposure,
 #'   and so they do not bring down an average threshold.
+#'   A node that is never `active` is out of the diffusion,
+#'   as in `manynet::play_diffusion()`:
+#'   its ties count neither for nor against the exposure of its contacts,
+#'   and its own threshold, time, and exposure are missing.
 #'   Nodes that never adopt have an infinite threshold,
 #'   since their threshold was never reached.
 #'   `lag = 0, direction = "out"` reproduces
@@ -493,6 +498,7 @@ node_by_adopt_threshold <- function(.data, normalized = TRUE, lag = 1,
     out <- out / .adopt_exposure(mat, rep(TRUE, n), direction, directed)
     out[is.nan(out)] <- 0
   }
+  out[.diffusion_inactive(net)] <- NA
   if(manynet::is_labelled(net)) names(out) <- manynet::node_names(net)
   make_node_measure(out, net, measure = "adoption threshold",
                     range = `if`(normalized, c(0, 1), c(0, Inf)),
@@ -563,6 +569,7 @@ node_by_adopt_exposure <- function(.data, mark, time = 0,
   out <- .adopt_exposure(.exposure_ties(.data, mk), mk, direction,
                          manynet::is_directed(.data))
   out[mk] <- 0
+  out[.diffusion_inactive(.data)] <- NA
   make_node_measure(out, .data, measure = "exposure", range = c(0, Inf),
                     normalization = "none")
 }
@@ -643,7 +650,34 @@ node_by_adopt_exposure <- function(.data, mark, time = 0,
 # A two-mode network that is not multilevel diffuses as `play_diffusion()`
 # plays it: marks on one mode expose that mode through the nodes of the other
 # mode that they share, and marks on both modes expose along their ties.
+# The ties of a node that is not `active` are dropped, so that it neither
+# exposes others nor counts among their contacts.
 .exposure_ties <- function(.data, mark){
+  out <- .exposure_ties_all(.data, mark)
+  out[.diffusion_inactive(.data), ] <- 0
+  out[, .diffusion_inactive(.data)] <- 0
+  out
+}
+
+# The nodes that are out of the diffusion: those whose `active` attribute
+# is FALSE and that no later change makes active, as
+# `manynet::play_diffusion()` and `manynet::as_diffusion()` read it.
+.diffusion_inactive <- function(.data){
+  n <- manynet::net_nodes(.data)
+  if(!"active" %in% manynet::net_node_attributes(.data)) return(rep(FALSE, n))
+  active <- as.logical(manynet::node_attribute(.data, "active"))
+  out <- !is.na(active) & !active
+  if(any(out) && manynet::is_changing(.data)){
+    ch <- as.data.frame(manynet::as_changelist(.data))
+    ch <- ch[ch$var == "active", , drop = FALSE]
+    value <- `if`(is.list(ch$value), unlist(ch$value), ch$value)
+    later <- unique(ch$node[as.logical(value) %in% TRUE])
+    out[later] <- FALSE
+  }
+  out
+}
+
+.exposure_ties_all <- function(.data, mark){
   mat <- as.matrix(manynet::as_matrix(.data))
   mat[is.na(mat)] <- 0
   if(!manynet::is_twomode(.data) || manynet::is_multilevel(.data)) return(mat)
@@ -678,7 +712,7 @@ node_by_adopt_exposure <- function(.data, mark, time = 0,
 #' @description
 #'   `node_in_adopter()` classifies membership of nodes into diffusion categories
 #'   by where on the distribution of adopters they fell.
-#'   Valente (1995) defines five memberships:
+#'   Valente (1995), after Rogers (2003), uses five memberships:
 #'   
 #'   - _Early adopter_: those with an adoption time less than 
 #'   the average adoption time minus one standard deviation of adoptions times
@@ -692,6 +726,12 @@ node_by_adopt_exposure <- function(.data, mark, time = 0,
 #'   the average adoption time plus one standard deviation of adoptions times
 #'   - _Non-adopter_: those without an adoption time,
 #'   i.e. never adopted
+#'
+#'   A node that is never `active` is out of the diffusion and has no
+#'   membership (`NA`).
+#'   These are the categories of Rogers (2003) by time of adoption,
+#'   without _innovators_, whom the seeds stand in for:
+#'   the seeds (time 0) are always early adopters.
 #'   
 #' @template param_data
 #' @template node_member
@@ -700,6 +740,9 @@ node_by_adopt_exposure <- function(.data, mark, time = 0,
 #' @name member_diffusion
 #' @references
 #' ## On adopter classes
+#'   Rogers, Everett M. 2003.
+#'   _Diffusion of innovations_ (5th ed.). New York: Free Press.
+#'
 #'   Valente, Tom W. 1995. 
 #'   _Network models of the diffusion of innovations_
 #'   (2nd ed.). Cresskill N.J.: Hampton Press.
@@ -727,5 +770,6 @@ node_in_adopter <- function(.data, attribute = "diffusion"){
   if(inherits(.data, "diff_model")) 
     net <- attr(.data, "network") else 
       net <- manynet::expect_nodes(.data)
+  out[.diffusion_inactive(net)] <- NA
   make_node_member(out, net)
 }

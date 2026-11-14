@@ -81,7 +81,7 @@ test_that("additional node mark functions work", {
   mentors <- node_is_mentor(ison_southern_women)
   expect_length(mentors, 32)
   expect_true(any(mentors[1:18]) && any(mentors[19:32]))
-  expect_mark(node_is_latent(play_diffusion(create_tree(6), latency = 1), time = 1),
+  expect_mark(node_is_latent(play_diffusion(create_tree(6), onset = 0), time = 1),
                c(F,T,T))
   expect_mark(node_is_infected(play_diffusion(create_tree(6)), time = 1),
                c(T,T,T,F,F,F), top = 6)
@@ -110,7 +110,7 @@ test_that("node infection, exposure, and recovery works", {
   skip_on_ci()
   set.seed(1234)
   .data <- play_diffusion(create_tree(15),
-                          seeds = 10, latency = 1, steps = 10)
+                          seeds = 10, onset = 0, steps = 10)
   expect_true(which(node_is_infected(.data, time = 0))==10)
   expect_true(which(node_is_latent(.data, time = 2))==5)
 })

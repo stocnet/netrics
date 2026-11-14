@@ -57,7 +57,7 @@ to the nodes infected in the diffusion.
 
 \examples{
   # To mark nodes that are latent by a particular time point
-  node_is_latent(play_diffusion(create_tree(6), latency = 1), time = 1)
+  node_is_latent(play_diffusion(create_tree(6), onset = 0), time = 1)
   # To mark nodes that are infected by a particular time point
   node_is_infected(play_diffusion(create_tree(6)), time = 1)
   # To mark nodes that are recovered by a particular time point
