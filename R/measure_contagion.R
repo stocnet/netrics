@@ -132,15 +132,17 @@ node_by_contagion <- function(.data, threshold = 2){
 }
 
 # A deterministic threshold contagion from the seeds: a node adopts once at
-# least `threshold` of its neighbours (or that fraction of them, below 1)
-# have adopted
+# least `threshold` of its neighbours (or that fraction of them, where one
+# threshold is below 1) have adopted. A vector of thresholds is in contacts.
 .contagion_spread <- function(adj, seeds, threshold){
   active <- seeds
   degree <- rowSums(adj)
   repeat{
     count <- as.numeric(adj %*% active)
-    need <- `if`(threshold >= 1, count >= threshold,
-                 degree > 0 & count >= threshold * degree)
+    # one threshold below 1 is a share; otherwise a number for each node
+    need <- `if`(length(threshold) == 1 && threshold < 1,
+                 degree > 0 & count >= threshold * degree,
+                 count >= threshold)
     new <- !active & need
     if(!any(new)) break
     active <- active | new

@@ -6,6 +6,7 @@
 \alias{net_by_recovery}
 \alias{net_by_reproduction}
 \alias{net_by_immunity}
+\alias{net_by_tipping}
 \title{Measures of network diffusion}
 \usage{
 net_by_transmissibility(.data, attribute = "diffusion")
@@ -15,6 +16,13 @@ net_by_recovery(.data, censor = TRUE, attribute = "diffusion")
 net_by_reproduction(.data, attribute = "diffusion")
 
 net_by_immunity(.data, normalized = TRUE, attribute = "diffusion")
+
+net_by_tipping(
+  .data,
+  threshold = 2,
+  normalized = TRUE,
+  rule = c("degree", "order", "random")
+)
 }
 \arguments{
 \item{.data}{Network data with nodal changes,
@@ -35,6 +43,17 @@ Note that this will likely still underestimate recovery.}
 Different denominators may be used depending on the measure,
 whether the object is one-mode or two-mode, and other arguments.
 By default TRUE.}
+
+\item{threshold}{For \code{net_by_tipping()}, the number of contacts that must
+adopt before a node adopts, or, below 1, the share of its contacts.
+It can be one number, a number for each node, or the name of a numeric
+node attribute, as in \code{play_diffusion()}. By default 2.}
+
+\item{rule}{For \code{net_by_tipping()}, the order in which nodes become seeds:
+\code{"degree"} (the default) takes the nodes with the most contacts first,
+\code{"order"} takes them in the order of the nodes,
+and \code{"random"} takes them in a random order.
+Nodes with the same degree are taken in the order of the nodes.}
 }
 \value{
 A \code{network_measure} numeric score.
@@ -60,6 +79,8 @@ from the chances of infection and recovery in a diffusion,
 and from the structure of the network.
 \item \code{net_by_immunity()} measures the proportion of nodes that would need
 to be protected through vaccination, isolation, or recovery for herd immunity to be reached.
+\item \code{net_by_tipping()} measures the smallest share of the nodes that,
+as seeds, make a threshold contagion reach every node.
 }
 }
 \section{Transmissibility}{
@@ -172,6 +193,29 @@ The formula would otherwise return a negative proportion, which has no
 interpretation.
 }
 
+\section{Tipping point}{
+
+\code{net_by_tipping()} measures the tipping point of a threshold
+contagion on the network: the smallest share of the nodes that, as seeds,
+make every node adopt.
+It needs only a network, not a played diffusion.
+
+The seeds are added one at a time in the order that \code{rule} gives,
+and a node adopts once at least \code{threshold} of its contacts have adopted.
+This is the threshold contagion of \code{play_diffusion()} with
+\code{transmissibility = 1}: it is deterministic, and a node never changes back.
+As in \code{play_diffusion()}, a \code{threshold} of 1 or more is a number of
+contacts, and a \code{threshold} of less than 1 is a share of them.
+More seeds never make fewer nodes adopt,
+so the tipping point is found by bisection.
+
+The result depends on which nodes are the seeds.
+In a complete network where each node has the same threshold, all
+orders give the same result. In other networks, they need not.
+Direction and tie weights are ignored,
+and a two-mode network is not yet available.
+}
+
 \examples{
   smeg <- generate_smallworld(15, 0.025)
   smeg_diff <- play_diffusion(smeg, recovery = 0.2)
@@ -186,6 +230,8 @@ interpretation.
   net_by_immunity(smeg_diff)
   # To find the number of nodes to be vaccinated
   net_by_immunity(smeg_diff, normalized = FALSE)
+  # The share of the nodes that must start a complex contagion
+  net_by_tipping(ison_adolescents, threshold = 2)
 }
 \references{
 \subsection{On epidemiological models}{

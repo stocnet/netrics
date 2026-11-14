@@ -126,6 +126,7 @@ measure_rosters <- list(
     net_by_recovery           = list(),
     net_by_reproduction       = list(),
     net_by_immunity           = list(),
+    net_by_tipping            = list(),
     net_by_infection_complete = list(),
     net_by_infection_total    = list(),
     net_by_infection_peak     = list()

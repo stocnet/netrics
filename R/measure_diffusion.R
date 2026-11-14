@@ -17,6 +17,8 @@
 #'   and from the structure of the network.
 #'   - `net_by_immunity()` measures the proportion of nodes that would need
 #'   to be protected through vaccination, isolation, or recovery for herd immunity to be reached.
+#'   - `net_by_tipping()` measures the smallest share of the nodes that,
+#'   as seeds, make a threshold contagion reach every node.
 #'   
 #' @param .data Network data with nodal changes,
 #'   as created by `play_diffusion()`,
@@ -284,6 +286,91 @@ net_by_immunity <- function(.data, normalized = TRUE, attribute = "diffusion"){
                        call = deparse(sys.call()),
                        measure = "herd immunity threshold",
                        range = `if`(normalized, c(0, 1), c(0, Inf)),
+                       normalization = `if`(normalized, "normalized", "none"))
+}
+
+
+#' @rdname measure_diffusion_net
+#' @section Tipping point:
+#'   `net_by_tipping()` measures the tipping point of a threshold
+#'   contagion on the network: the smallest share of the nodes that, as seeds,
+#'   make every node adopt.
+#'   It needs only a network, not a played diffusion.
+#'
+#'   The seeds are added one at a time in the order that `rule` gives,
+#'   and a node adopts once at least `threshold` of its contacts have adopted.
+#'   This is the threshold contagion of `play_diffusion()` with
+#'   `transmissibility = 1`: it is deterministic, and a node never changes back.
+#'   As in `play_diffusion()`, a `threshold` of 1 or more is a number of
+#'   contacts, and a `threshold` of less than 1 is a share of them.
+#'   More seeds never make fewer nodes adopt,
+#'   so the tipping point is found by bisection.
+#'
+#'   The result depends on which nodes are the seeds.
+#'   In a complete network where each node has the same threshold, all
+#'   orders give the same result. In other networks, they need not.
+#'   Direction and tie weights are ignored,
+#'   and a two-mode network is not yet available.
+#' @param threshold For `net_by_tipping()`, the number of contacts that must
+#'   adopt before a node adopts, or, below 1, the share of its contacts.
+#'   It can be one number, a number for each node, or the name of a numeric
+#'   node attribute, as in `play_diffusion()`. By default 2.
+#' @param rule For `net_by_tipping()`, the order in which nodes become seeds:
+#'   `"degree"` (the default) takes the nodes with the most contacts first,
+#'   `"order"` takes them in the order of the nodes,
+#'   and `"random"` takes them in a random order.
+#'   Nodes with the same degree are taken in the order of the nodes.
+#' @examples
+#'   # The share of the nodes that must start a complex contagion
+#'   net_by_tipping(ison_adolescents, threshold = 2)
+#' @export
+net_by_tipping <- function(.data, threshold = 2, normalized = TRUE,
+                           rule = c("degree", "order", "random")){
+  .data <- manynet::expect_nodes(.data)
+  .data <- .to_aggregated_css(.data)
+  if(manynet::is_twomode(.data))
+    manynet::snet_unavailable("A tipping point needs a one-mode network.")
+  rule <- match.arg(rule)
+  n <- manynet::net_nodes(.data)
+  if(is.character(threshold)){
+    if(length(threshold) != 1 ||
+       !threshold %in% manynet::net_node_attributes(.data))
+      manynet::snet_abort("{.arg threshold} names {.val {threshold}}, which is not a node attribute.")
+    threshold <- manynet::node_attribute(.data, threshold)
+  }
+  if(!is.numeric(threshold) || anyNA(threshold) || any(threshold <= 0) ||
+     !length(threshold) %in% c(1, n))
+    manynet::snet_abort("{.arg threshold} must be numbers above 0: one, or one for each node.")
+  adj <- .contagion_adjacency(.data)
+  degree <- rowSums(adj)
+  threshold <- rep_len(threshold, n)
+  # a share of the contacts, as in `manynet::play_diffusion()`
+  if(all(threshold <= 1) && !all(threshold == 1)){
+    threshold <- threshold * degree
+    # a node with no contacts adopts only as a seed
+    threshold[degree == 0] <- Inf
+  }
+  ranks <- switch(rule,
+                  degree = order(-degree, seq_len(n)),
+                  order = seq_len(n),
+                  random = sample.int(n))
+  complete <- function(k){
+    seeds <- logical(n)
+    seeds[ranks[seq_len(k)]] <- TRUE
+    all(.contagion_spread(adj, seeds, threshold))
+  }
+  # more seeds never make fewer nodes adopt, so bisect on the number of seeds
+  low <- 0; high <- n
+  while(high - low > 1){
+    mid <- (low + high) %/% 2
+    if(complete(mid)) high <- mid else low <- mid
+  }
+  out <- `if`(n > 0 && complete(low), low, high)
+  if(normalized) out <- out / n
+  make_network_measure(out, .data,
+                       call = deparse(sys.call()),
+                       measure = "tipping point",
+                       range = `if`(normalized, c(0, 1), c(0, n)),
                        normalization = `if`(normalized, "normalized", "none"))
 }
 
