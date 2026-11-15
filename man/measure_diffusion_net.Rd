@@ -219,7 +219,7 @@ and a two-mode network is not yet available.
 \examples{
   smeg <- generate_smallworld(15, 0.025)
   smeg_diff <- play_diffusion(smeg, recovery = 0.2)
-  plot(smeg_diff)
+  if (requireNamespace("autograph", quietly = TRUE)) plot(smeg_diff)
   # To calculate the average transmissibility for a given diffusion model
   net_by_transmissibility(smeg_diff)
   # To calculate the average infection length for a given diffusion model

@@ -157,7 +157,7 @@ Nodes in the mark have an exposure of 0.
 \examples{
   smeg <- generate_smallworld(15, 0.025)
   smeg_diff <- play_diffusion(smeg, recovery = 0.2)
-  plot(smeg_diff)
+  if (requireNamespace("autograph", quietly = TRUE)) plot(smeg_diff)
   # To measure when nodes adopted a diffusion/were infected
   (times <- node_by_adopt_time(smeg_diff))
   # To infer nodes' thresholds

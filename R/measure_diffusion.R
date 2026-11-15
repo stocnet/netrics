@@ -30,7 +30,7 @@
 #' @examples
 #'   smeg <- generate_smallworld(15, 0.025)
 #'   smeg_diff <- play_diffusion(smeg, recovery = 0.2)
-#'   plot(smeg_diff)
+#'   if (requireNamespace("autograph", quietly = TRUE)) plot(smeg_diff)
 #' @references
 #' ## On epidemiological models
 #'   Kermack, William O., and Anderson Gray McKendrick. 1927. 
@@ -480,7 +480,7 @@ net_by_infection_peak <- function(.data, attribute = "diffusion"){
 #' @examples
 #'   smeg <- generate_smallworld(15, 0.025)
 #'   smeg_diff <- play_diffusion(smeg, recovery = 0.2)
-#'   plot(smeg_diff)
+#'   if (requireNamespace("autograph", quietly = TRUE)) plot(smeg_diff)
 #' @references
 #' ## On diffusion measures
 #'   Valente, Tom W. 1995. _Network models of the diffusion of innovations_

@@ -34,6 +34,9 @@ for(fn in names(net_meas)) {
           expect_snet_abort(net_meas[[fn]](data_objs[[ob]]), "one-mode|negative") else
             expect_s3_class(suppressMessages(net_meas[[fn]](data_objs[[ob]])),
                             "network_measure")
+      } else if(grepl("tipping", fn) && ob == "twomode"){
+        # A tipping point needs a one-mode network
+        expect_snet_abort(net_meas[[fn]](data_objs[[ob]]), "one-mode")
       } else if(grepl("polarisation|disagreement|concentration", fn)){
         # These measure a numeric attribute, which no fixture holds
         num <- manynet::add_node_attribute(data_objs[[ob]], "num",
