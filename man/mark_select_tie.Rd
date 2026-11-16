@@ -39,8 +39,8 @@ are key because they minimise or, more often, maximise some measure.
 }
 }
 \examples{
-tie_is_max(tie_by_betweenness(ison_brandes))
-tie_is_min(tie_by_betweenness(ison_brandes))
+tie_is_max(tie_by_betweenness(ison_centrality))
+tie_is_min(tie_by_betweenness(ison_centrality))
 }
 \seealso{
 Other marks:
@@ -57,13 +57,13 @@ Other tie:
 \code{\link{mark_dyads}},
 \code{\link{mark_ties}},
 \code{\link{mark_triangles}},
-\code{\link{measure_broker_tie}},
 \code{\link{measure_central_tie_between}},
 \code{\link{measure_central_tie_close}},
 \code{\link{measure_central_tie_degree}},
 \code{\link{measure_central_tie_eigen}},
 \code{\link{measure_diverse_tie}},
-\code{\link{member_community_link}}
+\code{\link{member_community_link}},
+\code{\link[=tie_by_width]{tie_by_width()}}
 
 Other selection:
 \code{\link{mark_select_node}}

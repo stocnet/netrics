@@ -33,9 +33,9 @@ test_that("node_is_cutpoint", {
 
 test_that("node_is_isolate", {
   f <- node_is_isolate
-  test <- f(ison_brandes)
+  test <- f(ison_centrality)
   test_that("returns correct values", {
-    expect_equal(length(test), c(net_nodes(ison_brandes)))
+    expect_equal(length(test), c(net_nodes(ison_centrality)))
   })
   test_that("returns correct type", {
     expect_s3_class(test, "logical")
@@ -54,23 +54,23 @@ test_that("node_is_neighbor works", {
 test_that("node_is_max works", {
   # skip_on_cran()
   # skip_on_ci()
-  expect_equal(length(node_is_max(node_by_betweenness(ison_brandes))),
-               c(net_nodes(ison_brandes)))
-  expect_equal(sum(node_is_max(node_by_betweenness(ison_brandes)) == TRUE), 1)
-  expect_s3_class(node_is_max(node_by_betweenness(ison_brandes)), "logical")
+  expect_equal(length(node_is_max(node_by_betweenness(ison_centrality))),
+               c(net_nodes(ison_centrality)))
+  expect_equal(sum(node_is_max(node_by_betweenness(ison_centrality)) == TRUE), 1)
+  expect_s3_class(node_is_max(node_by_betweenness(ison_centrality)), "logical")
 })
 
 test_that("node_is_min works", {
   # skip_on_cran()
   # skip_on_ci()
-  expect_equal(length(node_is_min(node_by_betweenness(ison_brandes))),
-               c(net_nodes(ison_brandes)))
-  expect_equal(sum(node_is_min(node_by_betweenness(ison_brandes)) == TRUE), 4)
-  expect_s3_class(node_is_min(node_by_betweenness(ison_brandes)), "logical")
+  expect_equal(length(node_is_min(node_by_betweenness(ison_centrality))),
+               c(net_nodes(ison_centrality)))
+  expect_equal(sum(node_is_min(node_by_betweenness(ison_centrality)) == TRUE), 4)
+  expect_s3_class(node_is_min(node_by_betweenness(ison_centrality)), "logical")
 })
 
 test_that("node_is_mean works", {
-  expect_s3_class(node_is_mean(node_by_betweenness(ison_brandes)), "logical")
+  expect_s3_class(node_is_mean(node_by_betweenness(ison_centrality)), "logical")
 })
 
 test_that("additional node mark functions work", {
@@ -81,13 +81,13 @@ test_that("additional node mark functions work", {
   mentors <- node_is_mentor(ison_southern_women)
   expect_length(mentors, 32)
   expect_true(any(mentors[1:18]) && any(mentors[19:32]))
-  expect_mark(node_is_latent(play_diffusion(create_tree(6), latency = 1), time = 1),
+  expect_mark(node_is_latent(play_diffusion(create_tree(6), onset = 0), time = 1),
                c(F,T,T))
   expect_mark(node_is_infected(play_diffusion(create_tree(6)), time = 1),
                c(T,T,T,F,F,F), top = 6)
-  set.seed(123)
-  expect_mark(node_is_recovered(play_diffusion(create_tree(12), recovery = 0.3), time = 3),
-               c(T,T,T,F,F,F), top = 6)
+  # with certain recovery, the seed recovers before it can infect anyone
+  expect_mark(node_is_recovered(play_diffusion(create_tree(12), recovery = 1), time = 1),
+               c(T,F,F,F,F,F), top = 6)
   expect_mark(node_is_exposed(manynet::create_tree(6), mark = c(1,3)),
                c(F,T,F))
   set.seed(1234)
@@ -110,7 +110,7 @@ test_that("node infection, exposure, and recovery works", {
   skip_on_ci()
   set.seed(1234)
   .data <- play_diffusion(create_tree(15),
-                          seeds = 10, latency = 1, steps = 10)
+                          seeds = 10, onset = 0, steps = 10)
   expect_true(which(node_is_infected(.data, time = 0))==10)
   expect_true(which(node_is_latent(.data, time = 2))==5)
 })

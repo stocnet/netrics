@@ -39,7 +39,6 @@ Other measures:
 \code{\link{measure_assort_node}},
 \code{\link{measure_breadth}},
 \code{\link{measure_broker_node}},
-\code{\link{measure_broker_tie}},
 \code{\link{measure_brokerage}},
 \code{\link{measure_central_between}},
 \code{\link{measure_central_close}},
@@ -56,6 +55,7 @@ Other measures:
 \code{\link{measure_diffusion_infection}},
 \code{\link{measure_diffusion_net}},
 \code{\link{measure_diffusion_node}},
+\code{\link{measure_diverse_dispersion}},
 \code{\link{measure_diverse_net}},
 \code{\link{measure_diverse_node}},
 \code{\link{measure_diverse_tie}},
@@ -63,7 +63,9 @@ Other measures:
 \code{\link{measure_features}},
 \code{\link{measure_fit}},
 \code{\link{measure_fragmentation}},
-\code{\link{measure_hierarchy}}
+\code{\link{measure_hierarchy}},
+\code{\link{measure_opinion}},
+\code{\link[=tie_by_width]{tie_by_width()}}
 }
 \concept{change}
 \concept{measures}

@@ -144,8 +144,8 @@ It is not defined for fewer than three nodes, where it returns \code{NA}.
 
 \examples{
 net_by_richclub(ison_adolescents)
-net_by_smallworld(ison_brandes)
-net_by_smallworld(ison_southern_women)
+net_by_smallworld(ison_centrality, times = 10)
+net_by_smallworld(ison_southern_women, times = 10)
 net_by_scalefree(ison_adolescents)
 net_by_scalefree(generate_scalefree(50, 1.5))
 net_by_scalefree(create_lattice(100))
@@ -154,7 +154,7 @@ net_by_bipartivity(ison_southern_women)
 net_by_bipartivity(ison_adolescents)
 net_by_meshedness(create_tree(12))
 net_by_meshedness(create_lattice(12))
-net_by_balance(to_uniplex(fict_marvel, "relationship"))
+net_by_balance(to_layer(fict_marvel, "relationship"))
 }
 \references{
 \subsection{On the rich-club coefficient}{
@@ -257,7 +257,6 @@ Other measures:
 \code{\link{measure_assort_node}},
 \code{\link{measure_breadth}},
 \code{\link{measure_broker_node}},
-\code{\link{measure_broker_tie}},
 \code{\link{measure_brokerage}},
 \code{\link{measure_central_between}},
 \code{\link{measure_central_close}},
@@ -274,6 +273,7 @@ Other measures:
 \code{\link{measure_diffusion_infection}},
 \code{\link{measure_diffusion_net}},
 \code{\link{measure_diffusion_node}},
+\code{\link{measure_diverse_dispersion}},
 \code{\link{measure_diverse_net}},
 \code{\link{measure_diverse_node}},
 \code{\link{measure_diverse_tie}},
@@ -281,7 +281,9 @@ Other measures:
 \code{\link{measure_fit}},
 \code{\link{measure_fragmentation}},
 \code{\link{measure_hierarchy}},
-\code{\link{measure_periods}}
+\code{\link{measure_opinion}},
+\code{\link{measure_periods}},
+\code{\link[=tie_by_width]{tie_by_width()}}
 }
 \concept{features}
 \concept{measures}

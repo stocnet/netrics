@@ -21,7 +21,7 @@
 #'   so the same function serves weighted, multiplex, and two-mode networks,
 #'   and categorical as well as continuous attributes.
 #' @template param_data
-#' @template param_attr
+#' @template param_attr_pick
 #' @template param_dir
 #' @family motifs
 #' @family diversity
@@ -75,7 +75,7 @@ node_x_ties <- function(.data, direction = c("all", "out", "in")){
     # all and only the Diversity column
     layers <- manynet::layer_names(.data)
     # `uniplex_degree()` keeps each layer at the length of the whole nodeset,
-    # which `to_uniplex()` does not
+    # which `to_layer()` does not
     out <- vapply(layers, function(l)
       uniplex_degree(.data, l, normalized = FALSE, direction = direction),
       FUN.VALUE = numeric(manynet::net_nodes(.data)))
@@ -378,7 +378,7 @@ node_x_similarity <- function(.data, attribute){
 #'   say to stronger ties. On unweighted networks the two agree exactly.
 #'   Apply [manynet::to_unweighted()] first to compare them directly.
 #' @template param_data
-#' @template param_attr
+#' @template param_attr_pick
 #' @family motifs
 #' @family diversity
 #' @template net_motif
@@ -455,6 +455,7 @@ net_x_homophily <- function(.data, attribute){
 # Resolve an attribute given either as a name or as a vector, matching how
 # `node_by_heterophily()` and friends accept either.
 .resolve_attribute <- function(.data, attribute){
+  attribute <- .pick_attribute(.data, attribute)
   if(length(attribute) == 1 && is.character(attribute))
     attribute <- manynet::node_attribute(.data, attribute)
   if(is.null(attribute))

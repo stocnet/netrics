@@ -200,7 +200,7 @@ Other combinations of one-mode and two-mode layers are not yet available.
 \examples{
 node_x_dyad(ison_networkers)
 node_x_dyad(ison_networkers, attribute = "Discipline")
-task_eg <- to_named(to_uniplex(ison_algebra, "tasks"))
+task_eg <- to_named(to_layer(ison_algebra, "tasks"))
 (triad_cen <- node_x_triad(task_eg))
 node_x_tetrad(ison_southern_women)
 node_x_tetrad(ison_adolescents, attribute = rep(c("x", "y"), 4))
@@ -284,6 +284,7 @@ Other nodal:
 \code{\link{measure_diffusion_node}},
 \code{\link{measure_diverse_node}},
 \code{\link{measure_domain}},
+\code{\link{measure_opinion}},
 \code{\link{member_brokerage}},
 \code{\link{member_cliques}},
 \code{\link{member_community}},

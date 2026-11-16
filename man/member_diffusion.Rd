@@ -5,12 +5,16 @@
 \alias{node_in_adopter}
 \title{Memberships in a diffusion process}
 \usage{
-node_in_adopter(.data)
+node_in_adopter(.data, attribute = "diffusion")
 }
 \arguments{
 \item{.data}{A network object of class \code{stocnet}, \code{igraph}, \code{tbl_graph}, \code{network}, or similar.
 Internally any of these will be coerced to an efficient implementation.
 For more information on possible coercions, see e.g. \code{\link[manynet:as_stocnet]{manynet::as_stocnet()}}.}
+
+\item{attribute}{Name of the nodal attribute that holds the diffusion,
+as its start state on the nodes and as its changes.
+By default "diffusion", as in \code{play_diffusion()}.}
 }
 \value{
 A \code{node_member} character vector the length of the nodes in the network,
@@ -21,7 +25,7 @@ then the assignments will be labelled with the nodes' names.
 \description{
 \code{node_in_adopter()} classifies membership of nodes into diffusion categories
 by where on the distribution of adopters they fell.
-Valente (1995) defines five memberships:
+Valente (1995), after Rogers (2003), uses five memberships:
 \itemize{
 \item \emph{Early adopter}: those with an adoption time less than
 the average adoption time minus one standard deviation of adoptions times
@@ -36,6 +40,12 @@ the average adoption time plus one standard deviation of adoptions times
 \item \emph{Non-adopter}: those without an adoption time,
 i.e. never adopted
 }
+
+A node that is never \code{active} is out of the diffusion and has no
+membership (\code{NA}).
+These are the categories of Rogers (2003) by time of adoption,
+without \emph{innovators}, whom the seeds stand in for:
+the seeds (time 0) are always early adopters.
 }
 \examples{
   smeg <- generate_smallworld(15, 0.025)
@@ -46,6 +56,9 @@ i.e. never adopted
 }
 \references{
 \subsection{On adopter classes}{
+
+Rogers, Everett M. 2003.
+\emph{Diffusion of innovations} (5th ed.). New York: Free Press.
 
 Valente, Tom W. 1995.
 \emph{Network models of the diffusion of innovations}
@@ -85,6 +98,7 @@ Other nodal:
 \code{\link{measure_diffusion_node}},
 \code{\link{measure_diverse_node}},
 \code{\link{measure_domain}},
+\code{\link{measure_opinion}},
 \code{\link{member_brokerage}},
 \code{\link{member_cliques}},
 \code{\link{member_community}},

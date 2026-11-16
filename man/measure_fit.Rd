@@ -19,7 +19,12 @@ net_by_core(
   method = NULL
 )
 
-net_by_factions(.data, membership = NULL)
+net_by_factions(
+  .data,
+  membership = NULL,
+  variant = c("correlation", "esteban"),
+  sensitivity = 1
+)
 
 net_by_modularity(.data, membership = NULL, resolution = 1)
 
@@ -42,9 +47,10 @@ For more information on possible coercions, see e.g. \code{\link[manynet:as_stoc
 
 \item{mark}{A logical vector indicating which nodes belong to the core.}
 
-\item{variant}{Character string naming which variant of the measure to
-compute, where more than one definition of the same quantity is in use.
-The variant chosen is reported when the result is printed.}
+\item{variant}{For \code{net_by_core()}, see the section on core-periphery fit
+variants. For \code{net_by_factions()}, "correlation" (the default)
+correlates the network with an ideal of factions, and "esteban" returns
+Esteban and Ray's index of polarisation. See the section on factions.}
 
 \item{coreness}{Which method to use to calculate nodes' coreness.
 One of "correlation", "rich", "transition", or "hub";
@@ -67,6 +73,10 @@ nodes in the network where each element indicates the group membership of
 the corresponding node.
 While this may often be a vector created using \verb{node_in_*()} functions,
 it can be any character vector that assigns nodes to groups or categories.}
+
+\item{sensitivity}{For \code{net_by_factions(variant = "esteban")},
+Esteban and Ray's \eqn{\alpha}: how much the index rewards large groups.
+A number between 1, the default, and 1.6.}
 
 \item{resolution}{A proportion indicating the resolution scale.
 By default 1, which returns the original definition of modularity.
@@ -143,7 +153,7 @@ They fit the network to an ideal built
 by a \verb{manynet::create_*()} function, and those build one layer at a time.
 A multilevel network holds two, so there is no single ideal to fit it to.
 Take one layer first, e.g. with \code{\link[manynet:to_mode1]{manynet::to_mode1()}} or
-\code{\link[manynet:to_uniplex]{manynet::to_uniplex()}}.
+\code{\link[manynet:to_layer]{manynet::to_layer()}}.
 }
 \section{Core-periphery fit variants}{
 
@@ -170,6 +180,56 @@ Where \code{mark} is not given, it is calculated with \code{\link[=node_is_core]
 which the \code{coreness} and \code{direction} arguments are passed. For a directed
 network the fit itself is measured on the symmetrised network, since the
 ideal it is compared against is symmetric.
+}
+
+\section{Factions}{
+
+\code{net_by_factions()} measures how far a network is divided into factions.
+By default, with \code{variant = "correlation"}, it correlates the network
+with an ideal of factions: every tie inside each group, and none between
+the groups.
+
+For signed networks, \code{net_by_factions()} measures polarisation.
+The ideal is then a positive tie between every two nodes in the same
+group, and a negative tie between every two nodes in different groups,
+as in a network of two or more opposed camps.
+The correlation is between the sign of each tie and this ideal.
+A pair of nodes without a tie neither agrees nor opposes,
+so only the pairs with a tie are compared.
+1 means agreement inside every group and opposition between every two
+groups.
+Where no membership is given, a signed network is split into two camps
+by the signs of the leading eigenvector of its signed ties, read as
+undirected.
+
+For signed two-mode networks, such as a network of actors and the
+concepts they support or oppose, \code{net_by_factions()} measures the
+first mode.
+It projects the network with \code{manynet::to_mode(.data, 1, "signed")},
+so two actors are tied positively where they agree on more of the
+concepts they share than they disagree on, and negatively otherwise.
+A membership may give the groups of the first mode only, or of all the
+nodes.
+Project the network yourself with \code{\link[manynet:to_mode]{manynet::to_mode()}} to use another
+rule.
+
+With \code{variant = "esteban"}, \code{net_by_factions()} instead returns the
+polarisation index of Esteban and Ray (1994):
+\deqn{P = \sum_g \sum_h \pi_g^{1 + \alpha} \pi_h d_{gh}}
+where \eqn{\pi_g} is the share of the nodes in group \eqn{g},
+\eqn{d_{gh}} is the distance between groups \eqn{g} and \eqn{h},
+and \eqn{\alpha} is the \code{sensitivity}.
+The distance is \eqn{(1 - s_{gh})/2}, where \eqn{s_{gh}} is the mean
+sign of the ties between the two groups, so it is 0 where all those ties
+are positive and 1 where all are negative.
+Pairs of groups with no ties between them are left out.
+Unlike the correlation, this index gives weight to the size of the groups:
+two large opposed groups are more polarised than one large group and
+a small group that opposes it.
+The index is divided by its maximum, \eqn{(1/2)^{1+\alpha}},
+that of two groups of equal size at the largest distance,
+so it runs from 0 to 1.
+For unsigned networks, every tie is positive, so the index is 0.
 }
 
 \section{Modularity}{
@@ -355,6 +415,8 @@ model.
 net_by_core(ison_adolescents)
 net_by_core(ison_southern_women)
   net_by_factions(ison_southern_women)
+  net_by_factions(irps_nuclear)
+  net_by_factions(irps_nuclear, variant = "esteban")
 net_by_modularity(ison_adolescents, 
   node_in_partition(ison_adolescents))
 net_by_modularity(ison_southern_women, 
@@ -385,6 +447,14 @@ Borgatti, Stephen P., and Martin G. Everett. 2000.
 “Models of Core/Periphery Structures.”
 \emph{Social Networks} 21(4):375–95.
 \doi{10.1016/S0378-8733(99)00019-2}
+}
+
+\subsection{On polarisation}{
+
+Esteban, Joan-Maria, and Debraj Ray. 1994.
+"On the measurement of polarization".
+\emph{Econometrica} 62(4): 819-851.
+\doi{10.2307/2951734}
 }
 
 \subsection{On modularity}{
@@ -440,7 +510,6 @@ Other measures:
 \code{\link{measure_assort_node}},
 \code{\link{measure_breadth}},
 \code{\link{measure_broker_node}},
-\code{\link{measure_broker_tie}},
 \code{\link{measure_brokerage}},
 \code{\link{measure_central_between}},
 \code{\link{measure_central_close}},
@@ -457,6 +526,7 @@ Other measures:
 \code{\link{measure_diffusion_infection}},
 \code{\link{measure_diffusion_net}},
 \code{\link{measure_diffusion_node}},
+\code{\link{measure_diverse_dispersion}},
 \code{\link{measure_diverse_net}},
 \code{\link{measure_diverse_node}},
 \code{\link{measure_diverse_tie}},
@@ -464,7 +534,9 @@ Other measures:
 \code{\link{measure_features}},
 \code{\link{measure_fragmentation}},
 \code{\link{measure_hierarchy}},
-\code{\link{measure_periods}}
+\code{\link{measure_opinion}},
+\code{\link{measure_periods}},
+\code{\link[=tie_by_width]{tie_by_width()}}
 }
 \concept{features}
 \concept{measures}

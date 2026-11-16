@@ -613,7 +613,7 @@ Colour the nodes by Gender, Office, Practice, and School.**
 Any you might think correlate with core status?
 
 ```{r gnet, fig.width=9}
-lawfirm <- ison_lawfirm |> to_uniplex("friends") |> to_undirected()
+lawfirm <- ison_lawfirm |> to_layer("friends") |> to_undirected()
 ```
 
 
@@ -743,7 +743,7 @@ Let us keep the direction this time.
 **Extract the friendship network again, without dropping direction.**
 
 ```{r dlaw}
-lawdir <- ison_lawfirm |> to_uniplex("friends")
+lawdir <- ison_lawfirm |> to_layer("friends")
 is_directed(lawdir)
 ```
 
@@ -1112,7 +1112,7 @@ Along the way, you have learned to use these functions:
 | `net_by_cohesion()`, `net_by_adhesion()` | minimum nodes / ties to remove to fragment the network |
 | `node_is_cutpoint()`, `tie_is_bridge()` | flags the nodes / ties whose removal would fragment the network |
 | `tie_by_cohesion()` | how deeply each tie is embedded in triangles |
-| `to_uniplex()`, `to_undirected()`, `to_redirected()`, `to_giant()` | extract one tie type, drop direction, reverse direction, keep the largest component |
+| `to_layer()`, `to_undirected()`, `to_redirected()`, `to_giant()` | extract one tie type, drop direction, reverse direction, keep the largest component |
 | `mutate_nodes()`, `mutate_ties()`, `graphr()` | map marks and measures onto the graph |
 | `chisq.test()` | (base R) association between core status and a categorical attribute |
 

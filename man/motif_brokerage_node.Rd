@@ -59,10 +59,10 @@ Jasny, Lorien, and Mark Lubell. 2015.
 \seealso{
 Other brokerage:
 \code{\link{measure_broker_node}},
-\code{\link{measure_broker_tie}},
 \code{\link{measure_brokerage}},
 \code{\link{member_brokerage}},
-\code{\link{motif_brokerage_net}}
+\code{\link{motif_brokerage_net}},
+\code{\link[=tie_by_width]{tie_by_width()}}
 
 Other motifs:
 \code{\link{motif_accuracy_node}},
@@ -97,6 +97,7 @@ Other nodal:
 \code{\link{measure_diffusion_node}},
 \code{\link{measure_diverse_node}},
 \code{\link{measure_domain}},
+\code{\link{measure_opinion}},
 \code{\link{member_brokerage}},
 \code{\link{member_cliques}},
 \code{\link{member_community}},

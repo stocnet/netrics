@@ -1,9 +1,10 @@
 # nocov start
 #' Functions that have been renamed, superseded, or are no longer working
 #' 
-#' `r lifecycle::badge("deprecated")`
 #' Generally these functions have been superseded or renamed.
-#' Upon using them, a message is provided directing the user to the new function.
+#' Upon using them, a warning directs the user to the new function.
+#' A function that is only superseded still works without a warning
+#' for one minor release.
 #' However, at this stage of package development,
 #' we generally clear older defunct functions at each minor release,
 #' and so you are strongly encouraged to use the new functions/names/syntax
@@ -23,8 +24,7 @@ NULL
 #' @export
 node_by_coreness <- function(.data, coreness = NULL,
                              direction = c("all", "out", "in")) {
-  .Deprecated("node_by_core", package = "netrics",
-              old = "node_by_coreness")
+  manynet::snet_deprecated("node_by_coreness", "node_by_core")
   node_by_core(.data, coreness = coreness, direction = direction)
 }
 
@@ -35,10 +35,8 @@ node_by_coreness <- function(.data, coreness = NULL,
 #' @param object2 A second, two-mode network object.
 #' @export
 net_x_mixed <- function(.data, object2) {
-  .Defunct("net_x_triad", package = "netrics",
-           msg = paste("`net_x_mixed()` is defunct.",
-                       "Please use `net_x_triad()` on one multilevel network,",
-                       "such as `fict_marvel`, instead."))
+  manynet::snet_deprecated("net_x_mixed", "net_x_triad", "defunct",
+                           why = "Give {.fn net_x_triad} one multilevel network, such as {.code fict_marvel}.")
 }
 
 #' @describeIn defunct Deprecated on 2026-08-28.
@@ -48,8 +46,8 @@ net_x_mixed <- function(.data, object2) {
 #' @template param_data
 #' @export
 node_in_weak <- function(.data) {
-  .Deprecated("node_in_component", package = "netrics",
-              old = "node_in_weak")
+  manynet::snet_deprecated("node_in_weak", "node_in_component",
+                           why = "Give it {.code connectivity = \"weak\"}.")
   node_in_component(.data, connectivity = "weak")
 }
 
@@ -59,9 +57,20 @@ node_in_weak <- function(.data) {
 #' @template param_data
 #' @export
 node_in_strong <- function(.data) {
-  .Deprecated("node_in_component", package = "netrics",
-              old = "node_in_strong")
+  manynet::snet_deprecated("node_in_strong", "node_in_component",
+                           why = "Give it {.code connectivity = \"strong\"}.")
   node_in_component(.data, connectivity = "strong")
+}
+
+#' @describeIn defunct Superseded by `tie_is_repeated()` on 2026-11-12.
+#'   "Multiple" did not say whether a tie repeats an earlier one or coexists
+#'   with it, which `manynet::tie_is_parallel()` marks (#38).
+#'   This name gives a warning from the next minor release.
+#' @template param_data
+#' @export
+tie_is_multiple <- function(.data) {
+  manynet::snet_deprecated("tie_is_multiple", "tie_is_repeated", "superseded")
+  tie_is_repeated(.data)
 }
 
 # nocov end

@@ -1,14 +1,14 @@
 test_that("node_in_component works", {
-  comp <- ison_monks %>% to_uniplex("esteem") %>%
+  comp <- ison_monks %>% to_layer("esteem") %>%
     node_in_component()
   expect_s3_class(comp, "node_member")
   expect_equal(length(unique(comp)),
-               c(net_by_components(to_uniplex(ison_monks, "esteem"))))
-  comp <- ison_monks %>% to_uniplex("esteem") %>%
+               c(net_by_components(to_layer(ison_monks, "esteem"))))
+  comp <- ison_monks %>% to_layer("esteem") %>%
     to_undirected() %>%
     node_in_component()
   expect_equal(length(unique(comp)),
-               length(unique(node_in_component(to_uniplex(ison_monks, "esteem"),
+               length(unique(node_in_component(to_layer(ison_monks, "esteem"),
                                                connectivity = "weak"))))
 })
 
@@ -33,7 +33,7 @@ test_that("node_in_component works for two-mode networks", {
 })
 
 test_that("deprecated component functions still return correct results", {
-  esteem <- to_uniplex(ison_monks, "esteem")
+  esteem <- to_layer(ison_monks, "esteem")
   expect_warning(weak <- node_in_weak(esteem))
   expect_warning(strong <- node_in_strong(esteem))
   expect_equal(c(weak), c(node_in_component(esteem, connectivity = "weak")))

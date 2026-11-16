@@ -90,12 +90,12 @@ Other tie:
 \code{\link{mark_select_tie}},
 \code{\link{mark_ties}},
 \code{\link{mark_triangles}},
-\code{\link{measure_broker_tie}},
 \code{\link{measure_central_tie_between}},
 \code{\link{measure_central_tie_close}},
 \code{\link{measure_central_tie_degree}},
 \code{\link{measure_central_tie_eigen}},
-\code{\link{measure_diverse_tie}}
+\code{\link{measure_diverse_tie}},
+\code{\link[=tie_by_width]{tie_by_width()}}
 
 Other community:
 \code{\link{member_community}},

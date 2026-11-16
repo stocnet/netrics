@@ -125,7 +125,7 @@ and a numeric attribute costs a pair their absolute difference over its maximum.
 \examples{
 node_in_roulette(ison_adolescents, groups = 3)
 # Mix the groups on an attribute
-marvel_friends <- to_unsigned(to_uniplex(fict_marvel, "relationship"), "positive")
+marvel_friends <- to_unsigned(to_layer(fict_marvel, "relationship"), "positive")
 node_in_roulette(marvel_friends, groups = 3, attribute = "Gender")
 # Record three rounds as waves, discounting older meetings by half
 net <- create_empty(8)
@@ -183,6 +183,7 @@ Other nodal:
 \code{\link{measure_diffusion_node}},
 \code{\link{measure_diverse_node}},
 \code{\link{measure_domain}},
+\code{\link{measure_opinion}},
 \code{\link{member_brokerage}},
 \code{\link{member_community}},
 \code{\link{member_community_hier}},

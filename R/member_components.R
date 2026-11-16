@@ -25,9 +25,9 @@ NULL
 #' @rdname member_components
 #' @importFrom igraph components
 #' @examples
-#' ison_monks |> to_uniplex("esteem") |>
+#' ison_monks |> to_layer("esteem") |>
 #'   mutate_nodes(comp = node_in_component())
-#' ison_monks |> to_uniplex("esteem") |>
+#' ison_monks |> to_layer("esteem") |>
 #'   mutate_nodes(comp = node_in_component(connectivity = "weak"))
 #' @export
 node_in_component <- function(.data, connectivity = c("strong", "weak")){

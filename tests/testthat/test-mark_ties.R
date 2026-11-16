@@ -3,7 +3,11 @@ for(fn in names(tie_marks)) {
   for (ob in names(data_objs)) { 
     test_that(paste(fn, "works on", ob), {
       skip_if(grepl("tie_is_imbalanced", fn) && ob == "twomode")
-      if(fn == "tie_is_path"){
+      if(fn == "tie_is_long" && ob == "twomode")
+        return(expect_error(tie_marks[[fn]](data_objs[[ob]]), "one-mode"))
+      if(fn == "tie_is_mainpath"){
+        succeed("Only used for directed acyclic objects")
+      } else if(fn == "tie_is_path"){
         expect_s3_class(tie_marks[[fn]](data_objs[[ob]], 1, 2), "tie_mark")
       } else if(grepl("infected|recovered", fn)){
         if(ob == "diffusion")
@@ -26,8 +30,13 @@ test_that("tie_is_reciprocated works", {
   expect_true(tie_is_reciprocated(graph1)[2], tie_is_reciprocated(graph1)[7])
 })
 
-test_that("tie_is_multiple works", {
-  expect_true(tie_is_multiple(graph2)[5])
+test_that("tie_is_repeated works", {
+  expect_true(tie_is_repeated(graph2)[5])
+})
+
+test_that("tie_is_multiple is a silent alias of tie_is_repeated (#38)", {
+  expect_no_warning(old <- tie_is_multiple(graph2))
+  expect_equal(old, tie_is_repeated(graph2))
 })
 
 test_that("tie_is_loop works", {
@@ -37,6 +46,22 @@ test_that("tie_is_loop works", {
 
 test_that("tie_is_bridge works", {
   expect_equal(length(tie_is_bridge(graph1)), c(net_ties(graph1)))
+  expect_s3_class(tie_is_bridge(graph1), "tie_mark")
+  # on a tree every tie is a bridge, and on a ring none is
+  expect_true(all(tie_is_bridge(create_tree(10))))
+  expect_false(any(tie_is_bridge(create_ring(8))))
+})
+
+test_that("tie_is_long marks ties whose ends share no neighbour", {
+  expect_s3_class(tie_is_long(ison_adolescents), "tie_mark")
+  expect_true(all(tie_is_long(create_ring(8))))
+  expect_false(any(tie_is_long(create_filled(5))))
+  # a shortcut across a lattice is the only long tie, and the narrowest
+  lattice <- add_ties(create_ring(20, width = 2), c(1, 11))
+  expect_equal(sum(tie_is_long(lattice)), 1)
+  expect_equal(unname(c(tie_by_width(lattice)[tie_is_long(lattice)])), 1)
+  # every bridge is a long tie
+  expect_true(all(tie_is_long(ison_centrality)[tie_is_bridge(ison_centrality)]))
 })
 
 test_that("tie_is_path works", {
@@ -70,10 +95,10 @@ test_that("tie_is_max works", {
 test_that("tie_is_min works", {
   skip_on_ci()
   skip_on_cran()
-  expect_equal(length(tie_is_min(tie_by_betweenness(ison_brandes))),
-               c(net_ties(ison_brandes)))
-  expect_equal(sum(tie_is_min(tie_by_betweenness(ison_brandes)) == TRUE), 1)
-  expect_s3_class(tie_is_min(tie_by_betweenness(ison_brandes)), "logical")
+  expect_equal(length(tie_is_min(tie_by_betweenness(ison_centrality))),
+               c(net_ties(ison_centrality)))
+  expect_equal(sum(tie_is_min(tie_by_betweenness(ison_centrality)) == TRUE), 1)
+  expect_s3_class(tie_is_min(tie_by_betweenness(ison_centrality)), "logical")
 })
 
 test_that("tie_is_feedback() mark functions work", {
@@ -99,4 +124,38 @@ test_that("tie_is_max() and tie_is_min() name what they mark", {
 test_that("tie_is_path() names the arguments it needs", {
   expect_error(tie_is_path(ison_adolescents), "from")
   expect_error(tie_is_path(ison_adolescents, from = 1), "to")
+})
+
+test_that("tie_is_mainpath() marks the local and global main paths", {
+  local <- tie_is_mainpath(hummon_doreian)
+  expect_s3_class(local, "tie_mark")
+  # Ties of equal count are all kept, so the local main path branches at 20.
+  expect_equal(names(local)[local],
+               c("3->5", "5->12", "12->20", "20->21", "20->22", "21->22"))
+  global <- tie_is_mainpath(hummon_doreian, global = TRUE)
+  expect_equal(names(global)[global],
+               c("3->5", "5->12", "12->20", "20->21", "21->22"))
+  # With SPLC the counts differ, and so does the path.
+  splc <- tie_is_mainpath(hummon_doreian, "splc")
+  expect_true(all(splc[c("3->5", "5->12", "12->20")]))
+})
+
+test_that("tie_is_mainpath() can differ between local and global", {
+  # From A, the tie to B carries two paths and the tie to C one, so the local
+  # main path turns to B; the longer route through C has the larger sum,
+  # 3 + 1 + 1 + 1 + 1 = 7 against 3 + 2 + 1 = 6.
+  g <- manynet::create_explicit(S-+A, A-+B, A-+C, B-+T1, B-+T2, C-+D, D-+E,
+                                E-+T)
+  local <- tie_is_mainpath(g)
+  expect_equal(names(local)[local], c("S->A", "A->B", "B->T1", "B->T2"))
+  global <- tie_is_mainpath(g, global = TRUE)
+  expect_equal(names(global)[global],
+               c("S->A", "A->C", "C->D", "D->E", "E->T"))
+})
+
+test_that("tie_is_mainpath() keeps only the main path with filter_ties()", {
+  path <- hummon_doreian |> manynet::filter_ties(tie_is_mainpath(global = TRUE)) |>
+    manynet::delete_isolates()
+  expect_equal(manynet::net_ties(path), 5)
+  expect_equal(manynet::net_nodes(path), 6)
 })

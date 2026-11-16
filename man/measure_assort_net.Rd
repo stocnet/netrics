@@ -6,6 +6,7 @@
 \alias{net_by_homophily}
 \alias{net_by_assortativity}
 \alias{net_by_spatial}
+\alias{net_by_concentration}
 \title{Measures of network assortativity}
 \usage{
 net_by_heterophily(.data, attribute)
@@ -19,13 +20,17 @@ net_by_homophily(
 net_by_assortativity(.data)
 
 net_by_spatial(.data, attribute)
+
+net_by_concentration(.data, attribute)
 }
 \arguments{
 \item{.data}{A network object of class \code{stocnet}, \code{igraph}, \code{tbl_graph}, \code{network}, or similar.
 Internally any of these will be coerced to an efficient implementation.
 For more information on possible coercions, see e.g. \code{\link[manynet:as_stocnet]{manynet::as_stocnet()}}.}
 
-\item{attribute}{Name of a nodal attribute, mark, measure, or membership vector.}
+\item{attribute}{Name of a nodal attribute, mark, measure, or membership vector.
+Where none is named and the network holds only one nodal attribute
+besides the reserved ones, such as "label" and "mode", that one is used.}
 
 \item{assortativity}{Which method to use for \verb{*_homophily()}.
 Either "ie" (negative E-I index), "ei" (E-I index),
@@ -150,13 +155,27 @@ and \eqn{N}, \eqn{W} and \eqn{\bar{x}} are recomputed on those that remain.
 A missing tie counts as no tie.
 }
 
+\section{Concentration}{
+
+\code{net_by_concentration()} measures whether high values of a positive
+numeric attribute sit together in a network, with the general \eqn{G}
+statistic of Getis and Ord (1992):
+\deqn{G = \frac{\sum_{i \neq j} w_{ij} x_i x_j}{\sum_{i \neq j} x_i x_j}}
+On a network without weights it runs from 0 to 1, and is the share of
+all the products of two values that fall on ties.
+Compare it with the density: a value above the density means that high
+values sit together, and a value below it that low values sit together.
+See \code{node_by_concentration()} for the hot spots and cold spots.
+}
+
 \examples{
-marvel_friends <- to_unsigned(to_uniplex(fict_marvel, "relationship"), "positive")
+marvel_friends <- to_unsigned(to_layer(fict_marvel, "relationship"), "positive")
 net_by_heterophily(marvel_friends, "Gender")
 net_by_heterophily(marvel_friends, "Attractive")
 net_by_homophily(marvel_friends, "Gender")
 net_by_assortativity(ison_networkers)
 net_by_spatial(ison_lawfirm, "age")
+net_by_concentration(ison_lawfirm, "age")
 }
 \references{
 \subsection{On heterophily}{
@@ -191,6 +210,7 @@ Moran, Patrick Alfred Pierce. 1950.
 \seealso{
 Other diversity:
 \code{\link{measure_assort_node}},
+\code{\link{measure_diverse_dispersion}},
 \code{\link{measure_diverse_net}},
 \code{\link{measure_diverse_node}},
 \code{\link{measure_diverse_tie}},
@@ -203,7 +223,6 @@ Other measures:
 \code{\link{measure_assort_node}},
 \code{\link{measure_breadth}},
 \code{\link{measure_broker_node}},
-\code{\link{measure_broker_tie}},
 \code{\link{measure_brokerage}},
 \code{\link{measure_central_between}},
 \code{\link{measure_central_close}},
@@ -220,6 +239,7 @@ Other measures:
 \code{\link{measure_diffusion_infection}},
 \code{\link{measure_diffusion_net}},
 \code{\link{measure_diffusion_node}},
+\code{\link{measure_diverse_dispersion}},
 \code{\link{measure_diverse_net}},
 \code{\link{measure_diverse_node}},
 \code{\link{measure_diverse_tie}},
@@ -228,7 +248,9 @@ Other measures:
 \code{\link{measure_fit}},
 \code{\link{measure_fragmentation}},
 \code{\link{measure_hierarchy}},
-\code{\link{measure_periods}}
+\code{\link{measure_opinion}},
+\code{\link{measure_periods}},
+\code{\link[=tie_by_width]{tie_by_width()}}
 }
 \concept{diversity}
 \concept{measures}

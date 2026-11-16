@@ -16,7 +16,8 @@ library(netrics)
 # README lists the current API, so the wrappers in R/netrics-defunct.R are
 # dropped rather than advertised alongside their replacements. That file is
 # cleared at each minor release, so this list stays short.
-defunct_fns <- c("node_by_coreness", "net_x_mixed")
+defunct_fns <- c("node_by_coreness", "net_x_mixed", "node_in_weak",
+                 "node_in_strong", "tie_is_multiple")
 netrics_fns <- setdiff(ls("package:netrics"), defunct_fns)
 list_functions <- function(string){
   paste0("`", paste(paste0(netrics_fns[grepl(string, netrics_fns)], "()"), collapse = "`, `"), "`")
@@ -112,7 +113,7 @@ These include:
 
 The measures are organised into several broad categories, including:
 _Centrality_, _Cohesion_, _Hierarchy_, _Innovation_ (structural holes),
-_Diversity_ (heterogeneity), _Topology_ (features), and _Diffusion_.
+_Diversity_ (heterogeneity), _Topology_ (features), _Diffusion_, and _Opinion_.
 Each measure recognises whether the network is directed or undirected,
 weighted or unweighted, one-mode or two-mode,
 and returns normalized values wherever possible.
@@ -162,7 +163,8 @@ For example, you might want to know about:
 - _Resilience_: `r list_functions("cutpoint|bridge|hesion")`
 - _Brokerage_: `r list_functions("broke|hole|redundancy|constraint|effsize")`
 - _Diversity_: `r list_functions("diversity|phily|richness|assort")`
-- _Diffusion_: `r list_functions("adopt|infect|expos")`
+- _Diffusion_: `r list_functions("adopt|infect|expos|latent|recover|reproduction|immunity|transmissibility|contagion|tipping|width")`
+- _Opinion_: `r list_functions("influence|opinion|convergence|polarisation|disagreement")`
 
 ## Installation
 

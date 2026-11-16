@@ -194,6 +194,49 @@ test_that("decay and integration centralization works", {
   expect_output(print(net_by_decay(ison_adolescents)))
 })
 
+test_that("node_by_harmonic gives straightness where the nodes have positions", {
+  # The end nodes are 5 apart in a straight line and 7 apart along the network
+  p <- mutate_nodes(create_explicit(A-B, B-C), x = c(0, 3, 3), y = c(0, 0, 4))
+  expect_equal(as.numeric(node_by_harmonic(p)), c(1 + 5/7, 2, 1 + 5/7) / 2)
+  expect_equal(attr(node_by_harmonic(p), "measure"), "straightness centrality")
+  expect_equal(as.numeric(node_by_harmonic(p, normalized = FALSE)),
+               c(1 + 5/7, 2, 1 + 5/7))
+  # Tie lengths replace the straight lines between the nodes
+  expect_equal(as.numeric(node_by_harmonic(mutate_ties(p, length = c(3, 8)))),
+               c(1 + 5/11, 1 + 4/8, 4/8 + 5/11) / 2)
+  # The cutoff is a distance along the network
+  expect_equal(as.numeric(node_by_harmonic(p, cutoff = 4)), c(1, 2, 1) / 2)
+  # Unreachable nodes add nothing
+  apart <- mutate_nodes(create_explicit(A-B, C), x = c(0, 1, 2), y = 0)
+  expect_equal(as.numeric(node_by_harmonic(apart)), c(1, 1, 0) / 2)
+  # On the globe, the straight line is the great circle
+  geo <- mutate_nodes(create_explicit(A-B, B-C), lon = c(0, 1, 1),
+                      lat = c(0, 0, 1))
+  expect_lt(as.numeric(node_by_harmonic(geo))[1], 1)
+  expect_equal(as.numeric(node_by_harmonic(geo))[2], 1)
+  # A cutoff shorter than every tie is ignored
+  expect_equal(as.numeric(node_by_harmonic(geo, cutoff = 2)),
+               as.numeric(node_by_harmonic(geo)))
+  # Decay centrality does not use the positions
+  expect_equal(as.numeric(node_by_harmonic(p, decay = 0.5)),
+               as.numeric(node_by_decay(create_explicit(A-B, B-C))))
+  local_verbose()
+  expect_message(node_by_harmonic(p), "straightness")
+  expect_message(node_by_harmonic(geo, cutoff = 2), "Ignoring")
+})
+
+test_that("net_by_harmonic gives straightness centralisation where the nodes have positions", {
+  line <- mutate_nodes(create_explicit(A-B, B-C, C-D), x = 1:4, y = 0)
+  expect_equal(as.numeric(node_by_harmonic(line)), rep(1, 4))
+  # The default cutoff is not used, but a given one is
+  expect_equal(as.numeric(net_by_harmonic(line)), 0)
+  expect_gt(as.numeric(net_by_harmonic(line, cutoff = 2)), 0)
+  expect_equal(attr(net_by_harmonic(line), "measure"),
+               "straightness centralisation")
+  expect_equal(attr(net_by_harmonic(ison_adolescents), "measure"),
+               "harmonic centralisation")
+})
+
 test_that("node_by_decay respects tie direction", {
   dir <- to_unweighted(ison_networkers)
   # reaching out is not the same as being reached
@@ -290,4 +333,63 @@ test_that("node_by_power stops where the exponent has no solution", {
   expect_true(all(is.finite(out)))
   # an exponent of 0 is degree centrality, which always has a solution
   expect_length(node_by_power(g, exponent = 0), 5)
+})
+
+# Main path traversal counts ####
+
+# Counts every path along each tie by listing the paths, for small networks.
+brute_traversal <- function(g, variant){
+  g <- manynet::as_igraph(g)
+  n <- igraph::vcount(g)
+  ties <- igraph::as_edgelist(g, names = FALSE)
+  sources <- which(igraph::degree(g, mode = "in") == 0)
+  sinks <- which(igraph::degree(g, mode = "out") == 0)
+  starts <- if(variant == "spc") sources else seq_len(n)
+  out <- numeric(nrow(ties))
+  for(s in starts){
+    for(p in igraph::all_simple_paths(g, s, mode = "out")){
+      p <- as.integer(p)
+      if(variant != "spnp" && !(p[length(p)] %in% sinks)) next
+      steps <- paste(p[-length(p)], p[-1])
+      out <- out + (paste(ties[,1], ties[,2]) %in% steps)
+    }
+  }
+  out
+}
+
+test_that("tie_by_mainpath reproduces Hummon and Doreian's SPLC counts", {
+  # Hummon and Doreian (1989: 51), Figure 3
+  expect_equal(as.numeric(tie_by_mainpath(hummon_doreian, "splc",
+                                          normalized = FALSE)),
+               c(3, 1, 6, 3, 6, 4, 4, 4, 6))
+})
+
+test_that("tie_by_mainpath counts every path along each tie", {
+  g <- manynet::create_explicit(A-+C, B-+C, B-+D, C-+E, D-+E, E-+F, D-+F,
+                                A-+F)
+  for(variant in c("spc", "splc", "spnp")){
+    expect_equal(as.numeric(tie_by_mainpath(g, variant, normalized = FALSE)),
+                 brute_traversal(g, variant))
+    expect_equal(as.numeric(tie_by_mainpath(hummon_doreian, variant,
+                                            normalized = FALSE)),
+                 brute_traversal(hummon_doreian, variant))
+  }
+})
+
+test_that("tie_by_mainpath normalises by the number of paths counted", {
+  spc <- tie_by_mainpath(hummon_doreian)
+  # four paths run from the source, 3, to the sink, 22
+  expect_equal(as.numeric(spc),
+               as.numeric(tie_by_mainpath(hummon_doreian, normalized = FALSE)) / 4)
+  expect_equal(attr(spc, "variant"), "spc")
+  expect_true(all(spc >= 0 & spc <= 1))
+  # SPC is the same with every tie reversed
+  rev <- tie_by_mainpath(manynet::to_redirected(hummon_doreian))
+  expect_equal(sort(as.numeric(rev)), sort(as.numeric(spc)))
+})
+
+test_that("tie_by_mainpath stops on cyclic or undirected networks", {
+  expect_snet_abort(tie_by_mainpath(manynet::create_ring(5, directed = TRUE)),
+                    "without cycles")
+  expect_snet_abort(tie_by_mainpath(manynet::ison_adolescents), "directed")
 })

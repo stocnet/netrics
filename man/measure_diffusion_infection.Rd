@@ -7,17 +7,21 @@
 \alias{net_by_infection_peak}
 \title{Measures of network infection}
 \usage{
-net_by_infection_complete(.data)
+net_by_infection_complete(.data, attribute = "diffusion")
 
-net_by_infection_total(.data, normalized = TRUE)
+net_by_infection_total(.data, normalized = TRUE, attribute = "diffusion")
 
-net_by_infection_peak(.data)
+net_by_infection_peak(.data, attribute = "diffusion")
 }
 \arguments{
 \item{.data}{Network data with nodal changes,
 as created by \code{play_diffusion()},
 or a valid network diffusion model,
 as created by \code{as_diffusion()}.}
+
+\item{attribute}{Name of the nodal attribute that holds the diffusion,
+as its start state on the nodes and as its changes.
+By default "diffusion", as in \code{play_diffusion()}.}
 
 \item{normalized}{Logical scalar, whether scores are normalized.
 Different denominators may be used depending on the measure,
@@ -74,7 +78,6 @@ Other measures:
 \code{\link{measure_assort_node}},
 \code{\link{measure_breadth}},
 \code{\link{measure_broker_node}},
-\code{\link{measure_broker_tie}},
 \code{\link{measure_brokerage}},
 \code{\link{measure_central_between}},
 \code{\link{measure_central_close}},
@@ -90,6 +93,7 @@ Other measures:
 \code{\link{measure_core}},
 \code{\link{measure_diffusion_net}},
 \code{\link{measure_diffusion_node}},
+\code{\link{measure_diverse_dispersion}},
 \code{\link{measure_diverse_net}},
 \code{\link{measure_diverse_node}},
 \code{\link{measure_diverse_tie}},
@@ -98,7 +102,9 @@ Other measures:
 \code{\link{measure_fit}},
 \code{\link{measure_fragmentation}},
 \code{\link{measure_hierarchy}},
-\code{\link{measure_periods}}
+\code{\link{measure_opinion}},
+\code{\link{measure_periods}},
+\code{\link[=tie_by_width]{tie_by_width()}}
 }
 \concept{diffusion}
 \concept{measures}

@@ -1,17 +1,38 @@
 #*************** Test the heterogeneity family of functions ******************#
 
 test_that("diversity functions works", {
-  expect_equal(as.numeric(net_by_diversity(to_uniplex(fict_marvel,"relationship"), "Gender")), 
+  expect_equal(as.numeric(net_by_diversity(to_layer(fict_marvel,"relationship"),
+                                           "Gender", normalized = FALSE)),
                0.306, tolerance = 0.001)
-  expect_equal(top3(node_by_diversity(ison_lawfirm, "gender")),
+  expect_equal(top3(node_by_diversity(ison_lawfirm, "gender", normalized = FALSE)),
                c(0.293, 0.384, 0), tolerance = 0.01)
+})
+
+test_that("Blau's index is normalised by its maximum for the categories", {
+  # The raw index cannot pass 1 - 1/k, so a binary attribute is doubled,
+  # and only the normalised index declares itself normalised.
+  marvel <- to_layer(fict_marvel, "relationship")
+  expect_equal(as.numeric(net_by_diversity(marvel, "Gender")),
+               2 * as.numeric(net_by_diversity(marvel, "Gender",
+                                               normalized = FALSE)))
+  expect_equal(attr(net_by_diversity(marvel, "Gender"), "normalization"),
+               "normalized")
+  expect_equal(attr(net_by_diversity(marvel, "Gender", normalized = FALSE),
+                    "normalization"), "none")
+  # Nodes are scaled by the network's categories, not their alters', so a
+  # node whose alters all share a category stays at 0.
+  expect_equal(as.numeric(node_by_diversity(ison_lawfirm, "gender")),
+               2 * as.numeric(node_by_diversity(ison_lawfirm, "gender",
+                                                normalized = FALSE)))
+  one <- manynet::add_node_attribute(manynet::create_ring(4), "f", rep("a", 4))
+  expect_equal(as.numeric(net_by_diversity(one, "f")), 0)
 })
 
 test_that("node diversity describes alters only", {
   star <- manynet::as_tidygraph(igraph::add_vertices(
     igraph::make_star(4, mode = "undirected"), 1))
   star <- manynet::add_node_attribute(star, "grp", c("a","a","a","b","a"))
-  expect_equal(as.numeric(node_by_diversity(star, "grp")),
+  expect_equal(as.numeric(node_by_diversity(star, "grp", normalized = FALSE)),
                c(4/9, 0, 0, 0, NA))
 })
 
@@ -27,9 +48,36 @@ test_that("assortativity function works", {
 })
 
 test_that("richness function works", {
-  expect_length(net_by_richness(ison_networkers), 1)
-  expect_equal(as.numeric(net_by_richness(ison_networkers)), 3)
-  expect_length(node_by_richness(ison_networkers, "type"), 32)
+  expect_length(net_by_richness(ison_networkers, "Discipline"), 1)
+  expect_equal(as.numeric(net_by_richness(ison_networkers, "Discipline")), 4)
+  expect_length(node_by_richness(ison_networkers, "Discipline"), 32)
+})
+
+test_that("attribute measures use a network's only attribute", {
+  # Without an attribute, `manynet::node_attribute()` returns them all as a
+  # list, which the Blau index once measured as -17 here.
+  ring <- manynet::add_node_attribute(manynet::create_ring(6), "att",
+                                      c("A","A","A","B","B","B"))
+  expect_equal(as.numeric(net_by_diversity(ring, normalized = FALSE)), 0.5)
+  expect_equal(as.numeric(net_by_diversity(ring)), 1)
+  expect_equal(as.numeric(net_by_richness(ring)), 2)
+  expect_equal(as.numeric(net_by_heterophily(ring)),
+               as.numeric(net_by_heterophily(ring, "att")))
+  expect_equal(tie_by_diversity(ring), tie_by_diversity(ring, "att"))
+  expect_equal(node_x_similarity(ring), node_x_similarity(ring, "att"))
+  old <- options(snet_verbosity = "verbose")
+  on.exit(options(old))
+  expect_message(net_by_diversity(ring), "only nodal attribute")
+})
+
+test_that("attribute measures name the attributes to choose from", {
+  expect_error(net_by_diversity(ison_networkers), "Discipline")
+  expect_error(node_by_heterophily(ison_networkers), "Citations")
+  expect_error(net_by_diversity(manynet::create_ring(6)), "no nodal attribute")
+  expect_error(net_by_diversity(ison_networkers, "Gender"),
+               "not a nodal attribute")
+  expect_error(net_by_richness(manynet::create_ring(6), "Gender"),
+               "holds none")
 })
 
 test_that("net_spatial works", {
@@ -71,7 +119,7 @@ test_that("net_by_spatial() reads the multilevel matrix where both modes hold th
 })
 
 test_that("net_by_spatial() drops nodes with a missing attribute", {
-  ring <- igraph::set_vertex_attr(create_ring(8), "v", value = c(1:7, NA))
+  ring <- igraph::set_vertex_attr(as_igraph(create_ring(8)), "v", value = c(1:7, NA))
   # The four retained ties of the 1:7 path give 2/3, where reading the missing
   # value into the sums would give NA for the whole network.
   expect_values(net_by_spatial(ring, "v"), 0.667)
@@ -80,13 +128,13 @@ test_that("net_by_spatial() drops nodes with a missing attribute", {
 })
 
 test_that("net_by_spatial() returns NA where the attribute has no variance", {
-  flat <- igraph::set_vertex_attr(create_ring(6), "v", value = rep(3, 6))
+  flat <- igraph::set_vertex_attr(as_igraph(create_ring(6)), "v", value = rep(3, 6))
   expect_true(is.na(as.numeric(net_by_spatial(flat, "v"))))
 })
 
 test_that("node_by_homophily() reports Geary's C, and reads a name and a vector alike", {
   set.seed(2025)
-  ring <- create_ring(8)
+  ring <- as_igraph(create_ring(8))
   x <- round(rnorm(8, 50, 10), 2)
   ring <- igraph::set_vertex_attr(ring, "v", value = x)
   named <- node_by_homophily(ring, "v", assortativity = "geary")
@@ -99,7 +147,7 @@ test_that("node_by_homophily() reports Geary's C, and reads a name and a vector 
 })
 
 test_that("Geary's C reads tie weights, and declares its range accordingly", {
-  ring <- create_ring(5)
+  ring <- as_igraph(create_ring(5))
   igraph::E(ring)$weight <- c(1, 2, 3, 4, 5)
   ring <- igraph::set_vertex_attr(ring, "v", value = c(1, 2, 3, 4, 5))
   weighted <- net_by_homophily(ring, "v", assortativity = "geary")
@@ -113,34 +161,43 @@ test_that("Geary's C reads tie weights, and declares its range accordingly", {
 })
 
 test_that("net_by_diversity() substitutes Blau's index for a factor attribute", {
-  fct <- igraph::set_vertex_attr(create_ring(6), "f",
+  fct <- igraph::set_vertex_attr(as_igraph(create_ring(6)), "f",
                                  value = factor(c("a", "a", "b", "b", "c", "c")))
   # A factor is neither numeric nor character, and used to reach `gini()`,
   # which errors on one.
-  res <- net_by_diversity(fct, "f", diversity = "gini")
+  res <- net_by_diversity(fct, "f", diversity = "gini", normalized = FALSE)
   expect_equal(attr(res, "measure"), "Blau's index")
   expect_values(res, 0.667)
+  # Three even categories are as diverse as three categories can be.
+  expect_values(net_by_diversity(fct, "f", diversity = "gini"), 1)
 })
 
 test_that("net_by_diversity() measures within the groups of a membership", {
-  x <- igraph::set_vertex_attr(create_ring(6), "f",
+  x <- igraph::set_vertex_attr(as_igraph(create_ring(6)), "f",
                                value = c("a", "a", "b", "b", "c", "c"))
   expect_equal(as.numeric(net_by_diversity(x, "f",
                                            membership = c(1, 1, 2, 2, 3, 3))), 0)
   expect_equal(as.numeric(net_by_diversity(x, "f",
-                                           membership = c(1, 2, 3, 1, 2, 3))),
+                                           membership = c(1, 2, 3, 1, 2, 3),
+                                           normalized = FALSE)),
                0.5)
+  # Groups are scaled by the network's three categories, 1 - 1/3.
+  expect_equal(as.numeric(net_by_diversity(x, "f",
+                                           membership = c(1, 2, 3, 1, 2, 3))),
+               0.75)
   x <- igraph::set_vertex_attr(x, "grp", value = c(1, 1, 2, 2, 3, 3))
   expect_equal(as.numeric(net_by_diversity(x, "f", membership = "grp")), 0)
   expect_error(net_by_diversity(x, "f", membership = c(1, 2)), "each node")
 })
 
 test_that("tie_by_diversity() measures the diversity of the nodes each tie joins", {
-  x <- igraph::set_vertex_attr(create_ring(4), "f",
+  x <- igraph::set_vertex_attr(as_igraph(create_ring(4)), "f",
                                value = c("a", "a", "b", "b"))
   # A tie between two alike nodes has no diversity, and one between two
-  # different nodes has Blau's index of 0.5.
-  expect_equal(as.numeric(tie_by_diversity(x, "f")), c(0, 0.5, 0, 0.5))
+  # different nodes has Blau's index of 0.5, which is the most for two.
+  expect_equal(as.numeric(tie_by_diversity(x, "f", normalized = FALSE)),
+               c(0, 0.5, 0, 0.5))
+  expect_equal(as.numeric(tie_by_diversity(x, "f")), c(0, 1, 0, 1))
   expect_equal(attr(tie_by_diversity(x, "f"), "measure"), "Blau's index")
   # A numeric attribute takes the coefficient of variation instead.
   x <- igraph::set_vertex_attr(x, "n", value = c(1, 3, 3, 1))
@@ -160,7 +217,8 @@ test_that("tie_by_diversity() measures the diversity of the nodes each tie joins
                                          f = c("a", "b", "a")),
                       ties = dplyr::tibble(from = NA_integer_, to = NA_integer_,
                                            with = list(1:3, integer(0))))
-  expect_equal(as.numeric(tie_by_diversity(odd, "f")), c(4/9, NA))
+  expect_equal(as.numeric(tie_by_diversity(odd, "f", normalized = FALSE)),
+               c(4/9, NA))
 })
 
 test_that("homophily offers Moran's I for numeric attributes", {
@@ -216,4 +274,34 @@ test_that("domains summarise the values that each node can reach", {
   # A categorical attribute cannot be summarised
   expect_error(node_by_domain(manynet::ison_adolescents, "name"),
                "numeric or logical attribute")
+})
+
+test_that("Rao-Stirling diversity is Blau's index with unit distances", {
+  marvel_friends <- to_unsigned(to_layer(fict_marvel, "relationship"), "positive")
+  expect_equal(as.numeric(net_by_diversity(marvel_friends, "Gender", "rao")),
+               as.numeric(net_by_diversity(marvel_friends, "Gender",
+                                           normalized = FALSE)))
+  expect_equal(as.numeric(node_by_diversity(marvel_friends, "Gender", "rao")),
+               as.numeric(node_by_diversity(marvel_friends, "Gender",
+                                            normalized = FALSE)))
+})
+
+test_that("Rao-Stirling diversity weighs categories by their distance", {
+  g <- manynet::add_node_attribute(manynet::create_star(5), "field",
+                                   c("econ", "econ", "pol", "soc", "pol"))
+  d <- matrix(c(0, 0.2, 0.8,
+                0.2, 0, 0.5,
+                0.8, 0.5, 0), 3,
+              dimnames = list(c("econ", "pol", "soc"), c("econ", "pol", "soc")))
+  # shares 0.4, 0.4, 0.2: 2 * (0.2*0.4*0.4 + 0.8*0.4*0.2 + 0.5*0.4*0.2)
+  rao <- net_by_diversity(g, "field", "rao", distance = d)
+  expect_equal(as.numeric(rao), 0.272)
+  expect_equal(attr(rao, "variant"), "rao")
+  # the hub's alters are econ, pol, soc, and pol
+  expect_equal(as.numeric(node_by_diversity(g, "field", "rao", distance = d))[1],
+               2 * (0.2*0.25*0.5 + 0.8*0.25*0.25 + 0.5*0.5*0.25))
+  expect_snet_abort(net_by_diversity(g, "field", "rao", distance = d[1:2, 1:2]),
+                    "soc")
+  expect_snet_abort(net_by_diversity(g, "field", "rao", distance = d * 2),
+                    "between 0 and 1")
 })

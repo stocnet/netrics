@@ -203,11 +203,11 @@ centralisation </dfn></abbr>, computed with
 and how to obtain the raw scores</label></li>
 </ul>
 <p><strong>Choose your own data</strong>: The worked examples below use
-<code>ison_brandes</code>, a small, tidy teaching network bundled with
-<code>{manynet}</code>. But wherever there is an exercise box, you are
-encouraged to swap in a network that interests <em>you</em>. Remember
-the three flavours of bundled data as a rough difficulty ladder —
-<strong>Classic</strong> (<code>ison_*</code>, small &amp; tidy),
+<code>ison_centrality</code>, a small, tidy teaching network bundled
+with <code>{manynet}</code>. But wherever there is an exercise box, you
+are encouraged to swap in a network that interests <em>you</em>.
+Remember the three flavours of bundled data as a rough difficulty ladder
+— <strong>Classic</strong> (<code>ison_*</code>, small &amp; tidy),
 <strong>Fiction</strong> (<code>fict_*</code>, mid-sized &amp; fun),
 <strong>Real-world</strong> (<code>irps_*</code>, larger &amp;
 realistic) — and that you can browse the full list with
@@ -215,13 +215,13 @@ realistic) — and that you can browse the full list with
 </div>
 <div id="section-setting-up" class="section level3">
 <h3>Setting up</h3>
-<p>For this exercise, we’ll use the <code>ison_brandes</code> dataset in
-<code>{manynet}</code>. This dataset is in a ‘tidygraph’ format, but
+<p>For this exercise, we’ll use the <code>ison_centrality</code> dataset
+in <code>{manynet}</code>. This dataset is in a ‘tidygraph’ format, but
 <code>manynet</code> makes it easy to coerce this into other forms to be
 compatible with other packages. We can create a
 <abbr><dfn title='A two-mode (or bipartite) network is a network with two different sets of nodes, where ties connect only nodes from different sets, such as people and the events they attend.'>
 two-mode </dfn></abbr> version of the dataset by renaming the nodal
-attribute “twomode_type” to just “type”. Let’s begin by graphing these
+attribute “twomode_type” to “mode”. Let’s begin by graphing these
 datasets using <code>graphr()</code>.</p>
 <div class="tutorial-exercise" data-label="coercion" data-completion="1"
 data-diagnostics="1" data-startover="1" data-lines="0"
@@ -237,18 +237,18 @@ graphr(____)</code></pre>
 <div class="tutorial-exercise-support" data-label="coercion-hint-2"
 data-completion="1" data-diagnostics="1" data-startover="1"
 data-lines="0" data-pipe="|&gt;">
-<pre class="text"><code># Now, let&#39;s create a two-mode version &#39;ison_brandes2&#39; and graph it.
-ison_brandes2 &lt;- ison_brandes |&gt; rename_nodes(type = twomode_type)
+<pre class="text"><code># Now, let&#39;s create a two-mode version &#39;ison_centrality2&#39; and graph it.
+ison_centrality2 &lt;- ison_centrality |&gt; rename_nodes(mode = twomode_type)
 graphr(____)</code></pre>
 </div>
 <div class="tutorial-exercise-support" data-label="coercion-solution"
 data-completion="1" data-diagnostics="1" data-startover="1"
 data-lines="0" data-pipe="|&gt;">
 <pre class="text"><code># plot the one-mode version
-graphr(ison_brandes)
-ison_brandes2 &lt;- ison_brandes |&gt; rename_nodes(type = twomode_type)
+graphr(ison_centrality)
+ison_centrality2 &lt;- ison_centrality |&gt; rename_nodes(mode = twomode_type)
 # plot the two-mode version
-graphr(ison_brandes2, layout = &quot;bipartite&quot;)</code></pre>
+graphr(ison_centrality2, layout = &quot;bipartite&quot;)</code></pre>
 </div>
 <p>The network is anonymous, but I think it would be nice to add some
 names, even if it’s just pretend. Luckily, <code>{manynet}</code> has a
@@ -257,21 +257,21 @@ network just a wee bit more accessible and interpretable:</p>
 <div class="tutorial-exercise" data-label="addingnames"
 data-completion="1" data-diagnostics="1" data-startover="1"
 data-lines="0" data-pipe="|&gt;">
-<pre class="text"><code>ison_brandes &lt;- to_named(ison_brandes)</code></pre>
+<pre class="text"><code>ison_centrality &lt;- to_named(ison_centrality)</code></pre>
 <script type="application/json" data-ui-opts="1">{"engine":"r","has_checker":false,"caption":"<span data-i18n=\"text.enginecap\" data-i18n-opts=\"{&quot;engine&quot;:&quot;R&quot;}\">R Code<\/span>"}</script>
 </div>
 <div class="tutorial-exercise-support" data-label="addingnames-hint-1"
 data-completion="1" data-diagnostics="1" data-startover="1"
 data-lines="0" data-pipe="|&gt;">
-<pre class="text"><code># Now, let&#39;s graph using the object names: &quot;ison_brandes&quot;
+<pre class="text"><code># Now, let&#39;s graph using the object names: &quot;ison_centrality&quot;
 graphr(____)</code></pre>
 </div>
 <div class="tutorial-exercise-support" data-label="addingnames-solution"
 data-completion="1" data-diagnostics="1" data-startover="1"
 data-lines="0" data-pipe="|&gt;">
-<pre class="text"><code>ison_brandes &lt;- to_named(ison_brandes)
+<pre class="text"><code>ison_centrality &lt;- to_named(ison_centrality)
 # plot network with names
-graphr(ison_brandes)</code></pre>
+graphr(ison_centrality)</code></pre>
 </div>
 <p>Note that you will likely get a different set of names (though still
 alphabetical), as they are assigned randomly from a pool of (American)
@@ -302,7 +302,7 @@ data-lines="0" data-pipe="|&gt;">
 data-completion="1" data-diagnostics="1" data-startover="1"
 data-lines="0" data-pipe="|&gt;">
 <pre class="text"><code># We can calculate degree centrality like this:
-(mat &lt;- as_matrix(ison_brandes))
+(mat &lt;- as_matrix(ison_centrality))
 (degrees &lt;- rowSums(mat))
 rowSums(mat) == colSums(mat)</code></pre>
 </div>
@@ -310,21 +310,21 @@ rowSums(mat) == colSums(mat)</code></pre>
 data-completion="1" data-diagnostics="1" data-startover="1"
 data-lines="0" data-pipe="|&gt;">
 <pre class="text"><code># Or by using a built in command in netrics like this:
-node_by_degree(ison_brandes, normalized = FALSE)
+node_by_degree(ison_centrality, normalized = FALSE)
 # node_by_deg() is a shortcut for exactly this unnormalised version:
-node_by_deg(ison_brandes)</code></pre>
+node_by_deg(ison_centrality)</code></pre>
 </div>
 <div class="tutorial-exercise-support" data-label="degreesum-solution"
 data-completion="1" data-diagnostics="1" data-startover="1"
 data-lines="0" data-pipe="|&gt;">
 <pre class="text"><code># manually calculate degree centrality
-mat &lt;- as_matrix(ison_brandes)
+mat &lt;- as_matrix(ison_centrality)
 degrees &lt;- rowSums(mat)
 rowSums(mat) == colSums(mat)
 # You can also just use a built in command in netrics though:
-node_by_degree(ison_brandes, normalized = FALSE)
+node_by_degree(ison_centrality, normalized = FALSE)
 # node_by_deg() is a shortcut for exactly this unnormalised version:
-node_by_deg(ison_brandes)</code></pre>
+node_by_deg(ison_centrality)</code></pre>
 </div>
 <div class="panel panel-default tutorial-question-container">
 <div data-label="degreesum-Q" class="tutorial-question panel-body">
@@ -364,7 +364,7 @@ alias for the unnormalised version.</p>
 <div id="section-degrees-of-direction" class="section level3">
 <h3>Degrees of direction</h3>
 <p>So far each node has had a single degree, because
-<code>ison_brandes</code> is
+<code>ison_centrality</code> is
 <abbr><dfn title='An undirected or line network is one in which tie direction is undefined.'>
 undirected </dfn></abbr>. In a
 <abbr><dfn title='A directed network is a network where the ties have a direction, from a sender to a receiver.'>
@@ -374,7 +374,7 @@ directed </dfn></abbr> network, ties are sent <em>from</em> one node
 sent). These can tell quite different stories: in an advice network, for
 example, a high in-degree suggests a sought-after source of advice,
 while a high out-degree marks an eager asker.</p>
-<p><code>ison_brandes</code> has no natural direction, but
+<p><code>ison_centrality</code> has no natural direction, but
 <code>{manynet}</code>’s <code>to_directed()</code> will assign a random
 direction to each tie — just as <code>to_named()</code> assigned random
 names — which is all we need for a worked comparison. <strong>Run the
@@ -383,10 +383,10 @@ agree.</strong></p>
 <div class="tutorial-exercise" data-label="directing"
 data-completion="1" data-diagnostics="1" data-startover="1"
 data-lines="0" data-pipe="|&gt;">
-<pre class="text"><code>ison_brandes_dir &lt;- to_directed(ison_brandes)
-node_by_indegree(ison_brandes_dir, normalized = FALSE)
-node_by_outdegree(ison_brandes_dir, normalized = FALSE)
-mat &lt;- as_matrix(ison_brandes_dir)
+<pre class="text"><code>ison_centrality_dir &lt;- to_directed(ison_centrality)
+node_by_indegree(ison_centrality_dir, normalized = FALSE)
+node_by_outdegree(ison_centrality_dir, normalized = FALSE)
+mat &lt;- as_matrix(ison_centrality_dir)
 rowSums(mat) == colSums(mat)</code></pre>
 <script type="application/json" data-ui-opts="1">{"engine":"r","has_checker":false,"caption":"<span data-i18n=\"text.enginecap\" data-i18n-opts=\"{&quot;engine&quot;:&quot;R&quot;}\">R Code<\/span>"}</script>
 </div>
@@ -421,9 +421,9 @@ extremes.</strong></p>
 <div class="tutorial-exercise" data-label="weighting"
 data-completion="1" data-diagnostics="1" data-startover="1"
 data-lines="0" data-pipe="|&gt;">
-<pre class="text"><code>ison_brandes_wtd &lt;- to_weighted(ison_brandes)
-node_by_deg(ison_brandes_wtd)             # alpha = 0: count ties
-node_by_deg(ison_brandes_wtd, alpha = 1)  # alpha = 1: sum tie weights</code></pre>
+<pre class="text"><code>ison_centrality_wtd &lt;- to_weighted(ison_centrality)
+node_by_deg(ison_centrality_wtd)             # alpha = 0: count ties
+node_by_deg(ison_centrality_wtd, alpha = 1)  # alpha = 1: sum tie weights</code></pre>
 <script type="application/json" data-ui-opts="1">{"engine":"r","has_checker":false,"caption":"<span data-i18n=\"text.enginecap\" data-i18n-opts=\"{&quot;engine&quot;:&quot;R&quot;}\">R Code<\/span>"}</script>
 </div>
 <p>Note that on a weighted network, <code>node_by_degree()</code> itself
@@ -479,7 +479,7 @@ betweenness sits at a crossroads: whatever passes between
 otherwise-distant parts of the network has to go through it, giving it
 the <em>opportunity</em> to broker, filter, or bottleneck that flow.
 <strong>Calculate the betweenness centralities for
-<code>ison_brandes</code>.</strong></p>
+<code>ison_centrality</code>.</strong></p>
 <div class="tutorial-exercise" data-label="betcalc" data-completion="1"
 data-diagnostics="1" data-startover="1" data-lines="0"
 data-pipe="|&gt;">
@@ -495,7 +495,7 @@ node_by_betweenness(____)</code></pre>
 <div class="tutorial-exercise-support" data-label="betcalc-solution"
 data-completion="1" data-diagnostics="1" data-startover="1"
 data-lines="0" data-pipe="|&gt;">
-<pre class="text"><code>node_by_betweenness(ison_brandes)</code></pre>
+<pre class="text"><code>node_by_betweenness(ison_centrality)</code></pre>
 </div>
 <div class="panel panel-default tutorial-question-container">
 <div data-label="betinterpQ" class="tutorial-question panel-body">
@@ -520,8 +520,8 @@ thoroughfares.</strong></p>
 <div class="tutorial-exercise" data-label="tiebet" data-completion="1"
 data-diagnostics="1" data-startover="1" data-lines="0"
 data-pipe="|&gt;">
-<pre class="text"><code>ison_brandes %&gt;%
-  mutate_ties(bridgeness = tie_by_betweenness(ison_brandes)) %&gt;%
+<pre class="text"><code>ison_centrality %&gt;%
+  mutate_ties(bridgeness = tie_by_betweenness(ison_centrality)) %&gt;%
   graphr(edge_size = &quot;bridgeness&quot;)</code></pre>
 <script type="application/json" data-ui-opts="1">{"engine":"r","has_checker":false,"caption":"<span data-i18n=\"text.enginecap\" data-i18n-opts=\"{&quot;engine&quot;:&quot;R&quot;}\">R Code<\/span>"}</script>
 </div>
@@ -552,8 +552,8 @@ here?</strong></p>
 <div class="tutorial-exercise" data-label="induced" data-completion="1"
 data-diagnostics="1" data-startover="1" data-lines="0"
 data-pipe="|&gt;">
-<pre class="text"><code>node_by_betweenness(ison_brandes, normalized = FALSE)
-node_by_induced(ison_brandes, normalized = FALSE)</code></pre>
+<pre class="text"><code>node_by_betweenness(ison_centrality, normalized = FALSE)
+node_by_induced(ison_centrality, normalized = FALSE)</code></pre>
 <script type="application/json" data-ui-opts="1">{"engine":"r","has_checker":false,"caption":"<span data-i18n=\"text.enginecap\" data-i18n-opts=\"{&quot;engine&quot;:&quot;R&quot;}\">R Code<\/span>"}</script>
 </div>
 <p>For this network the rankings broadly agree, but on networks with
@@ -594,7 +594,7 @@ Closeness </dfn></abbr> measures how short a node’s paths are to
 geodesic </dfn></abbr> distance, the higher the closeness. A node with
 high closeness can reach the rest of the network in few steps, so it is
 well placed to spread (or hear) something quickly. <strong>Calculate the
-closeness centralities for <code>ison_brandes</code>.</strong></p>
+closeness centralities for <code>ison_centrality</code>.</strong></p>
 <div class="tutorial-exercise" data-label="closecalc"
 data-completion="1" data-diagnostics="1" data-startover="1"
 data-lines="0" data-pipe="|&gt;">
@@ -610,7 +610,7 @@ node_by_closeness(____)</code></pre>
 <div class="tutorial-exercise-support" data-label="closecalc-solution"
 data-completion="1" data-diagnostics="1" data-startover="1"
 data-lines="0" data-pipe="|&gt;">
-<pre class="text"><code>node_by_closeness(ison_brandes)</code></pre>
+<pre class="text"><code>node_by_closeness(ison_centrality)</code></pre>
 </div>
 <div class="panel panel-default tutorial-question-container">
 <div data-label="closeinterpQ" class="tutorial-question panel-body">
@@ -637,8 +637,8 @@ the first-named node’s reach extend?</strong></p>
 <div class="tutorial-exercise" data-label="reach" data-completion="1"
 data-diagnostics="1" data-startover="1" data-lines="0"
 data-pipe="|&gt;">
-<pre class="text"><code>node_by_reach(ison_brandes)
-node_by_distance(ison_brandes, from = node_names(ison_brandes)[1])</code></pre>
+<pre class="text"><code>node_by_reach(ison_centrality)
+node_by_distance(ison_centrality, from = node_names(ison_centrality)[1])</code></pre>
 <script type="application/json" data-ui-opts="1">{"engine":"r","has_checker":false,"caption":"<span data-i18n=\"text.enginecap\" data-i18n-opts=\"{&quot;engine&quot;:&quot;R&quot;}\">R Code<\/span>"}</script>
 </div>
 <p>Note that <code>node_by_reach()</code> takes a <code>cutoff</code>
@@ -701,7 +701,7 @@ central its neighbours are: you are important if you are connected to
 important others. It captures influence rather than mere activity — a
 node with only a few ties, but to very well-connected nodes, can
 outscore a node with many ties to peripheral ones. <strong>Calculate the
-eigenvector centralities for <code>ison_brandes</code>.</strong></p>
+eigenvector centralities for <code>ison_centrality</code>.</strong></p>
 <div class="tutorial-exercise" data-label="eigencalc"
 data-completion="1" data-diagnostics="1" data-startover="1"
 data-lines="0" data-pipe="|&gt;">
@@ -717,7 +717,7 @@ node_by_eigenvector(____)</code></pre>
 <div class="tutorial-exercise-support" data-label="eigencalc-solution"
 data-completion="1" data-diagnostics="1" data-startover="1"
 data-lines="0" data-pipe="|&gt;">
-<pre class="text"><code>node_by_eigenvector(ison_brandes)</code></pre>
+<pre class="text"><code>node_by_eigenvector(ison_centrality)</code></pre>
 </div>
 <div class="panel panel-default tutorial-question-container">
 <div data-label="eiginterpQ" class="tutorial-question panel-body">
@@ -755,8 +755,8 @@ two.</strong></p>
 <div class="tutorial-exercise" data-label="power" data-completion="1"
 data-diagnostics="1" data-startover="1" data-lines="0"
 data-pipe="|&gt;">
-<pre class="text"><code>node_by_power(ison_brandes, exponent = 1)
-node_by_power(ison_brandes, exponent = -1)</code></pre>
+<pre class="text"><code>node_by_power(ison_centrality, exponent = 1)
+node_by_power(ison_centrality, exponent = -1)</code></pre>
 <script type="application/json" data-ui-opts="1">{"engine":"r","has_checker":false,"caption":"<span data-i18n=\"text.enginecap\" data-i18n-opts=\"{&quot;engine&quot;:&quot;R&quot;}\">R Code<\/span>"}</script>
 </div>
 <p>Try to answer the following questions for yourself:</p>
@@ -796,10 +796,10 @@ family.</li>
 <div class="tutorial-exercise" data-label="pagerank" data-completion="1"
 data-diagnostics="1" data-startover="1" data-lines="0"
 data-pipe="|&gt;">
-<pre class="text"><code>ison_brandes_dir &lt;- to_directed(ison_brandes)
-node_by_pagerank(ison_brandes_dir)
-node_by_hub(ison_brandes_dir)
-node_by_authority(ison_brandes_dir)</code></pre>
+<pre class="text"><code>ison_centrality_dir &lt;- to_directed(ison_centrality)
+node_by_pagerank(ison_centrality_dir)
+node_by_hub(ison_centrality_dir)
+node_by_authority(ison_centrality_dir)</code></pre>
 <script type="application/json" data-ui-opts="1">{"engine":"r","has_checker":false,"caption":"<span data-i18n=\"text.enginecap\" data-i18n-opts=\"{&quot;engine&quot;:&quot;R&quot;}\">R Code<\/span>"}</script>
 </div>
 <p>Since the directions are again assigned at random, run the code a few
@@ -1001,19 +1001,19 @@ data-pipe="|&gt;">
 data-completion="1" data-diagnostics="1" data-startover="1"
 data-lines="0" data-pipe="|&gt;">
 <pre class="text"><code># plot the network, highlighting the node with the highest centrality score with a different color
-ison_brandes %&gt;%
+ison_centrality %&gt;%
   mutate_nodes(color = node_is_max(node_by_degree())) %&gt;%
   graphr(node_color = &quot;color&quot;)
 
-ison_brandes %&gt;%
+ison_centrality %&gt;%
   mutate_nodes(color = node_is_max(node_by_betweenness())) %&gt;%
   graphr(node_color = &quot;color&quot;)
 
-ison_brandes %&gt;%
+ison_centrality %&gt;%
   mutate_nodes(color = node_is_max(node_by_closeness())) %&gt;%
   graphr(node_color = &quot;color&quot;)
 
-ison_brandes %&gt;%
+ison_centrality %&gt;%
   mutate_nodes(color = node_is_max(node_by_eigenvector())) %&gt;%
   graphr(node_color = &quot;color&quot;)</code></pre>
 </div>
@@ -1028,27 +1028,27 @@ unremarkable on another.</p>
 <div class="tutorial-exercise" data-label="ggid_twomode"
 data-completion="1" data-diagnostics="1" data-startover="1"
 data-lines="0" data-pipe="|&gt;">
-<pre class="text"><code># Instead of &quot;ison_brandes&quot;, use &quot;ison_brandes2&quot;</code></pre>
+<pre class="text"><code># Instead of &quot;ison_centrality&quot;, use &quot;ison_centrality2&quot;</code></pre>
 <script type="application/json" data-ui-opts="1">{"engine":"r","has_checker":false,"caption":"<span data-i18n=\"text.enginecap\" data-i18n-opts=\"{&quot;engine&quot;:&quot;R&quot;}\">R Code<\/span>"}</script>
 </div>
 <div class="tutorial-exercise-support"
 data-label="ggid_twomode-solution" data-completion="1"
 data-diagnostics="1" data-startover="1" data-lines="0"
 data-pipe="|&gt;">
-<pre class="text"><code>ison_brandes2 %&gt;%
-  add_node_attribute(&quot;color&quot;, node_is_max(node_by_degree(ison_brandes2))) %&gt;%
+<pre class="text"><code>ison_centrality2 %&gt;%
+  add_node_attribute(&quot;color&quot;, node_is_max(node_by_degree(ison_centrality2))) %&gt;%
   graphr(node_color = &quot;color&quot;, layout = &quot;bipartite&quot;)
 
-ison_brandes2 %&gt;%
-  add_node_attribute(&quot;color&quot;, node_is_max(node_by_betweenness(ison_brandes2))) %&gt;%
+ison_centrality2 %&gt;%
+  add_node_attribute(&quot;color&quot;, node_is_max(node_by_betweenness(ison_centrality2))) %&gt;%
   graphr(node_color = &quot;color&quot;, layout = &quot;bipartite&quot;)
 
-ison_brandes2 %&gt;%
-  add_node_attribute(&quot;color&quot;, node_is_max(node_by_closeness(ison_brandes2))) %&gt;%
+ison_centrality2 %&gt;%
+  add_node_attribute(&quot;color&quot;, node_is_max(node_by_closeness(ison_centrality2))) %&gt;%
   graphr(node_color = &quot;color&quot;, layout = &quot;bipartite&quot;)
 
-ison_brandes2 %&gt;%
-  add_node_attribute(&quot;color&quot;, node_is_max(node_by_eigenvector(ison_brandes2))) %&gt;%
+ison_centrality2 %&gt;%
+  add_node_attribute(&quot;color&quot;, node_is_max(node_by_eigenvector(ison_centrality2))) %&gt;%
   graphr(node_color = &quot;color&quot;, layout = &quot;bipartite&quot;)</code></pre>
 </div>
 <div class="panel panel-default tutorial-question-container">
@@ -1092,7 +1092,7 @@ at its whole
 distribution </dfn></abbr> across the nodes. <code>{autograph}</code>
 offers a way to get a pretty good first look at this, though there are
 more elaborate ways to do this in base and grid graphics. <strong>Plot
-the degree distribution of <code>ison_brandes</code>.</strong></p>
+the degree distribution of <code>ison_centrality</code>.</strong></p>
 <div class="tutorial-exercise" data-label="distrib" data-completion="1"
 data-diagnostics="1" data-startover="1" data-lines="0"
 data-pipe="|&gt;">
@@ -1102,7 +1102,7 @@ data-pipe="|&gt;">
 data-completion="1" data-diagnostics="1" data-startover="1"
 data-lines="0" data-pipe="|&gt;">
 <pre class="text"><code># distribution of degree centrality scores of nodes
-plot(node_by_degree(ison_brandes))</code></pre>
+plot(node_by_degree(ison_centrality))</code></pre>
 </div>
 <p>What’s plotted here by default is both the degree distribution as a
 histogram, as well as a density plot overlaid on it in red. Reading a
@@ -1136,9 +1136,9 @@ data-lines="0" data-pipe="|&gt;">
 <div class="tutorial-exercise-support" data-label="otherdist-solution"
 data-completion="1" data-diagnostics="1" data-startover="1"
 data-lines="0" data-pipe="|&gt;">
-<pre class="text"><code>plot(node_by_betweenness(ison_brandes))
-plot(node_by_closeness(ison_brandes))
-plot(node_by_eigenvector(ison_brandes))</code></pre>
+<pre class="text"><code>plot(node_by_betweenness(ison_centrality))
+plot(node_by_closeness(ison_centrality))
+plot(node_by_eigenvector(ison_centrality))</code></pre>
 </div>
 </div>
 <div id="section-from-distribution-to-centralisation"
@@ -1173,7 +1173,7 @@ net_by_degree(scaf)   # much higher centralisation</code></pre>
 centralisation is low — no node is far above the crowd. The scale-free
 network’s degrees trail off into a long tail, and its centralisation is
 several times higher — a few hubs carry the network. Our
-<code>ison_brandes</code> example sits somewhere between these two
+<code>ison_centrality</code> example sits somewhere between these two
 extremes.</p>
 <div class="panel panel-default tutorial-question-container">
 <div data-label="shapecentQ" class="tutorial-question panel-body">
@@ -1207,10 +1207,10 @@ data-pipe="|&gt;">
 <div class="tutorial-exercise-support" data-label="centzn-solution"
 data-completion="1" data-diagnostics="1" data-startover="1"
 data-lines="0" data-pipe="|&gt;">
-<pre class="text"><code>net_by_degree(ison_brandes)
-net_by_betweenness(ison_brandes)
-net_by_closeness(ison_brandes)
-print(net_by_eigenvector(ison_brandes), digits = 5)</code></pre>
+<pre class="text"><code>net_by_degree(ison_centrality)
+net_by_betweenness(ison_centrality)
+net_by_closeness(ison_centrality)
+print(net_by_eigenvector(ison_centrality), digits = 5)</code></pre>
 </div>
 <p>By default, scores are printed up to 3 decimal places, but this can
 be modified and, in any case, the unrounded values are retained
@@ -1241,19 +1241,19 @@ data-lines="0" data-pipe="|&gt;">
 <div class="tutorial-exercise-support" data-label="multiplot-solution"
 data-completion="1" data-diagnostics="1" data-startover="1"
 data-lines="0" data-pipe="|&gt;">
-<pre class="text"><code>ison_brandes &lt;- ison_brandes |&gt;
-  add_node_attribute(&quot;degree&quot;, node_is_max(node_by_degree(ison_brandes)))  |&gt;
-  add_node_attribute(&quot;betweenness&quot;, node_is_max(node_by_betweenness(ison_brandes))) |&gt;
-  add_node_attribute(&quot;closeness&quot;, node_is_max(node_by_closeness(ison_brandes)))  |&gt;
-  add_node_attribute(&quot;eigenvector&quot;, node_is_max(node_by_eigenvector(ison_brandes)))
-gd &lt;- graphr(ison_brandes, node_color = &quot;degree&quot;) +
-  ggtitle(&quot;Degree&quot;, subtitle = round(net_by_degree(ison_brandes), 2))
-gc &lt;- graphr(ison_brandes, node_color = &quot;closeness&quot;) +
-  ggtitle(&quot;Closeness&quot;, subtitle = round(net_by_closeness(ison_brandes), 2))
-gb &lt;- graphr(ison_brandes, node_color = &quot;betweenness&quot;) +
-  ggtitle(&quot;Betweenness&quot;, subtitle = round(net_by_betweenness(ison_brandes), 2))
-ge &lt;- graphr(ison_brandes, node_color = &quot;eigenvector&quot;) +
-  ggtitle(&quot;Eigenvector&quot;, subtitle = round(net_by_eigenvector(ison_brandes), 2))
+<pre class="text"><code>ison_centrality &lt;- ison_centrality |&gt;
+  add_node_attribute(&quot;degree&quot;, node_is_max(node_by_degree(ison_centrality)))  |&gt;
+  add_node_attribute(&quot;betweenness&quot;, node_is_max(node_by_betweenness(ison_centrality))) |&gt;
+  add_node_attribute(&quot;closeness&quot;, node_is_max(node_by_closeness(ison_centrality)))  |&gt;
+  add_node_attribute(&quot;eigenvector&quot;, node_is_max(node_by_eigenvector(ison_centrality)))
+gd &lt;- graphr(ison_centrality, node_color = &quot;degree&quot;) +
+  ggtitle(&quot;Degree&quot;, subtitle = round(net_by_degree(ison_centrality), 2))
+gc &lt;- graphr(ison_centrality, node_color = &quot;closeness&quot;) +
+  ggtitle(&quot;Closeness&quot;, subtitle = round(net_by_closeness(ison_centrality), 2))
+gb &lt;- graphr(ison_centrality, node_color = &quot;betweenness&quot;) +
+  ggtitle(&quot;Betweenness&quot;, subtitle = round(net_by_betweenness(ison_centrality), 2))
+ge &lt;- graphr(ison_centrality, node_color = &quot;eigenvector&quot;) +
+  ggtitle(&quot;Eigenvector&quot;, subtitle = round(net_by_eigenvector(ison_centrality), 2))
 (gd | gb) / (gc | ge)
 # ggsave(&quot;brandes-centralities.pdf&quot;)</code></pre>
 </div>
@@ -1621,7 +1621,27 @@ learnr::random_phrases_add(language = "en",
                                       "Well done!",
                                       "Awesome!"),
                            encouragement = c("Good effort"))
-ison_brandes2 <- ison_brandes %>% rename_nodes(type = twomode_type)
+ison_centrality2 <- ison_centrality %>% rename_nodes(mode = twomode_type)
+</script>
+ 
+<script type="application/shiny-prerendered" data-context="server">
+learnr:::register_http_handlers(session, metadata = NULL)
+</script>
+
+
+<script type="application/shiny-prerendered" data-context="server">
+learnr:::prepare_tutorial_state(session)
+</script>
+ 
+<script type="application/shiny-prerendered" data-context="server">
+learnr:::i18n_observe_tutorial_language(input, session)
+</script>
+
+
+<script type="application/shiny-prerendered" data-context="server">
+session$onSessionEnded(function() {
+        learnr:::event_trigger(session, "session_stop")
+      })
 </script>
  
 <script type="application/shiny-prerendered" data-context="server-start">
@@ -1631,26 +1651,6 @@ if (grepl("fr", sys_locale, ignore.case = TRUE)) {
 } else {
   options(tutorial.language = "en")
 }
-</script>
-
-
-<script type="application/shiny-prerendered" data-context="server">
-learnr:::register_http_handlers(session, metadata = NULL)
-</script>
- 
-<script type="application/shiny-prerendered" data-context="server">
-learnr:::prepare_tutorial_state(session)
-</script>
-
-
-<script type="application/shiny-prerendered" data-context="server">
-learnr:::i18n_observe_tutorial_language(input, session)
-</script>
- 
-<script type="application/shiny-prerendered" data-context="server">
-session$onSessionEnded(function() {
-        learnr:::event_trigger(session, "session_stop")
-      })
 </script>
 
 
@@ -1683,14 +1683,14 @@ learnr:::store_exercise_cache(structure(list(label = "coercion", global_setup = 
 "learnr::random_phrases_add(language = \"en\",", "                           praise = c(\"That's brilliant!\",", 
 "                                      \"Great work!\",", "                                      \"Well done!\",", 
 "                                      \"Awesome!\"),", "                           encouragement = c(\"Good effort\"))", 
-"ison_brandes2 <- ison_brandes %>% rename_nodes(type = twomode_type)"
+"ison_centrality2 <- ison_centrality %>% rename_nodes(mode = twomode_type)"
 ), chunk_opts = list(label = "setup", include = FALSE, purl = FALSE, 
     eval = TRUE)), setup = NULL, chunks = list(list(label = "coercion", 
     code = "", opts = list(label = "\"coercion\"", exercise = "TRUE", 
         purl = "FALSE"), engine = "r")), code_check = NULL, error_check = NULL, 
     check = NULL, solution = structure(c("# plot the one-mode version", 
-    "graphr(ison_brandes)", "ison_brandes2 <- ison_brandes |> rename_nodes(type = twomode_type)", 
-    "# plot the two-mode version", "graphr(ison_brandes2, layout = \"bipartite\")"
+    "graphr(ison_centrality)", "ison_centrality2 <- ison_centrality |> rename_nodes(mode = twomode_type)", 
+    "# plot the two-mode version", "graphr(ison_centrality2, layout = \"bipartite\")"
     ), chunk_opts = list(label = "coercion-solution")), tests = NULL, 
     options = list(eval = FALSE, echo = TRUE, results = "markup", 
         tidy = FALSE, tidy.opts = NULL, collapse = FALSE, prompt = FALSE, 
@@ -1745,14 +1745,14 @@ learnr:::store_exercise_cache(structure(list(label = "addingnames", global_setup
 "learnr::random_phrases_add(language = \"en\",", "                           praise = c(\"That's brilliant!\",", 
 "                                      \"Great work!\",", "                                      \"Well done!\",", 
 "                                      \"Awesome!\"),", "                           encouragement = c(\"Good effort\"))", 
-"ison_brandes2 <- ison_brandes %>% rename_nodes(type = twomode_type)"
+"ison_centrality2 <- ison_centrality %>% rename_nodes(mode = twomode_type)"
 ), chunk_opts = list(label = "setup", include = FALSE, purl = FALSE, 
     eval = TRUE)), setup = NULL, chunks = list(list(label = "addingnames", 
-    code = "ison_brandes <- to_named(ison_brandes)", opts = list(
+    code = "ison_centrality <- to_named(ison_centrality)", opts = list(
         label = "\"addingnames\"", exercise = "TRUE", purl = "FALSE"), 
     engine = "r")), code_check = NULL, error_check = NULL, check = NULL, 
-    solution = structure(c("ison_brandes <- to_named(ison_brandes)", 
-    "# plot network with names", "graphr(ison_brandes)"), chunk_opts = list(
+    solution = structure(c("ison_centrality <- to_named(ison_centrality)", 
+    "# plot network with names", "graphr(ison_centrality)"), chunk_opts = list(
         label = "addingnames-solution")), tests = NULL, options = list(
         eval = FALSE, echo = TRUE, results = "markup", tidy = FALSE, 
         tidy.opts = NULL, collapse = FALSE, prompt = FALSE, comment = NA, 
@@ -1770,7 +1770,7 @@ learnr:::store_exercise_cache(structure(list(label = "addingnames", global_setup
         error = FALSE, message = TRUE, render = NULL, ref.label = NULL, 
         child = NULL, engine = "r", split = FALSE, include = TRUE, 
         purl = FALSE, max.print = 1000, label = "addingnames", 
-        exercise = TRUE, code = "ison_brandes <- to_named(ison_brandes)", 
+        exercise = TRUE, code = "ison_centrality <- to_named(ison_centrality)", 
         out.width.px = 624, out.height.px = 384, params.src = "addingnames, exercise = TRUE, purl = FALSE", 
         fig.num = 0, exercise.df_print = "paged", exercise.checker = "NULL"), 
     engine = "r", version = "4"), class = c("r", "tutorial_exercise"
@@ -1807,20 +1807,20 @@ learnr:::store_exercise_cache(structure(list(label = "degreesum", global_setup =
 "learnr::random_phrases_add(language = \"en\",", "                           praise = c(\"That's brilliant!\",", 
 "                                      \"Great work!\",", "                                      \"Well done!\",", 
 "                                      \"Awesome!\"),", "                           encouragement = c(\"Good effort\"))", 
-"ison_brandes2 <- ison_brandes %>% rename_nodes(type = twomode_type)"
+"ison_centrality2 <- ison_centrality %>% rename_nodes(mode = twomode_type)"
 ), chunk_opts = list(label = "setup", include = FALSE, purl = FALSE, 
-    eval = TRUE)), setup = "ison_brandes <- to_named(ison_brandes)", 
-    chunks = list(list(label = "addingnames", code = "ison_brandes <- to_named(ison_brandes)", 
+    eval = TRUE)), setup = "ison_centrality <- to_named(ison_centrality)", 
+    chunks = list(list(label = "addingnames", code = "ison_centrality <- to_named(ison_centrality)", 
         opts = list(label = "\"addingnames\"", exercise = "TRUE", 
             purl = "FALSE"), engine = "r"), list(label = "degreesum", 
         code = "", opts = list(label = "\"degreesum\"", exercise = "TRUE", 
             exercise.setup = "\"addingnames\"", purl = "FALSE"), 
         engine = "r")), code_check = NULL, error_check = NULL, 
     check = NULL, solution = structure(c("# manually calculate degree centrality", 
-    "mat <- as_matrix(ison_brandes)", "degrees <- rowSums(mat)", 
+    "mat <- as_matrix(ison_centrality)", "degrees <- rowSums(mat)", 
     "rowSums(mat) == colSums(mat)", "# You can also just use a built in command in netrics though:", 
-    "node_by_degree(ison_brandes, normalized = FALSE)", "# node_by_deg() is a shortcut for exactly this unnormalised version:", 
-    "node_by_deg(ison_brandes)"), chunk_opts = list(label = "degreesum-solution")), 
+    "node_by_degree(ison_centrality, normalized = FALSE)", "# node_by_deg() is a shortcut for exactly this unnormalised version:", 
+    "node_by_deg(ison_centrality)"), chunk_opts = list(label = "degreesum-solution")), 
     tests = NULL, options = list(eval = FALSE, echo = TRUE, results = "markup", 
         tidy = FALSE, tidy.opts = NULL, collapse = FALSE, prompt = FALSE, 
         comment = NA, highlight = FALSE, size = "normalsize", 
@@ -1849,11 +1849,11 @@ learnr:::store_exercise_cache(structure(list(label = "degreesum", global_setup =
 <script type="application/shiny-prerendered" data-context="server">
 learnr:::question_prerendered_chunk(structure(list(type = "learnr_radio", label = "degreesum-Q", 
     question = structure("Are the row sums the same as the column sums?", html = TRUE, class = c("html", 
-    "character")), answers = list(structure(list(id = "lnr_ans_d0abd66", 
+    "character")), answers = list(structure(list(id = "lnr_ans_cb95016", 
         option = "Yes", value = "Yes", label = structure("Yes", html = TRUE, class = c("html", 
         "character")), correct = TRUE, message = structure("That’s right, that’s because this is an undirected network.", html = TRUE, class = c("html", 
         "character")), type = "literal"), class = c("tutorial_question_answer", 
-    "tutorial_quiz_answer")), structure(list(id = "lnr_ans_67e4915", 
+    "tutorial_quiz_answer")), structure(list(id = "lnr_ans_1867a72", 
         option = "No", value = "No", label = structure("No", html = TRUE, class = c("html", 
         "character")), correct = FALSE, message = structure("Actually they are. Because this network is undirected, its adjacency matrix is symmetric, so the sum of row <em>i<\u002fem> always equals the sum of column <em>i<\u002fem>. (In a directed network the row sums give out-degree and the column sums give in-degree, and these can differ.)", html = TRUE, class = c("html", 
         "character")), type = "literal"), class = c("tutorial_question_answer", 
@@ -1865,30 +1865,30 @@ learnr:::question_prerendered_chunk(structure(list(type = "learnr_radio", label 
     "character")), message = NULL, post_message = NULL), ids = list(
         answer = "degreesum-Q-answer", question = "degreesum-Q"), 
     loading = NULL, random_answer_order = FALSE, allow_retry = TRUE, 
-    seed = 2068769838.03665, options = list()), class = c("learnr_radio", 
+    seed = 1409320600.34373, options = list()), class = c("learnr_radio", 
 "tutorial_question")), session = session)
 </script>
  
 <script type="application/shiny-prerendered" data-context="server">
 learnr:::question_prerendered_chunk(structure(list(type = "learnr_radio", label = "degreeinterpQ", 
     question = structure("In what ways are higher degree nodes more ‘central’?", html = TRUE, class = c("html", 
-    "character")), answers = list(structure(list(id = "lnr_ans_a202d84", 
+    "character")), answers = list(structure(list(id = "lnr_ans_584f5e4", 
         option = "They have more power than other nodes", value = "They have more power than other nodes", 
         label = structure("They have more power than other nodes", html = TRUE, class = c("html", 
         "character")), correct = FALSE, message = structure("Not necessarily – degree counts how many ties a node has, but power can depend on <em>who<\u002fem> those ties are to, not just how many there are.", html = TRUE, class = c("html", 
         "character")), type = "literal"), class = c("tutorial_question_answer", 
-    "tutorial_quiz_answer")), structure(list(id = "lnr_ans_bbe7387", 
+    "tutorial_quiz_answer")), structure(list(id = "lnr_ans_7496084", 
         option = "They are more active than other nodes", value = "They are more active than other nodes", 
         label = structure("They are more active than other nodes", html = TRUE, class = c("html", 
-        "character")), correct = TRUE, message = structure("Magnificent!<br/><img src=\"https://i.giphy.com/media/v1.Y2lkPTc5MGI3NjExanZ4OWhwM2k0eWU1ancza3NtYXlpZDFkdTJub2RvMnFkYnlwbWZ4dCZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/3o7aTHbH39h8xYePza/giphy.gif\" alt=\"gif of a woman saying 'But I can't help it that I'm popular'\"/>", html = TRUE, class = c("html", 
+        "character")), correct = TRUE, message = structure("Swell job!<br/><img src=\"https://i.giphy.com/media/v1.Y2lkPTc5MGI3NjExanZ4OWhwM2k0eWU1ancza3NtYXlpZDFkdTJub2RvMnFkYnlwbWZ4dCZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/3o7aTHbH39h8xYePza/giphy.gif\" alt=\"gif of a woman saying 'But I can't help it that I'm popular'\"/>", html = TRUE, class = c("html", 
         "character")), type = "literal"), class = c("tutorial_question_answer", 
-    "tutorial_quiz_answer")), structure(list(id = "lnr_ans_ab659cd", 
+    "tutorial_quiz_answer")), structure(list(id = "lnr_ans_b3eb453", 
         option = "They would be located in the centre of the graph", 
         value = "They would be located in the centre of the graph", 
         label = structure("They would be located in the centre of the graph", html = TRUE, class = c("html", 
         "character")), correct = FALSE, message = structure("Not necessarily – degree is about the number of ties, not where a node happens to be drawn; a high-degree node can sit anywhere in a layout.", html = TRUE, class = c("html", 
         "character")), type = "literal"), class = c("tutorial_question_answer", 
-    "tutorial_quiz_answer")), structure(list(id = "lnr_ans_65527a8", 
+    "tutorial_quiz_answer")), structure(list(id = "lnr_ans_5fa47eb", 
         option = "They would be able to control information flow in the network", 
         value = "They would be able to control information flow in the network", 
         label = structure("They would be able to control information flow in the network", html = TRUE, class = c("html", 
@@ -1902,7 +1902,7 @@ learnr:::question_prerendered_chunk(structure(list(type = "learnr_radio", label 
     "character")), message = NULL, post_message = NULL), ids = list(
         answer = "degreeinterpQ-answer", question = "degreeinterpQ"), 
     loading = NULL, random_answer_order = TRUE, allow_retry = TRUE, 
-    seed = 1726680093.19595, options = list()), class = c("learnr_radio", 
+    seed = 1578750089.26484, options = list()), class = c("learnr_radio", 
 "tutorial_question")), session = session)
 </script>
 
@@ -1936,13 +1936,13 @@ learnr:::store_exercise_cache(structure(list(label = "directing", global_setup =
 "learnr::random_phrases_add(language = \"en\",", "                           praise = c(\"That's brilliant!\",", 
 "                                      \"Great work!\",", "                                      \"Well done!\",", 
 "                                      \"Awesome!\"),", "                           encouragement = c(\"Good effort\"))", 
-"ison_brandes2 <- ison_brandes %>% rename_nodes(type = twomode_type)"
+"ison_centrality2 <- ison_centrality %>% rename_nodes(mode = twomode_type)"
 ), chunk_opts = list(label = "setup", include = FALSE, purl = FALSE, 
-    eval = TRUE)), setup = "ison_brandes <- to_named(ison_brandes)", 
-    chunks = list(list(label = "addingnames", code = "ison_brandes <- to_named(ison_brandes)", 
+    eval = TRUE)), setup = "ison_centrality <- to_named(ison_centrality)", 
+    chunks = list(list(label = "addingnames", code = "ison_centrality <- to_named(ison_centrality)", 
         opts = list(label = "\"addingnames\"", exercise = "TRUE", 
             purl = "FALSE"), engine = "r"), list(label = "directing", 
-        code = "ison_brandes_dir <- to_directed(ison_brandes)\nnode_by_indegree(ison_brandes_dir, normalized = FALSE)\nnode_by_outdegree(ison_brandes_dir, normalized = FALSE)\nmat <- as_matrix(ison_brandes_dir)\nrowSums(mat) == colSums(mat)", 
+        code = "ison_centrality_dir <- to_directed(ison_centrality)\nnode_by_indegree(ison_centrality_dir, normalized = FALSE)\nnode_by_outdegree(ison_centrality_dir, normalized = FALSE)\nmat <- as_matrix(ison_centrality_dir)\nrowSums(mat) == colSums(mat)", 
         opts = list(label = "\"directing\"", exercise = "TRUE", 
             exercise.setup = "\"addingnames\""), engine = "r")), 
     code_check = NULL, error_check = NULL, check = NULL, solution = NULL, 
@@ -1963,10 +1963,10 @@ learnr:::store_exercise_cache(structure(list(label = "directing", global_setup =
         error = FALSE, message = TRUE, render = NULL, ref.label = NULL, 
         child = NULL, engine = "r", split = FALSE, include = TRUE, 
         purl = TRUE, max.print = 1000, label = "directing", exercise = TRUE, 
-        exercise.setup = "addingnames", code = c("ison_brandes_dir <- to_directed(ison_brandes)", 
-        "node_by_indegree(ison_brandes_dir, normalized = FALSE)", 
-        "node_by_outdegree(ison_brandes_dir, normalized = FALSE)", 
-        "mat <- as_matrix(ison_brandes_dir)", "rowSums(mat) == colSums(mat)"
+        exercise.setup = "addingnames", code = c("ison_centrality_dir <- to_directed(ison_centrality)", 
+        "node_by_indegree(ison_centrality_dir, normalized = FALSE)", 
+        "node_by_outdegree(ison_centrality_dir, normalized = FALSE)", 
+        "mat <- as_matrix(ison_centrality_dir)", "rowSums(mat) == colSums(mat)"
         ), out.width.px = 624, out.height.px = 384, params.src = "directing, exercise = TRUE, exercise.setup = \"addingnames\"", 
         fig.num = 0, exercise.df_print = "paged", exercise.checker = "NULL"), 
     engine = "r", version = "4"), class = c("r", "tutorial_exercise"
@@ -2003,13 +2003,13 @@ learnr:::store_exercise_cache(structure(list(label = "weighting", global_setup =
 "learnr::random_phrases_add(language = \"en\",", "                           praise = c(\"That's brilliant!\",", 
 "                                      \"Great work!\",", "                                      \"Well done!\",", 
 "                                      \"Awesome!\"),", "                           encouragement = c(\"Good effort\"))", 
-"ison_brandes2 <- ison_brandes %>% rename_nodes(type = twomode_type)"
+"ison_centrality2 <- ison_centrality %>% rename_nodes(mode = twomode_type)"
 ), chunk_opts = list(label = "setup", include = FALSE, purl = FALSE, 
-    eval = TRUE)), setup = "ison_brandes <- to_named(ison_brandes)", 
-    chunks = list(list(label = "addingnames", code = "ison_brandes <- to_named(ison_brandes)", 
+    eval = TRUE)), setup = "ison_centrality <- to_named(ison_centrality)", 
+    chunks = list(list(label = "addingnames", code = "ison_centrality <- to_named(ison_centrality)", 
         opts = list(label = "\"addingnames\"", exercise = "TRUE", 
             purl = "FALSE"), engine = "r"), list(label = "weighting", 
-        code = "ison_brandes_wtd <- to_weighted(ison_brandes)\nnode_by_deg(ison_brandes_wtd)             # alpha = 0: count ties\nnode_by_deg(ison_brandes_wtd, alpha = 1)  # alpha = 1: sum tie weights", 
+        code = "ison_centrality_wtd <- to_weighted(ison_centrality)\nnode_by_deg(ison_centrality_wtd)             # alpha = 0: count ties\nnode_by_deg(ison_centrality_wtd, alpha = 1)  # alpha = 1: sum tie weights", 
         opts = list(label = "\"weighting\"", exercise = "TRUE", 
             exercise.setup = "\"addingnames\""), engine = "r")), 
     code_check = NULL, error_check = NULL, check = NULL, solution = NULL, 
@@ -2030,9 +2030,9 @@ learnr:::store_exercise_cache(structure(list(label = "weighting", global_setup =
         error = FALSE, message = TRUE, render = NULL, ref.label = NULL, 
         child = NULL, engine = "r", split = FALSE, include = TRUE, 
         purl = TRUE, max.print = 1000, label = "weighting", exercise = TRUE, 
-        exercise.setup = "addingnames", code = c("ison_brandes_wtd <- to_weighted(ison_brandes)", 
-        "node_by_deg(ison_brandes_wtd)             # alpha = 0: count ties", 
-        "node_by_deg(ison_brandes_wtd, alpha = 1)  # alpha = 1: sum tie weights"
+        exercise.setup = "addingnames", code = c("ison_centrality_wtd <- to_weighted(ison_centrality)", 
+        "node_by_deg(ison_centrality_wtd)             # alpha = 0: count ties", 
+        "node_by_deg(ison_centrality_wtd, alpha = 1)  # alpha = 1: sum tie weights"
         ), out.width.px = 624, out.height.px = 384, params.src = "weighting, exercise = TRUE, exercise.setup = \"addingnames\"", 
         fig.num = 0, exercise.df_print = "paged", exercise.checker = "NULL"), 
     engine = "r", version = "4"), class = c("r", "tutorial_exercise"
@@ -2069,16 +2069,16 @@ learnr:::store_exercise_cache(structure(list(label = "betcalc", global_setup = s
 "learnr::random_phrases_add(language = \"en\",", "                           praise = c(\"That's brilliant!\",", 
 "                                      \"Great work!\",", "                                      \"Well done!\",", 
 "                                      \"Awesome!\"),", "                           encouragement = c(\"Good effort\"))", 
-"ison_brandes2 <- ison_brandes %>% rename_nodes(type = twomode_type)"
+"ison_centrality2 <- ison_centrality %>% rename_nodes(mode = twomode_type)"
 ), chunk_opts = list(label = "setup", include = FALSE, purl = FALSE, 
-    eval = TRUE)), setup = "ison_brandes <- to_named(ison_brandes)", 
-    chunks = list(list(label = "addingnames", code = "ison_brandes <- to_named(ison_brandes)", 
+    eval = TRUE)), setup = "ison_centrality <- to_named(ison_centrality)", 
+    chunks = list(list(label = "addingnames", code = "ison_centrality <- to_named(ison_centrality)", 
         opts = list(label = "\"addingnames\"", exercise = "TRUE", 
             purl = "FALSE"), engine = "r"), list(label = "betcalc", 
         code = "", opts = list(label = "\"betcalc\"", exercise = "TRUE", 
             exercise.setup = "\"addingnames\"", purl = "FALSE"), 
         engine = "r")), code_check = NULL, error_check = NULL, 
-    check = NULL, solution = structure("node_by_betweenness(ison_brandes)", chunk_opts = list(
+    check = NULL, solution = structure("node_by_betweenness(ison_centrality)", chunk_opts = list(
         label = "betcalc-solution")), tests = NULL, options = list(
         eval = FALSE, echo = TRUE, results = "markup", tidy = FALSE, 
         tidy.opts = NULL, collapse = FALSE, prompt = FALSE, comment = NA, 
@@ -2106,24 +2106,24 @@ learnr:::store_exercise_cache(structure(list(label = "betcalc", global_setup = s
 
 <script type="application/shiny-prerendered" data-context="server">
 learnr:::question_prerendered_chunk(structure(list(type = "learnr_radio", label = "betinterpQ", question = structure("Why would a node lying ‘between’ many other nodes be ‘central’?", html = TRUE, class = c("html", 
-"character")), answers = list(structure(list(id = "lnr_ans_7eb70c8", 
+"character")), answers = list(structure(list(id = "lnr_ans_6e20c3f", 
     option = "They have more power than other nodes", value = "They have more power than other nodes", 
     label = structure("They have more power than other nodes", html = TRUE, class = c("html", 
     "character")), correct = FALSE, message = structure("Not necessarily – lying on many shortest paths gives a node the <em>opportunity<\u002fem> to broker, but that potential isn’t automatically power.", html = TRUE, class = c("html", 
     "character")), type = "literal"), class = c("tutorial_question_answer", 
-"tutorial_quiz_answer")), structure(list(id = "lnr_ans_df88fa", 
+"tutorial_quiz_answer")), structure(list(id = "lnr_ans_162a5de", 
     option = "They would be able to control information flow in the network", 
     value = "They would be able to control information flow in the network", 
     label = structure("They would be able to control information flow in the network", html = TRUE, class = c("html", 
-    "character")), correct = TRUE, message = structure("Amazing!<br/><img src=\"https://i.giphy.com/media/v1.Y2lkPTc5MGI3NjExbG5oYmVtYmcxMWs1d3MzOGh3Zng5dTZhc241ZHR2NTE0YThiZWp4NiZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/970Sr8vpwEbXG/giphy.gif\" alt=\"gif of a glowing circuit board captioned 'Central Processing Unit'\"/>", html = TRUE, class = c("html", 
+    "character")), correct = TRUE, message = structure("Excellent!<br/><img src=\"https://i.giphy.com/media/v1.Y2lkPTc5MGI3NjExbG5oYmVtYmcxMWs1d3MzOGh3Zng5dTZhc241ZHR2NTE0YThiZWp4NiZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/970Sr8vpwEbXG/giphy.gif\" alt=\"gif of a glowing circuit board captioned 'Central Processing Unit'\"/>", html = TRUE, class = c("html", 
     "character")), type = "literal"), class = c("tutorial_question_answer", 
-"tutorial_quiz_answer")), structure(list(id = "lnr_ans_da9d750", 
+"tutorial_quiz_answer")), structure(list(id = "lnr_ans_d21985e", 
     option = "They would be located in the centre of the graph", 
     value = "They would be located in the centre of the graph", 
     label = structure("They would be located in the centre of the graph", html = TRUE, class = c("html", 
     "character")), correct = FALSE, message = structure("Not necessarily – betweenness is about lying on shortest paths between others, not about a node’s position in a layout.", html = TRUE, class = c("html", 
     "character")), type = "literal"), class = c("tutorial_question_answer", 
-"tutorial_quiz_answer")), structure(list(id = "lnr_ans_2ddc79", 
+"tutorial_quiz_answer")), structure(list(id = "lnr_ans_bac516f", 
     option = "They can distribute a message to all other nodes in the network most quickly", 
     value = "They can distribute a message to all other nodes in the network most quickly", 
     label = structure("They can distribute a message to all other nodes in the network most quickly", html = TRUE, class = c("html", 
@@ -2136,7 +2136,7 @@ learnr:::question_prerendered_chunk(structure(list(type = "learnr_radio", label 
 "character")), incorrect = structure("Incorrect", html = TRUE, class = c("html", 
 "character")), message = NULL, post_message = NULL), ids = list(
     answer = "betinterpQ-answer", question = "betinterpQ"), loading = NULL, 
-    random_answer_order = TRUE, allow_retry = TRUE, seed = 766894183.142887, 
+    random_answer_order = TRUE, allow_retry = TRUE, seed = 918951547.57208, 
     options = list()), class = c("learnr_radio", "tutorial_question"
 )), session = session)
 </script>
@@ -2171,13 +2171,13 @@ learnr:::store_exercise_cache(structure(list(label = "tiebet", global_setup = st
 "learnr::random_phrases_add(language = \"en\",", "                           praise = c(\"That's brilliant!\",", 
 "                                      \"Great work!\",", "                                      \"Well done!\",", 
 "                                      \"Awesome!\"),", "                           encouragement = c(\"Good effort\"))", 
-"ison_brandes2 <- ison_brandes %>% rename_nodes(type = twomode_type)"
+"ison_centrality2 <- ison_centrality %>% rename_nodes(mode = twomode_type)"
 ), chunk_opts = list(label = "setup", include = FALSE, purl = FALSE, 
-    eval = TRUE)), setup = "ison_brandes <- to_named(ison_brandes)", 
-    chunks = list(list(label = "addingnames", code = "ison_brandes <- to_named(ison_brandes)", 
+    eval = TRUE)), setup = "ison_centrality <- to_named(ison_centrality)", 
+    chunks = list(list(label = "addingnames", code = "ison_centrality <- to_named(ison_centrality)", 
         opts = list(label = "\"addingnames\"", exercise = "TRUE", 
             purl = "FALSE"), engine = "r"), list(label = "tiebet", 
-        code = "ison_brandes %>%\n  mutate_ties(bridgeness = tie_by_betweenness(ison_brandes)) %>%\n  graphr(edge_size = \"bridgeness\")", 
+        code = "ison_centrality %>%\n  mutate_ties(bridgeness = tie_by_betweenness(ison_centrality)) %>%\n  graphr(edge_size = \"bridgeness\")", 
         opts = list(label = "\"tiebet\"", exercise = "TRUE", 
             exercise.setup = "\"addingnames\""), engine = "r")), 
     code_check = NULL, error_check = NULL, check = NULL, solution = NULL, 
@@ -2198,8 +2198,8 @@ learnr:::store_exercise_cache(structure(list(label = "tiebet", global_setup = st
         error = FALSE, message = TRUE, render = NULL, ref.label = NULL, 
         child = NULL, engine = "r", split = FALSE, include = TRUE, 
         purl = TRUE, max.print = 1000, label = "tiebet", exercise = TRUE, 
-        exercise.setup = "addingnames", code = c("ison_brandes %>%", 
-        "  mutate_ties(bridgeness = tie_by_betweenness(ison_brandes)) %>%", 
+        exercise.setup = "addingnames", code = c("ison_centrality %>%", 
+        "  mutate_ties(bridgeness = tie_by_betweenness(ison_centrality)) %>%", 
         "  graphr(edge_size = \"bridgeness\")"), out.width.px = 624, 
         out.height.px = 384, params.src = "tiebet, exercise = TRUE, exercise.setup = \"addingnames\"", 
         fig.num = 0, exercise.df_print = "paged", exercise.checker = "NULL"), 
@@ -2237,13 +2237,13 @@ learnr:::store_exercise_cache(structure(list(label = "induced", global_setup = s
 "learnr::random_phrases_add(language = \"en\",", "                           praise = c(\"That's brilliant!\",", 
 "                                      \"Great work!\",", "                                      \"Well done!\",", 
 "                                      \"Awesome!\"),", "                           encouragement = c(\"Good effort\"))", 
-"ison_brandes2 <- ison_brandes %>% rename_nodes(type = twomode_type)"
+"ison_centrality2 <- ison_centrality %>% rename_nodes(mode = twomode_type)"
 ), chunk_opts = list(label = "setup", include = FALSE, purl = FALSE, 
-    eval = TRUE)), setup = "ison_brandes <- to_named(ison_brandes)", 
-    chunks = list(list(label = "addingnames", code = "ison_brandes <- to_named(ison_brandes)", 
+    eval = TRUE)), setup = "ison_centrality <- to_named(ison_centrality)", 
+    chunks = list(list(label = "addingnames", code = "ison_centrality <- to_named(ison_centrality)", 
         opts = list(label = "\"addingnames\"", exercise = "TRUE", 
             purl = "FALSE"), engine = "r"), list(label = "induced", 
-        code = "node_by_betweenness(ison_brandes, normalized = FALSE)\nnode_by_induced(ison_brandes, normalized = FALSE)", 
+        code = "node_by_betweenness(ison_centrality, normalized = FALSE)\nnode_by_induced(ison_centrality, normalized = FALSE)", 
         opts = list(label = "\"induced\"", exercise = "TRUE", 
             exercise.setup = "\"addingnames\""), engine = "r")), 
     code_check = NULL, error_check = NULL, check = NULL, solution = NULL, 
@@ -2264,9 +2264,9 @@ learnr:::store_exercise_cache(structure(list(label = "induced", global_setup = s
         error = FALSE, message = TRUE, render = NULL, ref.label = NULL, 
         child = NULL, engine = "r", split = FALSE, include = TRUE, 
         purl = TRUE, max.print = 1000, label = "induced", exercise = TRUE, 
-        exercise.setup = "addingnames", code = c("node_by_betweenness(ison_brandes, normalized = FALSE)", 
-        "node_by_induced(ison_brandes, normalized = FALSE)"), 
-        out.width.px = 624, out.height.px = 384, params.src = "induced, exercise = TRUE, exercise.setup = \"addingnames\"", 
+        exercise.setup = "addingnames", code = c("node_by_betweenness(ison_centrality, normalized = FALSE)", 
+        "node_by_induced(ison_centrality, normalized = FALSE)"
+        ), out.width.px = 624, out.height.px = 384, params.src = "induced, exercise = TRUE, exercise.setup = \"addingnames\"", 
         fig.num = 0, exercise.df_print = "paged", exercise.checker = "NULL"), 
     engine = "r", version = "4"), class = c("r", "tutorial_exercise"
 )))
@@ -2302,16 +2302,16 @@ learnr:::store_exercise_cache(structure(list(label = "closecalc", global_setup =
 "learnr::random_phrases_add(language = \"en\",", "                           praise = c(\"That's brilliant!\",", 
 "                                      \"Great work!\",", "                                      \"Well done!\",", 
 "                                      \"Awesome!\"),", "                           encouragement = c(\"Good effort\"))", 
-"ison_brandes2 <- ison_brandes %>% rename_nodes(type = twomode_type)"
+"ison_centrality2 <- ison_centrality %>% rename_nodes(mode = twomode_type)"
 ), chunk_opts = list(label = "setup", include = FALSE, purl = FALSE, 
-    eval = TRUE)), setup = "ison_brandes <- to_named(ison_brandes)", 
-    chunks = list(list(label = "addingnames", code = "ison_brandes <- to_named(ison_brandes)", 
+    eval = TRUE)), setup = "ison_centrality <- to_named(ison_centrality)", 
+    chunks = list(list(label = "addingnames", code = "ison_centrality <- to_named(ison_centrality)", 
         opts = list(label = "\"addingnames\"", exercise = "TRUE", 
             purl = "FALSE"), engine = "r"), list(label = "closecalc", 
         code = "", opts = list(label = "\"closecalc\"", exercise = "TRUE", 
             exercise.setup = "\"addingnames\"", purl = "FALSE"), 
         engine = "r")), code_check = NULL, error_check = NULL, 
-    check = NULL, solution = structure("node_by_closeness(ison_brandes)", chunk_opts = list(
+    check = NULL, solution = structure("node_by_closeness(ison_centrality)", chunk_opts = list(
         label = "closecalc-solution")), tests = NULL, options = list(
         eval = FALSE, echo = TRUE, results = "markup", tidy = FALSE, 
         tidy.opts = NULL, collapse = FALSE, prompt = FALSE, comment = NA, 
@@ -2339,24 +2339,24 @@ learnr:::store_exercise_cache(structure(list(label = "closecalc", global_setup =
 <script type="application/shiny-prerendered" data-context="server">
 learnr:::question_prerendered_chunk(structure(list(type = "learnr_radio", label = "closeinterpQ", 
     question = structure("In what way is a node with the smallest sum of geodesic distances to all other nodes ‘central’?", html = TRUE, class = c("html", 
-    "character")), answers = list(structure(list(id = "lnr_ans_c4ee3b2", 
+    "character")), answers = list(structure(list(id = "lnr_ans_547ba7e", 
         option = "They have more power than other nodes", value = "They have more power than other nodes", 
         label = structure("They have more power than other nodes", html = TRUE, class = c("html", 
         "character")), correct = FALSE, message = structure("Not necessarily – closeness reflects how efficiently a node can reach everyone else, which isn’t the same as holding power over them.", html = TRUE, class = c("html", 
         "character")), type = "literal"), class = c("tutorial_question_answer", 
-    "tutorial_quiz_answer")), structure(list(id = "lnr_ans_86f86c5", 
+    "tutorial_quiz_answer")), structure(list(id = "lnr_ans_ee6e6ea", 
         option = "They can distribute a message to all other nodes in the network most quickly", 
         value = "They can distribute a message to all other nodes in the network most quickly", 
         label = structure("They can distribute a message to all other nodes in the network most quickly", html = TRUE, class = c("html", 
-        "character")), correct = TRUE, message = structure("That’s marvelous!<br/><img src=\"https://i.giphy.com/media/v1.Y2lkPTc5MGI3NjExM3d6eGd2OHRxb2FvbHYzc2oyenFzOG5qcjhzMm82Mm1ncTVpOHhreiZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/uVd5gVHAq63SjtjAOe/giphy.gif\" alt=\"gif of a man saying 'I am a bit of a social butterfly'\"/>", html = TRUE, class = c("html", 
+        "character")), correct = TRUE, message = structure("Lovely job!<br/><img src=\"https://i.giphy.com/media/v1.Y2lkPTc5MGI3NjExM3d6eGd2OHRxb2FvbHYzc2oyenFzOG5qcjhzMm82Mm1ncTVpOHhreiZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/uVd5gVHAq63SjtjAOe/giphy.gif\" alt=\"gif of a man saying 'I am a bit of a social butterfly'\"/>", html = TRUE, class = c("html", 
         "character")), type = "literal"), class = c("tutorial_question_answer", 
-    "tutorial_quiz_answer")), structure(list(id = "lnr_ans_e3690fa", 
+    "tutorial_quiz_answer")), structure(list(id = "lnr_ans_3f2dd88", 
         option = "They would be located in the centre of the graph", 
         value = "They would be located in the centre of the graph", 
         label = structure("They would be located in the centre of the graph", html = TRUE, class = c("html", 
         "character")), correct = FALSE, message = structure("Not necessarily – closeness is defined by geodesic distances, not by where a node is placed in a drawing.", html = TRUE, class = c("html", 
         "character")), type = "literal"), class = c("tutorial_question_answer", 
-    "tutorial_quiz_answer")), structure(list(id = "lnr_ans_a3736ff", 
+    "tutorial_quiz_answer")), structure(list(id = "lnr_ans_3c81560", 
         option = "They would be able to control information flow in the network", 
         value = "They would be able to control information flow in the network", 
         label = structure("They would be able to control information flow in the network", html = TRUE, class = c("html", 
@@ -2370,7 +2370,7 @@ learnr:::question_prerendered_chunk(structure(list(type = "learnr_radio", label 
     "character")), message = NULL, post_message = NULL), ids = list(
         answer = "closeinterpQ-answer", question = "closeinterpQ"), 
     loading = NULL, random_answer_order = TRUE, allow_retry = TRUE, 
-    seed = 1356939776.36813, options = list()), class = c("learnr_radio", 
+    seed = 914114706.574332, options = list()), class = c("learnr_radio", 
 "tutorial_question")), session = session)
 </script>
 
@@ -2404,13 +2404,13 @@ learnr:::store_exercise_cache(structure(list(label = "reach", global_setup = str
 "learnr::random_phrases_add(language = \"en\",", "                           praise = c(\"That's brilliant!\",", 
 "                                      \"Great work!\",", "                                      \"Well done!\",", 
 "                                      \"Awesome!\"),", "                           encouragement = c(\"Good effort\"))", 
-"ison_brandes2 <- ison_brandes %>% rename_nodes(type = twomode_type)"
+"ison_centrality2 <- ison_centrality %>% rename_nodes(mode = twomode_type)"
 ), chunk_opts = list(label = "setup", include = FALSE, purl = FALSE, 
-    eval = TRUE)), setup = "ison_brandes <- to_named(ison_brandes)", 
-    chunks = list(list(label = "addingnames", code = "ison_brandes <- to_named(ison_brandes)", 
+    eval = TRUE)), setup = "ison_centrality <- to_named(ison_centrality)", 
+    chunks = list(list(label = "addingnames", code = "ison_centrality <- to_named(ison_centrality)", 
         opts = list(label = "\"addingnames\"", exercise = "TRUE", 
             purl = "FALSE"), engine = "r"), list(label = "reach", 
-        code = "node_by_reach(ison_brandes)\nnode_by_distance(ison_brandes, from = node_names(ison_brandes)[1])", 
+        code = "node_by_reach(ison_centrality)\nnode_by_distance(ison_centrality, from = node_names(ison_centrality)[1])", 
         opts = list(label = "\"reach\"", exercise = "TRUE", exercise.setup = "\"addingnames\""), 
         engine = "r")), code_check = NULL, error_check = NULL, 
     check = NULL, solution = NULL, tests = NULL, options = list(
@@ -2430,8 +2430,8 @@ learnr:::store_exercise_cache(structure(list(label = "reach", global_setup = str
         error = FALSE, message = TRUE, render = NULL, ref.label = NULL, 
         child = NULL, engine = "r", split = FALSE, include = TRUE, 
         purl = TRUE, max.print = 1000, label = "reach", exercise = TRUE, 
-        exercise.setup = "addingnames", code = c("node_by_reach(ison_brandes)", 
-        "node_by_distance(ison_brandes, from = node_names(ison_brandes)[1])"
+        exercise.setup = "addingnames", code = c("node_by_reach(ison_centrality)", 
+        "node_by_distance(ison_centrality, from = node_names(ison_centrality)[1])"
         ), out.width.px = 624, out.height.px = 384, params.src = "reach, exercise = TRUE, exercise.setup = \"addingnames\"", 
         fig.num = 0, exercise.df_print = "paged", exercise.checker = "NULL"), 
     engine = "r", version = "4"), class = c("r", "tutorial_exercise"
@@ -2468,16 +2468,16 @@ learnr:::store_exercise_cache(structure(list(label = "eigencalc", global_setup =
 "learnr::random_phrases_add(language = \"en\",", "                           praise = c(\"That's brilliant!\",", 
 "                                      \"Great work!\",", "                                      \"Well done!\",", 
 "                                      \"Awesome!\"),", "                           encouragement = c(\"Good effort\"))", 
-"ison_brandes2 <- ison_brandes %>% rename_nodes(type = twomode_type)"
+"ison_centrality2 <- ison_centrality %>% rename_nodes(mode = twomode_type)"
 ), chunk_opts = list(label = "setup", include = FALSE, purl = FALSE, 
-    eval = TRUE)), setup = "ison_brandes <- to_named(ison_brandes)", 
-    chunks = list(list(label = "addingnames", code = "ison_brandes <- to_named(ison_brandes)", 
+    eval = TRUE)), setup = "ison_centrality <- to_named(ison_centrality)", 
+    chunks = list(list(label = "addingnames", code = "ison_centrality <- to_named(ison_centrality)", 
         opts = list(label = "\"addingnames\"", exercise = "TRUE", 
             purl = "FALSE"), engine = "r"), list(label = "eigencalc", 
         code = "", opts = list(label = "\"eigencalc\"", exercise = "TRUE", 
             exercise.setup = "\"addingnames\"", purl = "FALSE"), 
         engine = "r")), code_check = NULL, error_check = NULL, 
-    check = NULL, solution = structure("node_by_eigenvector(ison_brandes)", chunk_opts = list(
+    check = NULL, solution = structure("node_by_eigenvector(ison_centrality)", chunk_opts = list(
         label = "eigencalc-solution")), tests = NULL, options = list(
         eval = FALSE, echo = TRUE, results = "markup", tidy = FALSE, 
         tidy.opts = NULL, collapse = FALSE, prompt = FALSE, comment = NA, 
@@ -2505,24 +2505,24 @@ learnr:::store_exercise_cache(structure(list(label = "eigencalc", global_setup =
 
 <script type="application/shiny-prerendered" data-context="server">
 learnr:::question_prerendered_chunk(structure(list(type = "learnr_radio", label = "eiginterpQ", question = structure("Which of the following is true of eigenvector centrality?", html = TRUE, class = c("html", 
-"character")), answers = list(structure(list(id = "lnr_ans_e264f1c", 
+"character")), answers = list(structure(list(id = "lnr_ans_bc2106b", 
     option = "It is the only centrality measure that is correlated with power", 
     value = "It is the only centrality measure that is correlated with power", 
     label = structure("It is the only centrality measure that is correlated with power", html = TRUE, class = c("html", 
     "character")), correct = FALSE, message = structure("Not necessarily – eigenvector centrality has no unique claim on power, and other measures can correlate with it too.", html = TRUE, class = c("html", 
     "character")), type = "literal"), class = c("tutorial_question_answer", 
-"tutorial_quiz_answer")), structure(list(id = "lnr_ans_da75c6f", 
+"tutorial_quiz_answer")), structure(list(id = "lnr_ans_7dfe197", 
     option = "It is a measure of influence, not activity", value = "It is a measure of influence, not activity", 
     label = structure("It is a measure of influence, not activity", html = TRUE, class = c("html", 
-    "character")), correct = TRUE, message = structure("Bravo!<br/><img src=\"https://i.giphy.com/media/v1.Y2lkPTc5MGI3NjExejh4dXBha3JhNW0yenJwMDd5aGpwd3Brc201ZXoxZnY2aWFna3Z4cCZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/7ROgX60TtTVK0mZwkJ/giphy.gif\" alt=\"gif of a man saying 'I'm so tired of being so popular'\"/>", html = TRUE, class = c("html", 
+    "character")), correct = TRUE, message = structure("Wonderful!<br/><img src=\"https://i.giphy.com/media/v1.Y2lkPTc5MGI3NjExejh4dXBha3JhNW0yenJwMDd5aGpwd3Brc201ZXoxZnY2aWFna3Z4cCZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/7ROgX60TtTVK0mZwkJ/giphy.gif\" alt=\"gif of a man saying 'I'm so tired of being so popular'\"/>", html = TRUE, class = c("html", 
     "character")), type = "literal"), class = c("tutorial_question_answer", 
-"tutorial_quiz_answer")), structure(list(id = "lnr_ans_778895b", 
+"tutorial_quiz_answer")), structure(list(id = "lnr_ans_ffcf35b", 
     option = "It always gives the highest score to the node with the highest degree", 
     value = "It always gives the highest score to the node with the highest degree", 
     label = structure("It always gives the highest score to the node with the highest degree", html = TRUE, class = c("html", 
     "character")), correct = FALSE, message = structure("Not necessarily – because it weights ties by the importance of their neighbours, a lower-degree node connected to influential nodes can outrank a higher-degree node connected to peripheral ones.", html = TRUE, class = c("html", 
     "character")), type = "literal"), class = c("tutorial_question_answer", 
-"tutorial_quiz_answer")), structure(list(id = "lnr_ans_d1f9273", 
+"tutorial_quiz_answer")), structure(list(id = "lnr_ans_1c88d34", 
     option = "It is only meaningful in networks with nodes of similar degree", 
     value = "It is only meaningful in networks with nodes of similar degree", 
     label = structure("It is only meaningful in networks with nodes of similar degree", html = TRUE, class = c("html", 
@@ -2535,7 +2535,7 @@ learnr:::question_prerendered_chunk(structure(list(type = "learnr_radio", label 
 "character")), incorrect = structure("Incorrect", html = TRUE, class = c("html", 
 "character")), message = NULL, post_message = NULL), ids = list(
     answer = "eiginterpQ-answer", question = "eiginterpQ"), loading = NULL, 
-    random_answer_order = TRUE, allow_retry = TRUE, seed = 1516163977.29398, 
+    random_answer_order = TRUE, allow_retry = TRUE, seed = 919839094.571667, 
     options = list()), class = c("learnr_radio", "tutorial_question"
 )), session = session)
 </script>
@@ -2570,13 +2570,13 @@ learnr:::store_exercise_cache(structure(list(label = "power", global_setup = str
 "learnr::random_phrases_add(language = \"en\",", "                           praise = c(\"That's brilliant!\",", 
 "                                      \"Great work!\",", "                                      \"Well done!\",", 
 "                                      \"Awesome!\"),", "                           encouragement = c(\"Good effort\"))", 
-"ison_brandes2 <- ison_brandes %>% rename_nodes(type = twomode_type)"
+"ison_centrality2 <- ison_centrality %>% rename_nodes(mode = twomode_type)"
 ), chunk_opts = list(label = "setup", include = FALSE, purl = FALSE, 
-    eval = TRUE)), setup = "ison_brandes <- to_named(ison_brandes)", 
-    chunks = list(list(label = "addingnames", code = "ison_brandes <- to_named(ison_brandes)", 
+    eval = TRUE)), setup = "ison_centrality <- to_named(ison_centrality)", 
+    chunks = list(list(label = "addingnames", code = "ison_centrality <- to_named(ison_centrality)", 
         opts = list(label = "\"addingnames\"", exercise = "TRUE", 
             purl = "FALSE"), engine = "r"), list(label = "power", 
-        code = "node_by_power(ison_brandes, exponent = 1)\nnode_by_power(ison_brandes, exponent = -1)", 
+        code = "node_by_power(ison_centrality, exponent = 1)\nnode_by_power(ison_centrality, exponent = -1)", 
         opts = list(label = "\"power\"", exercise = "TRUE", exercise.setup = "\"addingnames\""), 
         engine = "r")), code_check = NULL, error_check = NULL, 
     check = NULL, solution = NULL, tests = NULL, options = list(
@@ -2596,8 +2596,8 @@ learnr:::store_exercise_cache(structure(list(label = "power", global_setup = str
         error = FALSE, message = TRUE, render = NULL, ref.label = NULL, 
         child = NULL, engine = "r", split = FALSE, include = TRUE, 
         purl = TRUE, max.print = 1000, label = "power", exercise = TRUE, 
-        exercise.setup = "addingnames", code = c("node_by_power(ison_brandes, exponent = 1)", 
-        "node_by_power(ison_brandes, exponent = -1)"), out.width.px = 624, 
+        exercise.setup = "addingnames", code = c("node_by_power(ison_centrality, exponent = 1)", 
+        "node_by_power(ison_centrality, exponent = -1)"), out.width.px = 624, 
         out.height.px = 384, params.src = "power, exercise = TRUE, exercise.setup = \"addingnames\"", 
         fig.num = 0, exercise.df_print = "paged", exercise.checker = "NULL"), 
     engine = "r", version = "4"), class = c("r", "tutorial_exercise"
@@ -2634,13 +2634,13 @@ learnr:::store_exercise_cache(structure(list(label = "pagerank", global_setup = 
 "learnr::random_phrases_add(language = \"en\",", "                           praise = c(\"That's brilliant!\",", 
 "                                      \"Great work!\",", "                                      \"Well done!\",", 
 "                                      \"Awesome!\"),", "                           encouragement = c(\"Good effort\"))", 
-"ison_brandes2 <- ison_brandes %>% rename_nodes(type = twomode_type)"
+"ison_centrality2 <- ison_centrality %>% rename_nodes(mode = twomode_type)"
 ), chunk_opts = list(label = "setup", include = FALSE, purl = FALSE, 
-    eval = TRUE)), setup = "ison_brandes <- to_named(ison_brandes)", 
-    chunks = list(list(label = "addingnames", code = "ison_brandes <- to_named(ison_brandes)", 
+    eval = TRUE)), setup = "ison_centrality <- to_named(ison_centrality)", 
+    chunks = list(list(label = "addingnames", code = "ison_centrality <- to_named(ison_centrality)", 
         opts = list(label = "\"addingnames\"", exercise = "TRUE", 
             purl = "FALSE"), engine = "r"), list(label = "pagerank", 
-        code = "ison_brandes_dir <- to_directed(ison_brandes)\nnode_by_pagerank(ison_brandes_dir)\nnode_by_hub(ison_brandes_dir)\nnode_by_authority(ison_brandes_dir)", 
+        code = "ison_centrality_dir <- to_directed(ison_centrality)\nnode_by_pagerank(ison_centrality_dir)\nnode_by_hub(ison_centrality_dir)\nnode_by_authority(ison_centrality_dir)", 
         opts = list(label = "\"pagerank\"", exercise = "TRUE", 
             exercise.setup = "\"addingnames\""), engine = "r")), 
     code_check = NULL, error_check = NULL, check = NULL, solution = NULL, 
@@ -2661,9 +2661,9 @@ learnr:::store_exercise_cache(structure(list(label = "pagerank", global_setup = 
         error = FALSE, message = TRUE, render = NULL, ref.label = NULL, 
         child = NULL, engine = "r", split = FALSE, include = TRUE, 
         purl = TRUE, max.print = 1000, label = "pagerank", exercise = TRUE, 
-        exercise.setup = "addingnames", code = c("ison_brandes_dir <- to_directed(ison_brandes)", 
-        "node_by_pagerank(ison_brandes_dir)", "node_by_hub(ison_brandes_dir)", 
-        "node_by_authority(ison_brandes_dir)"), out.width.px = 624, 
+        exercise.setup = "addingnames", code = c("ison_centrality_dir <- to_directed(ison_centrality)", 
+        "node_by_pagerank(ison_centrality_dir)", "node_by_hub(ison_centrality_dir)", 
+        "node_by_authority(ison_centrality_dir)"), out.width.px = 624, 
         out.height.px = 384, params.src = "pagerank, exercise = TRUE, exercise.setup = \"addingnames\"", 
         fig.num = 0, exercise.df_print = "paged", exercise.checker = "NULL"), 
     engine = "r", version = "4"), class = c("r", "tutorial_exercise"
@@ -2672,19 +2672,19 @@ learnr:::store_exercise_cache(structure(list(label = "pagerank", global_setup = 
  
 <script type="application/shiny-prerendered" data-context="server">
 learnr:::question_prerendered_chunk(structure(list(type = "learnr_radio", label = "whichcentQ", question = structure("A rumour spreads step-by-step along ties, and you want to find the person who could seed it to reach everyone else in the fewest steps. Which family is the most natural first choice?", html = TRUE, class = c("html", 
-"character")), answers = list(structure(list(id = "lnr_ans_af04c17", 
+"character")), answers = list(structure(list(id = "lnr_ans_1be2e54", 
     option = "Closeness", value = "Closeness", label = structure("Closeness", html = TRUE, class = c("html", 
     "character")), correct = TRUE, message = structure("Yes – closeness is precisely about short distances to all other nodes, i.e. reaching everyone quickly.", html = TRUE, class = c("html", 
     "character")), type = "literal"), class = c("tutorial_question_answer", 
-"tutorial_quiz_answer")), structure(list(id = "lnr_ans_28d9b1", 
+"tutorial_quiz_answer")), structure(list(id = "lnr_ans_9b52a79", 
     option = "Degree", value = "Degree", label = structure("Degree", html = TRUE, class = c("html", 
     "character")), correct = FALSE, message = structure("Degree finds who has the most direct contacts, but a well-connected node in a peripheral cluster can still be far from most of the network.", html = TRUE, class = c("html", 
     "character")), type = "literal"), class = c("tutorial_question_answer", 
-"tutorial_quiz_answer")), structure(list(id = "lnr_ans_3e020bf", 
+"tutorial_quiz_answer")), structure(list(id = "lnr_ans_c23f03e", 
     option = "Betweenness", value = "Betweenness", label = structure("Betweenness", html = TRUE, class = c("html", 
     "character")), correct = FALSE, message = structure("Betweenness finds brokers who sit between others – great for controlling flow, but not the same as being able to reach everyone quickly yourself.", html = TRUE, class = c("html", 
     "character")), type = "literal"), class = c("tutorial_question_answer", 
-"tutorial_quiz_answer")), structure(list(id = "lnr_ans_ae717e", 
+"tutorial_quiz_answer")), structure(list(id = "lnr_ans_11ee690", 
     option = "Eigenvector", value = "Eigenvector", label = structure("Eigenvector", html = TRUE, class = c("html", 
     "character")), correct = FALSE, message = structure("Eigenvector finds nodes connected to important others (influence/prestige), which need not be the nodes that can reach everyone in few steps.", html = TRUE, class = c("html", 
     "character")), type = "literal"), class = c("tutorial_question_answer", 
@@ -2695,7 +2695,7 @@ learnr:::question_prerendered_chunk(structure(list(type = "learnr_radio", label 
 "character")), incorrect = structure("Incorrect", html = TRUE, class = c("html", 
 "character")), message = NULL, post_message = NULL), ids = list(
     answer = "whichcentQ-answer", question = "whichcentQ"), loading = NULL, 
-    random_answer_order = TRUE, allow_retry = TRUE, seed = 1710292356.20358, 
+    random_answer_order = TRUE, allow_retry = TRUE, seed = 696701278.675573, 
     options = list()), class = c("learnr_radio", "tutorial_question"
 )), session = session)
 </script>
@@ -2730,22 +2730,22 @@ learnr:::store_exercise_cache(structure(list(label = "ggid", global_setup = stru
 "learnr::random_phrases_add(language = \"en\",", "                           praise = c(\"That's brilliant!\",", 
 "                                      \"Great work!\",", "                                      \"Well done!\",", 
 "                                      \"Awesome!\"),", "                           encouragement = c(\"Good effort\"))", 
-"ison_brandes2 <- ison_brandes %>% rename_nodes(type = twomode_type)"
+"ison_centrality2 <- ison_centrality %>% rename_nodes(mode = twomode_type)"
 ), chunk_opts = list(label = "setup", include = FALSE, purl = FALSE, 
-    eval = TRUE)), setup = "ison_brandes <- to_named(ison_brandes)", 
-    chunks = list(list(label = "addingnames", code = "ison_brandes <- to_named(ison_brandes)", 
+    eval = TRUE)), setup = "ison_centrality <- to_named(ison_centrality)", 
+    chunks = list(list(label = "addingnames", code = "ison_centrality <- to_named(ison_centrality)", 
         opts = list(label = "\"addingnames\"", exercise = "TRUE", 
             purl = "FALSE"), engine = "r"), list(label = "ggid", 
         code = "", opts = list(label = "\"ggid\"", exercise = "TRUE", 
             exercise.setup = "\"addingnames\"", purl = "FALSE"), 
         engine = "r")), code_check = NULL, error_check = NULL, 
     check = NULL, solution = structure(c("# plot the network, highlighting the node with the highest centrality score with a different color", 
-    "ison_brandes %>%", "  mutate_nodes(color = node_is_max(node_by_degree())) %>%", 
-    "  graphr(node_color = \"color\")", "", "ison_brandes %>%", 
+    "ison_centrality %>%", "  mutate_nodes(color = node_is_max(node_by_degree())) %>%", 
+    "  graphr(node_color = \"color\")", "", "ison_centrality %>%", 
     "  mutate_nodes(color = node_is_max(node_by_betweenness())) %>%", 
-    "  graphr(node_color = \"color\")", "", "ison_brandes %>%", 
+    "  graphr(node_color = \"color\")", "", "ison_centrality %>%", 
     "  mutate_nodes(color = node_is_max(node_by_closeness())) %>%", 
-    "  graphr(node_color = \"color\")", "", "ison_brandes %>%", 
+    "  graphr(node_color = \"color\")", "", "ison_centrality %>%", 
     "  mutate_nodes(color = node_is_max(node_by_eigenvector())) %>%", 
     "  graphr(node_color = \"color\")"), chunk_opts = list(label = "ggid-solution")), 
     tests = NULL, options = list(eval = FALSE, echo = TRUE, results = "markup", 
@@ -2802,20 +2802,20 @@ learnr:::store_exercise_cache(structure(list(label = "ggid_twomode", global_setu
 "learnr::random_phrases_add(language = \"en\",", "                           praise = c(\"That's brilliant!\",", 
 "                                      \"Great work!\",", "                                      \"Well done!\",", 
 "                                      \"Awesome!\"),", "                           encouragement = c(\"Good effort\"))", 
-"ison_brandes2 <- ison_brandes %>% rename_nodes(type = twomode_type)"
+"ison_centrality2 <- ison_centrality %>% rename_nodes(mode = twomode_type)"
 ), chunk_opts = list(label = "setup", include = FALSE, purl = FALSE, 
     eval = TRUE)), setup = NULL, chunks = list(list(label = "ggid_twomode", 
-    code = "# Instead of \"ison_brandes\", use \"ison_brandes2\"\n", 
+    code = "# Instead of \"ison_centrality\", use \"ison_centrality2\"\n", 
     opts = list(label = "\"ggid_twomode\"", exercise = "TRUE", 
         purl = "FALSE"), engine = "r")), code_check = NULL, error_check = NULL, 
-    check = NULL, solution = structure(c("ison_brandes2 %>%", 
-    "  add_node_attribute(\"color\", node_is_max(node_by_degree(ison_brandes2))) %>%", 
+    check = NULL, solution = structure(c("ison_centrality2 %>%", 
+    "  add_node_attribute(\"color\", node_is_max(node_by_degree(ison_centrality2))) %>%", 
     "  graphr(node_color = \"color\", layout = \"bipartite\")", 
-    "", "ison_brandes2 %>%", "  add_node_attribute(\"color\", node_is_max(node_by_betweenness(ison_brandes2))) %>%", 
+    "", "ison_centrality2 %>%", "  add_node_attribute(\"color\", node_is_max(node_by_betweenness(ison_centrality2))) %>%", 
     "  graphr(node_color = \"color\", layout = \"bipartite\")", 
-    "", "ison_brandes2 %>%", "  add_node_attribute(\"color\", node_is_max(node_by_closeness(ison_brandes2))) %>%", 
+    "", "ison_centrality2 %>%", "  add_node_attribute(\"color\", node_is_max(node_by_closeness(ison_centrality2))) %>%", 
     "  graphr(node_color = \"color\", layout = \"bipartite\")", 
-    "", "ison_brandes2 %>%", "  add_node_attribute(\"color\", node_is_max(node_by_eigenvector(ison_brandes2))) %>%", 
+    "", "ison_centrality2 %>%", "  add_node_attribute(\"color\", node_is_max(node_by_eigenvector(ison_centrality2))) %>%", 
     "  graphr(node_color = \"color\", layout = \"bipartite\")"
     ), chunk_opts = list(label = "ggid_twomode-solution")), tests = NULL, 
     options = list(eval = FALSE, echo = TRUE, results = "markup", 
@@ -2835,7 +2835,7 @@ learnr:::store_exercise_cache(structure(list(label = "ggid_twomode", global_setu
         error = FALSE, message = TRUE, render = NULL, ref.label = NULL, 
         child = NULL, engine = "r", split = FALSE, include = TRUE, 
         purl = FALSE, max.print = 1000, label = "ggid_twomode", 
-        exercise = TRUE, code = c("# Instead of \"ison_brandes\", use \"ison_brandes2\"", 
+        exercise = TRUE, code = c("# Instead of \"ison_centrality\", use \"ison_centrality2\"", 
         ""), out.width.px = 624, out.height.px = 384, params.src = "ggid_twomode, exercise = TRUE, purl = FALSE", 
         fig.num = 0, exercise.df_print = "paged", exercise.checker = "NULL"), 
     engine = "r", version = "4"), class = c("r", "tutorial_exercise"
@@ -2846,18 +2846,18 @@ learnr:::store_exercise_cache(structure(list(label = "ggid_twomode", global_setu
 <script type="application/shiny-prerendered" data-context="server">
 learnr:::question_prerendered_chunk(structure(list(type = "learnr_radio", label = "brandes2quiz", 
     question = structure("Select all that are true for the two-mode Brandes network.", html = TRUE, class = c("html", 
-    "character")), answers = list(structure(list(id = "lnr_ans_4480e47", 
+    "character")), answers = list(structure(list(id = "lnr_ans_6d288f2", 
         option = "Only one node is selected in each plot.", value = "Only one node is selected in each plot.", 
         label = structure("Only one node is selected in each plot.", html = TRUE, class = c("html", 
         "character")), correct = FALSE, message = structure("Not quite: <code>node_is_max()<\u002fcode> flags every node tied for the highest score, so when there’s a tie for the top several nodes light up at once.", html = TRUE, class = c("html", 
         "character")), type = "literal"), class = c("tutorial_question_answer", 
-    "tutorial_quiz_answer")), structure(list(id = "lnr_ans_ce7507c", 
+    "tutorial_quiz_answer")), structure(list(id = "lnr_ans_d6359e1", 
         option = "The maximum degree triangle has a higher degree than the maximum degree circle(s).", 
         value = "The maximum degree triangle has a higher degree than the maximum degree circle(s).", 
         label = structure("The maximum degree triangle has a higher degree than the maximum degree circle(s).", html = TRUE, class = c("html", 
         "character")), correct = TRUE, message = structure("That’s right – the busiest event (triangle) has degree 4, whereas the busiest actor (circle) only reaches degree 3.", html = TRUE, class = c("html", 
         "character")), type = "literal"), class = c("tutorial_question_answer", 
-    "tutorial_quiz_answer")), structure(list(id = "lnr_ans_8b578fe", 
+    "tutorial_quiz_answer")), structure(list(id = "lnr_ans_dbc5ab3", 
         option = "No node is ever the most central according to two or more different centrality measures.", 
         value = "No node is ever the most central according to two or more different centrality measures.", 
         label = structure("No node is ever the most central according to two or more different centrality measures.", html = TRUE, class = c("html", 
@@ -2871,7 +2871,7 @@ learnr:::question_prerendered_chunk(structure(list(type = "learnr_radio", label 
     "character")), message = NULL, post_message = NULL), ids = list(
         answer = "brandes2quiz-answer", question = "brandes2quiz"), 
     loading = NULL, random_answer_order = TRUE, allow_retry = TRUE, 
-    seed = 673988467.68615, options = list()), class = c("learnr_radio", 
+    seed = 310876518.855237, options = list()), class = c("learnr_radio", 
 "tutorial_question")), session = session)
 </script>
  
@@ -2905,17 +2905,17 @@ learnr:::store_exercise_cache(structure(list(label = "distrib", global_setup = s
 "learnr::random_phrases_add(language = \"en\",", "                           praise = c(\"That's brilliant!\",", 
 "                                      \"Great work!\",", "                                      \"Well done!\",", 
 "                                      \"Awesome!\"),", "                           encouragement = c(\"Good effort\"))", 
-"ison_brandes2 <- ison_brandes %>% rename_nodes(type = twomode_type)"
+"ison_centrality2 <- ison_centrality %>% rename_nodes(mode = twomode_type)"
 ), chunk_opts = list(label = "setup", include = FALSE, purl = FALSE, 
-    eval = TRUE)), setup = "ison_brandes <- to_named(ison_brandes)", 
-    chunks = list(list(label = "addingnames", code = "ison_brandes <- to_named(ison_brandes)", 
+    eval = TRUE)), setup = "ison_centrality <- to_named(ison_centrality)", 
+    chunks = list(list(label = "addingnames", code = "ison_centrality <- to_named(ison_centrality)", 
         opts = list(label = "\"addingnames\"", exercise = "TRUE", 
             purl = "FALSE"), engine = "r"), list(label = "distrib", 
         code = "", opts = list(label = "\"distrib\"", exercise = "TRUE", 
             exercise.setup = "\"addingnames\"", purl = "FALSE"), 
         engine = "r")), code_check = NULL, error_check = NULL, 
     check = NULL, solution = structure(c("# distribution of degree centrality scores of nodes", 
-    "plot(node_by_degree(ison_brandes))"), chunk_opts = list(
+    "plot(node_by_degree(ison_centrality))"), chunk_opts = list(
         label = "distrib-solution")), tests = NULL, options = list(
         eval = FALSE, echo = TRUE, results = "markup", tidy = FALSE, 
         tidy.opts = NULL, collapse = FALSE, prompt = FALSE, comment = NA, 
@@ -2943,19 +2943,19 @@ learnr:::store_exercise_cache(structure(list(label = "distrib", global_setup = s
 <script type="application/shiny-prerendered" data-context="server">
 learnr:::question_prerendered_chunk(structure(list(type = "learnr_radio", label = "degdistshapeQ", 
     question = structure("What kind of shape does this degree distribution have?", html = TRUE, class = c("html", 
-    "character")), answers = list(structure(list(id = "lnr_ans_9fd41b5", 
+    "character")), answers = list(structure(list(id = "lnr_ans_5c7d6f9", 
         option = "Exponential", value = "Exponential", label = structure("Exponential", html = TRUE, class = c("html", 
         "character")), correct = FALSE, message = structure("An exponential (or power-law) shape would show many low-degree nodes and a long tail of a few very high-degree nodes. There isn’t a clear tail like that here.", html = TRUE, class = c("html", 
         "character")), type = "literal"), class = c("tutorial_question_answer", 
-    "tutorial_quiz_answer")), structure(list(id = "lnr_ans_64a1b90", 
+    "tutorial_quiz_answer")), structure(list(id = "lnr_ans_b8fc14d", 
         option = "Hard to tell", value = "Hard to tell", label = structure("Hard to tell", html = TRUE, class = c("html", 
-        "character")), correct = TRUE, message = structure("Someone knows what they’re doing :) With only 11 nodes there simply aren’t enough observations to identify a clear parametric shape – degree distributions usually only reveal a recognisable form in larger networks.", html = TRUE, class = c("html", 
+        "character")), correct = TRUE, message = structure("That’s glorious! With only 11 nodes there simply aren’t enough observations to identify a clear parametric shape – degree distributions usually only reveal a recognisable form in larger networks.", html = TRUE, class = c("html", 
         "character")), type = "literal"), class = c("tutorial_question_answer", 
-    "tutorial_quiz_answer")), structure(list(id = "lnr_ans_81ae8b", 
+    "tutorial_quiz_answer")), structure(list(id = "lnr_ans_7e8e55c", 
         option = "Uniform", value = "Uniform", label = structure("Uniform", html = TRUE, class = c("html", 
         "character")), correct = FALSE, message = structure("A uniform distribution would have roughly equal numbers of nodes at every degree value (a flat histogram), which isn’t quite what we see.", html = TRUE, class = c("html", 
         "character")), type = "literal"), class = c("tutorial_question_answer", 
-    "tutorial_quiz_answer")), structure(list(id = "lnr_ans_61937f4", 
+    "tutorial_quiz_answer")), structure(list(id = "lnr_ans_b8dc4d7", 
         option = "Normal", value = "Normal", label = structure("Normal", html = TRUE, class = c("html", 
         "character")), correct = FALSE, message = structure("A normal distribution would be a symmetric bell centred on a modal degree. With so few nodes it’s hard to justify calling this bell-shaped.", html = TRUE, class = c("html", 
         "character")), type = "literal"), class = c("tutorial_question_answer", 
@@ -2967,7 +2967,7 @@ learnr:::question_prerendered_chunk(structure(list(type = "learnr_radio", label 
     "character")), message = NULL, post_message = NULL), ids = list(
         answer = "degdistshapeQ-answer", question = "degdistshapeQ"), 
     loading = NULL, random_answer_order = TRUE, allow_retry = TRUE, 
-    seed = 1248314089.41871, options = list()), class = c("learnr_radio", 
+    seed = 1060299699.50626, options = list()), class = c("learnr_radio", 
 "tutorial_question")), session = session)
 </script>
 
@@ -2975,24 +2975,24 @@ learnr:::question_prerendered_chunk(structure(list(type = "learnr_radio", label 
 <script type="application/shiny-prerendered" data-context="server">
 learnr:::question_prerendered_chunk(structure(list(type = "learnr_checkbox", label = "degdistinterpQ", 
     question = structure("What can the degree distribution tell us?", html = TRUE, class = c("html", 
-    "character")), answers = list(structure(list(id = "lnr_ans_1b34752", 
+    "character")), answers = list(structure(list(id = "lnr_ans_b0fd7dd", 
         option = "Whether the network is centralized around a few key nodes", 
         value = "Whether the network is centralized around a few key nodes", 
         label = structure("Whether the network is centralized around a few key nodes", html = TRUE, class = c("html", 
-        "character")), correct = TRUE, message = structure("That’s a first-class answer!", html = TRUE, class = c("html", 
+        "character")), correct = TRUE, message = structure("Spectacular job!", html = TRUE, class = c("html", 
         "character")), type = "literal"), class = c("tutorial_question_answer", 
-    "tutorial_quiz_answer")), structure(list(id = "lnr_ans_6b3edb", 
+    "tutorial_quiz_answer")), structure(list(id = "lnr_ans_ffe06f7", 
         option = "Whether there are a few highly connected nodes and many poorly connected nodes", 
         value = "Whether there are a few highly connected nodes and many poorly connected nodes", 
         label = structure("Whether there are a few highly connected nodes and many poorly connected nodes", html = TRUE, class = c("html", 
-        "character")), correct = TRUE, message = structure("Fantastic!", html = TRUE, class = c("html", 
+        "character")), correct = TRUE, message = structure("Magnificent!", html = TRUE, class = c("html", 
         "character")), type = "literal"), class = c("tutorial_question_answer", 
-    "tutorial_quiz_answer")), structure(list(id = "lnr_ans_b69edbd", 
+    "tutorial_quiz_answer")), structure(list(id = "lnr_ans_467d187", 
         option = "Whether the network is hierarchical", value = "Whether the network is hierarchical", 
         label = structure("Whether the network is hierarchical", html = TRUE, class = c("html", 
         "character")), correct = FALSE, message = structure("Not necessarily – the degree distribution shows the <em>spread<\u002fem> of degrees, but not how nodes are ordered into levels. Hierarchy is about the (directed) arrangement of ties, which degree counts alone don’t reveal.", html = TRUE, class = c("html", 
         "character")), type = "literal"), class = c("tutorial_question_answer", 
-    "tutorial_quiz_answer")), structure(list(id = "lnr_ans_54bc32f", 
+    "tutorial_quiz_answer")), structure(list(id = "lnr_ans_ed002e9", 
         option = "Whether the network is robust to random failure", 
         value = "Whether the network is robust to random failure", 
         label = structure("Whether the network is robust to random failure", html = TRUE, class = c("html", 
@@ -3006,7 +3006,7 @@ learnr:::question_prerendered_chunk(structure(list(type = "learnr_checkbox", lab
     "character")), message = NULL, post_message = NULL), ids = list(
         answer = "degdistinterpQ-answer", question = "degdistinterpQ"), 
     loading = NULL, random_answer_order = TRUE, allow_retry = TRUE, 
-    seed = 1845492957.64063, options = list()), class = c("learnr_checkbox", 
+    seed = 414840414.806825, options = list()), class = c("learnr_checkbox", 
 "tutorial_question")), session = session)
 </script>
  
@@ -3040,17 +3040,17 @@ learnr:::store_exercise_cache(structure(list(label = "otherdist", global_setup =
 "learnr::random_phrases_add(language = \"en\",", "                           praise = c(\"That's brilliant!\",", 
 "                                      \"Great work!\",", "                                      \"Well done!\",", 
 "                                      \"Awesome!\"),", "                           encouragement = c(\"Good effort\"))", 
-"ison_brandes2 <- ison_brandes %>% rename_nodes(type = twomode_type)"
+"ison_centrality2 <- ison_centrality %>% rename_nodes(mode = twomode_type)"
 ), chunk_opts = list(label = "setup", include = FALSE, purl = FALSE, 
-    eval = TRUE)), setup = "ison_brandes <- to_named(ison_brandes)", 
-    chunks = list(list(label = "addingnames", code = "ison_brandes <- to_named(ison_brandes)", 
+    eval = TRUE)), setup = "ison_centrality <- to_named(ison_centrality)", 
+    chunks = list(list(label = "addingnames", code = "ison_centrality <- to_named(ison_centrality)", 
         opts = list(label = "\"addingnames\"", exercise = "TRUE", 
             purl = "FALSE"), engine = "r"), list(label = "otherdist", 
         code = "", opts = list(label = "\"otherdist\"", exercise = "TRUE", 
             exercise.setup = "\"addingnames\"", purl = "FALSE"), 
         engine = "r")), code_check = NULL, error_check = NULL, 
-    check = NULL, solution = structure(c("plot(node_by_betweenness(ison_brandes))", 
-    "plot(node_by_closeness(ison_brandes))", "plot(node_by_eigenvector(ison_brandes))"
+    check = NULL, solution = structure(c("plot(node_by_betweenness(ison_centrality))", 
+    "plot(node_by_closeness(ison_centrality))", "plot(node_by_eigenvector(ison_centrality))"
     ), chunk_opts = list(label = "otherdist-solution")), tests = NULL, 
     options = list(eval = FALSE, echo = TRUE, results = "markup", 
         tidy = FALSE, tidy.opts = NULL, collapse = FALSE, prompt = FALSE, 
@@ -3106,7 +3106,7 @@ learnr:::store_exercise_cache(structure(list(label = "distcent", global_setup = 
 "learnr::random_phrases_add(language = \"en\",", "                           praise = c(\"That's brilliant!\",", 
 "                                      \"Great work!\",", "                                      \"Well done!\",", 
 "                                      \"Awesome!\"),", "                           encouragement = c(\"Good effort\"))", 
-"ison_brandes2 <- ison_brandes %>% rename_nodes(type = twomode_type)"
+"ison_centrality2 <- ison_centrality %>% rename_nodes(mode = twomode_type)"
 ), chunk_opts = list(label = "setup", include = FALSE, purl = FALSE, 
     eval = TRUE)), setup = NULL, chunks = list(list(label = "distcent", 
     code = "set.seed(7)\nrand <- generate_random(50, 0.1)     # bell-shaped degree distribution\nscaf <- generate_scalefree(50, 1.3)  # heavy-tailed degree distribution\nplot(node_by_degree(rand)) + plot(node_by_degree(scaf))\nnet_by_degree(rand)   # low centralisation\nnet_by_degree(scaf)   # much higher centralisation", 
@@ -3141,17 +3141,17 @@ learnr:::store_exercise_cache(structure(list(label = "distcent", global_setup = 
  
 <script type="application/shiny-prerendered" data-context="server">
 learnr:::question_prerendered_chunk(structure(list(type = "learnr_radio", label = "shapecentQ", question = structure("A network’s degree distribution is a symmetric bell around its average. What can you say about its degree centralisation?", html = TRUE, class = c("html", 
-"character")), answers = list(structure(list(id = "lnr_ans_e98393c", 
+"character")), answers = list(structure(list(id = "lnr_ans_b3a23db", 
     option = "It will be relatively low", value = "It will be relatively low", 
     label = structure("It will be relatively low", html = TRUE, class = c("html", 
     "character")), correct = TRUE, message = structure("Right – a symmetric bell means most nodes are near-average and none dominates, so there is little inequality for centralisation to register.", html = TRUE, class = c("html", 
     "character")), type = "literal"), class = c("tutorial_question_answer", 
-"tutorial_quiz_answer")), structure(list(id = "lnr_ans_12d959f", 
+"tutorial_quiz_answer")), structure(list(id = "lnr_ans_f4a608b", 
     option = "It will be relatively high", value = "It will be relatively high", 
     label = structure("It will be relatively high", html = TRUE, class = c("html", 
     "character")), correct = FALSE, message = structure("High centralisation goes with a skewed, hub-dominated distribution (a long tail), not a symmetric bell where nodes are similar.", html = TRUE, class = c("html", 
     "character")), type = "literal"), class = c("tutorial_question_answer", 
-"tutorial_quiz_answer")), structure(list(id = "lnr_ans_c79ec9a", 
+"tutorial_quiz_answer")), structure(list(id = "lnr_ans_f92b443", 
     option = "It cannot be determined from the distribution", 
     value = "It cannot be determined from the distribution", 
     label = structure("It cannot be determined from the distribution", html = TRUE, class = c("html", 
@@ -3164,7 +3164,7 @@ learnr:::question_prerendered_chunk(structure(list(type = "learnr_radio", label 
 "character")), incorrect = structure("Incorrect", html = TRUE, class = c("html", 
 "character")), message = NULL, post_message = NULL), ids = list(
     answer = "shapecentQ-answer", question = "shapecentQ"), loading = NULL, 
-    random_answer_order = TRUE, allow_retry = TRUE, seed = 816448113.619812, 
+    random_answer_order = TRUE, allow_retry = TRUE, seed = 1001357448.53371, 
     options = list()), class = c("learnr_radio", "tutorial_question"
 )), session = session)
 </script>
@@ -3199,18 +3199,18 @@ learnr:::store_exercise_cache(structure(list(label = "centzn", global_setup = st
 "learnr::random_phrases_add(language = \"en\",", "                           praise = c(\"That's brilliant!\",", 
 "                                      \"Great work!\",", "                                      \"Well done!\",", 
 "                                      \"Awesome!\"),", "                           encouragement = c(\"Good effort\"))", 
-"ison_brandes2 <- ison_brandes %>% rename_nodes(type = twomode_type)"
+"ison_centrality2 <- ison_centrality %>% rename_nodes(mode = twomode_type)"
 ), chunk_opts = list(label = "setup", include = FALSE, purl = FALSE, 
-    eval = TRUE)), setup = "ison_brandes <- to_named(ison_brandes)", 
-    chunks = list(list(label = "addingnames", code = "ison_brandes <- to_named(ison_brandes)", 
+    eval = TRUE)), setup = "ison_centrality <- to_named(ison_centrality)", 
+    chunks = list(list(label = "addingnames", code = "ison_centrality <- to_named(ison_centrality)", 
         opts = list(label = "\"addingnames\"", exercise = "TRUE", 
             purl = "FALSE"), engine = "r"), list(label = "centzn", 
         code = "", opts = list(label = "\"centzn\"", exercise = "TRUE", 
             exercise.setup = "\"addingnames\"", purl = "FALSE"), 
         engine = "r")), code_check = NULL, error_check = NULL, 
-    check = NULL, solution = structure(c("net_by_degree(ison_brandes)", 
-    "net_by_betweenness(ison_brandes)", "net_by_closeness(ison_brandes)", 
-    "print(net_by_eigenvector(ison_brandes), digits = 5)"), chunk_opts = list(
+    check = NULL, solution = structure(c("net_by_degree(ison_centrality)", 
+    "net_by_betweenness(ison_centrality)", "net_by_closeness(ison_centrality)", 
+    "print(net_by_eigenvector(ison_centrality), digits = 5)"), chunk_opts = list(
         label = "centzn-solution")), tests = NULL, options = list(
         eval = FALSE, echo = TRUE, results = "markup", tidy = FALSE, 
         tidy.opts = NULL, collapse = FALSE, prompt = FALSE, comment = NA, 
@@ -3265,28 +3265,28 @@ learnr:::store_exercise_cache(structure(list(label = "multiplot", global_setup =
 "learnr::random_phrases_add(language = \"en\",", "                           praise = c(\"That's brilliant!\",", 
 "                                      \"Great work!\",", "                                      \"Well done!\",", 
 "                                      \"Awesome!\"),", "                           encouragement = c(\"Good effort\"))", 
-"ison_brandes2 <- ison_brandes %>% rename_nodes(type = twomode_type)"
+"ison_centrality2 <- ison_centrality %>% rename_nodes(mode = twomode_type)"
 ), chunk_opts = list(label = "setup", include = FALSE, purl = FALSE, 
-    eval = TRUE)), setup = "ison_brandes <- to_named(ison_brandes)", 
-    chunks = list(list(label = "addingnames", code = "ison_brandes <- to_named(ison_brandes)", 
+    eval = TRUE)), setup = "ison_centrality <- to_named(ison_centrality)", 
+    chunks = list(list(label = "addingnames", code = "ison_centrality <- to_named(ison_centrality)", 
         opts = list(label = "\"addingnames\"", exercise = "TRUE", 
             purl = "FALSE"), engine = "r"), list(label = "multiplot", 
         code = "", opts = list(label = "\"multiplot\"", exercise = "TRUE", 
             exercise.setup = "\"addingnames\"", purl = "FALSE", 
             fig.width = "9"), engine = "r")), code_check = NULL, 
-    error_check = NULL, check = NULL, solution = structure(c("ison_brandes <- ison_brandes |>", 
-    "  add_node_attribute(\"degree\", node_is_max(node_by_degree(ison_brandes)))  |>", 
-    "  add_node_attribute(\"betweenness\", node_is_max(node_by_betweenness(ison_brandes))) |>", 
-    "  add_node_attribute(\"closeness\", node_is_max(node_by_closeness(ison_brandes)))  |>", 
-    "  add_node_attribute(\"eigenvector\", node_is_max(node_by_eigenvector(ison_brandes)))", 
-    "gd <- graphr(ison_brandes, node_color = \"degree\") +", 
-    "  ggtitle(\"Degree\", subtitle = round(net_by_degree(ison_brandes), 2))", 
-    "gc <- graphr(ison_brandes, node_color = \"closeness\") +", 
-    "  ggtitle(\"Closeness\", subtitle = round(net_by_closeness(ison_brandes), 2))", 
-    "gb <- graphr(ison_brandes, node_color = \"betweenness\") +", 
-    "  ggtitle(\"Betweenness\", subtitle = round(net_by_betweenness(ison_brandes), 2))", 
-    "ge <- graphr(ison_brandes, node_color = \"eigenvector\") +", 
-    "  ggtitle(\"Eigenvector\", subtitle = round(net_by_eigenvector(ison_brandes), 2))", 
+    error_check = NULL, check = NULL, solution = structure(c("ison_centrality <- ison_centrality |>", 
+    "  add_node_attribute(\"degree\", node_is_max(node_by_degree(ison_centrality)))  |>", 
+    "  add_node_attribute(\"betweenness\", node_is_max(node_by_betweenness(ison_centrality))) |>", 
+    "  add_node_attribute(\"closeness\", node_is_max(node_by_closeness(ison_centrality)))  |>", 
+    "  add_node_attribute(\"eigenvector\", node_is_max(node_by_eigenvector(ison_centrality)))", 
+    "gd <- graphr(ison_centrality, node_color = \"degree\") +", 
+    "  ggtitle(\"Degree\", subtitle = round(net_by_degree(ison_centrality), 2))", 
+    "gc <- graphr(ison_centrality, node_color = \"closeness\") +", 
+    "  ggtitle(\"Closeness\", subtitle = round(net_by_closeness(ison_centrality), 2))", 
+    "gb <- graphr(ison_centrality, node_color = \"betweenness\") +", 
+    "  ggtitle(\"Betweenness\", subtitle = round(net_by_betweenness(ison_centrality), 2))", 
+    "ge <- graphr(ison_centrality, node_color = \"eigenvector\") +", 
+    "  ggtitle(\"Eigenvector\", subtitle = round(net_by_eigenvector(ison_centrality), 2))", 
     "(gd | gb) / (gc | ge)", "# ggsave(\"brandes-centralities.pdf\")"
     ), chunk_opts = list(label = "multiplot-solution")), tests = NULL, 
     options = list(eval = FALSE, echo = TRUE, results = "markup", 
@@ -3315,20 +3315,20 @@ learnr:::store_exercise_cache(structure(list(label = "multiplot", global_setup =
 
 
 <script type="application/shiny-prerendered" data-context="server">
-learnr:::question_prerendered_chunk(structure(list(type = "learnr_radio", label = "centzdq", question = structure("How centralized is the ison_brandes network? Select all that apply.", html = TRUE, class = c("html", 
-"character")), answers = list(structure(list(id = "lnr_ans_9036f58", 
+learnr:::question_prerendered_chunk(structure(list(type = "learnr_radio", label = "centzdq", question = structure("How centralized is the ison_centrality network? Select all that apply.", html = TRUE, class = c("html", 
+"character")), answers = list(structure(list(id = "lnr_ans_c657203", 
     option = "It is more degree centralised than betweenness centralised.", 
     value = "It is more degree centralised than betweenness centralised.", 
     label = structure("It is more degree centralised than betweenness centralised.", html = TRUE, class = c("html", 
     "character")), correct = FALSE, message = structure("Degree centralisation is at 0.18 for this network whereas betweenness centralisation is at 0.32. In other words, the network is better characterised as having 1 or 2 nodes lying on the shortest paths between others than one where 1 or 2 nodes have many more ties than the others.", html = TRUE, class = c("html", 
     "character")), type = "literal"), class = c("tutorial_question_answer", 
-"tutorial_quiz_answer")), structure(list(id = "lnr_ans_2edc28e", 
+"tutorial_quiz_answer")), structure(list(id = "lnr_ans_d891fd0", 
     option = "It is more closeness centralised than betweenness centralised.", 
     value = "It is more closeness centralised than betweenness centralised.", 
     label = structure("It is more closeness centralised than betweenness centralised.", html = TRUE, class = c("html", 
     "character")), correct = FALSE, message = structure("Closeness centralisation is at 0.23 for this network whereas betweenness centralisation is at 0.32. In other words, the network is better characterised as having 1 or 2 nodes lying on the shortest paths between others than one where 1 or 2 nodes can reach or access most other nodes.", html = TRUE, class = c("html", 
     "character")), type = "literal"), class = c("tutorial_question_answer", 
-"tutorial_quiz_answer")), structure(list(id = "lnr_ans_7a9f35d", 
+"tutorial_quiz_answer")), structure(list(id = "lnr_ans_2d83364", 
     option = "It is more eigenvector centralised than betweenness centralised.", 
     value = "It is more eigenvector centralised than betweenness centralised.", 
     label = structure("It is more eigenvector centralised than betweenness centralised.", html = TRUE, class = c("html", 
@@ -3341,32 +3341,32 @@ learnr:::question_prerendered_chunk(structure(list(type = "learnr_radio", label 
 "character")), incorrect = structure("Incorrect", html = TRUE, class = c("html", 
 "character")), message = NULL, post_message = NULL), ids = list(
     answer = "centzdq-answer", question = "centzdq"), loading = NULL, 
-    random_answer_order = TRUE, allow_retry = TRUE, seed = 1354805349.86912, 
+    random_answer_order = TRUE, allow_retry = TRUE, seed = 1772509065.67461, 
     options = list()), class = c("learnr_radio", "tutorial_question"
 )), session = session)
 </script>
  
 <script type="application/shiny-prerendered" data-context="server">
 learnr:::question_prerendered_chunk(structure(list(type = "learnr_radio", label = "centvcent", question = structure("What is the difference between centrality and centralisation according to the literature?", html = TRUE, class = c("html", 
-"character")), answers = list(structure(list(id = "lnr_ans_24ca31", 
+"character")), answers = list(structure(list(id = "lnr_ans_42b1c50", 
     option = "Centrality is for nodes and centralisation is for networks", 
     value = "Centrality is for nodes and centralisation is for networks", 
     label = structure("Centrality is for nodes and centralisation is for networks", html = TRUE, class = c("html", 
     "character")), correct = TRUE, message = structure("That’s right – centrality is a nodal property (how central each node is), while centralisation summarises the whole network (how unequally centrality is distributed across its nodes).", html = TRUE, class = c("html", 
     "character")), type = "literal"), class = c("tutorial_question_answer", 
-"tutorial_quiz_answer")), structure(list(id = "lnr_ans_fe5885", 
+"tutorial_quiz_answer")), structure(list(id = "lnr_ans_ea61140", 
     option = "Centrality is a state and centralisation is a process", 
     value = "Centrality is a state and centralisation is a process", 
     label = structure("Centrality is a state and centralisation is a process", html = TRUE, class = c("html", 
     "character")), correct = FALSE, message = structure("This is a nice intuition, but it isn’t the distinction drawn in the network literature – both are measured on a fixed network, not as an unfolding process.", html = TRUE, class = c("html", 
     "character")), type = "literal"), class = c("tutorial_question_answer", 
-"tutorial_quiz_answer")), structure(list(id = "lnr_ans_5d8a900", 
+"tutorial_quiz_answer")), structure(list(id = "lnr_ans_a5b1147", 
     option = "Centrality is a '-ity' and centralisation is a '-isation'", 
     value = "Centrality is a '-ity' and centralisation is a '-isation'", 
     label = structure("Centrality is a ‘-ity’ and centralisation is a ‘-isation’", html = TRUE, class = c("html", 
     "character")), correct = FALSE, message = structure("The spelling differs, but that’s not the substantive distinction – think about which level (node vs. network) each one describes.", html = TRUE, class = c("html", 
     "character")), type = "literal"), class = c("tutorial_question_answer", 
-"tutorial_quiz_answer")), structure(list(id = "lnr_ans_7201857", 
+"tutorial_quiz_answer")), structure(list(id = "lnr_ans_d2b92e4", 
     option = "Centrality is to centralisation what polarity is to polarisation", 
     value = "Centrality is to centralisation what polarity is to polarisation", 
     label = structure("Centrality is to centralisation what polarity is to polarisation", html = TRUE, class = c("html", 
@@ -3379,7 +3379,7 @@ learnr:::question_prerendered_chunk(structure(list(type = "learnr_radio", label 
 "character")), incorrect = structure("Incorrect", html = TRUE, class = c("html", 
 "character")), message = NULL, post_message = NULL), ids = list(
     answer = "centvcent-answer", question = "centvcent"), loading = NULL, 
-    random_answer_order = TRUE, allow_retry = TRUE, seed = 900499487.580672, 
+    random_answer_order = TRUE, allow_retry = TRUE, seed = 247979365.884526, 
     options = list()), class = c("learnr_radio", "tutorial_question"
 )), session = session)
 </script>
@@ -3414,7 +3414,7 @@ learnr:::store_exercise_cache(structure(list(label = "freeplayend", global_setup
 "learnr::random_phrases_add(language = \"en\",", "                           praise = c(\"That's brilliant!\",", 
 "                                      \"Great work!\",", "                                      \"Well done!\",", 
 "                                      \"Awesome!\"),", "                           encouragement = c(\"Good effort\"))", 
-"ison_brandes2 <- ison_brandes %>% rename_nodes(type = twomode_type)"
+"ison_centrality2 <- ison_centrality %>% rename_nodes(mode = twomode_type)"
 ), chunk_opts = list(label = "setup", include = FALSE, purl = FALSE, 
     eval = TRUE)), setup = NULL, chunks = list(list(label = "freeplayend", 
     code = "", opts = list(label = "\"freeplayend\"", exercise = "TRUE", 
@@ -3450,7 +3450,7 @@ learnr:::store_exercise_cache(structure(list(label = "freeplayend", global_setup
 <!--/html_preserve-->
 <!--html_preserve-->
 <script type="application/shiny-prerendered" data-context="execution_dependencies">
-{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["packages"]}},"value":[{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["packages","version"]},"class":{"type":"character","attributes":{},"value":["data.frame"]},"row.names":{"type":"integer","attributes":{},"value":[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,41,42,43,44,45,46,47,48,49,50,51,52,53,54,55,56,57,58,59,60,61,62,63,64,65,66,67,68,69,70,71,72,73,74,75,76,77,78,79,80,81,82,83,84,85,86,87,88,89,90,91,92,93,94,95,96,97,98,99,100,101]}},"value":[{"type":"character","attributes":{},"value":["askpass","autograph","backports","base","bslib","cachem","checkmate","cli","coda","commonmark","compiler","crayon","datasets","digest","dplyr","evaluate","farver","fastmap","fontawesome","fs","generics","ggforce","ggplot2","ggraph","ggrepel","glue","graphics","graphlayouts","grDevices","grid","gridExtra","gtable","htmltools","htmlwidgets","httpuv","igraph","jquerylib","jsonlite","knitr","later","lattice","learnr","lifecycle","litedown","magrittr","manynet","manypkgs","markdown","MASS","memoise","methods","mime","netrics","network","NLP","otel","parallel","patchwork","pdftools","pillar","pkgconfig","polyclip","promises","purrr","qpdf","R6","RColorBrewer","Rcpp","remotes","rlang","rmarkdown","rprojroot","rsconnect","rstudioapi","S7","sass","scales","shiny","slam","statnet.common","stats","stringi","stringr","tibble","tidygraph","tidyr","tidyselect","tm","tools","tweenr","usethis","utils","vctrs","viridis","viridisLite","whisker","withr","xfun","xml2","xtable","yaml"]},{"type":"character","attributes":{},"value":["1.2.1","1.2.6","1.5.1","4.6.1","0.12.0","1.1.0","2.3.4","3.6.6","0.19-4.1","2.0.0","4.6.1","1.5.3","4.6.1","0.6.39","1.2.1","1.0.5","2.1.2","1.2.0","0.5.3","2.1.0","0.1.4","0.5.0","4.0.3","2.2.2","0.9.8","1.8.1","4.6.1","1.2.5","4.6.1","4.6.1","2.3.1","0.3.6","0.5.9","1.6.4","1.6.17","2.3.4","0.1.4","2.0.0","1.52","1.4.8","0.23-1","0.11.6","1.0.5","0.11","2.0.5","2.4.0","0.3.1","2.0","7.3-66","2.0.1","4.6.1","0.13","1.1.1","1.20.0","0.3-3","0.2.0","4.6.1","1.3.2","3.9.1","1.11.1","2.0.3","1.10-7","1.5.0","1.2.2","1.4.1","2.6.1","1.1-3","1.1.2","2.5.0.9000","1.3.0","2.32","2.1.1","1.11.2","0.19.0","0.2.2","0.4.10","1.4.0","1.14.0","0.1-56","4.13.0","4.6.1","1.8.9","1.6.0","3.3.1","1.3.1","1.3.2","1.2.1","0.7-18","4.6.1","2.0.3","3.2.2","4.6.1","0.7.3","0.6.5","0.4.3","0.4.1","3.0.3","0.61","1.6.0","1.8-8","2.3.12"]}]}]}
+{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["packages"]}},"value":[{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["packages","version"]},"class":{"type":"character","attributes":{},"value":["data.frame"]},"row.names":{"type":"integer","attributes":{},"value":[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,41,42,43,44,45,46,47,48,49,50,51,52,53,54,55,56,57,58,59,60,61,62,63,64,65,66,67,68,69,70,71,72,73,74,75,76,77,78,79,80,81,82,83,84,85,86,87,88,89,90,91,92,93,94,95,96,97,98,99,100]}},"value":[{"type":"character","attributes":{},"value":["askpass","autograph","backports","base","bslib","cachem","checkmate","cli","coda","compiler","crayon","datasets","digest","dplyr","evaluate","farver","fastmap","fontawesome","fs","generics","ggforce","ggplot2","ggraph","ggrepel","glue","graphics","graphlayouts","grDevices","grid","gridExtra","gtable","htmltools","htmlwidgets","httpuv","igraph","jquerylib","jsonlite","knitr","later","lattice","learnr","lifecycle","litedown","magrittr","manynet","manypkgs","markdown","MASS","memoise","methods","mime","netrics","network","NLP","otel","parallel","patchwork","pdftools","pillar","pkgconfig","polyclip","promises","purrr","qpdf","R6","RColorBrewer","Rcpp","remotes","rlang","rmarkdown","rprojroot","rstudioapi","S7","sass","scales","shiny","slam","statnet.common","stats","stringi","stringr","tibble","tidygraph","tidyr","tidyselect","tm","tools","tweenr","usethis","utf8","utils","vctrs","viridis","viridisLite","whisker","withr","xfun","xml2","xtable","yaml"]},{"type":"character","attributes":{},"value":["1.2.1","1.3.0","1.5.1","4.6.1","0.12.0","1.1.0","2.3.4","3.6.6","0.19-4.1","4.6.1","1.5.3","4.6.1","0.6.39","1.2.1","1.0.5","2.1.2","1.2.0","0.5.3","2.1.0","0.1.4","0.5.0","4.0.3","2.2.2","0.9.8","1.8.1","4.6.1","1.2.5","4.6.1","4.6.1","2.3.1","0.3.6","0.5.9","1.6.4","1.6.17","2.3.4","0.1.4","2.0.0","1.52","1.4.8","0.23-1","0.11.6","1.0.5","1.0","2.0.5","2.5.0","0.4.0","2.1","7.3-66","2.0.1","4.6.1","0.13","1.2.0","1.20.0","0.3-3","0.3.0","4.6.1","1.3.2","3.9.1","1.11.1","2.0.3","1.10-7","1.5.0","1.2.2","1.4.1","2.6.1","1.1-3","1.1.2","2.5.0.9000","1.3.0","2.32","2.1.1","0.19.0","0.2.2","0.4.10","1.4.0","1.14.0","0.1-56","4.13.0","4.6.1","1.8.9","1.6.0","3.3.1","1.3.1","1.3.2","1.2.1","0.7-18","4.6.1","2.0.3","3.2.2","1.2.6","4.6.1","0.7.3","0.6.5","0.4.3","0.4.1","3.0.3","0.62","1.6.0","1.8-8","2.3.12"]}]}]}
 </script>
 <!--/html_preserve-->
 </div>

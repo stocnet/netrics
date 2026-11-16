@@ -4,6 +4,8 @@
 \alias{measure_central_degree}
 \alias{node_by_degree}
 \alias{node_by_deg}
+\alias{node_by_outdeg}
+\alias{node_by_indeg}
 \alias{node_by_outdegree}
 \alias{node_by_indegree}
 \alias{node_by_multidegree}
@@ -18,6 +20,10 @@ node_by_degree(
 )
 
 node_by_deg(.data, alpha = 0, direction = c("all", "out", "in"))
+
+node_by_outdeg(.data, alpha = 0)
+
+node_by_indeg(.data, alpha = 0)
 
 node_by_outdegree(.data, normalized = TRUE, alpha = 0)
 
@@ -118,8 +124,8 @@ For multiplex networks, \code{node_by_degree()} counts every tie a node holds,
 whatever its layer,
 so a node tied twice to the same alter on two layers scores 2.
 To score one layer at a time, take it first with
-\code{\link[manynet:to_uniplex]{manynet::to_uniplex()}}, or use \code{node_by_multidegree()} to contrast two.
-Note that \code{to_uniplex()} drops the nodes that hold none of the retained
+\code{\link[manynet:to_layer]{manynet::to_layer()}}, or use \code{node_by_multidegree()} to contrast two.
+Note that \code{to_layer()} drops the nodes that hold none of the retained
 ties, so scores from two layers are of different lengths.
 }
 
@@ -213,7 +219,6 @@ Other measures:
 \code{\link{measure_assort_node}},
 \code{\link{measure_breadth}},
 \code{\link{measure_broker_node}},
-\code{\link{measure_broker_tie}},
 \code{\link{measure_brokerage}},
 \code{\link{measure_central_between}},
 \code{\link{measure_central_close}},
@@ -229,6 +234,7 @@ Other measures:
 \code{\link{measure_diffusion_infection}},
 \code{\link{measure_diffusion_net}},
 \code{\link{measure_diffusion_node}},
+\code{\link{measure_diverse_dispersion}},
 \code{\link{measure_diverse_net}},
 \code{\link{measure_diverse_node}},
 \code{\link{measure_diverse_tie}},
@@ -237,7 +243,9 @@ Other measures:
 \code{\link{measure_fit}},
 \code{\link{measure_fragmentation}},
 \code{\link{measure_hierarchy}},
-\code{\link{measure_periods}}
+\code{\link{measure_opinion}},
+\code{\link{measure_periods}},
+\code{\link[=tie_by_width]{tie_by_width()}}
 
 Other nodal:
 \code{\link{mark_core}},
@@ -257,6 +265,7 @@ Other nodal:
 \code{\link{measure_diffusion_node}},
 \code{\link{measure_diverse_node}},
 \code{\link{measure_domain}},
+\code{\link{measure_opinion}},
 \code{\link{member_brokerage}},
 \code{\link{member_cliques}},
 \code{\link{member_community}},

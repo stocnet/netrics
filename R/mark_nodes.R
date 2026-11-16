@@ -80,7 +80,7 @@ node_is_independent <- function(.data){
 #' _SIAM Journal on Computing_ 14(4): 862-874.
 #' \doi{10.1137/0214061}
 #' @examples 
-#' node_is_cutpoint(ison_brandes)
+#' node_is_cutpoint(ison_centrality)
 #' @export
 node_is_cutpoint <- function(.data){
   .data <- manynet::expect_nodes(.data)
@@ -225,7 +225,7 @@ NULL
 
 #' @rdname mark_degree
 #' @examples 
-#' node_is_isolate(ison_brandes)
+#' node_is_isolate(ison_centrality)
 #' @export
 node_is_isolate <- function(.data){
   .data <- manynet::expect_nodes(.data)
@@ -287,6 +287,7 @@ node_is_universal <- function(.data){
 #'   - `node_is_recovered()` marks nodes that are recovered at a particular time point.
 #' @inheritParams mark_nodes
 #' @template node_mark
+#' @template param_attr_diff
 #' @family diffusion
 #' @name mark_diff
 NULL
@@ -294,43 +295,10 @@ NULL
 #' @rdname mark_diff 
 #' @examples
 #'   # To mark nodes that are latent by a particular time point
-#'   node_is_latent(play_diffusion(create_tree(6), latency = 1), time = 1)
+#'   node_is_latent(play_diffusion(create_tree(6), onset = 0), time = 1)
 #' @export
-node_is_latent <- function(.data, time = 0){
-  .data <- manynet::expect_nodes(.data)
-  if(manynet::is_changing(.data)){
-    t <- time
-    latent <- manynet::as_changelist(.data) |> 
-      dplyr::filter(time <= t & value %in% c("E", "I")) |>
-      dplyr::group_by(node) |>
-      dplyr::mutate(n = dplyr::n()) |>
-      dplyr::filter(n == 1 & value == "E")
-    if (manynet::is_labelled(.data)) {
-      out <- seq_len(manynet::net_nodes(.data)) %in% latent$node
-      names(out) <- manynet::node_names(.data)
-    } else {
-      out <- seq_len(manynet::net_nodes(.data)) %in% latent$node
-    }
-    make_node_mark(out, .data)
-  } else if(inherits(.data, "diff_model")){
-    latent <- summary(.data) |>
-      dplyr::filter(t <= time & event %in% c("E", "I")) |>
-      dplyr::group_by(nodes) |>
-      dplyr::mutate(n = dplyr::n()) |>
-      dplyr::filter(n == 1 & event == "E")
-    net <- attr(.data, "network")
-    if (manynet::is_labelled(net)) {
-      out <- seq_len(manynet::net_nodes(net)) %in% latent$nodes
-      names(out) <- manynet::node_names(net)
-    } else {
-      out <- seq_len(manynet::net_nodes(net)) %in% latent$nodes
-    }
-    make_node_mark(out, net)
-  } else {
-    out <- manynet::to_time(.data, time)
-    out <- manynet::node_attribute(out, "diffusion") == "E"
-    make_node_mark(out, .data)
-  }
+node_is_latent <- function(.data, time = 0, attribute = "diffusion"){
+  .diffusion_mark(.data, time, attribute, "E")
 }
 
 #' @rdname mark_diff 
@@ -339,41 +307,8 @@ node_is_latent <- function(.data, time = 0){
 #'   # To mark nodes that are infected by a particular time point
 #'   node_is_infected(play_diffusion(create_tree(6)), time = 1)
 #' @export
-node_is_infected <- function(.data, time = 0) {
-  .data <- manynet::expect_nodes(.data)
-  if(manynet::is_changing(.data)){
-    t <- time
-    infected <- manynet::as_changelist(.data) |> 
-      dplyr::filter(time <= t & value %in% c("I", "R")) |>
-      dplyr::group_by(node) |>
-      dplyr::mutate(n = dplyr::n()) |>
-      dplyr::filter(n == 1 & value == "I")
-    if (manynet::is_labelled(.data)) {
-      out <- seq_len(manynet::net_nodes(.data)) %in% infected$node
-      names(out) <- manynet::node_names(.data)
-    } else {
-      out <- seq_len(manynet::net_nodes(.data)) %in% infected$node
-    }
-    make_node_mark(out, .data)
-  } else if(inherits(.data, "diff_model")){
-    infected <- summary(.data) |> 
-      dplyr::filter(t <= time & event %in% c("I", "R")) |>
-      dplyr::group_by(nodes) |>
-      dplyr::mutate(n = dplyr::n()) |>
-      dplyr::filter(n == 1 & event == "I")
-    net <- attr(.data, "network")
-    if (manynet::is_labelled(net)) {
-      out <- seq_len(manynet::net_nodes(net)) %in% infected$nodes
-      names(out) <- manynet::node_names(net)
-    } else {
-      out <- seq_len(manynet::net_nodes(net)) %in% infected$nodes
-    }
-    make_node_mark(out, net)
-  } else {
-    out <- manynet::to_time(.data, time)
-    out <- manynet::node_attribute(out, "diffusion") == "I"
-    make_node_mark(out, .data)
-  }
+node_is_infected <- function(.data, time = 0, attribute = "diffusion") {
+  .diffusion_mark(.data, time, attribute, "I")
 }
 
 #' @rdname mark_diff 
@@ -381,41 +316,8 @@ node_is_infected <- function(.data, time = 0) {
 #'   # To mark nodes that are recovered by a particular time point
 #'   node_is_recovered(play_diffusion(create_tree(6), recovery = 0.5), time = 3)
 #' @export
-node_is_recovered <- function(.data, time = 0){
-  .data <- manynet::expect_nodes(.data)
-  if(manynet::is_changing(.data)){
-    t <- time
-    recovered <- manynet::as_changelist(.data) |> 
-      dplyr::filter(time <= t & value %in% c("R")) |>
-      dplyr::group_by(node) |>
-      dplyr::mutate(n = dplyr::n()) |>
-      dplyr::filter(n == 1 & value == "R")
-    if (manynet::is_labelled(.data)) {
-      out <- seq_len(manynet::net_nodes(.data)) %in% recovered$node
-      names(out) <- manynet::node_names(.data)
-    } else {
-      out <- seq_len(manynet::net_nodes(.data)) %in% recovered$node
-    }
-    make_node_mark(out, .data)
-  } else if(inherits(.data, "diff_model")){
-    recovered <- summary(.data) |> 
-      dplyr::filter(t <= time & event == "R") |>
-      dplyr::group_by(nodes) |>
-      dplyr::mutate(n = dplyr::n()) |>
-      dplyr::filter(n == 1)
-    net <- attr(.data, "network")
-    if (manynet::is_labelled(net)) {
-      out <- seq_len(manynet::net_nodes(net)) %in% recovered$nodes
-      names(out) <- manynet::node_names(net)
-    } else {
-      out <- seq_len(manynet::net_nodes(net)) %in% recovered$nodes
-    }
-    make_node_mark(out, net)
-  } else {
-    out <- manynet::to_time(.data, time)
-    out <- manynet::node_attribute(out, "diffusion") == "R"
-    make_node_mark(out, .data)
-  }
+node_is_recovered <- function(.data, time = 0, attribute = "diffusion"){
+  .diffusion_mark(.data, time, attribute, "R")
 }
 
 #' @rdname mark_diff 
@@ -428,9 +330,8 @@ node_is_recovered <- function(.data, time = 0){
 #'   are currently exposed to the diffusion content.
 #'   This diffusion content can be expressed in the 'mark' argument.
 #'   If no 'mark' argument is provided,
-#'   and '.data' is a diff_model object,
-#'   then the function will return nodes exposure to the seed nodes
-#'   in that diffusion.
+#'   the function marks the nodes exposed at `time`
+#'   to the nodes infected in the diffusion.
 #' @param mark vector denoting which nodes are infected
 #' @importFrom dplyr filter select group_by mutate
 #' @examples
@@ -438,20 +339,14 @@ node_is_recovered <- function(.data, time = 0){
 #'   (expos <- node_is_exposed(manynet::create_tree(14), mark = c(1,3)))
 #'   which(expos)
 #' @export
-node_is_exposed <- function(.data, mark, time = 0){
+node_is_exposed <- function(.data, mark, time = 0, attribute = "diffusion"){
+  if(missing(mark)){
+    out <- node_by_adopt_exposure(.data, time = time, attribute = attribute)
+    return(make_node_mark(c(out) > 0, .diffusion_states(.data, attribute)$net))
+  }
+  if(inherits(.data, "diff_model")) .data <- attr(.data, "network")
   .data <- manynet::expect_nodes(.data)
   .data <- .to_aggregated_css(.data)
-  if (missing(mark)){
-    if(manynet::is_changing(.data)){
-      t <- time
-      return(make_node_mark(node_by_adopt_exposure(.data, time = t)>0, .data))
-    } else if(inherits(.data, "diff_model")){
-      mark <- summary(.data) |> 
-        dplyr::filter(t == 0 & event == "I") |> 
-        dplyr::select(nodes) |> unlist()
-      .data <- attr(.data, "network")
-    }    
-  }
   if(is.logical(mark)) mark <- which(mark)
   out <- rep(F, manynet::net_nodes(.data))
   out[unique(setdiff(unlist(igraph::neighborhood(.data, nodes = mark)),
@@ -480,7 +375,7 @@ NULL
 #' @rdname mark_select_node
 #' @template param_select
 #' @examples 
-#' node_is_random(ison_brandes, 2)
+#' node_is_random(ison_centrality, 2)
 #' @export
 node_is_random <- function(.data, select = 1){
   .data <- manynet::expect_nodes(.data)
@@ -498,7 +393,7 @@ node_is_random <- function(.data, select = 1){
 #'   three scores.
 #'   By default, `ranks = 1`.
 #' @examples 
-#' node_is_max(node_by_degree(ison_brandes))
+#' node_is_max(node_by_degree(ison_centrality))
 #' @export
 node_is_max <- function(node_measure, ranks = 1){
   if(!inherits(node_measure, "node_measure"))
@@ -524,7 +419,7 @@ node_is_max <- function(node_measure, ranks = 1){
 
 #' @rdname mark_select_node
 #' @examples 
-#' node_is_min(node_by_degree(ison_brandes))
+#' node_is_min(node_by_degree(ison_centrality))
 #' @export
 node_is_min <- function(node_measure, ranks = 1){
   if(!inherits(node_measure, "node_measure"))
@@ -550,7 +445,7 @@ node_is_min <- function(node_measure, ranks = 1){
 
 #' @rdname mark_select_node
 #' @examples 
-#' node_is_mean(node_by_degree(ison_brandes))
+#' node_is_mean(node_by_degree(ison_centrality))
 #' @export
 node_is_mean <- function(node_measure, ranks = 1){
   if(!inherits(node_measure, "node_measure"))

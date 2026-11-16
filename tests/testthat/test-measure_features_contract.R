@@ -11,7 +11,7 @@ test_that("structural fit measures meet the measure contract", {
 })
 
 test_that("structural balance meets the measure contract", {
-  signed <- manynet::to_uniplex(manynet::fict_marvel, "relationship")
+  signed <- manynet::to_layer(manynet::fict_marvel, "relationship")
   check_measure_contract(measure_rosters$features_balance, signed, level = "net")
   expect_declared(measure_rosters$features_balance, signed)
 })

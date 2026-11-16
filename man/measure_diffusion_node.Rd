@@ -8,18 +8,34 @@
 \alias{node_by_adopt_exposure}
 \title{Measures of nodes in a diffusion}
 \usage{
-node_by_adopt_time(.data)
+node_by_adopt_time(.data, attribute = "diffusion")
 
-node_by_adopt_threshold(.data, normalized = TRUE, lag = 1)
+node_by_adopt_threshold(
+  .data,
+  normalized = TRUE,
+  lag = 1,
+  direction = c("in", "out", "all"),
+  attribute = "diffusion"
+)
 
-node_by_adopt_recovery(.data)
+node_by_adopt_recovery(.data, attribute = "diffusion")
 
-node_by_adopt_exposure(.data, mark, time = 0)
+node_by_adopt_exposure(
+  .data,
+  mark,
+  time = 0,
+  direction = c("in", "out", "all"),
+  attribute = "diffusion"
+)
 }
 \arguments{
 \item{.data}{A network object of class \code{stocnet}, \code{igraph}, \code{tbl_graph}, \code{network}, or similar.
 Internally any of these will be coerced to an efficient implementation.
 For more information on possible coercions, see e.g. \code{\link[manynet:as_stocnet]{manynet::as_stocnet()}}.}
+
+\item{attribute}{Name of the nodal attribute that holds the diffusion,
+as its start state on the nodes and as its changes.
+By default "diffusion", as in \code{play_diffusion()}.}
 
 \item{normalized}{Logical scalar, whether scores are normalized.
 Different denominators may be used depending on the measure,
@@ -27,7 +43,17 @@ whether the object is one-mode or two-mode, and other arguments.
 By default TRUE.}
 
 \item{lag}{The number of time steps back upon which the thresholds are
-inferred.}
+inferred.
+By default \code{lag = 1}, which counts only the alters that adopted
+before the node did.
+\code{lag = 0} also counts the alters that adopted at the same time step.}
+
+\item{direction}{Character string, "in" counts the exposure that arrives
+along ties from adopters to the node,
+"out" along ties from the node to adopters,
+and "all" along both.
+By default "in", so contagion travels in the direction of the arcs.
+Undirected networks give the same result for every direction.}
 
 \item{mark}{A valid 'node_mark' object or
 logical vector (TRUE/FALSE) of length equal to
@@ -86,6 +112,27 @@ Where a fractional threshold is used, the equation is
 \eqn{\frac{\sum_{j:\text{active}} w_{ji}}{\sum_{j} w_{ji}} \geq \theta_i}.
 That is, \eqn{theta} is now a proportion,
 and works regardless of whether \eqn{w} is weighted or not.
+The \code{normalized} thresholds divide by the in-, out-, or total degree
+(or strength, where the network is weighted) that matches \code{direction}.
+Nodes with no ties in that direction that adopt have a threshold of 0.
+
+Seeds have a missing threshold,
+since their adoption says nothing about their exposure,
+and so they do not bring down an average threshold.
+A node that is never \code{active} is out of the diffusion,
+as in \code{manynet::play_diffusion()}:
+its ties count neither for nor against the exposure of its contacts,
+and its own threshold, time, and exposure are missing.
+Nodes that never adopt have an infinite threshold,
+since their threshold was never reached.
+\verb{lag = 0, direction = "out"} reproduces
+\code{netdiffuseR::threshold(valued = TRUE)}, and \verb{lag = 1, direction = "in"}
+reproduces \code{netdiffuseR::threshold(lags = 1, outgoing = FALSE, valued = TRUE)},
+except that \code{{netdiffuseR}} reports non-adopters as missing
+and gives seeds a value where there is no lag,
+and counts cumulative rather than current adopters.
+By default, \code{{netdiffuseR}} ignores tie weights,
+so the results differ from it on weighted networks.
 }
 
 \section{Recovery}{
@@ -104,12 +151,13 @@ It usually expects network data and
 an index or mark (TRUE/FALSE) vector of those nodes which are currently infected,
 but if a diff_model is supplied instead it will return
 nodes exposure at \eqn{t = 0}.
+Nodes in the mark have an exposure of 0.
 }
 
 \examples{
   smeg <- generate_smallworld(15, 0.025)
   smeg_diff <- play_diffusion(smeg, recovery = 0.2)
-  plot(smeg_diff)
+  if (requireNamespace("autograph", quietly = TRUE)) plot(smeg_diff)
   # To measure when nodes adopted a diffusion/were infected
   (times <- node_by_adopt_time(smeg_diff))
   # To infer nodes' thresholds
@@ -143,7 +191,6 @@ Other measures:
 \code{\link{measure_assort_node}},
 \code{\link{measure_breadth}},
 \code{\link{measure_broker_node}},
-\code{\link{measure_broker_tie}},
 \code{\link{measure_brokerage}},
 \code{\link{measure_central_between}},
 \code{\link{measure_central_close}},
@@ -159,6 +206,7 @@ Other measures:
 \code{\link{measure_core}},
 \code{\link{measure_diffusion_infection}},
 \code{\link{measure_diffusion_net}},
+\code{\link{measure_diverse_dispersion}},
 \code{\link{measure_diverse_net}},
 \code{\link{measure_diverse_node}},
 \code{\link{measure_diverse_tie}},
@@ -167,7 +215,9 @@ Other measures:
 \code{\link{measure_fit}},
 \code{\link{measure_fragmentation}},
 \code{\link{measure_hierarchy}},
-\code{\link{measure_periods}}
+\code{\link{measure_opinion}},
+\code{\link{measure_periods}},
+\code{\link[=tie_by_width]{tie_by_width()}}
 
 Other nodal:
 \code{\link{mark_core}},
@@ -187,6 +237,7 @@ Other nodal:
 \code{\link{measure_core}},
 \code{\link{measure_diverse_node}},
 \code{\link{measure_domain}},
+\code{\link{measure_opinion}},
 \code{\link{member_brokerage}},
 \code{\link{member_cliques}},
 \code{\link{member_community}},

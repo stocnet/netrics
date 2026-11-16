@@ -14,11 +14,26 @@ for(fn in names(node_meas)) {
         if(ob == "attribute")
           expect_s3_class(node_meas[[fn]](data_objs[[ob]], "group"), "node_measure") else
             succeed("Only used for attribute objects")
-      } else if(grepl("domain", fn)){
-        # A domain summarises a numeric attribute, which no fixture holds
+      } else if(grepl("domain|concentration", fn)){
+        # A domain or a concentration reads a numeric attribute, which no fixture holds
         num <- manynet::add_node_attribute(data_objs[[ob]], "num",
                                            seq_len(manynet::net_nodes(data_objs[[ob]])))
         expect_s3_class(node_meas[[fn]](num, "num"), "node_measure")
+      } else if(grepl("contagion", fn)){
+        # Complex centrality needs a one-mode network
+        if(ob == "twomode")
+          expect_snet_abort(node_meas[[fn]](data_objs[[ob]]), "one-mode") else
+            expect_s3_class(node_meas[[fn]](data_objs[[ob]]), "node_measure")
+      } else if(grepl("influence|opinion", fn)){
+        # An influence matrix needs a one-mode network, and before
+        # manynet 2.5.0 no negative ties; the first opinions are a numeric
+        # nodal attribute "opinions"
+        net <- manynet::add_node_attribute(data_objs[[ob]], "opinions",
+                                           seq_len(manynet::net_nodes(data_objs[[ob]])))
+        if(ob == "twomode" ||
+           (ob == "labelled" && utils::packageVersion("manynet") < "2.5.0"))
+          expect_snet_abort(node_meas[[fn]](net), "one-mode|negative") else
+            expect_s3_class(suppressWarnings(node_meas[[fn]](net)), "node_measure")
       } else if(grepl("adopt|recovery|exposure",fn)){
         if(ob == "diffusion")
           expect_s3_class(node_meas[[fn]](data_objs[[ob]]), "node_measure") else

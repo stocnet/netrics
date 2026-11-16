@@ -5,7 +5,9 @@
 \alias{tie_is_loop}
 \alias{tie_is_feedback}
 \alias{tie_is_bridge}
+\alias{tie_is_long}
 \alias{tie_is_path}
+\alias{tie_is_mainpath}
 \title{Marks of ties based on structural properties}
 \usage{
 tie_is_loop(.data)
@@ -14,7 +16,11 @@ tie_is_feedback(.data)
 
 tie_is_bridge(.data)
 
+tie_is_long(.data)
+
 tie_is_path(.data, from, to, all_paths = FALSE)
+
+tie_is_mainpath(.data, variant = c("spc", "splc", "spnp"), global = FALSE)
 }
 \arguments{
 \item{.data}{A network object of class \code{stocnet}, \code{igraph}, \code{tbl_graph}, \code{network}, or similar.
@@ -27,6 +33,15 @@ For more information on possible coercions, see e.g. \code{\link[manynet:as_stoc
 
 \item{all_paths}{Whether to return a list of paths or sample just one.
 By default FALSE, sampling just a single path.}
+
+\item{variant}{Which traversal count to compute:
+"spc" (the default), "splc", or "spnp".
+See the section on main path traversal counts.
+The variant chosen is reported when the result is printed.}
+
+\item{global}{Logical, whether to mark the global main path
+rather than the local main path.
+By default FALSE, the local main path.}
 }
 \value{
 A \code{tie_mark} logical vector the length of the ties in the network,
@@ -39,19 +54,94 @@ in a network identifying which hold certain properties or positions in the netwo
 \itemize{
 \item \code{tie_is_loop()} marks ties that are loops.
 \item \code{tie_is_feedback()} marks ties that are feedback arcs causing the network to not be acyclic.
-\item \code{tie_is_bridge()} marks ties that cut or act as articulation points in a network.
+\item \code{tie_is_bridge()} marks ties whose removal disconnects the network.
+\item \code{tie_is_long()} marks ties whose two ends have no common neighbour.
 \item \code{tie_is_path()} marks ties on a path from one node to another.
+\item \code{tie_is_mainpath()} marks ties on the main path of a directed acyclic
+network, such as a citation network.
 }
 
 They are most useful in highlighting parts of the network that
 are particularly well- or poorly-connected.
 }
+\section{Bridges and long ties}{
+
+\code{tie_is_bridge()} marks a tie whose removal disconnects the network,
+so that its two ends are in different components.
+Direction is ignored, and a repeated tie is not a bridge.
+
+\code{tie_is_long()} marks a long tie, after Centola and Macy (2007):
+a tie whose two ends have no common neighbour.
+Without the tie, its ends are at a distance of 3 or more,
+or in different components.
+Granovetter calls such a tie a local bridge.
+Every bridge is a long tie, but a long tie can have other paths around it.
+Direction and repeated ties are ignored, and a loop is never long.
+See \code{tie_by_width()} for how wide the bridge is that each tie is in.
+A two-mode network is not yet available, because no two nodes of
+different modes share a neighbour.
+}
+
+\section{Main path}{
+
+\code{tie_is_mainpath()} marks the main path through a directed acyclic network,
+using the traversal counts of \code{\link[=tie_by_mainpath]{tie_by_mainpath()}}.
+Use \code{filter_ties(.data, tie_is_mainpath())} to keep only the ties of the
+main path, and then \code{\link[manynet:delete_isolates]{manynet::delete_isolates()}} to keep only its nodes.
+
+The local main path (Hummon and Doreian 1989) starts at the tie
+with the largest count that leaves a source, a node with no incoming ties.
+From the node at the end of that tie, it follows the outgoing tie with the
+largest count, and so on until it arrives at a sink,
+a node with no outgoing ties.
+Where two or more ties have the same largest count, all of them are kept
+(Liu and Lu 2012), so the main path can branch.
+
+The global main path (Liu and Lu 2012) is the path from a source to a sink
+with the largest sum of traversal counts.
+The local main path takes the best tie at each step, and so can miss
+the path that is best overall.
+
+For networks with cycles, or undirected networks,
+\code{tie_is_mainpath()} stops with an error, as \code{\link[=tie_by_mainpath]{tie_by_mainpath()}} does.
+}
+
 \examples{
 tie_is_loop(fict_marvel)
 tie_is_feedback(ison_algebra)
-tie_is_bridge(ison_brandes)
+tie_is_bridge(ison_centrality)
+tie_is_long(manynet::create_ring(8))
+tie_is_long(ison_adolescents)
 ison_adolescents |>
   mutate_ties(route = tie_is_path(from = "Jane", to = 7)) 
+citations <- create_explicit(A-+C, B-+C, B-+D, C-+E, D-+E, E-+F, D-+F)
+tie_is_mainpath(citations)
+tie_is_mainpath(citations, global = TRUE)
+citations |> filter_ties(tie_is_mainpath()) |> delete_isolates()
+}
+\references{
+\subsection{On long ties}{
+
+Centola, Damon, and Michael Macy. 2007.
+"Complex contagions and the weakness of long ties".
+\emph{American Journal of Sociology} 113(3): 702-734.
+\doi{10.1086/521848}
+}
+
+\subsection{On main path analysis}{
+
+Hummon, Norman P., and Patrick Doreian. 1989.
+"Connectivity in a citation network: The development of DNA theory".
+\emph{Social Networks} 11(1): 39-63.
+\doi{10.1016/0378-8733(89)90017-8}
+
+Liu, John S., and Louis Y.Y. Lu. 2012.
+"An integrated approach for main path analysis:
+Development of the Hirsch index as an example".
+\emph{Journal of the American Society for Information Science and Technology}
+63(3): 528-542.
+\doi{10.1002/asi.21692}
+}
 }
 \seealso{
 Other marks:
@@ -68,13 +158,13 @@ Other tie:
 \code{\link{mark_dyads}},
 \code{\link{mark_select_tie}},
 \code{\link{mark_triangles}},
-\code{\link{measure_broker_tie}},
 \code{\link{measure_central_tie_between}},
 \code{\link{measure_central_tie_close}},
 \code{\link{measure_central_tie_degree}},
 \code{\link{measure_central_tie_eigen}},
 \code{\link{measure_diverse_tie}},
-\code{\link{member_community_link}}
+\code{\link{member_community_link}},
+\code{\link[=tie_by_width]{tie_by_width()}}
 }
 \concept{marks}
 \concept{tie}

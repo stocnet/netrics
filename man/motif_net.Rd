@@ -194,7 +194,7 @@ Other combinations of one-mode and two-mode layers are not yet available.
 net_x_dyad(manynet::ison_algebra)
 net_x_triad(manynet::ison_adolescents)
 net_x_triad(ison_networkers, attribute = "Discipline")
-net_x_triad(to_uniplex(fict_marvel, "relationship"))
+net_x_triad(to_layer(fict_marvel, "relationship"))
 net_x_triad(fict_marvel)
 net_x_tetrad(ison_southern_women)
 }

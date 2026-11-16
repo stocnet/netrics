@@ -7,6 +7,19 @@ test_that("node centralities meet the measure contract", {
   expect_declared(measure_rosters$centrality_node, manynet::ison_adolescents)
 })
 
+test_that("straightness meets the measure contract", {
+  # Eight nodes placed unevenly around a circle, so the scores are not all equal
+  ring <- manynet::mutate_nodes(manynet::create_ring(8),
+                                x = cos(c(1:7, 7.5) * pi/4),
+                                y = sin(c(1:7, 7.5) * pi/4))
+  roster <- measure_rosters$centrality_node["node_by_harmonic"]
+  check_measure_contract(roster, ring, level = "node")
+  expect_declared(roster, ring)
+  roster <- measure_rosters$centrality_net["net_by_harmonic"]
+  check_measure_contract(roster, ring, level = "net")
+  expect_declared(roster, ring)
+})
+
 test_that("multidegree meets the measure contract", {
   check_measure_contract(measure_rosters$centrality_multiplex,
                          manynet::fict_marvel, level = "node")
@@ -17,6 +30,12 @@ test_that("tie centralities meet the measure contract", {
   check_measure_contract(measure_rosters$centrality_tie,
                          manynet::ison_adolescents, level = "tie")
   expect_declared(measure_rosters$centrality_tie, manynet::ison_adolescents)
+})
+
+test_that("main path traversal counts meet the measure contract", {
+  check_measure_contract(measure_rosters$centrality_tie_dag,
+                         hummon_doreian, level = "tie")
+  expect_declared(measure_rosters$centrality_tie_dag, hummon_doreian)
 })
 
 test_that("network centralisations meet the measure contract", {
@@ -33,7 +52,7 @@ test_that("mode centralisations meet the measure contract", {
 })
 
 test_that("PN centrality meets the measure contract", {
-  signed <- manynet::to_uniplex(manynet::fict_marvel, "relationship")
+  signed <- manynet::to_layer(manynet::fict_marvel, "relationship")
   check_measure_contract(measure_rosters$centrality_signed, signed,
                          level = "node")
   expect_declared(measure_rosters$centrality_signed, signed)
@@ -46,7 +65,10 @@ test_that("centralities dispatch on the information they are given", {
   # no weighted form of, are exempt.
   exempt <- c("node_by_power", "node_by_leverage",
               "node_by_reach", "node_by_deg", "node_by_indegree",
-              "node_by_outdegree", "node_by_degree")
+              "node_by_outdegree", "node_by_degree",
+              "node_by_indeg", "node_by_outdeg",
+              # a threshold counts the neighbours that adopted, not their weight
+              "node_by_contagion")
   roster <- measure_rosters$centrality_node
   for (fn in setdiff(names(roster), exempt)) {
     unw <- as.numeric(call_measure(fn, roster[[fn]], g))

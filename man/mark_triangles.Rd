@@ -55,7 +55,7 @@ These marks ask only whether a two-path exists, as a census does, so a tie
 counts however it is signed.
 }
 \examples{
-ison_monks |> to_uniplex("like") |> 
+ison_monks |> to_layer("like") |> 
   mutate_ties(tri = tie_is_triangular())
 ison_adolescents |> to_directed() |> 
   mutate_ties(trans = tie_is_transitive())
@@ -63,9 +63,9 @@ ison_adolescents |> to_directed() |>
   mutate_ties(trip = tie_is_triplet())
 ison_adolescents |> to_directed() |> 
   mutate_ties(cyc = tie_is_cyclical())
-ison_monks |> to_uniplex("like") |> 
+ison_monks |> to_layer("like") |> 
   mutate_ties(simmel = tie_is_simmelian())
-fict_marvel |> to_uniplex("relationship") |> tie_is_imbalanced()
+fict_marvel |> to_layer("relationship") |> tie_is_imbalanced()
 }
 \seealso{
 Other marks:
@@ -82,13 +82,13 @@ Other tie:
 \code{\link{mark_dyads}},
 \code{\link{mark_select_tie}},
 \code{\link{mark_ties}},
-\code{\link{measure_broker_tie}},
 \code{\link{measure_central_tie_between}},
 \code{\link{measure_central_tie_close}},
 \code{\link{measure_central_tie_degree}},
 \code{\link{measure_central_tie_eigen}},
 \code{\link{measure_diverse_tie}},
-\code{\link{member_community_link}}
+\code{\link{member_community_link}},
+\code{\link[=tie_by_width]{tie_by_width()}}
 
 Other cohesion:
 \code{\link{measure_breadth}},

@@ -1,3 +1,76 @@
+# netrics 1.2.0
+
+## Marks
+
+- Renamed `tie_is_multiple()` to `tie_is_repeated()`, apart from `manynet::tie_is_parallel()` (closes #38)
+- Added `attribute="diffusion"` to diffusion marks, measures, memberships, and motifs
+- Added `tie_is_mainpath()` for the local or global main path of an acyclic network
+- Added `tie_is_long()` for the ties whose two ends have no common neighbour (Centola and Macy 2007)
+- Fixed `tie_is_bridge()` returning an invisible vector without the `tie_mark` class
+- Fixed diffusion marks losing the diffusion of `diff_model` objects
+  - `node_is_infected()`, `node_is_latent()`, `node_is_recovered()`, `node_is_exposed()`
+
+## Measures
+
+- Improved `net_by_reproduction()` to estimate R0 as the chance of transmission over a tie times the excess degree
+  - Fixed the old estimate, which mixed the contagion with the network and was often on the wrong side of 1
+  - Added a warning and `NA` where no susceptible node was exposed
+- Fixed `net_by_immunity()` ignoring the structure of the network, through `net_by_reproduction()`
+- Added `tie_by_mainpath()` for the traversal counts of main path analysis
+  - `variant=` "spc" (default), "splc", or "spnp"
+- Added `net_by_polarisation()` and `net_by_disagreement()` for numeric heterogeneity
+- Added `node_by_concentration()` and `net_by_concentration()` for Getis–Ord hot spots
+- Added opinion measures on `manynet::to_influence()`, with any "stubbornness" attribute
+  - Added `node_by_influence()` and `net_by_influence()` for social power and wise crowds
+  - Added absolute weights to the influence measures, so a pull away along a negative tie counts
+  - Added `node_by_opinion()` for the opinions where an opinion dynamic settles
+  - Added `net_by_convergence()` for the speed at which the opinions settle
+- Added complex contagion measures
+  - Added `tie_by_width()` for the width of the bridge that each tie is in
+  - Added `node_by_contagion()` for complex centrality (Guilbeault and Centola 2021)
+  - Added `net_by_tipping()` for the fewest seeds a threshold contagion needs to complete
+- Improved `net_by_factions()` to handle signed networks, measuring polarisation
+  - Added `variant = "esteban"` for Esteban–Ray polarisation
+- Added "rao" and `distance=` to `*_by_diversity()` for Rao–Stirling diversity
+- Improved attribute-based measures to run without an `attribute=` argument
+  where there is only one available attribute, and error where there are several
+- Added `normalized=` to `net_by_diversity()`, `node_by_diversity()`, and `tie_by_diversity()`
+  - Blau's index is divided by its maximum, 1 - 1/k, by default
+  - `normalized = FALSE` gives the previous values
+- Added `node_by_indeg()` and `node_by_outdeg()` as unnormalised degree shortcuts
+- Improved `*_by_harmonic()` to return straightness centrality for spatial networks (closes #49)
+- Improved `node_by_adopt_exposure()`
+  - Added `direction=`; "in" by default as before
+  - Fixed `diff_model` objects losing their diffusion
+  - Fixed two-mode networks, which failed or counted the wrong nodes
+  - Fixed nodes that are never `active` counting as contacts
+- Improved `node_by_adopt_threshold()` (closes #1, thanks @henriquesposito)
+  - Added `direction=` for exposure along arcs "in", "out", or "all"
+  - Fixed `lag = 0` returning only zeros
+  - Fixed directed networks normalising by total degree rather than by `direction=`
+  - Fixed adopters without ties returning `NaN` rather than 0
+  - Fixed `diff_model` objects ignoring `lag=` and `direction=`
+  - Improved seeds to return `NA` rather than 0, so they do not lower averages
+  - Updated the documentation on reproducing `netdiffuseR::threshold()`
+  - Fixed two-mode networks normalising by degree rather than by co-affiliation
+  - Fixed nodes that are never `active` counting as contacts that had not adopted
+- Fixed `node_by_adopt_time()` and `node_in_adopter()` categorising inactive nodes
+- Fixed `net_by_infection_complete()` and `net_by_infection_peak()` working without diffusions
+
+## Motifs
+
+- Fixed `node_x_exposure()` on `diff_model` objects and two-mode diffusions
+- Improved attribute-based motifs to run without an `attribute=` argument
+  where there is only one available attribute, and error where there are several
+
+## Tutorials
+
+- Fixed the "Position and Equivalence" tutorial to offer to install `{sna}`
+- Added a "Galois lattices" section to the "Community" tutorial (closes #40)
+- Updated tutorials for the 'stocnet' datasets of `{manynet}` 2.5.0 (stocnet/manynet#186)
+  - Fixed "Centrality" tutorial to two-mode `ison_brandes` with `rename_nodes(mode = twomode_type)`
+  - Fixed "Position and Equivalence" tutorial to drop the `layer` tie attribute of `ison_algebra`
+
 # netrics 1.1.4
 
 ## Measures

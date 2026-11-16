@@ -1,6 +1,7 @@
 # net_diffusion ####
 
 #' Measures of network diffusion
+#' @template param_attr_diff
 #' @name measure_diffusion_net
 #' @description
 #'   These functions allow measurement of various features of
@@ -11,11 +12,13 @@
 #'   the number of susceptible nodes.
 #'   - `net_by_recovery()` measures the average number of time steps 
 #'   nodes remain infected once they become infected.
-#'   - `net_by_reproduction()` measures the observed reproductive number
-#'   in a diffusion simulation as the network's transmissibility over
-#'   the network's average infection length.
+#'   - `net_by_reproduction()` estimates the basic reproduction number
+#'   from the chances of infection and recovery in a diffusion,
+#'   and from the structure of the network.
 #'   - `net_by_immunity()` measures the proportion of nodes that would need
 #'   to be protected through vaccination, isolation, or recovery for herd immunity to be reached.
+#'   - `net_by_tipping()` measures the smallest share of the nodes that,
+#'   as seeds, make a threshold contagion reach every node.
 #'   
 #' @param .data Network data with nodal changes,
 #'   as created by `play_diffusion()`,
@@ -27,7 +30,7 @@
 #' @examples
 #'   smeg <- generate_smallworld(15, 0.025)
 #'   smeg_diff <- play_diffusion(smeg, recovery = 0.2)
-#'   plot(smeg_diff)
+#'   if (requireNamespace("autograph", quietly = TRUE)) plot(smeg_diff)
 #' @references
 #' ## On epidemiological models
 #'   Kermack, William O., and Anderson Gray McKendrick. 1927. 
@@ -52,8 +55,8 @@ NULL
 #'   # To calculate the average transmissibility for a given diffusion model
 #'   net_by_transmissibility(smeg_diff)
 #' @export
-net_by_transmissibility <- function(.data){
-  diff_model <- manynet::as_diffusion(.data)
+net_by_transmissibility <- function(.data, attribute = "diffusion"){
+  diff_model <- manynet::as_diffusion(.data, attribute = attribute)
   out <- diff_model$I_new/diff_model$s
   out <- out[-1]
   out <- out[!is.infinite(out)]
@@ -88,9 +91,9 @@ net_by_transmissibility <- function(.data){
 #'   # To calculate the average infection length for a given diffusion model
 #'   net_by_recovery(smeg_diff)
 #' @export
-net_by_recovery <- function(.data, censor = TRUE){
-  diff_model <- manynet::as_diffusion(.data)
-  recovs <- node_by_adopt_recovery(.data)
+net_by_recovery <- function(.data, censor = TRUE, attribute = "diffusion"){
+  diff_model <- manynet::as_diffusion(.data, attribute = attribute)
+  recovs <- node_by_adopt_recovery(.data, attribute = attribute)
   if(censor && any(!is.infinite(recovs) & !is.na(recovs)))
     recovs[is.infinite(recovs)] <- nrow(diff_model)
   if(inherits(.data, "diff_model")) 
@@ -105,18 +108,51 @@ net_by_recovery <- function(.data, censor = TRUE){
 
 #' @rdname measure_diffusion_net 
 #' @section Reproduction number: 
-#'   `net_reproduction()` measures a given diffusion's reproductive number.
-#'   Here it is calculated as:
-#'   \deqn{R = \min\left(\frac{T}{1/L}, \bar{k}\right)}
-#'   where \eqn{T} is the observed transmissibility in a diffusion
-#'   and \eqn{L} is the observed recovery length in a diffusion.
-#'   Since \eqn{L} can be infinite where there is no recovery
-#'   or there is right censoring,
-#'   and since network structure places an upper limit on how many
-#'   nodes each node may further infect (their degree),
-#'   this function returns the minimum of \eqn{R_0}
-#'   and the network's average degree.
-#'   
+#'   `net_by_reproduction()` estimates the basic reproduction number
+#'   \eqn{R_0} of a diffusion: the number of nodes that one typical case
+#'   infects when all other nodes are susceptible.
+#'   On a network this is
+#'   \deqn{R_0 = T \kappa}
+#'   where \eqn{T} is the chance that an infectious node infects a susceptible
+#'   neighbour before it recovers,
+#'   and \eqn{\kappa} is the mean number of other neighbours of a node
+#'   that a tie reaches.
+#'   So the estimate separates the contagion, \eqn{T}, from the network,
+#'   \eqn{\kappa}.
+#'
+#'   \eqn{T} comes from two chances per step, which are estimated from the
+#'   states of the nodes in each step:
+#'   \eqn{\hat\tau}, the share of the exposed susceptible nodes that are
+#'   infected, and \eqn{\hat\gamma}, the share of the infectious nodes that
+#'   recover or die.
+#'   A node is exposed when it has a tie from a node that is infectious at
+#'   the start and the end of the step.
+#'   As in `manynet::play_diffusion()`, a node recovers before it can infect
+#'   in a step, so
+#'   \deqn{T = \frac{(1 - \gamma) \tau}{\gamma + \tau - \gamma \tau}}
+#'   With no recovery, \eqn{T = 1}.
+#'   Where no susceptible node was exposed, for example where the seeds
+#'   recover in the first step, \eqn{\tau} cannot be estimated,
+#'   and the result is `NA` with a warning.
+#'   A small outbreak gives a noisy estimate, so where possible pool several
+#'   diffusions or use more seeds.
+#'
+#'   \eqn{\kappa} is the mean excess degree of the network of the nodes that
+#'   are not recovered or dead at the start,
+#'   \eqn{\sum_i k_i (k_i - 1) / \sum_i k_i},
+#'   or \eqn{\sum_i k^{in}_i k^{out}_i / \sum_i k^{in}_i} on a directed network.
+#'   It is larger than the mean degree where the degrees are unequal,
+#'   because a tie is more likely to reach a node with many ties.
+#'
+#'   The estimate assumes a simple contagion:
+#'   a threshold of 1, with ties that expose the node they go to
+#'   (`direction = "in"`), and a chance of infection that does not grow with
+#'   the number of infectious neighbours.
+#'   It also assumes that the degrees are not correlated, as in a random
+#'   network; in a clustered network, such as a lattice, it is too high,
+#'   because the neighbours of a case share neighbours.
+#'   A two-mode network is not yet available.
+#'
 #'   Interpretation of the reproduction number is oriented around R = 1.
 #'   Where \eqn{R > 1}, the 'disease' will 'infect' more and more
 #'   nodes in the network.
@@ -135,22 +171,66 @@ net_by_recovery <- function(.data, censor = TRUE){
 #' "Second look at the spread of epidemics on networks". 
 #' _Physical Review E_, 76(3 Pt 2): 036113.
 #' \doi{10.1103/PhysRevE.76.036113}
+#'
+#' Newman, Mark E.J. 2002.
+#' "Spread of epidemic disease on networks".
+#' _Physical Review E_, 66(1): 016128.
+#' \doi{10.1103/PhysRevE.66.016128}
 #' @examples
 #'   # To calculate the reproduction number for a given diffusion model
 #'   net_by_reproduction(smeg_diff)
 #' @export
-net_by_reproduction <- function(.data){
-  # diff_model <- as_diffusion(.data)
-  if(inherits(.data, "diff_model")) 
-    net <- attr(.data, "network") else 
-      net <- .data
-    out <- net_by_transmissibility(.data)/
-      (1/net_by_recovery(.data))
-    out <- min(out, mean(node_by_deg(net)))
-  make_network_measure(out, net,
+net_by_reproduction <- function(.data, attribute = "diffusion"){
+  parts <- .reproduction_parts(.data, attribute)
+  make_network_measure(parts$transmission * parts$excess, parts$net,
                        call = deparse(sys.call()),
                        measure = "reproduction number", range = c(0, Inf),
                        normalization = "none")
+}
+
+# The parts of R0 = T * kappa from a played diffusion:
+# tau and gamma from the states in each step, T from them, and kappa from
+# the network of the nodes that are not removed at the start.
+.reproduction_parts <- function(.data, attribute = "diffusion"){
+  st <- .diffusion_states(.data, attribute = attribute)
+  net <- st$net
+  if(manynet::is_twomode(net))
+    manynet::snet_unavailable("The reproduction number needs a one-mode network.")
+  A <- manynet::as_matrix(manynet::to_unweighted(net))
+  dimnames(A) <- NULL
+  A <- A != 0
+  diag(A) <- FALSE
+  if(!manynet::is_directed(net)) A <- A | t(A)
+  S <- cbind(st$before, st$states)
+  is <- function(r) matrix(S %in% r, nrow(S))
+  sus <- is("S"); inf <- is("I"); rem <- is(c("R", "D"))
+  exposed <- infected <- infectious <- removed <- 0
+  for(k in seq_len(ncol(S) - 1)){
+    src <- inf[, k] & inf[, k + 1]
+    risk <- sus[, k] & as.numeric(crossprod(A, src)) > 0
+    exposed <- exposed + sum(risk)
+    infected <- infected + sum(risk & !sus[, k + 1])
+    infectious <- infectious + sum(inf[, k])
+    removed <- removed + sum(inf[, k] & rem[, k + 1])
+  }
+  if(exposed == 0)
+    manynet::snet_warn("No susceptible node was exposed in this diffusion,",
+                       "so the chance of infection cannot be estimated.")
+  tau <- `if`(exposed > 0, infected / exposed, NA_real_)
+  gamma <- `if`(infectious > 0, removed / infectious, 0)
+  trans <- `if`(isTRUE(tau == 0), 0,
+                (1 - gamma) * tau / (gamma + tau - gamma * tau))
+  keep <- !(S[, 1] %in% c("R", "D"))
+  As <- A[keep, keep, drop = FALSE]
+  if(manynet::is_directed(net)){
+    kin <- colSums(As); kout <- rowSums(As)
+    excess <- `if`(sum(kin) > 0, sum(kin * kout) / sum(kin), 0)
+  } else {
+    k <- rowSums(As)
+    excess <- `if`(sum(k) > 0, sum(k * (k - 1)) / sum(k), 0)
+  }
+  list(net = net, tau = tau, gamma = gamma, transmission = trans,
+       excess = excess)
 }
 
 #' @rdname measure_diffusion_net 
@@ -160,15 +240,16 @@ net_by_reproduction <- function(.data){
 #'   to be achieved.
 #'   This is known as the Herd Immunity Threshold or HIT:
 #'   \deqn{1 - \frac{1}{R}}
-#'   where \eqn{R} is the reproduction number from `net_reproduction()`.
+#'   where \eqn{R} is the reproduction number from `net_by_reproduction()`.
 #'   The HIT indicates the threshold at which
 #'   the reduction of susceptible members of the network means
 #'   that infections will no longer keep increasing.
 #'   Note that there may still be more infections after this threshold has been reached,
 #'   but there should be fewer and fewer.
 #'   These excess infections are called the _overshoot_.
-#'   This function does _not_ take into account the structure
-#'   of the network, instead using the average degree.
+#'   With \eqn{R} from `net_by_reproduction()`, which uses the structure of
+#'   the network, this is the share of nodes to protect at random.
+#'   Protecting the nodes with the most ties needs fewer.
 #'   
 #'   Interpretation is quite straightforward.
 #'   A HIT or immunity score of 0.75 would mean that 75% of the nodes in the network
@@ -192,14 +273,14 @@ net_by_reproduction <- function(.data){
 #'   # To find the number of nodes to be vaccinated
 #'   net_by_immunity(smeg_diff, normalized = FALSE)
 #' @export
-net_by_immunity <- function(.data, normalized = TRUE){
+net_by_immunity <- function(.data, normalized = TRUE, attribute = "diffusion"){
   # diff_model <- as_diffusion(.data)
   if(inherits(.data, "diff_model")) 
     net <- attr(.data, "network") else 
       net <- .data
   # Below the epidemic threshold the formula turns negative; no one needs
   # protecting from a diffusion that cannot sustain itself.
-  out <- max(1 - 1/net_by_reproduction(.data), 0)
+  out <- max(1 - 1/net_by_reproduction(.data, attribute = attribute), 0)
   if(!normalized) out <- ceiling(out * manynet::net_nodes(net))
   make_network_measure(out, net,
                        call = deparse(sys.call()),
@@ -208,9 +289,95 @@ net_by_immunity <- function(.data, normalized = TRUE){
                        normalization = `if`(normalized, "normalized", "none"))
 }
 
+
+#' @rdname measure_diffusion_net
+#' @section Tipping point:
+#'   `net_by_tipping()` measures the tipping point of a threshold
+#'   contagion on the network: the smallest share of the nodes that, as seeds,
+#'   make every node adopt.
+#'   It needs only a network, not a played diffusion.
+#'
+#'   The seeds are added one at a time in the order that `rule` gives,
+#'   and a node adopts once at least `threshold` of its contacts have adopted.
+#'   This is the threshold contagion of `play_diffusion()` with
+#'   `transmissibility = 1`: it is deterministic, and a node never changes back.
+#'   As in `play_diffusion()`, a `threshold` of 1 or more is a number of
+#'   contacts, and a `threshold` of less than 1 is a share of them.
+#'   More seeds never make fewer nodes adopt,
+#'   so the tipping point is found by bisection.
+#'
+#'   The result depends on which nodes are the seeds.
+#'   In a complete network where each node has the same threshold, all
+#'   orders give the same result. In other networks, they need not.
+#'   Direction and tie weights are ignored,
+#'   and a two-mode network is not yet available.
+#' @param threshold For `net_by_tipping()`, the number of contacts that must
+#'   adopt before a node adopts, or, below 1, the share of its contacts.
+#'   It can be one number, a number for each node, or the name of a numeric
+#'   node attribute, as in `play_diffusion()`. By default 2.
+#' @param rule For `net_by_tipping()`, the order in which nodes become seeds:
+#'   `"degree"` (the default) takes the nodes with the most contacts first,
+#'   `"order"` takes them in the order of the nodes,
+#'   and `"random"` takes them in a random order.
+#'   Nodes with the same degree are taken in the order of the nodes.
+#' @examples
+#'   # The share of the nodes that must start a complex contagion
+#'   net_by_tipping(ison_adolescents, threshold = 2)
+#' @export
+net_by_tipping <- function(.data, threshold = 2, normalized = TRUE,
+                           rule = c("degree", "order", "random")){
+  .data <- manynet::expect_nodes(.data)
+  .data <- .to_aggregated_css(.data)
+  if(manynet::is_twomode(.data))
+    manynet::snet_unavailable("A tipping point needs a one-mode network.")
+  rule <- match.arg(rule)
+  n <- manynet::net_nodes(.data)
+  if(is.character(threshold)){
+    if(length(threshold) != 1 ||
+       !threshold %in% manynet::net_node_attributes(.data))
+      manynet::snet_abort("{.arg threshold} names {.val {threshold}}, which is not a node attribute.")
+    threshold <- manynet::node_attribute(.data, threshold)
+  }
+  if(!is.numeric(threshold) || anyNA(threshold) || any(threshold <= 0) ||
+     !length(threshold) %in% c(1, n))
+    manynet::snet_abort("{.arg threshold} must be numbers above 0: one, or one for each node.")
+  adj <- .contagion_adjacency(.data)
+  degree <- rowSums(adj)
+  threshold <- rep_len(threshold, n)
+  # a share of the contacts, as in `manynet::play_diffusion()`
+  if(all(threshold <= 1) && !all(threshold == 1)){
+    threshold <- threshold * degree
+    # a node with no contacts adopts only as a seed
+    threshold[degree == 0] <- Inf
+  }
+  ranks <- switch(rule,
+                  degree = order(-degree, seq_len(n)),
+                  order = seq_len(n),
+                  random = sample.int(n))
+  complete <- function(k){
+    seeds <- logical(n)
+    seeds[ranks[seq_len(k)]] <- TRUE
+    all(.contagion_spread(adj, seeds, threshold))
+  }
+  # more seeds never make fewer nodes adopt, so bisect on the number of seeds
+  low <- 0; high <- n
+  while(high - low > 1){
+    mid <- (low + high) %/% 2
+    if(complete(mid)) high <- mid else low <- mid
+  }
+  out <- `if`(n > 0 && complete(low), low, high)
+  if(normalized) out <- out / n
+  make_network_measure(out, .data,
+                       call = deparse(sys.call()),
+                       measure = "tipping point",
+                       range = `if`(normalized, c(0, 1), c(0, n)),
+                       normalization = `if`(normalized, "normalized", "none"))
+}
+
 # net_infection ####
 
 #' Measures of network infection
+#' @template param_attr_diff
 #' @name measure_diffusion_infection
 #' @description
 #'   These functions allow measurement of various features of
@@ -238,8 +405,10 @@ net_by_immunity <- function(.data, normalized = TRUE){
 #'   smeg_diff <- play_diffusion(smeg)
 #'   net_by_infection_complete(smeg_diff)
 #' @export
-net_by_infection_complete <- function(.data){
-  diff_model <- manynet::as_diffusion(.data)
+net_by_infection_complete <- function(.data, attribute = "diffusion"){
+  # stops where the network holds no diffusion, as the other measures do
+  if(!inherits(.data, "diff_model")) .diffusion_states(.data, attribute)
+  diff_model <- manynet::as_diffusion(.data, attribute = attribute)
   out <- which(diff_model$I == diff_model$n)[1]
   if(is.na(out)) out <- Inf
   if(inherits(.data, "diff_model")) 
@@ -255,34 +424,31 @@ net_by_infection_complete <- function(.data){
 #' @examples
 #'   net_by_infection_total(smeg_diff)
 #' @export
-net_by_infection_total <- function(.data, normalized = TRUE){
+net_by_infection_total <- function(.data, normalized = TRUE,
+                                   attribute = "diffusion"){
   # Normalised against the number of nodes rather than a theoretical maximum:
   # where reinfection is possible a node can be counted more than once, so the
   # proportion is not capped at 1, and the declared range stays open above.
-  if(inherits(.data, "diff_model")){
-    diff_model <- manynet::as_diffusion(.data)
-    out <- sum(diff_model$I_new)
-    if(normalized) out <- out / diff_model$n[length(diff_model$n)]
-    make_network_measure(out, attr(diff_model, "network"),
-                         call = deparse(sys.call()),
-                         measure = "total infections", range = c(0, Inf),
-                         normalization = `if`(normalized, "normalized", "none"))
-  } else {
-    out <- sum(manynet::as_changelist(.data)$value == "I")
-    if(normalized) out <- out / manynet::net_nodes(.data)
-    make_network_measure(out, .data,
-                         call = deparse(sys.call()),
-                         measure = "total infections", range = c(0, Inf),
-                         normalization = `if`(normalized, "normalized", "none"))
-  }
+  states <- .diffusion_states(.data, attribute)
+  infected <- matrix(states$states %in% "I", nrow(states$states))
+  # each move into I, and the seeds infected at the start
+  before <- cbind(FALSE, infected[, -ncol(infected), drop = FALSE])
+  out <- sum(infected & !before)
+  if(normalized) out <- out / manynet::net_nodes(states$net)
+  make_network_measure(out, states$net,
+                       call = deparse(sys.call()),
+                       measure = "total infections", range = c(0, Inf),
+                       normalization = `if`(normalized, "normalized", "none"))
 }
 
 #' @rdname measure_diffusion_infection 
 #' @examples
 #'   net_by_infection_peak(smeg_diff)
 #' @export
-net_by_infection_peak <- function(.data){
-  diff_model <- manynet::as_diffusion(.data)
+net_by_infection_peak <- function(.data, attribute = "diffusion"){
+  # stops where the network holds no diffusion, as the other measures do
+  if(!inherits(.data, "diff_model")) .diffusion_states(.data, attribute)
+  diff_model <- manynet::as_diffusion(.data, attribute = attribute)
   if(inherits(.data, "diff_model")) 
     net <- attr(.data, "network") else 
       net <- .data
@@ -296,6 +462,7 @@ net_by_infection_peak <- function(.data){
 # node_diffusion ####
 
 #' Measures of nodes in a diffusion
+#' @template param_attr_diff
 #' @name measure_diffusion_node
 #' @description
 #'   These functions allow measurement of various features of
@@ -317,7 +484,7 @@ net_by_infection_peak <- function(.data){
 #' @examples
 #'   smeg <- generate_smallworld(15, 0.025)
 #'   smeg_diff <- play_diffusion(smeg, recovery = 0.2)
-#'   plot(smeg_diff)
+#'   if (requireNamespace("autograph", quietly = TRUE)) plot(smeg_diff)
 #' @references
 #' ## On diffusion measures
 #'   Valente, Tom W. 1995. _Network models of the diffusion of innovations_
@@ -333,45 +500,14 @@ NULL
 #'   # To measure when nodes adopted a diffusion/were infected
 #'   (times <- node_by_adopt_time(smeg_diff))
 #' @export
-node_by_adopt_time <- function(.data){
-
-  if(inherits(.data, "diff_model")){
-    net <- attr(.data, "network") 
-    out <- summary(.data) |> dplyr::filter(event == "I") |> 
-      dplyr::distinct(nodes, .keep_all = TRUE) |> 
-      dplyr::select(nodes,t)
-    if(!manynet::is_labelled(net))
-      out <- dplyr::arrange(out, nodes) else if (is.numeric(out$nodes))
-        out$nodes <- manynet::node_names(net)[out$nodes]
-    out <- stats::setNames(out$t, out$nodes)
-    if(length(out) != manynet::net_nodes(net)){
-      full <- rep(Inf, manynet::net_nodes(net))
-      names(full) <- `if`(manynet::is_labelled(net), 
-                          manynet::node_names(net), 
-                          as.character(seq_len(manynet::net_nodes(net))))
-      full[match(names(out), names(full))] <- out
-      out <- `if`(manynet::is_labelled(net), full, unname(full))
-    }
-  } else {
-    net <- .data
-    out <- manynet::as_changelist(.data) |> dplyr::filter(value == "I") |> 
-      dplyr::distinct(node, .keep_all = TRUE) |> 
-      dplyr::select(node,time)
-    if(!manynet::is_labelled(net))
-      out <- dplyr::arrange(out, node) else if (is.numeric(out$node))
-        out$node <- manynet::node_names(net)[out$node]
-    out <- stats::setNames(out$time, out$node)
-    if(length(out) != manynet::net_nodes(net)){
-      full <- rep(Inf, manynet::net_nodes(net))
-      names(full) <- `if`(manynet::is_labelled(net), 
-                          manynet::node_names(net), 
-                          as.character(seq_len(manynet::net_nodes(net))))
-      full[match(names(out), names(full))] <- out
-      out <- `if`(manynet::is_labelled(net), full, unname(full))
-    }
-  }
-      
-  if(!manynet::is_labelled(net)) out <- unname(out)
+node_by_adopt_time <- function(.data, attribute = "diffusion"){
+  states <- .diffusion_states(.data, attribute)
+  net <- states$net
+  first <- .state_first(states, "I")
+  out <- rep(Inf, length(first))
+  out[!is.na(first)] <- as.numeric(states$times[first[!is.na(first)]])
+  out[.diffusion_inactive(net)] <- NA
+  if(manynet::is_labelled(net)) names(out) <- manynet::node_names(net)
   make_node_measure(out, net, measure = "adoption time", range = c(0, Inf),
                     normalization = "none")
 }
@@ -379,6 +515,15 @@ node_by_adopt_time <- function(.data){
 #' @rdname measure_diffusion_node 
 #' @param lag The number of time steps back upon which the thresholds are
 #'   inferred.
+#'   By default `lag = 1`, which counts only the alters that adopted
+#'   before the node did.
+#'   `lag = 0` also counts the alters that adopted at the same time step.
+#' @param direction Character string, "in" counts the exposure that arrives
+#'   along ties from adopters to the node,
+#'   "out" along ties from the node to adopters,
+#'   and "all" along both.
+#'   By default "in", so contagion travels in the direction of the arcs.
+#'   Undirected networks give the same result for every direction.
 #' @section Thresholds:
 #'   `node_by_adopt_threshold()` infers nodes' thresholds based on how much
 #'   exposure they had when they were infected.
@@ -394,66 +539,58 @@ node_by_adopt_time <- function(.data){
 #'   \eqn{\frac{\sum_{j:\text{active}} w_{ji}}{\sum_{j} w_{ji}} \geq \theta_i}.
 #'   That is, \eqn{theta} is now a proportion,
 #'   and works regardless of whether \eqn{w} is weighted or not.
+#'   The `normalized` thresholds divide by the in-, out-, or total degree
+#'   (or strength, where the network is weighted) that matches `direction`.
+#'   Nodes with no ties in that direction that adopt have a threshold of 0.
+#'
+#'   Seeds have a missing threshold,
+#'   since their adoption says nothing about their exposure,
+#'   and so they do not bring down an average threshold.
+#'   A node that is never `active` is out of the diffusion,
+#'   as in `manynet::play_diffusion()`:
+#'   its ties count neither for nor against the exposure of its contacts,
+#'   and its own threshold, time, and exposure are missing.
+#'   Nodes that never adopt have an infinite threshold,
+#'   since their threshold was never reached.
+#'   `lag = 0, direction = "out"` reproduces
+#'   `netdiffuseR::threshold(valued = TRUE)`, and `lag = 1, direction = "in"`
+#'   reproduces `netdiffuseR::threshold(lags = 1, outgoing = FALSE, valued = TRUE)`,
+#'   except that `{netdiffuseR}` reports non-adopters as missing
+#'   and gives seeds a value where there is no lag,
+#'   and counts cumulative rather than current adopters.
+#'   By default, `{netdiffuseR}` ignores tie weights,
+#'   so the results differ from it on weighted networks.
 #' @examples
 #'   # To infer nodes' thresholds
 #'   node_by_adopt_threshold(smeg_diff)
 #' @export
-node_by_adopt_threshold <- function(.data, normalized = TRUE, lag = 1){
-  if(inherits(.data, "diff_model")){
-    net <- attr(.data, "network") 
-    diff_model <- manynet::as_diffusion(.data)
-    out <- summary(diff_model)
-    if(!"exposure" %in% names(out)){
-      out[,'exposure'] <- NA_integer_
-      for(v in unique(out$t)){
-        out$exposure[out$t == v] <- node_by_adopt_exposure(diff_model, 
-                                                  time = v-lag)[out$nodes[out$t == v]]
-      }
-    }
-    if(any(out$event == "E")) 
-      out <- out |> dplyr::filter(event == "E") else 
-        out <- out |> dplyr::filter(event == "I")
-    out <- out |> dplyr::distinct(nodes, .keep_all = TRUE) |> 
-      dplyr::select(nodes, exposure)
-    if(manynet::is_labelled(net))
-      out <- stats::setNames(out$exposure, manynet::node_names(net)[out$nodes]) else
-        out <- stats::setNames(out$exposure, out$nodes)
-  } else {
-    net <- .data
-    diff_model <- manynet::as_diffusion(.data)
-    out <- manynet::as_changelist(.data)
-    if(!"exposure" %in% names(out)){
-      out[,'exposure'] <- NA_integer_
-      for(v in unique(out$time)){
-        out$exposure[out$time == v] <- node_by_adopt_exposure(.data, 
-                                                  time = v-lag)[out$node[out$time == v]]
-      }
-    }
-    if(any(out$value == "E")) 
-      out <- out |> dplyr::filter(value == "E") else 
-        out <- out |> dplyr::filter(value == "I")
-    out <- out |> dplyr::distinct(node, .keep_all = TRUE) |> 
-      dplyr::select(node, exposure)
-    if(manynet::is_labelled(net))
-      out <- stats::setNames(out$exposure, manynet::node_names(net)[out$node]) else
-        out <- stats::setNames(out$exposure, out$node)
+node_by_adopt_threshold <- function(.data, normalized = TRUE, lag = 1,
+                                    direction = c("in", "out", "all"),
+                                    attribute = "diffusion"){
+  direction <- match.arg(direction)
+  states <- .diffusion_states(.data, attribute)
+  net <- states$net
+  n <- manynet::net_nodes(net)
+  # nodes adopt when they become latent, or infected where there is no latency
+  first <- .state_first(states, c("E", "I"))
+  mat <- .exposure_ties(net, !is.na(first))
+  directed <- manynet::is_directed(net)
+  out <- rep(Inf, n)
+  for(k in unique(first[!is.na(first)])){
+    adopters <- which(first == k)
+    mk <- .state_at(states, states$times[k] - lag) %in% "I"
+    # Adopters are not excluded from their own exposure here,
+    # so that alters adopting at the same time step count where lag = 0
+    out[adopters] <- .adopt_exposure(mat, mk, direction, directed)[adopters]
   }
-  if(length(out) != manynet::net_nodes(net)){
-    if(manynet::is_labelled(net)){
-      full <- stats::setNames(rep(Inf, manynet::net_nodes(net)), 
-                              manynet::node_names(net))
-    } else {
-      full <- stats::setNames(rep(Inf, manynet::net_nodes(net)), 
-                              1:manynet::net_nodes(net))
-    } 
-    full[match(names(out), names(full))] <- out
-    out <- full
+  # the seeds, whose adoption says nothing about their exposure
+  out[which(first == 1)] <- NA
+  if(normalized){
+    out <- out / .adopt_exposure(mat, rep(TRUE, n), direction, directed)
+    out[is.nan(out)] <- 0
   }
-  if(manynet::is_labelled(net))
-    out <- out[match(manynet::node_names(net), names(out))] else {
-      out <- unname(out[order(as.numeric(names(out)))])
-    }
-  if(normalized) out <- out / node_by_deg(net)
+  out[.diffusion_inactive(net)] <- NA
+  if(manynet::is_labelled(net)) names(out) <- manynet::node_names(net)
   make_node_measure(out, net, measure = "adoption threshold",
                     range = `if`(normalized, c(0, 1), c(0, Inf)),
                     normalization = `if`(normalized, "normalized", "none"))
@@ -469,29 +606,19 @@ node_by_adopt_threshold <- function(.data, normalized = TRUE, lag = 1){
 #'   # To measure how long each node remains infected for
 #'   node_by_adopt_recovery(smeg_diff)
 #' @export
-node_by_adopt_recovery <- function(.data){
-  if(inherits(.data, "diff_model")){
-    net <- attr(.data, "network")
-    events <- attr(.data, "events")
-    out <- vapply(seq_len(.data$n[1]), 
-                  function(x) ifelse("I" %in% dplyr::filter(events, nodes == x)$event,
-                                     ifelse("R" %in% dplyr::filter(events, nodes == x)$event,
-                                            mean(diff(dplyr::filter(events, nodes == x)$t)),
-                                            Inf),
-                                     NA),
-                  FUN.VALUE = numeric(1))
-  } else {
-    net <- .data
-    events <- manynet::as_changelist(.data)
-    out <- vapply(seq_len(manynet::net_nodes(net)), 
-                  function(x) ifelse("I" %in% dplyr::filter(events, node == x)$value,
-                                     ifelse("R" %in% dplyr::filter(events, node == x)$value,
-                                            mean(diff(dplyr::filter(events, node == x)$time)),
-                                            Inf),
-                                     NA),
-                  FUN.VALUE = numeric(1))
-  }
-  make_node_measure(out, net, measure = "recovery time", range = c(0, Inf),
+node_by_adopt_recovery <- function(.data, attribute = "diffusion"){
+  states <- .diffusion_states(.data, attribute)
+  times <- as.numeric(states$times)
+  out <- apply(states$states, 1, function(role){
+    infected <- role %in% "I"
+    before <- c(FALSE, infected[-length(infected)])
+    begins <- which(infected & !before)
+    ends <- which(role %in% "R" & before)
+    if(!length(begins)) return(NA_real_)
+    if(length(ends) < length(begins)) return(Inf)
+    mean(times[ends] - times[begins])
+  })
+  make_node_measure(out, states$net, measure = "recovery time", range = c(0, Inf),
                     normalization = "none")
 }
 
@@ -508,58 +635,166 @@ node_by_adopt_recovery <- function(.data){
 #'   an index or mark (TRUE/FALSE) vector of those nodes which are currently infected,
 #'   but if a diff_model is supplied instead it will return
 #'   nodes exposure at \eqn{t = 0}.
+#'   Nodes in the mark have an exposure of 0.
 #' @examples
 #'   # To measure how much exposure nodes have to a given mark
 #'   node_by_adopt_exposure(smeg, mark = c(1,3))
 #'   node_by_adopt_exposure(smeg_diff)
 #' @export
-node_by_adopt_exposure <- function(.data, mark, time = 0){
+node_by_adopt_exposure <- function(.data, mark, time = 0,
+                                   direction = c("in", "out", "all"),
+                                   attribute = "diffusion"){
+  direction <- match.arg(direction)
+  if(missing(mark)){
+    states <- .diffusion_states(.data, attribute)
+    mark <- .state_at(states, time) %in% "I"
+    .data <- states$net
+  } else if(inherits(.data, "diff_model")) .data <- attr(.data, "network")
   .data <- manynet::expect_nodes(.data)
   .data <- .to_aggregated_css(.data)
-  if(missing(mark)){ 
-    if(inherits(.data, "diff_model")){
-      mark <- node_is_infected(.data, time = time)
-      .data <- attr(.data, "network")
-    } else {
-      mark <- node_is_infected(.data, time = time)
-    }
-  }
   .data <- manynet::as_tidygraph(.data)
-  if(manynet::is_weighted(.data) || manynet::is_signed(.data)){
-    if(is.numeric(mark)){
-      mk <- rep(FALSE, manynet::net_nodes(.data))
-      mk[mark] <- TRUE
-    } else mk <- mark
-    out <- manynet::as_matrix(.data)
-    out <- colSums(out * matrix(mk, nrow(out), ncol(out)) * 
-                     matrix(!mk, nrow(out), ncol(out), byrow = TRUE))
-  } else {
-    if(is.logical(mark)) mark <- which(mark)
-    if(manynet::is_twomode(.data)){
-      if(mark[1]>manynet::net_dims(.data)[1]){ 
-        dat <- manynet::to_mode2(.data)
-        mark <- mark - manynet::net_dims(.data)[1]
-        contacts <- unlist(lapply(igraph::neighborhood(dat, nodes = mark, mode = "out"),
-                                  function(x) setdiff(x, mark)))
-        contacts <- contacts + manynet::net_dims(.data)[1]
-      } else {
-        dat <- manynet::to_mode1(.data)
-        contacts <- unlist(lapply(igraph::neighborhood(dat),
-                                  function(x) setdiff(x, mark)))
-        contacts <- contacts + manynet::net_dims(.data)[2]
-      }
-    } else {
-      dat <- .data
-      contacts <- unlist(lapply(igraph::neighborhood(dat, nodes = mark, mode = "out"),
-                                function(x) setdiff(x, mark)))
-    }
-    # count exposures for each node:
-    tabcontact <- table(contacts)
-    out <- rep(0, manynet::net_nodes(.data))
-    out[as.numeric(names(tabcontact))] <- unname(tabcontact)
-  }
+  if(is.numeric(mark)){
+    mk <- rep(FALSE, manynet::net_nodes(.data))
+    mk[mark] <- TRUE
+  } else mk <- as.logical(mark)
+  out <- .adopt_exposure(.exposure_ties(.data, mk), mk, direction,
+                         manynet::is_directed(.data))
+  out[mk] <- 0
+  out[.diffusion_inactive(.data)] <- NA
   make_node_measure(out, .data, measure = "exposure", range = c(0, Inf),
                     normalization = "none")
+}
+
+# The states of a diffusion, as `manynet::as_diffusion()` reads them:
+# the start state in `attribute`, then its changes at each time of the report,
+# with the values in the roles "S", "E", "I", "R", or "D" of the compartments.
+# Returns the network, the times, the roles before the first time,
+# and the roles of each node (row) at each time (column).
+.diffusion_states <- function(.data, attribute = "diffusion"){
+  if(inherits(.data, "diff_model")){
+    net <- attr(.data, "network")
+    events <- summary(.data)
+    events <- data.frame(time = events$t, node = events$nodes,
+                         value = events$event)
+    start <- rep("S", manynet::net_nodes(net))
+    comps <- NULL
+  } else {
+    net <- manynet::expect_nodes(.data)
+    events <- NULL
+    if(manynet::is_changing(net)){
+      events <- as.data.frame(manynet::as_changelist(net))
+      events <- events[events$var == attribute, , drop = FALSE]
+    }
+    held <- attribute %in% manynet::net_node_attributes(net)
+    if(!held && (is.null(events) || !nrow(events)))
+      manynet::snet_abort(c("This network holds no diffusion in {.val {attribute}}.",
+                            "i" = "Play one with {.fn play_diffusion}, or name its {.arg attribute}."))
+    start <- `if`(held, manynet::node_attribute(net, attribute),
+                  rep(NA, manynet::net_nodes(net)))
+    comps <- `if`(inherits(net, "stocnet"), net$info$compartments,
+                  igraph::graph_attr(manynet::as_igraph(net), "compartments"))
+    if(is.null(comps) && is.logical(start)) comps <- list(S = FALSE, I = TRUE)
+  }
+  if(is.null(events))
+    events <- data.frame(time = numeric(0), node = integer(0), value = character(0))
+  value <- `if`(is.list(events$value), unlist(events$value), events$value)
+  roles <- function(v){
+    v <- as.character(v)
+    if(is.null(comps)) return(v)
+    out <- rep(NA_character_, length(v))
+    for(r in names(comps)) out[v %in% as.character(comps[[r]])] <- r
+    out
+  }
+  report <- manynet::as_diffusion(.data, attribute = attribute)
+  times <- report[[`if`("time" %in% names(report), "time", "t")]]
+  states <- matrix(NA_character_, length(start), length(times))
+  now <- start
+  for(k in seq_along(times)){
+    due <- events$time <= times[k]
+    if(k > 1) due <- due & events$time > times[k - 1]
+    now[events$node[due]] <- value[due]
+    states[, k] <- roles(now)
+  }
+  list(net = net, times = times, before = roles(start), states = states)
+}
+
+# The roles of the nodes at a time, as at the last time of the report
+# before or at it
+.state_at <- function(states, time){
+  k <- which(states$times <= time)
+  `if`(length(k), states$states[, max(k)], states$before)
+}
+
+# The first time (column) that each node holds one of the roles, or NA
+.state_first <- function(states, roles){
+  held <- matrix(states$states %in% roles, nrow(states$states))
+  apply(held, 1, function(h) match(TRUE, h))
+}
+
+# A mark of the nodes in a role at a time
+.diffusion_mark <- function(.data, time, attribute, role){
+  states <- .diffusion_states(.data, attribute)
+  make_node_mark(.state_at(states, time) %in% role, states$net)
+}
+
+# The square matrix of all the nodes along which exposure travels.
+# A two-mode network that is not multilevel diffuses as `play_diffusion()`
+# plays it: marks on one mode expose that mode through the nodes of the other
+# mode that they share, and marks on both modes expose along their ties.
+# The ties of a node that is not `active` are dropped, so that it neither
+# exposes others nor counts among their contacts.
+.exposure_ties <- function(.data, mark){
+  out <- .exposure_ties_all(.data, mark)
+  out[.diffusion_inactive(.data), ] <- 0
+  out[, .diffusion_inactive(.data)] <- 0
+  out
+}
+
+# The nodes that are out of the diffusion: those whose `active` attribute
+# is FALSE and that no later change makes active, as
+# `manynet::play_diffusion()` and `manynet::as_diffusion()` read it.
+.diffusion_inactive <- function(.data){
+  n <- manynet::net_nodes(.data)
+  if(!"active" %in% manynet::net_node_attributes(.data)) return(rep(FALSE, n))
+  active <- as.logical(manynet::node_attribute(.data, "active"))
+  out <- !is.na(active) & !active
+  if(any(out) && manynet::is_changing(.data)){
+    ch <- as.data.frame(manynet::as_changelist(.data))
+    ch <- ch[ch$var == "active", , drop = FALSE]
+    value <- `if`(is.list(ch$value), unlist(ch$value), ch$value)
+    later <- unique(ch$node[as.logical(value) %in% TRUE])
+    out[later] <- FALSE
+  }
+  out
+}
+
+.exposure_ties_all <- function(.data, mark){
+  mat <- as.matrix(manynet::as_matrix(.data))
+  mat[is.na(mat)] <- 0
+  if(!manynet::is_twomode(.data) || manynet::is_multilevel(.data)) return(mat)
+  n1 <- nrow(mat)
+  first <- seq_len(n1 + ncol(mat)) <= n1
+  out <- matrix(0, length(first), length(first))
+  if(any(mark) && (all(first[mark]) || !any(first[mark]))){
+    on <- if(all(first[mark])) first else !first
+    proj <- if(all(first[mark])) mat %*% t(mat) else t(mat) %*% mat
+    if(all(mat %in% c(0, 1))) proj <- (proj > 0) * 1
+    diag(proj) <- 0
+    out[on, on] <- proj
+  } else {
+    out[first, !first] <- mat
+    out[!first, first] <- t(mat)
+  }
+  out
+}
+
+# Sums the (weighted) ties between each node and the marked nodes
+# in the given direction, including any tie a marked node has to itself
+.adopt_exposure <- function(mat, mark, direction = "in", directed = TRUE){
+  ins <- colSums(mat * mark)
+  if(!directed || direction == "in") return(ins)
+  outs <- rowSums(mat * rep(mark, each = nrow(mat)))
+  `if`(direction == "out", outs, ins + outs)
 }
 
 # Diffusion membership ####
@@ -568,7 +803,7 @@ node_by_adopt_exposure <- function(.data, mark, time = 0){
 #' @description
 #'   `node_in_adopter()` classifies membership of nodes into diffusion categories
 #'   by where on the distribution of adopters they fell.
-#'   Valente (1995) defines five memberships:
+#'   Valente (1995), after Rogers (2003), uses five memberships:
 #'   
 #'   - _Early adopter_: those with an adoption time less than 
 #'   the average adoption time minus one standard deviation of adoptions times
@@ -582,13 +817,23 @@ node_by_adopt_exposure <- function(.data, mark, time = 0){
 #'   the average adoption time plus one standard deviation of adoptions times
 #'   - _Non-adopter_: those without an adoption time,
 #'   i.e. never adopted
+#'
+#'   A node that is never `active` is out of the diffusion and has no
+#'   membership (`NA`).
+#'   These are the categories of Rogers (2003) by time of adoption,
+#'   without _innovators_, whom the seeds stand in for:
+#'   the seeds (time 0) are always early adopters.
 #'   
 #' @template param_data
 #' @template node_member
 #' @family diffusion
+#' @template param_attr_diff
 #' @name member_diffusion
 #' @references
 #' ## On adopter classes
+#'   Rogers, Everett M. 2003.
+#'   _Diffusion of innovations_ (5th ed.). New York: Free Press.
+#'
 #'   Valente, Tom W. 1995. 
 #'   _Network models of the diffusion of innovations_
 #'   (2nd ed.). Cresskill N.J.: Hampton Press.
@@ -602,8 +847,8 @@ NULL
 #'   (adopts <- node_in_adopter(smeg_diff))
 #'   summary(adopts)
 #' @export
-node_in_adopter <- function(.data){
-  toa <- node_by_adopt_time(.data)
+node_in_adopter <- function(.data, attribute = "diffusion"){
+  toa <- node_by_adopt_time(.data, attribute = attribute)
   toa[is.infinite(toa)] <- NA
   avg <- mean(toa, na.rm = TRUE)
   sdv <- stats::sd(toa, na.rm = TRUE)
@@ -615,6 +860,7 @@ node_in_adopter <- function(.data){
   out[is.na(out)] <- "Non-Adopter"
   if(inherits(.data, "diff_model")) 
     net <- attr(.data, "network") else 
-      net <- .data
+      net <- manynet::expect_nodes(.data)
+  out[.diffusion_inactive(net)] <- NA
   make_node_member(out, net)
 }

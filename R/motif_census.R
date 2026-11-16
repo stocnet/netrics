@@ -20,7 +20,7 @@
 #'   giving one block of columns
 #'   per layer, whatever attribute the network is multiplexed on.
 #'   Each block stays the length of the whole nodeset.
-#'   To census one layer alone, take it first with [manynet::to_uniplex()].
+#'   To census one layer alone, take it first with [manynet::to_layer()].
 #'
 #'   For signed networks, `node_x_path()` considers only the positive ties.
 #'   It reads a tie as a distance, and a negative tie is
@@ -34,7 +34,7 @@ NULL
 
 #' @rdname motif_path 
 #' @examples
-#' task_eg <- to_named(to_uniplex(ison_algebra, "tasks"))
+#' task_eg <- to_named(to_layer(ison_algebra, "tasks"))
 #' (tie_cen <- node_x_tie(task_eg))
 #' @export
 node_x_tie <- function(.data){
@@ -43,32 +43,34 @@ node_x_tie <- function(.data){
   object <- manynet::as_igraph(.data)
   # Only tie-level waves split the census; a diffusion model's ties do not change
   waved <- "wave" %in% manynet::net_tie_attributes(object)
+  # one network for each wave, in the order of the waves
+  if (waved) waves <- manynet::to_times(object)
   if (manynet::is_multiplex(.data)) {
     # The layers are stacked into one census, which needs them to share a
-    # node set. `to_uniplex()` drops the nodes a layer does not tie, so a
+    # node set. `to_layer()` drops the nodes a layer does not tie, so a
     # network mixing a one-mode and a two-mode layer has nothing to stack.
     sizes <- vapply(manynet::layer_names(object),
-                    function(l) manynet::net_nodes(manynet::to_uniplex(object, l)),
+                    function(l) manynet::net_nodes(manynet::to_layer(object, l)),
                     FUN.VALUE = numeric(1))
     if (length(unique(sizes)) > 1)
       manynet::snet_unavailable(
         "A tie census over layers that do not share a node set",
         "is not yet available.",
         "Here the {.val {names(sizes)}} layers hold {sizes} nodes.",
-        "Please use {.fn to_uniplex} to census a single layer,",
+        "Please use {.fn to_layer} to census a single layer,",
         "or {.fn net_x_triad}, which does span a one-mode and a two-mode layer.")
   }
   if (manynet::is_directed(object)) {
     if (manynet::is_multiplex(.data)) {
       mat <- do.call(rbind, lapply(manynet::layer_names(object), 
                                    function(x){
-                                     rc <- manynet::as_matrix(manynet::to_uniplex(object, x))
+                                     rc <- manynet::as_matrix(manynet::to_layer(object, x))
                                      rbind(rc, t(rc))
                                    }))
     } else if (waved){
-      mat <- do.call(rbind, lapply(unique(manynet::tie_attribute(object, "wave")), 
+      mat <- do.call(rbind, lapply(waves,
                                    function(x){
-                                     rc <- manynet::as_matrix(manynet::to_waves(object)[[x]])
+                                     rc <- manynet::as_matrix(x)
                                      rbind(rc, t(rc))
                                    }))
       
@@ -80,13 +82,11 @@ node_x_tie <- function(.data){
     if (manynet::is_multiplex(.data)) {
       mat <- do.call(rbind, lapply(manynet::layer_names(object), 
                                    function(x){
-                                     manynet::as_matrix(manynet::to_uniplex(object, x))
+                                     manynet::as_matrix(manynet::to_layer(object, x))
                                    }))
     } else if (waved){
-      mat <- do.call(rbind, lapply(unique(manynet::tie_attribute(object, "wave")), 
-                                   function(x){
-                                     manynet::as_matrix(manynet::to_waves(object)[[x]])
-                                   }))
+      mat <- do.call(rbind, lapply(waves,
+                                   manynet::as_matrix))
     } else if (manynet::is_twomode(.data)) {
       mat <- manynet::as_matrix(manynet::to_onemode(object))
     } else {
@@ -102,7 +102,7 @@ node_x_tie <- function(.data){
     } else if (waved){
       rownames(mat) <- apply(expand.grid(c(paste0("from", manynet::node_names(object)),
                                            paste0("to", manynet::node_names(object))),
-                                         unique(manynet::tie_attribute(object, "wave"))), 
+                                         names(waves)), 
                              1, paste, collapse = "_wave")
     } else {
       rownames(mat) <- rep(c(paste0("from", manynet::node_names(object)),
@@ -212,7 +212,7 @@ node_x_dyad <- function(.data, attribute = NULL, ...) {
 #' _Network Science_ 5(2): 187–212.
 #' \doi{10.1017/nws.2017.8}
 #' @examples 
-#' task_eg <- to_named(to_uniplex(ison_algebra, "tasks"))
+#' task_eg <- to_named(to_layer(ison_algebra, "tasks"))
 #' (triad_cen <- node_x_triad(task_eg))
 #' @export
 node_x_triad <- function(.data, attribute = NULL, ...){
@@ -358,7 +358,7 @@ net_x_dyad <- function(.data, attribute = NULL, ...) {
 #' @examples 
 #' net_x_triad(manynet::ison_adolescents)
 #' net_x_triad(ison_networkers, attribute = "Discipline")
-#' net_x_triad(to_uniplex(fict_marvel, "relationship"))
+#' net_x_triad(to_layer(fict_marvel, "relationship"))
 #' net_x_triad(fict_marvel)
 #' @export
 net_x_triad <- function(.data, attribute = NULL, ...) {
@@ -385,7 +385,7 @@ net_x_triad <- function(.data, attribute = NULL, ...) {
     # a network carrying both a one-mode and a two-mode layer already holds
     # everything the multilevel census needs, so use it rather than refuse
     layers <- manynet::layer_names(.data)
-    parts <- lapply(layers, function(l) suppressMessages(manynet::to_uniplex(.data, l)))
+    parts <- lapply(layers, function(l) suppressMessages(manynet::to_layer(.data, l)))
     twomode <- vapply(parts, manynet::is_twomode, FUN.VALUE = logical(1))
     # the layers are told apart by their mode rather than by their order,
     # since the census needs the one-mode network first
@@ -403,7 +403,7 @@ net_x_triad <- function(.data, attribute = NULL, ...) {
       manynet::snet_unavailable(
         "A triad census over {.val {sum(!twomode)}} one-mode and",
         "{.val {sum(twomode)}} two-mode layers is not yet available.",
-        "Please use {.fn to_uniplex} to select one one-mode layer",
+        "Please use {.fn to_layer} to select one one-mode layer",
         "and one two-mode layer for the mixed census.")
   }
   if (manynet::is_twomode(.data))
@@ -535,7 +535,7 @@ net_x_tetrad <- function(.data, attribute = NULL, ...){
   if(.census_is_layered(.data)){
     names <- manynet::layer_names(.data)
     split <- lapply(names, function(l)
-      suppressMessages(manynet::to_uniplex(.data, l)))
+      suppressMessages(manynet::to_layer(.data, l)))
     sizes <- vapply(split, manynet::net_nodes, FUN.VALUE = numeric(1))
     if(all(sizes == manynet::net_nodes(.data))){
       parts <- split
@@ -631,7 +631,7 @@ net_x_tetrad <- function(.data, attribute = NULL, ...){
   if(2^nrow(pairs) * sbase^nrow(pairs) * abase^k > 1e15)
     manynet::snet_unavailable("A census over this many layers and categories",
                               "is not yet available.",
-                              "Please use {.fn to_uniplex} to select fewer layers.")
+                              "Please use {.fn to_layer} to select fewer layers.")
   perms <- .census_perms(k)
   best <- NULL
   for(p in seq_len(nrow(perms))){
@@ -1577,6 +1577,7 @@ net_x_tetrad <- function(.data, attribute = NULL, ...){
 # Exposure ####
 
 #' Motifs of node exposure
+#' @template param_attr_diff
 #' @name motif_exposure
 #' @description
 #'   `node_x_exposure()` produces a motif matrix of nodes' exposure to 
@@ -1591,30 +1592,21 @@ NULL
 #' @examples
 #' node_x_exposure(play_diffusion(create_tree(12)))
 #' @export
-node_x_exposure <- function(.data){
-  if(inherits(.data, "diff_model")){
-    diff_model <- manynet::as_tidygraph(.data)
-    times <- diff_model$t
-    out <- sapply(times, function(x){
-      inf <- node_is_infected(diff_model, time = x)
-      if(sum(inf)==1) manynet::as_matrix(.data)[inf,] else
-        colSums(manynet::as_matrix(.data)[inf,])
-    })
-  } else {
-    times <- manynet::as_diffusion(.data)$time
-    out <- sapply(times, function(x){
-      inf <- node_is_infected(.data, time = x)
-      if(sum(inf)==1) manynet::as_matrix(.data)[inf,] else
-        colSums(manynet::as_matrix(.data)[inf,])
-    })
-  }
-  colnames(out) <- paste0("t",times)
-  make_node_motif(out, .data)
+node_x_exposure <- function(.data, attribute = "diffusion"){
+  states <- .diffusion_states(.data, attribute)
+  infected <- matrix(states$states %in% "I", nrow(states$states))
+  mat <- .exposure_ties(states$net, rowSums(infected) > 0)
+  directed <- manynet::is_directed(states$net)
+  out <- apply(infected, 2, function(mk) .adopt_exposure(mat, mk, "in", directed))
+  out <- matrix(out, nrow = nrow(mat))
+  colnames(out) <- paste0("t", states$times)
+  make_node_motif(out, states$net)
 }
 
 # Hazard ####
 
 #' Motifs of network hazard
+#' @template param_attr_diff
 #' @name motif_hazard
 #' @description
 #'   `net_x_hazard()` measures the hazard rate or instantaneous probability that
@@ -1682,14 +1674,16 @@ NULL
 #'   smeg <- generate_smallworld(15, 0.025)
 #' net_x_hazard(play_diffusion(smeg, transmissibility = 0.3))
 #' @export
-net_x_hazard <- function(.data){
-  diff_model <- manynet::as_diffusion(.data)
+net_x_hazard <- function(.data, attribute = "diffusion"){
+  diff_model <- manynet::as_diffusion(.data, attribute = attribute)
   out <- (diff_model$I - dplyr::lag(diff_model$I)) / 
     (diff_model$n - dplyr::lag(diff_model$I))
   if(inherits(.data, "diff_model")) 
     net <- attr(.data, "network") else 
       net <- .data
-  names(out) <- paste0("t", diff_model$t)
+  # the reports of the old diff_model name their time column `t`
+  names(out) <- paste0("t", diff_model[[`if`("time" %in% names(diff_model),
+                                              "time", "t")]])
   make_network_motif(out, net)
 }
 

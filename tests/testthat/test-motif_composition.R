@@ -12,7 +12,7 @@ test_that("node_x_ties branches on network type", {
 
   # multiplex networks get one column per layer, plus diversity
   ms <- node_x_ties(ison_algebra)
-  expect_equal(ncol(ms), length(unique(tie_attribute(ison_algebra, "type"))) + 1)
+  expect_equal(ncol(ms), length(manynet::layer_names(ison_algebra)) + 1)
   expect_true("Diversity" %in% colnames(ms))
   expect_true(all(ms[, "Diversity"] >= 0 & ms[, "Diversity"] <= 1, na.rm = TRUE))
 
@@ -193,7 +193,7 @@ test_that("node_x_ties finds layers whatever the tie attribute is called", {
 })
 
 test_that("node_x_ties keeps every node where a layer drops some", {
-  # `to_uniplex()` reduces fict_marvel's relationship layer to 53 of its 194
+  # `to_layer()` reduces fict_marvel's relationship layer to 53 of its 194
   # nodes, so the layers must be padded back to the whole nodeset
   res <- node_x_ties(fict_marvel)
   expect_s3_class(res, "node_motif")

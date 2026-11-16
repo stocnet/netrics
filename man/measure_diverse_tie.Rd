@@ -8,7 +8,9 @@
 tie_by_diversity(
   .data,
   attribute,
-  diversity = c("blau", "teachman", "variation", "gini")
+  diversity = c("blau", "teachman", "variation", "gini", "rao"),
+  normalized = TRUE,
+  distance = NULL
 )
 }
 \arguments{
@@ -16,14 +18,31 @@ tie_by_diversity(
 Internally any of these will be coerced to an efficient implementation.
 For more information on possible coercions, see e.g. \code{\link[manynet:as_stocnet]{manynet::as_stocnet()}}.}
 
-\item{attribute}{Name of a nodal attribute, mark, measure, or membership vector.}
+\item{attribute}{Name of a nodal attribute, mark, measure, or membership vector.
+Where none is named and the network holds only one nodal attribute
+besides the reserved ones, such as "label" and "mode", that one is used.}
 
 \item{diversity}{Which method to use for \verb{*_diversity()}.
-Either "blau" (Blau's index) or "teachman" (Teachman's index) for categorical attributes,
+Either "blau" (Blau's index), "teachman" (Teachman's index),
+or "rao" (Rao-Stirling diversity) for categorical attributes,
 or "variation" (coefficient of variation) or "gini" (Gini coefficient) for numeric attributes.
 Default is "blau".
 If an incompatible method is chosen for the attribute type,
 a suitable alternative will be used instead with a message.}
+
+\item{normalized}{Logical scalar, whether Blau's index is divided by its
+maximum for the attribute, \eqn{1 - 1/k},
+where \eqn{k} is the number of categories the attribute holds in the network.
+The index then runs from 0 to 1 whatever the number of categories,
+as the index of qualitative variation does (Agresti and Agresti 1978).
+The other indices are left as they are.
+By default TRUE.}
+
+\item{distance}{For \code{diversity = "rao"}, the distances among the
+categories of the attribute: a matrix whose row and column names are the
+categories, or a one-mode network of the categories,
+with values between 0 (the same) and 1 (the most different).
+By default NULL, so every two categories are 1 apart.}
 }
 \value{
 A \code{tie_measure} numeric vector the length of the ties in the network,
@@ -58,6 +77,7 @@ tie_by_diversity(to_hypergraph(ison_southern_women), "Title")
 Other diversity:
 \code{\link{measure_assort_net}},
 \code{\link{measure_assort_node}},
+\code{\link{measure_diverse_dispersion}},
 \code{\link{measure_diverse_net}},
 \code{\link{measure_diverse_node}},
 \code{\link{motif_composition}},
@@ -70,7 +90,6 @@ Other measures:
 \code{\link{measure_assort_node}},
 \code{\link{measure_breadth}},
 \code{\link{measure_broker_node}},
-\code{\link{measure_broker_tie}},
 \code{\link{measure_brokerage}},
 \code{\link{measure_central_between}},
 \code{\link{measure_central_close}},
@@ -87,6 +106,7 @@ Other measures:
 \code{\link{measure_diffusion_infection}},
 \code{\link{measure_diffusion_net}},
 \code{\link{measure_diffusion_node}},
+\code{\link{measure_diverse_dispersion}},
 \code{\link{measure_diverse_net}},
 \code{\link{measure_diverse_node}},
 \code{\link{measure_domain}},
@@ -94,19 +114,21 @@ Other measures:
 \code{\link{measure_fit}},
 \code{\link{measure_fragmentation}},
 \code{\link{measure_hierarchy}},
-\code{\link{measure_periods}}
+\code{\link{measure_opinion}},
+\code{\link{measure_periods}},
+\code{\link[=tie_by_width]{tie_by_width()}}
 
 Other tie:
 \code{\link{mark_dyads}},
 \code{\link{mark_select_tie}},
 \code{\link{mark_ties}},
 \code{\link{mark_triangles}},
-\code{\link{measure_broker_tie}},
 \code{\link{measure_central_tie_between}},
 \code{\link{measure_central_tie_close}},
 \code{\link{measure_central_tie_degree}},
 \code{\link{measure_central_tie_eigen}},
-\code{\link{member_community_link}}
+\code{\link{member_community_link}},
+\code{\link[=tie_by_width]{tie_by_width()}}
 }
 \concept{diversity}
 \concept{measures}

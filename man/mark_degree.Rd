@@ -47,7 +47,7 @@ but friendship, wheel, and threshold graphs are also cones.
 }
 
 \examples{
-node_is_isolate(ison_brandes)
+node_is_isolate(ison_centrality)
 node_is_universal(create_star(11))
 }
 \seealso{
@@ -84,6 +84,7 @@ Other nodal:
 \code{\link{measure_diffusion_node}},
 \code{\link{measure_diverse_node}},
 \code{\link{measure_domain}},
+\code{\link{measure_opinion}},
 \code{\link{member_brokerage}},
 \code{\link{member_cliques}},
 \code{\link{member_community}},

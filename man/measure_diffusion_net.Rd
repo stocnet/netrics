@@ -6,21 +6,33 @@
 \alias{net_by_recovery}
 \alias{net_by_reproduction}
 \alias{net_by_immunity}
+\alias{net_by_tipping}
 \title{Measures of network diffusion}
 \usage{
-net_by_transmissibility(.data)
+net_by_transmissibility(.data, attribute = "diffusion")
 
-net_by_recovery(.data, censor = TRUE)
+net_by_recovery(.data, censor = TRUE, attribute = "diffusion")
 
-net_by_reproduction(.data)
+net_by_reproduction(.data, attribute = "diffusion")
 
-net_by_immunity(.data, normalized = TRUE)
+net_by_immunity(.data, normalized = TRUE, attribute = "diffusion")
+
+net_by_tipping(
+  .data,
+  threshold = 2,
+  normalized = TRUE,
+  rule = c("degree", "order", "random")
+)
 }
 \arguments{
 \item{.data}{Network data with nodal changes,
 as created by \code{play_diffusion()},
 or a valid network diffusion model,
 as created by \code{as_diffusion()}.}
+
+\item{attribute}{Name of the nodal attribute that holds the diffusion,
+as its start state on the nodes and as its changes.
+By default "diffusion", as in \code{play_diffusion()}.}
 
 \item{censor}{Where some nodes have not yet recovered by the end
 of the simulation, right censored values can be replaced by the number of steps.
@@ -31,6 +43,17 @@ Note that this will likely still underestimate recovery.}
 Different denominators may be used depending on the measure,
 whether the object is one-mode or two-mode, and other arguments.
 By default TRUE.}
+
+\item{threshold}{For \code{net_by_tipping()}, the number of contacts that must
+adopt before a node adopts, or, below 1, the share of its contacts.
+It can be one number, a number for each node, or the name of a numeric
+node attribute, as in \code{play_diffusion()}. By default 2.}
+
+\item{rule}{For \code{net_by_tipping()}, the order in which nodes become seeds:
+\code{"degree"} (the default) takes the nodes with the most contacts first,
+\code{"order"} takes them in the order of the nodes,
+and \code{"random"} takes them in a random order.
+Nodes with the same degree are taken in the order of the nodes.}
 }
 \value{
 A \code{network_measure} numeric score.
@@ -51,11 +74,13 @@ in a diffusion simulation, or the number of new infections over
 the number of susceptible nodes.
 \item \code{net_by_recovery()} measures the average number of time steps
 nodes remain infected once they become infected.
-\item \code{net_by_reproduction()} measures the observed reproductive number
-in a diffusion simulation as the network's transmissibility over
-the network's average infection length.
+\item \code{net_by_reproduction()} estimates the basic reproduction number
+from the chances of infection and recovery in a diffusion,
+and from the structure of the network.
 \item \code{net_by_immunity()} measures the proportion of nodes that would need
 to be protected through vaccination, isolation, or recovery for herd immunity to be reached.
+\item \code{net_by_tipping()} measures the smallest share of the nodes that,
+as seeds, make a threshold contagion reach every node.
 }
 }
 \section{Transmissibility}{
@@ -84,17 +109,50 @@ The longer nodes remain infected, the longer they can infect others.
 
 \section{Reproduction number}{
 
-\code{net_reproduction()} measures a given diffusion's reproductive number.
-Here it is calculated as:
-\deqn{R = \min\left(\frac{T}{1/L}, \bar{k}\right)}
-where \eqn{T} is the observed transmissibility in a diffusion
-and \eqn{L} is the observed recovery length in a diffusion.
-Since \eqn{L} can be infinite where there is no recovery
-or there is right censoring,
-and since network structure places an upper limit on how many
-nodes each node may further infect (their degree),
-this function returns the minimum of \eqn{R_0}
-and the network's average degree.
+\code{net_by_reproduction()} estimates the basic reproduction number
+\eqn{R_0} of a diffusion: the number of nodes that one typical case
+infects when all other nodes are susceptible.
+On a network this is
+\deqn{R_0 = T \kappa}
+where \eqn{T} is the chance that an infectious node infects a susceptible
+neighbour before it recovers,
+and \eqn{\kappa} is the mean number of other neighbours of a node
+that a tie reaches.
+So the estimate separates the contagion, \eqn{T}, from the network,
+\eqn{\kappa}.
+
+\eqn{T} comes from two chances per step, which are estimated from the
+states of the nodes in each step:
+\eqn{\hat\tau}, the share of the exposed susceptible nodes that are
+infected, and \eqn{\hat\gamma}, the share of the infectious nodes that
+recover or die.
+A node is exposed when it has a tie from a node that is infectious at
+the start and the end of the step.
+As in \code{manynet::play_diffusion()}, a node recovers before it can infect
+in a step, so
+\deqn{T = \frac{(1 - \gamma) \tau}{\gamma + \tau - \gamma \tau}}
+With no recovery, \eqn{T = 1}.
+Where no susceptible node was exposed, for example where the seeds
+recover in the first step, \eqn{\tau} cannot be estimated,
+and the result is \code{NA} with a warning.
+A small outbreak gives a noisy estimate, so where possible pool several
+diffusions or use more seeds.
+
+\eqn{\kappa} is the mean excess degree of the network of the nodes that
+are not recovered or dead at the start,
+\eqn{\sum_i k_i (k_i - 1) / \sum_i k_i},
+or \eqn{\sum_i k^{in}_i k^{out}_i / \sum_i k^{in}_i} on a directed network.
+It is larger than the mean degree where the degrees are unequal,
+because a tie is more likely to reach a node with many ties.
+
+The estimate assumes a simple contagion:
+a threshold of 1, with ties that expose the node they go to
+(\code{direction = "in"}), and a chance of infection that does not grow with
+the number of infectious neighbours.
+It also assumes that the degrees are not correlated, as in a random
+network; in a clustered network, such as a lattice, it is too high,
+because the neighbours of a case share neighbours.
+A two-mode network is not yet available.
 
 Interpretation of the reproduction number is oriented around R = 1.
 Where \eqn{R > 1}, the 'disease' will 'infect' more and more
@@ -112,15 +170,16 @@ that need to be protected from infection for herd immunity
 to be achieved.
 This is known as the Herd Immunity Threshold or HIT:
 \deqn{1 - \frac{1}{R}}
-where \eqn{R} is the reproduction number from \code{net_reproduction()}.
+where \eqn{R} is the reproduction number from \code{net_by_reproduction()}.
 The HIT indicates the threshold at which
 the reduction of susceptible members of the network means
 that infections will no longer keep increasing.
 Note that there may still be more infections after this threshold has been reached,
 but there should be fewer and fewer.
 These excess infections are called the \emph{overshoot}.
-This function does \emph{not} take into account the structure
-of the network, instead using the average degree.
+With \eqn{R} from \code{net_by_reproduction()}, which uses the structure of
+the network, this is the share of nodes to protect at random.
+Protecting the nodes with the most ties needs fewer.
 
 Interpretation is quite straightforward.
 A HIT or immunity score of 0.75 would mean that 75\% of the nodes in the network
@@ -134,10 +193,33 @@ The formula would otherwise return a negative proportion, which has no
 interpretation.
 }
 
+\section{Tipping point}{
+
+\code{net_by_tipping()} measures the tipping point of a threshold
+contagion on the network: the smallest share of the nodes that, as seeds,
+make every node adopt.
+It needs only a network, not a played diffusion.
+
+The seeds are added one at a time in the order that \code{rule} gives,
+and a node adopts once at least \code{threshold} of its contacts have adopted.
+This is the threshold contagion of \code{play_diffusion()} with
+\code{transmissibility = 1}: it is deterministic, and a node never changes back.
+As in \code{play_diffusion()}, a \code{threshold} of 1 or more is a number of
+contacts, and a \code{threshold} of less than 1 is a share of them.
+More seeds never make fewer nodes adopt,
+so the tipping point is found by bisection.
+
+The result depends on which nodes are the seeds.
+In a complete network where each node has the same threshold, all
+orders give the same result. In other networks, they need not.
+Direction and tie weights are ignored,
+and a two-mode network is not yet available.
+}
+
 \examples{
   smeg <- generate_smallworld(15, 0.025)
   smeg_diff <- play_diffusion(smeg, recovery = 0.2)
-  plot(smeg_diff)
+  if (requireNamespace("autograph", quietly = TRUE)) plot(smeg_diff)
   # To calculate the average transmissibility for a given diffusion model
   net_by_transmissibility(smeg_diff)
   # To calculate the average infection length for a given diffusion model
@@ -148,6 +230,8 @@ interpretation.
   net_by_immunity(smeg_diff)
   # To find the number of nodes to be vaccinated
   net_by_immunity(smeg_diff, normalized = FALSE)
+  # The share of the nodes that must start a complex contagion
+  net_by_tipping(ison_adolescents, threshold = 2)
 }
 \references{
 \subsection{On epidemiological models}{
@@ -169,6 +253,11 @@ Kenah, Eben, and James M. Robins. 2007.
 "Second look at the spread of epidemics on networks".
 \emph{Physical Review E}, 76(3 Pt 2): 036113.
 \doi{10.1103/PhysRevE.76.036113}
+
+Newman, Mark E.J. 2002.
+"Spread of epidemic disease on networks".
+\emph{Physical Review E}, 66(1): 016128.
+\doi{10.1103/PhysRevE.66.016128}
 }
 
 \subsection{On herd immunity}{
@@ -187,7 +276,6 @@ Other measures:
 \code{\link{measure_assort_node}},
 \code{\link{measure_breadth}},
 \code{\link{measure_broker_node}},
-\code{\link{measure_broker_tie}},
 \code{\link{measure_brokerage}},
 \code{\link{measure_central_between}},
 \code{\link{measure_central_close}},
@@ -203,6 +291,7 @@ Other measures:
 \code{\link{measure_core}},
 \code{\link{measure_diffusion_infection}},
 \code{\link{measure_diffusion_node}},
+\code{\link{measure_diverse_dispersion}},
 \code{\link{measure_diverse_net}},
 \code{\link{measure_diverse_node}},
 \code{\link{measure_diverse_tie}},
@@ -211,7 +300,9 @@ Other measures:
 \code{\link{measure_fit}},
 \code{\link{measure_fragmentation}},
 \code{\link{measure_hierarchy}},
-\code{\link{measure_periods}}
+\code{\link{measure_opinion}},
+\code{\link{measure_periods}},
+\code{\link[=tie_by_width]{tie_by_width()}}
 
 Other diffusion:
 \code{\link{mark_diff}},

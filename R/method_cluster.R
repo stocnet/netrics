@@ -95,9 +95,8 @@ cluster_hierarchical <- function(motif, distance = NULL, proximity = "pearson"){
 #' @rdname method_cluster
 #' @export
 cluster_cosine <- function(motif, distance = NULL){
-  warning("`cluster_cosine()` is deprecated. ",
-          "Please use `cluster_hierarchical()` with `proximity = \"cosine\"` ",
-          "instead.", call. = FALSE)
+  manynet::snet_deprecated("cluster_cosine", "cluster_hierarchical",
+                           why = "Give it {.code proximity = \"cosine\"}.")
   cluster_hierarchical(motif, distance, proximity = "cosine")
 }
 

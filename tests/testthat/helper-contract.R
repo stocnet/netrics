@@ -23,6 +23,8 @@ measure_rosters <- list(
     node_by_deg           = list(),
     node_by_indegree      = list(),
     node_by_outdegree     = list(),
+    node_by_indeg         = list(),
+    node_by_outdeg        = list(),
     node_by_leverage      = list(),
     node_by_closeness     = list(),
     node_by_harmonic      = list(),
@@ -45,7 +47,8 @@ measure_rosters <- list(
     node_by_hub           = list(),
     node_by_authority     = list(),
     node_by_subgraph      = list(),
-    node_by_distance      = list(from = 1)
+    node_by_distance      = list(from = 1),
+    node_by_contagion     = list()
   ),
   # PN centrality is defined on signed data, so it runs against its own fixture.
   centrality_signed = list(
@@ -54,6 +57,11 @@ measure_rosters <- list(
   # Multidegree needs multiplex data, so it runs against its own fixture.
   centrality_multiplex = list(
     node_by_multidegree = list(tie1 = "relationship", tie2 = "affiliation")
+  ),
+  # Main path analysis needs a directed acyclic network, so it runs against
+  # the citation network of Hummon and Doreian's Figure 3.
+  centrality_tie_dag = list(
+    tie_by_mainpath = list()
   ),
   centrality_tie = list(
     tie_by_degree      = list(),
@@ -118,6 +126,7 @@ measure_rosters <- list(
     net_by_recovery           = list(),
     net_by_reproduction       = list(),
     net_by_immunity           = list(),
+    net_by_tipping            = list(),
     net_by_infection_complete = list(),
     net_by_infection_total    = list(),
     net_by_infection_peak     = list()
@@ -178,6 +187,25 @@ measure_rosters <- list(
   heterogeneity_moran_node = list(
     node_by_homophily = list(attribute = "age", assortativity = "moran")
   ),
+  heterogeneity_concentration_net = list(
+    net_by_concentration = list(attribute = "age")
+  ),
+  heterogeneity_concentration_node = list(
+    node_by_concentration = list(attribute = "age")
+  ),
+  heterogeneity_dispersion = list(
+    net_by_polarisation = list(attribute = "age"),
+    net_by_disagreement = list(attribute = "age")
+  ),
+
+  opinion_node = list(
+    node_by_influence = list(),
+    node_by_opinion   = list()
+  ),
+  opinion_net = list(
+    net_by_influence   = list(),
+    net_by_convergence = list()
+  ),
 
   holes_node = list(
     node_by_bridges           = list(),
@@ -189,7 +217,8 @@ measure_rosters <- list(
     node_by_neighbours_degree = list()
   ),
   holes_tie = list(
-    tie_by_cohesion = list()
+    tie_by_cohesion = list(),
+    tie_by_width    = list()
   ),
 
   hierarchy_net = list(
@@ -408,6 +437,10 @@ cognitive_arguments <- list(
   tie_by_diversity     = list(attribute = "dept"),
   node_by_domain       = list(attribute = "age"),
   net_by_spatial       = list(attribute = "age"),
+  net_by_polarisation  = list(attribute = "age"),
+  net_by_concentration = list(attribute = "age"),
+  node_by_concentration = list(attribute = "age"),
+  net_by_disagreement  = list(attribute = "age"),
   node_by_brokering_activity    = list(membership = "dept"),
   node_by_brokering_exclusivity = list(membership = "dept")
 )
@@ -434,11 +467,14 @@ sparse_css <- local({
   out <- manynet::add_node_attribute(out, "dept", c(1, 1, 2, 2, 1, 2, 1))
   manynet::add_node_attribute(out, "age", c(30, 40, 35, 50, 45, 25, 55))
 })
-cognitive_fixtures <- list(hightech = manynet::ison_hightech,
+# Ten of the twenty-one managers keep the three layers, the departments, and
+# a report from every reporter, and make the sweeps several times faster.
+hightech_css <- manynet::delete_nodes(manynet::ison_hightech, 11:21)
+cognitive_fixtures <- list(hightech = hightech_css,
                            sparse = sparse_css)
 
 check_cognitive_contract <- function(roster,
-                                     css = manynet::ison_hightech) {
+                                     css = hightech_css) {
   agg <- suppressMessages(.to_aggregated_css(css))
   report <- match(.tie_keys(css), .tie_keys(agg))
   quietly <- function(fn, args, .data) {

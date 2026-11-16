@@ -27,14 +27,17 @@ export(net_by_closeness)
 export(net_by_cohesion)
 export(net_by_compactness)
 export(net_by_components)
+export(net_by_concentration)
 export(net_by_congruency)
 export(net_by_connectedness)
+export(net_by_convergence)
 export(net_by_core)
 export(net_by_cyclicality)
 export(net_by_decay)
 export(net_by_degree)
 export(net_by_density)
 export(net_by_diameter)
+export(net_by_disagreement)
 export(net_by_divergence)
 export(net_by_diversity)
 export(net_by_efficiency)
@@ -51,12 +54,14 @@ export(net_by_independence)
 export(net_by_infection_complete)
 export(net_by_infection_peak)
 export(net_by_infection_total)
+export(net_by_influence)
 export(net_by_integration)
 export(net_by_length)
 export(net_by_linkdensity)
 export(net_by_meshedness)
 export(net_by_modularity)
 export(net_by_outdegree)
+export(net_by_polarisation)
 export(net_by_reach)
 export(net_by_reciprocity)
 export(net_by_recovery)
@@ -68,6 +73,7 @@ export(net_by_scalefree)
 export(net_by_smallworld)
 export(net_by_spatial)
 export(net_by_strength)
+export(net_by_tipping)
 export(net_by_toughness)
 export(net_by_transitivity)
 export(net_by_transmissibility)
@@ -96,7 +102,9 @@ export(node_by_bridges)
 export(node_by_brokering_activity)
 export(node_by_brokering_exclusivity)
 export(node_by_closeness)
+export(node_by_concentration)
 export(node_by_constraint)
+export(node_by_contagion)
 export(node_by_core)
 export(node_by_coreness)
 export(node_by_decay)
@@ -116,14 +124,18 @@ export(node_by_heterophily)
 export(node_by_hierarchy)
 export(node_by_homophily)
 export(node_by_hub)
+export(node_by_indeg)
 export(node_by_indegree)
 export(node_by_induced)
+export(node_by_influence)
 export(node_by_information)
 export(node_by_integration)
 export(node_by_kcoreness)
 export(node_by_leverage)
 export(node_by_multidegree)
 export(node_by_neighbours_degree)
+export(node_by_opinion)
+export(node_by_outdeg)
 export(node_by_outdegree)
 export(node_by_pagerank)
 export(node_by_posneg)
@@ -208,18 +220,23 @@ export(tie_by_cohesion)
 export(tie_by_degree)
 export(tie_by_diversity)
 export(tie_by_eigenvector)
+export(tie_by_mainpath)
+export(tie_by_width)
 export(tie_in_community)
 export(tie_is_bridge)
 export(tie_is_cyclical)
 export(tie_is_feedback)
 export(tie_is_imbalanced)
+export(tie_is_long)
 export(tie_is_loop)
+export(tie_is_mainpath)
 export(tie_is_max)
 export(tie_is_min)
 export(tie_is_multiple)
 export(tie_is_path)
 export(tie_is_random)
 export(tie_is_reciprocated)
+export(tie_is_repeated)
 export(tie_is_simmelian)
 export(tie_is_transitive)
 export(tie_is_triangular)
@@ -237,11 +254,10 @@ importFrom(igraph,
   alpha_centrality,
   articulation_points,
   assortativity_degree,
+  bridges,
   cohesion,
   components,
-  decompose,
   degree,
-  delete_edges,
   delete_vertices,
   diameter,
   distances,
@@ -251,6 +267,7 @@ importFrom(igraph,
   fit_power_law,
   graph_from_incidence_matrix,
   is_bipartite,
+  is_dag,
   ivs_size,
   knn,
   largest_ivs,
@@ -258,6 +275,7 @@ importFrom(igraph,
   mean_distance,
   power_centrality,
   reciprocity,
+  topo_sort,
   transitivity,
   triad_census,
   triangles,
@@ -268,7 +286,7 @@ importFrom(igraph,
 )
 importFrom(manynet,
   as_igraph,
-  is_complex,
+  is_looped,
   is_twomode,
   is_weighted,
   tie_weights

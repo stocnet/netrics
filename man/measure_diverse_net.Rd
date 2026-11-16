@@ -11,8 +11,10 @@ net_by_richness(.data, attribute)
 net_by_diversity(
   .data,
   attribute,
-  diversity = c("blau", "teachman", "variation", "gini"),
-  membership = NULL
+  diversity = c("blau", "teachman", "variation", "gini", "rao"),
+  membership = NULL,
+  normalized = TRUE,
+  distance = NULL
 )
 }
 \arguments{
@@ -20,10 +22,13 @@ net_by_diversity(
 Internally any of these will be coerced to an efficient implementation.
 For more information on possible coercions, see e.g. \code{\link[manynet:as_stocnet]{manynet::as_stocnet()}}.}
 
-\item{attribute}{Name of a nodal attribute, mark, measure, or membership vector.}
+\item{attribute}{Name of a nodal attribute, mark, measure, or membership vector.
+Where none is named and the network holds only one nodal attribute
+besides the reserved ones, such as "label" and "mode", that one is used.}
 
 \item{diversity}{Which method to use for \verb{*_diversity()}.
-Either "blau" (Blau's index) or "teachman" (Teachman's index) for categorical attributes,
+Either "blau" (Blau's index), "teachman" (Teachman's index),
+or "rao" (Rao-Stirling diversity) for categorical attributes,
 or "variation" (coefficient of variation) or "gini" (Gini coefficient) for numeric attributes.
 Default is "blau".
 If an incompatible method is chosen for the attribute type,
@@ -35,6 +40,20 @@ nodes in the network where each element indicates the group membership of
 the corresponding node.
 While this may often be a vector created using \verb{node_in_*()} functions,
 it can be any character vector that assigns nodes to groups or categories.}
+
+\item{normalized}{Logical scalar, whether Blau's index is divided by its
+maximum for the attribute, \eqn{1 - 1/k},
+where \eqn{k} is the number of categories the attribute holds in the network.
+The index then runs from 0 to 1 whatever the number of categories,
+as the index of qualitative variation does (Agresti and Agresti 1978).
+The other indices are left as they are.
+By default TRUE.}
+
+\item{distance}{For \code{diversity = "rao"}, the distances among the
+categories of the attribute: a matrix whose row and column names are the
+categories, or a one-mode network of the categories,
+with values between 0 (the same) and 1 (the most different).
+By default NULL, so every two categories are 1 apart.}
 }
 \value{
 A \code{network_measure} numeric score.
@@ -79,11 +98,17 @@ randomly selected from a group would be from different categories.
 This index finds its minimum value (0) when there is no variety,
 i.e. when all individuals are classified in the same category.
 The maximum value depends on the number of categories and
-whether nodes can be evenly distributed across categories.
+whether nodes can be evenly distributed across categories:
+it is \eqn{1 - 1/k}, where the nodes are spread evenly over them,
+so 0.5 for a binary attribute.
+With \code{normalized = TRUE}, the default, the index is divided by that
+maximum, so that attributes with different numbers of categories
+can be compared.
 
 The Herfindahl-Hirschman index (HHI) is the complement of Blau's index,
 \eqn{\sum\limits_{i = 1}^k {p_i^2}},
-and so \code{1 - net_by_diversity(.data, attribute)} returns it.
+and so \code{1 - net_by_diversity(.data, attribute, normalized = FALSE)}
+returns it.
 Where shares are stated as percentages rather than proportions,
 as in the \code{{hhi}} package,
 the index runs from 0 to 10000 and equals \code{(1 - blau) * 10000}.
@@ -130,11 +155,26 @@ that is cumulatively earned by the bottom x\% of the population.
 The Gini coefficient is defined as the area between the line of equality
 and the Lorenz curve,
 divided by the total area under the line of equality.
+
+Rao-Stirling diversity (Rao 1982; Stirling 2007) also counts how
+different the categories are from each other:
+\deqn{\sum\limits_{i \neq j} d_{ij} p_i p_j}
+where \eqn{d_{ij}} is the distance between categories \eqn{i} and
+\eqn{j}, given as \code{distance}.
+It is the expected distance between the categories of two members
+selected at random.
+A group that spans distant categories, such as distant disciplines,
+is thus more diverse than one that spans close categories,
+which is why it is used to measure interdisciplinarity
+(Porter and Rafols 2009).
+Where every two categories are 1 apart, it is Blau's index.
+It runs from 0 to 1, and is not normalised:
+\code{normalized} has no effect on it.
 }
 
 \examples{
-net_by_richness(ison_networkers)
-marvel_friends <- to_unsigned(to_uniplex(fict_marvel, "relationship"), "positive")
+net_by_richness(ison_networkers, "Discipline")
+marvel_friends <- to_unsigned(to_layer(fict_marvel, "relationship"), "positive")
 net_by_diversity(marvel_friends, "Gender")
 net_by_diversity(marvel_friends, "Appearances")
 net_by_diversity(marvel_friends, "Gender",
@@ -155,6 +195,10 @@ Blau, Peter M. 1977.
 \emph{Inequality and heterogeneity}.
 New York: Free Press.
 
+Agresti, Alan, and Barbara F. Agresti. 1978.
+"Statistical analysis of qualitative variation".
+\emph{Sociological Methodology}, 9: 204-237.
+
 Teachman, Jay D. 1980.
 Analysis of population diversity: Measures of qualitative variation.
 \emph{Sociological Methods & Research}, 8:341-362.
@@ -168,12 +212,29 @@ Princeton: Princeton University Press.
 Hirschman, Albert O. 1964.
 "The paternity of an index".
 \emph{The American Economic Review}, 54(5): 761.
+
+Rao, C. Radhakrishna. 1982.
+"Diversity and dissimilarity coefficients: A unified approach".
+\emph{Theoretical Population Biology}, 21(1): 24-43.
+\doi{10.1016/0040-5809(82)90004-1}
+
+Stirling, Andy. 2007.
+"A general framework for analysing diversity in science, technology and society".
+\emph{Journal of the Royal Society Interface}, 4(15): 707-719.
+\doi{10.1098/rsif.2007.0213}
+
+Porter, Alan L., and Ismael Rafols. 2009.
+"Is science becoming more interdisciplinary? Measuring and mapping six
+research fields over time".
+\emph{Scientometrics}, 81(3): 719-745.
+\doi{10.1007/s11192-008-2197-2}
 }
 }
 \seealso{
 Other diversity:
 \code{\link{measure_assort_net}},
 \code{\link{measure_assort_node}},
+\code{\link{measure_diverse_dispersion}},
 \code{\link{measure_diverse_node}},
 \code{\link{measure_diverse_tie}},
 \code{\link{motif_composition}},
@@ -186,7 +247,6 @@ Other measures:
 \code{\link{measure_assort_node}},
 \code{\link{measure_breadth}},
 \code{\link{measure_broker_node}},
-\code{\link{measure_broker_tie}},
 \code{\link{measure_brokerage}},
 \code{\link{measure_central_between}},
 \code{\link{measure_central_close}},
@@ -203,6 +263,7 @@ Other measures:
 \code{\link{measure_diffusion_infection}},
 \code{\link{measure_diffusion_net}},
 \code{\link{measure_diffusion_node}},
+\code{\link{measure_diverse_dispersion}},
 \code{\link{measure_diverse_node}},
 \code{\link{measure_diverse_tie}},
 \code{\link{measure_domain}},
@@ -210,7 +271,9 @@ Other measures:
 \code{\link{measure_fit}},
 \code{\link{measure_fragmentation}},
 \code{\link{measure_hierarchy}},
-\code{\link{measure_periods}}
+\code{\link{measure_opinion}},
+\code{\link{measure_periods}},
+\code{\link[=tie_by_width]{tie_by_width()}}
 }
 \concept{diversity}
 \concept{measures}

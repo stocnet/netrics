@@ -8,13 +8,13 @@
 \alias{node_is_exposed}
 \title{Marks of nodes based on diffusion properties}
 \usage{
-node_is_latent(.data, time = 0)
+node_is_latent(.data, time = 0, attribute = "diffusion")
 
-node_is_infected(.data, time = 0)
+node_is_infected(.data, time = 0, attribute = "diffusion")
 
-node_is_recovered(.data, time = 0)
+node_is_recovered(.data, time = 0, attribute = "diffusion")
 
-node_is_exposed(.data, mark, time = 0)
+node_is_exposed(.data, mark, time = 0, attribute = "diffusion")
 }
 \arguments{
 \item{.data}{A network object of class \code{stocnet}, \code{igraph}, \code{tbl_graph}, \code{network}, or similar.
@@ -22,6 +22,10 @@ Internally any of these will be coerced to an efficient implementation.
 For more information on possible coercions, see e.g. \code{\link[manynet:as_stocnet]{manynet::as_stocnet()}}.}
 
 \item{time}{A time step at which nodes are identified.}
+
+\item{attribute}{Name of the nodal attribute that holds the diffusion,
+as its start state on the nodes and as its changes.
+By default "diffusion", as in \code{play_diffusion()}.}
 
 \item{mark}{vector denoting which nodes are infected}
 }
@@ -47,14 +51,13 @@ but returns a mark (TRUE/FALSE) vector indicating which nodes
 are currently exposed to the diffusion content.
 This diffusion content can be expressed in the 'mark' argument.
 If no 'mark' argument is provided,
-and '.data' is a diff_model object,
-then the function will return nodes exposure to the seed nodes
-in that diffusion.
+the function marks the nodes exposed at \code{time}
+to the nodes infected in the diffusion.
 }
 
 \examples{
   # To mark nodes that are latent by a particular time point
-  node_is_latent(play_diffusion(create_tree(6), latency = 1), time = 1)
+  node_is_latent(play_diffusion(create_tree(6), onset = 0), time = 1)
   # To mark nodes that are infected by a particular time point
   node_is_infected(play_diffusion(create_tree(6)), time = 1)
   # To mark nodes that are recovered by a particular time point
@@ -92,6 +95,7 @@ Other nodal:
 \code{\link{measure_diffusion_node}},
 \code{\link{measure_diverse_node}},
 \code{\link{measure_domain}},
+\code{\link{measure_opinion}},
 \code{\link{member_brokerage}},
 \code{\link{member_cliques}},
 \code{\link{member_community}},
