@@ -406,6 +406,8 @@ net_by_tipping <- function(.data, threshold = 2, normalized = TRUE,
 #'   net_by_infection_complete(smeg_diff)
 #' @export
 net_by_infection_complete <- function(.data, attribute = "diffusion"){
+  # stops where the network holds no diffusion, as the other measures do
+  if(!inherits(.data, "diff_model")) .diffusion_states(.data, attribute)
   diff_model <- manynet::as_diffusion(.data, attribute = attribute)
   out <- which(diff_model$I == diff_model$n)[1]
   if(is.na(out)) out <- Inf
@@ -444,6 +446,8 @@ net_by_infection_total <- function(.data, normalized = TRUE,
 #'   net_by_infection_peak(smeg_diff)
 #' @export
 net_by_infection_peak <- function(.data, attribute = "diffusion"){
+  # stops where the network holds no diffusion, as the other measures do
+  if(!inherits(.data, "diff_model")) .diffusion_states(.data, attribute)
   diff_model <- manynet::as_diffusion(.data, attribute = attribute)
   if(inherits(.data, "diff_model")) 
     net <- attr(.data, "network") else 

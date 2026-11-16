@@ -94,10 +94,11 @@ and `is_twomode()` are in `{manynet}`.
   `node_is_neighbor()`, `node_is_pendant()`, `node_is_random()`,
   `node_is_recovered()`, `node_is_universal()`
 - `tie_is_bridge()`, `tie_is_cyclical()`, `tie_is_feedback()`,
-  `tie_is_imbalanced()`, `tie_is_loop()`, `tie_is_max()`,
-  `tie_is_min()`, `tie_is_multiple()`, `tie_is_path()`,
-  `tie_is_random()`, `tie_is_reciprocated()`, `tie_is_simmelian()`,
-  `tie_is_transitive()`, `tie_is_triangular()`, `tie_is_triplet()`
+  `tie_is_imbalanced()`, `tie_is_long()`, `tie_is_loop()`,
+  `tie_is_mainpath()`, `tie_is_max()`, `tie_is_min()`, `tie_is_path()`,
+  `tie_is_random()`, `tie_is_reciprocated()`, `tie_is_repeated()`,
+  `tie_is_simmelian()`, `tie_is_transitive()`, `tie_is_triangular()`,
+  `tie_is_triplet()`
 
 The `*is_max()` and `*is_min()` functions are used to identify the
 maximum or minimum, respectively, node or tie according to some measure
@@ -110,54 +111,61 @@ network, node, and tie level. These include:
 
 - `mode_by_betweenness()`, `mode_by_closeness()`, `mode_by_degree()`,
   `mode_by_eigenvector()`, `mode_by_indegree()`, `mode_by_outdegree()`,
-  `net_by_adhesion()`, `net_by_assortativity()`, `net_by_balance()`,
-  `net_by_betweenness()`, `net_by_bipartivity()`, `net_by_closeness()`,
-  `net_by_cohesion()`, `net_by_compactness()`, `net_by_components()`,
-  `net_by_congruency()`, `net_by_connectedness()`, `net_by_core()`,
-  `net_by_cyclicality()`, `net_by_decay()`, `net_by_degree()`,
-  `net_by_density()`, `net_by_diameter()`, `net_by_divergence()`,
+  `net_by_accuracy()`, `net_by_adhesion()`, `net_by_assortativity()`,
+  `net_by_balance()`, `net_by_betweenness()`, `net_by_bipartivity()`,
+  `net_by_closeness()`, `net_by_cohesion()`, `net_by_compactness()`,
+  `net_by_components()`, `net_by_concentration()`,
+  `net_by_congruency()`, `net_by_connectedness()`,
+  `net_by_convergence()`, `net_by_core()`, `net_by_cyclicality()`,
+  `net_by_decay()`, `net_by_degree()`, `net_by_density()`,
+  `net_by_diameter()`, `net_by_disagreement()`, `net_by_divergence()`,
   `net_by_diversity()`, `net_by_efficiency()`, `net_by_eigenvector()`,
   `net_by_equivalency()`, `net_by_factions()`, `net_by_harmonic()`,
   `net_by_heterophily()`, `net_by_homophily()`, `net_by_immunity()`,
   `net_by_inconsistency()`, `net_by_indegree()`,
   `net_by_independence()`, `net_by_infection_complete()`,
   `net_by_infection_peak()`, `net_by_infection_total()`,
-  `net_by_integration()`, `net_by_length()`, `net_by_linkdensity()`,
-  `net_by_modularity()`, `net_by_outdegree()`, `net_by_reach()`,
+  `net_by_influence()`, `net_by_integration()`, `net_by_length()`,
+  `net_by_linkdensity()`, `net_by_meshedness()`, `net_by_modularity()`,
+  `net_by_outdegree()`, `net_by_polarisation()`, `net_by_reach()`,
   `net_by_reciprocity()`, `net_by_recovery()`, `net_by_reproduction()`,
-  `net_by_richclub()`, `net_by_richness()`, `net_by_scalefree()`,
-  `net_by_smallworld()`, `net_by_spatial()`, `net_by_strength()`,
-  `net_by_toughness()`, `net_by_transitivity()`,
-  `net_by_transmissibility()`, `net_by_upperbound()`, `net_by_waves()`,
+  `net_by_richclub()`, `net_by_richness()`, `net_by_robustness()`,
+  `net_by_scalefree()`, `net_by_smallworld()`, `net_by_spatial()`,
+  `net_by_strength()`, `net_by_tipping()`, `net_by_toughness()`,
+  `net_by_transitivity()`, `net_by_transmissibility()`,
+  `net_by_upperbound()`, `net_by_waves()`, `node_by_accuracy()`,
   `node_by_adopt_exposure()`, `node_by_adopt_recovery()`,
   `node_by_adopt_threshold()`, `node_by_adopt_time()`,
   `node_by_alpha()`, `node_by_authority()`, `node_by_betweenness()`,
   `node_by_bridges()`, `node_by_brokering_activity()`,
   `node_by_brokering_exclusivity()`, `node_by_closeness()`,
-  `node_by_constraint()`, `node_by_core()`, `node_by_decay()`,
+  `node_by_concentration()`, `node_by_constraint()`,
+  `node_by_contagion()`, `node_by_core()`, `node_by_decay()`,
   `node_by_deg()`, `node_by_degree()`, `node_by_distance()`,
-  `node_by_diversity()`, `node_by_eccentricity()`,
+  `node_by_diversity()`, `node_by_domain()`, `node_by_eccentricity()`,
   `node_by_efficiency()`, `node_by_effsize()`, `node_by_eigenvector()`,
   `node_by_equivalency()`, `node_by_flow()`, `node_by_harmonic()`,
   `node_by_heterophily()`, `node_by_hierarchy()`, `node_by_homophily()`,
-  `node_by_hub()`, `node_by_indegree()`, `node_by_induced()`,
-  `node_by_information()`, `node_by_integration()`,
-  `node_by_kcoreness()`, `node_by_leverage()`, `node_by_multidegree()`,
-  `node_by_neighbours_degree()`, `node_by_outdegree()`,
+  `node_by_hub()`, `node_by_indeg()`, `node_by_indegree()`,
+  `node_by_induced()`, `node_by_influence()`, `node_by_information()`,
+  `node_by_integration()`, `node_by_kcoreness()`, `node_by_leverage()`,
+  `node_by_multidegree()`, `node_by_neighbours_degree()`,
+  `node_by_opinion()`, `node_by_outdeg()`, `node_by_outdegree()`,
   `node_by_pagerank()`, `node_by_posneg()`, `node_by_power()`,
   `node_by_radiality()`, `node_by_randomwalk()`, `node_by_reach()`,
   `node_by_reciprocity()`, `node_by_redundancy()`, `node_by_richness()`,
   `node_by_stress()`, `node_by_subgraph()`, `node_by_transitivity()`,
   `node_by_vitality()`, `tie_by_betweenness()`, `tie_by_closeness()`,
-  `tie_by_cohesion()`, `tie_by_degree()`, `tie_by_eigenvector()`
+  `tie_by_cohesion()`, `tie_by_degree()`, `tie_by_diversity()`,
+  `tie_by_eigenvector()`, `tie_by_mainpath()`, `tie_by_width()`
 
 The measures are organised into several broad categories, including:
 *Centrality*, *Cohesion*, *Hierarchy*, *Innovation* (structural holes),
-*Diversity* (heterogeneity), *Topology* (features), and *Diffusion*.
-Each measure recognises whether the network is directed or undirected,
-weighted or unweighted, one-mode or two-mode, and returns normalized
-values wherever possible. We recommend you explore [the list of
-functions](https://stocnet.github.io/netrics/reference/index.html) to
+*Diversity* (heterogeneity), *Topology* (features), *Diffusion*, and
+*Opinion*. Each measure recognises whether the network is directed or
+undirected, weighted or unweighted, one-mode or two-mode, and returns
+normalized values wherever possible. We recommend you explore [the list
+of functions](https://stocnet.github.io/netrics/reference/index.html) to
 find out more.
 
 ## Memberships
@@ -174,9 +182,8 @@ member of group “A”, the second in group “B”, etc.
   `node_in_greedy()`, `node_in_infomap()`, `node_in_labels()`,
   `node_in_leiden()`, `node_in_louvain()`, `node_in_motif()`,
   `node_in_optimal()`, `node_in_partition()`, `node_in_regular()`,
-  `node_in_roulette()`, `node_in_spinglass()`, `node_in_strong()`,
-  `node_in_structural()`, `node_in_walktrap()`, `node_in_weak()`,
-  `tie_in_community()`
+  `node_in_roulette()`, `node_in_spinglass()`, `node_in_structural()`,
+  `node_in_walktrap()`, `tie_in_community()`
 
 For example `node_in_brokering()` labels each node a powerhouse, a
 connector, a linchpin, or a sideliner, according to its brokerage
@@ -202,10 +209,11 @@ frequency in various motifs. These include:
 - `net_x_brokerage()`, `net_x_change()`, `net_x_correlation()`,
   `net_x_dyad()`, `net_x_hazard()`, `net_x_hierarchy()`,
   `net_x_homophily()`, `net_x_stability()`, `net_x_tetrad()`,
-  `net_x_triad()`, `node_x_alters()`, `node_x_brokerage()`,
-  `node_x_clique()`, `node_x_dyad()`, `node_x_exposure()`,
-  `node_x_path()`, `node_x_percolation()`, `node_x_similarity()`,
-  `node_x_tetrad()`, `node_x_tie()`, `node_x_ties()`, `node_x_triad()`
+  `net_x_triad()`, `node_x_accuracy()`, `node_x_alters()`,
+  `node_x_brokerage()`, `node_x_clique()`, `node_x_dyad()`,
+  `node_x_exposure()`, `node_x_path()`, `node_x_percolation()`,
+  `node_x_similarity()`, `node_x_tetrad()`, `node_x_tie()`,
+  `node_x_ties()`, `node_x_triad()`
 
 ## Analysis
 
@@ -247,12 +255,18 @@ about:
 - *Diversity*: `net_by_assortativity()`, `net_by_diversity()`,
   `net_by_heterophily()`, `net_by_homophily()`, `net_by_richness()`,
   `net_x_homophily()`, `node_by_diversity()`, `node_by_heterophily()`,
-  `node_by_homophily()`, `node_by_richness()`
-- *Diffusion*: `net_by_infection_complete()`, `net_by_infection_peak()`,
-  `net_by_infection_total()`, `node_by_adopt_exposure()`,
+  `node_by_homophily()`, `node_by_richness()`, `tie_by_diversity()`
+- *Diffusion*: `net_by_immunity()`, `net_by_infection_complete()`,
+  `net_by_infection_peak()`, `net_by_infection_total()`,
+  `net_by_recovery()`, `net_by_reproduction()`, `net_by_tipping()`,
+  `net_by_transmissibility()`, `node_by_adopt_exposure()`,
   `node_by_adopt_recovery()`, `node_by_adopt_threshold()`,
-  `node_by_adopt_time()`, `node_in_adopter()`, `node_is_exposed()`,
-  `node_is_infected()`, `node_x_exposure()`
+  `node_by_adopt_time()`, `node_by_contagion()`, `node_in_adopter()`,
+  `node_is_exposed()`, `node_is_infected()`, `node_is_latent()`,
+  `node_is_recovered()`, `node_x_exposure()`, `tie_by_width()`
+- *Opinion*: `net_by_convergence()`, `net_by_disagreement()`,
+  `net_by_influence()`, `net_by_polarisation()`, `node_by_influence()`,
+  `node_by_opinion()`
 
 ## Installation
 

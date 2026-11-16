@@ -55,6 +55,7 @@
   - Fixed two-mode networks normalising by degree rather than by co-affiliation
   - Fixed nodes that are never `active` counting as contacts that had not adopted
 - Fixed `node_by_adopt_time()` and `node_in_adopter()` categorising inactive nodes
+- Fixed `net_by_infection_complete()` and `net_by_infection_peak()` working without diffusions
 
 ## Motifs
 

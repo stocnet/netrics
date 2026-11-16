@@ -95,6 +95,10 @@ test_that("diffusions read their start state and their attribute", {
   still <- manynet::add_node_attribute(arcs, "diffusion", start)
   expect_equal(as.numeric(node_is_exposed(still)), c(0, 1, 1, 0, 0, 0))
   expect_error(node_is_infected(flu), "no diffusion")
+  expect_error(net_by_infection_complete(flu), "no diffusion")
+  expect_error(net_by_infection_peak(flu), "no diffusion")
+  expect_error(net_by_infection_complete(arcs), "no diffusion")
+  expect_error(net_by_infection_peak(arcs), "no diffusion")
 })
 
 test_that("the reproduction number is the transmission times the excess degree", {
