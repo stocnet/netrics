@@ -130,8 +130,8 @@ net_by_richclub <- function(.data){
 #'   _Network Science_. 5 (1): 30–44.
 #'   \doi{10.1017/nws.2017.5}
 #' @examples
-#' net_by_smallworld(ison_centrality)
-#' net_by_smallworld(ison_southern_women)
+#' net_by_smallworld(ison_centrality, times = 10)
+#' net_by_smallworld(ison_southern_women, times = 10)
 #' @export
 net_by_smallworld <- function(.data, 
                                variant = c("omega", "sigma", "SWI"),

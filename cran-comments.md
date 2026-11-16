@@ -1,3 +1,13 @@
+## Resubmission
+
+This is a resubmission. The first submission of 1.2.0, on 16 November,
+gave a NOTE for the time of the `measure_features` examples
+(14.8 s on r-devel-windows-x86_64, 6.7 s on r-devel-linux-x86_64-debian-gcc).
+The two `net_by_smallworld()` examples now draw 10 random graphs
+instead of 100, and the examples on that page now take 1.0 s locally,
+where they took 2.9 s. No example now takes more than 1.2 s locally.
+Nothing else has changed.
+
 ## Test environments
 
 * local macOS 27.0.1, aarch64-apple-darwin, R 4.6.1
