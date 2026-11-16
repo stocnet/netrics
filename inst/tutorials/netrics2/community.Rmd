@@ -134,6 +134,7 @@ By the end of this tutorial, you should be able to:
 - [ ] &nbsp; Measure how cohesive a network is with `net_by_density()`, and interpret the result for the type of network at hand
 - [ ] &nbsp; Measure closure with `net_by_reciprocity()` and `net_by_transitivity()`, and connect each to a mechanism of tie formation
 - [ ] &nbsp; Project a two-mode network into its one-mode projections with `to_mode1()` and `to_mode2()`, choosing an appropriate similarity option — and know what projection obscures
+- [ ] &nbsp; Keep every membership of a two-mode network in a concept lattice with `to_concepts()`, and read it from the top down
 - [ ] &nbsp; Count weak and strong components with `net_by_components()` and map their membership with `node_in_component()`
 - [ ] &nbsp; Concentrate on a network's giant component with `to_giant()` and split it into factions with `node_in_partition()`
 - [ ] &nbsp; Judge the fit of _any_ membership assignment with `net_by_modularity()`
@@ -520,7 +521,8 @@ Both hint at the group structure explored in the rest of this tutorial.
 <span class="page-toc-link" onclick="document.getElementById('section-a-two-mode-network').scrollIntoView({behavior:'auto',block:'start'});">A two-mode network</span> ·
 <span class="page-toc-link" onclick="document.getElementById('section-two-projections').scrollIntoView({behavior:'auto',block:'start'});">Two projections</span> ·
 <span class="page-toc-link" onclick="document.getElementById('section-projection-options').scrollIntoView({behavior:'auto',block:'start'});">Projection options</span> ·
-<span class="page-toc-link" onclick="document.getElementById('section-two-mode-closure').scrollIntoView({behavior:'auto',block:'start'});">Two-mode closure</span></span>
+<span class="page-toc-link" onclick="document.getElementById('section-two-mode-closure').scrollIntoView({behavior:'auto',block:'start'});">Two-mode closure</span> ·
+<span class="page-toc-link" onclick="document.getElementById('section-galois-lattices').scrollIntoView({behavior:'auto',block:'start'});">Galois lattices</span></span>
 
 ### A two-mode network {#a-two-mode-network}
 
@@ -697,12 +699,100 @@ of how much the women's attendance patterns actually reinforce one another.
 
 Try to explain in no more than a paragraph why projection can lead to misleading transitivity measures and what some consequences of this might be.
 
+### Galois lattices {#galois-lattices}
+
+Projection hides which women attended which events.
+A concept (or Galois) lattice keeps every one of those memberships
+(Freeman and White 1993).
+Each node in the lattice is a _concept_:
+a set of women (its `extent`) together with the set of events
+that all of them attended (its `intent`),
+where no other woman attended all of those events
+and the women share no other event.
+A tie joins a concept to the next concept below it,
+which holds fewer women who share more events.
+
+Let's start with a small example of four women and three events.
+`create_explicit()` takes each woman and the events she attended,
+and `to_twomode()` marks the events as the second mode.
+Then `to_concepts()` projects the network into its lattice.
+
+```{r galois-toy, exercise=TRUE}
+# each woman, and the events she attended
+toy <- create_explicit(Ann-E1:E2, Bea-E1:E2:E3, Cat-E2:E3, Dee-E3)
+# mark the events as the second mode
+toy <- to_twomode(toy, node_names(toy) %in% c("E1","E2","E3"))
+toy_lattice <- to_concepts(toy)
+toy_lattice
+graphr(toy_lattice, "layered")
+```
+
+You read the lattice from the top down,
+with each level representing a more specific grouping of women based on their shared events.
+Each label names the women and the `{events}` that _first_ appear at that concept.
+So, the top concept holds all four women, who share no event,
+`{E2}` is the concept of the three women who attended E2 (Ann, Bea, and Cat),
+and `Dee {E3}` is the concept that holds Cat and Bea (who also attended E3) and Dee (who attended only E3).
+A woman is in her own concept and in every concept above it.
+Bea attended all three events, so she is at the bottom,
+in the one concept that has every event (reading upwards).
+Now try this on the Southern Women.
+
+```{r galois-women, exercise=TRUE, exercise.setup = "setup-women"}
+women_lattice <- to_concepts(ison_southern_women)
+women_lattice
+graphr(women_lattice, "layered")
+```
+
+This lattice is much larger, but it reads in the same way.
+Freeman (2003) uses it to find the groups among the Southern Women:
+look for the women who first appear low down, under a few shared events,
+and for the concepts where the two groups of women meet.
+
+Use the `extent` node attribute to find every concept that holds Evelyn.
+
+```{r galois-evelyn, exercise=TRUE, exercise.setup = "galois-women", purl = FALSE}
+
+```
+
+```{r galois-evelyn-hint-1, purl = FALSE}
+# node_attribute() gives the extent of each concept as a list of names
+node_attribute(women_lattice, "extent")
+```
+
+```{r galois-evelyn-hint-2, purl = FALSE}
+# check whether "Evelyn" is in each extent
+vapply(node_attribute(women_lattice, "extent"),
+       function(women) "Evelyn" %in% women, logical(1))
+```
+
+```{r galois-evelyn-solution}
+has_evelyn <- vapply(node_attribute(women_lattice, "extent"),
+                     function(women) "Evelyn" %in% women, logical(1))
+node_names(women_lattice)[has_evelyn]
+```
+
+```{r galois-interp, echo=FALSE, purl = FALSE}
+question("What does the lattice show that the women's projection does not?",
+  answer("Which events each set of women shares.",
+         correct = TRUE,
+         message = "Yes -- each concept keeps its events as well as its women, so the memberships are not lost."),
+  answer("How many events each pair of women shares.",
+         message = "The projection also shows this, as the weight of each tie in `to_mode1()`."),
+  answer("Groups of women nested within larger groups.",
+         correct = TRUE,
+         message = "Yes -- each concept holds fewer women than the concepts above it, so the lattice shows how groups nest."),
+  allow_retry = TRUE
+)
+```
+
 ::: {.callout}
 <span class="callout-label">**In brief**:</span> `to_mode1()`/`to_mode2()` project a two-mode network
 into ties among one of its node sets, with a `similarity` argument
 ("count", "jaccard", "rand", "pearson", "yule") governing the weights.
 Projection inflates transitivity and hides memberships, so where possible
-measure the two-mode network directly, e.g. with `net_by_equivalency()`.
+measure the two-mode network directly, e.g. with `net_by_equivalency()`,
+or keep the memberships with a concept lattice from `to_concepts()`.
 :::
 
 ## Components

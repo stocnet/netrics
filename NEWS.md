@@ -65,6 +65,7 @@
 ## Tutorials
 
 - Fixed the "Position and Equivalence" tutorial to offer to install `{sna}`
+- Added a "Galois lattices" section to the "Community" tutorial (closes #40)
 - Updated tutorials for the 'stocnet' datasets of `{manynet}` 2.5.0 (stocnet/manynet#186)
   - Fixed "Centrality" tutorial to two-mode `ison_brandes` with `rename_nodes(mode = twomode_type)`
   - Fixed "Position and Equivalence" tutorial to drop the `layer` tie attribute of `ison_algebra`
