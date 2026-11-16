@@ -26,7 +26,7 @@ Apply manynet::to_unweighted() first to compare them directly."><meta property="
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">netrics</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.1.3</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.2.0</span>
       </span>
     </div>
 
@@ -122,11 +122,13 @@ Apply <code><a href="https://stocnet.github.io/manynet/reference/modif_weight.ht
 <dl><dt id="arg--data">.data<a class="anchor" aria-label="anchor" href="#arg--data"></a></dt>
 <dd><p>A network object of class <code>stocnet</code>, <code>igraph</code>, <code>tbl_graph</code>, <code>network</code>, or similar.
 Internally any of these will be coerced to an efficient implementation.
-For more information on possible coercions, see e.g. <code><a href="https://stocnet.github.io/manynet/reference/coerce_graph.html" class="external-link">manynet::as_stocnet()</a></code>.</p></dd>
+For more information on possible coercions, see e.g. <code><a href="https://stocnet.github.io/manynet/reference/coerce_stocnet.html" class="external-link">manynet::as_stocnet()</a></code>.</p></dd>
 
 
 <dt id="arg-attribute">attribute<a class="anchor" aria-label="anchor" href="#arg-attribute"></a></dt>
-<dd><p>Name of a nodal attribute, mark, measure, or membership vector.</p></dd>
+<dd><p>Name of a nodal attribute, mark, measure, or membership vector.
+Where none is named and the network holds only one nodal attribute
+besides the reserved ones, such as "label" and "mode", that one is used.</p></dd>
 
 </dl></div>
     <div id="value">
@@ -184,6 +186,7 @@ indicates less.</p>
 <p>Other diversity:
 <code><a href="measure_assort_net.html">measure_assort_net</a></code>,
 <code><a href="measure_assort_node.html">measure_assort_node</a></code>,
+<code><a href="measure_diverse_dispersion.html">measure_diverse_dispersion</a></code>,
 <code><a href="measure_diverse_net.html">measure_diverse_net</a></code>,
 <code><a href="measure_diverse_node.html">measure_diverse_node</a></code>,
 <code><a href="measure_diverse_tie.html">measure_diverse_tie</a></code>,

@@ -28,7 +28,7 @@ A summary of the tie measure then describes the network as a whole.
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">netrics</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.1.3</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.2.0</span>
       </span>
     </div>
 
@@ -116,7 +116,9 @@ A summary of the tie measure then describes the network as a whole.</p></li>
     <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">tie_by_diversity</span><span class="op">(</span></span>
 <span>  <span class="va">.data</span>,</span>
 <span>  <span class="va">attribute</span>,</span>
-<span>  diversity <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"blau"</span>, <span class="st">"teachman"</span>, <span class="st">"variation"</span>, <span class="st">"gini"</span><span class="op">)</span></span>
+<span>  diversity <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"blau"</span>, <span class="st">"teachman"</span>, <span class="st">"variation"</span>, <span class="st">"gini"</span>, <span class="st">"rao"</span><span class="op">)</span>,</span>
+<span>  normalized <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>  distance <span class="op">=</span> <span class="cn">NULL</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
 
@@ -127,20 +129,41 @@ A summary of the tie measure then describes the network as a whole.</p></li>
 <dl><dt id="arg--data">.data<a class="anchor" aria-label="anchor" href="#arg--data"></a></dt>
 <dd><p>A network object of class <code>stocnet</code>, <code>igraph</code>, <code>tbl_graph</code>, <code>network</code>, or similar.
 Internally any of these will be coerced to an efficient implementation.
-For more information on possible coercions, see e.g. <code><a href="https://stocnet.github.io/manynet/reference/coerce_graph.html" class="external-link">manynet::as_stocnet()</a></code>.</p></dd>
+For more information on possible coercions, see e.g. <code><a href="https://stocnet.github.io/manynet/reference/coerce_stocnet.html" class="external-link">manynet::as_stocnet()</a></code>.</p></dd>
 
 
 <dt id="arg-attribute">attribute<a class="anchor" aria-label="anchor" href="#arg-attribute"></a></dt>
-<dd><p>Name of a nodal attribute, mark, measure, or membership vector.</p></dd>
+<dd><p>Name of a nodal attribute, mark, measure, or membership vector.
+Where none is named and the network holds only one nodal attribute
+besides the reserved ones, such as "label" and "mode", that one is used.</p></dd>
 
 
 <dt id="arg-diversity">diversity<a class="anchor" aria-label="anchor" href="#arg-diversity"></a></dt>
 <dd><p>Which method to use for <code>*_diversity()</code>.
-Either "blau" (Blau's index) or "teachman" (Teachman's index) for categorical attributes,
+Either "blau" (Blau's index), "teachman" (Teachman's index),
+or "rao" (Rao-Stirling diversity) for categorical attributes,
 or "variation" (coefficient of variation) or "gini" (Gini coefficient) for numeric attributes.
 Default is "blau".
 If an incompatible method is chosen for the attribute type,
 a suitable alternative will be used instead with a message.</p></dd>
+
+
+<dt id="arg-normalized">normalized<a class="anchor" aria-label="anchor" href="#arg-normalized"></a></dt>
+<dd><p>Logical scalar, whether Blau's index is divided by its
+maximum for the attribute, \(1 - 1/k\),
+where \(k\) is the number of categories the attribute holds in the network.
+The index then runs from 0 to 1 whatever the number of categories,
+as the index of qualitative variation does (Agresti and Agresti 1978).
+The other indices are left as they are.
+By default TRUE.</p></dd>
+
+
+<dt id="arg-distance">distance<a class="anchor" aria-label="anchor" href="#arg-distance"></a></dt>
+<dd><p>For <code>diversity = "rao"</code>, the distances among the
+categories of the attribute: a matrix whose row and column names are the
+categories, or a one-mode network of the categories,
+with values between 0 (the same) and 1 (the most different).
+By default NULL, so every two categories are 1 apart.</p></dd>
 
 </dl></div>
     <div id="value">
@@ -161,6 +184,7 @@ All can be retrieved with <code><a href="https://rdrr.io/r/base/attr.html" class
     <div class="dont-index"><p>Other diversity:
 <code><a href="measure_assort_net.html">measure_assort_net</a></code>,
 <code><a href="measure_assort_node.html">measure_assort_node</a></code>,
+<code><a href="measure_diverse_dispersion.html">measure_diverse_dispersion</a></code>,
 <code><a href="measure_diverse_net.html">measure_diverse_net</a></code>,
 <code><a href="measure_diverse_node.html">measure_diverse_node</a></code>,
 <code><a href="motif_composition.html">motif_composition</a></code>,
@@ -172,7 +196,6 @@ All can be retrieved with <code><a href="https://rdrr.io/r/base/attr.html" class
 <code><a href="measure_assort_node.html">measure_assort_node</a></code>,
 <code><a href="measure_breadth.html">measure_breadth</a></code>,
 <code><a href="measure_broker_node.html">measure_broker_node</a></code>,
-<code><a href="measure_broker_tie.html">measure_broker_tie</a></code>,
 <code><a href="measure_brokerage.html">measure_brokerage</a></code>,
 <code><a href="measure_central_between.html">measure_central_between</a></code>,
 <code><a href="measure_central_close.html">measure_central_close</a></code>,
@@ -189,24 +212,28 @@ All can be retrieved with <code><a href="https://rdrr.io/r/base/attr.html" class
 <code><a href="measure_diffusion_infection.html">measure_diffusion_infection</a></code>,
 <code><a href="measure_diffusion_net.html">measure_diffusion_net</a></code>,
 <code><a href="measure_diffusion_node.html">measure_diffusion_node</a></code>,
+<code><a href="measure_diverse_dispersion.html">measure_diverse_dispersion</a></code>,
 <code><a href="measure_diverse_net.html">measure_diverse_net</a></code>,
 <code><a href="measure_diverse_node.html">measure_diverse_node</a></code>,
+<code><a href="measure_domain.html">measure_domain</a></code>,
 <code><a href="measure_features.html">measure_features</a></code>,
 <code><a href="measure_fit.html">measure_fit</a></code>,
 <code><a href="measure_fragmentation.html">measure_fragmentation</a></code>,
 <code><a href="measure_hierarchy.html">measure_hierarchy</a></code>,
-<code><a href="measure_periods.html">measure_periods</a></code></p>
+<code><a href="measure_opinion.html">measure_opinion</a></code>,
+<code><a href="measure_periods.html">measure_periods</a></code>,
+<code><a href="measure_broker_tie.html">tie_by_width()</a></code></p>
 <p>Other tie:
 <code><a href="mark_dyads.html">mark_dyads</a></code>,
 <code><a href="mark_select_tie.html">mark_select_tie</a></code>,
 <code><a href="mark_ties.html">mark_ties</a></code>,
 <code><a href="mark_triangles.html">mark_triangles</a></code>,
-<code><a href="measure_broker_tie.html">measure_broker_tie</a></code>,
 <code><a href="measure_central_tie_between.html">measure_central_tie_between</a></code>,
 <code><a href="measure_central_tie_close.html">measure_central_tie_close</a></code>,
 <code><a href="measure_central_tie_degree.html">measure_central_tie_degree</a></code>,
 <code><a href="measure_central_tie_eigen.html">measure_central_tie_eigen</a></code>,
-<code><a href="member_community_link.html">member_community_link</a></code></p></div>
+<code><a href="member_community_link.html">member_community_link</a></code>,
+<code><a href="measure_broker_tie.html">tie_by_width()</a></code></p></div>
     </div>
 
     <div id="ref-examples">
@@ -214,12 +241,12 @@ All can be retrieved with <code><a href="https://rdrr.io/r/base/attr.html" class
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="fu">tie_by_diversity</span><span class="op">(</span><span class="va">ison_lawfirm</span>, <span class="st">"gender"</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># Blau's index, normalized [0, 1]</span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   `1-&gt;2` `1-&gt;2` `1-&gt;4` `1-&gt;8` `1-&gt;17` `1-&gt;17` `1-&gt;17` `1-&gt;20` `1-&gt;39` `1-&gt;40`</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">1</span>      0      0      0      0       0       0       0       0     0.5       0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">1</span>      0      0      0      0       0       0       0       0       1       0</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># ... and 2561 more values from this nodeset. Use `print_all(...)` to print all values.</span></span>
 <span class="r-in"><span><span class="fu">tie_by_diversity</span><span class="op">(</span><span class="fu">to_hypergraph</span><span class="op">(</span><span class="va">ison_southern_women</span><span class="op">)</span>, <span class="st">"Title"</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># Blau's index, normalized [0, 1]</span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>      E1    E2    E3    E4    E5    E6    E7    E8    E9   E10   E11   E12   E13</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">1</span> 0.444 0.444 0.278 0.375 0.219 0.375  0.42 0.408   0.5  0.48     0   0.5 0.444</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">1</span> 0.889 0.889 0.556  0.75 0.438  0.75  0.84 0.816     1  0.96     0     1 0.889</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># ... and 1 more values from this nodeset. Use `print_all(...)` to print all values.</span></span>
 </code></pre></div>
     </div>

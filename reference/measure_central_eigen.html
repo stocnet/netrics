@@ -46,7 +46,7 @@ give scores that are comparable between networks."><meta property="og:image" con
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">netrics</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.1.3</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.2.0</span>
       </span>
     </div>
 
@@ -114,7 +114,7 @@ give scores that are comparable between networks."><meta property="og:image" con
   <div class="col-md-9 contents">
     <div class="page-header">
     <h1>Measures of node eigenvector-like centrality</h1>
-    <small class="dont-index">Source: <a href="https://github.com/stocnet/netrics/blob/main/R/measure_centrality_eigen.R" class="external-link"><code>R/measure_centrality_eigen.R</code></a></small>
+    <small class="dont-index">Source: <a href="https://github.com/stocnet/netrics/blob/main/R/measure_centrality_eigen.R" class="external-link"><code>R/measure_centrality_eigen.R</code></a>, <a href="https://github.com/stocnet/netrics/blob/main/R/measure_opinion.R" class="external-link"><code>R/measure_opinion.R</code></a></small>
     <div class="hidden name"><code>measure_central_eigen.Rd</code></div>
     </div>
 
@@ -174,7 +174,9 @@ give scores that are comparable between networks.</p>
 <span>  method <span class="op">=</span> <span class="cn">NULL</span></span>
 <span><span class="op">)</span></span>
 <span></span>
-<span><span class="fu">node_by_posneg</span><span class="op">(</span><span class="va">.data</span><span class="op">)</span></span></code></pre></div>
+<span><span class="fu">node_by_posneg</span><span class="op">(</span><span class="va">.data</span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu">node_by_influence</span><span class="op">(</span><span class="va">.data</span>, normalized <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div id="arguments">
@@ -184,7 +186,7 @@ give scores that are comparable between networks.</p>
 <dl><dt id="arg--data">.data<a class="anchor" aria-label="anchor" href="#arg--data"></a></dt>
 <dd><p>A network object of class <code>stocnet</code>, <code>igraph</code>, <code>tbl_graph</code>, <code>network</code>, or similar.
 Internally any of these will be coerced to an efficient implementation.
-For more information on possible coercions, see e.g. <code><a href="https://stocnet.github.io/manynet/reference/coerce_graph.html" class="external-link">manynet::as_stocnet()</a></code>.</p></dd>
+For more information on possible coercions, see e.g. <code><a href="https://stocnet.github.io/manynet/reference/coerce_stocnet.html" class="external-link">manynet::as_stocnet()</a></code>.</p></dd>
 
 
 <dt id="arg-normalized">normalized<a class="anchor" aria-label="anchor" href="#arg-normalized"></a></dt>
@@ -398,6 +400,46 @@ than counting only direct ties.
 Scores centre on 1: nodes above 1 are advantaged by their pattern of
 positive and negative ties, and those below 1 disadvantaged.</p>
     </div>
+    <div id="influence-centrality">
+    <h2>Influence centrality</h2>
+
+
+<p><code>node_by_influence()</code> measures how much the first opinion of each node
+shapes the opinions of every node at the end of an opinion dynamic
+such as <code><a href="https://stocnet.github.io/manynet/reference/make_opinion.html" class="external-link">manynet::play_opinion()</a></code>.
+It is the mean, over all nodes, of the weight that the first opinion
+of each node has in their opinion at the end
+(see <code><a href="measure_opinion.html">node_by_opinion()</a></code>).
+Without stubbornness, it is the left eigenvector of the influence matrix
+\(W\) from <code><a href="https://stocnet.github.io/manynet/reference/modif_influence.html" class="external-link">manynet::to_influence()</a></code>, and so the social power
+of Friedkin (1991) and the influence vector of Golub and Jackson (2010).
+Where the network has a nodal attribute named "stubbornness",
+it uses the equilibrium of Friedkin and Johnsen (1990).</p>
+<p>This is not eigenvector centrality.
+Eigenvector centrality is the right eigenvector of the adjacency matrix,
+which counts the ties a node receives; influence is the left eigenvector
+of \(W\), which weights each node by how much others listen to it.
+The two agree only on a regular undirected network.
+It has the same form as <code>node_by_pagerank()</code>, which is the left
+eigenvector of a walk that follows a tie with the same probability
+from every node.</p>
+<p>By default the scores are divided by the largest score.
+With <code>normalized = FALSE</code> they are shares that sum to one.</p>
+<p>Where the network has negative ties, which repel
+(see <code><a href="https://stocnet.github.io/manynet/reference/modif_influence.html" class="external-link">manynet::to_influence()</a></code>), the weight of a first opinion in the
+opinion at the end of another node can be negative:
+it pulls that node away from it.
+This is influence too, so the score is the mean of the absolute weights.
+The mean of the signed weights would let a pull towards and a pull away
+cancel. In a balanced network of two camps, for example, the first
+opinion of each node has the same weight in every opinion at the end,
+positive in its own camp and negative in the other, so every node has
+the same influence and not none.
+Without negative ties, the two means are the same.
+Where the opinions all go to 0, as in a signed network that is not
+balanced, no first opinion has any weight at the end,
+and every score is 0.</p>
+    </div>
     <div id="references">
     <h2>References</h2>
 
@@ -490,6 +532,20 @@ positive and negative ties, and those below 1 disadvantaged.</p>
 <a href="https://doi.org/10.1016/j.socnet.2014.03.005" class="external-link">doi:10.1016/j.socnet.2014.03.005</a></p>
 </div>
 
+<div class="section">
+<h3 id="on-influence-centrality">On influence centrality<a class="anchor" aria-label="anchor" href="#on-influence-centrality"></a></h3>
+
+
+<p>Friedkin, Noah E. 1991.
+"Theoretical foundations for centrality measures".
+<em>American Journal of Sociology</em> 96(6): 1478-1504.
+<a href="https://doi.org/10.1086/229694" class="external-link">doi:10.1086/229694</a></p>
+<p>Golub, Benjamin, and Matthew O. Jackson. 2010.
+"Naive learning in social networks and the wisdom of crowds".
+<em>American Economic Journal: Microeconomics</em> 2(1): 112-149.
+<a href="https://doi.org/10.1257/mic.2.1.112" class="external-link">doi:10.1257/mic.2.1.112</a></p>
+</div>
+
     </div>
     <div id="see-also">
     <h2>See also</h2>
@@ -515,7 +571,6 @@ positive and negative ties, and those below 1 disadvantaged.</p>
 <code><a href="measure_assort_node.html">measure_assort_node</a></code>,
 <code><a href="measure_breadth.html">measure_breadth</a></code>,
 <code><a href="measure_broker_node.html">measure_broker_node</a></code>,
-<code><a href="measure_broker_tie.html">measure_broker_tie</a></code>,
 <code><a href="measure_brokerage.html">measure_brokerage</a></code>,
 <code><a href="measure_central_between.html">measure_central_between</a></code>,
 <code><a href="measure_central_close.html">measure_central_close</a></code>,
@@ -531,14 +586,18 @@ positive and negative ties, and those below 1 disadvantaged.</p>
 <code><a href="measure_diffusion_infection.html">measure_diffusion_infection</a></code>,
 <code><a href="measure_diffusion_net.html">measure_diffusion_net</a></code>,
 <code><a href="measure_diffusion_node.html">measure_diffusion_node</a></code>,
+<code><a href="measure_diverse_dispersion.html">measure_diverse_dispersion</a></code>,
 <code><a href="measure_diverse_net.html">measure_diverse_net</a></code>,
 <code><a href="measure_diverse_node.html">measure_diverse_node</a></code>,
 <code><a href="measure_diverse_tie.html">measure_diverse_tie</a></code>,
+<code><a href="measure_domain.html">measure_domain</a></code>,
 <code><a href="measure_features.html">measure_features</a></code>,
 <code><a href="measure_fit.html">measure_fit</a></code>,
 <code><a href="measure_fragmentation.html">measure_fragmentation</a></code>,
 <code><a href="measure_hierarchy.html">measure_hierarchy</a></code>,
-<code><a href="measure_periods.html">measure_periods</a></code></p>
+<code><a href="measure_opinion.html">measure_opinion</a></code>,
+<code><a href="measure_periods.html">measure_periods</a></code>,
+<code><a href="measure_broker_tie.html">tie_by_width()</a></code></p>
 <p>Other nodal:
 <code><a href="mark_core.html">mark_core</a></code>,
 <code><a href="mark_degree.html">mark_degree</a></code>,
@@ -556,6 +615,8 @@ positive and negative ties, and those below 1 disadvantaged.</p>
 <code><a href="measure_core.html">measure_core</a></code>,
 <code><a href="measure_diffusion_node.html">measure_diffusion_node</a></code>,
 <code><a href="measure_diverse_node.html">measure_diverse_node</a></code>,
+<code><a href="measure_domain.html">measure_domain</a></code>,
+<code><a href="measure_opinion.html">measure_opinion</a></code>,
 <code><a href="member_brokerage.html">member_brokerage</a></code>,
 <code><a href="member_cliques.html">member_cliques</a></code>,
 <code><a href="member_community.html">member_community</a></code>,
@@ -596,6 +657,11 @@ positive and negative ties, and those below 1 disadvantaged.</p>
 <span class="r-out co"><span class="r-pr">#&gt;</span>      E1    E2    E3    E4    E5    E6    E7    E8    E9   E10   E11   E12   E13</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">1</span> -<span style="color: #BB0000;">1.32</span> -<span style="color: #BB0000;">1.32</span> -<span style="color: #BB0000;">1.32</span> -<span style="color: #BB0000;">1.32</span> -<span style="color: #BB0000;">1.32</span> -<span style="color: #BB0000;">1.62</span> -<span style="color: #BB0000;">1.62</span> -<span style="color: #BB0000;">1.62</span> -<span style="color: #BB0000;">1.62</span> -<span style="color: #BB0000;">1.32</span> -<span style="color: #BB0000;">1.32</span> -<span style="color: #BB0000;">1.32</span> -<span style="color: #BB0000;">1.32</span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># ... and 1 more values from this nodeset. Use `print_all(...)` to print all values.</span></span>
+<span class="r-in"><span><span class="fu">node_by_influence</span><span class="op">(</span><span class="fu">manynet</span><span class="fu">::</span><span class="fu"><a href="https://stocnet.github.io/manynet/reference/make_create.html" class="external-link">create_star</a></span><span class="op">(</span><span class="fl">5</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># Influence centrality, scaled [0, 1]</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> ▇▁▁▂ </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>      V1    V2    V3    V4    V5</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">1</span>     1  0.25  0.25  0.25  0.25</span>
 </code></pre></div>
     </div>
   </div>

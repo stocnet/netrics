@@ -17,7 +17,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">netrics</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.1.3</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.2.0</span>
       </span>
     </div>
 
@@ -88,6 +88,106 @@
       <small>Source: <a href="https://github.com/stocnet/netrics/blob/main/NEWS.md" class="external-link"><code>NEWS.md</code></a></small>
     </div>
 
+    <div class="section level2">
+<h2 class="page-header" data-toc-text="1.2.0" id="netrics-120">netrics 1.2.0<small>2026-11-16</small><a class="anchor" aria-label="anchor" href="#netrics-120"></a></h2>
+<div class="section level3">
+<h3 id="marks-1-2-0">Marks<a class="anchor" aria-label="anchor" href="#marks-1-2-0"></a></h3>
+<ul><li>Renamed <code><a href="../reference/defunct.html">tie_is_multiple()</a></code> to <code><a href="../reference/mark_dyads.html">tie_is_repeated()</a></code>, apart from <code><a href="https://stocnet.github.io/manynet/reference/measure_attributes_ties.html" class="external-link">manynet::tie_is_parallel()</a></code> (closes <a href="https://github.com/stocnet/netrics/issues/38" class="external-link">#38</a>)</li>
+<li>Added <code>attribute="diffusion"</code> to diffusion marks, measures, memberships, and motifs</li>
+<li>Added <code><a href="../reference/mark_ties.html">tie_is_mainpath()</a></code> for the local or global main path of an acyclic network</li>
+<li>Added <code><a href="../reference/mark_ties.html">tie_is_long()</a></code> for the ties whose two ends have no common neighbour (Centola and Macy 2007)</li>
+<li>Fixed <code><a href="../reference/mark_ties.html">tie_is_bridge()</a></code> returning an invisible vector without the <code>tie_mark</code> class</li>
+<li>Fixed diffusion marks losing the diffusion of <code>diff_model</code> objects
+<ul><li>
+<code><a href="../reference/mark_diff.html">node_is_infected()</a></code>, <code><a href="../reference/mark_diff.html">node_is_latent()</a></code>, <code><a href="../reference/mark_diff.html">node_is_recovered()</a></code>, <code><a href="../reference/mark_diff.html">node_is_exposed()</a></code>
+</li>
+</ul></li>
+</ul></div>
+<div class="section level3">
+<h3 id="measures-1-2-0">Measures<a class="anchor" aria-label="anchor" href="#measures-1-2-0"></a></h3>
+<ul><li>Improved <code><a href="../reference/measure_diffusion_net.html">net_by_reproduction()</a></code> to estimate R0 as the chance of transmission over a tie times the excess degree
+<ul><li>Fixed the old estimate, which mixed the contagion with the network and was often on the wrong side of 1</li>
+<li>Added a warning and <code>NA</code> where no susceptible node was exposed</li>
+</ul></li>
+<li>Fixed <code><a href="../reference/measure_diffusion_net.html">net_by_immunity()</a></code> ignoring the structure of the network, through <code><a href="../reference/measure_diffusion_net.html">net_by_reproduction()</a></code>
+</li>
+<li>Added <code><a href="../reference/measure_central_tie_between.html">tie_by_mainpath()</a></code> for the traversal counts of main path analysis
+<ul><li>
+<code>variant=</code> “spc” (default), “splc”, or “spnp”</li>
+</ul></li>
+<li>Added <code><a href="../reference/measure_diverse_dispersion.html">net_by_polarisation()</a></code> and <code><a href="../reference/measure_diverse_dispersion.html">net_by_disagreement()</a></code> for numeric heterogeneity</li>
+<li>Added <code><a href="../reference/measure_assort_node.html">node_by_concentration()</a></code> and <code><a href="../reference/measure_assort_net.html">net_by_concentration()</a></code> for Getis–Ord hot spots</li>
+<li>Added opinion measures on <code><a href="https://stocnet.github.io/manynet/reference/modif_influence.html" class="external-link">manynet::to_influence()</a></code>, with any “stubbornness” attribute
+<ul><li>Added <code><a href="../reference/measure_central_eigen.html">node_by_influence()</a></code> and <code><a href="../reference/measure_centralisation_eigen.html">net_by_influence()</a></code> for social power and wise crowds</li>
+<li>Added absolute weights to the influence measures, so a pull away along a negative tie counts</li>
+<li>Added <code><a href="../reference/measure_opinion.html">node_by_opinion()</a></code> for the opinions where an opinion dynamic settles</li>
+<li>Added <code><a href="../reference/measure_opinion.html">net_by_convergence()</a></code> for the speed at which the opinions settle</li>
+</ul></li>
+<li>Added complex contagion measures
+<ul><li>Added <code><a href="../reference/measure_broker_tie.html">tie_by_width()</a></code> for the width of the bridge that each tie is in</li>
+<li>Added <code><a href="../reference/measure_central_close.html">node_by_contagion()</a></code> for complex centrality (Guilbeault and Centola 2021)</li>
+<li>Added <code><a href="../reference/measure_diffusion_net.html">net_by_tipping()</a></code> for the fewest seeds a threshold contagion needs to complete</li>
+</ul></li>
+<li>Improved <code><a href="../reference/measure_fit.html">net_by_factions()</a></code> to handle signed networks, measuring polarisation
+<ul><li>Added <code>variant = "esteban"</code> for Esteban–Ray polarisation</li>
+</ul></li>
+<li>Added “rao” and <code>distance=</code> to <code>*_by_diversity()</code> for Rao–Stirling diversity</li>
+<li>Improved attribute-based measures to run without an <code>attribute=</code> argument where there is only one available attribute, and error where there are several</li>
+<li>Added <code>normalized=</code> to <code><a href="../reference/measure_diverse_net.html">net_by_diversity()</a></code>, <code><a href="../reference/measure_diverse_node.html">node_by_diversity()</a></code>, and <code><a href="../reference/measure_diverse_tie.html">tie_by_diversity()</a></code>
+<ul><li>Blau’s index is divided by its maximum, 1 - 1/k, by default</li>
+<li>
+<code>normalized = FALSE</code> gives the previous values</li>
+</ul></li>
+<li>Added <code><a href="../reference/measure_central_degree.html">node_by_indeg()</a></code> and <code><a href="../reference/measure_central_degree.html">node_by_outdeg()</a></code> as unnormalised degree shortcuts</li>
+<li>Improved <code>*_by_harmonic()</code> to return straightness centrality for spatial networks (closes <a href="https://github.com/stocnet/netrics/issues/49" class="external-link">#49</a>)</li>
+<li>Improved <code><a href="../reference/measure_diffusion_node.html">node_by_adopt_exposure()</a></code>
+<ul><li>Added <code>direction=</code>; “in” by default as before</li>
+<li>Fixed <code>diff_model</code> objects losing their diffusion</li>
+<li>Fixed two-mode networks, which failed or counted the wrong nodes</li>
+<li>Fixed nodes that are never <code>active</code> counting as contacts</li>
+</ul></li>
+<li>Improved <code><a href="../reference/measure_diffusion_node.html">node_by_adopt_threshold()</a></code> (closes <a href="https://github.com/stocnet/netrics/issues/1" class="external-link">#1</a>, thanks <a href="https://github.com/henriquesposito" class="external-link">@henriquesposito</a>)
+<ul><li>Added <code>direction=</code> for exposure along arcs “in”, “out”, or “all”</li>
+<li>Fixed <code>lag = 0</code> returning only zeros</li>
+<li>Fixed directed networks normalising by total degree rather than by <code>direction=</code>
+</li>
+<li>Fixed adopters without ties returning <code>NaN</code> rather than 0</li>
+<li>Fixed <code>diff_model</code> objects ignoring <code>lag=</code> and <code>direction=</code>
+</li>
+<li>Improved seeds to return <code>NA</code> rather than 0, so they do not lower averages</li>
+<li>Updated the documentation on reproducing <code>netdiffuseR::threshold()</code>
+</li>
+<li>Fixed two-mode networks normalising by degree rather than by co-affiliation</li>
+<li>Fixed nodes that are never <code>active</code> counting as contacts that had not adopted</li>
+</ul></li>
+<li>Fixed <code><a href="../reference/measure_diffusion_node.html">node_by_adopt_time()</a></code> and <code><a href="../reference/member_diffusion.html">node_in_adopter()</a></code> categorising inactive nodes</li>
+<li>Fixed <code><a href="../reference/measure_diffusion_infection.html">net_by_infection_complete()</a></code> and <code><a href="../reference/measure_diffusion_infection.html">net_by_infection_peak()</a></code> working without diffusions</li>
+</ul></div>
+<div class="section level3">
+<h3 id="motifs-1-2-0">Motifs<a class="anchor" aria-label="anchor" href="#motifs-1-2-0"></a></h3>
+<ul><li>Fixed <code><a href="../reference/motif_exposure.html">node_x_exposure()</a></code> on <code>diff_model</code> objects and two-mode diffusions</li>
+<li>Improved attribute-based motifs to run without an <code>attribute=</code> argument where there is only one available attribute, and error where there are several</li>
+</ul></div>
+<div class="section level3">
+<h3 id="tutorials-1-2-0">Tutorials<a class="anchor" aria-label="anchor" href="#tutorials-1-2-0"></a></h3>
+<ul><li>Fixed the “Position and Equivalence” tutorial to offer to install <a href="https://statnet.org" class="external-link">sna</a>
+</li>
+<li>Added a “Galois lattices” section to the “Community” tutorial (closes <a href="https://github.com/stocnet/netrics/issues/40" class="external-link">#40</a>)</li>
+<li>Updated tutorials for the ‘stocnet’ datasets of <a href="https://stocnet.github.io/manynet/" class="external-link">manynet</a> 2.5.0 (stocnet/manynet#186)
+<ul><li>Fixed “Centrality” tutorial to two-mode <code>ison_brandes</code> with <code>rename_nodes(mode = twomode_type)</code>
+</li>
+<li>Fixed “Position and Equivalence” tutorial to drop the <code>layer</code> tie attribute of <code>ison_algebra</code>
+</li>
+</ul></li>
+</ul></div>
+</div>
+    <div class="section level2">
+<h2 class="page-header" data-toc-text="1.1.4" id="netrics-114">netrics 1.1.4<a class="anchor" aria-label="anchor" href="#netrics-114"></a></h2>
+<div class="section level3">
+<h3 id="measures-1-1-4">Measures<a class="anchor" aria-label="anchor" href="#measures-1-1-4"></a></h3>
+<ul><li>Added <code><a href="../reference/measure_domain.html">node_by_domain()</a></code> to summarise an attribute over each node’s domain</li>
+</ul></div>
+</div>
     <div class="section level2">
 <h2 class="page-header" data-toc-text="1.1.3" id="netrics-113">netrics 1.1.3<a class="anchor" aria-label="anchor" href="#netrics-113"></a></h2>
 <div class="section level3">
@@ -233,7 +333,7 @@
 <ul><li>Fixed erroring on a signed ‘stocnet’, now runs over the positive ties alone</li>
 <li>Fixed erroring where no path exists</li>
 </ul></li>
-<li>Improved <code><a href="../reference/mark_dyads.html">tie_is_multiple()</a></code> documentation to distinguish from <code><a href="https://stocnet.github.io/manynet/reference/measure_attributes_ties.html" class="external-link">manynet::tie_is_parallel()</a></code>
+<li>Improved <code><a href="../reference/defunct.html">tie_is_multiple()</a></code> documentation to distinguish from <code><a href="https://stocnet.github.io/manynet/reference/measure_attributes_ties.html" class="external-link">manynet::tie_is_parallel()</a></code>
 </li>
 </ul></div>
 <div class="section level3">
@@ -887,7 +987,7 @@
 <code><a href="../reference/mark_core.html">node_is_core()</a></code>, <code><a href="../reference/mark_nodes.html">node_is_cutpoint()</a></code>, <code><a href="../reference/mark_diff.html">node_is_exposed()</a></code>, <code><a href="../reference/mark_nodes.html">node_is_fold()</a></code>, <code><a href="../reference/mark_nodes.html">node_is_independent()</a></code>, <code><a href="../reference/mark_diff.html">node_is_infected()</a></code>, <code><a href="../reference/mark_degree.html">node_is_isolate()</a></code>, <code><a href="../reference/mark_diff.html">node_is_latent()</a></code>, <code><a href="../reference/mark_select_node.html">node_is_max()</a></code>, <code><a href="../reference/mark_select_node.html">node_is_mean()</a></code>, <code><a href="../reference/mark_nodes.html">node_is_mentor()</a></code>, <code><a href="../reference/mark_select_node.html">node_is_min()</a></code>, <code><a href="../reference/mark_nodes.html">node_is_neighbor()</a></code>, <code><a href="../reference/mark_degree.html">node_is_pendant()</a></code>, <code><a href="../reference/mark_select_node.html">node_is_random()</a></code>, <code><a href="../reference/mark_diff.html">node_is_recovered()</a></code>, <code><a href="../reference/mark_degree.html">node_is_universal()</a></code>
 </li>
 <li>
-<code><a href="../reference/mark_ties.html">tie_is_bridge()</a></code>, <code><a href="../reference/mark_triangles.html">tie_is_cyclical()</a></code>, <code><a href="../reference/mark_ties.html">tie_is_feedback()</a></code>, <code><a href="../reference/mark_triangles.html">tie_is_imbalanced()</a></code>, <code><a href="../reference/mark_ties.html">tie_is_loop()</a></code>, <code><a href="../reference/mark_select_tie.html">tie_is_max()</a></code>, <code><a href="../reference/mark_select_tie.html">tie_is_min()</a></code>, <code><a href="../reference/mark_dyads.html">tie_is_multiple()</a></code>, <code><a href="../reference/mark_ties.html">tie_is_path()</a></code>, <code><a href="../reference/mark_select_tie.html">tie_is_random()</a></code>, <code><a href="../reference/mark_dyads.html">tie_is_reciprocated()</a></code>, <code><a href="../reference/mark_triangles.html">tie_is_simmelian()</a></code>, <code><a href="../reference/mark_triangles.html">tie_is_transitive()</a></code>, <code><a href="../reference/mark_triangles.html">tie_is_triangular()</a></code>, <code><a href="../reference/mark_triangles.html">tie_is_triplet()</a></code>
+<code><a href="../reference/mark_ties.html">tie_is_bridge()</a></code>, <code><a href="../reference/mark_triangles.html">tie_is_cyclical()</a></code>, <code><a href="../reference/mark_ties.html">tie_is_feedback()</a></code>, <code><a href="../reference/mark_triangles.html">tie_is_imbalanced()</a></code>, <code><a href="../reference/mark_ties.html">tie_is_loop()</a></code>, <code><a href="../reference/mark_select_tie.html">tie_is_max()</a></code>, <code><a href="../reference/mark_select_tie.html">tie_is_min()</a></code>, <code><a href="../reference/defunct.html">tie_is_multiple()</a></code>, <code><a href="../reference/mark_ties.html">tie_is_path()</a></code>, <code><a href="../reference/mark_select_tie.html">tie_is_random()</a></code>, <code><a href="../reference/mark_dyads.html">tie_is_reciprocated()</a></code>, <code><a href="../reference/mark_triangles.html">tie_is_simmelian()</a></code>, <code><a href="../reference/mark_triangles.html">tie_is_transitive()</a></code>, <code><a href="../reference/mark_triangles.html">tie_is_triangular()</a></code>, <code><a href="../reference/mark_triangles.html">tie_is_triplet()</a></code>
 </li>
 </ul></div>
 <div class="section level4">

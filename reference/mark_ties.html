@@ -3,8 +3,11 @@
 in a network identifying which hold certain properties or positions in the network.
 tie_is_loop() marks ties that are loops.
 tie_is_feedback() marks ties that are feedback arcs causing the network to not be acyclic.
-tie_is_bridge() marks ties that cut or act as articulation points in a network.
+tie_is_bridge() marks ties whose removal disconnects the network.
+tie_is_long() marks ties whose two ends have no common neighbour.
 tie_is_path() marks ties on a path from one node to another.
+tie_is_mainpath() marks ties on the main path of a directed acyclic
+network, such as a citation network.
 
 
 They are most useful in highlighting parts of the network that
@@ -26,7 +29,7 @@ are particularly well- or poorly-connected."><meta property="og:image" content="
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">netrics</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.1.3</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.2.0</span>
       </span>
     </div>
 
@@ -102,8 +105,11 @@ are particularly well- or poorly-connected."><meta property="og:image" content="
     <p>These functions return logical vectors the length of the ties
 in a network identifying which hold certain properties or positions in the network.</p><ul><li><p><code>tie_is_loop()</code> marks ties that are loops.</p></li>
 <li><p><code>tie_is_feedback()</code> marks ties that are feedback arcs causing the network to not be acyclic.</p></li>
-<li><p><code>tie_is_bridge()</code> marks ties that cut or act as articulation points in a network.</p></li>
+<li><p><code>tie_is_bridge()</code> marks ties whose removal disconnects the network.</p></li>
+<li><p><code>tie_is_long()</code> marks ties whose two ends have no common neighbour.</p></li>
 <li><p><code>tie_is_path()</code> marks ties on a path from one node to another.</p></li>
+<li><p><code>tie_is_mainpath()</code> marks ties on the main path of a directed acyclic
+network, such as a citation network.</p></li>
 </ul><p>They are most useful in highlighting parts of the network that
 are particularly well- or poorly-connected.</p>
     </div>
@@ -115,7 +121,11 @@ are particularly well- or poorly-connected.</p>
 <span></span>
 <span><span class="fu">tie_is_bridge</span><span class="op">(</span><span class="va">.data</span><span class="op">)</span></span>
 <span></span>
-<span><span class="fu">tie_is_path</span><span class="op">(</span><span class="va">.data</span>, <span class="va">from</span>, <span class="va">to</span>, all_paths <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></code></pre></div>
+<span><span class="fu">tie_is_long</span><span class="op">(</span><span class="va">.data</span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu">tie_is_path</span><span class="op">(</span><span class="va">.data</span>, <span class="va">from</span>, <span class="va">to</span>, all_paths <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu">tie_is_mainpath</span><span class="op">(</span><span class="va">.data</span>, variant <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"spc"</span>, <span class="st">"splc"</span>, <span class="st">"spnp"</span><span class="op">)</span>, global <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div id="arguments">
@@ -125,7 +135,7 @@ are particularly well- or poorly-connected.</p>
 <dl><dt id="arg--data">.data<a class="anchor" aria-label="anchor" href="#arg--data"></a></dt>
 <dd><p>A network object of class <code>stocnet</code>, <code>igraph</code>, <code>tbl_graph</code>, <code>network</code>, or similar.
 Internally any of these will be coerced to an efficient implementation.
-For more information on possible coercions, see e.g. <code><a href="https://stocnet.github.io/manynet/reference/coerce_graph.html" class="external-link">manynet::as_stocnet()</a></code>.</p></dd>
+For more information on possible coercions, see e.g. <code><a href="https://stocnet.github.io/manynet/reference/coerce_stocnet.html" class="external-link">manynet::as_stocnet()</a></code>.</p></dd>
 
 
 <dt id="arg-from">from<a class="anchor" aria-label="anchor" href="#arg-from"></a></dt>
@@ -140,12 +150,95 @@ For more information on possible coercions, see e.g. <code><a href="https://stoc
 <dd><p>Whether to return a list of paths or sample just one.
 By default FALSE, sampling just a single path.</p></dd>
 
+
+<dt id="arg-variant">variant<a class="anchor" aria-label="anchor" href="#arg-variant"></a></dt>
+<dd><p>Which traversal count to compute:
+"spc" (the default), "splc", or "spnp".
+See the section on main path traversal counts.
+The variant chosen is reported when the result is printed.</p></dd>
+
+
+<dt id="arg-global">global<a class="anchor" aria-label="anchor" href="#arg-global"></a></dt>
+<dd><p>Logical, whether to mark the global main path
+rather than the local main path.
+By default FALSE, the local main path.</p></dd>
+
 </dl></div>
     <div id="value">
     <h2>Value</h2>
     <p>A <code>tie_mark</code> logical vector the length of the ties in the network,
 giving either TRUE or FALSE for each tie depending on
 whether the condition is matched.</p>
+    </div>
+    <div id="bridges-and-long-ties">
+    <h2>Bridges and long ties</h2>
+
+
+<p><code>tie_is_bridge()</code> marks a tie whose removal disconnects the network,
+so that its two ends are in different components.
+Direction is ignored, and a repeated tie is not a bridge.</p>
+<p><code>tie_is_long()</code> marks a long tie, after Centola and Macy (2007):
+a tie whose two ends have no common neighbour.
+Without the tie, its ends are at a distance of 3 or more,
+or in different components.
+Granovetter calls such a tie a local bridge.
+Every bridge is a long tie, but a long tie can have other paths around it.
+Direction and repeated ties are ignored, and a loop is never long.
+See <code><a href="measure_broker_tie.html">tie_by_width()</a></code> for how wide the bridge is that each tie is in.
+A two-mode network is not yet available, because no two nodes of
+different modes share a neighbour.</p>
+    </div>
+    <div id="main-path">
+    <h2>Main path</h2>
+
+
+<p><code>tie_is_mainpath()</code> marks the main path through a directed acyclic network,
+using the traversal counts of <code><a href="measure_central_tie_between.html">tie_by_mainpath()</a></code>.
+Use <code>filter_ties(.data, tie_is_mainpath())</code> to keep only the ties of the
+main path, and then <code><a href="https://stocnet.github.io/manynet/reference/manip_nodes_num.html" class="external-link">manynet::delete_isolates()</a></code> to keep only its nodes.</p>
+<p>The local main path (Hummon and Doreian 1989) starts at the tie
+with the largest count that leaves a source, a node with no incoming ties.
+From the node at the end of that tie, it follows the outgoing tie with the
+largest count, and so on until it arrives at a sink,
+a node with no outgoing ties.
+Where two or more ties have the same largest count, all of them are kept
+(Liu and Lu 2012), so the main path can branch.</p>
+<p>The global main path (Liu and Lu 2012) is the path from a source to a sink
+with the largest sum of traversal counts.
+The local main path takes the best tie at each step, and so can miss
+the path that is best overall.</p>
+<p>For networks with cycles, or undirected networks,
+<code>tie_is_mainpath()</code> stops with an error, as <code><a href="measure_central_tie_between.html">tie_by_mainpath()</a></code> does.</p>
+    </div>
+    <div id="references">
+    <h2>References</h2>
+
+<div class="section">
+<h3 id="on-long-ties">On long ties<a class="anchor" aria-label="anchor" href="#on-long-ties"></a></h3>
+
+
+<p>Centola, Damon, and Michael Macy. 2007.
+"Complex contagions and the weakness of long ties".
+<em>American Journal of Sociology</em> 113(3): 702-734.
+<a href="https://doi.org/10.1086/521848" class="external-link">doi:10.1086/521848</a></p>
+</div>
+
+<div class="section">
+<h3 id="on-main-path-analysis">On main path analysis<a class="anchor" aria-label="anchor" href="#on-main-path-analysis"></a></h3>
+
+
+<p>Hummon, Norman P., and Patrick Doreian. 1989.
+"Connectivity in a citation network: The development of DNA theory".
+<em>Social Networks</em> 11(1): 39-63.
+<a href="https://doi.org/10.1016/0378-8733%2889%2990017-8" class="external-link">doi:10.1016/0378-8733(89)90017-8</a></p>
+<p>Liu, John S., and Louis Y.Y. Lu. 2012.
+"An integrated approach for main path analysis:
+Development of the Hirsch index as an example".
+<em>Journal of the American Society for Information Science and Technology</em>
+63(3): 528-542.
+<a href="https://doi.org/10.1002/asi.21692" class="external-link">doi:10.1002/asi.21692</a></p>
+</div>
+
     </div>
     <div id="see-also">
     <h2>See also</h2>
@@ -162,13 +255,13 @@ whether the condition is matched.</p>
 <code><a href="mark_dyads.html">mark_dyads</a></code>,
 <code><a href="mark_select_tie.html">mark_select_tie</a></code>,
 <code><a href="mark_triangles.html">mark_triangles</a></code>,
-<code><a href="measure_broker_tie.html">measure_broker_tie</a></code>,
 <code><a href="measure_central_tie_between.html">measure_central_tie_between</a></code>,
 <code><a href="measure_central_tie_close.html">measure_central_tie_close</a></code>,
 <code><a href="measure_central_tie_degree.html">measure_central_tie_degree</a></code>,
 <code><a href="measure_central_tie_eigen.html">measure_central_tie_eigen</a></code>,
 <code><a href="measure_diverse_tie.html">measure_diverse_tie</a></code>,
-<code><a href="member_community_link.html">member_community_link</a></code></p></div>
+<code><a href="member_community_link.html">member_community_link</a></code>,
+<code><a href="measure_broker_tie.html">tie_by_width()</a></code></p></div>
     </div>
 
     <div id="ref-examples">
@@ -181,19 +274,25 @@ whether the condition is matched.</p>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   `1-&gt;5` `1-&gt;5` `1-&gt;8` `1-&gt;9` `1-&gt;9` `1-&gt;10` `1-&gt;10` `1-&gt;11` `1-&gt;12` `1-&gt;12`</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">1</span> TRUE   TRUE   TRUE   TRUE   TRUE   TRUE    TRUE    TRUE    TRUE    TRUE   </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># ... and 269 more values from this nodeset. Use `print_all(...)` to print all values.</span></span>
-<span class="r-in"><span><span class="fu">tie_is_bridge</span><span class="op">(</span><span class="va">ison_brandes</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu">tie_is_bridge</span><span class="op">(</span><span class="va">ison_centrality</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   `1-3` `2-3` `3-4` `4-5` `4-6` `5-7` `6-7` `6-8` `7-9` `8-9` `9-10` `9-11`</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">1</span> TRUE  TRUE  TRUE  FALSE FALSE FALSE FALSE FALSE FALSE FALSE TRUE   TRUE  </span>
+<span class="r-in"><span><span class="fu">tie_is_long</span><span class="op">(</span><span class="fu">manynet</span><span class="fu">::</span><span class="fu"><a href="https://stocnet.github.io/manynet/reference/make_create.html" class="external-link">create_ring</a></span><span class="op">(</span><span class="fl">8</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   `1-2` `2-3` `3-4` `4-5` `5-6` `6-7` `7-8` `1-8`</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">1</span> TRUE  TRUE  TRUE  TRUE  TRUE  TRUE  TRUE  TRUE </span>
+<span class="r-in"><span><span class="fu">tie_is_long</span><span class="op">(</span><span class="va">ison_adolescents</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   `Betty-Sue` `Sue-Alice` `Alice-Jane` `Sue-Dale` `Alice-Dale` `Jane-Dale`</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">1</span> TRUE        FALSE       FALSE        FALSE      FALSE        FALSE      </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># ... and 4 more values from this nodeset. Use `print_all(...)` to print all values.</span></span>
 <span class="r-in"><span><span class="va">ison_adolescents</span> <span class="op">|&gt;</span></span></span>
 <span class="r-in"><span>  <span class="fu">mutate_ties</span><span class="op">(</span>route <span class="op">=</span> <span class="fu">tie_is_path</span><span class="op">(</span>from <span class="op">=</span> <span class="st">"Jane"</span>, to <span class="op">=</span> <span class="fl">7</span><span class="op">)</span><span class="op">)</span> </span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">──</span> <span style="font-weight: bold;"># The Adolescent Society</span> <span style="color: #00BBBB;">────────────────────────────────────────────────────</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #5F87D7; font-style: italic;"># A labelled, multiplex, undirected network of 8 adolescents and 10 friendship</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #5F87D7; font-style: italic;">ties</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #5F87D7; font-style: italic;"># A labelled, undirected network of 8 adolescents and 10 friendship ties</span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> ── Nodes </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># A tibble: 8 × 1</span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   name </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   label</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">1</span> Betty</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">2</span> Sue  </span>
@@ -214,6 +313,37 @@ whether the condition is matched.</p>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">5</span>     3     5 FALSE     </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">6</span>     4     5 FALSE     </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># ℹ 4 more rows</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-in"><span><span class="va">citations</span> <span class="op">&lt;-</span> <span class="fu">create_explicit</span><span class="op">(</span><span class="va">A</span><span class="op">-</span><span class="op">+</span><span class="va">C</span>, <span class="va">B</span><span class="op">-</span><span class="op">+</span><span class="va">C</span>, <span class="va">B</span><span class="op">-</span><span class="op">+</span><span class="va">D</span>, <span class="va">C</span><span class="op">-</span><span class="op">+</span><span class="va">E</span>, <span class="va">D</span><span class="op">-</span><span class="op">+</span><span class="va">E</span>, <span class="va">E</span><span class="op">-</span><span class="op">+</span><span class="cn">F</span>, <span class="va">D</span><span class="op">-</span><span class="op">+</span><span class="cn">F</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu">tie_is_mainpath</span><span class="op">(</span><span class="va">citations</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   `A-&gt;C` `B-&gt;C` `B-&gt;D` `C-&gt;E` `D-&gt;E` `E-&gt;F` `D-&gt;F`</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">1</span> FALSE  FALSE  TRUE   FALSE  TRUE   TRUE   TRUE  </span>
+<span class="r-in"><span><span class="fu">tie_is_mainpath</span><span class="op">(</span><span class="va">citations</span>, global <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   `A-&gt;C` `B-&gt;C` `B-&gt;D` `C-&gt;E` `D-&gt;E` `E-&gt;F` `D-&gt;F`</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">1</span> TRUE   TRUE   TRUE   TRUE   TRUE   TRUE   FALSE </span>
+<span class="r-in"><span><span class="va">citations</span> <span class="op">|&gt;</span> <span class="fu">filter_ties</span><span class="op">(</span><span class="fu">tie_is_mainpath</span><span class="op">(</span><span class="op">)</span><span class="op">)</span> <span class="op">|&gt;</span> <span class="fu">delete_isolates</span><span class="op">(</span><span class="op">)</span></span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">──</span> <span style="font-weight: bold;">#  without isolates</span> <span style="color: #00BBBB;">─────────────────────────────────────────────────────────</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #5F87D7; font-style: italic;"># A labelled, directed network of 4 nodes and 4 arcs</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #5F87D7; font-style: italic;"># Transformed by exclusion: isolates (2 nodes excluded)</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> ── Nodes </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># A tibble: 4 × 1</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   label</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">1</span> B    </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">2</span> D    </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">3</span> E    </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">4</span> F    </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> ── Ties </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># A tibble: 4 × 2</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    from    to</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;int&gt;</span> <span style="color: #949494; font-style: italic;">&lt;int&gt;</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">1</span>     1     2</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">2</span>     2     3</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">3</span>     3     4</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">4</span>     2     4</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
 </code></pre></div>
     </div>

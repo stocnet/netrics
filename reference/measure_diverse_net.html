@@ -27,7 +27,7 @@ such as for the groups from node_in_roulette().
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">netrics</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.1.3</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.2.0</span>
       </span>
     </div>
 
@@ -116,8 +116,10 @@ such as for the groups from <code><a href="member_cliques.html">node_in_roulette
 <span><span class="fu">net_by_diversity</span><span class="op">(</span></span>
 <span>  <span class="va">.data</span>,</span>
 <span>  <span class="va">attribute</span>,</span>
-<span>  diversity <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"blau"</span>, <span class="st">"teachman"</span>, <span class="st">"variation"</span>, <span class="st">"gini"</span><span class="op">)</span>,</span>
-<span>  membership <span class="op">=</span> <span class="cn">NULL</span></span>
+<span>  diversity <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"blau"</span>, <span class="st">"teachman"</span>, <span class="st">"variation"</span>, <span class="st">"gini"</span>, <span class="st">"rao"</span><span class="op">)</span>,</span>
+<span>  membership <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  normalized <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>  distance <span class="op">=</span> <span class="cn">NULL</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
 
@@ -128,16 +130,19 @@ such as for the groups from <code><a href="member_cliques.html">node_in_roulette
 <dl><dt id="arg--data">.data<a class="anchor" aria-label="anchor" href="#arg--data"></a></dt>
 <dd><p>A network object of class <code>stocnet</code>, <code>igraph</code>, <code>tbl_graph</code>, <code>network</code>, or similar.
 Internally any of these will be coerced to an efficient implementation.
-For more information on possible coercions, see e.g. <code><a href="https://stocnet.github.io/manynet/reference/coerce_graph.html" class="external-link">manynet::as_stocnet()</a></code>.</p></dd>
+For more information on possible coercions, see e.g. <code><a href="https://stocnet.github.io/manynet/reference/coerce_stocnet.html" class="external-link">manynet::as_stocnet()</a></code>.</p></dd>
 
 
 <dt id="arg-attribute">attribute<a class="anchor" aria-label="anchor" href="#arg-attribute"></a></dt>
-<dd><p>Name of a nodal attribute, mark, measure, or membership vector.</p></dd>
+<dd><p>Name of a nodal attribute, mark, measure, or membership vector.
+Where none is named and the network holds only one nodal attribute
+besides the reserved ones, such as "label" and "mode", that one is used.</p></dd>
 
 
 <dt id="arg-diversity">diversity<a class="anchor" aria-label="anchor" href="#arg-diversity"></a></dt>
 <dd><p>Which method to use for <code>*_diversity()</code>.
-Either "blau" (Blau's index) or "teachman" (Teachman's index) for categorical attributes,
+Either "blau" (Blau's index), "teachman" (Teachman's index),
+or "rao" (Rao-Stirling diversity) for categorical attributes,
 or "variation" (coefficient of variation) or "gini" (Gini coefficient) for numeric attributes.
 Default is "blau".
 If an incompatible method is chosen for the attribute type,
@@ -151,6 +156,24 @@ nodes in the network where each element indicates the group membership of
 the corresponding node.
 While this may often be a vector created using <code>node_in_*()</code> functions,
 it can be any character vector that assigns nodes to groups or categories.</p></dd>
+
+
+<dt id="arg-normalized">normalized<a class="anchor" aria-label="anchor" href="#arg-normalized"></a></dt>
+<dd><p>Logical scalar, whether Blau's index is divided by its
+maximum for the attribute, \(1 - 1/k\),
+where \(k\) is the number of categories the attribute holds in the network.
+The index then runs from 0 to 1 whatever the number of categories,
+as the index of qualitative variation does (Agresti and Agresti 1978).
+The other indices are left as they are.
+By default TRUE.</p></dd>
+
+
+<dt id="arg-distance">distance<a class="anchor" aria-label="anchor" href="#arg-distance"></a></dt>
+<dd><p>For <code>diversity = "rao"</code>, the distances among the
+categories of the attribute: a matrix whose row and column names are the
+categories, or a one-mode network of the categories,
+with values between 0 (the same) and 1 (the most different).
+By default NULL, so every two categories are 1 apart.</p></dd>
 
 </dl></div>
     <div id="value">
@@ -186,10 +209,16 @@ randomly selected from a group would be from different categories.
 This index finds its minimum value (0) when there is no variety,
 i.e. when all individuals are classified in the same category.
 The maximum value depends on the number of categories and
-whether nodes can be evenly distributed across categories.</p>
+whether nodes can be evenly distributed across categories:
+it is \(1 - 1/k\), where the nodes are spread evenly over them,
+so 0.5 for a binary attribute.
+With <code>normalized = TRUE</code>, the default, the index is divided by that
+maximum, so that attributes with different numbers of categories
+can be compared.</p>
 <p>The Herfindahl-Hirschman index (HHI) is the complement of Blau's index,
 \(\sum\limits_{i = 1}^k {p_i^2}\),
-and so <code>1 - net_by_diversity(.data, attribute)</code> returns it.
+and so <code>1 - net_by_diversity(.data, attribute, normalized = FALSE)</code>
+returns it.
 Where shares are stated as percentages rather than proportions,
 as in the <code>{hhi}</code> package,
 the index runs from 0 to 10000 and equals <code>(1 - blau) * 10000</code>.
@@ -233,6 +262,20 @@ that is cumulatively earned by the bottom x% of the population.
 The Gini coefficient is defined as the area between the line of equality
 and the Lorenz curve,
 divided by the total area under the line of equality.</p>
+<p>Rao-Stirling diversity (Rao 1982; Stirling 2007) also counts how
+different the categories are from each other:
+$$\sum\limits_{i \neq j} d_{ij} p_i p_j$$
+where \(d_{ij}\) is the distance between categories \(i\) and
+\(j\), given as <code>distance</code>.
+It is the expected distance between the categories of two members
+selected at random.
+A group that spans distant categories, such as distant disciplines,
+is thus more diverse than one that spans close categories,
+which is why it is used to measure interdisciplinarity
+(Porter and Rafols 2009).
+Where every two categories are 1 apart, it is Blau's index.
+It runs from 0 to 1, and is not normalised:
+<code>normalized</code> has no effect on it.</p>
     </div>
     <div id="references">
     <h2>References</h2>
@@ -254,6 +297,9 @@ Princeton: Princeton University Press.
 <p>Blau, Peter M. 1977.
 <em>Inequality and heterogeneity</em>.
 New York: Free Press.</p>
+<p>Agresti, Alan, and Barbara F. Agresti. 1978.
+"Statistical analysis of qualitative variation".
+<em>Sociological Methodology</em>, 9: 204-237.</p>
 <p>Teachman, Jay D. 1980.
 Analysis of population diversity: Measures of qualitative variation.
 <em>Sociological Methods &amp; Research</em>, 8:341-362.
@@ -265,6 +311,19 @@ Princeton: Princeton University Press.
 <p>Hirschman, Albert O. 1964.
 "The paternity of an index".
 <em>The American Economic Review</em>, 54(5): 761.</p>
+<p>Rao, C. Radhakrishna. 1982.
+"Diversity and dissimilarity coefficients: A unified approach".
+<em>Theoretical Population Biology</em>, 21(1): 24-43.
+<a href="https://doi.org/10.1016/0040-5809%2882%2990004-1" class="external-link">doi:10.1016/0040-5809(82)90004-1</a></p>
+<p>Stirling, Andy. 2007.
+"A general framework for analysing diversity in science, technology and society".
+<em>Journal of the Royal Society Interface</em>, 4(15): 707-719.
+<a href="https://doi.org/10.1098/rsif.2007.0213" class="external-link">doi:10.1098/rsif.2007.0213</a></p>
+<p>Porter, Alan L., and Ismael Rafols. 2009.
+"Is science becoming more interdisciplinary? Measuring and mapping six
+research fields over time".
+<em>Scientometrics</em>, 81(3): 719-745.
+<a href="https://doi.org/10.1007/s11192-008-2197-2" class="external-link">doi:10.1007/s11192-008-2197-2</a></p>
 </div>
 
     </div>
@@ -273,6 +332,7 @@ Princeton: Princeton University Press.
     <div class="dont-index"><p>Other diversity:
 <code><a href="measure_assort_net.html">measure_assort_net</a></code>,
 <code><a href="measure_assort_node.html">measure_assort_node</a></code>,
+<code><a href="measure_diverse_dispersion.html">measure_diverse_dispersion</a></code>,
 <code><a href="measure_diverse_node.html">measure_diverse_node</a></code>,
 <code><a href="measure_diverse_tie.html">measure_diverse_tie</a></code>,
 <code><a href="motif_composition.html">motif_composition</a></code>,
@@ -284,7 +344,6 @@ Princeton: Princeton University Press.
 <code><a href="measure_assort_node.html">measure_assort_node</a></code>,
 <code><a href="measure_breadth.html">measure_breadth</a></code>,
 <code><a href="measure_broker_node.html">measure_broker_node</a></code>,
-<code><a href="measure_broker_tie.html">measure_broker_tie</a></code>,
 <code><a href="measure_brokerage.html">measure_brokerage</a></code>,
 <code><a href="measure_central_between.html">measure_central_between</a></code>,
 <code><a href="measure_central_close.html">measure_central_close</a></code>,
@@ -301,31 +360,35 @@ Princeton: Princeton University Press.
 <code><a href="measure_diffusion_infection.html">measure_diffusion_infection</a></code>,
 <code><a href="measure_diffusion_net.html">measure_diffusion_net</a></code>,
 <code><a href="measure_diffusion_node.html">measure_diffusion_node</a></code>,
+<code><a href="measure_diverse_dispersion.html">measure_diverse_dispersion</a></code>,
 <code><a href="measure_diverse_node.html">measure_diverse_node</a></code>,
 <code><a href="measure_diverse_tie.html">measure_diverse_tie</a></code>,
+<code><a href="measure_domain.html">measure_domain</a></code>,
 <code><a href="measure_features.html">measure_features</a></code>,
 <code><a href="measure_fit.html">measure_fit</a></code>,
 <code><a href="measure_fragmentation.html">measure_fragmentation</a></code>,
 <code><a href="measure_hierarchy.html">measure_hierarchy</a></code>,
-<code><a href="measure_periods.html">measure_periods</a></code></p></div>
+<code><a href="measure_opinion.html">measure_opinion</a></code>,
+<code><a href="measure_periods.html">measure_periods</a></code>,
+<code><a href="measure_broker_tie.html">tie_by_width()</a></code></p></div>
     </div>
 
     <div id="ref-examples">
     <h2>Examples</h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="fu">net_by_richness</span><span class="op">(</span><span class="va">ison_networkers</span><span class="op">)</span></span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="fu">net_by_richness</span><span class="op">(</span><span class="va">ison_networkers</span>, <span class="st">"Discipline"</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># Richness [1, Inf)</span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 3</span>
-<span class="r-in"><span><span class="va">marvel_friends</span> <span class="op">&lt;-</span> <span class="fu">to_unsigned</span><span class="op">(</span><span class="fu">to_uniplex</span><span class="op">(</span><span class="va">fict_marvel</span>, <span class="st">"relationship"</span><span class="op">)</span>, <span class="st">"positive"</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 4</span>
+<span class="r-in"><span><span class="va">marvel_friends</span> <span class="op">&lt;-</span> <span class="fu">to_unsigned</span><span class="op">(</span><span class="fu">to_layer</span><span class="op">(</span><span class="va">fict_marvel</span>, <span class="st">"relationship"</span><span class="op">)</span>, <span class="st">"positive"</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu">net_by_diversity</span><span class="op">(</span><span class="va">marvel_friends</span>, <span class="st">"Gender"</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># Blau's index, normalized [0, 1]</span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0.306</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0.612</span>
 <span class="r-in"><span><span class="fu">net_by_diversity</span><span class="op">(</span><span class="va">marvel_friends</span>, <span class="st">"Appearances"</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># Coefficient of variation (-Inf, Inf)</span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0.802</span>
 <span class="r-in"><span><span class="fu">net_by_diversity</span><span class="op">(</span><span class="va">marvel_friends</span>, <span class="st">"Gender"</span>,</span></span>
 <span class="r-in"><span>  membership <span class="op">=</span> <span class="fu"><a href="member_cliques.html">node_in_roulette</a></span><span class="op">(</span><span class="va">marvel_friends</span>, groups <span class="op">=</span> <span class="fl">3</span>, attribute <span class="op">=</span> <span class="st">"Gender"</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># Blau's index, normalized [0, 1]</span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0.297</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0.61</span>
 </code></pre></div>
     </div>
   </div>

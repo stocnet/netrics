@@ -39,7 +39,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">netrics</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.1.3</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.2.0</span>
       </span>
     </div>
 
@@ -233,11 +233,11 @@ centralisation </dfn></abbr>, computed with
 and how to obtain the raw scores</label></li>
 </ul>
 <p><strong>Choose your own data</strong>: The worked examples below use
-<code>ison_brandes</code>, a small, tidy teaching network bundled with
-<a href="https://stocnet.github.io/manynet/" class="external-link">manynet</a>. But wherever there is an exercise box, you are
-encouraged to swap in a network that interests <em>you</em>. Remember
-the three flavours of bundled data as a rough difficulty ladder —
-<strong>Classic</strong> (<code>ison_*</code>, small &amp; tidy),
+<code>ison_centrality</code>, a small, tidy teaching network bundled
+with <a href="https://stocnet.github.io/manynet/" class="external-link">manynet</a>. But wherever there is an exercise box, you
+are encouraged to swap in a network that interests <em>you</em>.
+Remember the three flavours of bundled data as a rough difficulty ladder
+— <strong>Classic</strong> (<code>ison_*</code>, small &amp; tidy),
 <strong>Fiction</strong> (<code>fict_*</code>, mid-sized &amp; fun),
 <strong>Real-world</strong> (<code>irps_*</code>, larger &amp;
 realistic) — and that you can browse the full list with
@@ -246,20 +246,20 @@ realistic) — and that you can browse the full list with
 <div class="section level3">
 <h3 id="setting-up">Setting up<a class="anchor" aria-label="anchor" href="#setting-up"></a>
 </h3>
-<p>For this exercise, we’ll use the <code>ison_brandes</code> dataset in
-<a href="https://stocnet.github.io/manynet/" class="external-link">manynet</a>. This dataset is in a ‘tidygraph’ format, but
+<p>For this exercise, we’ll use the <code>ison_centrality</code> dataset
+in <a href="https://stocnet.github.io/manynet/" class="external-link">manynet</a>. This dataset is in a ‘tidygraph’ format, but
 <code>manynet</code> makes it easy to coerce this into other forms to be
 compatible with other packages. We can create a
 <abbr><dfn title="A two-mode (or bipartite) network is a network with two different sets of nodes, where ties connect only nodes from different sets, such as people and the events they attend.">
 two-mode </dfn></abbr> version of the dataset by renaming the nodal
-attribute “twomode_type” to just “type”. Let’s begin by graphing these
+attribute “twomode_type” to “mode”. Let’s begin by graphing these
 datasets using <code>graphr()</code>.</p>
 <p>The network is anonymous, but I think it would be nice to add some
 names, even if it’s just pretend. Luckily, <a href="https://stocnet.github.io/manynet/" class="external-link">manynet</a> has a
 function for this: <code>to_named()</code>. This makes plotting the
 network just a wee bit more accessible and interpretable:</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">ison_brandes</span> <span class="op">&lt;-</span> <span class="fu">to_named</span><span class="op">(</span><span class="va">ison_brandes</span><span class="op">)</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="va">ison_centrality</span> <span class="op">&lt;-</span> <span class="fu">to_named</span><span class="op">(</span><span class="va">ison_centrality</span><span class="op">)</span></span></code></pre></div>
 <p>Note that you will likely get a different set of names (though still
 alphabetical), as they are assigned randomly from a pool of (American)
 first names.</p>
@@ -312,7 +312,7 @@ alias for the unnormalised version.</p>
 <h3 id="degrees-of-direction">Degrees of direction<a class="anchor" aria-label="anchor" href="#degrees-of-direction"></a>
 </h3>
 <p>So far each node has had a single degree, because
-<code>ison_brandes</code> is
+<code>ison_centrality</code> is
 <abbr><dfn title="An undirected or line network is one in which tie direction is undefined.">
 undirected </dfn></abbr>. In a
 <abbr><dfn title="A directed network is a network where the ties have a direction, from a sender to a receiver.">
@@ -322,17 +322,17 @@ directed </dfn></abbr> network, ties are sent <em>from</em> one node
 sent). These can tell quite different stories: in an advice network, for
 example, a high in-degree suggests a sought-after source of advice,
 while a high out-degree marks an eager asker.</p>
-<p><code>ison_brandes</code> has no natural direction, but
+<p><code>ison_centrality</code> has no natural direction, but
 <a href="https://stocnet.github.io/manynet/" class="external-link">manynet</a>’s <code>to_directed()</code> will assign a random
 direction to each tie — just as <code>to_named()</code> assigned random
 names — which is all we need for a worked comparison. <strong>Run the
 code, and check whether the row and column sums still
 agree.</strong></p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">ison_brandes_dir</span> <span class="op">&lt;-</span> <span class="fu">to_directed</span><span class="op">(</span><span class="va">ison_brandes</span><span class="op">)</span></span>
-<span><span class="fu"><a href="../reference/measure_central_degree.html">node_by_indegree</a></span><span class="op">(</span><span class="va">ison_brandes_dir</span>, normalized <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
-<span><span class="fu"><a href="../reference/measure_central_degree.html">node_by_outdegree</a></span><span class="op">(</span><span class="va">ison_brandes_dir</span>, normalized <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
-<span><span class="va">mat</span> <span class="op">&lt;-</span> <span class="fu">as_matrix</span><span class="op">(</span><span class="va">ison_brandes_dir</span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="va">ison_centrality_dir</span> <span class="op">&lt;-</span> <span class="fu">to_directed</span><span class="op">(</span><span class="va">ison_centrality</span><span class="op">)</span></span>
+<span><span class="fu"><a href="../reference/measure_central_degree.html">node_by_indegree</a></span><span class="op">(</span><span class="va">ison_centrality_dir</span>, normalized <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
+<span><span class="fu"><a href="../reference/measure_central_degree.html">node_by_outdegree</a></span><span class="op">(</span><span class="va">ison_centrality_dir</span>, normalized <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
+<span><span class="va">mat</span> <span class="op">&lt;-</span> <span class="fu">as_matrix</span><span class="op">(</span><span class="va">ison_centrality_dir</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/colSums.html" class="external-link">rowSums</a></span><span class="op">(</span><span class="va">mat</span><span class="op">)</span> <span class="op">==</span> <span class="fu"><a href="https://rdrr.io/r/base/colSums.html" class="external-link">colSums</a></span><span class="op">(</span><span class="va">mat</span><span class="op">)</span></span></code></pre></div>
 <p>Now the row sums (out-degree) and column sums (in-degree) part ways —
 the answer to the earlier quiz question flips as soon as direction
@@ -364,9 +364,9 @@ then trades off between counting ties and summing weights:
 values in between mix the two. <strong>Compare the two
 extremes.</strong></p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">ison_brandes_wtd</span> <span class="op">&lt;-</span> <span class="fu">to_weighted</span><span class="op">(</span><span class="va">ison_brandes</span><span class="op">)</span></span>
-<span><span class="fu"><a href="../reference/measure_central_degree.html">node_by_deg</a></span><span class="op">(</span><span class="va">ison_brandes_wtd</span><span class="op">)</span>             <span class="co"># alpha = 0: count ties</span></span>
-<span><span class="fu"><a href="../reference/measure_central_degree.html">node_by_deg</a></span><span class="op">(</span><span class="va">ison_brandes_wtd</span>, alpha <span class="op">=</span> <span class="fl">1</span><span class="op">)</span>  <span class="co"># alpha = 1: sum tie weights</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="va">ison_centrality_wtd</span> <span class="op">&lt;-</span> <span class="fu">to_weighted</span><span class="op">(</span><span class="va">ison_centrality</span><span class="op">)</span></span>
+<span><span class="fu"><a href="../reference/measure_central_degree.html">node_by_deg</a></span><span class="op">(</span><span class="va">ison_centrality_wtd</span><span class="op">)</span>             <span class="co"># alpha = 0: count ties</span></span>
+<span><span class="fu"><a href="../reference/measure_central_degree.html">node_by_deg</a></span><span class="op">(</span><span class="va">ison_centrality_wtd</span>, alpha <span class="op">=</span> <span class="fl">1</span><span class="op">)</span>  <span class="co"># alpha = 1: sum tie weights</span></span></code></pre></div>
 <p>Note that on a weighted network, <code><a href="../reference/measure_central_degree.html">node_by_degree()</a></code> itself
 defaults to strength (<code>alpha = 1</code>) — the assumption being
 that if you have measured weights, you probably care about them.</p>
@@ -419,7 +419,7 @@ betweenness sits at a crossroads: whatever passes between
 otherwise-distant parts of the network has to go through it, giving it
 the <em>opportunity</em> to broker, filter, or bottleneck that flow.
 <strong>Calculate the betweenness centralities for
-<code>ison_brandes</code>.</strong></p>
+<code>ison_centrality</code>.</strong></p>
 <div class="callout">
 <p><span class="callout-label"><strong>Try it yourself</strong>:</span>
 This section includes an interactive quiz in the live tutorial — run
@@ -439,8 +439,8 @@ indeed this score is the basis of a famous community-detection algorithm
 <strong>Map tie betweenness onto tie width to see the network’s main
 thoroughfares.</strong></p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">ison_brandes</span> <span class="op">%&gt;%</span></span>
-<span>  <span class="fu">mutate_ties</span><span class="op">(</span>bridgeness <span class="op">=</span> <span class="fu"><a href="../reference/measure_central_tie_between.html">tie_by_betweenness</a></span><span class="op">(</span><span class="va">ison_brandes</span><span class="op">)</span><span class="op">)</span> <span class="op">%&gt;%</span></span>
+<code class="sourceCode R"><span><span class="va">ison_centrality</span> <span class="op">%&gt;%</span></span>
+<span>  <span class="fu">mutate_ties</span><span class="op">(</span>bridgeness <span class="op">=</span> <span class="fu"><a href="../reference/measure_central_tie_between.html">tie_by_betweenness</a></span><span class="op">(</span><span class="va">ison_centrality</span><span class="op">)</span><span class="op">)</span> <span class="op">%&gt;%</span></span>
 <span>  <span class="fu">graphr</span><span class="op">(</span>edge_size <span class="op">=</span> <span class="st">"bridgeness"</span><span class="op">)</span></span></code></pre></div>
 <p>The widest ties are the ones the network can least afford to lose:
 cut one and many shortest paths between nodes lengthen — or
@@ -471,8 +471,8 @@ node without weighting them by how many alternatives exist — an older,
 <p><strong>Compare classic and induced betweenness — do they agree
 here?</strong></p>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="../reference/measure_central_between.html">node_by_betweenness</a></span><span class="op">(</span><span class="va">ison_brandes</span>, normalized <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
-<span><span class="fu"><a href="../reference/measure_central_between.html">node_by_induced</a></span><span class="op">(</span><span class="va">ison_brandes</span>, normalized <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/measure_central_between.html">node_by_betweenness</a></span><span class="op">(</span><span class="va">ison_centrality</span>, normalized <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
+<span><span class="fu"><a href="../reference/measure_central_between.html">node_by_induced</a></span><span class="op">(</span><span class="va">ison_centrality</span>, normalized <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></code></pre></div>
 <p>For this network the rankings broadly agree, but on networks with
 more redundancy they can diverge: a node can lie on few shortest paths
 itself yet still be sorely missed when removed. For formal definitions
@@ -510,7 +510,7 @@ Closeness </dfn></abbr> measures how short a node’s paths are to
 geodesic </dfn></abbr> distance, the higher the closeness. A node with
 high closeness can reach the rest of the network in few steps, so it is
 well placed to spread (or hear) something quickly. <strong>Calculate the
-closeness centralities for <code>ison_brandes</code>.</strong></p>
+closeness centralities for <code>ison_centrality</code>.</strong></p>
 <div class="callout">
 <p><span class="callout-label"><strong>Try it yourself</strong>:</span>
 This section includes an interactive quiz in the live tutorial — run
@@ -532,8 +532,8 @@ geodesic </dfn></abbr> distance from (or to) a given node — the network
 equivalent of dropping a pin on a map. <strong>Try both: how far does
 the first-named node’s reach extend?</strong></p>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="../reference/measure_central_close.html">node_by_reach</a></span><span class="op">(</span><span class="va">ison_brandes</span><span class="op">)</span></span>
-<span><span class="fu"><a href="../reference/measure_central_close.html">node_by_distance</a></span><span class="op">(</span><span class="va">ison_brandes</span>, from <span class="op">=</span> <span class="fu">node_names</span><span class="op">(</span><span class="va">ison_brandes</span><span class="op">)</span><span class="op">[</span><span class="fl">1</span><span class="op">]</span><span class="op">)</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/measure_central_close.html">node_by_reach</a></span><span class="op">(</span><span class="va">ison_centrality</span><span class="op">)</span></span>
+<span><span class="fu"><a href="../reference/measure_central_close.html">node_by_distance</a></span><span class="op">(</span><span class="va">ison_centrality</span>, from <span class="op">=</span> <span class="fu">node_names</span><span class="op">(</span><span class="va">ison_centrality</span><span class="op">)</span><span class="op">[</span><span class="fl">1</span><span class="op">]</span><span class="op">)</span></span></code></pre></div>
 <p>Note that <code><a href="../reference/measure_central_close.html">node_by_reach()</a></code> takes a <code>cutoff</code>
 argument to change the number of steps considered:
 <code>cutoff = 1</code> reduces it to degree, while a large cutoff
@@ -598,7 +598,7 @@ central its neighbours are: you are important if you are connected to
 important others. It captures influence rather than mere activity — a
 node with only a few ties, but to very well-connected nodes, can
 outscore a node with many ties to peripheral ones. <strong>Calculate the
-eigenvector centralities for <code>ison_brandes</code>.</strong></p>
+eigenvector centralities for <code>ison_centrality</code>.</strong></p>
 <div class="callout">
 <p><span class="callout-label"><strong>Try it yourself</strong>:</span>
 This section includes an interactive quiz in the live tutorial — run
@@ -631,8 +631,8 @@ recursion: a positive exponent rewards well-connected neighbours
 poorly-connected neighbours (power). <strong>Compare the
 two.</strong></p>
 <div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="../reference/measure_central_eigen.html">node_by_power</a></span><span class="op">(</span><span class="va">ison_brandes</span>, exponent <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span>
-<span><span class="fu"><a href="../reference/measure_central_eigen.html">node_by_power</a></span><span class="op">(</span><span class="va">ison_brandes</span>, exponent <span class="op">=</span> <span class="op">-</span><span class="fl">1</span><span class="op">)</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/measure_central_eigen.html">node_by_power</a></span><span class="op">(</span><span class="va">ison_centrality</span>, exponent <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span>
+<span><span class="fu"><a href="../reference/measure_central_eigen.html">node_by_power</a></span><span class="op">(</span><span class="va">ison_centrality</span>, exponent <span class="op">=</span> <span class="op">-</span><span class="fl">1</span><span class="op">)</span></span></code></pre></div>
 <p>Try to answer the following questions for yourself:</p>
 <ul>
 <li>which nodes swap fortunes when the exponent flips, and what do their
@@ -672,10 +672,10 @@ family.</li>
 </ul>
 <p><strong>Try these on a directed version of our network.</strong></p>
 <div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">ison_brandes_dir</span> <span class="op">&lt;-</span> <span class="fu">to_directed</span><span class="op">(</span><span class="va">ison_brandes</span><span class="op">)</span></span>
-<span><span class="fu"><a href="../reference/measure_central_eigen.html">node_by_pagerank</a></span><span class="op">(</span><span class="va">ison_brandes_dir</span><span class="op">)</span></span>
-<span><span class="fu"><a href="../reference/measure_central_eigen.html">node_by_hub</a></span><span class="op">(</span><span class="va">ison_brandes_dir</span><span class="op">)</span></span>
-<span><span class="fu"><a href="../reference/measure_central_eigen.html">node_by_authority</a></span><span class="op">(</span><span class="va">ison_brandes_dir</span><span class="op">)</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="va">ison_centrality_dir</span> <span class="op">&lt;-</span> <span class="fu">to_directed</span><span class="op">(</span><span class="va">ison_centrality</span><span class="op">)</span></span>
+<span><span class="fu"><a href="../reference/measure_central_eigen.html">node_by_pagerank</a></span><span class="op">(</span><span class="va">ison_centrality_dir</span><span class="op">)</span></span>
+<span><span class="fu"><a href="../reference/measure_central_eigen.html">node_by_hub</a></span><span class="op">(</span><span class="va">ison_centrality_dir</span><span class="op">)</span></span>
+<span><span class="fu"><a href="../reference/measure_central_eigen.html">node_by_authority</a></span><span class="op">(</span><span class="va">ison_centrality_dir</span><span class="op">)</span></span></code></pre></div>
 <p>Since the directions are again assigned at random, run the code a few
 times: watch how a node’s authority score rises and falls with the
 arrows pointing at it.</p>
@@ -868,7 +868,7 @@ unremarkable on another.</p>
 </h3>
 <p>Try it with the two-mode version. What can you see?</p>
 <div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># Instead of "ison_brandes", use "ison_brandes2"</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="co"># Instead of "ison_centrality", use "ison_centrality2"</span></span></code></pre></div>
 <div class="callout">
 <p><span class="callout-label"><strong>Try it yourself</strong>:</span>
 This section includes an interactive quiz in the live tutorial — run
@@ -905,7 +905,7 @@ at its whole
 distribution </dfn></abbr> across the nodes. <a href="https://stocnet.github.io/autograph/" class="external-link">autograph</a>
 offers a way to get a pretty good first look at this, though there are
 more elaborate ways to do this in base and grid graphics. <strong>Plot
-the degree distribution of <code>ison_brandes</code>.</strong></p>
+the degree distribution of <code>ison_centrality</code>.</strong></p>
 <p>What’s plotted here by default is both the degree distribution as a
 histogram, as well as a density plot overlaid on it in red. Reading a
 distribution rather than a single summary number lets you see
@@ -948,7 +948,7 @@ compare both the plots and the two centralisation scores.</strong></p>
 centralisation is low — no node is far above the crowd. The scale-free
 network’s degrees trail off into a long tail, and its centralisation is
 several times higher — a few hubs carry the network. Our
-<code>ison_brandes</code> example sits somewhere between these two
+<code>ison_centrality</code> example sits somewhere between these two
 extremes.</p>
 <div class="callout">
 <p><span class="callout-label"><strong>Try it yourself</strong>:</span>

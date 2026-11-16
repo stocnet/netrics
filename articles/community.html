@@ -39,7 +39,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">netrics</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.1.3</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.2.0</span>
       </span>
     </div>
 
@@ -218,6 +218,9 @@ tie formation</label></li>
 its one-mode projections with <code>to_mode1()</code> and
 <code>to_mode2()</code>, choosing an appropriate similarity option — and
 know what projection obscures</label></li>
+<li><label><input type="checkbox">  Keep every membership of a
+two-mode network in a concept lattice with <code>to_concepts()</code>,
+and read it from the top down</label></li>
 <li><label><input type="checkbox">  Count weak and strong components
 with <code><a href="../reference/measure_cohesion.html">net_by_components()</a></code> and map their membership with
 <code><a href="../reference/member_components.html">node_in_component()</a></code></label></li>
@@ -275,7 +278,7 @@ assigned randomly from a pool of (American) first names.</p>
 </h3>
 <p>As a multiplex network, there are actually three different types of
 ties (friends, social, and tasks) in this network. We can extract them
-and graph them separately using <code>to_uniplex()</code>:</p>
+and graph them separately using <code>to_layer()</code>:</p>
 <div class="callout">
 <p><span class="callout-label"><strong>Beginner note</strong>:</span>
 Placing two or more gg-based plots side by side with <code>+</code>
@@ -466,7 +469,8 @@ tutorial.</p>
 two-mode network</span> · <span class="page-toc-link" onclick="document.getElementById('section-two-projections').scrollIntoView({behavior:'auto',block:'start'});">Two
 projections</span> · <span class="page-toc-link" onclick="document.getElementById('section-projection-options').scrollIntoView({behavior:'auto',block:'start'});">Projection
 options</span> · <span class="page-toc-link" onclick="document.getElementById('section-two-mode-closure').scrollIntoView({behavior:'auto',block:'start'});">Two-mode
-closure</span></span></p>
+closure</span> · <span class="page-toc-link" onclick="document.getElementById('section-galois-lattices').scrollIntoView({behavior:'auto',block:'start'});">Galois
+lattices</span></span></p>
 <div class="section level3">
 <h3 id="a-two-mode-network">A two-mode network<a class="anchor" aria-label="anchor" href="#a-two-mode-network"></a>
 </h3>
@@ -497,7 +501,7 @@ doing this. The hard way…</p>
 <span><span class="fu">graphr</span><span class="op">(</span><span class="va">women_graph</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># note that projection `to_mode1` involves keeping one type of nodes</span></span>
-<span><span class="co"># this is different from to_uniplex above, which keeps one type of ties in the network</span></span>
+<span><span class="co"># this is different from to_layer above, which keeps one type of ties in the network</span></span>
 <span></span>
 <span><span class="co"># event-graph</span></span>
 <span><span class="co"># to_mode2(): Results in a weighted one-mode object that retains the column nodes from</span></span>
@@ -561,6 +565,57 @@ another.</p>
 <p>Try to explain in no more than a paragraph why projection can lead to
 misleading transitivity measures and what some consequences of this
 might be.</p>
+</div>
+<div class="section level3">
+<h3 id="galois-lattices">Galois lattices<a class="anchor" aria-label="anchor" href="#galois-lattices"></a>
+</h3>
+<p>Projection hides which women attended which events. A concept (or
+Galois) lattice keeps every one of those memberships (Freeman and White
+1993). Each node in the lattice is a <em>concept</em>: a set of women
+(its <code>extent</code>) together with the set of events that all of
+them attended (its <code>intent</code>), where no other woman attended
+all of those events and the women share no other event. A tie joins a
+concept to the next concept below it, which holds fewer women who share
+more events.</p>
+<p>Let’s start with a small example of four women and three events.
+<code>create_explicit()</code> takes each woman and the events she
+attended, and <code>to_twomode()</code> marks the events as the second
+mode. Then <code>to_concepts()</code> projects the network into its
+lattice.</p>
+<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># each woman, and the events she attended</span></span>
+<span><span class="va">toy</span> <span class="op">&lt;-</span> <span class="fu">create_explicit</span><span class="op">(</span><span class="va">Ann</span><span class="op">-</span><span class="va">E1</span><span class="op">:</span><span class="va">E2</span>, <span class="va">Bea</span><span class="op">-</span><span class="va">E1</span><span class="op">:</span><span class="va">E2</span><span class="op">:</span><span class="va">E3</span>, <span class="va">Cat</span><span class="op">-</span><span class="va">E2</span><span class="op">:</span><span class="va">E3</span>, <span class="va">Dee</span><span class="op">-</span><span class="va">E3</span><span class="op">)</span></span>
+<span><span class="co"># mark the events as the second mode</span></span>
+<span><span class="va">toy</span> <span class="op">&lt;-</span> <span class="fu">to_twomode</span><span class="op">(</span><span class="va">toy</span>, <span class="fu">node_names</span><span class="op">(</span><span class="va">toy</span><span class="op">)</span> <span class="op"><a href="https://rdrr.io/r/base/match.html" class="external-link">%in%</a></span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"E1"</span>,<span class="st">"E2"</span>,<span class="st">"E3"</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="va">toy_lattice</span> <span class="op">&lt;-</span> <span class="fu">to_concepts</span><span class="op">(</span><span class="va">toy</span><span class="op">)</span></span>
+<span><span class="va">toy_lattice</span></span>
+<span><span class="fu">graphr</span><span class="op">(</span><span class="va">toy_lattice</span>, <span class="st">"layered"</span><span class="op">)</span></span></code></pre></div>
+<p>You read the lattice from the top down, with each level representing
+a more specific grouping of women based on their shared events. Each
+label names the women and the <code>{events}</code> that <em>first</em>
+appear at that concept. So, the top concept holds all four women, who
+share no event, <code>{E2}</code> is the concept of the three women who
+attended E2 (Ann, Bea, and Cat), and <code>Dee {E3}</code> is the
+concept that holds Cat and Bea (who also attended E3) and Dee (who
+attended only E3). A woman is in her own concept and in every concept
+above it. Bea attended all three events, so she is at the bottom, in the
+one concept that has every event (reading upwards). Now try this on the
+Southern Women.</p>
+<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">women_lattice</span> <span class="op">&lt;-</span> <span class="fu">to_concepts</span><span class="op">(</span><span class="va">ison_southern_women</span><span class="op">)</span></span>
+<span><span class="va">women_lattice</span></span>
+<span><span class="fu">graphr</span><span class="op">(</span><span class="va">women_lattice</span>, <span class="st">"layered"</span><span class="op">)</span></span></code></pre></div>
+<p>This lattice is much larger, but it reads in the same way. Freeman
+(2003) uses it to find the groups among the Southern Women: look for the
+women who first appear low down, under a few shared events, and for the
+concepts where the two groups of women meet.</p>
+<p>Use the <code>extent</code> node attribute to find every concept that
+holds Evelyn.</p>
+<div class="callout">
+<p><span class="callout-label"><strong>Try it yourself</strong>:</span>
+This section includes an interactive quiz in the live tutorial — run
+<code>run_tute()</code> at the R console to try it.</p>
+</div>
 <div class="callout">
 <p><span class="callout-label"><strong>In brief</strong>:</span>
 <code>to_mode1()</code>/<code>to_mode2()</code> project a two-mode
@@ -568,7 +623,8 @@ network into ties among one of its node sets, with a
 <code>similarity</code> argument (“count”, “jaccard”, “rand”, “pearson”,
 “yule”) governing the weights. Projection inflates transitivity and
 hides memberships, so where possible measure the two-mode network
-directly, e.g. with <code><a href="../reference/measure_closure.html">net_by_equivalency()</a></code>.</p>
+directly, e.g. with <code><a href="../reference/measure_closure.html">net_by_equivalency()</a></code>, or keep the
+memberships with a concept lattice from <code>to_concepts()</code>.</p>
 </div>
 </div>
 </div>
@@ -648,7 +704,7 @@ concerns the url links between political blogs in the 2004 election. It
 is a big network (you can check below), so in our experience it can take
 a few seconds to graph — we will concentrate on a random sample to speed
 things up.</p>
-<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># This is a large network</span></span>
 <span><span class="fu">net_nodes</span><span class="op">(</span><span class="va">irps_blogs</span><span class="op">)</span></span>
 <span><span class="co"># Let's concentrate on just a sample of 240</span></span>
@@ -660,11 +716,11 @@ there seems to be a number of
 <abbr><dfn title="An isolate is a node with degree equal to zero.">
 isolates </dfn></abbr>. We can calculate the number of isolates by
 simply summing <code><a href="../reference/mark_degree.html">node_is_isolate()</a></code>.</p>
-<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/sum.html" class="external-link">sum</a></span><span class="op">(</span><span class="fu"><a href="../reference/mark_degree.html">node_is_isolate</a></span><span class="op">(</span><span class="va">blogs</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 <p>Since there are many isolates, there will be many components, even if
 we look at weak components and not just strong components.</p>
-<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/member_components.html">node_in_component</a></span><span class="op">(</span><span class="va">blogs</span><span class="op">)</span></span>
 <span><span class="fu"><a href="../reference/member_components.html">node_in_component</a></span><span class="op">(</span><span class="va">blogs</span>, connectivity <span class="op">=</span> <span class="st">"weak"</span><span class="op">)</span></span></code></pre></div>
 </div>
@@ -676,7 +732,7 @@ How do we concentrate on the main component of this network? Well, the
 main/largest component in a network is called the
 <abbr><dfn title="The giant component is the component that includes the most nodes in the network.">
 giant component </dfn></abbr>.</p>
-<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">blogs</span> <span class="op">&lt;-</span> <span class="va">blogs</span> <span class="op">|&gt;</span> <span class="fu">to_giant</span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/sum.html" class="external-link">sum</a></span><span class="op">(</span><span class="fu"><a href="../reference/mark_degree.html">node_is_isolate</a></span><span class="op">(</span><span class="va">blogs</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="fu">graphr</span><span class="op">(</span><span class="va">blogs</span><span class="op">)</span></span></code></pre></div>
@@ -703,7 +759,7 @@ membership is a categorical result, unlike the numeric vectors the
 nodes, we can assign the result to the nodes as an attribute and graph
 with it.</p>
 </div>
-<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">blogs</span> <span class="op">|&gt;</span> <span class="fu">mutate_nodes</span><span class="op">(</span>part <span class="op">=</span> <span class="fu"><a href="../reference/member_community_partition.html">node_in_partition</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu">graphr</span><span class="op">(</span>node_color <span class="op">=</span> <span class="st">"part"</span><span class="op">)</span></span></code></pre></div>
 <p>We see from this graph that indeed there seems to be an obvious
@@ -745,7 +801,7 @@ partitions? The most common measure of the fit of a community assignment
 in a network is
 <abbr><dfn title="The modularity of a membership assignment is the difference of the cross-cluster ties from the expected value.">
 modularity </dfn></abbr>.</p>
-<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/measure_fit.html">net_by_modularity</a></span><span class="op">(</span><span class="va">blogs</span>, membership <span class="op">=</span> <span class="fu"><a href="../reference/member_community_partition.html">node_in_partition</a></span><span class="op">(</span><span class="va">blogs</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 <p>Remember that modularity is conventionally described as ranging
 between 1 and -1, though in practice the lowest value a real partition
@@ -769,7 +825,7 @@ algorithm that tries to maximise modularity. Other times we might
 instead have an empirically collected grouping, and we are keen to see
 how ‘modular’ the network is around this attribute. This only works on
 categorical attributes, of course, but is otherwise quite flexible.</p>
-<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu">graphr</span><span class="op">(</span><span class="va">blogs</span>, node_color <span class="op">=</span> <span class="st">"Leaning"</span><span class="op">)</span></span>
 <span><span class="fu"><a href="../reference/measure_fit.html">net_by_modularity</a></span><span class="op">(</span><span class="va">blogs</span>, membership <span class="op">=</span> <span class="fu">node_attribute</span><span class="op">(</span><span class="va">blogs</span>, <span class="st">"Leaning"</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 <div class="callout">
@@ -809,7 +865,7 @@ the main component.</p>
 detection methods. For clarity and simplicity, we will concentrate on
 the main component (the so-called ‘giant’ component) and consider
 friendship undirected.</p>
-<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># to_giant() returns an object that includes only the main component without any smaller components or isolates</span></span>
 <span><span class="op">(</span><span class="va">friends</span> <span class="op">&lt;-</span> <span class="fu">to_giant</span><span class="op">(</span><span class="va">friends</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="op">(</span><span class="va">friends</span> <span class="op">&lt;-</span> <span class="fu">to_undirected</span><span class="op">(</span><span class="va">friends</span><span class="op">)</span><span class="op">)</span></span>
@@ -858,7 +914,7 @@ al. 2008)).”</p>
 algorithm, <code><a href="../reference/member_community_hier.html">node_in_walktrap()</a></code>, with the random walks set to
 four steps, which is the default. Longer walks reach further, and tend
 to return fewer, larger communities.</p>
-<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">friend_wt</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/member_community_hier.html">node_in_walktrap</a></span><span class="op">(</span><span class="va">friends</span>, steps <span class="op">=</span> <span class="fl">4</span><span class="op">)</span></span></code></pre></div>
 <p>We can also visualise the clusters on the original network How does
 the following look? Plausible?</p>
@@ -887,7 +943,7 @@ the highest edge-betweenness score we will get a hierarchical map
 dendrogram </dfn></abbr>) of the communities in the graph.</p>
 <p>The following works similarly to walktrap, but no need to set a step
 length.</p>
-<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">friend_eb</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/member_community_hier.html">node_in_betweenness</a></span><span class="op">(</span><span class="va">friends</span><span class="op">)</span></span>
 <span><span class="va">friend_eb</span></span></code></pre></div>
 <p>How does community membership differ here from that found by
@@ -938,7 +994,7 @@ groups becoming weighted ties between these new nodes.</li>
 <p>The second phase is why it is so much faster. After even only one
 pass the network is much smaller, so the next pass is much cheaper, and
 a network of millions of nodes collapses within a few rounds.</p>
-<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">friend_lv</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/member_community_modular.html">node_in_louvain</a></span><span class="op">(</span><span class="va">friends</span><span class="op">)</span></span>
 <span><span class="va">friend_lv</span></span>
 <span></span>
@@ -988,7 +1044,7 @@ directed, weighted, or connected. It either uses the algorithm that
 maximises modularity by default (<code><a href="../reference/member_community_modular.html">node_in_optimal()</a></code>) for
 smaller networks, or surveys the approximations provided by other
 algorithms for the result that maximises the modularity.</p>
-<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/member_community.html">node_in_community</a></span><span class="op">(</span><span class="va">friends</span><span class="op">)</span></span></code></pre></div>
 <p>It is important to name <em>which</em> algorithm produced the
 membership assignment that is then subsequently analysed though.</p>
@@ -1002,7 +1058,7 @@ considerably more time, which is why it is not the default, and it is
 ignored on a network small enough for <code><a href="../reference/member_community_modular.html">node_in_optimal()</a></code>,
 where the exact maximum is already available. On a network the size of
 <code>irps_books</code> this may take about twenty seconds.</p>
-<div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/member_community.html">node_in_community</a></span><span class="op">(</span><span class="va">irps_books</span>, consensus <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
 <div class="callout">
 <p><span class="callout-label"><strong>Try it yourself</strong>:</span>
@@ -1032,7 +1088,7 @@ random </dfn></abbr> network places its ties without any group
 structure. <code>generate_random()</code> makes one with the same number
 of nodes and ties as the network you give it. Let’s make a random
 version of the friendship network, and see what Louvain finds in it.</p>
-<div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb18"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">rand_friends</span> <span class="op">&lt;-</span> <span class="fu">generate_random</span><span class="op">(</span><span class="va">friends</span><span class="op">)</span></span>
 <span><span class="va">rand_lv</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/member_community_modular.html">node_in_louvain</a></span><span class="op">(</span><span class="va">rand_friends</span><span class="op">)</span></span>
 <span><span class="va">rand_friends</span> <span class="op">|&gt;</span> <span class="fu">mutate_nodes</span><span class="op">(</span>rand_comm <span class="op">=</span> <span class="va">rand_lv</span><span class="op">)</span> <span class="op">|&gt;</span></span>
@@ -1045,7 +1101,7 @@ alone expects. The algorithm finds these accidents too.</p>
 <p>The effect is larger than you may expect. Try a sparse random network
 of 100 nodes, in which each pair of nodes is tied with a probability of
 0.05:</p>
-<div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb19"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">sparse</span> <span class="op">&lt;-</span> <span class="fu">generate_random</span><span class="op">(</span><span class="fl">100</span>, <span class="fl">0.05</span><span class="op">)</span></span>
 <span><span class="fu"><a href="../reference/measure_fit.html">net_by_modularity</a></span><span class="op">(</span><span class="va">sparse</span>, <span class="fu"><a href="../reference/member_community_modular.html">node_in_louvain</a></span><span class="op">(</span><span class="va">sparse</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 <p>This network has no groups, but its modularity is often about 0.4,
@@ -1130,7 +1186,7 @@ interactions — how modular is the fellowship around the
 political leaning, as the blogs did?)</td>
 </tr></tbody>
 </table>
-<div class="sourceCode" id="cb18"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb20"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">irps_books</span></span></code></pre></div>
 </div>
 <div class="section level2">
@@ -1181,7 +1237,7 @@ is</td>
 </tr>
 <tr class="odd">
 <td>
-<code>to_uniplex()</code>, <code>to_named()</code>,
+<code>to_layer()</code>, <code>to_named()</code>,
 <code>to_undirected()</code>, <code>to_giant()</code>
 </td>
 <td>extracts one tie type, adds names, drops direction, keeps the giant

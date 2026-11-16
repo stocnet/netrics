@@ -17,7 +17,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="index.html">netrics</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.1.3</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.2.0</span>
       </span>
     </div>
 
@@ -185,9 +185,9 @@
 </li>
 <li>Lint: <code><a href="https://lintr.r-lib.org/reference/lint.html" class="external-link">lintr::lint_package()</a></code>
 </li>
-<li>Spell check: <code><a href="https://docs.ropensci.org/spelling//reference/spell_check_package.html" class="external-link">spelling::spell_check_package()</a></code>
+<li>Spell check: <code><a href="https://docs.ropensci.org/spelling/reference/spell_check_package.html" class="external-link">spelling::spell_check_package()</a></code>
 </li>
-<li>Code coverage: <code><a href="http://covr.r-lib.org/reference/package_coverage.html" class="external-link">covr::package_coverage()</a></code>
+<li>Code coverage: <code><a href="https://covr.r-lib.org/reference/package_coverage.html" class="external-link">covr::package_coverage()</a></code>
 </li>
 <li>Rebuild <code>README.md</code> from <code>README.Rmd</code>: <code><a href="https://devtools.r-lib.org/reference/build_readme.html" class="external-link">devtools::build_readme()</a></code>
 </li>
@@ -360,7 +360,7 @@
 </ul></div>
 <div class="section level3">
 <h3 id="function-body-convention">Function body convention<a class="anchor" aria-label="anchor" href="#function-body-convention"></a></h3>
-<p>Functions consistently: 1. Coerce/validate input via <code><a href="https://stocnet.github.io/manynet/reference/expect.html" class="external-link">manynet::expect_nodes()</a></code> / <code><a href="https://stocnet.github.io/manynet/reference/coerce_graph.html" class="external-link">manynet::as_igraph()</a></code> etc. 2. Branch on <code><a href="https://stocnet.github.io/manynet/reference/mark_format_node.html" class="external-link">manynet::is_twomode()</a></code>, <code>manynet::is_weighted()</code>, <code>manynet::is_directed()</code>, <code><a href="https://stocnet.github.io/manynet/reference/mark_format_tie.html" class="external-link">manynet::is_complex()</a></code> to handle one-mode/two-mode, weighted/unweighted, directed/undirected cases distinctly. 3. Compute the result (often via <a href="https://r.igraph.org/" class="external-link">igraph</a>, but use whichever is the fastest implementation). 4. Wrap the output with the matching <code>make_*()</code> constructor to attach the S3 class and labels (node/tie names via <code><a href="https://stocnet.github.io/manynet/reference/measure_attributes_nodes.html" class="external-link">manynet::node_names()</a></code>, mode attribute via <code><a href="https://stocnet.github.io/manynet/reference/measure_attributes_nodes.html" class="external-link">manynet::node_is_mode()</a></code>/<code><a href="https://stocnet.github.io/manynet/reference/measure_dims.html" class="external-link">manynet::net_dims()</a></code>).</p>
+<p>Functions consistently: 1. Coerce/validate input via <code><a href="https://stocnet.github.io/manynet/reference/expect.html" class="external-link">manynet::expect_nodes()</a></code> / <code><a href="https://stocnet.github.io/manynet/reference/coerce_graph.html" class="external-link">manynet::as_igraph()</a></code> etc. 2. Branch on <code><a href="https://stocnet.github.io/manynet/reference/mark_format_node.html" class="external-link">manynet::is_twomode()</a></code>, <code>manynet::is_weighted()</code>, <code>manynet::is_directed()</code>, <code><a href="https://stocnet.github.io/manynet/reference/defunct.html" class="external-link">manynet::is_complex()</a></code> to handle one-mode/two-mode, weighted/unweighted, directed/undirected cases distinctly. 3. Compute the result (often via <a href="https://r.igraph.org/" class="external-link">igraph</a>, but use whichever is the fastest implementation). 4. Wrap the output with the matching <code>make_*()</code> constructor to attach the S3 class and labels (node/tie names via <code><a href="https://stocnet.github.io/manynet/reference/measure_attributes_nodes.html" class="external-link">manynet::node_names()</a></code>, mode attribute via <code><a href="https://stocnet.github.io/manynet/reference/measure_attributes_nodes.html" class="external-link">manynet::node_is_mode()</a></code>/<code><a href="https://stocnet.github.io/manynet/reference/measure_dims.html" class="external-link">manynet::net_dims()</a></code>).</p>
 <p>All <code>manynet</code>/<code>igraph</code> calls use explicit <code>::</code> namespacing rather than importing whole namespaces (<a href="https://stocnet.github.io/manynet/" class="external-link">manynet</a> and <a href="https://r.igraph.org/" class="external-link">igraph</a> are still listed in <code>@importFrom</code> roxygen tags per-file for NAMESPACE generation).</p>
 <p>Where the function is a measure, the <code>make_*_measure()</code> call also declares <code>measure</code>, <code>range</code>, <code>normalization</code> and <code>variant</code> (see <a href="#adding-a-measure">Adding a measure</a>).</p>
 </div>
@@ -370,7 +370,7 @@
 <ul><li>
 <strong>Signed.</strong> A <code>stocnet</code> object holds a tie’s sign as the sign of its weight, so a signed network reaches <a href="https://r.igraph.org/" class="external-link">igraph</a> carrying a <code>weight</code> attribute of -1 and 1. Shortest-path functions read any attribute of that name as a distance, and either abort on the negative values or report a negative cycle. Where the measure concerns cohesion or distance, call <code><a href="https://stocnet.github.io/manynet/reference/modif_weight.html" class="external-link">manynet::to_positive()</a></code>, which drops to the positive ties and records the exclusion. Do not simply drop the attribute: that reads a negative tie as a path of length one, when a negative tie is hostility rather than a channel along which cohesion travels. Where the measure instead counts a tie however it is signed, as a census does, call <code>manynet::to_unsigned(keep = "both")</code>, which keeps every tie and reads each by its magnitude. A tie-level function takes this branch even where it measures distance, since <code><a href="https://stocnet.github.io/manynet/reference/modif_weight.html" class="external-link">manynet::to_positive()</a></code> drops ties and a tie measure must hold one value per tie; <code><a href="reference/measure_central_tie_between.html">tie_by_betweenness()</a></code> is the case, and says so in a “For signed networks, …” paragraph of its section.</li>
 <li>
-<strong>Multiplex.</strong> Take one layer at a time with <code><a href="https://stocnet.github.io/manynet/reference/modif_plexity.html" class="external-link">manynet::to_uniplex()</a></code>. That drops nodes holding none of the retained ties, so results of different lengths would otherwise be recycled against each other; <code>uniplex_degree()</code> (<a href="../R/measure_centrality_degree.R">R/measure_centrality_degree.R</a>) restores the whole nodeset, and is the pattern to follow.</li>
+<strong>Multiplex.</strong> Take one layer at a time with <code><a href="https://stocnet.github.io/manynet/reference/defunct.html" class="external-link">manynet::to_uniplex()</a></code>. That drops nodes holding none of the retained ties, so results of different lengths would otherwise be recycled against each other; <code>uniplex_degree()</code> (<a href="../R/measure_centrality_degree.R">R/measure_centrality_degree.R</a>) restores the whole nodeset, and is the pattern to follow.</li>
 <li>
 <strong>Multilevel.</strong> A multilevel network reports itself as two-mode, but holds ties within a mode as well as between them, so it cannot be projected. Measure it whole rather than projecting, as <code><a href="reference/measure_cohesion.html">net_by_independence()</a></code> now does.</li>
 <li>
@@ -447,6 +447,16 @@
 <li>Multiple strings can be passed as separate arguments for multiline messages.</li>
 </ul><p>Messages, warnings, and errors should be written in a way that is useful for new and advanced users alike. This might include listing likely causes, mentioning objects or variables explicitly, and indicating next actions clearly. Prefer “<code>{.arg alpha}</code> must be a single number between 0 and 1” over “invalid input”. Functions that dispatch on a character argument should name the method they chose, e.g. <code>manynet::snet_info("...using {.fn regularity_{regularity}}.")</code>, which surfaces the method-helper convention above at run time.</p>
 </div>
+<div class="section level3">
+<h3 id="notation">Notation<a class="anchor" aria-label="anchor" href="#notation"></a></h3>
+<p>Use one notation for code in issues, reviews, documentation, and NEWS items:</p>
+<ul><li>Give a function or generic backticks and parentheses, e.g. <code>verb_function()</code>.</li>
+<li>Give a specific method its full name, e.g. <code>verb_function.stocnet()</code>.</li>
+<li>Give an argument an equals sign, e.g. <code>argument=</code>.</li>
+<li>Put a value that an argument takes, or a variable, in double quotation marks, e.g. “value”.</li>
+<li>Give a class a leading period when referring to it, e.g. <code>.stocnet</code>. A leading period on a name with parentheses is an internal helper instead, e.g. <code>.helper_function()</code>.</li>
+<li>Name a new class in camelCase, after the package plus a noun, e.g. <code>infernetConfusion</code>, so that a class does not look like a snake_case function. See “Class names across the stocnet ecosystem” in the <a href="https://stocnet.github.io/autograph/" class="external-link">autograph</a> contributing guide. Older names, such as <code>network_test</code>, stay until they can be renamed with an alias.</li>
+</ul></div>
 <div class="section level3">
 <h3 id="documentation">Documentation<a class="anchor" aria-label="anchor" href="#documentation"></a></h3>
 <p>Roxygen is configured with <code>markdown = TRUE</code>; <code>NAMESPACE</code> and all <code>man/*.Rd</code> files are generated — never hand-edit them. Run <code><a href="https://devtools.r-lib.org/reference/document.html" class="external-link">devtools::document()</a></code> after changing any roxygen comment.</p>

@@ -37,7 +37,7 @@ converting the network to a one-mode network."><meta property="og:image" content
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">netrics</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.1.3</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.2.0</span>
       </span>
     </div>
 
@@ -141,7 +141,9 @@ converting the network to a one-mode network.</p>
 <span></span>
 <span><span class="fu">net_by_assortativity</span><span class="op">(</span><span class="va">.data</span><span class="op">)</span></span>
 <span></span>
-<span><span class="fu">net_by_spatial</span><span class="op">(</span><span class="va">.data</span>, <span class="va">attribute</span><span class="op">)</span></span></code></pre></div>
+<span><span class="fu">net_by_spatial</span><span class="op">(</span><span class="va">.data</span>, <span class="va">attribute</span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu">net_by_concentration</span><span class="op">(</span><span class="va">.data</span>, <span class="va">attribute</span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div id="arguments">
@@ -151,11 +153,13 @@ converting the network to a one-mode network.</p>
 <dl><dt id="arg--data">.data<a class="anchor" aria-label="anchor" href="#arg--data"></a></dt>
 <dd><p>A network object of class <code>stocnet</code>, <code>igraph</code>, <code>tbl_graph</code>, <code>network</code>, or similar.
 Internally any of these will be coerced to an efficient implementation.
-For more information on possible coercions, see e.g. <code><a href="https://stocnet.github.io/manynet/reference/coerce_graph.html" class="external-link">manynet::as_stocnet()</a></code>.</p></dd>
+For more information on possible coercions, see e.g. <code><a href="https://stocnet.github.io/manynet/reference/coerce_stocnet.html" class="external-link">manynet::as_stocnet()</a></code>.</p></dd>
 
 
 <dt id="arg-attribute">attribute<a class="anchor" aria-label="anchor" href="#arg-attribute"></a></dt>
-<dd><p>Name of a nodal attribute, mark, measure, or membership vector.</p></dd>
+<dd><p>Name of a nodal attribute, mark, measure, or membership vector.
+Where none is named and the network holds only one nodal attribute
+besides the reserved ones, such as "label" and "mode", that one is used.</p></dd>
 
 
 <dt id="arg-assortativity">assortativity<a class="anchor" aria-label="anchor" href="#arg-assortativity"></a></dt>
@@ -256,6 +260,20 @@ along with their ties,
 and \(N\), \(W\) and \(\bar{x}\) are recomputed on those that remain.
 A missing tie counts as no tie.</p>
     </div>
+    <div id="concentration">
+    <h2>Concentration</h2>
+
+
+<p><code>net_by_concentration()</code> measures whether high values of a positive
+numeric attribute sit together in a network, with the general \(G\)
+statistic of Getis and Ord (1992):
+$$G = \frac{\sum_{i \neq j} w_{ij} x_i x_j}{\sum_{i \neq j} x_i x_j}$$
+On a network without weights it runs from 0 to 1, and is the share of
+all the products of two values that fall on ties.
+Compare it with the density: a value above the density means that high
+values sit together, and a value below it that low values sit together.
+See <code><a href="measure_assort_node.html">node_by_concentration()</a></code> for the hot spots and cold spots.</p>
+    </div>
     <div id="references">
     <h2>References</h2>
 
@@ -298,6 +316,7 @@ Informal networks and organizational crises: an experimental simulation.
     <h2>See also</h2>
     <div class="dont-index"><p>Other diversity:
 <code><a href="measure_assort_node.html">measure_assort_node</a></code>,
+<code><a href="measure_diverse_dispersion.html">measure_diverse_dispersion</a></code>,
 <code><a href="measure_diverse_net.html">measure_diverse_net</a></code>,
 <code><a href="measure_diverse_node.html">measure_diverse_node</a></code>,
 <code><a href="measure_diverse_tie.html">measure_diverse_tie</a></code>,
@@ -309,7 +328,6 @@ Informal networks and organizational crises: an experimental simulation.
 <code><a href="measure_assort_node.html">measure_assort_node</a></code>,
 <code><a href="measure_breadth.html">measure_breadth</a></code>,
 <code><a href="measure_broker_node.html">measure_broker_node</a></code>,
-<code><a href="measure_broker_tie.html">measure_broker_tie</a></code>,
 <code><a href="measure_brokerage.html">measure_brokerage</a></code>,
 <code><a href="measure_central_between.html">measure_central_between</a></code>,
 <code><a href="measure_central_close.html">measure_central_close</a></code>,
@@ -326,19 +344,23 @@ Informal networks and organizational crises: an experimental simulation.
 <code><a href="measure_diffusion_infection.html">measure_diffusion_infection</a></code>,
 <code><a href="measure_diffusion_net.html">measure_diffusion_net</a></code>,
 <code><a href="measure_diffusion_node.html">measure_diffusion_node</a></code>,
+<code><a href="measure_diverse_dispersion.html">measure_diverse_dispersion</a></code>,
 <code><a href="measure_diverse_net.html">measure_diverse_net</a></code>,
 <code><a href="measure_diverse_node.html">measure_diverse_node</a></code>,
 <code><a href="measure_diverse_tie.html">measure_diverse_tie</a></code>,
+<code><a href="measure_domain.html">measure_domain</a></code>,
 <code><a href="measure_features.html">measure_features</a></code>,
 <code><a href="measure_fit.html">measure_fit</a></code>,
 <code><a href="measure_fragmentation.html">measure_fragmentation</a></code>,
 <code><a href="measure_hierarchy.html">measure_hierarchy</a></code>,
-<code><a href="measure_periods.html">measure_periods</a></code></p></div>
+<code><a href="measure_opinion.html">measure_opinion</a></code>,
+<code><a href="measure_periods.html">measure_periods</a></code>,
+<code><a href="measure_broker_tie.html">tie_by_width()</a></code></p></div>
     </div>
 
     <div id="ref-examples">
     <h2>Examples</h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="va">marvel_friends</span> <span class="op">&lt;-</span> <span class="fu">to_unsigned</span><span class="op">(</span><span class="fu">to_uniplex</span><span class="op">(</span><span class="va">fict_marvel</span>, <span class="st">"relationship"</span><span class="op">)</span>, <span class="st">"positive"</span><span class="op">)</span></span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="va">marvel_friends</span> <span class="op">&lt;-</span> <span class="fu">to_unsigned</span><span class="op">(</span><span class="fu">to_layer</span><span class="op">(</span><span class="va">fict_marvel</span>, <span class="st">"relationship"</span><span class="op">)</span>, <span class="st">"positive"</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu">net_by_heterophily</span><span class="op">(</span><span class="va">marvel_friends</span>, <span class="st">"Gender"</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># E-I index [-1, 1]</span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] -0.285</span>
@@ -354,6 +376,9 @@ Informal networks and organizational crises: an experimental simulation.
 <span class="r-in"><span><span class="fu">net_by_spatial</span><span class="op">(</span><span class="va">ison_lawfirm</span>, <span class="st">"age"</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># Moran's I (-Inf, Inf)</span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0.126</span>
+<span class="r-in"><span><span class="fu">net_by_concentration</span><span class="op">(</span><span class="va">ison_lawfirm</span>, <span class="st">"age"</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># Getis-Ord G [0, 1]</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0.528</span>
 </code></pre></div>
     </div>
   </div>

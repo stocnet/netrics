@@ -25,7 +25,7 @@ and then how signs, layers, and attributes add to it."><meta property="og:image"
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">netrics</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.1.3</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.2.0</span>
       </span>
     </div>
 
@@ -121,7 +121,7 @@ and then how signs, layers, and attributes add to it.</p>
 <dl><dt id="arg--data">.data<a class="anchor" aria-label="anchor" href="#arg--data"></a></dt>
 <dd><p>A network object of class <code>stocnet</code>, <code>igraph</code>, <code>tbl_graph</code>, <code>network</code>, or similar.
 Internally any of these will be coerced to an efficient implementation.
-For more information on possible coercions, see e.g. <code><a href="https://stocnet.github.io/manynet/reference/coerce_graph.html" class="external-link">manynet::as_stocnet()</a></code>.</p></dd>
+For more information on possible coercions, see e.g. <code><a href="https://stocnet.github.io/manynet/reference/coerce_stocnet.html" class="external-link">manynet::as_stocnet()</a></code>.</p></dd>
 
 
 <dt id="arg-attribute">attribute<a class="anchor" aria-label="anchor" href="#arg-attribute"></a></dt>
@@ -230,7 +230,7 @@ negative one, so <code>201_f.ft</code> is a two-path, one of whose ties is in th
 <code>friends</code> layer, and the other in both the <code>friends</code> and <code>tasks</code> layers.
 Only the motifs that occur are reported.
 Summing the variants of a motif gives the census of all layers together.
-Use <code><a href="https://stocnet.github.io/manynet/reference/modif_plexity.html" class="external-link">manynet::to_uniplex()</a></code> first for a census of one layer.
+Use <code><a href="https://stocnet.github.io/manynet/reference/defunct.html" class="external-link">manynet::to_uniplex()</a></code> first for a census of one layer.
 The tetrad census counts every tie whatever its layer.</p>
 <p>Where an <code>attribute</code> is given, each motif is further split by how its
 nodes compare on that attribute, after any signs or layers.
@@ -386,7 +386,7 @@ Cambridge: Cambridge University Press.</p>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;">#   `021C_!=!` &lt;dbl&gt;, `021C_=!!` &lt;dbl&gt;, `021C_===` &lt;dbl&gt;, `111D_!!!` &lt;dbl&gt;,</span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;">#   `111D_!!=` &lt;dbl&gt;, `111D_!=!` &lt;dbl&gt;, `111D_=!!` &lt;dbl&gt;, `111D_===` &lt;dbl&gt;,</span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;">#   `111U_!!!` &lt;dbl&gt;, `111U_!!=` &lt;dbl&gt;, `111U_!=!` &lt;dbl&gt;, `111U_=!!` &lt;dbl&gt;, …</span></span>
-<span class="r-in"><span><span class="fu">net_x_triad</span><span class="op">(</span><span class="fu">to_uniplex</span><span class="op">(</span><span class="va">fict_marvel</span>, <span class="st">"relationship"</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu">net_x_triad</span><span class="op">(</span><span class="fu">to_layer</span><span class="op">(</span><span class="va">fict_marvel</span>, <span class="st">"relationship"</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># A tibble: 1 × 10</span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   `003` `102_+` `102_-` `201_++` `201_+-` `201_--` `300_+++` `300_++-` `300_+--`</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>     <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>     <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>     <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span>

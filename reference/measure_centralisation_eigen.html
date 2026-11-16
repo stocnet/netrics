@@ -37,7 +37,7 @@ scores, whereas mode_by_eigenvector() reports the per-mode scores directly."><me
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">netrics</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.1.3</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.2.0</span>
       </span>
     </div>
 
@@ -105,7 +105,7 @@ scores, whereas mode_by_eigenvector() reports the per-mode scores directly."><me
   <div class="col-md-9 contents">
     <div class="page-header">
     <h1>Measures of network eigenvector-like centralisation</h1>
-    <small class="dont-index">Source: <a href="https://github.com/stocnet/netrics/blob/main/R/measure_centrality_eigen.R" class="external-link"><code>R/measure_centrality_eigen.R</code></a></small>
+    <small class="dont-index">Source: <a href="https://github.com/stocnet/netrics/blob/main/R/measure_centrality_eigen.R" class="external-link"><code>R/measure_centrality_eigen.R</code></a>, <a href="https://github.com/stocnet/netrics/blob/main/R/measure_opinion.R" class="external-link"><code>R/measure_opinion.R</code></a></small>
     <div class="hidden name"><code>measure_centralisation_eigen.Rd</code></div>
     </div>
 
@@ -133,7 +133,9 @@ scores, whereas <code>mode_by_eigenvector()</code> reports the per-mode scores d
     <div id="ref-usage">
     <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">net_by_eigenvector</span><span class="op">(</span><span class="va">.data</span>, normalized <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
 <span></span>
-<span><span class="fu">mode_by_eigenvector</span><span class="op">(</span><span class="va">.data</span>, normalized <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
+<span><span class="fu">mode_by_eigenvector</span><span class="op">(</span><span class="va">.data</span>, normalized <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu">net_by_influence</span><span class="op">(</span><span class="va">.data</span>, normalized <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div id="arguments">
@@ -143,7 +145,7 @@ scores, whereas <code>mode_by_eigenvector()</code> reports the per-mode scores d
 <dl><dt id="arg--data">.data<a class="anchor" aria-label="anchor" href="#arg--data"></a></dt>
 <dd><p>A network object of class <code>stocnet</code>, <code>igraph</code>, <code>tbl_graph</code>, <code>network</code>, or similar.
 Internally any of these will be coerced to an efficient implementation.
-For more information on possible coercions, see e.g. <code><a href="https://stocnet.github.io/manynet/reference/coerce_graph.html" class="external-link">manynet::as_stocnet()</a></code>.</p></dd>
+For more information on possible coercions, see e.g. <code><a href="https://stocnet.github.io/manynet/reference/coerce_stocnet.html" class="external-link">manynet::as_stocnet()</a></code>.</p></dd>
 
 
 <dt id="arg-normalized">normalized<a class="anchor" aria-label="anchor" href="#arg-normalized"></a></dt>
@@ -158,6 +160,24 @@ By default TRUE.</p></dd>
     <p><code>net_by_eigenvector()</code> returns a <code>network_measure</code> scalar;
 <code>mode_by_eigenvector()</code> returns a <code>mode_measure</code> numeric vector of length two,
 giving one centralization score per mode.</p>
+    </div>
+    <div id="influence-centralisation">
+    <h2>Influence centralisation</h2>
+
+
+<p><code>net_by_influence()</code> measures the largest share of influence that
+any one node holds (see <code><a href="measure_central_eigen.html">node_by_influence()</a></code>).
+Golub and Jackson (2010) show that a crowd that learns by
+taking the mean of what others think is wise, reaching the truth as it
+grows, only where this largest share goes to 0.
+So a high value means a low capacity for the crowd to be wise.
+By default the share is normalised as \((\max - 1/n) / (1 - 1/n)\),
+which is 0 where every node has the same influence
+and 1 where one node has all of it.
+With <code>normalized = FALSE</code> it is the largest share itself.
+As for <code><a href="measure_central_eigen.html">node_by_influence()</a></code>, a negative weight counts by its absolute
+value, and where no first opinion has any weight at the end,
+the value is 0.</p>
     </div>
     <div id="references">
     <h2>References</h2>
@@ -194,6 +214,12 @@ giving one centralization score per mode.</p>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># Eigenvector centralisation, normalized [0, 1]</span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Mode 1 Mode 2 </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 0.0849 0.2630 </span>
+<span class="r-in"><span><span class="fu">net_by_influence</span><span class="op">(</span><span class="fu">manynet</span><span class="fu">::</span><span class="fu"><a href="https://stocnet.github.io/manynet/reference/make_create.html" class="external-link">create_ring</a></span><span class="op">(</span><span class="fl">6</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># Influence centralisation, normalized [0, 1]</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 3.33e-17</span>
+<span class="r-in"><span><span class="fu">net_by_influence</span><span class="op">(</span><span class="fu">manynet</span><span class="fu">::</span><span class="fu"><a href="https://stocnet.github.io/manynet/reference/make_create.html" class="external-link">create_star</a></span><span class="op">(</span><span class="fl">6</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># Influence centralisation, normalized [0, 1]</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0.4</span>
 </code></pre></div>
     </div>
   </div>

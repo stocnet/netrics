@@ -33,7 +33,7 @@ A node with a missing value is NA."><meta property="og:image" content="https://s
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">netrics</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.1.3</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.2.0</span>
       </span>
     </div>
 
@@ -129,7 +129,9 @@ A node with a missing value is <code>NA</code>.</p>
 <span>  <span class="va">.data</span>,</span>
 <span>  <span class="va">attribute</span>,</span>
 <span>  assortativity <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"ie"</span>, <span class="st">"ei"</span>, <span class="st">"yule"</span>, <span class="st">"geary"</span>, <span class="st">"moran"</span><span class="op">)</span></span>
-<span><span class="op">)</span></span></code></pre></div>
+<span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu">node_by_concentration</span><span class="op">(</span><span class="va">.data</span>, <span class="va">attribute</span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div id="arguments">
@@ -139,11 +141,13 @@ A node with a missing value is <code>NA</code>.</p>
 <dl><dt id="arg--data">.data<a class="anchor" aria-label="anchor" href="#arg--data"></a></dt>
 <dd><p>A network object of class <code>stocnet</code>, <code>igraph</code>, <code>tbl_graph</code>, <code>network</code>, or similar.
 Internally any of these will be coerced to an efficient implementation.
-For more information on possible coercions, see e.g. <code><a href="https://stocnet.github.io/manynet/reference/coerce_graph.html" class="external-link">manynet::as_stocnet()</a></code>.</p></dd>
+For more information on possible coercions, see e.g. <code><a href="https://stocnet.github.io/manynet/reference/coerce_stocnet.html" class="external-link">manynet::as_stocnet()</a></code>.</p></dd>
 
 
 <dt id="arg-attribute">attribute<a class="anchor" aria-label="anchor" href="#arg-attribute"></a></dt>
-<dd><p>Name of a nodal attribute, mark, measure, or membership vector.</p></dd>
+<dd><p>Name of a nodal attribute, mark, measure, or membership vector.
+Where none is named and the network holds only one nodal attribute
+besides the reserved ones, such as "label" and "mode", that one is used.</p></dd>
 
 
 <dt id="arg-assortativity">assortativity<a class="anchor" aria-label="anchor" href="#arg-assortativity"></a></dt>
@@ -208,6 +212,31 @@ Where a measure offers a choice between several ways of counting the
 same thing, it also carries the <code>variant</code> it used.
 All can be retrieved with <code><a href="https://rdrr.io/r/base/attr.html" class="external-link">attr()</a></code>.</p>
     </div>
+    <div id="concentration">
+    <h2>Concentration</h2>
+
+
+<p><code>node_by_concentration()</code> measures whether each node sits in a hot spot
+or a cold spot of a numeric attribute, with the \(G_i^*\) statistic of
+Getis and Ord (1992) and Ord and Getis (1995).
+It compares the sum of the values in the neighbourhood of a node,
+the node included, with what that sum would be by chance:
+$$G_i^* = \frac{\sum_j w_{ij} x_j - \bar{x} \sum_j w_{ij}}
+  {s \sqrt{(n \sum_j w_{ij}^2 - (\sum_j w_{ij})^2) / (n - 1)}}$$
+where \(w_{ii} = 1\), and \(\bar{x}\) and \(s\) are the mean and
+standard deviation over all nodes.
+It is a z-score: a large positive value is a hot spot, a neighbourhood
+of high values, and a large negative value is a cold spot, a neighbourhood
+of low values.</p>
+<p>This differs from local Moran's I (<code>node_by_homophily(assortativity = "moran")</code>).
+Moran's I asks whether a node is like its neighbours,
+so a cluster of low values gives a positive value, just as a cluster of
+high values does. \(G_i^*\) gives a cluster of low values a negative value.
+"Concentration" here is the concentration of high or low values in a
+neighbourhood, and not a Herfindahl index of shares.
+The weights are the tie weights, and a two-mode network is projected
+as for <code><a href="measure_assort_net.html">net_by_spatial()</a></code>.</p>
+    </div>
     <div id="references">
     <h2>References</h2>
 
@@ -221,11 +250,26 @@ All can be retrieved with <code><a href="https://rdrr.io/r/base/attr.html" class
 <a href="https://doi.org/10.1111/j.1538-4632.1995.tb00338.x" class="external-link">doi:10.1111/j.1538-4632.1995.tb00338.x</a></p>
 </div>
 
+<div class="section">
+<h3 id="on-concentration">On concentration<a class="anchor" aria-label="anchor" href="#on-concentration"></a></h3>
+
+
+<p>Getis, Arthur, and J. Keith Ord. 1992.
+"The analysis of spatial association by use of distance statistics".
+<em>Geographical Analysis</em> 24(3): 189-206.
+<a href="https://doi.org/10.1111/j.1538-4632.1992.tb00261.x" class="external-link">doi:10.1111/j.1538-4632.1992.tb00261.x</a></p>
+<p>Ord, J. Keith, and Arthur Getis. 1995.
+"Local spatial autocorrelation statistics: distributional issues and an application".
+<em>Geographical Analysis</em> 27(4): 286-306.
+<a href="https://doi.org/10.1111/j.1538-4632.1995.tb00912.x" class="external-link">doi:10.1111/j.1538-4632.1995.tb00912.x</a></p>
+</div>
+
     </div>
     <div id="see-also">
     <h2>See also</h2>
     <div class="dont-index"><p>Other diversity:
 <code><a href="measure_assort_net.html">measure_assort_net</a></code>,
+<code><a href="measure_diverse_dispersion.html">measure_diverse_dispersion</a></code>,
 <code><a href="measure_diverse_net.html">measure_diverse_net</a></code>,
 <code><a href="measure_diverse_node.html">measure_diverse_node</a></code>,
 <code><a href="measure_diverse_tie.html">measure_diverse_tie</a></code>,
@@ -237,7 +281,6 @@ All can be retrieved with <code><a href="https://rdrr.io/r/base/attr.html" class
 <code><a href="measure_assort_net.html">measure_assort_net</a></code>,
 <code><a href="measure_breadth.html">measure_breadth</a></code>,
 <code><a href="measure_broker_node.html">measure_broker_node</a></code>,
-<code><a href="measure_broker_tie.html">measure_broker_tie</a></code>,
 <code><a href="measure_brokerage.html">measure_brokerage</a></code>,
 <code><a href="measure_central_between.html">measure_central_between</a></code>,
 <code><a href="measure_central_close.html">measure_central_close</a></code>,
@@ -254,14 +297,18 @@ All can be retrieved with <code><a href="https://rdrr.io/r/base/attr.html" class
 <code><a href="measure_diffusion_infection.html">measure_diffusion_infection</a></code>,
 <code><a href="measure_diffusion_net.html">measure_diffusion_net</a></code>,
 <code><a href="measure_diffusion_node.html">measure_diffusion_node</a></code>,
+<code><a href="measure_diverse_dispersion.html">measure_diverse_dispersion</a></code>,
 <code><a href="measure_diverse_net.html">measure_diverse_net</a></code>,
 <code><a href="measure_diverse_node.html">measure_diverse_node</a></code>,
 <code><a href="measure_diverse_tie.html">measure_diverse_tie</a></code>,
+<code><a href="measure_domain.html">measure_domain</a></code>,
 <code><a href="measure_features.html">measure_features</a></code>,
 <code><a href="measure_fit.html">measure_fit</a></code>,
 <code><a href="measure_fragmentation.html">measure_fragmentation</a></code>,
 <code><a href="measure_hierarchy.html">measure_hierarchy</a></code>,
-<code><a href="measure_periods.html">measure_periods</a></code></p>
+<code><a href="measure_opinion.html">measure_opinion</a></code>,
+<code><a href="measure_periods.html">measure_periods</a></code>,
+<code><a href="measure_broker_tie.html">tie_by_width()</a></code></p>
 <p>Other nodal:
 <code><a href="mark_core.html">mark_core</a></code>,
 <code><a href="mark_degree.html">mark_degree</a></code>,
@@ -279,6 +326,8 @@ All can be retrieved with <code><a href="https://rdrr.io/r/base/attr.html" class
 <code><a href="measure_core.html">measure_core</a></code>,
 <code><a href="measure_diffusion_node.html">measure_diffusion_node</a></code>,
 <code><a href="measure_diverse_node.html">measure_diverse_node</a></code>,
+<code><a href="measure_domain.html">measure_domain</a></code>,
+<code><a href="measure_opinion.html">measure_opinion</a></code>,
 <code><a href="member_brokerage.html">member_brokerage</a></code>,
 <code><a href="member_cliques.html">member_cliques</a></code>,
 <code><a href="member_community.html">member_community</a></code>,
@@ -301,7 +350,7 @@ All can be retrieved with <code><a href="https://rdrr.io/r/base/attr.html" class
 
     <div id="ref-examples">
     <h2>Examples</h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="va">marvel_friends</span> <span class="op">&lt;-</span> <span class="fu">to_unsigned</span><span class="op">(</span><span class="fu">to_uniplex</span><span class="op">(</span><span class="va">fict_marvel</span>, <span class="st">"relationship"</span><span class="op">)</span>, <span class="st">"positive"</span><span class="op">)</span></span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="va">marvel_friends</span> <span class="op">&lt;-</span> <span class="fu">to_unsigned</span><span class="op">(</span><span class="fu">to_layer</span><span class="op">(</span><span class="va">fict_marvel</span>, <span class="st">"relationship"</span><span class="op">)</span>, <span class="st">"positive"</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu">node_by_heterophily</span><span class="op">(</span><span class="va">marvel_friends</span>, <span class="st">"Gender"</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># E-I index [-1, 1]</span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> ▅▂▁▂ </span>
@@ -314,6 +363,12 @@ All can be retrieved with <code><a href="https://rdrr.io/r/base/attr.html" class
 <span class="r-out co"><span class="r-pr">#&gt;</span>   Abomination `Ant-Man` Apocalypse Beast `Black Panther` `Black Widow` Blade</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">1</span>         <span style="color: #BB0000;">NaN</span>      -<span style="color: #BB0000;">0.5</span>         -<span style="color: #BB0000;">1</span>  -<span style="color: #BB0000;">0.8</span>          -<span style="color: #BB0000;">0.818</span>        -<span style="color: #BB0000;">0.846</span>    -<span style="color: #BB0000;">1</span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># ... and 46 more values from this nodeset. Use `print_all(...)` to print all values.</span></span>
+<span class="r-in"><span><span class="fu">node_by_concentration</span><span class="op">(</span><span class="va">ison_lawfirm</span>, <span class="st">"age"</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># Getis-Ord Gi* (-Inf, Inf)</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> ▁▁▁▁▃▂▁▁ </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>      V1    V2    V3    V4    V5    V6    V7    V8    V9   V10   V11   V12    V13</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">1</span>  1.92  2.20  1.78  3.07 0.115 -<span style="color: #BB0000;">2.48</span>  3.56  2.01  1.96  1.55  1.08  3.32 -<span style="color: #BB0000;">0.171</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># ... and 58 more values from this nodeset. Use `print_all(...)` to print all values.</span></span>
 </code></pre></div>
     </div>
   </div>

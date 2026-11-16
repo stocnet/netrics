@@ -6,6 +6,7 @@ network.
 node_by_harmonic() measures nodes' harmonic centrality or valued
 centrality, which is thought to behave better than reach centrality
 for disconnected networks.
+Where the nodes have positions, it measures their straightness centrality.
 node_by_reach() measures nodes' reach centrality,
 or how many nodes they can reach within k steps.
 node_by_decay() measures nodes' decay centrality,
@@ -56,7 +57,7 @@ are instead scaled against the largest value observed in this network."><meta pr
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">netrics</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.1.3</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.2.0</span>
       </span>
     </div>
 
@@ -124,7 +125,7 @@ are instead scaled against the largest value observed in this network."><meta pr
   <div class="col-md-9 contents">
     <div class="page-header">
     <h1>Measures of node closeness-like centrality</h1>
-    <small class="dont-index">Source: <a href="https://github.com/stocnet/netrics/blob/main/R/measure_centrality_closeness.R" class="external-link"><code>R/measure_centrality_closeness.R</code></a></small>
+    <small class="dont-index">Source: <a href="https://github.com/stocnet/netrics/blob/main/R/measure_centrality_closeness.R" class="external-link"><code>R/measure_centrality_closeness.R</code></a>, <a href="https://github.com/stocnet/netrics/blob/main/R/measure_contagion.R" class="external-link"><code>R/measure_contagion.R</code></a></small>
     <div class="hidden name"><code>measure_central_close.Rd</code></div>
     </div>
 
@@ -134,7 +135,8 @@ that rely on path-length for one- and two-mode networks:</p><ul><li><p><code>nod
 network.</p></li>
 <li><p><code>node_by_harmonic()</code> measures nodes' harmonic centrality or valued
 centrality, which is thought to behave better than reach centrality
-for disconnected networks.</p></li>
+for disconnected networks.
+Where the nodes have positions, it measures their straightness centrality.</p></li>
 <li><p><code>node_by_reach()</code> measures nodes' reach centrality,
 or how many nodes they can reach within <em>k</em> steps.</p></li>
 <li><p><code>node_by_decay()</code> measures nodes' decay centrality,
@@ -205,7 +207,9 @@ are instead <em>scaled</em> against the largest value observed in this network.<
 <span></span>
 <span><span class="fu">node_by_vitality</span><span class="op">(</span><span class="va">.data</span>, normalized <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
 <span></span>
-<span><span class="fu">node_by_randomwalk</span><span class="op">(</span><span class="va">.data</span>, normalized <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
+<span><span class="fu">node_by_randomwalk</span><span class="op">(</span><span class="va">.data</span>, normalized <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu">node_by_contagion</span><span class="op">(</span><span class="va">.data</span>, threshold <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div id="arguments">
@@ -215,7 +219,7 @@ are instead <em>scaled</em> against the largest value observed in this network.<
 <dl><dt id="arg--data">.data<a class="anchor" aria-label="anchor" href="#arg--data"></a></dt>
 <dd><p>A network object of class <code>stocnet</code>, <code>igraph</code>, <code>tbl_graph</code>, <code>network</code>, or similar.
 Internally any of these will be coerced to an efficient implementation.
-For more information on possible coercions, see e.g. <code><a href="https://stocnet.github.io/manynet/reference/coerce_graph.html" class="external-link">manynet::as_stocnet()</a></code>.</p></dd>
+For more information on possible coercions, see e.g. <code><a href="https://stocnet.github.io/manynet/reference/coerce_stocnet.html" class="external-link">manynet::as_stocnet()</a></code>.</p></dd>
 
 
 <dt id="arg-normalized">normalized<a class="anchor" aria-label="anchor" href="#arg-normalized"></a></dt>
@@ -251,6 +255,12 @@ so each documents its own default.</p></dd>
 
 <dt id="arg-from-to">from, to<a class="anchor" aria-label="anchor" href="#arg-from-to"></a></dt>
 <dd><p>Index or name of a node to calculate distances from or to.</p></dd>
+
+
+<dt id="arg-threshold">threshold<a class="anchor" aria-label="anchor" href="#arg-threshold"></a></dt>
+<dd><p>For <code>node_by_contagion()</code>, the number of neighbours that
+must adopt before a node adopts, by default 2.
+A value below 1 is the fraction of each node's neighbours.</p></dd>
 
 </dl></div>
     <div id="value">
@@ -303,6 +313,33 @@ such function, \(\delta^d\), giving decay centrality (see below).
 Note that <code>node_by_closeness()</code> cannot be reached this way: it sums the
 distances and inverts once, \(1/\sum_j d(i,j)\), which is a different
 order of aggregation that no choice of decay function reproduces.</p>
+    </div>
+    <div id="straightness-centrality">
+    <h2>Straightness centrality</h2>
+
+
+<p>Where the nodes have positions (see <code><a href="https://stocnet.github.io/manynet/reference/mark_format_node.html" class="external-link">manynet::is_spatial()</a></code>),
+<code>node_by_harmonic()</code> returns straightness centrality
+(Crucitti, Latora and Porta 2006) and says so.
+This is harmonic centrality with each term multiplied by the
+straight-line distance, \(d^E\), between the two nodes:
+$$C_S(i) = \sum_{j, j \neq i} \frac{d^E(i,j)}{d(i,j)}$$
+A ratio of 1 means that the network gives a direct route,
+and a smaller ratio means a longer detour.
+Unreachable nodes contribute nothing, and normalization is by \(N-1\).</p>
+<p>Positions are read from the nodal attributes <code>x</code> and <code>y</code>,
+or <code>lon</code> and <code>lat</code>.
+The straight-line distance is Euclidean for <code>x</code> and <code>y</code>,
+and the great-circle distance in metres for <code>lon</code> and <code>lat</code>.
+The network distance \(d\) sums the <code>length</code> of the ties along the
+shortest path, which must be in the same units.
+Where the ties have no <code>length</code>, each tie is a straight line between its
+nodes, and tie weights are not used.
+<code>cutoff</code> is then also in these units.
+A <code>cutoff</code> shorter than every tie is ignored,
+and <code><a href="measure_centralisation_close.html">net_by_harmonic()</a></code> uses no cutoff unless one is given.
+To get plain harmonic centrality, remove the positions from the nodes.
+Setting <code>decay</code> gives decay centrality, which does not use the positions.</p>
     </div>
     <div id="reach-centrality">
     <h2>Reach centrality</h2>
@@ -443,6 +480,28 @@ Formally:
 $$C_{RW}(i) = \frac{1}{\frac{1}{N-1} \sum_{j \neq i} H_{ji}}$$
 where \(H_{ji}\) is the hitting time from node \(j\) to node \(i\).</p>
     </div>
+    <div id="contagion-centrality">
+    <h2>Contagion centrality</h2>
+
+
+<p><code>node_by_contagion()</code> measures the complex centrality of
+Guilbeault and Centola (2021): how far a complex contagion travels when
+it starts from the neighbourhood of each node.
+For each node \(i\), the contagion starts on \(i\) and its neighbours.
+A node adopts once at least <code>threshold</code> of its neighbours have adopted,
+until no more nodes adopt.
+The complex path length to each other node \(j\) is its distance from
+\(i\) through the nodes that adopted, or 0 where \(j\) did not adopt.
+The centrality is the mean of these lengths over the nodes outside the
+neighbourhood of \(i\).
+So a high value means a contagion from that neighbourhood travels far.</p>
+<p>With <code>threshold = 1</code> the contagion is simple and reaches every node
+in the component.
+A <code>threshold</code> below 1 is a fraction of each node's neighbours.
+This measure needs only a network, not a played diffusion.
+Direction and tie weights are ignored,
+and a two-mode network is not yet available.</p>
+    </div>
     <div id="references">
     <h2>References</h2>
 
@@ -479,6 +538,16 @@ where \(H_{ji}\) is the hitting time from node \(j\) to node \(i\).</p>
 "Axioms for Centrality".
 <em>Internet Mathematics</em> 10(3-4): 222-262.
 <a href="https://doi.org/10.1080/15427951.2013.865686" class="external-link">doi:10.1080/15427951.2013.865686</a></p>
+</div>
+
+<div class="section">
+<h3 id="on-straightness-centrality">On straightness centrality<a class="anchor" aria-label="anchor" href="#on-straightness-centrality"></a></h3>
+
+
+<p>Crucitti, Paolo, Vito Latora, and Sergio Porta. 2006.
+"Centrality measures in spatial networks of urban streets".
+<em>Physical Review E</em> 73(3): 036125.
+<a href="https://doi.org/10.1103/PhysRevE.73.036125" class="external-link">doi:10.1103/PhysRevE.73.036125</a></p>
 </div>
 
 <div class="section">
@@ -560,6 +629,17 @@ Springer: Berlin, pp. 16-61.</p>
 <a href="https://doi.org/10.1103/PhysRevLett.92.118701" class="external-link">doi:10.1103/PhysRevLett.92.118701</a></p>
 </div>
 
+<div class="section">
+<h3 id="on-complex-centrality">On complex centrality<a class="anchor" aria-label="anchor" href="#on-complex-centrality"></a></h3>
+
+
+<p>Guilbeault, Douglas, and Damon Centola. 2021.
+"Topological measures for identifying and predicting the spread of
+complex contagions".
+<em>Nature Communications</em> 12: 4430.
+<a href="https://doi.org/10.1038/s41467-021-24704-6" class="external-link">doi:10.1038/s41467-021-24704-6</a></p>
+</div>
+
     </div>
     <div id="see-also">
     <h2>See also</h2>
@@ -585,7 +665,6 @@ Springer: Berlin, pp. 16-61.</p>
 <code><a href="measure_assort_node.html">measure_assort_node</a></code>,
 <code><a href="measure_breadth.html">measure_breadth</a></code>,
 <code><a href="measure_broker_node.html">measure_broker_node</a></code>,
-<code><a href="measure_broker_tie.html">measure_broker_tie</a></code>,
 <code><a href="measure_brokerage.html">measure_brokerage</a></code>,
 <code><a href="measure_central_between.html">measure_central_between</a></code>,
 <code><a href="measure_central_degree.html">measure_central_degree</a></code>,
@@ -601,14 +680,18 @@ Springer: Berlin, pp. 16-61.</p>
 <code><a href="measure_diffusion_infection.html">measure_diffusion_infection</a></code>,
 <code><a href="measure_diffusion_net.html">measure_diffusion_net</a></code>,
 <code><a href="measure_diffusion_node.html">measure_diffusion_node</a></code>,
+<code><a href="measure_diverse_dispersion.html">measure_diverse_dispersion</a></code>,
 <code><a href="measure_diverse_net.html">measure_diverse_net</a></code>,
 <code><a href="measure_diverse_node.html">measure_diverse_node</a></code>,
 <code><a href="measure_diverse_tie.html">measure_diverse_tie</a></code>,
+<code><a href="measure_domain.html">measure_domain</a></code>,
 <code><a href="measure_features.html">measure_features</a></code>,
 <code><a href="measure_fit.html">measure_fit</a></code>,
 <code><a href="measure_fragmentation.html">measure_fragmentation</a></code>,
 <code><a href="measure_hierarchy.html">measure_hierarchy</a></code>,
-<code><a href="measure_periods.html">measure_periods</a></code></p>
+<code><a href="measure_opinion.html">measure_opinion</a></code>,
+<code><a href="measure_periods.html">measure_periods</a></code>,
+<code><a href="measure_broker_tie.html">tie_by_width()</a></code></p>
 <p>Other nodal:
 <code><a href="mark_core.html">mark_core</a></code>,
 <code><a href="mark_degree.html">mark_degree</a></code>,
@@ -626,6 +709,8 @@ Springer: Berlin, pp. 16-61.</p>
 <code><a href="measure_core.html">measure_core</a></code>,
 <code><a href="measure_diffusion_node.html">measure_diffusion_node</a></code>,
 <code><a href="measure_diverse_node.html">measure_diverse_node</a></code>,
+<code><a href="measure_domain.html">measure_domain</a></code>,
+<code><a href="measure_opinion.html">measure_opinion</a></code>,
 <code><a href="member_brokerage.html">member_brokerage</a></code>,
 <code><a href="member_cliques.html">member_cliques</a></code>,
 <code><a href="member_community.html">member_community</a></code>,
@@ -677,6 +762,11 @@ Springer: Berlin, pp. 16-61.</p>
 <span class="r-out co"><span class="r-pr">#&gt;</span> ▁▂▂▃ </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   Betty   Sue Alice  Jane  Dale   Pam Carol  Tina</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">1</span> 0.643 0.857 0.857 0.679  0.75 0.857 0.714   0.5</span>
+<span class="r-in"><span><span class="fu">node_by_contagion</span><span class="op">(</span><span class="va">ison_adolescents</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># Complex centrality [0, Inf)</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> ▄▁▁▂▁ </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   Betty   Sue Alice  Jane  Dale   Pam Carol  Tina</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">1</span>     0 0.667     0   0.8   0.5     1     0     0</span>
 </code></pre></div>
     </div>
   </div>

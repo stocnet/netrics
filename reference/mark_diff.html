@@ -24,7 +24,7 @@ node_is_recovered() marks nodes that are recovered at a particular time point.
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">netrics</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.1.3</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.2.0</span>
       </span>
     </div>
 
@@ -105,13 +105,13 @@ nodes in a network identifying which hold certain properties or positions in the
 </ul></div>
 
     <div id="ref-usage">
-    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">node_is_latent</span><span class="op">(</span><span class="va">.data</span>, time <span class="op">=</span> <span class="fl">0</span><span class="op">)</span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">node_is_latent</span><span class="op">(</span><span class="va">.data</span>, time <span class="op">=</span> <span class="fl">0</span>, attribute <span class="op">=</span> <span class="st">"diffusion"</span><span class="op">)</span></span>
 <span></span>
-<span><span class="fu">node_is_infected</span><span class="op">(</span><span class="va">.data</span>, time <span class="op">=</span> <span class="fl">0</span><span class="op">)</span></span>
+<span><span class="fu">node_is_infected</span><span class="op">(</span><span class="va">.data</span>, time <span class="op">=</span> <span class="fl">0</span>, attribute <span class="op">=</span> <span class="st">"diffusion"</span><span class="op">)</span></span>
 <span></span>
-<span><span class="fu">node_is_recovered</span><span class="op">(</span><span class="va">.data</span>, time <span class="op">=</span> <span class="fl">0</span><span class="op">)</span></span>
+<span><span class="fu">node_is_recovered</span><span class="op">(</span><span class="va">.data</span>, time <span class="op">=</span> <span class="fl">0</span>, attribute <span class="op">=</span> <span class="st">"diffusion"</span><span class="op">)</span></span>
 <span></span>
-<span><span class="fu">node_is_exposed</span><span class="op">(</span><span class="va">.data</span>, <span class="va">mark</span>, time <span class="op">=</span> <span class="fl">0</span><span class="op">)</span></span></code></pre></div>
+<span><span class="fu">node_is_exposed</span><span class="op">(</span><span class="va">.data</span>, <span class="va">mark</span>, time <span class="op">=</span> <span class="fl">0</span>, attribute <span class="op">=</span> <span class="st">"diffusion"</span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div id="arguments">
@@ -121,11 +121,17 @@ nodes in a network identifying which hold certain properties or positions in the
 <dl><dt id="arg--data">.data<a class="anchor" aria-label="anchor" href="#arg--data"></a></dt>
 <dd><p>A network object of class <code>stocnet</code>, <code>igraph</code>, <code>tbl_graph</code>, <code>network</code>, or similar.
 Internally any of these will be coerced to an efficient implementation.
-For more information on possible coercions, see e.g. <code><a href="https://stocnet.github.io/manynet/reference/coerce_graph.html" class="external-link">manynet::as_stocnet()</a></code>.</p></dd>
+For more information on possible coercions, see e.g. <code><a href="https://stocnet.github.io/manynet/reference/coerce_stocnet.html" class="external-link">manynet::as_stocnet()</a></code>.</p></dd>
 
 
 <dt id="arg-time">time<a class="anchor" aria-label="anchor" href="#arg-time"></a></dt>
 <dd><p>A time step at which nodes are identified.</p></dd>
+
+
+<dt id="arg-attribute">attribute<a class="anchor" aria-label="anchor" href="#arg-attribute"></a></dt>
+<dd><p>Name of the nodal attribute that holds the diffusion,
+as its start state on the nodes and as its changes.
+By default "diffusion", as in <code>play_diffusion()</code>.</p></dd>
 
 
 <dt id="arg-mark">mark<a class="anchor" aria-label="anchor" href="#arg-mark"></a></dt>
@@ -147,9 +153,8 @@ but returns a mark (TRUE/FALSE) vector indicating which nodes
 are currently exposed to the diffusion content.
 This diffusion content can be expressed in the 'mark' argument.
 If no 'mark' argument is provided,
-and '.data' is a diff_model object,
-then the function will return nodes exposure to the seed nodes
-in that diffusion.</p>
+the function marks the nodes exposed at <code>time</code>
+to the nodes infected in the diffusion.</p>
     </div>
     <div id="see-also">
     <h2>See also</h2>
@@ -179,6 +184,8 @@ in that diffusion.</p>
 <code><a href="measure_core.html">measure_core</a></code>,
 <code><a href="measure_diffusion_node.html">measure_diffusion_node</a></code>,
 <code><a href="measure_diverse_node.html">measure_diverse_node</a></code>,
+<code><a href="measure_domain.html">measure_domain</a></code>,
+<code><a href="measure_opinion.html">measure_opinion</a></code>,
 <code><a href="member_brokerage.html">member_brokerage</a></code>,
 <code><a href="member_cliques.html">member_cliques</a></code>,
 <code><a href="member_community.html">member_community</a></code>,
@@ -209,7 +216,7 @@ in that diffusion.</p>
     <div id="ref-examples">
     <h2>Examples</h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span>  <span class="co"># To mark nodes that are latent by a particular time point</span></span></span>
-<span class="r-in"><span>  <span class="fu">node_is_latent</span><span class="op">(</span><span class="fu">play_diffusion</span><span class="op">(</span><span class="fu">create_tree</span><span class="op">(</span><span class="fl">6</span><span class="op">)</span>, latency <span class="op">=</span> <span class="fl">1</span><span class="op">)</span>, time <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span></span>
+<span class="r-in"><span>  <span class="fu">node_is_latent</span><span class="op">(</span><span class="fu">play_diffusion</span><span class="op">(</span><span class="fu">create_tree</span><span class="op">(</span><span class="fl">6</span><span class="op">)</span>, onset <span class="op">=</span> <span class="fl">0</span><span class="op">)</span>, time <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   V1    V2    V3    V4    V5    V6   </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">1</span> FALSE TRUE  TRUE  FALSE FALSE FALSE</span>
 <span class="r-in"><span>  <span class="co"># To mark nodes that are infected by a particular time point</span></span></span>
@@ -219,7 +226,7 @@ in that diffusion.</p>
 <span class="r-in"><span>  <span class="co"># To mark nodes that are recovered by a particular time point</span></span></span>
 <span class="r-in"><span>  <span class="fu">node_is_recovered</span><span class="op">(</span><span class="fu">play_diffusion</span><span class="op">(</span><span class="fu">create_tree</span><span class="op">(</span><span class="fl">6</span><span class="op">)</span>, recovery <span class="op">=</span> <span class="fl">0.5</span><span class="op">)</span>, time <span class="op">=</span> <span class="fl">3</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   V1    V2    V3    V4    V5    V6   </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">1</span> TRUE  TRUE  FALSE FALSE FALSE FALSE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">1</span> TRUE  FALSE FALSE FALSE FALSE FALSE</span>
 <span class="r-in"><span>  <span class="co"># To mark which nodes are currently exposed</span></span></span>
 <span class="r-in"><span>  <span class="op">(</span><span class="va">expos</span> <span class="op">&lt;-</span> <span class="fu">node_is_exposed</span><span class="op">(</span><span class="fu">manynet</span><span class="fu">::</span><span class="fu"><a href="https://stocnet.github.io/manynet/reference/make_create.html" class="external-link">create_tree</a></span><span class="op">(</span><span class="fl">14</span><span class="op">)</span>, mark <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>,<span class="fl">3</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   V1    V2    V3    V4    V5    V6    V7    V8    V9    V10   V11   V12   V13  </span>
