@@ -51,9 +51,9 @@ learnr::random_phrases_add(language = "en",
                                       "Well done!",
                                       "Awesome!"),
                            encouragement = c("Good effort"))
-friends <- to_uniplex(ison_algebra, "friends")
-social <- to_uniplex(ison_algebra, "social")
-tasks <- to_uniplex(ison_algebra, "tasks")
+friends <- to_layer(ison_algebra, "friends")
+social <- to_layer(ison_algebra, "social")
+tasks <- to_layer(ison_algebra, "tasks")
 alge <- to_named(ison_algebra)
 ```
 
@@ -145,7 +145,7 @@ and a full glossary of the terms used appears at the end of the tutorial.
 
 By the end of this tutorial, you should be able to:
 
-- [ ] &nbsp; Separate a `r gloss("multiplex")` network into its constituent networks with `to_uniplex()`
+- [ ] &nbsp; Separate a `r gloss("multiplex")` network into its constituent networks with `to_layer()`
 - [ ] &nbsp; Identify bridging ties with `tie_is_bridge()` and count them per node with `node_by_bridges()`
 - [ ] &nbsp; Measure structural holes with `node_by_constraint()`, and interpret what high and low constraint mean substantively
 - [ ] &nbsp; Distinguish structural holes from structural folds, and explain why a fold can constrain a broker rather than free them
@@ -193,11 +193,11 @@ but most position measures expect a single kind of tie at a time —
 "who advises whom" is a different question from "who is friends with whom".
 So our first practical skill is pulling the three relations apart.
 
-We can extract them and investigate them separately using `to_uniplex()`.
+We can extract them and investigate them separately using `to_layer()`.
 Within the parentheses, put the multiplex object's name,
 and then as a second argument put the name of the tie attribute in quotation marks.
 
-**Extract all three networks (friends, social, and tasks) with `to_uniplex()`,
+**Extract all three networks (friends, social, and tasks) with `to_layer()`,
 then graph each one and give it a descriptive title.**
 
 
@@ -213,7 +213,7 @@ That weighting matters for the theory we turn to next.
 :::
 
 ::: {.callout}
-<span class="callout-label">**In brief**:</span> `to_uniplex()` extracts one type of tie from a
+<span class="callout-label">**In brief**:</span> `to_layer()` extracts one type of tie from a
 multiplex network as its own (here weighted) network — the position measures
 on the following pages each apply to one type of tie at a time, so this is
 usually the first step in any positional analysis of multiplex data.
@@ -1330,7 +1330,7 @@ Now it's your turn, with a fresh network.
 
 **Find the regularly equivalent classes in the `ison_lawfirm` dataset.**
 As this is a multiplex network, you may want to make it a uniplex network first
-(remember `to_uniplex()`), then apply `node_in_regular()` and colour a graph by
+(remember `to_layer()`), then apply `node_in_regular()` and colour a graph by
 the result.
 **As an extension, also compute the structurally and automorphically equivalent
 classes and compare all three** — do they agree on who plays which role?
@@ -1355,7 +1355,7 @@ Along the way, you have learned to use these functions:
 
 | Function | What it does |
 |---|---|
-| `to_uniplex()` | extracts one type of tie from a multiplex network |
+| `to_layer()` | extracts one type of tie from a multiplex network |
 | `tie_is_bridge()`, `node_by_bridges()` | flags bridging ties; counts the bridges adjacent to each node |
 | `node_by_constraint()` | Burt's constraint: how closed each node's neighbourhood is |
 | `node_by_effsize()`, `node_by_redundancy()`, `node_by_efficiency()`, `node_by_hierarchy()` | further structural-holes measures: non-redundant contacts, their overlap, and more |
